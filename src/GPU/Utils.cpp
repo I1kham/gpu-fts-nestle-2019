@@ -7,7 +7,6 @@
 #include <QApplication>
 
 
-
 //****************************************************
 void utils::hideMouse()
 {
@@ -33,8 +32,8 @@ void utils::waitAndProcessEvent (u32 msecToWait)
 
 /*****************************************************
  * Font
- * Il font col charset Latin, JP, chinese è "Noto Sans CJK SC", installato di default nella immagine dell'OS 5
- * Il font col charset Hebrew, è il Roboto, installato di default nella immagine dell'OS 5
+ * Il font col charset Latin, JP, chinese ? "Noto Sans CJK SC", installato di default nella immagine dell'OS 5
+ * Il font col charset Hebrew, ? il Roboto, installato di default nella immagine dell'OS 5
  */
 void utils::getRightFontForLanguage (QFont &out, int pointSize, const char *iso2LettersLanguageCode)
 {

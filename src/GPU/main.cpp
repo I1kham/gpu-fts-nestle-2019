@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <QDir>
+//#include <QtWebView/QtWebView>
 #include "../CPUBridge/CPUChannelCom.h"
 #include "../CPUBridge/CPUChannelFakeCPU.h"
 #include "../SocketBridge/SocketBridge.h"
@@ -111,6 +112,7 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
     #else
         //apro un canale con la CPU fisica
         cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
+        //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
     #endif
 #else
     //apro un canale di comunicazione con una finta CPU
@@ -319,6 +321,7 @@ void run(int argc, char *argv[])
     }
 
     //Avvio del main form
+    //QtWebView::initialize();
     QApplication app(argc, argv);
     utils::hideMouse();
 
