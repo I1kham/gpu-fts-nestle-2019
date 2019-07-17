@@ -1,0 +1,96 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div class="wrapper1024x600">
+	<div class="header">
+		<div class="header_left"></div>
+		<div class="header_center"><img src="img/logo.png"></div>
+		<div class="header_right"></div>
+		<div class="clear"></div>
+	</div>
+
+	<div style="position:relative; width:100%; height:100%; text-align:center;">
+		<div class="pageSelInProg_iconInProgress"><img src="img/animationRound.gif"></div>
+		<div id="divTextInProgress" class="pageSelInProg_textInProgress"></div>
+		<div id="divImage" class="pageSelInProg_image"></div>
+		<div id="divTitle" class="pageSelInProg_title"></div>
+		<div id="btnStop" class="btnStop" style="font-weight:bold; display:none" onclick="onBtnStopSelection()"></div>
+		
+	</div>
+</div>
+
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+var iconNum = 0;
+var selNum = 0;
+function onRheaBootstrapFinished()
+{
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		//status=3 => aborted
+		//status=4 => finished
+		if (status == 3 || status == 4)
+			gotoSelFinished();
+	}
+	
+	
+	
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+	selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+	var showBtnStop  = parseInt(rheaGetURLParamOrDefault("btnStop", 0));
+	if (showBtnStop != 1)
+		showBtnStop = 0;
+	
+	var iconDisplayName = rhea.MMI_getDisplayName(iconNum);
+	var image = "<img src='" +rhea.MMI_getImgForPageConfirm(iconNum) +"'>";
+	
+	var d = rheaGetElemByID("divImage");
+	rheaSetElemHTML(d, image);
+	
+	d = rheaGetElemByID("divTitle");
+	rheaSetElemHTML(d, iconDisplayName);	
+	
+	if (showBtnStop == 1)
+	{
+		d = rheaGetElemByID("btnStop");
+		rheaSetElemHTML(d, rheaLang.BTN_STOP);
+		rheaSetDisplayMode(d, "inline-block");
+	}
+	
+	d = rheaGetElemByID("divTextInProgress");
+	rheaSetElemHTML(d, rheaLang.LAB_YOUR_DRINK_IS_DISPENSING);
+	
+	//alla peggio, dopo 50 secondi termino
+	setTimeout (gotoSelFinished, 50000)
+}
+
+
+function onBtnStopSelection()
+{
+	var d = rheaGetElemByID("btnStop");
+	rheaHideElem(d);
+
+	rhea.selection_stop();
+}
+
+
+function gotoSelFinished()
+{
+	var d = rheaGetElemByID("btnStop");
+	rheaHideElem(d);
+	
+	window.location = "pageSelFinished.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+}
+</script>
+
+
+</html>

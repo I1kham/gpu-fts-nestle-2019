@@ -1,0 +1,48 @@
+#ifndef _OSSocket_h_
+#define _OSSocket_h_
+#include "OSInclude.h"
+
+inline void					OSSocket_init (OSSocket *sok)															{ platform::socket_init (sok); }
+inline eSocketError         OSSocket_openAsTCP (OSSocket *out_sok, int portNumber)                                  { return platform::socket_openAsTCP(out_sok, portNumber); }
+
+inline void                 OSSocket_close (OSSocket &sok)                                                          { platform::socket_close(sok); }
+
+inline bool                 OSSocket_isOpen (const OSSocket &sok)                                                   { return platform::socket_isOpen(sok); }
+                            /* false se la socket non è open.
+                             * False anche a seguito di una chiamata a close() (in quanto la sok viene chiusa)
+                             */
+
+inline bool                 OSSocket_compare (const OSSocket &a, const OSSocket &b)                                 { return platform::socket_compare(a,b); }
+                            /* true se "puntano" alla stessa socket
+                            */
+
+
+inline bool                 OSSocket_setReadTimeoutMSec  (OSSocket &sok, u32 timeoutMSec)                           { return platform::socket_setReadTimeoutMSec(sok, timeoutMSec); }
+                            /* Per specificare un tempo di wait "infinito" (ie: socket sempre bloccante), usare timeoutMSec=u32MAX
+                             * Per indicare il tempo di wait minimo possibile, usare timeoutMSec=0
+                             * Tutti gli altri valori sono comunque validi ma non assumono significati particolari
+                             */
+
+inline bool                 OSSocket_setWriteTimeoutMSec (OSSocket &sok, u32 timeoutMSec)                           { return platform::socket_setWriteTimeoutMSec(sok, timeoutMSec); }
+                            /* Per specificare un tempo di wait "infinito" (ie: socket sempre bloccante), usare timeoutMSec=u32MAX
+                             * Per indicare il tempo di wait minimo possibile, usare timeoutMSec=0
+                             * Tutti gli altri valori sono comunque validi ma non assumono significati particolari
+                             */
+
+
+inline bool                OSSocket_listen (const OSSocket &sok, u16 maxIncomingConnectionQueueLength = u16MAX)     { return platform::socket_listen(sok, maxIncomingConnectionQueueLength); }
+inline bool                OSSocket_accept (const OSSocket &sok, OSSocket *out_clientSocket)                        { return platform::socket_accept(sok, out_clientSocket); }
+
+inline i32                  OSSocket_read (OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec)     { return platform::socket_read(sok, buffer, bufferSizeInBytes, timeoutMSec); }
+                            /* prova a leggere dalla socket. La chiamata è bloccante per un massimo di timeoutMSec.
+                             * Riguardo [timeoutMSec], valgono le stesse considerazioni indicate in setReadTimeoutMSec()
+                             *
+                             * Ritorna:
+                             *      0   se la socket si è disconnessa
+                             *      -1  se la chiamata avrebbe bloccato il processo (quindi devi ripetere la chiamata fra un po')
+                             *      >0  se ha letto qualcosa e ha quindi fillato [buffer] con il num di bytes ritornato
+                             */
+
+inline i32                  OSSocket_write(const OSSocket &sok, const void *buffer, u16 nBytesToSend)               { return platform::socket_write(sok, buffer, nBytesToSend); }
+
+#endif //_OSSocket_h_

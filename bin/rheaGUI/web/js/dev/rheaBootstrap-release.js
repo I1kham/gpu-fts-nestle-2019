@@ -1,0 +1,22 @@
+var rhea = null;
+function rheaBootstrap()
+{
+	var script = document.createElement('script');
+	script.onload = function () { rheaBootstrap_step2(); };
+	script.src = "js/rhea_final.min.js";
+	document.head.appendChild(script);
+}
+
+function rheaBootstrap_step2()
+{
+	rheaLoadScript("config/mainMenuIcons.js")
+	.then ( function() { rhea = new Rhea(); return rhea.lang_loadLang(rhea.Session_getValue ("lang")); })
+	.then( function() { return rhea.webSocket_connect(); })			
+	.then( function() { onRheaBootstrapFinished(); } )
+	
+	.catch ( function(result) 
+			{ 
+					alert(result);
+			});	
+
+}

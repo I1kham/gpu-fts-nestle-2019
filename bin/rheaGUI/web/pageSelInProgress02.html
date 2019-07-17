@@ -1,0 +1,106 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div class="wrapper1024x600">
+	<div class="header">
+		<div class="header_left"></div>
+		<div class="header_center"><img src="img/logo.png"></div>
+		<div class="header_right"></div>
+		<div class="clear"></div>
+	</div>
+	
+	<div class="page" style="height:550px">
+		<div style="float:left; width:650px; height:100%;">
+			<table border="0" cellspacing="0" cellpadding="0" height="100%" width="100%">
+				<tr valign="middle"><td align="center"><img src="upload/preparing_683x400.gif" style="width:95%"></td></tr>
+			</table>
+		</div>
+		<div style="float:right; width:374px; height:100%;">
+			<table border="0" cellspacing="0" cellpadding="0" height="485px" width="100%">
+				<tr valign="middle">
+					<td align="left"><div id="divText"></div></td>
+				</tr>
+			</table>
+			
+			<center><div id="btnStop" class="btnStop" style="font-weight:bold; display:none" onclick="onBtnStopSelection()"></div></center>
+		</div>
+		<div class="clear"></div>
+	</div>
+</div>
+
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+var iconNum = 0;
+var selNum = 0;
+function onRheaBootstrapFinished()
+{
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+	selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+	var showBtnStop  = parseInt(rheaGetURLParamOrDefault("btnStop", 0));
+	if (showBtnStop != 1)
+		showBtnStop = 0;
+
+
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		//status=3 => aborted
+		//status=4 => finished
+		if (status == 3 || status == 4)
+			gotoSelFinished();
+	}
+	
+	
+	rhea.lang_loadJS("pageSelInProgress02")
+		.then( function(result) 
+		{
+			var d = rheaGetElemByID("divText");
+			rheaSetElemHTML(d, rheaInProgress02[iconNum]);
+		})
+		.catch( function(result)
+		{
+		});
+	
+	
+	if (showBtnStop == 1)
+	{	
+		var d = rheaGetElemByID("btnStop");
+		rheaSetElemHTML(d, rheaLang.BTN_STOP);
+		rheaSetDisplayMode(d, "inline-block");
+	}
+	
+
+	
+	//alla peggio, dopo 50 secondi termino
+	setTimeout (gotoSelFinished, 50000)
+}
+
+
+function onBtnStopSelection()
+{
+	var d = rheaGetElemByID("btnStop");
+	rheaHideElem(d);
+
+	rhea.selection_stop();
+}
+
+
+function gotoSelFinished()
+{
+	var d = rheaGetElemByID("btnStop");
+	rheaHideElem(d);
+	
+	window.location = "pageSelFinished.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+}
+</script>
+
+
+</html>

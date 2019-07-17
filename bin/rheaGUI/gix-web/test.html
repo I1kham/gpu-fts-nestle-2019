@@ -1,0 +1,203 @@
+<html>
+<head>
+	<title>WebSocket Test</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="test_stili.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<h2>Test</h2>
+
+<div>
+	<div style="float:left; background-color:#ddd; padding:5px; margin-right:20px;">
+		<b>websocket basic test</b><br><br>
+		<input type="button" value="btn 1" onclick="javascript:doSend('ciao sono il btn 1')">
+		<input type="button" value="btn 2" onclick="javascript:multipleSend('ciao sono il btn 2')">
+		<input type="button" value="btn binary" onclick="javascript:sendBinary()">
+		<input type="button" value="ajax" onclick="javascript:testAjax()">
+		<input type="button" value="evt: sel availability" onclick="javascript:requestEventUpdateSelectionAvailability()">		
+		<input type="button" value="evt: sel prices" onclick="javascript:requestEventUpdateSelectionPrices()">		
+	</div>
+	
+	<div style="float:left; background-color:#ddd; padding:5px; margin-right:20px;">
+		<b>Current lang</b>
+		<div id="divCurLangInfo"></div>
+	</div>
+
+	<div style="float:left; background-color:#ddd; padding:5px; margin-right:20px;">
+		<b>Main Menu Icons</b>
+		<div id="divMMIInfo"></div>
+	</div>		
+	<div class="clear"></div>
+</div>
+
+
+
+<div style="background-color:#ddd; padding:5px; margin:10px 0 10px 0;">
+	<b>link</b>
+	<a href="test2.html">test2.html</a> <a href="test_gui_startup.html">gui_startup.html</a>
+</div>
+
+<div style="background-color:#ddd; padding:5px; margin:10px 0 10px 0;">
+	<b>lang</b>
+	<input type="button" value="EN" onclick="javascript:setLanguage('EN')">
+	<input type="button" value="IT" onclick="javascript:setLanguage('IT')">
+</div>
+
+
+<div style="background-color:#ddd; padding:5px; margin:10px 0 10px 0;">
+	<div style="float:left; margin-right:5px"><b>Credit</b></div>
+	<div style="float:left" id="divCredit"></div>
+	<div class="clear"></div>
+</div>
+
+
+
+
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+function onRheaBootstrapFinished()
+{
+	console.log ("onRheaBootstrapFinished");
+	doUpdateCredit();
+	updateCurLangInfo();
+	updateMMIInfo();
+	
+	rhea.onEvent_selectionAvailabilityUpdated = function ()
+	{
+		alert ("sel avail updated");
+	}
+		
+	rhea.onEvent_selectionPricesUpdated = function ()
+	{
+		alert ("sel prices update");
+	}
+		
+	rhea.onEvent_creditUpdated = function ()
+	{
+		doUpdateCredit();
+	}
+	
+	
+}
+
+function updateCurLangInfo()
+{
+	var html = "";
+	html += "LANG: " + rhea.lang_getCurLangISOCode() +"<br>";
+	html += "LAB_CUP_SIZE: " +rheaLang.LAB_CUP_SIZE +"<br>";
+	html += "LAB_SMALL_CUP: " +rheaLang.LAB_SMALL_CUP +"<br>";
+	html += "LAB_MEDIUM_CUP: " +rheaLang.LAB_MEDIUM_CUP +"<br>";
+	html += "LAB_BIG_CUP: " +rheaLang.LAB_BIG_CUP +"<br>";
+
+	rheaSetDivHTMLByName("divCurLangInfo", html);	
+}
+
+function updateMMIInfo()
+{
+	var nIcon = rhea.MMI_getCount();
+	var html = "";
+	html += "N icone: " + nIcon +"<br>";
+
+	html += "<ul>";
+	for (var i=0; i<nIcon;i++)
+	{
+		html += "<li>name=" + rhea.MMI_getDisplayName(i);
+		html += ",sel num=" +rhea.MMI_getLinkedSelectionNumber(i) +", cup=";
+		
+		if (rhea.MMI_canUseSmallCup(i))	html +="S";
+		if (rhea.MMI_canUseMediumCup(i))	html +="M";
+		if (rhea.MMI_canUseLargeCup(i))	html +="L";
+
+		html += ", price=" +rhea.MMI_getPrice(i);
+		html += ", dblShot=" +rhea.MMI_hasDoubleShot(i);
+		html += ", dblGrinder=" +rhea.MMI_hasDblGrinder(i);
+		html += "</li>";
+	}
+	html += "</ul>";
+	
+	rheaSetDivHTMLByName("divMMIInfo", html);	
+}
+	
+
+function doUpdateCredit()
+{
+	rheaSetDivHTMLByName("divCredit", rhea.credit);	
+}
+
+function setLanguage(twoCharISOCode)
+{
+	rhea.lang_loadLang(twoCharISOCode)
+	.then ( function(result)
+	{
+		window.location = window.location;
+	})
+	.catch ( function(result)
+	{
+		rheaLog ("AJAX::error => " +result);
+	});
+	
+}
+
+
+function doSend(message) 
+{
+    rheaLog("SENT: " + message);
+    //rhea.websocket.send(message);
+    rhea.websocket.send(message);
+}
+
+
+function multipleSend(message)
+{
+	doSend(message);
+	doSend(message);
+	doSend(message);
+}
+
+function sendBinary()
+{
+	var LIMIT = 2048;
+	var d = new Uint8Array(LIMIT);
+	for (var i=0; i<LIMIT; i++)
+		d[i] = i;
+
+	rhea.sendBinary(d, 0,LIMIT);
+}
+
+function testAjax()
+{
+	var i = 12;
+	rhea.ajax ("time", 
+				{
+					"name" : "pippo",
+					"number" : i
+				})
+	.then( function(result) 
+	{
+		rheaLog ("AJAX::success => " +result);
+		
+		var obj = JSON.parse(result);
+		alert (obj.numero);
+	})
+	.catch( function(result)
+	{
+		rheaLog ("AJAX::error => " +result);
+	});
+}
+
+function requestEventUpdateSelectionAvailability()
+{
+	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED);
+}
+
+function requestEventUpdateSelectionPrices()
+{
+	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_PRICES_UPDATED);
+}
+</script>
+
+
+</html>

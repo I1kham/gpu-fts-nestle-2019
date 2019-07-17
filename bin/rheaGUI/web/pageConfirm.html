@@ -1,0 +1,401 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div class="wrapper1024x600">
+	<div class="header">
+		<div class="header_left">
+			<div id="divBtnHome" class="header_left_btnHome"><img draggable='false' src="img/btnHome.png"></div>
+		</div>
+		<div class="header_center"><img draggable='false' src="img/logo.png"></div>
+		<div class="header_right"></div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="page">
+		<div class="pageConfirm_center">
+			<div id="divSelectionImage" class="pageConfirm_selectionImage"></div>
+			<div class="pageConfirm_selectionInfo"><a id="aSeleciontInfo" href=""><img src="img/info.png"></a></div>
+			<div class="pageConfirm_selectionName pageConfirm_bigFont" id="divSelectionName"></div>
+			<div class="pageConfirm_selectionBottom">
+				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+					<tr valign="middle">
+						<td align="middle" class="pageConfirm_hintFont">
+							Place your cup
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		
+		
+		<div class="pageConfirm_right" style="position:relative;">
+			<div id="rightPane_wait" style="display:none; text-align:center; margin-top:160px"><img src="img/animationRound.gif"></div>
+			<div id="rightPane_content">
+				<div class="pageConfirm_right3box">
+					<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+						<tr valign="middle">
+							<td align="middle">
+								<div id="divGrinder" style="display:none; width:266px;">
+									<div id="divGrinder0" class="pageConfirm_iconGrinder" style="float:left" onclick="onGrinderSelected(0)">
+										<table border='0' cellspacing='0' cellpadding='0' width="100%" height="100%" class="pageConfirm_color1">
+											<tr valign="middle"><td align="center">MEDIUM ROAST</td></tr>
+										</table>
+									</div>
+									<div id="divGrinder1" class="pageConfirm_iconGrinder" style="float:right"  onclick="onGrinderSelected(1)">
+										<table border='0' cellspacing='0' cellpadding='0' width="100%" height="100%" class="pageConfirm_color1">
+											<tr valign="middle"><td align="center">DARK ROAST</td></tr>
+										</table>
+									</div>
+									<div class="clear"></div>
+								</div>
+								
+								<div id="divSeparator1" class="pageConfirm_separator" style="display:none;"></div>
+								
+								<div id="divShotType" style="display:none; width:266px;">
+									<div id="divShotType0" class="pageConfirm_iconSingleShot" style="float:left" onclick="onShotTypeSelected(0)">
+										<table border='0' cellspacing='0' cellpadding='0' width="100%" height="100%" class="pageConfirm_color1">
+											<tr valign="middle"><td align="center">SINGLE SHOT</td></tr>
+										</table>									
+									</div>
+									<div id="divShotType1" class="pageConfirm_iconDblShot" style="float:right" onclick="onShotTypeSelected(1)">
+										<table border='0' cellspacing='0' cellpadding='0' width="100%" height="100%" class="pageConfirm_color1">
+											<tr valign="middle"><td align="center">DOUBLE SHOT</td></tr>
+										</table>									
+									</div>
+									<div class="clear"></div>
+								</div>
+								
+								<div id="divSeparator2" class="pageConfirm_separator" style="display:none;"></div>
+								
+								<div id="divCups" style="display:none; text-align:center;">
+									<div style="display:inline-block">
+										<div id="divCup0Container" class="pageConfirm_iconCupContainer pageConfirm_color1" onclick="onCupSelected(0)">
+											<div id="divCup0" class="pageConfirm_iconCup cup0"></div>
+											SMALL
+										</div>
+										
+										<div id="divCup1Container" div class="pageConfirm_iconCupContainer pageConfirm_color1" onclick="onCupSelected(1)">
+											<div id="divCup1" class="pageConfirm_iconCup cup1"></div>
+											MEDIUM
+										</div>
+										
+										<div id="divCup2Container" class="pageConfirm_iconCupContainer pageConfirm_color1" onclick="onCupSelected(2)">
+											<div id="divCup2" class="pageConfirm_iconCup cup2"></div>
+											LARGE
+										</div>
+										<div class="clear"></div>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</table>			
+				</div>
+				<div class="pageConfirm_bottomBox">
+					<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+						<tr valign="middle">
+							<td align="middle">
+								<div id="btnStart" class="btnStart pageConfirm_bigFont" onclick="onBtnStartSelection()"></div>
+							</td>
+						</tr>
+					</table>			
+				</div>
+			</div>
+		</div>
+		
+		<div class="clear"></div>
+		
+	</div>
+
+	<div class="footer">
+		<div class="footer_left"></div>
+		<div class="footer_center"><div id="divCPUMessage"></div></div>
+		<div class="footer_right"></div>
+		<div class="clear"></div>
+	</div>
+
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+var iconNum = 0;
+var selThatWasStarted = 0;
+var GRINDER = 0;
+var CUP_SIZE = 0;
+var SHOT_TYPE = 0;
+
+function onRheaBootstrapFinished()
+{
+	rhea.onEvent_creditUpdated = function ()
+	{
+		doUpdateCredit();
+	}
+	
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		rheaSetDivHTMLByName("divCPUMessage", msg);
+	}
+	
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		switch (status)
+		{
+			case 1: // wait for credit
+				console.log ("sel waiting..");
+				break;
+				
+			case 2:// selection started
+				gotoPagePreparingSel(0);
+				break;
+				
+			case 5:// selection started, can use btnStop
+				gotoPagePreparingSel(1);
+				break;
+
+			default:				
+			case 3: // selection aborted
+				console.log ("sel aborted [" +status +"]");
+				var dContent = rheaGetElemByID("rightPane_content");
+				var dWait = rheaGetElemByID("rightPane_wait");
+				rheaHideElem(dWait);
+				rheaSetDisplayMode(dContent, "inline-block");
+				selThatWasStarted = 0;
+				break;
+		}
+	
+	}
+		
+	
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+
+	setupPageContent();
+	doUpdateCredit();
+	
+	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
+	var d = rheaGetElemByID("divBtnHome");
+	d.addEventListener('mouseup', function (ev)
+	{
+		window.location = "pageMenu.html";
+	}, true);	
+}
+
+function onSelectionChanged(selNum)
+{
+	var selInfo = rhea.selection_getBySelNumber(selNum);
+	
+	var textForBtnStart = rheaLang.BTN_START_SELECTION;
+	var price = selInfo.price;
+	price = price.replace(/\./g, '');	//via tutti i "."
+	price = price.replace(/\,/g, '');	//via tutte le ","
+	//if (parseInt(price) > 0)
+		textForBtnStart = selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL +" &middot; " +textForBtnStart;
+	rheaSetDivHTMLByName("btnStart", textForBtnStart);
+}
+
+function doUpdateCredit()
+{
+	//rheaSetDivHTMLByName("divCredit", rhea.credit);	
+}
+
+function setupPageContent()
+{
+	var iconDisplayName = rhea.MMI_getDisplayName(iconNum);
+	var image = "<img src='" +rhea.MMI_getImgForPageConfirm(iconNum) +"'>";
+	var selNum = rhea.MMI_getLinkedSelectionNumber(iconNum);
+	
+	
+	//colonna sinistra, foto bevanda
+	var d = rheaGetElemByID("divSelectionImage");
+	rheaSetElemHTML(d, image);
+	
+	//nome bevanda
+	rheaSetDivHTMLByName("divSelectionName", iconDisplayName);
+	
+	//link a info bevanda
+	d = rheaGetElemByID("aSeleciontInfo");
+	rheaSetElemHREF(d, "pageSelectionInfo.html?iconMenu=" +iconNum);	
+	
+	
+	//colonna destra
+	var bShowGrinderDiv = 0;
+	var bShowShotTypeDiv = 0;
+	var bShowCupDiv = 1;
+	
+	if (selNum == 0)
+	{
+		//se arriviamo qui, vuol dire che stiamo gestendo una selezione virtuale
+		bShowCupDiv = 1;
+		if (rhea.MMI_hasDblGrinder(iconNum))
+			bShowGrinderDiv=1;
+		if (rhea.MMI_hasDoubleShot(iconNum))
+			bShowShotTypeDiv=1;
+		bShowCupDiv = 1;
+	}
+
+
+	//a seconda delle opzioni disponibili, mostro o nascondo i div
+	var n = 0;
+	if (bShowGrinderDiv)
+	{
+		n++;
+		rheaShowElem(rheaGetElemByID("divGrinder"));
+	}
+	
+	if (bShowShotTypeDiv)
+	{
+		n++;
+		rheaShowElem(rheaGetElemByID("divShotType"));
+	}
+
+	if (bShowCupDiv)
+	{
+		n++;
+		rheaShowElem(rheaGetElemByID("divCups"));
+	}
+
+	if (n==3)
+	{
+		rheaShowElem(rheaGetElemByID("divSeparator1"));
+		rheaShowElem(rheaGetElemByID("divSeparator2"));
+	}
+	else if (n==2)
+	{
+		if (bShowGrinderDiv)
+			rheaShowElem(rheaGetElemByID("divSeparator1"));
+		else
+			rheaShowElem(rheaGetElemByID("divSeparator2"));
+	}
+		
+	
+	//disabilito eventuali cup-size non cliccabili
+	if (!rhea.MMI_canUseSmallCup(iconNum))
+		rheaAddClassToElem(rheaGetElemByID("divCup0Container"), "disabled");
+	if (!rhea.MMI_canUseMediumCup(iconNum))
+		rheaAddClassToElem(rheaGetElemByID("divCup1Container"), "disabled");
+	if (!rhea.MMI_canUseLargeCup(iconNum))
+		rheaAddClassToElem(rheaGetElemByID("divCup2Container"), "disabled");
+
+
+	if (selNum > 0)
+	{
+		//accendo la cup-size di default
+		if (rhea.MMI_canUseSmallCup(iconNum))
+			onCupSelected(0);
+		if (rhea.MMI_canUseMediumCup(iconNum))
+			onCupSelected(1);			
+		if (rhea.MMI_canUseLargeCup(iconNum))
+			onCupSelected(2);			
+	}
+	else
+	{
+		var defaultOption = rhea.MMI_getDefaultLinkedSelectionOptions(iconNum);
+		
+		onCupSelected (defaultOption.cupSize);
+		onGrinderSelected (defaultOption.grinder);
+		onShotTypeSelected (defaultOption.shotType);
+		
+		console.log(defaultOption);
+	}
+}
+
+
+function onCupSelected (whichOne)
+{
+	if (whichOne == 0 && !rhea.MMI_canUseSmallCup(iconNum))
+		return;
+	if (whichOne == 1 && !rhea.MMI_canUseMediumCup(iconNum))
+		return;
+	if (whichOne == 2 && !rhea.MMI_canUseLargeCup(iconNum))
+		return;
+		
+		
+		
+	CUP_SIZE = whichOne;
+	
+	for (var i=0; i<3; i++)
+	{
+		var d = rheaGetElemByID("divCup" +i);
+		rheaRemoveClassToElem(d,"selected");
+		if (i == CUP_SIZE)
+			rheaAddClassToElem(d,"selected");
+	}
+	
+	var selNum = detectCurrentSelection();
+	onSelectionChanged(selNum);
+}
+
+
+function onGrinderSelected (whichOne)
+{
+	GRINDER = whichOne;
+	
+	for (var i=0; i<2; i++)
+	{
+		var d = rheaGetElemByID("divGrinder" +i);
+		rheaRemoveClassToElem(d,"selected");
+		if (i == GRINDER)
+			rheaAddClassToElem(d,"selected");
+	}
+	
+	var selNum = detectCurrentSelection();
+	onSelectionChanged(selNum);
+}
+
+function onShotTypeSelected (whichOne)
+{
+	SHOT_TYPE = whichOne;
+	
+	for (var i=0; i<2; i++)
+	{
+		var d = rheaGetElemByID("divShotType" +i);
+		rheaRemoveClassToElem(d,"selected");
+		if (i == SHOT_TYPE)
+			rheaAddClassToElem(d,"selected");
+	}
+	
+	var selNum = detectCurrentSelection();
+	onSelectionChanged(selNum);
+}
+
+function detectCurrentSelection()
+{
+	var selNum = rhea.MMI_getLinkedSelectionNumber(iconNum);
+	if (selNum == 0)
+		selNum = rhea.MMI_getLinkedSelection (iconNum, GRINDER, CUP_SIZE, SHOT_TYPE);
+	
+	return selNum;
+}
+
+
+function onBtnStartSelection()
+{
+	var dContent = rheaGetElemByID("rightPane_content");
+	rheaHideElem(dContent);
+	
+	var dWait = rheaGetElemByID("rightPane_wait");
+	rheaShowElem(dWait);
+
+	selThatWasStarted = detectCurrentSelection();
+	console.log ("Starting sel num:" +selThatWasStarted);
+	rhea.selection_start(selThatWasStarted);
+}
+
+function gotoPagePreparingSel(bCanUseBtnStop)
+{
+	var url = "pageSelInProgress.html";
+	if (iconNum % 2 == 0)
+		url = "pageSelInProgress02.html"
+	
+	url += "?iconMenu=" +iconNum +"&selNum=" +selThatWasStarted +"&btnStop=" +bCanUseBtnStop;
+	window.location = url;
+}
+</script>
+
+
+</html>

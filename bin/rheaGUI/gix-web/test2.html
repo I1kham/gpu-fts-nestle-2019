@@ -1,0 +1,111 @@
+<html>
+<head>
+	<title>Test 2</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="test_stili.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<h2>Test 2</h2>
+
+<div>
+	<div style="float:left; background-color:#ddd; padding:5px; margin-right:20px;">
+		<b>selection info</b><br><br>
+		<div id="divSelInfo"></div>
+	</div>
+
+	<div style="float:left; margin-right:20px;">
+		<div style="background-color:#ddd; padding:5px; margin:10px 0 10px 0;">
+			<b>link</b>
+			<a href="test.html">test.html</a>
+		</div>
+
+		<div style="background-color:#ddd; padding:5px; margin:10px 0 10px 0;">
+			<b>lang</b>
+			<input type="button" value="EN" onclick="javascript:setLanguage('EN')">
+			<input type="button" value="IT" onclick="javascript:setLanguage('IT')">
+		</div>
+
+		<div style="background-color:#ddd; padding:5px; margin:10px 0 10px 0;">
+			<div style="float:left; margin-right:5px"><b>Credit</b></div>
+			<div style="float:left" id="divCredit"></div>
+			<div class="clear"></div>
+		</div>
+	</div>
+	
+	<div style="float:left; background-color:#ddd; padding:5px; margin-right:20px;">
+		<b>Current lang</b>
+		<div id="divCurLangInfo"></div>
+	</div>
+		
+	<div class="clear"></div>
+</div>
+
+
+
+
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+function onRheaBootstrapFinished()
+{
+	console.log ("onRheaBootstrapFinished");
+
+	rhea.onEvent_creditUpdated = function ()
+	{
+		doUpdateCredit();
+	}
+
+
+	doUpdateCredit();
+	getSelInfo();
+	updateCurLangInfo();
+}
+
+function updateCurLangInfo()
+{
+	var html = "";
+	html += "LANG: " + rhea.lang_getCurLangISOCode() +"<br>";
+	html += "LAB_CUP_SIZE: " +rheaLang.LAB_CUP_SIZE +"<br>";
+	html += "LAB_SMALL_CUP: " +rheaLang.LAB_SMALL_CUP +"<br>";
+	html += "LAB_MEDIUM_CUP: " +rheaLang.LAB_MEDIUM_CUP +"<br>";
+	html += "LAB_BIG_CUP: " +rheaLang.LAB_BIG_CUP +"<br>";
+
+	rheaSetDivHTMLByName("divCurLangInfo", html);	
+}
+
+
+function doUpdateCredit()
+{
+	rheaSetDivHTMLByName("divCredit", rhea.credit);	
+}
+function setLanguage(twoCharISOCode)
+{
+	rhea.lang_loadLang(twoCharISOCode)
+	.then ( function(result)
+	{
+		window.location = window.location;
+	})
+	.catch ( function(result)
+	{
+		rheaLog ("AJAX::error => " +result);
+	});
+	
+}
+
+
+function getSelInfo()
+{
+	var html = "";
+	var n = rhea.selection_getCount();
+	for (var i=1; i<=n; i++)
+	{
+		html += JSON.stringify( rhea.selection_getBySelNumber(i)) +"<br>";
+	}
+	rheaSetDivHTMLByName ("divSelInfo", html);
+}
+</script>
+
+
+</html>

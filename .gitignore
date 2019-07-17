@@ -1,0 +1,7 @@
+bin/DESKTOP64_DEBUG_GPU
+bin/EMBEDDED_RELEASE_GPU
+bin/log.txt
+src/GPU/build/
+src/rheaCommonLib/build/
+src/rheaGUIBridge/build/
+*.a

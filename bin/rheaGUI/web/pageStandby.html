@@ -1,0 +1,127 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div class="wrapper1024x600" id="divWrapper" style="cursor:pointer; position:relative">
+	<div id="divGalleryWindow" class="pageStandby_galleryContainer_window">
+		<div id="divGallery" class="pageStandby_galleryContainer">
+		</div>
+	</div>
+	<div style="position:relative">
+		<div id="divOverlay" class="pageStandby_overlay"></div>
+		<div id="divCPUMessage" class="pageStandby_overlay" style="display:none; background-color:rgba(0,0,0,0.8); color:#fff"></div>
+	</div>
+</div>	
+
+
+<script src="config/pageStandby.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+function onRheaBootstrapFinished()
+{
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		var dOverlay = rheaGetElemByID ("divOverlay");
+		if (importanceLevel == 0)
+		{
+			rheaHideElem(dCPU);
+			rheaShowElem(dOverlay);
+		}
+		else
+		{
+			rheaSetElemHTML(dCPU, msg);
+			rheaShowElem(dCPU);
+			rheaHideElem(dOverlay);
+		
+		}
+	}
+	
+	setupOverlay();
+	setupGallery();
+
+	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
+	var d = rheaGetElemByID("divWrapper");
+	d.addEventListener('mouseup', function (ev)
+	{
+		gotoMenuPage();
+	}, true);	
+}
+
+function gotoMenuPage()
+{
+	window.location = "pageMenu.html";
+}
+
+
+
+function setupOverlay()
+{
+	if (rheaPageOptions.overlay_visible == 0)
+		return;
+	
+	var d = rheaGetElemByID("divOverlay");
+	rheaSetElemBackgroundColor(d,rheaPageOptions.overlay_bgcolor);
+	rheaSetElemTextColor(d,rheaPageOptions.overlay_textColor);
+	rheaSetElemHTML(d, rheaLang.LAB_PAGE_STANDBY);
+	rheaShowElem(d);
+}
+
+
+var numImages = rheaPageOptions.gallery_images.length;
+var curImage = 0;
+function setupGallery()
+{
+	var d = rheaGetElemByID("divGalleryWindow");
+	var imageW = rheaGetElemWidth(d);
+	
+	var html = "";
+	for (var i=0; i<numImages; i++)
+	{
+		html += "<div class='pageStandby_galleryContainer_foto'><img draggable='false' src='upload/" +rheaPageOptions.gallery_images[i] +"'></div>";
+	}
+	
+	d = rheaGetElemByID("divGallery");
+	if (numImages < 2)
+	{
+		rheaSetElemWidth(d, imageW);
+		rheaSetElemHTML(d, html);
+	}
+	else
+	{
+		//appendo la prima immagine in fondo in modo da scrollare dalla ultima immagina alla prima senza effetti strani a video
+		numImages++;
+		html += "<div class='pageStandby_galleryContainer_foto'><img src='upload/" +rheaPageOptions.gallery_images[0] +"'></div>";
+		rheaSetElemWidth(d, imageW * numImages);
+		rheaSetElemHTML(d, html);
+		setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
+	}
+}
+
+function scrollToNextImage()
+{
+	var d = rheaGetElemByID("divGallery");
+	
+	curImage++;
+	if (curImage >= numImages)
+	{
+		curImage = 1;
+		rheaSetElemLeft(d, 0);
+	}
+
+	rheaSmoothScrollElemLeft(d, -curImage*1024, 500);
+	
+	setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
+}
+
+</script>
+
+
+</html>

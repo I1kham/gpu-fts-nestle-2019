@@ -1,0 +1,96 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="test_stili.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+
+function onRheaBootstrapFinished()
+{
+	console.log ("onRheaBootstrapFinished");
+
+	rhea.clearSessionData();
+	
+	querySelectionPrice()
+		.then ( function() { return querySelectionAvail(); } )
+		.then ( function() { 
+			window.location = "test.html";
+		})
+		.catch ( function(result)
+		{
+			alert ("onRheaBootstrapFinished::error => " +result);
+		});
+}
+
+
+function querySelectionPrice()
+{
+	console.log ("querySelectionPrice");
+		
+	return rhea.ajax ("selPrice", {"range" : "all"})
+		.then( function(result) 
+		{
+			rheaLog ("querySelectionPrice::success => " +result);
+		
+			//aggiorno i prezzi delle selezioni e memorizzo nel DB
+			var obj = JSON.parse(result);
+			var price = obj.s.split("§");
+			for (var i=1; i<=obj.n; i++)
+				rhea.selection_getBySelNumber(i).price = price[i-1];
+			rhea.selection_sessionStore();
+			
+			
+			return new Promise( function(resolve, reject) { resolve("ok"); })
+		})
+		.catch( function(result)
+		{
+			rheaLog ("querySelectionPrice::error => " +result);
+			return new Promise( function(resolve, reject) { reject(result); })
+		});
+	
+}
+
+function querySelectionAvail()
+{
+	console.log ("querySelectionAvail");
+		
+	return rhea.ajax ("selAvail", {"range" : "all"})
+		.then( function(result) 
+		{
+			rheaLog ("querySelectionAvail::success => " +result);
+		
+				//aggiorno la disponibilità delle selezioni e memorizzo nel DB
+				var obj = JSON.parse(result);
+				var price = obj.s.split("§");
+				for (var i=1; i<=obj.n; i++)
+				{
+					if (obj.s.charAt(i-1) == '1')
+						rhea.selection_getBySelNumber(i).enabled = 1;
+					else
+						rhea.selection_getBySelNumber(i).enabled = 0;
+				}
+				rhea.selection_sessionStore();
+			
+			return new Promise( function(resolve, reject) { resolve("ok"); })
+		})
+		.catch( function(result)
+		{
+			rheaLog ("querySelectionAvail::error => " +result);
+			return new Promise( function(resolve, reject) { reject(result); })
+		});
+}
+
+
+
+
+</script>
+
+
+</html>
