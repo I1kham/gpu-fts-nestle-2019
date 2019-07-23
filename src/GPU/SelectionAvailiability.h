@@ -1,47 +1,29 @@
 #ifndef _SelectionAvailability_h_
 #define _SelectionAvailability_h_
-#include "../rheaCommonLib/rheaDataTypes.h"
-#include <string.h>
+#include "../rheaCommonLib/rheaBit.h"
 
 /*****************************************
  * SelectionAvailability
  *
+ * Internamente utilizza il set di fn rhea::bit per la manipolazione dei bit di un buffer
  */
 class SelectionAvailability
 {
 public:
                 SelectionAvailability()                         { reset(); }
 
-    void        reset ()                                        { memset(flag,0,sizeof(flag)); }
+    void        reset ()                                        { rhea::bit::zero(flag, sizeof(flag)); }
 
-    bool        isAvail (u8 selNumberStartingFromOne) const
-                {
-                    assert(selNumberStartingFromOne>0);
-                    selNumberStartingFromOne--;
-                    return (flag[selNumberStartingFromOne>>5] & (0x00000001 << (selNumberStartingFromOne & 0x1F))) != 0;
-                }
-
+    bool        isAvail (u8 selNumberStartingFromOne) const     { return rhea::bit::isSet (flag, sizeof(flag), selNumberStartingFromOne-1); }
     bool        areAllNotAvail() const                          { return (flag[0]==0 && flag[1] == 0); }
 
-    void        setAsAvail (u8 selNumberStartingFromOne)
-                {
-                    assert(selNumberStartingFromOne>0);
-                    selNumberStartingFromOne--;
-                    const u8 byte = selNumberStartingFromOne>>5;
-                    const u8 bit = selNumberStartingFromOne & 0x1F;
-                    flag[byte] |=  (0x00000001 << bit);
-                }
+    void        setAsAvail (u8 selNumberStartingFromOne)        { assert(selNumberStartingFromOne>0); rhea::bit::set (flag, sizeof(flag), selNumberStartingFromOne-1); }
+    void        setAsNotAvail (u8 selNumberStartingFromOne)     { assert(selNumberStartingFromOne>0); rhea::bit::unset (flag, sizeof(flag), selNumberStartingFromOne-1); }
 
-    void        setAsNotAvail (u8 selNumberStartingFromOne)
-                {
-                    assert(selNumberStartingFromOne>0);
-                    selNumberStartingFromOne--;
-                    const u8 byte = selNumberStartingFromOne>>5;
-                    const u8 bit = selNumberStartingFromOne & 0x1F;
-                    flag[byte] &=  (~(0x00000001 << bit));
-                }
+    const u32*  getBitSequence() const                              { return flag; }
+
 private:
-    u32 flag[2];
+    u32         flag[2];    //1 bit per ogni selezione
 };
 
 #endif

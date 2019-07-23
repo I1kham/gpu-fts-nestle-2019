@@ -39,6 +39,7 @@ namespace rhea
         const char*         getName() const                                     { return name; }
 
         virtual bool        isThreadSafe() const = 0;
+        virtual size_t      getAllocatedSize (const void *p) const = 0;
 
     protected:
         virtual void*       priv_do_alloc (size_t sizeInBytes, size_t align) = 0;

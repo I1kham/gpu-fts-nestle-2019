@@ -16,7 +16,7 @@ namespace rhea
 
         bool			anyMemLeaks()                                                   { return false; }
         void			onAlloc (size_t size UNUSED_PARAM)                              { }
-        void			onDealloc ()                                                    { }
+        void			onDealloc (size_t size UNUSED_PARAM)                            { }
 
     private:
                         RHEA_NO_COPY_NO_ASSIGN(AllocatorTrackingPolicy_none);
@@ -27,13 +27,14 @@ namespace rhea
     /***********************************************************************
     * AllocatorTrackingPolicy_simple
     *
-    *
+    * conta il numero di alloazione/deallocazioni e tira una
+    * eccezione se il conteggio non torna a zero dopo la rhea::deinit()
     ***********************************************************************/
     class AllocatorTrackingPolicy_simple
     {
     public:
                         AllocatorTrackingPolicy_simple () :
-                            nalloc(0), maxMemalloc(0)
+                            nalloc(0), curMemAlloc(0), maxMemalloc(0)
                         {
                         }
 
@@ -44,18 +45,23 @@ namespace rhea
         void			onAlloc (size_t size)
                         {
                             ++nalloc;
-                            maxMemalloc += size;
+                            curMemAlloc += size;
+                            if (curMemAlloc > maxMemalloc)
+                                maxMemalloc = curMemAlloc;
                         }
 
-        void			onDealloc ()
+        void			onDealloc (size_t size)
                         {
                             assert (nalloc>0);
                             --nalloc;
+                            assert (curMemAlloc >= size);
+                            curMemAlloc -= size;
                         }
 
     public:
         u32             nalloc;
-        u32             maxMemalloc;
+        size_t          curMemAlloc;
+        size_t          maxMemalloc;
 
     private:
                         RHEA_NO_COPY_NO_ASSIGN(AllocatorTrackingPolicy_simple);

@@ -4,6 +4,7 @@
 
 /* elenco dei comandi che il server invia lungo il suo canale di output*/
 #define GUIBRIDGE_SERVER_STARTED                    0x0001
+#define GUIBRIDGE_SERVER_DYING                      0x0002
 
 /*  Richieste dal server di GUI alla GPU
     Per convenzioni, il MSB deve essere 0x01 */
@@ -15,18 +16,19 @@
 #define GUIBRIDGE_REQ_CPU_MESSAGE                   0x0105
 #define GUIBRIDGE_REQ_CREDIT                        0x0106
 
-/* richieste dal server alla GPU */
-#define GUIBRIDGE_GPU_EVENT                        0x0200
+/* richieste dalla GPU al server */
+#define GUIBRIDGE_GPU_EVENT                         0x0200
+
+/* richieste dalla console al server */
+#define GUIBRIDGE_CONSOLE_EVENT_QUIT                0x0301
+#define GUIBRIDGE_CONSOLE_EVENT_PING                0x0302
+#define GUIBRIDGE_CONSOLE_EVENT_CLOSE               0x0303
+#define GUIBRIDGE_CONSOLE_EVENT_STRING              0x0304
+#define GUIBRIDGE_CONSOLE_EVENT_CLIENT_LIST         0x0305
 
 
 namespace guibridge
 {
-    struct sServerInitParam
-    {
-        HThreadMsgR hQMessageIN;      //il thread del server riceve messaggi dal resto del mondo su questo canale
-        HThreadMsgW hQMessageOUT;     //il thread del server invia messaggi al resto del mondo su questo canale
-    };
-
     enum eEventType
     {
         eEventType_selectionAvailabilityUpdated  = 'a',

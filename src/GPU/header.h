@@ -10,7 +10,7 @@
 
 
 //define per mostrare il puntatore del mouse
-#define DEBUG_SHOW_MOUSE
+#undef DEBUG_SHOW_MOUSE
 
 //se definita, mostra una label con la % di utilizzo della CPU
 #undef DEBUG_MONITOR_CPU_USAGE
@@ -52,12 +52,13 @@
 #endif
 
 
-
+#include <qstring.h>
 long            getTimeNowMSec();
 void            enableFormDEBUG();
 void            DEBUG_COMM_MSG (const unsigned char *buffer, int start, int lenInBytes, bool bIsGPUSending);
 void            DEBUG_MSG (const char* format, ...);
 void            DEBUG_MSG_REPLACE_SPACES (const char* format, ...);
+void            DEBUG_MSG_REPLACE_SPACES (const QString &q);
 void            DEBUG_rawBuffer (const unsigned char *buffer, int start, int lenInBytes);
 void            hideMouse();
 bool            isUsbPresent ();
@@ -142,7 +143,7 @@ void            setButtonKeyNum (unsigned char i);
 
 
 
-#define Com_MAX_TIMEOUT_CHAR_MSEC       1000
+#define Com_MAX_TIMEOUT_CHAR_MSEC       2000
 #define Com_MAX_TOT_TIMEOUT_COMMAND     20
 
 
@@ -159,7 +160,7 @@ void            setButtonKeyNum (unsigned char i);
 #define MaxLenBufferComCPU_Rx	240	
 #define MaxLenBufferComCPU_Tx	400	
 #define MAXLEN_MSG_LCD            32
-
+#define MAX_GPU_MESSAGE_LEN     64
 
 
 #define NUM_MAX_SELECTIONS 48

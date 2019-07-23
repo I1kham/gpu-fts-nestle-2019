@@ -33,7 +33,9 @@ namespace rhea
 			void	Hex (u32 hex, char *out, u32 sizeofout);
 						//filla out con la rappresentazione esadecimale di hex (senza lo 0x davanti)
 			void	timeMicroSecToHHMMSSMsUs (u64 microSec, char *out, u32 numCharInOut);
-		};
+
+            void    currency (u16 price, u8 numDecimal, char decimalPointCharacter, char *out_s, u16 sizeOfOut);
+        }
 
 		/*==============================================================================
 		 * conversioni da stringa a vari tipi

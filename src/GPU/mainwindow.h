@@ -39,7 +39,6 @@ public:
     void            guibridgeEvent_selectionPricesUpdated (int numSel, const unsigned int *priceList) const;
     void            guibridgeEvent_selectionReqStatus (eSelectionReqStatus status) const;
     void            guibridgeEvent_sendCPUMessage (const QString &msg, u8 importanceLevel) const;
-    void            debug_showTreeViewOfInstalledFont();
 
 public:
     FormProg                myFormProg;
@@ -66,7 +65,6 @@ private slots:
 
 private:
     void            priv_loadGUIFirstPage();
-
     int             getFormStatus()                                                     { return formStatus; }
     void            setFormStatus (int i, const char *who);
 
@@ -82,8 +80,6 @@ private:
     void            priv_translateCPUMessage (const QChar *cpuMsgBuffer, int sizeofCpuMsgBuffer, unsigned char msgImportanceLevel);
 
     void            priv_handleGUIBridgeServerMessages();
-    void            priv_guibridgeAnswer_selectionAvailabilityList (u16 handlerID, int numSel, const SelectionAvailability &selAvailList) const;
-    void            priv_guibridgeAnswer_selectionPricesList (u16 handlerID, int numSel, const unsigned int *priceList) const;
     void            priv_guibridgeAnswer_credit (u16 handlerID, const char *credit) const;};
 
 #endif // MAINWINDOW_H

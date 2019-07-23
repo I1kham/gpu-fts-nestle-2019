@@ -176,3 +176,32 @@ void format::Hex (u32 hex, char *out, u32 sizeofout)
 	}
 	out[8] = 0;
 }
+
+/*******************************************************************
+ * formatta [price] riempendo [out] con una stringa che rappresenta il numero [price] le cui ultime [numDecimal]
+ * cifre sono da intendersi come decimali, seprarati dal resto della cifra dal carattere [decimalPointCharacter]
+ */
+void format::currency (u16 price, u8 numDecimal, char decimalPointCharacter, char *out_s, u16 sizeOfOut)
+{
+    char s[16];
+    if (numDecimal == 0)
+        sprintf (s, "%d", price);
+    else
+    {
+        const u16 divisore = numDecimal * 10;
+
+        u16 parteIntera = price / divisore;
+        u16 parteDecimale = price - (parteIntera * divisore);
+
+        sprintf (s, "%d%c", parteIntera, decimalPointCharacter);
+
+        char sd[8];
+        sprintf (sd, "%d", parteDecimale);
+        while (strlen(sd) < numDecimal)
+            strcat(sd, "0");
+
+        strcat (s, sd);
+    }
+
+    strncpy (out_s, s, sizeOfOut-1);
+}

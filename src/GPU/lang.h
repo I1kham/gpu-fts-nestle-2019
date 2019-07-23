@@ -1,8 +1,10 @@
 #ifndef _LANG_H_
 #define _LANG_H_
 #include <stdio.h>
+#include <QApplication>
 
-class QChar;
+#define	LANG_CHIOCCIOLA			0x0040
+#define	LANG_PARAM_SEPARATOR	0x00A7
 
 struct sLanguage
 {

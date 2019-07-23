@@ -38,6 +38,8 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgR _hQMessageIN, const HThrea
     rhea::thread::pushMsg (hQMessageOUT, GUIBRIDGE_SERVER_STARTED, u32MAX);
 
 
+    //elenco dei clienti identificati
+    identifiedClientList.setup (localAllocator);
 
     //lista degli handler dei messaggi
     nextTimePurgeCmdHandlerList = 0;
@@ -63,8 +65,14 @@ void Server::close()
 
     if (NULL != server)
     {
+        //Avviso che sto morendo e poi attendo un po' nella speranza che tutti quelli che sono in ascolto sulla mia coda di uscita becchino
+        //il messaggio e capiscano
+        rhea::thread::pushMsg (hQMessageOUT, GUIBRIDGE_SERVER_DYING, u32MAX);
+        rhea::thread::sleepMSec (1000);
+
         buffer.unsetup();
         cmdHandlerList.unsetup();
+        identifiedClientList.unsetup ();
 
         server->removeOSEventFromWaitList (evFromThreadMsgQ);
         server->close();
@@ -80,7 +88,7 @@ void Server::run()
 {
     assert (server != NULL);
 
-    bool bQuit = false;
+    bQuit = false;
     while (bQuit == false)
     {
         //la wait() si svegli se è in arrivo una nuova connessione, se un client già connesso invia dati oppure
@@ -106,8 +114,10 @@ void Server::run()
 
             case WebsocketServer::evt_new_client_connected:
                 {
-                    HWebsokClient h = server->getEventSrcAsClientHandle(i);
-                    printf ("server> new connection accepted (handle:0x%02X)\n", h.asU32());
+                    //un client vuole connettersi. Accetto la socket in ingresso, ma mi riservo di chiudere la
+                    //connessione se il prossimo msg che mando è != dal messaggio di identificazione
+                    //HWebsokClient h = server->getEventSrcAsClientHandle(i);
+                    //printf ("server> new connection accepted (handle:0x%02X)\n", h.asU32());
                 }
                 break;
 
@@ -121,16 +131,11 @@ void Server::run()
                     rhea::thread::sMsg msg;
                     while (rhea::thread::popMsg(hQMessageIN, &msg))
                     {
-                        switch (msg.what)
-                        {
-                        default:
-                            DBGBREAK;
-                            break;
-
-                        case GUIBRIDGE_GPU_EVENT:
+                        if (msg.what == GUIBRIDGE_GPU_EVENT)
                             priv_onGPUEvent (msg);
-                            break;
-                        }
+                        else if ((msg.what & 0xFF00) == 0x0300)
+                            priv_onConsoleEvent (msg);
+
                         rhea::thread::deleteMsg(msg);
                     }
                 }
@@ -138,6 +143,8 @@ void Server::run()
             }
         }
     }
+
+    cmdHandlerList.purge (localAllocator, u64MAX);
 }
 
 /**************************************************************************
@@ -176,7 +183,6 @@ void Server::priv_onClientHasDataAvail (u8 iEvent)
         return;
 
     //ho ricevuto un messaggio
-    printf ("client [0x%02X]> received:", h.asU32());
     u8 *p = buffer._getPointer(0);
     /*
     for (i16 t=0; t<nBytesLetti; t++)
@@ -203,9 +209,41 @@ void Server::priv_onClientHasDataAvail (u8 iEvent)
             if (ckCheck != ck)
                 return;
 
+
+            //se il client non si è ancora identificato, lo deve fare adesso, altrimenti lo killo
+            const IdentifiedClientList::sInfo *idInfo = identifiedClientList.isKwnownClient(h);
+            if (NULL == idInfo)
+            {
+                if (commandChar != 'W' || payloadLen<8)
+                {
+                    printf ("server> killing client [0x%02X] because it's not identified\n", h.asU32());
+                    server->client_sendClose(h);
+                    return;
+                }
+
+                const u8 apiVersion = payload[0];
+                const u32 identificationCode = ((u32)payload[1] << 24) | ((u32)payload[2] << 16) | ((u32)payload[3] << 8) | (u32)payload[4];
+                bool bIsNewClient;
+                if (!identifiedClientList.registerClient (h, identificationCode, apiVersion, &bIsNewClient))
+                {
+                    printf ("server> killing client [0x%02X] because its identification info are wrong [id:0x%02X][apiv:%d]\n", h.asU32(), identificationCode, apiVersion);
+                    server->client_sendClose(h);
+                    return;
+                }
+
+                if (bIsNewClient)
+                    printf ("server> NEW client [id:0x%02X][apiv:%d] as [0x%02X]\n", identificationCode, apiVersion, h.asU32());
+                else
+                    printf ("server> EXISTING client [id:0x%02X][apiv:%d] as [0x%02X]\n",identificationCode, apiVersion, h.asU32());
+                return;
+            }
+
+
+            printf ("server> command [%c] from [id:0x%02X][apiv:%d] as [0x%02X]\n", commandChar, idInfo->identificationCode, idInfo->apiVersion, h.asU32());
             switch (commandChar)
             {
             default:
+                printf ("server> unkown command [%c]\n", commandChar);
                 return;
 
             case 'A':
@@ -287,5 +325,70 @@ void Server::priv_onGPUEvent (rhea::thread::sMsg &msg)
             handler->handleAnswerToGUI (server, &data[2]);
             cmdHandlerList.removeAndDeleteByID (localAllocator, handlerID);
         }
+    }
+}
+
+/**************************************************************************
+ * priv_onConsoleEvent
+ *
+ * E' arrivato un messaggio da parte della console sulla msgQ di questo thread.
+ * Il msg è di tipo msg.what==GUIBRIDGE_CONSOLE_EVENT_xxx
+ */
+void Server::priv_onConsoleEvent (rhea::thread::sMsg &msg)
+{
+    switch (msg.what)
+    {
+    case GUIBRIDGE_CONSOLE_EVENT_QUIT:
+        printf ("server> quitting..\n");
+        bQuit = true;
+        break;
+
+    case GUIBRIDGE_CONSOLE_EVENT_PING:
+        {
+            HWebsokClient h;
+            h.initFromU32 (msg.paramU32);
+            printf ("server> sending ping to [0x%02X]\n", h.asU32());
+            server->client_sendPing(h);
+        }
+        break;
+
+    case GUIBRIDGE_CONSOLE_EVENT_CLOSE:
+        {
+            HWebsokClient h;
+            h.initFromU32 (msg.paramU32);
+            printf ("server> sending close to [0x%02X]\n", h.asU32());
+            server->client_sendClose(h);
+        }
+        break;
+
+    case GUIBRIDGE_CONSOLE_EVENT_STRING:
+        {
+            HWebsokClient h;
+            h.initFromU32 (msg.paramU32);
+            printf ("server> sending text msg to [0x%02X]\n", h.asU32());
+            server->client_writeBuffer (h, (const void*)msg.buffer, msg.bufferSize);
+        }
+        break;
+
+    case GUIBRIDGE_CONSOLE_EVENT_CLIENT_LIST:
+        {
+            printf ("\n=== IDENTIFIED CLIENT LIST ====\n");
+            u32 n = identifiedClientList.getNElem();
+            for (u32 i=0; i<n; i++)
+            {
+                const IdentifiedClientList::sInfo *info = identifiedClientList.getElemByIndex(i);
+
+                const float firstTimeRegisteredSec = (float)info->firstTimeRegisteredMSec / 1000.0f;
+                const float lastTimeRegisteredSec = (float)info->lastTimeRegisteredMSec / 1000.0f;
+                printf ("  [id:0x%08X] [apiv:0x%02X] [h:0x%02X] [firstTime:%.1f] [lastTime:%.1f]\n", info->identificationCode, info->apiVersion, info->currentWebSocketHandleAsU32, firstTimeRegisteredSec, lastTimeRegisteredSec);
+            }
+            printf ("    found: %d clients\n\n", n);
+        }
+        break;
+
+    default:
+        printf ("server> unknown console message\n");
+        break;
+
     }
 }

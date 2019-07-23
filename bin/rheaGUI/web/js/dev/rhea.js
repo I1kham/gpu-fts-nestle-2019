@@ -82,7 +82,12 @@ Rhea.prototype.webSocket_connect = function()
 		{
 			rheaLog("Rhea:: trying to connect...");
 			me.websocket = new WebSocket("ws://127.0.0.1:2280/", "binary");
-			me.websocket.onopen = 		function(evt) { rheaLog("Rhea::webSocket connected"); resolve(1); };
+			me.websocket.onopen = 		function(evt) 
+			{ 
+				rheaLog("Rhea::webSocket connected...");
+				//me.webSocket_identifyAfterConnection();
+				resolve(1); 
+			};
 			me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };
 			me.websocket.onmessage = 	function(evt) { me.webSocket_onRcv(evt) };
 			me.websocket.onerror = 		function(evt) { rheaLog("Rhea::onWebSocketErr => ERROR: " + evt.data); setTimeout(tryConnect, 2000); };
@@ -92,6 +97,22 @@ Rhea.prototype.webSocket_connect = function()
 	});
 }
 
+Rhea.prototype.webSocket_identifyAfterConnection = function()
+{
+	rheaLog("Rhea::webSocket identifying..."); 
+
+	var buffer = new Uint8Array(8);
+	buffer[0] = 0x01;	//API version
+	
+	buffer[1] = 0x02;	//identification code MSB
+	buffer[2] = 0x03;	//..
+	buffer[3] = 0x04;	//..
+	buffer[4] = 0x05;	//identification code LSB
+	buffer[5] = 0;		//unused
+	buffer[6] = 0;		//unused
+	buffer[7] = 0;		//unused
+	this.sendGPUCommand("W", buffer, 0, 0);
+}
 
 
 /*********************************************************

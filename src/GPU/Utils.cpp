@@ -2,35 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <qstring.h>
+#include <qfont.h>
+#include "header.h"
 
-/*************************************************************************************
- * formatta [price] riempendo [out] con una stringa che rappresenta il numero [price] le cui ultime [numDecimal]
- * cifre sono da intendersi come decimali, seprarati dal resto della crifra dal carattere [decimalPointCharacter]
- */
-void utils::formatCurrency (u16 price, u8 numDecimal, char decimalPointCharacter, char *out_s, u16 sizeOfOut)
-{
-    char s[16];
-    if (numDecimal == 0)
-        sprintf (s, "%d", price);
-    else
-    {
-        const u16 divisore = numDecimal * 10;
-
-        u16 parteIntera = price / divisore;
-        u16 parteDecimale = price - (parteIntera * divisore);
-
-        sprintf (s, "%d%c", parteIntera, decimalPointCharacter);
-
-        char sd[8];
-        sprintf (sd, "%d", parteDecimale);
-        while (strlen(sd) < numDecimal)
-            strcat(sd, "0");
-
-        strcat (s, sd);
-    }
-
-    strncpy (out_s, s, sizeOfOut-1);
-}
 
 //*************************************************************************************
 u8 utils::evalChecksum (unsigned char *buf, unsigned int len)
@@ -52,4 +26,25 @@ char* utils::QCharToCStr (const QChar *in, char *out)
     }
     out[i] =0;
     return out;
+}
+
+/*****************************************************
+ * Font
+ * Il font col charset Latin, JP, chinese è "Noto Sans CJK SC", installato di default nella immagine dell'OS 5
+ * Il font col charset Hebrew, è il Roboto, installato di default nella immagine dell'OS 5
+ */
+void utils::getRightFontForLanguage (QFont &out, int pointSize, const char *iso2LettersLanguageCode)
+{
+    if (strcasecmp(iso2LettersLanguageCode, "HE") == 0)
+    {
+        DEBUG_MSG   ("FONT: using DejaVu Sans");
+        out.setFamily("DejaVu Sans");
+        out.setPointSize(pointSize);
+    }
+    else
+    {
+        DEBUG_MSG   ("FONT: Noto Sans CJK SC");
+        out.setFamily("Noto Sans CJK SC");
+        out.setPointSize(pointSize);
+    }
 }

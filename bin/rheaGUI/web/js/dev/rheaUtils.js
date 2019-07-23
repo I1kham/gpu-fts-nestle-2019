@@ -104,6 +104,7 @@ function rheaGetElemWidth (elem)		{ return _rheaGetElemProp(elem.offsetWidth); }
 function rheaGetElemHeight (elem)		{ return _rheaGetElemProp(elem.offsetHeight); }
 function rheaGetElemLeft (elem)			{ return _rheaGetElemProp(elem.style.left); }
 function rheaGetElemTop (elem)			{ return _rheaGetElemProp(elem.style.top); }
+function rheaGetElemHTML (elem)			{ return elem.innerHTML; }
 
 function rheaSetElemHTML (elem, html)	{ elem.innerHTML = html; }
 function rheaSetElemWidth (elem, pixel)	{ elem.style.width= pixel +"px"; }
@@ -170,6 +171,42 @@ function rheaSmoothScrollElemLeft (elem, to, durationMSec)
 }
 
 /****************************************************************
+ * rheaSmoothScrollElemTop
+ *
+ *	[elem] deve essere ottenuto da rheaGetElemByID()
+ *	Scrolla la posizione style.top dal valore attuale al valore [to] nel tempo [durationMSec]
+ */
+function rheaSmoothScrollElemTop (elem, to, durationMSec) 
+{
+    var start = rheaGetElemTop(elem);
+	var change = to - start;
+	var currentTimeMSec = 0;
+	var stepMSec = 20;
+        
+    var animateScroll = function()
+	{
+        currentTimeMSec += stepMSec;
+        var t = currentTimeMSec / durationMSec;
+		
+		if (t >= 1)
+		{
+			clearInterval(hInterval);
+			t = 1;
+			rheaSetElemTop(elem, start+change);
+		}
+		else
+		{
+			t = rheaEase_outCubic(t);
+			val = start + change*t;
+			rheaSetElemTop(elem,val);
+		}
+    };
+	
+	var hInterval = setInterval(animateScroll, stepMSec);
+	return hInterval;
+}
+
+/****************************************************************
  * rheaGetURLParamOrDefault
  *
  *	cerca nella queryString il parametro [paramName] e ne ritorna il valore
@@ -193,28 +230,41 @@ function rheaGetURLParamOrDefault(paramName, defValue)
  *
  *	il div diventa scrollabile su e giu usando i gesti di trascinamento
  */
-function RheaScrollDivByGestureInfo(theDiv) { this.theDiv = theDiv; this.mouse_pressed =0; this.mouse_y = 0; this.totalH = rheaGetElemHeight(theDiv); }
-function rheaSetDivAsScrollabelByGesture (divID, maxScrollH)
+function ObjRheaScrollDivByGestureInfo(theDiv, contentH, wrapperH) 
+{ 
+	this.divContent = theDiv; 
+	this.mouse_pressed =0; 
+	this.mouse_y = 0; 
+	this.totalH = rheaGetElemHeight(theDiv);
+	this.scroll_miny = -(contentH - wrapperH);
+	this.scroll_howMuch = (wrapperH / 2);
+	this.scroll_tollerance_at_border = 5;
+}
+function rheaSetDivAsScrollabelByGesture (divContentID, divWrapperID, contentH, wrapperH)
 {
-	if (maxScrollH <= 0)
+	if (contentH <= wrapperH)
 		return;
-	console.log ("maxScrollH="+maxScrollH);
 		
-		
-	var theDiv = rheaGetElemByID(divID);
-	var info = new RheaScrollDivByGestureInfo(theDiv);
+	var theWrapper = rheaGetElemByID(divWrapperID);
 	
+	//aggiungo freccia su/giu al wrapper
+	var arrowDownY = wrapperH - 40;
+	var html = "<div id='divArrowUp'   class='bigScrollArrowUp'   style='top:0; display:none'><center><img draggable='false' src='img/big-arrow-up.png' height='30'></center></div>";
+	   html += "<div id='divArrowDown' class='bigScrollArrowDown' style='top:" +arrowDownY +"px; display:none'><center><img draggable='false' style='margin-top:11px' src='img/big-arrow-down.png' height='30'></center></div>";
+	rheaSetElemHTML(theWrapper,  rheaGetElemHTML(theWrapper) + html);
+	rheaShowElem(rheaGetElemByID("divArrowDown"));
+	
+	var theDiv = rheaGetElemByID(divContentID);
+	var info = new ObjRheaScrollDivByGestureInfo(theDiv, contentH, wrapperH);
 	theDiv.addEventListener('mousedown', function (ev)
 	{
 		info.mouse_pressed = 1;
 		info.mouse_y = ev.clientY;
-		//console.log ("===================== down y=" +info.mouse_y);
 	}, true);
 
 
 	theDiv.addEventListener('mouseup', function (ev) 
 	{
-		//console.log ("===================== up");
 		info.mouse_pressed = 0;
 	}, true);
 
@@ -226,17 +276,56 @@ function rheaSetDivAsScrollabelByGesture (divID, maxScrollH)
 		var y = ev.clientY;
 		var offset = y - info.mouse_y;
 		info.mouse_y = y;
-		//console.log ("y=" +y +", offset:" +offset);
 		
-		var top = rheaGetElemTop(info.theDiv);
-		//console.log ("current top:" +top);
+		var top = rheaGetElemTop(info.divContent);
 		top += offset;
 		if (top >= 0)
 			top = 0;
-		if (top < -maxScrollH)
-			top = -maxScrollH;
-		rheaSetElemTop(info.theDiv, top);
-		//console.log ("new top:" +top);
+		if (top < info.scroll_miny)
+			top = info.scroll_miny;
+		rheaSetElemTop(info.divContent, top);
+		
+		if (top < -info.scroll_tollerance_at_border)
+			rheaShowElem(rheaGetElemByID("divArrowUp"));
+		else
+			rheaHideElem(rheaGetElemByID("divArrowUp"));
+
+		if (top < (info.scroll_miny + info.scroll_tollerance_at_border))
+			rheaHideElem(rheaGetElemByID("divArrowDown"));
+		else
+			rheaShowElem(rheaGetElemByID("divArrowDown"));
 		
 	}, true);
+	
+	//bindo onclick della freccia giù
+	theDiv = rheaGetElemByID("divArrowDown");
+	theDiv.addEventListener('click', function (ev) 
+	{
+		var curY = rheaGetElemTop (info.divContent);
+		curY -= info.scroll_howMuch;
+		if (curY <= (info.scroll_miny + info.scroll_tollerance_at_border))
+		{
+			curY = info.scroll_miny;
+			rheaHideElem(rheaGetElemByID("divArrowDown"));
+		}
+		
+		rheaShowElem(rheaGetElemByID("divArrowUp"));
+		rheaSmoothScrollElemTop(info.divContent, curY, 300);
+	}, true)
+	
+	//bindo onclick della freccia su
+	theDiv = rheaGetElemByID("divArrowUp");
+	theDiv.addEventListener('click', function (ev) 
+	{
+		var curY = rheaGetElemTop (info.divContent);
+		curY += info.scroll_howMuch;
+		if (curY >= -info.scroll_tollerance_at_border)
+		{
+			rheaHideElem(rheaGetElemByID("divArrowUp"));
+			curY = 0;
+		}
+		
+		rheaShowElem(rheaGetElemByID("divArrowDown"));
+		rheaSmoothScrollElemTop(info.divContent, curY, 300);
+	}, true)		
 }

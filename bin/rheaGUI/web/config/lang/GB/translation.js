@@ -16,9 +16,6 @@ var rheaLang = {
 	
 	LAB_CURRENCY_SIMBOL: "€",
 	
-	LAB_YOUR_DRINK_IS_DISPENSING: "Your drink is dispensing...",
-	LAB_YOUR_DRINK_IS_READY: "Your drink is ready!",
-	
 	LAB_PAGE_STANDBY: "click anywhere to go to drink menu"
 };
 

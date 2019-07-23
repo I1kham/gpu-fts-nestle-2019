@@ -80,7 +80,8 @@ SOURCES += \
     rheaStringParserIter.cpp \
     rheaThread.cpp \
     rheaThreadMsgQ.cpp \
-    rheaTime24.cpp
+    rheaTime24.cpp \
+    rheaBit.cpp
 
 HEADERS += \
     OS/OS.h \
@@ -132,7 +133,8 @@ HEADERS += \
     rheaThreadSafePolicy.h \
     rheaTime24.h \
     rheaUtils.h \
-    rheaWaitableFIFO.h
+    rheaWaitableFIFO.h \
+    rheaBit.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

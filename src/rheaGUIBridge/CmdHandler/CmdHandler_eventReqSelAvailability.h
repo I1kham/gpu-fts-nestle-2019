@@ -23,6 +23,8 @@ namespace guibridge
 
         void        handleRequestFromGUI (const HThreadMsgW hQMessageToWebserver, const u8 *payload, u16 payloadLen);
         void        handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU);
+
+
     };
 } // namespace guibridge
 #endif // CmdHandler_eventRequestedFromGUI_h_

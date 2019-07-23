@@ -22,8 +22,8 @@ function onRheaBootstrapFinished()
 
 	rhea.clearSessionData();
 	
-	querySelectionAvail()
-		.then ( function() { return querySelectionPrice(); } )
+	querySelectionPrice()
+		.then ( function() { return querySelectionAvail(); } )
 		.then ( function() { 
 			window.location = "pageStandby.html";
 		})

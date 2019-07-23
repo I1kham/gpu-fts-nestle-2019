@@ -98,7 +98,7 @@ function setupGallery()
 	{
 		//appendo la prima immagine in fondo in modo da scrollare dalla ultima immagina alla prima senza effetti strani a video
 		numImages++;
-		html += "<div class='pageStandby_galleryContainer_foto'><img src='upload/" +rheaPageOptions.gallery_images[0] +"'></div>";
+		html += "<div class='pageStandby_galleryContainer_foto'><img draggable='false' src='upload/" +rheaPageOptions.gallery_images[0] +"'></div>";
 		rheaSetElemWidth(d, imageW * numImages);
 		rheaSetElemHTML(d, html);
 		setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);

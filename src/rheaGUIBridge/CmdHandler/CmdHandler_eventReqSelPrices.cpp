@@ -26,3 +26,6 @@ void CmdHandler_eventReqSelPrices::handleAnswerToGUI (WebsocketServer *server, c
 
     guibridge::sendEvent (server, hClient, EVENT_TYPE, buffer, len);
 }
+
+
+

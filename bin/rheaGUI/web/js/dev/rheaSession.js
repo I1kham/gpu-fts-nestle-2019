@@ -31,6 +31,13 @@ Rhea.prototype.Session_getValue = function (itemName)
 	return store.get(itemName);
 }
 
+Rhea.prototype.Session_getOrDefault = function (itemName, defaultValue)
+{
+	var r = this.Session_getValue(itemName);
+	if (r === undefined)
+		return defaultValue;
+	return r;
+}
 /*********************************************************
  * Session_setValue
  *

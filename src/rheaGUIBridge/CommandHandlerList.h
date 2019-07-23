@@ -20,7 +20,7 @@ namespace guibridge
         void                    setup (rhea::Allocator *allocator)                          { list.setup (allocator, 64); }
         void                    unsetup()                                                   { list.unsetup(); }
 
-        void                    add (CmdHandler *h)                                { list.append(h); }
+        void                    add (CmdHandler *h)                                         { list.append(h); }
 
         CmdHandler*             findByID (u16 handlerID) const
                                 {

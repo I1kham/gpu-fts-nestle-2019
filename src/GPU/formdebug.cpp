@@ -8,6 +8,7 @@ extern MainWindow *myMainWindow;
 
 extern unsigned char VMCstate;
 
+//*************************************************
 FormDEBUG::FormDEBUG(QWidget *parentIN) :
     QFrame(parentIN),
     ui(new Ui::FormDEBUG)
@@ -23,13 +24,17 @@ FormDEBUG::FormDEBUG(QWidget *parentIN) :
     ui->textBox1->setCenterOnScroll(true);
     ui->textBox1->ensureCursorVisible();
     bShrinked = false;
+    bPaused = false;
 }
 
+
+//*************************************************
 FormDEBUG::~FormDEBUG()
 {
     delete ui;
 }
 
+//*************************************************
 void FormDEBUG::resizeEvent( QResizeEvent *e )
 {
     QFrame::resizeEvent(e);
@@ -115,6 +120,13 @@ void FormDEBUG::addString(const char *text)
     if (text == NULL)
         return;
     if (text[0] == 0x00)
+        return;
+    addString (QString(text));
+}
+
+void FormDEBUG::addString (const QString &text)
+{
+    if (bPaused)
         return;
 
     QString s = ui->textBox1->toPlainText();
@@ -317,7 +329,83 @@ void FormDEBUG::priv_handle_CPU_to_GPU_Msg(const unsigned char *buffer, int nByt
 }
 
 
+//************************************************************************************
 void FormDEBUG::on_btnHistory_clicked()
 {
-    History::DEBUG_toScreen();
+    priv_listOfFontFamilies();
+    //History::DEBUG_toScreen();
+}
+
+
+//************************************************************************************
+void FormDEBUG::priv_listOfFontFamilies()
+{
+    this->addString("========== FONT FAMILY LIST BEGIN ==============");
+    QFontDatabase database;
+
+    {
+        this->addString("   == Japanese ==");
+        const QStringList fontFamilies = database.families(QFontDatabase::Japanese);
+        for (int i=0; i<fontFamilies.count(); i++)
+            this->addString("     " +fontFamilies.at(i));
+        this->addString(" ");
+    }
+
+    {
+        this->addString("   == Hebrew ==");
+        const QStringList fontFamilies = database.families(QFontDatabase::Hebrew);
+        for (int i=0; i<fontFamilies.count(); i++)
+            this->addString("     " +fontFamilies.at(i));
+        this->addString(" ");
+    }
+
+    {
+        this->addString("   == SimplifiedChinese ==");
+        const QStringList fontFamilies = database.families(QFontDatabase::SimplifiedChinese);
+        for (int i=0; i<fontFamilies.count(); i++)
+            this->addString("     " +fontFamilies.at(i));
+        this->addString(" ");
+    }
+
+    {
+        this->addString("   == TraditionalChinese ==");
+        const QStringList fontFamilies = database.families(QFontDatabase::TraditionalChinese);
+        for (int i=0; i<fontFamilies.count(); i++)
+            this->addString("     " +fontFamilies.at(i));
+        this->addString(" ");
+    }
+
+    {
+        this->addString("   == Cyrillic ==");
+        const QStringList fontFamilies = database.families(QFontDatabase::Cyrillic);
+        for (int i=0; i<fontFamilies.count(); i++)
+            this->addString("     " +fontFamilies.at(i));
+        this->addString(" ");
+    }
+
+    {
+        this->addString("   == Any ==");
+        const QStringList fontFamilies = database.families(QFontDatabase::Any);
+        for (int i=0; i<fontFamilies.count(); i++)
+            this->addString("     " +fontFamilies.at(i));
+        this->addString(" ");
+    }
+
+
+    this->addString("========== FONT FAMILY LIST END ==============");
+}
+
+//************************************************************************************
+void FormDEBUG::on_btnPause_clicked()
+{
+    if (bPaused)
+    {
+        bPaused=false;
+        addString ("************* RESUME *****************");
+    }
+    else
+    {
+        addString ("************* PAUSE *****************");
+        bPaused=true;
+    }
 }

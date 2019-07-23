@@ -194,10 +194,10 @@
   <widget class="QLabel" name="labelStatus">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>210</x>
      <y>510</y>
-     <width>511</width>
-     <height>36</height>
+     <width>551</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="font">
@@ -210,7 +210,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>labelStatus_text</string>
+    <string>labelStatus_text ｶｯﾌﾟｦ&quot;,&quot;ｵｲﾃｸﾀﾞｻｲ</string>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -580,7 +580,7 @@
     <enum>Qt::ScrollBarAlwaysOff</enum>
    </property>
    <property name="plainText">
-    <string>Box di debug</string>
+    <string>Box di debug ﾌﾟﾛｸ §</string>
    </property>
   </widget>
  </widget>

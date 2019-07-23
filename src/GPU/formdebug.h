@@ -18,6 +18,7 @@ public:
     void        addRawBuffer(const unsigned char *buffer, int offset, int nBytes);
     void        addBuffer (const unsigned char *buffer, int start, int lenInBytes, bool bIsGPUSending);
     void        addString (const char *message);
+    void        addString (const QString &s);
 
 
 
@@ -25,6 +26,8 @@ private slots:
     void on_btnX_clicked();
 
     void on_btnHistory_clicked();
+
+    void on_btnPause_clicked();
 
 private:
     Ui::FormDEBUG   *ui;
@@ -36,6 +39,7 @@ private:
     unsigned char   lastSelection_CPU_current;
     bool            bForceStateRefresh, bShrinked;
     int             wWhenNotShrinked, hWhenNotShrinked;
+    bool            bPaused;
 
 private:
     void    addStatusMessage(const char *text);
@@ -45,6 +49,7 @@ private:
     void    priv_addRawBuffer(const unsigned char *buffer, int offset, int nBytes, char *s);
     void    priv_appendHexToString (int h, char *out_s);
     void    priv_appendCharToString (char h, char *out_s);
+    void    priv_listOfFontFamilies();
 
 };
 

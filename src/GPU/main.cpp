@@ -1,8 +1,8 @@
+#include "header.h"
 #include "mainwindow.h"
 #include "formboot.h"
-#include <QApplication>
-#include "header.h"
 #include "formdebug.h"
+#include <QApplication>
 #include <qdir.h>
 #include <qfile.h>
 #include "../rheaGUIBridge/GUIBridge.h"
@@ -98,6 +98,19 @@ void DEBUG_MSG (const char* format, ...)
 
         f->addString(buffer);
     }
+}
+
+//****************************************************
+void DEBUG_MSG_REPLACE_SPACES (const QString &q)
+{
+    FormDEBUG *f = getFormDEBUG();
+    if (f)
+    {
+        QString qs = q;
+        qs.replace(' ', '*');
+        f->addString(qs);
+    }
+
 }
 
 //****************************************************
@@ -203,7 +216,8 @@ int main(int argc, char *argv[])
     //quando il server invia delle richieste (tipo: WEBSOCKET_COMMAND_START_SELECTION)
     HThreadMsgR hQMessageFromWebserver;
     HThreadMsgW hQMessageToWebserver;
-    if (!guibridge::startServer(&hQMessageFromWebserver, &hQMessageToWebserver))
+    rhea::HThread hServer;
+    if (!guibridge::startServer(&hServer, &hQMessageFromWebserver, &hQMessageToWebserver))
     {
         return -1;
     }

@@ -4,13 +4,14 @@
 
 
 class QChar;
+class QFont;
 
 
 namespace utils
 {
-    void                formatCurrency (u16 price, u8 numDecimal, char decimalPointCharacter, char *out_s, u16 sizeOfOut);
     u8                  evalChecksum (unsigned char *buf, unsigned int len);
     char*               QCharToCStr (const QChar *in, char *out);
+    void                getRightFontForLanguage (QFont &out, int pointSize, const char *iso2LettersLanguageCode);
 }
 
 #endif // _utils_h_

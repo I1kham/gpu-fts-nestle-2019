@@ -1,6 +1,7 @@
 #include "header.h"
 #include "formprog.h"
 #include "ui_formprog.h"
+#include "Utils.h"
 #include <QWidget>
 #include <QDir>
 #include <QFile>
@@ -18,7 +19,6 @@ extern QString CPU_version;
 extern QString Folder_Manual;
 
 
-
 FormProg::FormProg(QWidget *parent) :    QDialog(parent),    ui(new Ui::FormProg)
 {
     ui->setupUi(this);
@@ -33,7 +33,7 @@ FormProg::~FormProg()
 
 
 
-void FormProg::initForm()
+void FormProg::initForm(const char *iso2LettersLanguageCode)
 {
  //   QApplication::setOverrideCursor(Qt::PointingHandCursor);
 
@@ -49,9 +49,16 @@ void FormProg::initForm()
     ui->buttonManualQuit->hide();
 
     ui->labelStatus->setGeometry((ScreenW-labelStatus_Prog_W)/2 ,ScreenH-labelStatusProg_H-labelStatus_MarginBottom-30, labelStatus_Prog_W, labelStatusProg_H);
+    //ui->labelStatus->setStyleSheet("QLabel { background-color: #808080; color:#fff; }");
     ui->labelStatus->setText("");
     ui->labelStatus->raise();
     ui->labelStatus->setAlignment(Qt::AlignCenter);
+
+    utils::getRightFontForLanguage (theFont, 20, iso2LettersLanguageCode);
+    ui->labelStatus->setFont (theFont);
+
+    utils::getRightFontForLanguage (theFontSmall, 10, iso2LettersLanguageCode);
+    ui->debugTextBox->setFont(theFontSmall);
 }
 
 
@@ -244,6 +251,12 @@ void FormProg::addDebugString(const char *text)
         return;
     if (text[0] == 0x00)
         return;
+    addDebugString(QString(text));
+}
+
+//*******************************************************************
+void FormProg::addDebugString(const QString &text)
+{
 
     ui->debugTextBox->setVisible(true);
     QString s = ui->debugTextBox->toPlainText();

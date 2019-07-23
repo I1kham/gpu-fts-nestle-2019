@@ -78,7 +78,8 @@ SOURCES += \
     CmdHandler/CmdHandler_eventReqSelPrices.cpp \
     CmdHandler/CmdHandler_eventReqSelStatus.cpp \
     CmdHandler/CmdHandler_eventReqStartSel.cpp \
-    CmdHandler/CmdHandler_eventReqStopSel.cpp
+    CmdHandler/CmdHandler_eventReqStopSel.cpp \
+    IdentifiedClientList.cpp
 
 HEADERS += \
     CmdHandler.h \
@@ -96,7 +97,8 @@ HEADERS += \
     CmdHandler/CmdHandler_eventReqSelPrices.h \
     CmdHandler/CmdHandler_eventReqSelStatus.h \
     CmdHandler/CmdHandler_eventReqStartSel.h \
-    CmdHandler/CmdHandler_eventReqStopSel.h
+    CmdHandler/CmdHandler_eventReqStopSel.h \
+    IdentifiedClientList.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

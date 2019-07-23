@@ -112,6 +112,7 @@ function rheaGetElemWidth (elem)		{ return _rheaGetElemProp(elem.offsetWidth); }
 function rheaGetElemHeight (elem)		{ return _rheaGetElemProp(elem.offsetHeight); }
 function rheaGetElemLeft (elem)			{ return _rheaGetElemProp(elem.style.left); }
 function rheaGetElemTop (elem)			{ return _rheaGetElemProp(elem.style.top); }
+function rheaGetElemHTML (elem)			{ return elem.innerHTML; }
 
 function rheaSetElemHTML (elem, html)	{ elem.innerHTML = html; }
 function rheaSetElemWidth (elem, pixel)	{ elem.style.width= pixel +"px"; }
@@ -178,6 +179,42 @@ function rheaSmoothScrollElemLeft (elem, to, durationMSec)
 }
 
 /****************************************************************
+ * rheaSmoothScrollElemTop
+ *
+ *	[elem] deve essere ottenuto da rheaGetElemByID()
+ *	Scrolla la posizione style.top dal valore attuale al valore [to] nel tempo [durationMSec]
+ */
+function rheaSmoothScrollElemTop (elem, to, durationMSec) 
+{
+    var start = rheaGetElemTop(elem);
+	var change = to - start;
+	var currentTimeMSec = 0;
+	var stepMSec = 20;
+        
+    var animateScroll = function()
+	{
+        currentTimeMSec += stepMSec;
+        var t = currentTimeMSec / durationMSec;
+		
+		if (t >= 1)
+		{
+			clearInterval(hInterval);
+			t = 1;
+			rheaSetElemTop(elem, start+change);
+		}
+		else
+		{
+			t = rheaEase_outCubic(t);
+			val = start + change*t;
+			rheaSetElemTop(elem,val);
+		}
+    };
+	
+	var hInterval = setInterval(animateScroll, stepMSec);
+	return hInterval;
+}
+
+/****************************************************************
  * rheaGetURLParamOrDefault
  *
  *	cerca nella queryString il parametro [paramName] e ne ritorna il valore
@@ -201,28 +238,41 @@ function rheaGetURLParamOrDefault(paramName, defValue)
  *
  *	il div diventa scrollabile su e giu usando i gesti di trascinamento
  */
-function RheaScrollDivByGestureInfo(theDiv) { this.theDiv = theDiv; this.mouse_pressed =0; this.mouse_y = 0; this.totalH = rheaGetElemHeight(theDiv); }
-function rheaSetDivAsScrollabelByGesture (divID, maxScrollH)
+function ObjRheaScrollDivByGestureInfo(theDiv, contentH, wrapperH) 
+{ 
+	this.divContent = theDiv; 
+	this.mouse_pressed =0; 
+	this.mouse_y = 0; 
+	this.totalH = rheaGetElemHeight(theDiv);
+	this.scroll_miny = -(contentH - wrapperH);
+	this.scroll_howMuch = (wrapperH / 2);
+	this.scroll_tollerance_at_border = 5;
+}
+function rheaSetDivAsScrollabelByGesture (divContentID, divWrapperID, contentH, wrapperH)
 {
-	if (maxScrollH <= 0)
+	if (contentH <= wrapperH)
 		return;
-	console.log ("maxScrollH="+maxScrollH);
 		
-		
-	var theDiv = rheaGetElemByID(divID);
-	var info = new RheaScrollDivByGestureInfo(theDiv);
+	var theWrapper = rheaGetElemByID(divWrapperID);
 	
+	//aggiungo freccia su/giu al wrapper
+	var arrowDownY = wrapperH - 40;
+	var html = "<div id='divArrowUp'   class='bigScrollArrowUp'   style='top:0; display:none'><center><img draggable='false' src='img/big-arrow-up.png' height='30'></center></div>";
+	   html += "<div id='divArrowDown' class='bigScrollArrowDown' style='top:" +arrowDownY +"px; display:none'><center><img draggable='false' style='margin-top:11px' src='img/big-arrow-down.png' height='30'></center></div>";
+	rheaSetElemHTML(theWrapper,  rheaGetElemHTML(theWrapper) + html);
+	rheaShowElem(rheaGetElemByID("divArrowDown"));
+	
+	var theDiv = rheaGetElemByID(divContentID);
+	var info = new ObjRheaScrollDivByGestureInfo(theDiv, contentH, wrapperH);
 	theDiv.addEventListener('mousedown', function (ev)
 	{
 		info.mouse_pressed = 1;
 		info.mouse_y = ev.clientY;
-		//console.log ("===================== down y=" +info.mouse_y);
 	}, true);
 
 
 	theDiv.addEventListener('mouseup', function (ev) 
 	{
-		//console.log ("===================== up");
 		info.mouse_pressed = 0;
 	}, true);
 
@@ -234,19 +284,58 @@ function rheaSetDivAsScrollabelByGesture (divID, maxScrollH)
 		var y = ev.clientY;
 		var offset = y - info.mouse_y;
 		info.mouse_y = y;
-		//console.log ("y=" +y +", offset:" +offset);
 		
-		var top = rheaGetElemTop(info.theDiv);
-		//console.log ("current top:" +top);
+		var top = rheaGetElemTop(info.divContent);
 		top += offset;
 		if (top >= 0)
 			top = 0;
-		if (top < -maxScrollH)
-			top = -maxScrollH;
-		rheaSetElemTop(info.theDiv, top);
-		//console.log ("new top:" +top);
+		if (top < info.scroll_miny)
+			top = info.scroll_miny;
+		rheaSetElemTop(info.divContent, top);
+		
+		if (top < -info.scroll_tollerance_at_border)
+			rheaShowElem(rheaGetElemByID("divArrowUp"));
+		else
+			rheaHideElem(rheaGetElemByID("divArrowUp"));
+
+		if (top < (info.scroll_miny + info.scroll_tollerance_at_border))
+			rheaHideElem(rheaGetElemByID("divArrowDown"));
+		else
+			rheaShowElem(rheaGetElemByID("divArrowDown"));
 		
 	}, true);
+	
+	//bindo onclick della freccia giù
+	theDiv = rheaGetElemByID("divArrowDown");
+	theDiv.addEventListener('click', function (ev) 
+	{
+		var curY = rheaGetElemTop (info.divContent);
+		curY -= info.scroll_howMuch;
+		if (curY <= (info.scroll_miny + info.scroll_tollerance_at_border))
+		{
+			curY = info.scroll_miny;
+			rheaHideElem(rheaGetElemByID("divArrowDown"));
+		}
+		
+		rheaShowElem(rheaGetElemByID("divArrowUp"));
+		rheaSmoothScrollElemTop(info.divContent, curY, 300);
+	}, true)
+	
+	//bindo onclick della freccia su
+	theDiv = rheaGetElemByID("divArrowUp");
+	theDiv.addEventListener('click', function (ev) 
+	{
+		var curY = rheaGetElemTop (info.divContent);
+		curY += info.scroll_howMuch;
+		if (curY >= -info.scroll_tollerance_at_border)
+		{
+			rheaHideElem(rheaGetElemByID("divArrowUp"));
+			curY = 0;
+		}
+		
+		rheaShowElem(rheaGetElemByID("divArrowDown"));
+		rheaSmoothScrollElemTop(info.divContent, curY, 300);
+	}, true)		
 }//Se si richiede un linguaggio che non è supportato (ie: mancano i file), allora si carica il RHEA_DEFAULT_FALLOFF_LANGUAGE
 var 	RHEA_DEFAULT_FALLOFF_LANGUAGE = "GB";
 
@@ -331,7 +420,12 @@ Rhea.prototype.webSocket_connect = function()
 		{
 			rheaLog("Rhea:: trying to connect...");
 			me.websocket = new WebSocket("ws://127.0.0.1:2280/", "binary");
-			me.websocket.onopen = 		function(evt) { rheaLog("Rhea::webSocket connected"); resolve(1); };
+			me.websocket.onopen = 		function(evt) 
+			{ 
+				rheaLog("Rhea::webSocket connected...");
+				//me.webSocket_identifyAfterConnection();
+				resolve(1); 
+			};
 			me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };
 			me.websocket.onmessage = 	function(evt) { me.webSocket_onRcv(evt) };
 			me.websocket.onerror = 		function(evt) { rheaLog("Rhea::onWebSocketErr => ERROR: " + evt.data); setTimeout(tryConnect, 2000); };
@@ -341,6 +435,22 @@ Rhea.prototype.webSocket_connect = function()
 	});
 }
 
+Rhea.prototype.webSocket_identifyAfterConnection = function()
+{
+	rheaLog("Rhea::webSocket identifying..."); 
+
+	var buffer = new Uint8Array(8);
+	buffer[0] = 0x01;	//API version
+	
+	buffer[1] = 0x02;	//identification code MSB
+	buffer[2] = 0x03;	//..
+	buffer[3] = 0x04;	//..
+	buffer[4] = 0x05;	//identification code LSB
+	buffer[5] = 0;		//unused
+	buffer[6] = 0;		//unused
+	buffer[7] = 0;		//unused
+	this.sendGPUCommand("W", buffer, 0, 0);
+}
 
 
 /*********************************************************
@@ -671,6 +781,13 @@ Rhea.prototype.Session_getValue = function (itemName)
 	return store.get(itemName);
 }
 
+Rhea.prototype.Session_getOrDefault = function (itemName, defaultValue)
+{
+	var r = this.Session_getValue(itemName);
+	if (r === undefined)
+		return defaultValue;
+	return r;
+}
 /*********************************************************
  * Session_setValue
  *

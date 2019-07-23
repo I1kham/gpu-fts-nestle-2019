@@ -11,24 +11,22 @@
 
 <div class="wrapper1024x600">
 	<div class="header">
-		<div class="header_left">
-			<div id="divBtnBack" class="header_left_btnHome"><img draggable='false' src="img/btnBack.png"></div>
-		</div>
-		<div class="header_center"><img src="img/logo.png"></div>
-		<div class="header_right"></div>
-		<div class="clear"></div>
+		<center><img draggable='false' src="img/logo.png"></center>
 	</div>
 
-	<div class="page" style="overflow-y: auto">
-		<div class="pageInfoDetailContent">
-			<div id="divTitle" class="pageInfoDetailContent_title"></div>
-			<div id="divContentWrapper" class="pageInfoDetailContent_content"><div id="divContent" style="position:absolute; top:0; left:0"></div></div>
+	<div class="pageInfoDetailContent">
+		<div id="divTitle" class="pageInfoDetailContent_title"></div>
+		<div id="divContentWrapper" class="pageInfoDetailContent_content">
+			<div id="divContent" style="position:absolute; top:0; left:0"></div>
 		</div>
 	</div>
 
-	<div class="footer">
+	
+	<!-- il btn home lo metto qui in position absolute per dargli una maggiore area di click -->
+	<div id="divBtnBack" style="position:absolute; top:0; left:0; width:200px; height:80px;">
+		<img class="header_left_btnHome" draggable='false' src="img/btnBack.png">
 	</div>
-</div>
+</div> <!-- wrapper1024x600 -->
 
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
@@ -59,7 +57,8 @@ function onRheaBootstrapFinished()
 			
 			var wrapperH = rheaGetElemHeight (rheaGetElemByID("divContentWrapper"));
 			var contentH = rheaGetElemHeight (d);
-			rheaSetDivAsScrollabelByGesture("divContent", contentH - wrapperH);			
+			if (contentH > wrapperH)
+				rheaSetDivAsScrollabelByGesture("divContent", "divContentWrapper" , contentH, wrapperH);	
 		});
 }
 

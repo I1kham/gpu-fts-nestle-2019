@@ -15,11 +15,12 @@ public:
     explicit FormProg(QWidget *parent = 0);
     ~FormProg();
 
-   void initForm();
+   void initForm (const char *iso2LettersLanguageCode);
    void updateLabelStatusProg(QString qs_p);
    void updateLabelVersion();
 
    void addDebugString(const char *text);
+   void addDebugString(const QString &text);
 
 private slots:
     void on_buttonB1_pressed();
@@ -68,6 +69,7 @@ private slots:
 
 private:
     Ui::FormProg *ui;
+    QFont theFont,theFontSmall;
 };
 
 #endif // FORMPROG_H

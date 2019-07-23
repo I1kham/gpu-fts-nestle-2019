@@ -313,18 +313,31 @@ void FormBoot::timerInterrupt()
             break;
 
 
-    case ConfigFileOperation_status_Audit_endKO:
-        timerBoot->stop();
-        ui->labelStatus->setText("Audit read failed " + QString::number(ConfigFileOperation_errorCode));
-        ConfigFileOperation_status=ConfigFileOperation_status_idle;
-        break;
+    case ConfigFileOperation_status_Audit_inProgress:
+            {
+                float KbReadSoFar = (float)myFileArray_index / 1024.0f;
+                char s[128];
+                sprintf (s, "Reading: %.1f Kb", KbReadSoFar);
+                this->ui->labelStatus->setText (s);
+            }
+            break;
 
-    case ConfigFileOperation_status_Audit_endOK:
-        timerBoot->stop();
-        Audit_saveToFile();
-        ui->labelStatus->setText("Audit read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
-        ConfigFileOperation_status=ConfigFileOperation_status_idle;
-        break;
+        case ConfigFileOperation_status_Audit_endKO:
+            timerBoot->stop();
+            ui->labelStatus->setText("Audit read failed " + QString::number(ConfigFileOperation_errorCode));
+            ConfigFileOperation_status=ConfigFileOperation_status_idle;
+            ui->buttonStart->setEnabled(true);
+            ui->buttonReadAudit->setEnabled(true);
+            break;
+
+        case ConfigFileOperation_status_Audit_endOK:
+            timerBoot->stop();
+            Audit_saveToFile();
+            ui->labelStatus->setText("Audit read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
+            ConfigFileOperation_status=ConfigFileOperation_status_idle;
+            ui->buttonStart->setEnabled(true);
+            ui->buttonReadAudit->setEnabled(true);
+            break;
 
     }
 }
@@ -636,50 +649,7 @@ void FormBoot::on_buttonWriteCPU_clicked()
     timerBoot->start(300);
 }
 
-
-/* Copia tutti i file .ttf e otf presenti nella cartella fonts della GUI e li mette in /usr/lib/fonts (solo se tali file
- * non esistono già nel SO).
- * Ritorna il num di file copiati. Generalmente è necessario fare un reboot dopo aver "installato" un font nel SO
- *
- * ATTENZIONE: la versione OS 5 non supporta più i font di tipo OTF
- */
-int FormBoot::instalFonts(const QString *srcFolder)
-{
-    int nFontCopiati = 0;
-    QString destFilePath;
-    QString destFullFilename;
-
-
-    QDir dir(*srcFolder);
-    if (dir.exists())
-    {
-        dir.setFilter(QDir::Files);
-        QFileInfoList list = dir.entryInfoList();
-
-        foreach (QFileInfo finfo, list)
-        {
-            if ( QString::compare (finfo.suffix(), "ttf", Qt::CaseInsensitive) == 0 ||
-                 QString::compare (finfo.suffix(), "otf", Qt::CaseInsensitive) == 0)
-            {
-                destFilePath = "/usr/lib/fonts/";
-                destFilePath += finfo.fileName();
-
-                if ( !QFile(destFilePath).exists() )
-                {
-                    //ui->labelStatus->setText(destFilePath); myDelay(500);
-                    DEBUG_MSG ("  copying...");
-                    QFile::copy(finfo.absoluteFilePath(), destFilePath);
-                    nFontCopiati++;
-                }
-            }
-        }
-    }
-
-
-    return nFontCopiati;
-}
-
-
+//******************************************************************
 void FormBoot::on_buttonWriteGUI_clicked()
 {
     bool res;
@@ -703,9 +673,6 @@ void FormBoot::on_buttonWriteGUI_clicked()
         ui->labelStatus->setText("writing GUI..."); myDelay(20);
         res = copyRecursively(sourceFilePath, destFilePath);
 
-        sourceFilePath = Folder_GUI + "/web/fonts";
-        int nFontInstallati = instalFonts(&sourceFilePath);
-
         sync();
 
         if (res==false)
@@ -715,11 +682,6 @@ void FormBoot::on_buttonWriteGUI_clicked()
             History::addEntry (HISTORY_TYPE_GUI, item->text().toStdString().c_str());
 
             ui->labelStatus->setText("GUI write OK");
-            if (nFontInstallati)
-            {
-                ui->labelWarning->setText("One or more fonts have been installed. You should reboot the machine");
-                ui->labelWarning->setVisible(true);
-            }
         }
 
     }
@@ -814,20 +776,23 @@ void FormBoot::on_buttonWriteManual_clicked()
 
 
 
-
+//*****************************************************
 void FormBoot::on_buttonReadAudit_clicked()
 {
     int i;
-    for (i=0;i<AUDIT_MAX_FILESIZE;i++) myAuditArray[i]=0;
+    for (i=0;i<AUDIT_MAX_FILESIZE;i++)
+        myAuditArray[i]=0;
     myFileArray_index=0;
     ConfigFileOperation_status=ConfigFileOperation_status_Audit_inProgress;
-    ComCommandRequest=ComCommandRequest_ReadAudit_req;
+    ComCommandRequest = ComCommandRequest_ReadAudit_req;
 
+    ui->buttonReadAudit->setEnabled(false);
+    ui->buttonStart->setEnabled(false);
     ui->labelStatus->setText("reading audit (machine=>USB) ...");
     timerBoot->start(500);
 }
 
-
+//*****************************************************
 int Audit_saveToFile(void)
 {
     int res=0;
@@ -871,7 +836,7 @@ int Audit_saveToFile(void)
  */
 void FormBoot::on_btnReadLang_clicked()
 {
-    priv_langCopy (Folder_languages, Folder_LangPenDrive);
+    priv_langCopy (Folder_languages, Folder_LangPenDrive, 30000);
 }
 
 /**********************************************************************
@@ -881,14 +846,15 @@ void FormBoot::on_btnReadLang_clicked()
  */
 void FormBoot::on_btnWriteLang_clicked()
 {
-    priv_langCopy (Folder_LangPenDrive, Folder_languages);
+    priv_langCopy (Folder_LangPenDrive, Folder_languages, 10000);
 }
 
 //**********************************************************************
-bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder) const
+bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder, long timeToWaitDuringCopyFinalizingMSec) const
 {
     ui->btnReadLang->setEnabled(false);
     ui->btnWriteLang->setEnabled(false);
+    ui->buttonStart->setEnabled(false);
 
     ui->labelStatus->setText("copying files...");
     myDelay(20);
@@ -931,10 +897,21 @@ bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder
     }
 
     if (!bFailed)
-        ui->labelStatus->setText("Done!");
+    {
+        //aspetto un tot di secondi per dare tempo alla chiave USB di poter essere unmounted
+        ui->labelStatus->setText("Finalizing copy");
+        long timeToExitMSec = getTimeNowMSec() + timeToWaitDuringCopyFinalizingMSec;
+        while (getTimeNowMSec() < timeToExitMSec)
+        {
+            QCoreApplication::processEvents();
+        }
 
+        //fine
+        ui->labelStatus->setText("Done!");
+    }
+
+    ui->buttonStart->setEnabled(true);
     ui->btnReadLang->setEnabled(true);
     ui->btnWriteLang->setEnabled(true);
-
     return (!bFailed);
 }

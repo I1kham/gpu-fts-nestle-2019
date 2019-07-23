@@ -1,13 +1,12 @@
 #include "lang.h"
 #include "header.h"
-#include "Utils.h"
-#include <QString>
 
-#define	LANG_PARAM_SEPARATOR	0x00A7
 
 #define LANG_ERR_FILE_NOT_FOUND			1
 #define LANG_ERR_FSEEK_ERROR			2
 #define LANG_ERR_WRONG_INITIAL_CHAR		3
+#define LANG_ERR_STR_WITH_NO_TERINATION	4
+#define LANG_ERR_GENERAL				5
 
 #define LANG_SIZE_OF_A_MESSAGE_IN_BYTES	72
 typedef struct sLangMsg
@@ -70,6 +69,8 @@ FILE* lang_open_table (sLanguage *lang, unsigned char tableID)
 
     if (lang->ff[iTable] != NULL)
         fclose (lang->ff[iTable]);
+
+    DEBUG_MSG (filename);
     lang->ff[iTable] = fopen (filename, "rb");
 
     return lang->ff[iTable];
@@ -140,8 +141,14 @@ unsigned char lang_getMessage (sLanguage *lang, unsigned char tableID, int msgID
     t=0;
     for (i=0; i<(LANG_SIZE_OF_A_MESSAGE_IN_BYTES/2); i++)
     {
-        out->msg[i] = (256*s[t]) + s[t+1];
-        t+=2;
+        //b1 b2 b1 b2
+        //00 6c FF 76 FF 6F FF 8C FF 9F FF 66
+        ushort b1 = (ushort)s[t++];
+        ushort b2 = (ushort)s[t++];
+
+        b1 <<= 8;
+        b1 |= b2;
+        out->msg[i] = b1;
     }
     out->msg[i] = 0;
 
@@ -187,11 +194,32 @@ unsigned char lang_getMessage (sLanguage *lang, unsigned char tableID, int msgID
 void lang_translate (sLanguage *lang, QChar *msgIN_OUT, int maxNumOfXCharInmsgIN_OUT)
 {
     int i,t;
-    if (msgIN_OUT[0] != '@')
+    if (msgIN_OUT[0] != LANG_CHIOCCIOLA)
     {
         lang_setAndDisplayErrorCode (lang, msgIN_OUT, LANG_ERR_WRONG_INITIAL_CHAR, ' ', 0);
         return;
     }
+
+    //mi accerto che ci sia uno 0x00 alla fine
+    for (i=0; i<=MAXLEN_MSG_LCD; i++)
+    {
+        if (msgIN_OUT[i] == 0x00)
+        {
+            i = 0xff;
+            break;
+        }
+
+        if (msgIN_OUT[i] <= 20)
+            msgIN_OUT[i]=' ';
+    }
+
+    if (i != 0xff)
+    {
+        lang_setAndDisplayErrorCode (lang, msgIN_OUT, LANG_ERR_STR_WITH_NO_TERINATION, ' ', 0);
+        return;
+    }
+
+
 
     //id tabella
     unsigned char tableID = (unsigned char)msgIN_OUT[1].unicode();
@@ -202,8 +230,7 @@ void lang_translate (sLanguage *lang, QChar *msgIN_OUT, int maxNumOfXCharInmsgIN
                 +  ((unsigned char)msgIN_OUT[4].unicode() - '0');
 
 
-    char debug_str[128];
-    DEBUG_MSG_REPLACE_SPACES("from CPU:%s!!!", utils::QCharToCStr(msgIN_OUT, debug_str));
+    DEBUG_MSG_REPLACE_SPACES(QString("from CPU:") +QString(msgIN_OUT,-1) +QString("!!!"));
 
 
     //eventuali parametri
@@ -215,12 +242,64 @@ void lang_translate (sLanguage *lang, QChar *msgIN_OUT, int maxNumOfXCharInmsgIN
         ++i;
         while (msgIN_OUT[i] != 0x00)
         {
-            params[nParam++] = &msgIN_OUT[i];
+            params[nParam] = &msgIN_OUT[i];
             while (msgIN_OUT[i] != 0x00 && msgIN_OUT[i] != LANG_PARAM_SEPARATOR)
                 i++;
 
             if (msgIN_OUT[i] == LANG_PARAM_SEPARATOR)
+            {
                 msgIN_OUT[i++] = 0x00;
+
+                //caso speciale di 2 messaggi concatenati.
+                //Se uno dei param termina con una sequenza del tipo @Annn, allora vuol dire che quello è l'inizio di un secondo
+                //messaggio concatenato al primo
+
+                //lunghezza del parametro
+                int n = 0;
+                while (params[nParam][n] != 0)
+                    n++;
+
+                if (n > 5)
+                {
+                    if (params[nParam][n - 5] == LANG_CHIOCCIOLA && (params[nParam][n - 4] == 'A' || params[nParam][n - 4] == 'B'))
+                    {
+                        if ((params[nParam][n - 3] >= '0' && params[nParam][n - 3] <= '9') &&
+                            (params[nParam][n - 2] >= '0' && params[nParam][n - 2] <= '9') &&
+                            (params[nParam][n - 1] >= '0' && params[nParam][n - 1] <= '9'))
+                        {
+                            msgIN_OUT[i-1] = LANG_PARAM_SEPARATOR;
+
+                            QChar secondMsg[MAX_GPU_MESSAGE_LEN+2];
+                            int t = n - 5;
+                            int ct = 0;
+                            while (params[nParam][t] != 0x00)
+                                secondMsg[ct++] = params[nParam][t++];
+                            secondMsg[ct] = 0;
+
+                            params[nParam][n - 5] = 0x00;
+                            lang_translate(lang, msgIN_OUT, maxNumOfXCharInmsgIN_OUT);
+                            lang_translate(lang, secondMsg, MAX_GPU_MESSAGE_LEN);
+
+                            t = 0;
+                            while (msgIN_OUT[t] != 0x00)
+                                t++;
+
+                            //devo ignorare gli a capo sul 2ndo msg
+                            ct = 0;
+                            while (secondMsg[ct] != 0x00)
+                            {
+                                if (secondMsg[ct] == '\n')
+                                    ct++;
+                                else
+                                    msgIN_OUT[t++] = secondMsg[ct++];
+                            }
+                            msgIN_OUT[t] = 0;
+                            return;
+                        }
+                    }
+                }
+            }
+            nParam++;
         }
     }
 
@@ -243,7 +322,7 @@ void lang_translate (sLanguage *lang, QChar *msgIN_OUT, int maxNumOfXCharInmsgIN
         return;
     }
 
-    DEBUG_MSG_REPLACE_SPACES("from file:%s!!!", utils::QCharToCStr(translated.msg, debug_str));
+    DEBUG_MSG_REPLACE_SPACES(QString("from file:") + QString(translated.msg, -1) + QString("!!!"));
 
 
     QChar out[64];
@@ -272,7 +351,7 @@ void lang_translate (sLanguage *lang, QChar *msgIN_OUT, int maxNumOfXCharInmsgIN
                     p++;
                 }
 
-                if (out[t2] == '@')
+                if (out[t2] == LANG_CHIOCCIOLA)
                 {
                     //il parametro è a sua volta nella forma @xYYY e quindi è da tradurre
                     tableID = (unsigned char)out[t2+1].unicode();
@@ -287,6 +366,13 @@ void lang_translate (sLanguage *lang, QChar *msgIN_OUT, int maxNumOfXCharInmsgIN
                     t2 = 0;
                     while (paramTranslated.msg[t2] != 0x00)
                         out[t++] = paramTranslated.msg[t2++];
+
+                    //se un parametro ha un \n alla fine, lo rimuovo
+                    if (out[t - 1] == '\n')
+                    {
+                        t--;
+                        out[t] = 0;
+                    }
                 }
             }
         }
@@ -295,7 +381,7 @@ void lang_translate (sLanguage *lang, QChar *msgIN_OUT, int maxNumOfXCharInmsgIN
     }
     out[t] = 0x00;
 
-    DEBUG_MSG_REPLACE_SPACES("out:[%d] %s!!!", t, utils::QCharToCStr(out, debug_str));
+    DEBUG_MSG_REPLACE_SPACES(QString("out:[") +QString(t) +QString("] ") +QString(out,-1) +QString("!!!"));
 
     /*sprintf (sDebug, "xlen=%d t=%d, max=%d", XCHAR_len (translated.msg), t, maxNumOfXCharInmsgIN_OUT);
     GDEBUG_console_XYWH (0,90,320,15, sDebug);*/

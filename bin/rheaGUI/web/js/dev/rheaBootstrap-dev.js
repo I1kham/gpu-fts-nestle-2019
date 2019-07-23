@@ -2,6 +2,10 @@
 	Quando ha finito, chiama la funzione onRheaBootstrapFinished(); che deve esistere nella pagina html
 */
 var rhea = null;
+
+function rheaDebug_isEnabled()		{ return rhea.Session_getOrDefault("debug", 0); }
+function rheaDebug_enableDebug()	{ rhea.Session_setValue("debug", 1); }
+
 function rheaBootstrap()
 {
 	var script = document.createElement('script');

@@ -160,7 +160,7 @@ u8 WebsocketServer::wait (u32 timeoutMSec)
             else
             {
                 //altimenti la socket che si è svegliata deve essere una dei miei client già connessi
-                u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
+                const u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
                 eventList[nEvents].evtType = WebsocketServer::evt_client_has_data_avail;
                 eventList[nEvents++].data.clientHandleAsU32 = clientHandleAsU32;
             }
