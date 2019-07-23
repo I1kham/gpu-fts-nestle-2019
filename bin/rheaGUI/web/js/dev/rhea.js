@@ -85,7 +85,7 @@ Rhea.prototype.webSocket_connect = function()
 		me.websocket.onopen = 		function(evt) 
 		{ 
 			rheaLog("Rhea::webSocket connected...");
-			//me.webSocket_identifyAfterConnection();
+			me.webSocket_identifyAfterConnection();
 			resolve(1); 
 		};
 		me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };

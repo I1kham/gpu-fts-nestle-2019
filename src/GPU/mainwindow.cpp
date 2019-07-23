@@ -97,7 +97,6 @@ unsigned int Prices[NUM_MAX_SELECTIONS];
 unsigned char FormBoot_ActiveStatus=0;
 
 
-QString Folder_root;
 QString Folder_VMCSettings;
 QString Folder_FirmwareCPU;
 QString Folder_GUI;
@@ -162,7 +161,12 @@ MainWindow::MainWindow(const HThreadMsgR hQMessageFromWebserverIN, const HThread
 
 
 
-    Folder_root = qApp->applicationDirPath();
+    QString Folder_appGpu = qApp->applicationDirPath();
+#ifdef PLATFORM_YOCTO_EMBEDDED
+    QString Folder_root = Folder_appGpu.left(Folder_appGpu.lastIndexOf("/"));
+#else
+    QString Folder_root = Folder_appGpu;
+#endif
     Folder_VMCSettings = Folder_root + "/rheaData";
     Folder_FirmwareCPU = Folder_root + "/rheaFirmwareCPU01";
     Folder_GUI = Folder_root + "/rheaGUI";

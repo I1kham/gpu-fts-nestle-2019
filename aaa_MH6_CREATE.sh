@@ -22,8 +22,8 @@ fi
 cp "$FILE_GPU" ./GPUFusion
 cp "$FILE_startRhea" ./
 
-chmod 777 $FILE_GPU
-chmod 777 $FILE_startRhea
+chmod 777 ./GPUFusion
+chmod 777 ./startRhea.sh
 rm ./$filename
 tar -czvf $filename ./GPUFusion ./startRhea.sh
 

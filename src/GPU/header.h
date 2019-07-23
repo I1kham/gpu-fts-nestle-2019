@@ -24,7 +24,7 @@
 #define TIMEOUT_SELEZIONE_1_MSEC    12000
 
 //una volta che la CPU è entrata in "PREPARAZIONE", deve tornare disponibile entro il tempo definito qui sotto
-#define TIMEOUT_SELEZIONE_2_MSEC    120000
+#define TIMEOUT_SELEZIONE_2_MSEC    240000
 
 
 
