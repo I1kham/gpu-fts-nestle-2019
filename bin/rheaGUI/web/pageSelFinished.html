@@ -9,7 +9,7 @@
 
 <body onLoad="rheaBootstrap()">
 
-<div class="wrapper1024x600">
+<div id="mainWrapper" class="wrapper1024x600">
 	<div class="header">
 		<div class="header_left"></div>
 		<div class="header_center"><img draggable='false' src="img/logo.png"></div>
@@ -34,10 +34,10 @@
 <script language="javascript">
 function onRheaBootstrapFinished()
 {
-	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	/*rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
 		rheaSetDivHTMLByName("divCPUMessage", msg);
-	}
+	}*/
 	
 	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
 	var iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
@@ -52,6 +52,12 @@ function onRheaBootstrapFinished()
 	d = rheaGetElemByID("divTitle");
 	rheaSetElemHTML(d, iconDisplayName);	
 		
+	//your drink is ready msg..
+	var d = rheaGetElemByID("divCPUMessage");
+	rheaSetElemHTML (d, rheaLang["LAB_YOUR_DRINK_IS_READY"]);
+	rheaShowElem (d);	
+	
+	
 	setTimeout (gotoMenuPage, 3000);
 }
 

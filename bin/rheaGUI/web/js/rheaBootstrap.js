@@ -16,7 +16,16 @@ function rheaBootstrap_step2()
 	rheaLoadScript("config/mainMenuIcons.js")
 	.then ( function() { rhea = new Rhea(); return rhea.lang_loadLang(rhea.Session_getValue ("lang")); })
 	.then( function() { return rhea.webSocket_connect(); })			
-	.then( function() { onRheaBootstrapFinished(); } )
+	.then( function() 
+			{
+				if (rheaDebug_isEnabled())
+				{
+					console.log ("loading debug script");
+					return rheaLoadScript("js/rheaDebug.js").then( function() { rheaDebug_showWindow(); onRheaBootstrapFinished(); } );
+				}
+				else
+					onRheaBootstrapFinished();
+			} )
 	
 	.catch ( function(result) 
 			{ 

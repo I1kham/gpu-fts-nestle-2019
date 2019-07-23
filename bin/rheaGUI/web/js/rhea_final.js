@@ -88,9 +88,26 @@ function rheaLoadScript (url)
  * rheaGetElemByID
  *
  */
-function rheaGetElemByID (divID)
+function rheaGetElemByID (elemID)
 {
-	return document.getElementById(divID);
+	var ret =  document.getElementById(elemID);
+	if (null === ret) return undefined;
+	if (undefined === ret) return undefined;
+	return ret;
+}
+
+/****************************************************************
+ * rheaDoesElemExistsByID
+ *
+ *	ritorna undefined se non trova elemID,altrimenti ritorna lo 
+ *  stesso risultato di rheaGetElemByID() 
+ */
+function rheaDoesElemExistsByID (elemID)
+{
+	var ret =  document.getElementById(elemID);
+	if (null === ret) return undefined;
+	if (undefined === ret) return undefined;
+	return ret;
 }
 
 /****************************************************************
@@ -400,6 +417,8 @@ Rhea.prototype.clearSessionData = function ()
 	this.Session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
 	this.credit = "0";
 	this.Session_setValue("credit", "0");
+	this.Session_setValue("debug", 0);
+	this.Session_setValue("debug_console", "");
 }
 
 
@@ -416,22 +435,17 @@ Rhea.prototype.webSocket_connect = function()
 	var me = this;
 	return new Promise( function(resolve, reject) 
 	{
-		var tryConnect = function()
-		{
-			rheaLog("Rhea:: trying to connect...");
-			me.websocket = new WebSocket("ws://127.0.0.1:2280/", "binary");
-			me.websocket.onopen = 		function(evt) 
-			{ 
-				rheaLog("Rhea::webSocket connected...");
-				//me.webSocket_identifyAfterConnection();
-				resolve(1); 
-			};
-			me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };
-			me.websocket.onmessage = 	function(evt) { me.webSocket_onRcv(evt) };
-			me.websocket.onerror = 		function(evt) { rheaLog("Rhea::onWebSocketErr => ERROR: " + evt.data); setTimeout(tryConnect, 2000); };
-		}
-		
-		setTimeout(tryConnect, 1);
+		rheaLog("Rhea:: trying to connect...");
+		me.websocket = new WebSocket("ws://127.0.0.1:2280/", "binary");
+		me.websocket.onopen = 		function(evt) 
+		{ 
+			rheaLog("Rhea::webSocket connected...");
+			//me.webSocket_identifyAfterConnection();
+			resolve(1); 
+		};
+		me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };
+		me.websocket.onmessage = 	function(evt) { me.webSocket_onRcv(evt) };
+		me.websocket.onerror = 		function(evt) { rheaLog("Rhea::onWebSocketErr => ERROR: " + evt.data); setTimeout( function() {window.location=window.location;}, 2000); };
 	});
 }
 

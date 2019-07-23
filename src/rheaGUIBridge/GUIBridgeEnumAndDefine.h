@@ -16,10 +16,14 @@
 #define GUIBRIDGE_REQ_CPU_MESSAGE                   0x0105
 #define GUIBRIDGE_REQ_CREDIT                        0x0106
 
-/* richieste dalla GPU al server */
+
+/* richieste dalla GPU al server
+   Per convenzioni, il MSB deve essere 0x02*/
 #define GUIBRIDGE_GPU_EVENT                         0x0200
 
-/* richieste dalla console al server */
+
+/* richieste dalla console al server
+   Per convenzioni, il MSB deve essere 0x03*/
 #define GUIBRIDGE_CONSOLE_EVENT_QUIT                0x0301
 #define GUIBRIDGE_CONSOLE_EVENT_PING                0x0302
 #define GUIBRIDGE_CONSOLE_EVENT_CLOSE               0x0303

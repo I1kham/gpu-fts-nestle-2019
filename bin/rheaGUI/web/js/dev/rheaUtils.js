@@ -80,9 +80,26 @@ function rheaLoadScript (url)
  * rheaGetElemByID
  *
  */
-function rheaGetElemByID (divID)
+function rheaGetElemByID (elemID)
 {
-	return document.getElementById(divID);
+	var ret =  document.getElementById(elemID);
+	if (null === ret) return undefined;
+	if (undefined === ret) return undefined;
+	return ret;
+}
+
+/****************************************************************
+ * rheaDoesElemExistsByID
+ *
+ *	ritorna undefined se non trova elemID,altrimenti ritorna lo 
+ *  stesso risultato di rheaGetElemByID() 
+ */
+function rheaDoesElemExistsByID (elemID)
+{
+	var ret =  document.getElementById(elemID);
+	if (null === ret) return undefined;
+	if (undefined === ret) return undefined;
+	return ret;
 }
 
 /****************************************************************

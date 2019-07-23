@@ -9,7 +9,7 @@
 
 <body onLoad="rheaBootstrap()">
 
-<div class="wrapper1024x600" id="divWrapper" style="cursor:pointer; position:relative">
+<div id="mainWrapper" class="wrapper1024x600" style="cursor:pointer; position:relative">	
 	<div id="divGalleryWindow" class="pageStandby_galleryContainer_window">
 		<div id="divGallery" class="pageStandby_galleryContainer">
 		</div>
@@ -48,7 +48,7 @@ function onRheaBootstrapFinished()
 	setupGallery();
 
 	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
-	var d = rheaGetElemByID("divWrapper");
+	var d = rheaGetElemByID("mainWrapper");
 	d.addEventListener('mouseup', function (ev)
 	{
 		gotoMenuPage();

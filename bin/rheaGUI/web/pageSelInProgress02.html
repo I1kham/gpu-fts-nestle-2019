@@ -9,7 +9,7 @@
 
 <body onLoad="rheaBootstrap()">
 
-<div class="wrapper1024x600">
+<div id="mainWrapper" class="wrapper1024x600">
 	<div class="header">
 		<div class="header_left"></div>
 		<div class="header_center"><img draggable='false' src="img/logo.png"></div>
@@ -65,10 +65,10 @@ function onRheaBootstrapFinished()
 			gotoSelFinished();
 	}
 	
-	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	/*rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
 		rheaSetDivHTMLByName("divCPUMessage", msg);
-	}	
+	}*/	
 		
 	
 	rhea.lang_loadJS("pageSelInProgress02")
@@ -89,6 +89,11 @@ function onRheaBootstrapFinished()
 		rheaSetDisplayMode(d, "inline-block");
 	}
 	
+	//your drink is dispensing msg..
+	var d = rheaGetElemByID("divCPUMessage");
+	rheaSetElemHTML (d, rheaLang["LAB_YOUR_DRINK_IS_DISPENSING"]);
+	rheaShowElem (d);
+		
 
 	
 	//alla peggio, dopo 50 secondi termino
