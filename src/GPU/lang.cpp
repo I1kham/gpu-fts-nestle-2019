@@ -1,6 +1,6 @@
 #include "lang.h"
 #include "header.h"
-
+#include "Utils.h"
 
 #define LANG_ERR_FILE_NOT_FOUND			1
 #define LANG_ERR_FSEEK_ERROR			2
@@ -13,9 +13,6 @@ typedef struct sLangMsg
 {
     QChar	msg[2 + (LANG_SIZE_OF_A_MESSAGE_IN_BYTES/2)];
 } LangMsg;
-
-
-extern QString Folder_languages;
 
 
 
@@ -65,7 +62,7 @@ FILE* lang_open_table (sLanguage *lang, unsigned char tableID)
 
 
     char filename[128];
-    sprintf(filename,"%s/%s-MSG%c.lng", Folder_languages.toStdString().c_str(), lang->iso, tableID);
+    sprintf(filename,"%s/%s-MSG%c.lng", utils::getFolder_Lang().toStdString().c_str(), lang->iso, tableID);
 
     if (lang->ff[iTable] != NULL)
         fclose (lang->ff[iTable]);

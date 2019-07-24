@@ -13,15 +13,7 @@
 #include <QThread>
 #include <QProcess>
 #include <unistd.h>
-
-
-QString Folder_PenDrive = "/run/media/sda1/rhea";
-QString Folder_VMCSettingsPenDrive = "/run/media/sda1/rhea/rheaData";
-QString Folder_FirmwareCPUPenDrive = "/run/media/sda1/rhea/rheaFirmwareCPU01";
-QString Folder_GUIPenDrive = "/run/media/sda1/rhea/rheaGUI";
-QString Folder_ManualPenDrive = "/run/media/sda1/rhea/rheaManual";
-QString Folder_AuditPenDrive = "/run/media/sda1/rhea/rheaDataAudit";
-QString Folder_LangPenDrive = "/run/media/sda1/rhea/lang";
+#include "Utils.h"
 
 QTimer *timerBoot;
 QString destFilePath;
@@ -31,7 +23,7 @@ QString history_lastFileName;
 
 
 
-int ReadConfigFile_saveToFile(void);
+int ReadConfigFile_saveToFile();
 int Audit_saveToFile(void);
 unsigned char Serial_WaitCharTimeout(unsigned char datoWait, unsigned long timeoutLoopVal);
 void Serial_PutChar(unsigned char datoSend);
@@ -56,15 +48,12 @@ extern QByteArray myAuditArray;
 extern int myFileArray_index;
 extern unsigned char ConfigFileOperation_status;
 extern unsigned char ConfigFileOperation_errorCode;
-extern QString Folder_VMCSettings;
-extern QString Folder_FirmwareCPU;
-extern QString Folder_GUI;
-extern QString Folder_Manual;
-extern QString Folder_languages;
 
 #define labelStatus_H               40
 #define labelStatus_W               600
 
+
+//********************************************************
 FormBoot::FormBoot(QWidget *parent) :    QDialog(parent), ui(new Ui::FormBoot)
 {
     ui->setupUi(this);
@@ -82,48 +71,58 @@ FormBoot::FormBoot(QWidget *parent) :    QDialog(parent), ui(new Ui::FormBoot)
     ui->labelWarning->setVisible(false);
 
 
-    QStringList nameFilter("*.da3");
-    QDir directory(Folder_VMCSettingsPenDrive);
-    QStringList datFilesAndDirectories = directory.entryList(nameFilter);
-    ui->listVMCSettingsFiles->addItems(datFilesAndDirectories);
-    if(ui->listVMCSettingsFiles->count()!=0)
+    //vmc settings
     {
-        ui->listVMCSettingsFiles->item(0)->setSelected(true);
+        QStringList nameFilter("*.da3");
+        QDir directory(utils::getFolder_Usb_VMCSettings());
+        QStringList datFilesAndDirectories = directory.entryList(nameFilter);
+        ui->listVMCSettingsFiles->addItems(datFilesAndDirectories);
+        if(ui->listVMCSettingsFiles->count()!=0)
+            ui->listVMCSettingsFiles->item(0)->setSelected(true);
     }
 
 
-    QStringList nameFilterCPU("*.mhx");
-    QDir directoryCPU(Folder_FirmwareCPUPenDrive);
-    QStringList cpuFilesAndDirectories = directoryCPU.entryList(nameFilterCPU);
-    ui->listCPUFiles->addItems(cpuFilesAndDirectories);
-    if(ui->listCPUFiles->count()!=0)
+    //CPU FW
     {
-        ui->listCPUFiles->item(0)->setSelected(true);
+        QStringList nameFilterCPU("*.mhx");
+        QDir directoryCPU(utils::getFolder_Usb_CPU());
+        QStringList cpuFilesAndDirectories = directoryCPU.entryList(nameFilterCPU);
+        ui->listCPUFiles->addItems(cpuFilesAndDirectories);
+        if(ui->listCPUFiles->count()!=0)
+            ui->listCPUFiles->item(0)->setSelected(true);
     }
 
 
-
-    QDir directoryGUI(Folder_GUIPenDrive);
-    QStringList guiFilesAndDirectories = directoryGUI.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Time);
-    ui->listGUIFiles->addItems(guiFilesAndDirectories);
-    if(ui->listGUIFiles->count()!=0)
+    //cerco le GUI sulla chiavetta  USB.
+    //Aggiungo solo le GUI FusionBetaV1 (ovvero che abbiano il file js/rheaBootstrap.js
     {
-        ui->listGUIFiles->item(0)->setSelected(true);
+        QDir directoryGUI(utils::getFolder_Usb_GUI());
+        QStringList guiFilesAndDirectories = directoryGUI.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Time);
+        for (int i=0; i<guiFilesAndDirectories.count(); i++)
+        {
+            QString path = utils::getFolder_Usb_GUI() +"/" +guiFilesAndDirectories[i] +"/web/js/rheaBootstrap.js";
+            if (QFile(path).exists())
+                ui->listGUIFiles->addItem(guiFilesAndDirectories[i]);
+        }
+        //ui->listGUIFiles->addItems(guiFilesAndDirectories);
+        if(ui->listGUIFiles->count()!=0)
+            ui->listGUIFiles->item(0)->setSelected(true);
     }
 
 
-    QDir directoryManual(Folder_ManualPenDrive);
-    QStringList ManualFilesAndDirectories = directoryManual.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Time);
-    ui->listManualFiles->addItems(ManualFilesAndDirectories);
-    if(ui->listManualFiles->count()!=0)
+    //manual
     {
-        ui->listManualFiles->item(0)->setSelected(true);
+        QDir directoryManual(utils::getFolder_Usb_Manual());
+        QStringList ManualFilesAndDirectories = directoryManual.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Time);
+        ui->listManualFiles->addItems(ManualFilesAndDirectories);
+        if(ui->listManualFiles->count()!=0)
+            ui->listManualFiles->item(0)->setSelected(true);
     }
 
 
     //languages
     {
-        QDir directory(Folder_LangPenDrive, "*.lng", QDir::Unsorted, QDir::Files);
+        QDir directory(utils::getFolder_Usb_Lang(), "*.lng", QDir::Unsorted, QDir::Files);
         QStringList list = directory.entryList();
         if (list.count() > 0)
             ui->btnWriteLang->setEnabled(true);
@@ -190,7 +189,10 @@ void FormBoot::timerInterrupt()
             ui->buttonStart->setVisible(true);
             ui->labelStatus->setText("Configuration file write failed " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status = ConfigFileOperation_status_idle;
-            break;
+
+            ui->buttonWriteSettings->setEnabled(true);
+            ui->buttonReadSettings->setEnabled(true);
+        break;
 
         case ConfigFileOperation_status_Write_endOK:
             timerBoot->stop();
@@ -199,7 +201,14 @@ void FormBoot::timerInterrupt()
             ui->labelStatus->setText("Configuration file write OK");
             ConfigFileOperation_status = ConfigFileOperation_status_idle;
             logToHistoryFile();
+
+            ui->buttonWriteSettings->setEnabled(true);
+            ui->buttonReadSettings->setEnabled(true);
             break;
+
+
+
+
 
         case ConfigFileOperation_status_Read_inProgress:
             this->ui->labelStatus->setText ("Reading: " +QString::number(TxBufCPU[3]) +" / " +QString::number(ConfigFileSize/ConfigFile_blockDim));
@@ -209,6 +218,9 @@ void FormBoot::timerInterrupt()
             timerBoot->stop();
             ui->labelStatus->setText("Configuration file read failed " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
+            ui->buttonStart->setVisible(true);
+            ui->buttonWriteSettings->setEnabled(true);
+            ui->buttonReadSettings->setEnabled(true);
             break;
 
         case ConfigFileOperation_status_Read_endOK:
@@ -216,7 +228,13 @@ void FormBoot::timerInterrupt()
             ReadConfigFile_saveToFile();
             ui->labelStatus->setText("Configuration file read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
+            ui->buttonStart->setVisible(true);
+            ui->buttonWriteSettings->setEnabled(true);
+            ui->buttonReadSettings->setEnabled(true);
             break;
+
+
+
 
         case ConfigFileOperation_status_CPU_inProgress:
             timerBoot->stop();
@@ -232,8 +250,6 @@ void FormBoot::timerInterrupt()
             ui->labelStatus->setText("Erasing Flash...");
             if (Serial_WaitCharTimeout('h', 15000)!=1) {ConfigFileOperation_errorCode=3; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start(); break;}
             ui->labelStatus->setText("Writing Flash...");
-
-
 
             SerialIndex = 0;
             do
@@ -295,6 +311,7 @@ void FormBoot::timerInterrupt()
         case ConfigFileOperation_status_CPU_endKO:
             timerBoot->stop();
             ui->buttonStart->setVisible(true);
+            ui->buttonWriteCPU->setEnabled(true);
             ui->labelStatus->setText("CPU update failed - " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ComCommandRequest=ComCommandRequest_CheckStatus_req;
@@ -305,12 +322,16 @@ void FormBoot::timerInterrupt()
             timerBoot->stop();
             foreverDisableBtnStartVMC();
             ui->buttonStart->setVisible(true);
+            ui->buttonWriteCPU->setEnabled(true);
             ui->labelStatus->setText("CPU update OK");
             logToHistoryFile();
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ComCommandRequest=ComCommandRequest_CheckStatus_req;
             ComStatus=ComStatus_Idle;
             break;
+
+
+
 
 
     case ConfigFileOperation_status_Audit_inProgress:
@@ -326,7 +347,7 @@ void FormBoot::timerInterrupt()
             timerBoot->stop();
             ui->labelStatus->setText("Audit read failed " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ui->buttonStart->setEnabled(true);
+            ui->buttonStart->setVisible(true);
             ui->buttonReadAudit->setEnabled(true);
             break;
 
@@ -335,7 +356,7 @@ void FormBoot::timerInterrupt()
             Audit_saveToFile();
             ui->labelStatus->setText("Audit read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ui->buttonStart->setEnabled(true);
+            ui->buttonStart->setVisible(true);
             ui->buttonReadAudit->setEnabled(true);
             break;
 
@@ -345,18 +366,7 @@ void FormBoot::timerInterrupt()
 
 
 
-bool isUsbPresent(void)
-{
-    bool res=false;
-
-    if (QDir(Folder_PenDrive).exists())
-    {
-        res=true;
-    }
-    return res;
-}
-
-
+//*******************************************
 void FormBoot::on_buttonStart_clicked()
 {
     if (bBtnStartVMCEnabled == false)
@@ -365,14 +375,6 @@ void FormBoot::on_buttonStart_clicked()
     FormBoot_ActiveStatus=2;
     this->close();
 }
-
-
-
-void FormBoot::on_buttonTouchCalib_clicked()
-{
-
-}
-
 
 
 
@@ -493,15 +495,16 @@ void myDelay(long msec_p)
 }
 
 
-
+//***************************************************
 void FormBoot::on_buttonWriteSettings_clicked()
 {
     int i;
     if (ui->listVMCSettingsFiles->selectedItems().count()==0)
         return;
+
     QListWidgetItem *item = ui->listVMCSettingsFiles->selectedItems().at(0);
-    QString sourceFilePath = Folder_VMCSettingsPenDrive + "/" +  item->text();
-    destFilePath = Folder_VMCSettings + "/" +  item->text();
+    QString sourceFilePath = utils::getFolder_Usb_VMCSettings() + "/" +  item->text();
+    destFilePath = utils::getFolder_VMCSettings() + "/" +  item->text();
 
     //prepara i dati per il log della hisotry
     history_type = HISTORY_TYPE_DA3;
@@ -509,7 +512,7 @@ void FormBoot::on_buttonWriteSettings_clicked()
 
 
 
-    QDir dest_dir(Folder_VMCSettings);
+    QDir dest_dir(utils::getFolder_VMCSettings());
     if (dest_dir.exists())
     {
         dest_dir.removeRecursively();
@@ -522,7 +525,7 @@ void FormBoot::on_buttonWriteSettings_clicked()
     if (!myFile.open(QIODevice::ReadOnly))
     {
         ui->labelStatus->setText("Configuration file write failed - 1a");
-        return ;
+        return;
     }
 
     ui->buttonStart->setVisible(false);
@@ -536,29 +539,35 @@ void FormBoot::on_buttonWriteSettings_clicked()
     ConfigFileOperation_status = ConfigFileOperation_status_Write_inProgress;
     ComCommandRequest = ComCommandRequest_WriteConfigFile_req;
 
+    ui->buttonWriteSettings->setEnabled(false);
+    ui->buttonReadSettings->setEnabled(false);
+    ui->buttonStart->setVisible(false);
     ui->labelStatus->setText("writing config file...");
     timerBoot->start(500);
 }
 
 
-
-
+//**********************************************************
 void FormBoot::on_buttonReadSettings_clicked()
 {
     int i;
     for (i=0;i<ConfigFileSize;i++)
         myFileArray[i]=0;
+
     myFileArray_index=0;
     ConfigFileOperation_status=ConfigFileOperation_status_Read_inProgress;
     ComCommandRequest=ComCommandRequest_ReadConfigFile_req;
 
 
+    ui->buttonWriteSettings->setEnabled(false);
+    ui->buttonReadSettings->setEnabled(false);
+    ui->buttonStart->setVisible(false);
     ui->labelStatus->setText("reading config file...");
     timerBoot->start(500);
 }
 
-
-int ReadConfigFile_saveToFile(void)
+//**********************************************************
+int ReadConfigFile_saveToFile()
 {
     /* dato che non abbiamo modo di memorizzare nella history il nome del file della GPU (perchè è il bootloader che si
      * occupa di aggiornare il file GPU), scrivo nell'history la versione della GPU in modo da avere comunque
@@ -569,9 +578,6 @@ int ReadConfigFile_saveToFile(void)
     History::addEntry (HISTORY_TYPE_GPU, GPUFilenameForHistory);
 
 
-
-
-
     int res=0;
     int numFile;
 
@@ -579,7 +585,7 @@ int ReadConfigFile_saveToFile(void)
     numFile=0;
     do
     {
-        destFilePath = Folder_VMCSettingsPenDrive + "/Read_" +  QString::number(numFile) + ".da3";
+        destFilePath = utils::getFolder_Usb_VMCSettings() + "/Read_" +  QString::number(numFile) + ".da3";
         numFile++;
     } while(QFile(destFilePath).exists());
 
@@ -603,14 +609,14 @@ int ReadConfigFile_saveToFile(void)
 
 
 
-
+//******************************************************
 void FormBoot::on_buttonWriteCPU_clicked()
 {
     if (ui->listCPUFiles->selectedItems().count()==0)
         return;
     QListWidgetItem *item = ui->listCPUFiles->selectedItems().at(0);
-    QString sourceFilePath = Folder_FirmwareCPUPenDrive + "/" +  item->text();
-    destFilePath = Folder_FirmwareCPU + "/" +  item->text();
+    QString sourceFilePath = utils::getFolder_Usb_CPU() + "/" +  item->text();
+    destFilePath = utils::getFolder_CPU() + "/" +  item->text();
 
 
     //prepara i dati per il log della hisotry
@@ -619,7 +625,7 @@ void FormBoot::on_buttonWriteCPU_clicked()
 
 
 
-    QDir dest_dir(Folder_FirmwareCPU);
+    QDir dest_dir(utils::getFolder_CPU());
     if (dest_dir.exists())
     {
         dest_dir.removeRecursively();
@@ -645,6 +651,7 @@ void FormBoot::on_buttonWriteCPU_clicked()
     ComStatus = ComStatus_Disabled;
 
     ui->buttonStart->setVisible(false);
+    ui->buttonWriteCPU->setEnabled(false);
     ui->labelStatus->setText("init CPU update...");
     timerBoot->start(300);
 }
@@ -655,14 +662,15 @@ void FormBoot::on_buttonWriteGUI_clicked()
     bool res;
     try
     {
-        if (ui->listGUIFiles->selectedItems().count()==0) return;
+        if (ui->listGUIFiles->selectedItems().count()==0)
+            return;
         QListWidgetItem *item = ui->listGUIFiles->selectedItems().at(0);
-        QString sourceFilePath = Folder_GUIPenDrive + "/" +  item->text();
-        destFilePath = Folder_GUI;
+        QString sourceFilePath = utils::getFolder_Usb_GUI() + "/" +  item->text();
+        destFilePath = utils::getFolder_GUI();
 
 
         ui->labelStatus->setText("erasing current GUI..."); myDelay(20);
-        QDir dest_dir(Folder_GUI);
+        QDir dest_dir(utils::getFolder_GUI());
         if (dest_dir.exists())
         {
             dest_dir.removeRecursively();
@@ -670,6 +678,8 @@ void FormBoot::on_buttonWriteGUI_clicked()
 
 
         ui->buttonStart->setVisible(false);
+        ui->buttonWriteGUI->setEnabled(false);
+        ui->buttonReadGUI->setEnabled(false);
         ui->labelStatus->setText("writing GUI..."); myDelay(20);
         res = copyRecursively(sourceFilePath, destFilePath);
 
@@ -690,6 +700,8 @@ void FormBoot::on_buttonWriteGUI_clicked()
         ui->labelStatus->setText("GUI write failed -1");
     }
 
+    ui->buttonWriteGUI->setEnabled(true);
+    ui->buttonReadGUI->setEnabled(true);
     ui->buttonStart->setVisible(true);
 }
 
@@ -699,16 +711,18 @@ void FormBoot::on_buttonReadGUI_clicked()
     bool res;
     try
     {
-        QString sourceFilePath = Folder_GUI;
+        QString sourceFilePath = utils::getFolder_GUI();
 
         int numFile=0;
         do
         {
-            destFilePath = Folder_GUIPenDrive + "/GUI_Read_" +  QString::number(numFile);
+            destFilePath = utils::getFolder_Usb_GUI() + "/GUI_Read_" +  QString::number(numFile);
             numFile++;
         } while(QDir(destFilePath).exists());
 
-
+        ui->buttonStart->setVisible(false);
+        ui->buttonWriteGUI->setEnabled(false);
+        ui->buttonReadGUI->setEnabled(false);
         ui->labelStatus->setText("reading GUI..."); myDelay(20);
         res = copyRecursively(sourceFilePath, destFilePath);
 
@@ -721,6 +735,10 @@ void FormBoot::on_buttonReadGUI_clicked()
     {
         ui->labelStatus->setText("GUI read failed -1");
     }
+
+    ui->buttonWriteGUI->setEnabled(true);
+    ui->buttonReadGUI->setEnabled(true);
+    ui->buttonStart->setVisible(true);
 }
 
 
@@ -734,12 +752,12 @@ void FormBoot::on_buttonWriteManual_clicked()
     {
         if (ui->listManualFiles->selectedItems().count()==0) return;
         QListWidgetItem *item = ui->listManualFiles->selectedItems().at(0);
-        QString sourceFilePath = Folder_ManualPenDrive + "/" +  item->text();
+        QString sourceFilePath = utils::getFolder_Usb_Manual() + "/" +  item->text();
 
-        destFilePath = Folder_Manual + "/" +  item->text();
+        destFilePath = utils::getFolder_Manual() + "/" +  item->text();
 
 
-        QDir root_dir(Folder_Manual);
+        QDir root_dir(utils::getFolder_Manual());
         /*
         if (!root_dir.exists())
         {
@@ -787,7 +805,7 @@ void FormBoot::on_buttonReadAudit_clicked()
     ComCommandRequest = ComCommandRequest_ReadAudit_req;
 
     ui->buttonReadAudit->setEnabled(false);
-    ui->buttonStart->setEnabled(false);
+    ui->buttonStart->setVisible(false);
     ui->labelStatus->setText("reading audit (machine=>USB) ...");
     timerBoot->start(500);
 }
@@ -803,13 +821,13 @@ int Audit_saveToFile(void)
     numFile=0;
     do
     {
-        destFilePath = Folder_AuditPenDrive + "/Eva_A_" +  QString::number(numFile) + ".txt";
+        destFilePath = utils::getFolder_Usb_Audit() + "/Eva_A_" +  QString::number(numFile) + ".txt";
         numFile++;
     } while(QFile(destFilePath).exists());
 
 
 
-    QDir dest_dir(Folder_AuditPenDrive);
+    QDir dest_dir(utils::getFolder_Usb_Audit());
     if (!dest_dir.exists())
     {
         dest_dir.mkpath(".");
@@ -836,7 +854,7 @@ int Audit_saveToFile(void)
  */
 void FormBoot::on_btnReadLang_clicked()
 {
-    priv_langCopy (Folder_languages, Folder_LangPenDrive, 30000);
+    priv_langCopy (utils::getFolder_Lang(), utils::getFolder_Usb_Lang(), 30000);
 }
 
 /**********************************************************************
@@ -846,7 +864,7 @@ void FormBoot::on_btnReadLang_clicked()
  */
 void FormBoot::on_btnWriteLang_clicked()
 {
-    priv_langCopy (Folder_LangPenDrive, Folder_languages, 10000);
+    priv_langCopy (utils::getFolder_Usb_Lang(), utils::getFolder_Lang(), 10000);
 }
 
 //**********************************************************************
@@ -854,7 +872,7 @@ bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder
 {
     ui->btnReadLang->setEnabled(false);
     ui->btnWriteLang->setEnabled(false);
-    ui->buttonStart->setEnabled(false);
+    ui->buttonStart->setVisible(false);
 
     ui->labelStatus->setText("copying files...");
     myDelay(20);
@@ -910,8 +928,9 @@ bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder
         ui->labelStatus->setText("Done!");
     }
 
-    ui->buttonStart->setEnabled(true);
+    ui->buttonStart->setVisible(true);
     ui->btnReadLang->setEnabled(true);
     ui->btnWriteLang->setEnabled(true);
     return (!bFailed);
 }
+

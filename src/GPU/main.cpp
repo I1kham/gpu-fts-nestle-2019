@@ -6,6 +6,7 @@
 #include <qdir.h>
 #include <qfile.h>
 #include "../rheaGUIBridge/GUIBridge.h"
+#include "Utils.h"
 
 
 MainWindow *myMainWindow = NULL;
@@ -227,6 +228,8 @@ int main(int argc, char *argv[])
     memset (&cpuStats,0, sizeof(cpuStats));
     QApplication app(argc, argv);
     hideMouse();
+
+    utils::gatherFolderInfo (qApp->applicationDirPath());
 
     myMainWindow = new MainWindow (hQMessageFromWebserver, hQMessageToWebserver);
     myMainWindow->show();

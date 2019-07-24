@@ -26,7 +26,11 @@
 //una volta che la CPU è entrata in "PREPARAZIONE", deve tornare disponibile entro il tempo definito qui sotto
 #define TIMEOUT_SELEZIONE_2_MSEC    240000
 
-
+#ifdef _DEBUG
+    #ifndef DEBUG_SHOW_MOUSE
+        #define DEBUG_SHOW_MOUSE
+    #endif
+#endif
 
 
 #define ScreenW 1024

@@ -104,6 +104,7 @@ void Server::run()
         }
 
         //analizzo gli eventi segnalati al server
+        printf (".");
         for (u8 i=0; i<nEvents; i++)
         {
             switch (server->getEventType(i))

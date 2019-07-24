@@ -97,13 +97,6 @@ unsigned int Prices[NUM_MAX_SELECTIONS];
 unsigned char FormBoot_ActiveStatus=0;
 
 
-QString Folder_VMCSettings;
-QString Folder_FirmwareCPU;
-QString Folder_GUI;
-QString Folder_Manual;
-QString Folder_languages;
-
-
 
 
 QByteArray myFileArray(ConfigFileSize, 0);
@@ -160,23 +153,6 @@ MainWindow::MainWindow(const HThreadMsgR hQMessageFromWebserverIN, const HThread
     QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
 
 
-
-    QString Folder_appGpu = qApp->applicationDirPath();
-#ifdef PLATFORM_YOCTO_EMBEDDED
-    QString Folder_root = Folder_appGpu.left(Folder_appGpu.lastIndexOf("/"));
-#else
-    QString Folder_root = Folder_appGpu;
-#endif
-    Folder_VMCSettings = Folder_root + "/rheaData";
-    Folder_FirmwareCPU = Folder_root + "/rheaFirmwareCPU01";
-    Folder_GUI = Folder_root + "/rheaGUI";
-    Folder_Manual = Folder_root + "/rheaManual";
-    Folder_languages = Folder_root + "/lang";
-
-
-
-
-
     ui->webView->setGeometry(0,0,ScreenW,ScreenH);
     ui->webView->setMouseTracking(false);
     ui->webView->raise();
@@ -221,7 +197,7 @@ MainWindow::MainWindow(const HThreadMsgR hQMessageFromWebserverIN, const HThread
 
 
     setFormStatus(FormStatus_NORMAL, "costruttore");
-    if (isUsbPresent() == true)
+    if (utils::isUsbPresent() == true)
         setFormStatus(FormStatus_BOOT, "costruttore");
     else
         priv_loadGUIFirstPage();
@@ -257,7 +233,7 @@ void MainWindow::setFormStatus (int i, const char *who)
 //******************************************************
 void MainWindow::priv_loadGUIFirstPage()
 {
-    QString url = "file://" + Folder_GUI + "/web/startup.html";
+    QString url = "file://" + utils::getFolder_GUI() + "/web/startup.html";
     ui->webView->load(QUrl(url));
     DEBUG_MSG ("MainWindow::SetForm_01() URL=%s", url.toStdString().c_str());
 }

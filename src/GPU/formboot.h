@@ -27,7 +27,6 @@ private:
 private slots:
     void on_buttonStart_clicked();
     void on_buttonWriteSettings_clicked();
-    void on_buttonTouchCalib_clicked();
     void timerInterrupt();
     void on_buttonReadSettings_clicked();
     void on_buttonWriteCPU_clicked();

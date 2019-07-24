@@ -16,7 +16,6 @@ bool isManualPresent();
 
 extern unsigned char button_keyNum_tx;
 extern QString CPU_version;
-extern QString Folder_Manual;
 
 
 FormProg::FormProg(QWidget *parent) :    QDialog(parent),    ui(new Ui::FormProg)
@@ -183,7 +182,7 @@ QString sHtmlUrlManual;
 bool isManualPresent()
 {
     sHtmlUrlManual="";
-    QDir directoryManualRoot(Folder_Manual);
+    QDir directoryManualRoot(utils::getFolder_Manual());
     QStringList ManualFilesAndDirectories = directoryManualRoot.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Time);
     if(ManualFilesAndDirectories.count()==0)    
     {
@@ -191,7 +190,7 @@ bool isManualPresent()
         return false;
     }
 
-    QString ManualRoot = Folder_Manual + "/" + ManualFilesAndDirectories[0];    
+    QString ManualRoot = utils::getFolder_Manual() + "/" + ManualFilesAndDirectories[0];
     QDir directoryManualRoot_B(ManualRoot);
     QFileInfoList ManualFilesAndDirectories_B = directoryManualRoot_B.entryInfoList();
     if(ManualFilesAndDirectories_B.count()<=3)    

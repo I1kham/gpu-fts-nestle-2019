@@ -5,3 +5,6 @@ src/GPU/build/
 src/rheaCommonLib/build/
 src/rheaGUIBridge/build/
 *.a
+bin/simula-chiavetta-usb/
+src/GPUServer/build/Desktop-Debug64/main.o
+src/GPUServer/build/

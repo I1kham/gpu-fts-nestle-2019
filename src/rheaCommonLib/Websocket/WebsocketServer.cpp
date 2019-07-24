@@ -175,9 +175,13 @@ u8 WebsocketServer::wait (u32 timeoutMSec)
 //****************************************************
 bool WebsocketServer::priv_checkIncomingConnection (HWebsokClient *out_clientHandle)
 {
+    printf ("WebsocketServer::priv_checkIncomingConnection()\n");
     OSSocket clientSok;
 	if (!OSSocket_accept(sok, &clientSok))
+    {
+        printf (" false\n");
 		return false;
+    }
 
     //ok, ho un client che si vuole connettere, dovrei ricevere l'handshake
     const u16 BUFFER_SIZE = 2048;

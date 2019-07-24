@@ -42,7 +42,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>5</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tabVMCSettings">
     <attribute name="title">
@@ -251,22 +251,6 @@
      </property>
     </widget>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="buttonTouchCalib">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>90</x>
-     <y>490</y>
-     <width>181</width>
-     <height>60</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Touch calibration</string>
-   </property>
   </widget>
   <widget class="QLabel" name="labelStatus">
    <property name="geometry">

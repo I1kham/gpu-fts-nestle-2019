@@ -47,6 +47,6 @@ function rheaBootstrap_step3()
 		
 		.catch ( function(result) 
 				{ 
-						alert(result);
+					window.location = window.location;
 				});
 }

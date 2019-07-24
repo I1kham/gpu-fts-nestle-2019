@@ -1,122 +1,20 @@
 #include "../rheaGUIBridge/GUIBridge.h"
 
-struct sConsoleInitParam
+struct sGPUThreadInitParam
 {
     HThreadMsgR hRead;
     HThreadMsgW hWriteToServer;
 };
 
 
-//**************************************************************************
-i16 consoleThreadFn (void *userParam)
-{
-    sConsoleInitParam *init = (sConsoleInitParam*)userParam;
-    //HThreadMsgR chRead = init->hRead;
-    HThreadMsgW chWriteToServer = init->hWriteToServer;
-
-
-    printf ("console> starting...\n");
-    printf ("console> type quit to terminate\n");
-    while (1)
-    {
-        char str[64];
-        printf ("console>");
-
-        char c;
-        u16 ct=0;
-        str[0] = 0x00;
-        while ( (c = getchar()) )
-        {
-            if (c=='\n' || c==0x00)
-            {
-                str[ct] = 0;
-                break;
-            }
-
-            str[ct++] = c;
-            if (ct >= sizeof(str))
-            {
-                str[sizeof(str)-1] = 0;
-                break;
-            }
-
-        }
-        //scanf ("%s", str);
-
-        if (strcasecmp(str,"quit") == 0)
-        {
-            printf ("console> quitting...\n");
-            rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_QUIT, 0);
-            break;
-        }
-        else if (strcasecmp(str,"clientlist") == 0)
-        {
-            rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_CLIENT_LIST, (u32)0);
-        }
-
-        //se inizia con 0x vuol dire che voglio parlare al client
-        else if (strncmp(str,"0x", 2) == 0)
-        {
-            rhea::string::parser::Iter iter, result;
-            iter.setup (str);
-
-            if (rhea::string::parser::extractValue (iter, &result, " \n", 2))
-            {
-                char clientHex[32];
-                result.copyCurStr (clientHex, sizeof(clientHex));
-                //printf ("console> client hex=%s\n", clientHex);
-
-                u32 clientHandleAsU32;
-                if (rhea::string::convert::hexToInt (&clientHex[2], &clientHandleAsU32))
-                {
-                    HWebsokClient hClient;
-                    hClient.initFromU32(clientHandleAsU32);
-
-                    const char *everythingAfterClientHex = iter.getCurStrPointer();
-
-                    //vediamo se c'è un comando
-                    if (rhea::string::parser::extractValue (iter, &result, " \n", 2))
-                    {
-                        char clientCmd[128];
-                        result.copyCurStr (clientCmd, sizeof(clientCmd));
-                        //printf ("console> client cmd=%s\n", clientCmd);
-
-                        if (strcasecmp(clientCmd,"ping") == 0)
-                        {
-                            printf ("console> sending ping to [0x%02X]\n", hClient.asU32());
-                            rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_PING, hClient.asU32());
-                        }
-                        else if (strcasecmp(clientCmd,"close") == 0)
-                        {
-                            printf ("console> sending close to [0x%02X]\n", hClient.asU32());
-                            rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_CLOSE, hClient.asU32());
-                        }
-                        else
-                        {
-                            rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_STRING, hClient.asU32(), everythingAfterClientHex, strlen(everythingAfterClientHex));
-                        }
-                    }
-                }
-
-            }
-
-
-        }
-
-
-    }
-    printf ("console> fin\n");
-    return 1;
-}
-
-
+u8 bSigTermKilled = 0;
 
 /**************************************************************************
  * Risponde alle richieste di guiBrdige simulando la presenza di una GPU
  */
 i16 gpuThreadFn (void *userParam)
 {
-    sConsoleInitParam *init = (sConsoleInitParam*)userParam;
+    sGPUThreadInitParam *init = (sGPUThreadInitParam*)userParam;
     HThreadMsgR chReadFromServer = init->hRead;
     HThreadMsgW chWriteToServer = init->hWriteToServer;
 
@@ -211,7 +109,6 @@ int main()
 {
     rhea::init(NULL);
 
-
     //inizializza il webserver e recupera un handle sul quale è possibile restare in ascolto per vedere
     //quando il server invia delle richieste (tipo: WEBSOCKET_COMMAND_START_SELECTION)
     HThreadMsgR hQMessageFromWebserver;
@@ -224,26 +121,10 @@ int main()
     }
 
 
-    //creo un canale di comunicazione per il thread della console
-    HThreadMsgR chConsoleR;
-    HThreadMsgW chConsoleW;
-    rhea::thread::createMsgQ ( &chConsoleR, &chConsoleW);
-
-    //creo il thread della console
-    rhea::HThread hConsole;
-    {
-        sConsoleInitParam    init;
-        init.hRead = chConsoleR;
-        init.hWriteToServer = hQMessageToWebserver;
-
-        rhea::thread::create (&hConsole, consoleThreadFn, &init);
-    }
-
-
     //creo un thread che si occupa di fare le veci della GPU, rispondendo alle eventuali richieste che arrivano da guibridge::server
     rhea::HThread hGPU;
     {
-        sConsoleInitParam    init;
+        sGPUThreadInitParam    init;
         init.hRead = hQMessageFromWebserver;
         init.hWriteToServer = hQMessageToWebserver;
 
@@ -254,15 +135,10 @@ int main()
     //attendo che il thread del server muoia
     rhea::thread::waitEnd(hServer);
 
-    //attendo che il thread della console muoia
-    rhea::thread::waitEnd(hConsole);
-
-
-    //chiudo i canali di comunicazione
-    rhea::thread::deleteMsgQ (chConsoleR, chConsoleW);
-
-
+    printf ("server killed\n");
     rhea::deinit();
+
+    printf ("fin\n");
     return 0;
 }
 
