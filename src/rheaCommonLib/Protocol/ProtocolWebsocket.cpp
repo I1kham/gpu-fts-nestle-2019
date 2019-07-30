@@ -163,7 +163,7 @@ i16 ProtocolWebsocket::server_isValidaHandshake (char *bufferIN, u32 sizeOfBuffe
             //printf ("Handshake response: %s\n", out);
 
 
-            if (OSSocket_write (clientSok, bufferIN, strlen((const char*)bufferIN)) <= 0)
+            if (OSSocket_write (clientSok, bufferIN, (u16)strlen((const char*)bufferIN)) <= 0)
             {
                 //printf ("\terr\n");
                 return 0;
@@ -419,7 +419,7 @@ i16 ProtocolWebsocket::writeText (OSSocket &sok, const char *strIN)
     if (n < 1)
         return 1;
 
-    u16 nToWrite = priv_encodeBuffer (true, eWebSocketOpcode_TEXT, strIN, n);
+    u16 nToWrite = priv_encodeBuffer (true, eWebSocketOpcode_TEXT, strIN, (u16)n);
     if (nToWrite)
         return priv_sendWBuffer(sok, nToWrite);
     return -1;

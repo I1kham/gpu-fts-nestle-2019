@@ -1,6 +1,7 @@
 #ifdef WIN32
-#include "OS/OS.h"
+#include "../OS.h"
 #include "winOSSocket.h"
+#include <ws2tcpip.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -42,9 +43,9 @@ bool setBlockingMode (OSSocket &sok, bool bBlocking)
 }
 
 //*************************************************
-eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
+eSocketError socket_openAsTCP(OSSocket *sok)
 {
-	socket_init(sok);
+	platform::socket_init(sok);
 
 	//creo la socket
 	sok->socketID = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -72,6 +73,81 @@ eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
 	BOOL enable = TRUE;
 	setsockopt(sok->socketID, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(BOOL));
 	//setsockopt(sok->socketID, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(BOOL));
+
+	return eSocketError_none;
+}
+
+//*************************************************
+eSocketError platform::socket_openAsTCPClient(OSSocket *sok, const char *connectToIP, u32 portNumber)
+{
+	eSocketError sokErr = socket_openAsTCP(sok);
+	if (sokErr != eSocketError_none)
+		return sokErr;
+
+	/*
+	struct hostent *server = ::gethostbyname(connectToIP);
+	if (server == NULL)
+	{
+		::closesocket(sok->socketID);
+		sok->socketID = -1;
+		return eSocketError_no_such_host;
+	}
+
+	struct sockaddr_in serv_addr;
+	memset(&serv_addr, 0x00, sizeof(serv_addr));
+	serv_addr.sin_family = AF_INET;
+	memcpy(server->h_addr, &serv_addr.sin_addr.s_addr, server->h_length);
+	serv_addr.sin_port = htons(portNumber);*/
+
+
+	struct addrinfo *serv_addr = NULL;
+	struct addrinfo hints;
+
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	char strPort[32];
+	sprintf_s(strPort, sizeof(strPort), "%d", portNumber);
+	DWORD dwRetval = getaddrinfo (connectToIP, strPort, &hints, &serv_addr);
+	if (dwRetval != 0) 
+	{
+		freeaddrinfo(serv_addr);
+		::closesocket(sok->socketID);
+		sok->socketID = -1;
+		return eSocketError_no_such_host;
+	}
+
+	if (0 != connect(sok->socketID, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))
+	{
+		::closesocket(sok->socketID);
+		sok->socketID = -1;
+
+		switch (errno)
+		{
+		case EACCES:
+		case EPERM:         return eSocketError_addressProtected;
+		case EADDRINUSE:    return eSocketError_addressInUse;
+		case EINVAL:        return eSocketError_alreadyBound;
+		case ENOTSOCK:      return eSocketError_invalidDescriptor;
+		case ENOMEM:        return eSocketError_noMem;
+		case ECONNREFUSED:  return eSocketError_connRefused;
+		case ETIMEDOUT:     return eSocketError_timedOut;
+		default:            return eSocketError_unknown;
+		}
+	}
+
+	freeaddrinfo(serv_addr);
+	return eSocketError_none;
+}
+
+//*************************************************
+eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
+{
+	eSocketError sokErr = socket_openAsTCP(sok);
+	if (sokErr != eSocketError_none)
+		return sokErr;
 
 
 	//blocking

@@ -12,8 +12,8 @@
 #include <assert.h>
 #include <Winsock2.h>
 #include <stdio.h>
-#include "../rheacommonlib/rheaDataTypes.h"
-#include "../rheacommonlib/rheaEnumAndDefine.h"
+#include "../../rheaDataTypes.h"
+#include "../../rheaEnumAndDefine.h"
 
 
 

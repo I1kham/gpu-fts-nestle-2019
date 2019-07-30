@@ -8,3 +8,7 @@ src/rheaGUIBridge/build/
 bin/simula-chiavetta-usb/
 src/GPUServer/build/Desktop-Debug64/main.o
 src/GPUServer/build/
+lib/
+MSVC17/.vs/
+MSVC17/rheaCommonLib/build/
+.vs/

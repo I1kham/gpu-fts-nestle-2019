@@ -1,6 +1,6 @@
 #ifndef _ISimpleLogger_h_
 #define _ISimpleLogger_h_
-#include "rheaDataTypes.h"
+#include "../rheaDataTypes.h"
 
 namespace rhea
 {

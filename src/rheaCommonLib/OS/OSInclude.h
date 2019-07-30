@@ -1,7 +1,7 @@
 #ifndef _osinclude_h_
 #define _osinclude_h_
-#include "rheaDataTypes.h"
-#include "rheaEnumAndDefine.h"
+#include "../rheaDataTypes.h"
+#include "../rheaEnumAndDefine.h"
 
 
 //macro per trasformare un puntatore in un intero

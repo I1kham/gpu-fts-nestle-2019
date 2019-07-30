@@ -2,7 +2,7 @@
 #ifndef _winOSSerialPort_h_
 #define _winOSSerialPort_h_
 #include "winOSInclude.h"
-#include "OS/OSEnum.h"
+#include "../OSEnum.h"
 
 namespace platform
 {

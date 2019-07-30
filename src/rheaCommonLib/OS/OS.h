@@ -85,14 +85,14 @@ inline bool            OSCriticalSection_tryEnter (OSCriticalSection &cs)       
 /***********************************************
  * serial port
  */
-#include "OS/OSSerialPort.h"
+#include "OSSerialPort.h"
 
 
 
 /***********************************************
  * socket
  */
-#include "OS/OSSocket.h"
+#include "OSSocket.h"
 
 
 /********************************************************************

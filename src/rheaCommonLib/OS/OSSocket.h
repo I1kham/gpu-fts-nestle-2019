@@ -4,7 +4,7 @@
 
 inline void					OSSocket_init (OSSocket *sok)															{ platform::socket_init (sok); }
 inline eSocketError         OSSocket_openAsTCPServer (OSSocket *out_sok, int portNumber)                            { return platform::socket_openAsTCPServer(out_sok, portNumber); }
-inline eSocketError         OSSocket_openAsTCPClient (OSSocket *out_sok, const char *connectToIP, u32 portNumber)    { return platform::socket_openAsTCPClient(out_sok, connectToIP, portNumber); }
+inline eSocketError         OSSocket_openAsTCPClient (OSSocket *out_sok, const char *connectToIP, u32 portNumber)   { return platform::socket_openAsTCPClient(out_sok, connectToIP, portNumber); }
 
 inline void                 OSSocket_close (OSSocket &sok)                                                          { platform::socket_close(sok); }
 

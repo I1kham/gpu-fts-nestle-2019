@@ -1,7 +1,7 @@
 #ifdef WIN32
 #include <string.h>
 #include "winOSWaitableGrp.h"
-#include "../rheacommonlib/rheaMemory.h"
+#include "../../rheaMemory.h"
 
 
 //***********************************************

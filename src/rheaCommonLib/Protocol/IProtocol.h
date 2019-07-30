@@ -1,7 +1,7 @@
 #ifndef _IProtocol_h_
 #define _IProtocol_h_
-#include "rheaDataTypes.h"
-#include "rheaLinearBuffer.h"
+#include "../rheaDataTypes.h"
+#include "../rheaLinearBuffer.h"
 
 namespace rhea
 {

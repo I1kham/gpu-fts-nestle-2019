@@ -1,8 +1,9 @@
 #include "ProtocolConsole.h"
-#include "OS/OS.h"
-#include "rheaUtils.h"
-#include "rheaRandom.h"
+#include "../OS/OS.h"
+#include "../rheaUtils.h"
+#include "../rheaRandom.h"
 #include <stdio.h>
+#include <time.h>
 
 using namespace rhea;
 
@@ -38,7 +39,7 @@ bool ProtocolConsole::client_handshake (OSSocket &sok, rhea::ISimpleLogger *logg
         logger->incIndent();
     }
 
-    rhea::Random random(time(NULL));
+    rhea::Random random((u32)time(NULL));
     const u8 key = random.getU32(255);
 
     char handshake[32];

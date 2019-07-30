@@ -1,7 +1,7 @@
 #ifdef WIN32
 #include "winOS.h"
 #include "winOSSerialPort.h"
-#include "../rheacommonlib/rhea.h"
+#include "../../rhea.h"
 
 
 //*****************************************************
