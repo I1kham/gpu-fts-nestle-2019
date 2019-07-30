@@ -2,7 +2,7 @@
 #define _IdentifiedClientList_h_
 #include "../rheaCommonLib/rhea.h"
 #include "../rheaCommonLib/rheaFastArray.h"
-#include "../rheaCommonLib/Websocket/WebsocketServer.h"
+#include "../rheaCommonLib/Protocol/ProtocolServer.h"
 
 namespace guibridge
 {
@@ -31,8 +31,8 @@ namespace guibridge
         void            unsetup();
 
         const sInfo*    isKwnownClient (const HWebsokClient &h) const;
-        bool            registerClient (const HWebsokClient &h, u32 identificationCode, u8  apiVersion, bool *out_bWasNew);
-        void            unregisterClient (const HWebsokClient &h);
+        bool            onClientConnected (const HWebsokClient &h, u32 identificationCode, u8  apiVersion, bool *out_bWasNew);
+        void            onClientDisconnected (const HWebsokClient &h);
 
         u32             getNElem() const                                { return list.getNElem(); }
         const sInfo*    getElemByIndex (u32 i) const                    { return &list(i); }
@@ -42,6 +42,7 @@ namespace guibridge
 
     private:
         u32             priv_findClientByHWebSocket (const HWebsokClient &h) const;
+        void            priv_removeClient (const HWebsokClient &h);
     };
 } // namespace guibridge
 #endif // _IdentifiedClientList_h_

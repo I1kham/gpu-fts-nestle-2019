@@ -24,6 +24,9 @@ enum eSocketError
     eSocketError_errorSettingReadTimeout = 9,
     eSocketError_errorSettingWriteTimeout = 10,
     eSocketError_errorListening = 11,
+    eSocketError_no_such_host   = 12,
+    eSocketError_connRefused = 13,
+    eSocketError_timedOut = 14,
     eSocketError_unknown = 0xff
 };
 

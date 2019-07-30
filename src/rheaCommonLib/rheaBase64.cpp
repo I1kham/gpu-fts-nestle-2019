@@ -25,7 +25,7 @@ static const unsigned char mime_base64_rank[256] = {
 
 
 //*******************************************************************
-size_t rhea::base64_howManyBytesNeededForEncoding (size_t sizeInBytesOfBufferToEncode)
+size_t rhea::utils::base64_howManyBytesNeededForEncoding (size_t sizeInBytesOfBufferToEncode)
 {
     /* ogni byte viene usato per rappresentare 6bit
      * Il risultato finale è da arrotondare al multiplo di 4 più grande (se non è già da se un multiplo di 4)
@@ -168,7 +168,7 @@ size_t base64_encode_close (int break_lines, char *out, int *state, int *save)
 
 
 //*****************************************************************************************
-bool rhea::base64_encode (void *outIN, size_t sizeOfOutInBytes, const void *in, size_t sizeInBytesOfIn)
+bool rhea::utils::base64_encode (void *outIN, size_t sizeOfOutInBytes, const void *in, size_t sizeInBytesOfIn)
 {
     char *out = (char*)outIN;
     if (sizeOfOutInBytes < base64_howManyBytesNeededForEncoding(sizeInBytesOfIn))
@@ -243,7 +243,7 @@ size_t base64_decode_step(const char *base64, size_t length, unsigned char *bina
 }
 
 //*****************************************************************************************
-int rhea::base64_decode(unsigned char *binary, size_t *binary_length, const char *base64, size_t base64_length)
+int rhea::utils::base64_decode(unsigned char *binary, size_t *binary_length, const char *base64, size_t base64_length)
 {
     int state = 0;
     unsigned int save = 0;

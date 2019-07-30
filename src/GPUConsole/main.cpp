@@ -1,4 +1,7 @@
 #include "../rheaGUIBridge/GUIBridge.h"
+#include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
+#include "Client.h"
+
 
 struct sConsoleInitParam
 {
@@ -6,6 +9,7 @@ struct sConsoleInitParam
     HThreadMsgW hWriteToServer;
 };
 
+rhea::StdoutLogger  log;
 
 //**************************************************************************
 i16 consoleThreadFn (void *userParam)
@@ -15,12 +19,12 @@ i16 consoleThreadFn (void *userParam)
     HThreadMsgW chWriteToServer = init->hWriteToServer;
 
 
-    printf ("console> starting...\n");
-    printf ("console> type quit to terminate\n");
+    printf ("> starting...\n");
+    printf ("> type quit to terminate\n");
     while (1)
     {
         char str[64];
-        printf ("console>");
+        printf (">");
 
         char c;
         u16 ct=0;
@@ -207,61 +211,193 @@ i16 gpuThreadFn (void *userParam)
 }
 
 //*****************************************************
+int getch(void)
+{
+    struct termios oldattr, newattr;
+    int ch;
+    tcgetattr( STDIN_FILENO, &oldattr );
+    newattr = oldattr;
+    newattr.c_lflag &= ~( ICANON | ECHO );
+    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+    ch = getchar();
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+    return ch;
+}
+
+
+//*****************************************************
+bool openSocket (OSSocket *sok, const char *ip, u32 port)
+{
+    log.log ("opening socket [%s:%d]: ", ip, port);
+    eSocketError sokErr = OSSocket_openAsTCPClient (sok, ip, port);
+    if (sokErr != eSocketError_none)
+    {
+        log.log ("FAIL, error code=%d\n", sokErr);
+        return false;
+    }
+    log.log ("OK\n");
+    return true;
+}
+
+
+//*****************************************************
+void waitAnswer (Client &client)
+{}
+
+
+/*****************************************************
+ * true se quit
+ */
+bool processCommand (Client &client, const char *str)
+{
+    if (strcasecmp(str,"quit") == 0)
+    {
+        client.sendClose();
+        log.log ("quitting...\n");
+        return true;
+    }
+    if (strcasecmp(str,"ping") == 0)
+    {
+        client.sendPing();
+        return true;
+    }
+    else if (strcasecmp(str,"clientlist") == 0)
+    {
+        //rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_CLIENT_LIST, (u32)0);
+        return false;
+    }
+
+    /*se inizia con 0x vuol dire che voglio parlare al client
+    else if (strncmp(str,"0x", 2) == 0)
+    {
+        rhea::string::parser::Iter iter, result;
+        iter.setup (str);
+
+        if (rhea::string::parser::extractValue (iter, &result, " \n", 2))
+        {
+            char clientHex[32];
+            result.copyCurStr (clientHex, sizeof(clientHex));
+            //printf ("> client hex=%s\n", clientHex);
+
+            u32 clientHandleAsU32;
+            if (rhea::string::convert::hexToInt (&clientHex[2], &clientHandleAsU32))
+            {
+                HWebsokClient hClient;
+                hClient.initFromU32(clientHandleAsU32);
+
+                const char *everythingAfterClientHex = iter.getCurStrPointer();
+
+                //vediamo se c'è un comando
+                if (rhea::string::parser::extractValue (iter, &result, " \n", 2))
+                {
+                    char clientCmd[128];
+                    result.copyCurStr (clientCmd, sizeof(clientCmd));
+                    //printf ("> client cmd=%s\n", clientCmd);
+
+                    if (strcasecmp(clientCmd,"ping") == 0)
+                    {
+                        printf ("> sending ping to [0x%02X]\n", hClient.asU32());
+                        rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_PING, hClient.asU32());
+                    }
+                    else if (strcasecmp(clientCmd,"close") == 0)
+                    {
+                        printf ("> sending close to [0x%02X]\n", hClient.asU32());
+                        rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_CLOSE, hClient.asU32());
+                    }
+                    else
+                    {
+                        rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_STRING, hClient.asU32(), everythingAfterClientHex, strlen(everythingAfterClientHex));
+                    }
+                }
+            }
+
+        }
+    }
+    */
+
+    log.log ("unknown command\n");
+    return false;
+}
+
+//*****************************************************
+void handleInput (Client &client)
+{
+    bool bQuit = false;
+    while ( bQuit == false)
+    {
+        char str[64];
+        log.log (">");
+
+        int c;
+        u16 ct=0;
+        str[0] = 0x00;
+        while ( (c = getch()) )
+        {
+            log.log ("%c", (char)c);
+
+            if (c=='\n' || c==0x00)
+            {
+                str[ct] = 0;
+                break;
+            }
+
+
+            str[ct++] = c;
+            if (ct >= sizeof(str))
+            {
+                str[sizeof(str)-1] = 0;
+                break;
+            }
+        }
+
+        log.incIndent();
+        bQuit = processCommand(client, str);
+        log.decIndent();
+    }
+}
+
+//*****************************************************
 int main()
 {
+    const char IP[] = {"127.0.0.1"};
+    const int PORT_NUMBER = 2280;
+    OSSocket sok;
+
     rhea::init(NULL);
 
+    log.log ("==============================================\n");
+    log.log ("RHEAConsole, version 1.0\n");
+    log.log ("==============================================\n");
 
-    //inizializza il webserver e recupera un handle sul quale è possibile restare in ascolto per vedere
-    //quando il server invia delle richieste (tipo: WEBSOCKET_COMMAND_START_SELECTION)
-    HThreadMsgR hQMessageFromWebserver;
-    HThreadMsgW hQMessageToWebserver;
-    rhea::HThread hServer;
-    if (!guibridge::startServer(&hServer, &hQMessageFromWebserver, &hQMessageToWebserver))
+    log.log ("connecting...\n");
+    log.incIndent();
+        if (!openSocket (&sok,IP, PORT_NUMBER))
+            return 0;
+
+        log.log ("sending handshake: ");
+        if (!rhea::ProtocolConsole::client_handshake(sok, &log))
+        {
+            log.log ("FAIL\n");
+            OSSocket_close(sok);
+            return 0;
+        }
+        log.log ("OK\n");
+        log.log ("ready, type quit to terminate\n\n");
+    log.decIndent();
+
+
+    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
     {
-        printf ("server > failed to start...");
-        return -1;
+        Client *client = RHEANEW(allocator, Client)(allocator, sok);
+        handleInput (*client);
+        RHEADELETE(allocator, client);
     }
 
 
-    //creo un canale di comunicazione per il thread della console
-    HThreadMsgR chConsoleR;
-    HThreadMsgW chConsoleW;
-    rhea::thread::createMsgQ ( &chConsoleR, &chConsoleW);
+    log.log ("closing socket\n");
+    OSSocket_close (sok);
 
-    //creo il thread della console
-    rhea::HThread hConsole;
-    {
-        sConsoleInitParam    init;
-        init.hRead = chConsoleR;
-        init.hWriteToServer = hQMessageToWebserver;
-
-        rhea::thread::create (&hConsole, consoleThreadFn, &init);
-    }
-
-
-    //creo un thread che si occupa di fare le veci della GPU, rispondendo alle eventuali richieste che arrivano da guibridge::server
-    rhea::HThread hGPU;
-    {
-        sConsoleInitParam    init;
-        init.hRead = hQMessageFromWebserver;
-        init.hWriteToServer = hQMessageToWebserver;
-
-        rhea::thread::create (&hGPU, gpuThreadFn, &init);
-    }
-
-
-    //attendo che il thread del server muoia
-    rhea::thread::waitEnd(hServer);
-
-    //attendo che il thread della console muoia
-    rhea::thread::waitEnd(hConsole);
-
-
-    //chiudo i canali di comunicazione
-    rhea::thread::deleteMsgQ (chConsoleR, chConsoleW);
-
-
+    log.log ("\n\nFIN\n\n");
     rhea::deinit();
     return 0;
 }

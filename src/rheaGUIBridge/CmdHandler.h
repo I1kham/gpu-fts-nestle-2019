@@ -2,7 +2,7 @@
 #define _CmdHandler_h_
 #include "../rheaCommonLib/rhea.h"
 #include "../rheaCommonLib/rheaThread.h"
-#include "Websocket/WebsocketServer.h"
+#include "../rheaCommonLib/Protocol/ProtocolServer.h"
 #include "GUIBridgeEnumAndDefine.h"
 
 
@@ -19,7 +19,7 @@ namespace guibridge
         virtual         ~CmdHandler()                                              {}
 
 
-        virtual void    handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU) = 0;
+        virtual void    handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU) = 0;
 
         u16             getHandlerID() const                                                { return handlerID; }
         bool            isTimeToDie(u64 timeNowMSec) const                                  { return (timeNowMSec > timeToDieMSec); }

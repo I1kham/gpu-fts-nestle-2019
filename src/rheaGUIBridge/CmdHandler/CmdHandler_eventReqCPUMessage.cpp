@@ -10,7 +10,7 @@ void CmdHandler_eventReqCPUMessage::handleRequestFromGUI (const HThreadMsgW hQMe
 }
 
 //***********************************************************
-void CmdHandler_eventReqCPUMessage::handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU)
+void CmdHandler_eventReqCPUMessage::handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU)
 {
     //1 byte per indicare il livello di importanza del msg
     //2 byte per indicare la lunghezza in byte del messaggio in formato utf8

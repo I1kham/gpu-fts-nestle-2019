@@ -1,5 +1,5 @@
-#ifndef _rheaProtocol_h_
-#define _rheaProtocol_h_
+#ifndef _IProtocol_h_
+#define _IProtocol_h_
 #include "rheaDataTypes.h"
 #include "rheaLinearBuffer.h"
 
@@ -7,6 +7,8 @@ namespace rhea
 {
     /****************************************************************
      *  IProtocol
+     *
+     * Interfaccia di base per tutti i protocolli di comunicazione
      */
     class IProtocol
     {
@@ -24,5 +26,5 @@ namespace rhea
 
 } //namespace rhea
 
-#endif // _rheaProtocol_h_
+#endif // _IProtocol_h_
 

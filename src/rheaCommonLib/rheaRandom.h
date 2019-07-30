@@ -2,10 +2,10 @@
 #define _GOSRandomHIncluso_
 #include <math.h>
 #include "mtrand.h"
-#include "GOSDataTypes_basic.h"
+#include "rheaDataTypes.h"
 
 
-namespace gos
+namespace rhea
 {
 	/*===================================================
 	 *

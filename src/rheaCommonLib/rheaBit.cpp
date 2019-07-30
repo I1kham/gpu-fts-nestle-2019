@@ -150,7 +150,7 @@ void bit::unset (void *buffer, u32 bufferLenInByte, u32 bitStart, u32 nBitToUnse
 }
 
 //***************************************************************
-void bit::get (const void *buffer, u32 bufferLenInByte, u32 bitStart, u32 nBitToGet, void *out, u32 sizeOfOutInByte)
+void bit::get (const void *buffer, u32 bufferLenInByte UNUSED_PARAM, u32 bitStart, u32 nBitToGet, void *out, u32 sizeOfOutInByte)
 {
 #ifdef _DEBUG
     u32 debug_nByteNeeded = nBitToGet/8;

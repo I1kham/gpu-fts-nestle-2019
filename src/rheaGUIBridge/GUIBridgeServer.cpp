@@ -2,6 +2,7 @@
 #include "../rheaCommonLib/rheaString.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaLogTargetConsole.h"
+#include "../rheaCommonLib/rheaUtils.h"
 #include "GUIBridge.h"
 #include "CmdHandler_ajaxReq.h"
 #include "CmdHandler_eventReq.h"
@@ -14,27 +15,47 @@ Server::Server()
 {
     localAllocator = NULL;
     server = NULL;
+    logger = &nullLogger;
+}
+
+//***************************************************
+void Server::useLogger (rhea::ISimpleLogger *loggerIN)
+{
+    if (NULL==loggerIN)
+        logger = &nullLogger;
+    else
+        logger = loggerIN;
+
+    if (NULL != server)
+        server->useLogger(loggerIN);
 }
 
 //***************************************************
 bool Server::open (u16 SERVER_PORT, const HThreadMsgR _hQMessageIN, const HThreadMsgW _hQMessageOUT)
 {
+    logger->log ("GUIBridgeServer::opening\n");
+    logger->incIndent();
+
     hQMessageIN = _hQMessageIN;
     hQMessageOUT = _hQMessageOUT;
 
     localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("guib_server");
 
-    server = RHEANEW(localAllocator, WebsocketServer)(8, localAllocator);
+    server = RHEANEW(localAllocator, rhea::ProtocolServer)(8, localAllocator);
+    server->useLogger(logger);
+
     eSocketError err = server->start (SERVER_PORT);
     if (err != eSocketError_none)
     {
-        printf ("server> server.start() error %d\n", (int)err);
+        logger->log("FAIL\n");
+        logger->decIndent();
         rhea::thread::pushMsg (hQMessageOUT, GUIBRIDGE_SERVER_STARTED, (u32)err);
         RHEADELETE(localAllocator, server);
         return false;
     }
 
-    printf ("server> started on port:%d\n", SERVER_PORT);
+    logger->log("Started!\n");
+    logger->decIndent();
     rhea::thread::pushMsg (hQMessageOUT, GUIBRIDGE_SERVER_STARTED, u32MAX);
 
 
@@ -80,7 +101,7 @@ void Server::close()
     }
 
     RHEADELETE(rhea::memory_getDefaultAllocator(), localAllocator);
-    printf ("server> closed.\n");
+    logger->log ("GUIBridgeServer::closed\n");
 }
 
 //***************************************************
@@ -104,16 +125,15 @@ void Server::run()
         }
 
         //analizzo gli eventi segnalati al server
-        printf (".");
         for (u8 i=0; i<nEvents; i++)
         {
             switch (server->getEventType(i))
             {
             default:
-                printf ("server> unknown event type: %d\n", server->getEventType(i));
+                logger->log ("GUIBridgeServer::run(), unknown event type: %d\n", server->getEventType(i));
                 break;
 
-            case WebsocketServer::evt_new_client_connected:
+            case rhea::ProtocolServer::evt_new_client_connected:
                 {
                     //un client vuole connettersi. Accetto la socket in ingresso, ma mi riservo di chiudere la
                     //connessione se il prossimo msg che mando è != dal messaggio di identificazione
@@ -122,11 +142,11 @@ void Server::run()
                 }
                 break;
 
-            case WebsocketServer::evt_client_has_data_avail:
+            case rhea::ProtocolServer::evt_client_has_data_avail:
                 priv_onClientHasDataAvail (i);
                 break;
 
-            case WebsocketServer::evt_osevent_fired:
+            case rhea::ProtocolServer::evt_osevent_fired:
                 {
                     //E' arrivato un messaggio sulla msgQ di questo thread
                     rhea::thread::sMsg msg;
@@ -176,7 +196,7 @@ void Server::priv_onClientHasDataAvail (u8 iEvent)
     i16 nBytesLetti = server->client_read (h, &buffer);
     if (nBytesLetti == -1)
     {
-        printf ("client [0x%02X]> connection closed\n", h.asU32());
+        logger->log ("GUIBridgeServer::priv_onClientHasDataAvail(), connection [0x%02X] closed\n", h.asU32());
         return;
     }
 
@@ -204,10 +224,7 @@ void Server::priv_onClientHasDataAvail (u8 iEvent)
             u16 ck = ((u16)p[5+payloadLen] * 256) + p[6+payloadLen];
 
             //verifica della ck
-            u16 ckCheck = 0;
-            for (u16 i=0; i<nBytesLetti-2; i++)
-                ckCheck += p[i];
-            if (ckCheck != ck)
+            if (ck != rhea::utils::simpleChecksum16_calc(p, nBytesLetti-2))
                 return;
 
 
@@ -217,7 +234,7 @@ void Server::priv_onClientHasDataAvail (u8 iEvent)
             {
                 if (commandChar != 'W' || payloadLen<8)
                 {
-                    printf ("server> killing client [0x%02X] because it's not identified\n", h.asU32());
+                    logger->log ("GUIBridgeServer::priv_onClientHasDataAvail(), killing client [0x%02X] because it's not identified\n", h.asU32());
                     server->client_sendClose(h);
                     return;
                 }
@@ -225,26 +242,26 @@ void Server::priv_onClientHasDataAvail (u8 iEvent)
                 const u8 apiVersion = payload[0];
                 const u32 identificationCode = ((u32)payload[1] << 24) | ((u32)payload[2] << 16) | ((u32)payload[3] << 8) | (u32)payload[4];
                 bool bIsNewClient;
-                if (!identifiedClientList.registerClient (h, identificationCode, apiVersion, &bIsNewClient))
+                if (!identifiedClientList.onClientConnected (h, identificationCode, apiVersion, &bIsNewClient))
                 {
-                    printf ("server> killing client [0x%02X] because its identification info are wrong [id:0x%02X][apiv:%d]\n", h.asU32(), identificationCode, apiVersion);
+                    logger->log ("GUIBridgeServer::priv_onClientHasDataAvail(), killing client [0x%02X] because its identification info are wrong [id:0x%02X][apiv:%d]\n", h.asU32(), identificationCode, apiVersion);
                     server->client_sendClose(h);
                     return;
                 }
 
                 if (bIsNewClient)
-                    printf ("server> NEW client [id:0x%02X][apiv:%d] as [0x%02X]\n", identificationCode, apiVersion, h.asU32());
+                    logger->log ("GUIBridgeServer::priv_onClientHasDataAvail(), NEW client [id:0x%02X][apiv:%d] as [0x%02X]\n", identificationCode, apiVersion, h.asU32());
                 else
-                    printf ("server> EXISTING client [id:0x%02X][apiv:%d] as [0x%02X]\n",identificationCode, apiVersion, h.asU32());
+                    logger->log ("GUIBridgeServer::priv_onClientHasDataAvail(), EXISTING client [id:0x%02X][apiv:%d] as [0x%02X]\n",identificationCode, apiVersion, h.asU32());
                 return;
             }
 
 
-            printf ("server> command [%c] from [id:0x%02X][apiv:%d] as [0x%02X]\n", commandChar, idInfo->identificationCode, idInfo->apiVersion, h.asU32());
+            logger->log ("GUIBridgeServer::priv_onClientHasDataAvail(), command [%c] from [id:0x%02X][apiv:%d] as [0x%02X]\n", commandChar, idInfo->identificationCode, idInfo->apiVersion, idInfo->currentWebSocketHandleAsU32);
             switch (commandChar)
             {
             default:
-                printf ("server> unkown command [%c]\n", commandChar);
+                logger->log ("GUIBridgeServer::priv_onClientHasDataAvail(), unkown command [%c]\n", commandChar);
                 return;
 
             case 'A':
@@ -340,7 +357,7 @@ void Server::priv_onConsoleEvent (rhea::thread::sMsg &msg)
     switch (msg.what)
     {
     case GUIBRIDGE_CONSOLE_EVENT_QUIT:
-        printf ("server> quitting..\n");
+        logger->log ("GUIBridgeServer:: quitting..\n");
         bQuit = true;
         break;
 
@@ -348,7 +365,7 @@ void Server::priv_onConsoleEvent (rhea::thread::sMsg &msg)
         {
             HWebsokClient h;
             h.initFromU32 (msg.paramU32);
-            printf ("server> sending ping to [0x%02X]\n", h.asU32());
+            logger->log ("GUIBridgeServer:: sending ping to [0x%02X]\n", h.asU32());
             server->client_sendPing(h);
         }
         break;
@@ -357,7 +374,7 @@ void Server::priv_onConsoleEvent (rhea::thread::sMsg &msg)
         {
             HWebsokClient h;
             h.initFromU32 (msg.paramU32);
-            printf ("server> sending close to [0x%02X]\n", h.asU32());
+            logger->log ("GUIBridgeServer:: sending close to [0x%02X]\n", h.asU32());
             server->client_sendClose(h);
         }
         break;
@@ -366,29 +383,32 @@ void Server::priv_onConsoleEvent (rhea::thread::sMsg &msg)
         {
             HWebsokClient h;
             h.initFromU32 (msg.paramU32);
-            printf ("server> sending text msg to [0x%02X]\n", h.asU32());
+            logger->log ("GUIBridgeServer:: sending sending text msg to [0x%02X]\n", h.asU32());
             server->client_writeBuffer (h, (const void*)msg.buffer, msg.bufferSize);
         }
         break;
 
     case GUIBRIDGE_CONSOLE_EVENT_CLIENT_LIST:
         {
-            printf ("\n=== IDENTIFIED CLIENT LIST ====\n");
-            u32 n = identifiedClientList.getNElem();
-            for (u32 i=0; i<n; i++)
-            {
-                const IdentifiedClientList::sInfo *info = identifiedClientList.getElemByIndex(i);
+            logger->log ("GUIBridgeServer::\n");
+            logger->incIndent();
+                logger->log ("=== IDENTIFIED CLIENT LIST ====\n");
+                u32 n = identifiedClientList.getNElem();
+                for (u32 i=0; i<n; i++)
+                {
+                    const IdentifiedClientList::sInfo *info = identifiedClientList.getElemByIndex(i);
 
-                const float firstTimeRegisteredSec = (float)info->firstTimeRegisteredMSec / 1000.0f;
-                const float lastTimeRegisteredSec = (float)info->lastTimeRegisteredMSec / 1000.0f;
-                printf ("  [id:0x%08X] [apiv:0x%02X] [h:0x%02X] [firstTime:%.1f] [lastTime:%.1f]\n", info->identificationCode, info->apiVersion, info->currentWebSocketHandleAsU32, firstTimeRegisteredSec, lastTimeRegisteredSec);
-            }
-            printf ("    found: %d clients\n\n", n);
+                    const float firstTimeRegisteredSec = (float)info->firstTimeRegisteredMSec / 1000.0f;
+                    const float lastTimeRegisteredSec = (float)info->lastTimeRegisteredMSec / 1000.0f;
+                    logger->log("[id:0x%08X] [apiv:0x%02X] [h:0x%02X] [firstTime:%.1f] [lastTime:%.1f]\n", info->identificationCode, info->apiVersion, info->currentWebSocketHandleAsU32, firstTimeRegisteredSec, lastTimeRegisteredSec);
+                }
+                logger->log ("\nfound: %d clients\n\n", n);
+            logger->decIndent();
         }
         break;
 
     default:
-        printf ("server> unknown console message\n");
+        logger->log ("GUIBridgeServer:: unknown console message\n");
         break;
 
     }

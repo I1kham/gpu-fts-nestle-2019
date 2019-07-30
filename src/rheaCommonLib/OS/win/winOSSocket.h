@@ -7,7 +7,7 @@ namespace platform
 {
 	void				socket_init (OSSocket *sok);
 
-	eSocketError        socket_openAsTCP (OSSocket *out_sok, int portNumber);
+    eSocketError        socket_openAsTCPServer (OSSocket *out_sok, int portNumber);
 
 	void                socket_close (OSSocket &sok);
 

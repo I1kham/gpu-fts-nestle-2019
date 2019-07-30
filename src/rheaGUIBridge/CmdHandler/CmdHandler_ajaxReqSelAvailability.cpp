@@ -11,7 +11,7 @@ void CmdHandler_ajaxReqSelAvailability::handleRequestFromGUI (const HThreadMsgW 
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqSelAvailability::handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU)
+void CmdHandler_ajaxReqSelAvailability::handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU)
 {
     //dataFromGPU contiene le info sullo stato attuale della disp delle selezioni
     //1 byte per indicare il num di selezioni

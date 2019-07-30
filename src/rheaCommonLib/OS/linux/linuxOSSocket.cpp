@@ -1,10 +1,14 @@
 #ifdef LINUX
 #include "linuxOSSocket.h"
 #include <errno.h>
-#include <sys/socket.h>
 #include <netinet/ip.h>
+#include <netdb.h>
 #include <stdio.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <unistd.h>
+
 
 
 //*************************************************
@@ -26,12 +30,12 @@ void platform::socket_close (OSSocket &sok)
 }
 
 //*************************************************
-eSocketError platform::socket_openAsTCP (OSSocket *sok, int portNumber)
+eSocketError socket_openAsTCP (OSSocket *sok)
 {
-    socket_init(sok);
+    platform::socket_init(sok);
 
     //creo la socket
-    sok->socketID = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    sok->socketID = ::socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sok->socketID == -1)
     {
         switch (errno)
@@ -56,6 +60,60 @@ eSocketError platform::socket_openAsTCP (OSSocket *sok, int portNumber)
     int enable = 1;
     setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
+
+    return eSocketError_none;
+}
+
+//*************************************************
+eSocketError platform::socket_openAsTCPClient (OSSocket *sok, const char *connectToIP, u32 portNumber)
+{
+    eSocketError sokErr = socket_openAsTCP (sok);
+    if (sokErr != eSocketError_none)
+        return sokErr;
+
+
+    struct hostent *server = ::gethostbyname(connectToIP);
+    if (server == NULL)
+    {
+        ::close(sok->socketID);
+        sok->socketID = -1;
+        return eSocketError_no_such_host;
+    }
+
+    struct sockaddr_in serv_addr;
+    memset (&serv_addr, 0x00, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    memcpy (server->h_addr, &serv_addr.sin_addr.s_addr, server->h_length);
+    serv_addr.sin_port = htons(portNumber);
+
+    if (0 != connect (sok->socketID, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))
+    {
+        ::close(sok->socketID);
+        sok->socketID = -1;
+
+        switch (errno)
+        {
+        case EACCES:
+        case EPERM:         return eSocketError_addressProtected;
+        case EADDRINUSE:    return eSocketError_addressInUse;
+        case EINVAL:        return eSocketError_alreadyBound;
+        case ENOTSOCK:      return eSocketError_invalidDescriptor;
+        case ENOMEM:        return eSocketError_noMem;
+        case ECONNREFUSED:  return eSocketError_connRefused;
+        case ETIMEDOUT:     return eSocketError_timedOut;
+        default:            return eSocketError_unknown;
+        }
+    }
+
+    return eSocketError_none;
+}
+
+//*************************************************
+eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
+{
+    eSocketError sokErr = socket_openAsTCP (sok);
+    if (sokErr != eSocketError_none)
+        return sokErr;
 
 
     //la bindo

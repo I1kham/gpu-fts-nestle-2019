@@ -33,7 +33,7 @@ namespace guibridge
                                 { }
 
         void                handleRequestFromGUI (const HThreadMsgW hQMessageToWebserver, const char *params);
-        void                handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU);
+        void                handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU);
 
         static const char*  getCommandName()                            { return "selAvail"; }
     };

@@ -10,7 +10,7 @@ void CmdHandler_eventReqSelStatus::handleRequestFromGUI (const HThreadMsgW hQMes
 }
 
 //***********************************************************
-void CmdHandler_eventReqSelStatus::handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU)
+void CmdHandler_eventReqSelStatus::handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU)
 {
     //non ci sono dati da inviare, è un semplice evento senza parametri accessori
     u8 status =  dataFromGPU[0];

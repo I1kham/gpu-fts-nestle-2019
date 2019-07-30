@@ -33,7 +33,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = DESKTOP64_DEBUG_GPUConsole1.0.0
-DISTDIR = /home/davide/Desktop/GPUFusion/src/GPUConsole/build/Desktop-Debug64/.tmp/DESKTOP64_DEBUG_GPUConsole1.0.0
+DISTDIR = /home/davide/Desktop/gpu-fts-nestle-2019/src/GPUConsole/build/Desktop-Debug64/.tmp/DESKTOP64_DEBUG_GPUConsole1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/opt/Qt/5.5/gcc_64
 LIBS          = $(SUBLIBS) -pthread -L../../../../lib -lDESKTOP64_DEBUG_rheaGUIBridge -lDESKTOP64_DEBUG_rheaCommonLib 
@@ -48,8 +48,10 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = ../../main.cpp 
-OBJECTS       = main.o
+SOURCES       = ../../main.cpp \
+		../../Client.cpp 
+OBJECTS       = main.o \
+		Client.o
 DIST          = /opt/Qt/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		/opt/Qt/5.5/gcc_64/mkspecs/common/unix.conf \
 		/opt/Qt/5.5/gcc_64/mkspecs/common/linux.conf \
@@ -175,7 +177,8 @@ DIST          = /opt/Qt/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		/opt/Qt/5.5/gcc_64/mkspecs/features/exceptions.prf \
 		/opt/Qt/5.5/gcc_64/mkspecs/features/yacc.prf \
 		/opt/Qt/5.5/gcc_64/mkspecs/features/lex.prf \
-		../../../../GPUConsole.pro  ../../main.cpp
+		../../../../GPUConsole.pro Client.h ../../main.cpp \
+		../../Client.cpp
 QMAKE_TARGET  = DESKTOP64_DEBUG_GPUConsole
 DESTDIR       = ../../../../bin/#avoid trailing-slash linebreak
 TARGET        = ../../../../bin/DESKTOP64_DEBUG_GPUConsole
@@ -529,16 +532,47 @@ main.o: ../../main.cpp ../../../rheaGUIBridge/GUIBridge.h \
 		../../../rheaCommonLib/rheaHandleArray.h \
 		../../../rheaCommonLib/rheaHandleBaseArray.h \
 		../../../rheaCommonLib/rheaIntrusiveFreeList.h \
-		../../../rheaCommonLib/Websocket/WebsocketServer.h \
+		../../../rheaCommonLib/Protocol/ProtocolServer.h \
 		../../../rheaCommonLib/OS/OSWaitableGrp.h \
-		../../../rheaCommonLib/rheaLinearBuffer.h \
 		../../../rheaCommonLib/rheaHandleUID88.h \
 		../../../rheaCommonLib/rheaFastArray.h \
+		../../../rheaCommonLib/rheaLinearBuffer.h \
+		../../../rheaCommonLib/SimpleLogger/NullLogger.h \
+		../../../rheaCommonLib/SimpleLogger/ISimpleLogger.h \
+		../../../rheaCommonLib/Protocol/IProtocol.h \
 		../../../rheaGUIBridge/GUIBridgeEnumAndDefine.h \
 		../../../rheaGUIBridge/CommandHandlerList.h \
 		../../../rheaGUIBridge/CmdHandler.h \
-		../../../rheaGUIBridge/IdentifiedClientList.h
+		../../../rheaGUIBridge/IdentifiedClientList.h \
+		../../Client.h \
+		../../../rheaCommonLib/Protocol/ProtocolConsole.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../../main.cpp
+
+Client.o: ../../Client.cpp ../../Client.h \
+		../../../rheaCommonLib/Protocol/ProtocolConsole.h \
+		../../../rheaCommonLib/Protocol/IProtocol.h \
+		../../../rheaCommonLib/rheaDataTypes.h \
+		../../../rheaCommonLib/rheaLinearBuffer.h \
+		../../../rheaCommonLib/rheaMemory.h \
+		../../../rheaCommonLib/rheaAllocator.h \
+		../../../rheaCommonLib/rheaString.h \
+		../../../rheaCommonLib/OS/OS.h \
+		../../../rheaCommonLib/OS/OSInclude.h \
+		../../../rheaCommonLib/rheaEnumAndDefine.h \
+		../../../rheaCommonLib/OS/linux/linuxOS.h \
+		../../../rheaCommonLib/OS/linux/linuxOSInclude.h \
+		../../../rheaCommonLib/OS/linux/linuxOSSocket.h \
+		../../../rheaCommonLib/OS/linux/linuxOSSerialPort.h \
+		../../../rheaCommonLib/OS/OSEnum.h \
+		../../../rheaCommonLib/OS/win/winOS.h \
+		../../../rheaCommonLib/OS/win/winOSInclude.h \
+		../../../rheaCommonLib/OS/win/winOSSocket.h \
+		../../../rheaCommonLib/OS/win/winOSSerialPort.h \
+		../../../rheaCommonLib/OS/OSSerialPort.h \
+		../../../rheaCommonLib/OS/OSSocket.h \
+		../../../rheaCommonLib/OS/linux/linuxOSWaitableGrp.h \
+		../../../rheaCommonLib/OS/win/winOSWaitableGrp.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Client.o ../../Client.cpp
 
 ####### Install
 

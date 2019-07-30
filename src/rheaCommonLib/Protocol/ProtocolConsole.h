@@ -1,17 +1,18 @@
-#ifndef _ConsoleProtocol_h_
-#define _ConsoleProtocol_h_
-#include "rheaIProtocol.h"
+#ifndef _ProtocolConsole_h_
+#define _ProtocolConsole_h_
+#include "IProtocol.h"
+#include "../SimpleLogger/ISimpleLogger.h"
 
 namespace rhea
 {
     /*************************************************++
-     * ConsoleProtocol
+     * ProtocolConsole
      *
      */
-    class ConsoleProtocol : public IProtocol
+    class ProtocolConsole : public IProtocol
     {
     public:
-        static bool         client_handshake (OSSocket &sok);
+        static bool         client_handshake (OSSocket &sok, rhea::ISimpleLogger *logger = NULL);
                             /* invia l'handshake al server e aspetta la risposta.
                              * Ritorna true se tutto ok, false altrimenti
                              */
@@ -23,11 +24,12 @@ namespace rhea
                              */
 
     public:
-                            ConsoleProtocol (rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer = 512);
-        virtual             ~ConsoleProtocol ();
+                            ProtocolConsole (rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer = 512);
+        virtual             ~ProtocolConsole ();
 
         void                close (OSSocket &sok);
         u16                 read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed);
+        i16                 writeText (OSSocket &sok, const char *strIN);
         i16                 writeBuffer (OSSocket &sok, const void *bufferIN, u16 nBytesToWrite);
         void                sendPing (OSSocket &sok);
         void                sendClose(OSSocket &sok);
@@ -69,4 +71,4 @@ namespace rhea
     };
 
 } //namespace rhea
-#endif // _ConsoleProtocol_h_
+#endif // _ProtocolConsole_h_

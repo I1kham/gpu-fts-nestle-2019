@@ -1,4 +1,4 @@
-#include "ConsoleProtocol.h"
+#include "ProtocolConsole.h"
 #include "OS/OS.h"
 #include "rheaUtils.h"
 #include "rheaRandom.h"
@@ -7,7 +7,7 @@
 using namespace rhea;
 
 //****************************************************
-ConsoleProtocol::ConsoleProtocol(rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer)
+ProtocolConsole::ProtocolConsole(rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer)
 {
     allocator = allocatorIN;
     nBytesInReadBuffer = 0;
@@ -18,7 +18,7 @@ ConsoleProtocol::ConsoleProtocol(rhea::Allocator *allocatorIN, u32 sizeOfWriteBu
 }
 
 //****************************************************
-ConsoleProtocol::~ConsoleProtocol()
+ProtocolConsole::~ProtocolConsole()
 {
     allocator->dealloc(rBuffer);
     allocator->dealloc(wBuffer);
@@ -30,24 +30,57 @@ ConsoleProtocol::~ConsoleProtocol()
  * un client connesso ad un server deve mandare questo messaggio
  * per farsi riconoscere come console
  */
-bool ConsoleProtocol::client_handshake (OSSocket &sok)
+bool ProtocolConsole::client_handshake (OSSocket &sok, rhea::ISimpleLogger *logger)
 {
+    if (logger)
+    {
+        logger->log ("handshake..\n");
+        logger->incIndent();
+    }
+
     rhea::Random random(time(NULL));
     const u8 key = random.getU32(255);
 
     char handshake[32];
     sprintf (handshake, "RHEACONSOLE");
     handshake[11] = key;
+
+    if (logger)
+        logger->log ("sending with key=%d\n", key);
     OSSocket_write (sok, handshake, 12);
 
     i16 n = OSSocket_read (sok, handshake, sizeof(handshake), 5000);
+    if (logger)
+        logger->log ("response length is %d bytes\n", n);
     if (n < 12)
+    {
+        if (logger)
+        {
+            logger->log("FAIL\n");
+            logger->decIndent();
+        }
         return false;
+    }
 
     const u8 expectedKey = 0xff - key;
-    if (memcmp (handshake, "RHEACONSOLE", 11) != 0 || handshake[11] != expectedKey)
+    if (memcmp (handshake, "RHEACONSOLE", 11) != 0 || (u8)handshake[11] != expectedKey)
+    {
+        if (logger)
+        {
+            u8 receivedKey = handshake[11];
+            handshake[11] = 0;
+            logger->log("Invalid answer: [%s], received key=%d, expected=%d\n", handshake, receivedKey, expectedKey);
+            logger->decIndent();
+        }
         return false;
+    }
 
+
+    if (logger)
+    {
+        logger->log("Done!\n");
+        logger->decIndent();
+    }
     return true;
 }
 
@@ -59,7 +92,7 @@ bool ConsoleProtocol::client_handshake (OSSocket &sok)
  * Se questo corrisponde a quello "Buono", ritorna il numero di bytes consumati,
  * altrimenti ritorna 0
  */
-i16 ConsoleProtocol::server_isValidaHandshake (const void *bufferIN, u32 sizeOfBuffer, OSSocket &sok)
+i16 ProtocolConsole::server_isValidaHandshake (const void *bufferIN, u32 sizeOfBuffer, OSSocket &sok)
 {
     if (sizeOfBuffer < 12)
         return 0;
@@ -80,7 +113,7 @@ i16 ConsoleProtocol::server_isValidaHandshake (const void *bufferIN, u32 sizeOfB
 
 
 //****************************************************
-void ConsoleProtocol::close (OSSocket &sok)
+void ProtocolConsole::close (OSSocket &sok)
 {
     if (OSSocket_isOpen(sok))
     {
@@ -91,7 +124,7 @@ void ConsoleProtocol::close (OSSocket &sok)
 }
 
 //****************************************************
-void ConsoleProtocol::priv_growReadBuffer()
+void ProtocolConsole::priv_growReadBuffer()
 {
     u32 newReadBufferSize = readBufferSize + 1024;
     if (newReadBufferSize < 0xffff)
@@ -112,7 +145,7 @@ void ConsoleProtocol::priv_growReadBuffer()
  *
  * Ritorna il numero di bytes messi in [out_buffer].
  */
-u16 ConsoleProtocol::read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
+u16 ProtocolConsole::read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
 {
     *bSocketWasClosed = 0;
 
@@ -211,7 +244,7 @@ u16 ConsoleProtocol::read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *bS
  * qualcuno all'esterno continuerà ad appendere bytes al buffer fino a quando questo non conterrà un valido messaggio consumabile da
  * questa fn
  */
-u16 ConsoleProtocol::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
+u16 ProtocolConsole::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
 {
     //ci devono essere almeno 3 bytes, questi sono obbligatori, il protocollo non ammette msg lunghi meno di 3 bytes
     if (nBytesInBuffer < 3)
@@ -251,7 +284,7 @@ u16 ConsoleProtocol::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeR
         if (ck == calc_ck)
             return ct;
 
-        printf ("ERR ConsoleProtocol::priv_decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
+        printf ("ERR ProtocolConsole::priv_decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
         out_result->what = eOpcode_unknown;
         return ct;
     }
@@ -265,14 +298,14 @@ u16 ConsoleProtocol::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeR
         if (ck == calc_ck)
             return ct;
 
-        printf ("ERR ConsoleProtocol::priv_decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
+        printf ("ERR ProtocolConsole::priv_decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
         out_result->what = eOpcode_unknown;
         return ct;
     }
 
 
     //Errore, opcode non riconosciuto
-    printf ("ERR ConsoleProtocol::priv_decodeBuffer() => invalid opcode [%d]\n", what);
+    printf ("ERR ProtocolConsole::priv_decodeBuffer() => invalid opcode [%d]\n", what);
     out_result->what = eOpcode_unknown;
     return 3;
 }
@@ -281,7 +314,7 @@ u16 ConsoleProtocol::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeR
  * Prepara un valido messaggio e lo mette in wBuffer a partire dal byte 0.
  * Ritorna la lunghezza in bytes del messaggio
  */
-u16 ConsoleProtocol::priv_encodeBuffer (eOpcode opcode, const void *payloadToSend, u16 payloadLen)
+u16 ProtocolConsole::priv_encodeBuffer (eOpcode opcode, const void *payloadToSend, u16 payloadLen)
 {
     if (payloadLen == 0)
         return 0;
@@ -311,7 +344,19 @@ u16 ConsoleProtocol::priv_encodeBuffer (eOpcode opcode, const void *payloadToSen
 }
 
 //****************************************************
-i16 ConsoleProtocol::writeBuffer (OSSocket &sok, const void *bufferIN, u16 nBytesToWrite)
+i16 ProtocolConsole::writeText (OSSocket &sok, const char *strIN)
+{
+    if (NULL == strIN)
+        return 0;
+    if (strIN[0] == 0x00)
+        return 0;
+    u32 n = strlen(strIN);
+    return writeBuffer (sok, strIN, n+1);
+}
+
+
+//****************************************************
+i16 ProtocolConsole::writeBuffer (OSSocket &sok, const void *bufferIN, u16 nBytesToWrite)
 {
     assert (nBytesToWrite<=0xff);
     u16 nToWrite = priv_encodeBuffer (eOpcode_simpleMsg, bufferIN, nBytesToWrite);
@@ -321,21 +366,21 @@ i16 ConsoleProtocol::writeBuffer (OSSocket &sok, const void *bufferIN, u16 nByte
 }
 
 //****************************************************
-void ConsoleProtocol::sendPing(OSSocket &sok)
+void ProtocolConsole::sendPing(OSSocket &sok)
 {
     u16 n = priv_encodeBuffer (eOpcode_ping, NULL, 0);
     priv_sendWBuffer(sok, n);
 }
 
 //****************************************************
-void ConsoleProtocol::sendClose(OSSocket &sok)
+void ProtocolConsole::sendClose(OSSocket &sok)
 {
     u16 n = priv_encodeBuffer (eOpcode_close, NULL, 0);
     priv_sendWBuffer(sok, n);
 }
 
 //****************************************************
-i16 ConsoleProtocol::priv_sendWBuffer (OSSocket &sok, u16 nBytesToWrite) const
+i16 ProtocolConsole::priv_sendWBuffer (OSSocket &sok, u16 nBytesToWrite) const
 {
     i32 nWrittenSoFar = 0;
     while (1)

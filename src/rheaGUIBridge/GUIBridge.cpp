@@ -5,6 +5,7 @@ using namespace guibridge;
 
 struct sServerInitParam
 {
+    rhea::ISimpleLogger *logger;
     HThreadMsgR chServerR;
     HThreadMsgW chServerW;
     HThreadMsgR chFromServerToRestOfTheWorldR;
@@ -20,7 +21,7 @@ i16     serverThreadFn (void *userParam);
  *
  *
  */
-bool guibridge::startServer (rhea::HThread *out_hServer, HThreadMsgR *out_hQMessageFromWebserver, HThreadMsgW *out_hQMessageToWebserver)
+bool guibridge::startServer (rhea::HThread *out_hServer, HThreadMsgR *out_hQMessageFromWebserver, HThreadMsgW *out_hQMessageToWebserver, rhea::ISimpleLogger *logger)
 {
     bool ret = true;
     sServerInitParam    init;
@@ -34,6 +35,7 @@ bool guibridge::startServer (rhea::HThread *out_hServer, HThreadMsgR *out_hQMess
 
 
     //crea il thread del server
+    init.logger = logger;
     rhea::thread::create (out_hServer, serverThreadFn, &init);
 
     //attendo che il thread del server sia partito
@@ -61,7 +63,7 @@ bool guibridge::startServer (rhea::HThread *out_hServer, HThreadMsgR *out_hQMess
 
 
 //*****************************************************************
-void guibridge::sendAjaxAnwer (WebsocketServer *server, HWebsokClient &h, u8 requestID, const char *ajaxData, u16 lenOfAjaxData)
+void guibridge::sendAjaxAnwer (rhea::ProtocolServer *server, HWebsokClient &h, u8 requestID, const char *ajaxData, u16 lenOfAjaxData)
 {
     const u16 BUFFER_SIZE = 1024;
     u8 buffer[BUFFER_SIZE];
@@ -135,7 +137,7 @@ bool guibridge::prepareEventBuffer (eEventType eventType, const void *optionalDa
 
 
 //*****************************************************************
-void guibridge::sendEvent (WebsocketServer *server, HWebsokClient &h, eEventType eventType, const void *optionalData, u16 lenOfOptionalData)
+void guibridge::sendEvent (rhea::ProtocolServer *server, HWebsokClient &h, eEventType eventType, const void *optionalData, u16 lenOfOptionalData)
 {
     const u16 BUFFER_SIZE = 1024;
     u8 buffer[BUFFER_SIZE];
@@ -156,6 +158,7 @@ i16 serverThreadFn (void *userParam)
     memcpy (&init, userParam, sizeof(sServerInitParam));
 
     guibridge::Server server;
+    server.useLogger(init.logger);
     if (!server.open(2280, init.chServerR, init.chFromServerToRestOfTheWorldW))
         return -1;
 

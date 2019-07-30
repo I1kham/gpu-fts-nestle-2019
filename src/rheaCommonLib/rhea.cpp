@@ -19,6 +19,9 @@ sRheaGlobals	rheaGlobals;
 //***************************************************
 bool rhea::init (void *platformSpecificInitData)
 {
+    //init random generator
+    srand((unsigned) time(NULL));
+
 	//init OS Stuff
 	if (!internal_OSInit(platformSpecificInitData))
 		return false;

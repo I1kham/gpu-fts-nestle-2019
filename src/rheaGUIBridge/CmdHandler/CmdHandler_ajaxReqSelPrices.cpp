@@ -11,7 +11,7 @@ void CmdHandler_ajaxReqSelPrices::handleRequestFromGUI (const HThreadMsgW hQMess
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqSelPrices::handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU)
+void CmdHandler_ajaxReqSelPrices::handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU)
 {
     //1 byte per indicare il num di selezioni
     //2 byte per la lunghezza della stringa

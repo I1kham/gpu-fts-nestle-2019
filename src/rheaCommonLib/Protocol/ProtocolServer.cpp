@@ -1,46 +1,56 @@
 #include <stdio.h>
-#include "WebsocketServer.h"
 #include "../rheaString.h"
 #include "../rheaUtils.h"
-#include "ConsoleProtocol.h"
+#include "ProtocolServer.h"
+#include "ProtocolConsole.h"
+#include "ProtocolWebsocket.h"
 
-// WebSocket Universally Unique IDentifier
-static const char   WS_UUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
-#define WSSERVER_MAX_CLIENT_ALLOWED 8
+using namespace rhea;
 
 //****************************************************
-WebsocketServer::WebsocketServer(u8 maxClientAllowed, rhea::Allocator *allocatorIN)
+ProtocolServer::ProtocolServer(u8 maxClientAllowed, rhea::Allocator *allocatorIN)
 {
+    logger = &nullLogger;
     allocator = allocatorIN;
-	OSSocket_init(&sok);
+    OSSocket_init (&sok);
     clientList.setup (allocator, maxClientAllowed);
 }
 
 //****************************************************
-WebsocketServer::~WebsocketServer()
+ProtocolServer::~ProtocolServer()
 {
     this->close();
     clientList.unsetup();
 }
 
 //****************************************************
-eSocketError WebsocketServer::start (u16 portNumber)
+eSocketError ProtocolServer::start (u16 portNumber)
 {
-    this->close();
+    logger->log ("ProtocolServer::start() on port %d... ", portNumber);
+    logger->incIndent();
 
     eSocketError err = OSSocket_openAsTCPServer(&sok, portNumber);
     if (err != eSocketError_none)
+    {
+        logger->log ("FAIL, error code=%d\n", err);
+        logger->decIndent();
         return err;
+    }
+    logger->log ("OK\n");
 
     OSSocket_setReadTimeoutMSec  (sok, 0);
     OSSocket_setWriteTimeoutMSec (sok, 10000);
 
+    logger->log ("listen... ");
     if (!OSSocket_listen(sok))
     {
+        logger->log ("FAIL\n", err);
+        logger->decIndent();
         OSSocket_close(sok);
         return eSocketError_errorListening;
     }
+    logger->log ("OK\n");
+
 
     //aggiungo la socket al gruppo di oggetti in osservazione
     waitableGrp.addSocket (sok, u32MAX);
@@ -50,13 +60,19 @@ eSocketError WebsocketServer::start (u16 portNumber)
     u32 nMaxClient = clientList.getNAllocatedElem();
     handleArray.setup (allocator, nMaxClient);
 
+    logger->log ("Done!\n");
+    logger->decIndent();
     return eSocketError_none;
 }
 
 //****************************************************
-void WebsocketServer::close()
+void ProtocolServer::close()
 {
+    logger->log ("ProtocolServer::close()\n");
+    logger->incIndent();
+
     //free dei client ancora connessi
+    logger->log ("free of client list\n");
     while (clientList.getNElem())
     {
         HWebsokClient h = clientList(0);
@@ -65,9 +81,15 @@ void WebsocketServer::close()
     clientList.reset();
 
     waitableGrp.removeSocket(sok);
+
+    logger->log ("closing socket\n");
     OSSocket_close(sok);
 
+    logger->log ("handleArray.unsetup");
     handleArray.unsetup();
+
+    logger->log ("Done!\n");
+    logger->decIndent();
 }
 
 /****************************************************
@@ -77,7 +99,7 @@ void WebsocketServer::close()
  * la socket riceve qualcosa, oppure quando uno qualunque degli oggetti
  * della waitableGrp si sveglia
  */
-u8 WebsocketServer::wait (u32 timeoutMSec)
+u8 ProtocolServer::wait (u32 timeoutMSec)
 {
     nEvents = 0;
     u8 n = waitableGrp.wait (timeoutMSec);
@@ -90,7 +112,7 @@ u8 WebsocketServer::wait (u32 timeoutMSec)
         if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_osevent)
         {
             //un OSEvent è stato fired(), lo segnalo negli eventi che ritorno
-            eventList[nEvents].evtType = WebsocketServer::evt_osevent_fired;
+            eventList[nEvents].evtType = ProtocolServer::evt_osevent_fired;
             eventList[nEvents++].data.osEvent = &waitableGrp.getEventSrcAsOSEvent(i);
             continue;
         }
@@ -104,7 +126,7 @@ u8 WebsocketServer::wait (u32 timeoutMSec)
                 HWebsokClient clientHandle;
                 if (priv_checkIncomingConnection (&clientHandle))
                 {
-                    eventList[nEvents].evtType = WebsocketServer::evt_new_client_connected;
+                    eventList[nEvents].evtType = ProtocolServer::evt_new_client_connected;
                     eventList[nEvents++].data.clientHandleAsU32 = clientHandle.asU32();
                 }
             }
@@ -113,7 +135,7 @@ u8 WebsocketServer::wait (u32 timeoutMSec)
                 //altimenti la socket che si è svegliata deve essere una dei miei client già connessi, segnalo
                 //e ritorno l'evento
                 const u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
-                eventList[nEvents].evtType = WebsocketServer::evt_client_has_data_avail;
+                eventList[nEvents].evtType = ProtocolServer::evt_client_has_data_avail;
                 eventList[nEvents++].data.clientHandleAsU32 = clientHandleAsU32;
             }
             continue;
@@ -125,7 +147,7 @@ u8 WebsocketServer::wait (u32 timeoutMSec)
 
 
 //****************************************************
-void WebsocketServer::client_sendClose (const HWebsokClient hClient)
+void ProtocolServer::client_sendClose (const HWebsokClient hClient)
 {
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
@@ -138,13 +160,13 @@ void WebsocketServer::client_sendClose (const HWebsokClient hClient)
 }
 
 //****************************************************
-void WebsocketServer::priv_onClientDeath (sRecord *r)
+void ProtocolServer::priv_onClientDeath (sRecord *r)
 {
     HWebsokClient hClient = r->handle;
-    printf ("server> client[0x%02X] death\n", hClient.asU32());
+    logger->log ("ProtocolServer::priv_onClientDeath(), client[0x%02X] death\n", hClient.asU32());
 
-	OSSocket_close (r->client->sok);
-    waitableGrp.removeSocket (r->client->sok);
+    OSSocket_close (r->clientSok);
+    waitableGrp.removeSocket (r->clientSok);
 
     clientList.findAndRemove(hClient);
 
@@ -153,22 +175,22 @@ void WebsocketServer::priv_onClientDeath (sRecord *r)
 }
 
 //****************************************************
-WebsocketServer::eEventType WebsocketServer::getEventType (u8 iEvent) const
+ProtocolServer::eEventType ProtocolServer::getEventType (u8 iEvent) const
 {
     assert (iEvent < nEvents);
     return eventList[iEvent].evtType;
 }
 
 //****************************************************
-OSEvent* WebsocketServer::getEventSrcAsOSEvent(u8 iEvent) const
+OSEvent* ProtocolServer::getEventSrcAsOSEvent(u8 iEvent) const
 {
     assert (iEvent < nEvents);
-    assert (eventList[iEvent].evtType == WebsocketServer::evt_osevent_fired);
+    assert (eventList[iEvent].evtType == ProtocolServer::evt_osevent_fired);
     return eventList[iEvent].data.osEvent;
 }
 
 //****************************************************
-HWebsokClient WebsocketServer::getEventSrcAsClientHandle(u8 iEvent) const
+HWebsokClient ProtocolServer::getEventSrcAsClientHandle(u8 iEvent) const
 {
     assert (iEvent < nEvents);
     assert (eventList[iEvent].evtType >= 100);
@@ -178,15 +200,23 @@ HWebsokClient WebsocketServer::getEventSrcAsClientHandle(u8 iEvent) const
     return h;
 }
 
+//****************************************************
+bool ProtocolServer::priv_checkIncomingConnection (HWebsokClient *out_clientHandle)
+{
+    logger->log ("ProtocolServer::priv_checkIncomingConnection()\n");
+    logger->incIndent();
+    bool ret = priv_checkIncomingConnection2(out_clientHandle);
+    logger->decIndent();
+    return ret;
+}
 
 //****************************************************
-bool WebsocketServer::priv_checkIncomingConnection (HWebsokClient *out_clientHandle)
+bool ProtocolServer::priv_checkIncomingConnection2 (HWebsokClient *out_clientHandle)
 {
-    printf ("WebsocketServer::priv_checkIncomingConnection()\n");
     OSSocket clientSok;
 	if (!OSSocket_accept(sok, &clientSok))
     {
-        printf (" false\n");
+        logger->log("accept failed\n");
 		return false;
     }
 
@@ -196,45 +226,38 @@ bool WebsocketServer::priv_checkIncomingConnection (HWebsokClient *out_clientHan
 
     //attendo un tot in modo da ricevere una comunicazione dalla socket appena connessa.
     //I dati che leggo devono essere un valido handshake per uno dei protocolli supportati
-    eClientType clientType = eClientType_unknown;
     i32 nBytesRead = OSSocket_read (clientSok, buffer, BUFFER_SIZE, 5000);
 
     if (nBytesRead == 0)
     {
-        printf ("  timeout waiting for handshake, closing connection to the client");
+        logger->log("timeout waiting for handshake. Closing connection to the client\n");
         OSSocket_close (clientSok);
         return false;
     }
 
+    eClientType clientType = eClientType_unknown;
     while (1)
     {
-        //Se è un client console, abbiamo un semplice handshake
-        if (rhea::ConsoleProtocol::server_isValidaHandshake(buffer, nBytesRead, clientSok) > 0)
+        //Se è un client websocket, gestiamo il suo handshake
+        if (ProtocolWebsocket::server_isValidaHandshake(buffer, nBytesRead, clientSok) > 0)
         {
-            printf ("  it's a console\n");
-            clientType = eClientType_Console;
+            logger->log ("it's a websocket\n");
+            clientType = eClientType_websocket;
             break;
         }
 
-        //se è un client GUI, serve l'handshake delle websocket
-        //ok, vediamo se è valido ed eventualmente filliamo buffer con la risposta da rimandare indietro
-        if (!priv_handshake (buffer, buffer))
+        //Se è un client console, abbiamo un semplice handshake
+        if (ProtocolConsole::server_isValidaHandshake(buffer, nBytesRead, clientSok) > 0)
         {
-            //printf ("\tinvalid handshake\n");
-            OSSocket_close (clientSok);
-            return false;
+            logger->log ("it's a console\n");
+            clientType = eClientType_console;
+            break;
         }
 
-        //invio indietro il mio handshake
-        //printf ("\tsending back handshake\n");
-        if (OSSocket_write (clientSok, buffer, strlen((const char*)buffer)) <= 0)
-        {
-            //printf ("\terr\n");
-            OSSocket_close (clientSok);
-            return false;
-        }
-        clientType = eClientType_GUI;
-        break;
+        //errore
+        logger->log ("ERR: client handsake is invalid, closing connection\n");
+        OSSocket_close (clientSok);
+        return false;
     }
 
     assert (clientType != eClientType_unknown);
@@ -243,181 +266,40 @@ bool WebsocketServer::priv_checkIncomingConnection (HWebsokClient *out_clientHan
     sRecord *r = handleArray.allocIfYouCan();
     if (NULL == r)
     {
-        rhea::logger->logWarn ("WebsocketServer::checkIncomingConnection -> connection was accepted but we have no more free handle") << rhea::Logger::EOL;
+        logger->log ("connection was accepted but we have no more free handle, closing client socket\n");
+        rhea::logger->logWarn ("ProtocolServer::checkIncomingConnection -> connection was accepted but we have no more free handle") << rhea::Logger::EOL;
         OSSocket_close (clientSok);
         return false;
     }
 
     //alloco il client
+    r->clientSok = clientSok;
     switch (clientType)
     {
-    case eClientType_Console:
-        r->client = RHEANEW(allocator, ConsoleClient) (clientSok, allocator);
+    case eClientType_console:
+        r->client = RHEANEW(allocator, ProtocolConsole) (allocator);
         break;
 
-    case eClientType_GUI:
-        r->client = RHEANEW(allocator, GUIClient) (clientSok, allocator);
+    case eClientType_websocket:
+        r->client = RHEANEW(allocator, ProtocolWebsocket) (allocator);
         break;
 
     default:
-        printf ("  errore: client type is invalid [%d]\n", clientType);
+        logger->log ("ERR: client type is invalid [%d]\n", clientType);
         handleArray.dealloc(r->handle);
         return false;
     }
 
     *out_clientHandle = r->handle;
-    waitableGrp.addSocket (r->client->sok, r->handle.asU32());
+    waitableGrp.addSocket (r->clientSok, r->handle.asU32());
     clientList.append(r->handle);
+
+    logger->log ("Done!\n");
     return true;
 }
 
 //****************************************************
-bool WebsocketServer::priv_handshake_check_header(const char *src, const char *header) const
-{
-    return (strncmp(src, header, strlen(header)) == 0);
-}
-
-//****************************************************
-void WebsocketServer::priv_handshake_copy_header (char *out, const char *src, u16 maxSizeOfOutInBytes) const
-{
-    maxSizeOfOutInBytes--;
-    u16 i=0;
-    while (i<maxSizeOfOutInBytes)
-    {
-        char c = src[i];
-        if (c==0x00 || c=='\r' || c=='\n')
-            break;
-        out[i++] = c;
-    }
-    out[i] = 0x00;
-}
-
-//****************************************************
-bool WebsocketServer::priv_handshake_make_accept(const char *received_key, char *acceptKey, u32 sizeOfAcceptKeyInBytes) const
-{
-    if (sizeOfAcceptKeyInBytes < 32)
-        return false;
-
-    //concat di received_key & WS_UUID
-    char concat_key[256+64];
-    size_t lenOfReceivedKey = strlen(received_key);
-    size_t lenOfWS_UUID = strlen(WS_UUID);
-    if (lenOfReceivedKey + lenOfWS_UUID >= sizeof(concat_key)-1)
-        return false;
-
-    memset (concat_key, 0, sizeof(concat_key));
-    strncpy (concat_key, received_key, sizeof(concat_key));
-    strncat (concat_key, WS_UUID, sizeof(WS_UUID));
-
-
-    //sha-1 della key concatenata
-    u8 sha1_key[20];
-    rhea::utils::sha1(sha1_key, sizeof(sha1_key), concat_key, strlen(concat_key));
-
-    //converto la sha_key in base 64
-    //Mi servono almeno 31 bytes (vedi rhea::base64_howManyBytesNeededForEncoding())
-    return rhea::utils::base64_encode ((char*)acceptKey, sizeOfAcceptKeyInBytes, sha1_key, sizeof(sha1_key));
-}
-
-//****************************************************
-bool WebsocketServer::priv_handshake(char *out, char *in) const
-{
-    //printf ("incoming handshake:\n\t%s\n\n", in);
-
-    static const char HEADER_UPGRADE[] = "Upgrade: websocket";
-    static const char HEADER_CONNECTION[] = "Connection: Upgrade";
-    static const char HEADER_CONNECTION2[] = "Connection: keep-alive, Upgrade";
-    static const char HEADER_HOST[] = "Host: ";
-    static const char HEADER_KEY[] = "Sec-WebSocket-Key: ";
-    static const char HEADER_VERSION[] = "Sec-WebSocket-Version: ";
-    static const char HEADER_EXTENSION[] = "Sec-WebSocket-Extensions: ";
-    static const char HEADER_PROTOCOL[] = "Sec-WebSocket-Protocol: ";
-
-
-    struct Handshake
-    {
-        char    resource[32];
-        char    host[64];
-        char    received_key[256];
-        char    extension[256];
-        char    protocol[128];
-        u8      upgrade;
-        u8      connection;
-        u32     version;
-    } hs;
-    memset (&hs, 0, sizeof(Handshake));
-
-    //il buffer di handshake deve iniziare con la classica richiesta HTTP
-    if (sscanf((char*)in, "GET %s HTTP/1.1", hs.resource) != 1)
-    {
-        //printf ("Invalid HTTP GET request.\n");
-        return false;
-    }
-
-
-    //parsing dell'handshake ricevuto
-    char *token = NULL;
-    char *tokState;
-    token = strtok_r(in, "\r\n", &tokState);
-    while(token)
-    {
-        if (priv_handshake_check_header(token, HEADER_UPGRADE))
-            hs.upgrade = 1;
-
-        else if (priv_handshake_check_header(token, HEADER_CONNECTION))
-            hs.connection = 1;
-
-        else if (priv_handshake_check_header(token, HEADER_CONNECTION2))
-            hs.connection = 2;
-
-        else if (priv_handshake_check_header(token, HEADER_HOST))
-            priv_handshake_copy_header(hs.host, &token[strlen(HEADER_HOST)], sizeof(hs.host));
-
-        else if (priv_handshake_check_header(token, HEADER_KEY))
-            priv_handshake_copy_header(hs.received_key, &token[strlen(HEADER_KEY)], sizeof(hs.received_key));
-
-        else if (priv_handshake_check_header(token, HEADER_VERSION))
-            hs.version = rhea::string::convert::toU32(&token[strlen(HEADER_VERSION)]);
-
-        else if (priv_handshake_check_header(token, HEADER_EXTENSION))
-            priv_handshake_copy_header(hs.extension, &token[strlen(HEADER_EXTENSION)], sizeof(hs.extension));
-
-        else if (priv_handshake_check_header(token, HEADER_PROTOCOL))
-            priv_handshake_copy_header(hs.protocol, &token[strlen(HEADER_PROTOCOL)], sizeof(hs.protocol));
-
-        token = strtok_r(NULL, "\r\n", &tokState);
-    }
-
-    //se tutto ok, preparo l'handshake di risposta
-    if (hs.upgrade && hs.connection && hs.host && hs.received_key && hs.version)
-    {
-        //calcolo la key di risposta
-        char    send_key[32];
-        if (priv_handshake_make_accept(hs.received_key, send_key, sizeof(send_key)))
-        {
-            //printf ("Handshake request from %s:\n\tReceived key: \t%s\n\tSend key: \t%s\n", hs.host, hs.received_key, send_key);
-
-            //fillo il buffer con la risposta da rimandare indietro
-            const char *connection = HEADER_CONNECTION;
-            if (hs.connection == 2)
-                connection = HEADER_CONNECTION2;
-            sprintf(out,    "HTTP/1.1 101 Switching Protocols\r\n"\
-                            "Upgrade: websocket\r\n"\
-                            "%s\r\n"\
-                            "Sec-WebSocket-Accept: %s\r\n"\
-                            "Sec-WebSocket-Protocol: %s\r\n\r\n",
-                            connection, send_key, hs.protocol);
-            //printf ("Handshake response: %s\n", out);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
-//****************************************************
-i32 WebsocketServer::client_read (const HWebsokClient hClient, rhea::LinearBuffer *out_buffer)
+i32 ProtocolServer::client_read (const HWebsokClient hClient, rhea::LinearBuffer *out_buffer)
 {
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
@@ -427,7 +309,7 @@ i32 WebsocketServer::client_read (const HWebsokClient hClient, rhea::LinearBuffe
     }
 
     u8 bSocketWasClosed = 0;
-    u16 ret = r->client->read (out_buffer, &bSocketWasClosed);
+    u16 ret = r->client->read (r->clientSok, out_buffer, &bSocketWasClosed);
 
     if (bSocketWasClosed)
     {
@@ -440,7 +322,7 @@ i32 WebsocketServer::client_read (const HWebsokClient hClient, rhea::LinearBuffe
 
 
 //****************************************************
-i16 WebsocketServer::client_writeText (const HWebsokClient hClient, const char *strIN) const
+i16 ProtocolServer::client_writeText (const HWebsokClient hClient, const char *strIN) const
 {
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
@@ -449,11 +331,11 @@ i16 WebsocketServer::client_writeText (const HWebsokClient hClient, const char *
         return 0;
     }
 
-    return r->client->writeText (strIN);
+    return r->client->writeText (r->clientSok, strIN);
 }
 
 //****************************************************
-i16 WebsocketServer::client_writeBuffer (const HWebsokClient hClient, const void *bufferIN, u16 nBytesToWrite) const
+i16 ProtocolServer::client_writeBuffer (const HWebsokClient hClient, const void *bufferIN, u16 nBytesToWrite) const
 {
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
@@ -462,11 +344,11 @@ i16 WebsocketServer::client_writeBuffer (const HWebsokClient hClient, const void
         return 0;
     }
 
-    return r->client->writeBuffer (bufferIN, nBytesToWrite);
+    return r->client->writeBuffer (r->clientSok, bufferIN, nBytesToWrite);
 }
 
 //****************************************************
-void WebsocketServer::client_sendPing (const HWebsokClient hClient) const
+void ProtocolServer::client_sendPing (const HWebsokClient hClient) const
 {
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
@@ -475,7 +357,7 @@ void WebsocketServer::client_sendPing (const HWebsokClient hClient) const
         return;
     }
 
-    r->client->sendPing();
+    r->client->sendPing(r->clientSok);
 }
 
 

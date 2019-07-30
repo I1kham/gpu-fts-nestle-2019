@@ -29,7 +29,7 @@ function rheaBootstrap_step2()
 	
 	.catch ( function(result) 
 			{ 
-					alert(result);
+					console.log ("rheaBootstrap FAILED:" +result);
 			});	
 
 }

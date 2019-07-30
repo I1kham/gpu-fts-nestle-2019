@@ -43,7 +43,7 @@ u32 IdentifiedClientList::priv_findClientByHWebSocket (const HWebsokClient &h) c
 }
 
 //*********************************************************
-bool IdentifiedClientList::registerClient (const HWebsokClient &h, u32 identificationCode, u8  apiVersion, bool *out_bWasNew)
+bool IdentifiedClientList::onClientConnected (const HWebsokClient &h, u32 identificationCode, u8  apiVersion, bool *out_bWasNew)
 {
     *out_bWasNew = false;
 
@@ -63,11 +63,11 @@ bool IdentifiedClientList::registerClient (const HWebsokClient &h, u32 identific
             }
 
             //altrimenti è un errore, la coppia [identificationCode,apiVersion] deve essere univoca
-            unregisterClient(h);
+            priv_removeClient(h);
             return false;
         }
 
-        //se ho già questo handle in lista, allora deve per forza avere lo srtesso id a apiversion
+        //se ho già questo handle in lista, allora deve per forza avere lo stesso id a apiversion
         if (list(i).currentWebSocketHandleAsU32 == hAsU32)
         {
             if (list(i).identificationCode == identificationCode && list(i).apiVersion == apiVersion)
@@ -76,7 +76,7 @@ bool IdentifiedClientList::registerClient (const HWebsokClient &h, u32 identific
                 return true;
             }
 
-            unregisterClient(h);
+            priv_removeClient(h);
             return false;
         }
     }
@@ -91,7 +91,7 @@ bool IdentifiedClientList::registerClient (const HWebsokClient &h, u32 identific
 }
 
 //*********************************************************
-void IdentifiedClientList::unregisterClient (const HWebsokClient &h)
+void IdentifiedClientList::onClientDisconnected (const HWebsokClient &h)
 {
     const u32 hAsU32 = h.asU32();
     u32 n = list.getNElem();
@@ -99,7 +99,22 @@ void IdentifiedClientList::unregisterClient (const HWebsokClient &h)
     {
         if (list(i).currentWebSocketHandleAsU32 == hAsU32)
         {
-            printf ("server> IdentifiedClientList::unregisterClient()  [id:0x%08X] [apiv:0x%02X] [h:0x%02X]\n", list(i).identificationCode, list(i).apiVersion, list(i).currentWebSocketHandleAsU32);
+            list[i].currentWebSocketHandleAsU32 = u32MAX;
+            return;
+        }
+    }
+}
+
+//*********************************************************
+void IdentifiedClientList::priv_removeClient (const HWebsokClient &h)
+{
+    const u32 hAsU32 = h.asU32();
+    u32 n = list.getNElem();
+    for (u32 i=0; i<n; i++)
+    {
+        if (list(i).currentWebSocketHandleAsU32 == hAsU32)
+        {
+            printf ("server> IdentifiedClientList::priv_removeClient()  [id:0x%08X] [apiv:0x%02X] [h:0x%02X]\n", list(i).identificationCode, list(i).apiVersion, list(i).currentWebSocketHandleAsU32);
 
             list.removeAndSwapWithLast(i);
             return;

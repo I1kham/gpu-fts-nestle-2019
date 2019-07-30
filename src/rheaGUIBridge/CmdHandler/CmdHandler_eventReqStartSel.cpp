@@ -17,7 +17,7 @@ void CmdHandler_eventReqStartSel::handleRequestFromGUI (const HThreadMsgW hQMess
 }
 
 //***********************************************************
-void CmdHandler_eventReqStartSel::handleAnswerToGUI (WebsocketServer *server UNUSED_PARAM, const u8 *dataFromGPU UNUSED_PARAM)
+void CmdHandler_eventReqStartSel::handleAnswerToGUI (rhea::ProtocolServer *server UNUSED_PARAM, const u8 *dataFromGPU UNUSED_PARAM)
 {
     //quest fn non viene mai chiamata, il server non risponde mai ad una richiesta di questo tipo, si limita a segnalare
     //alla GPU che deve far partire una selezione

@@ -60,8 +60,6 @@ SOURCES += \
     OS/win/winOSSocket.cpp \
     OS/win/winOSThread.cpp \
     OS/win/winOSWaitableGrp.cpp \
-    Websocket/WebsocketClient.cpp \
-    Websocket/WebsocketServer.cpp \
     rhea.cpp \
     rheaBase64.cpp \
     rheaDate.cpp \
@@ -81,7 +79,13 @@ SOURCES += \
     rheaThread.cpp \
     rheaThreadMsgQ.cpp \
     rheaTime24.cpp \
-    rheaBit.cpp
+    rheaBit.cpp \
+    rheaUtils.cpp \
+    mtrand.cpp \
+    Protocol/ProtocolConsole.cpp \
+    Protocol/ProtocolServer.cpp \
+    Protocol/ProtocolWebsocket.cpp \
+    SimpleLogger/StdoutLogger.cpp
 
 HEADERS += \
     OS/OS.h \
@@ -105,7 +109,6 @@ HEADERS += \
     OS/win/winOSSerialPort.h \
     OS/win/winOSSocket.h \
     OS/win/winOSWaitableGrp.h \
-    Websocket/WebsocketServer.h \
     rhea.h \
     rheaAllocator.h \
     rheaAllocatorSimple.h \
@@ -134,7 +137,16 @@ HEADERS += \
     rheaTime24.h \
     rheaUtils.h \
     rheaWaitableFIFO.h \
-    rheaBit.h
+    rheaBit.h \
+    mtrand.h \
+    rheaRandom.h \
+    Protocol/IProtocol.h \
+    Protocol/ProtocolConsole.h \
+    Protocol/ProtocolServer.h \
+    Protocol/ProtocolWebsocket.h \
+    SimpleLogger/ISimpleLogger.h \
+    SimpleLogger/StdoutLogger.h \
+    SimpleLogger/NullLogger.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

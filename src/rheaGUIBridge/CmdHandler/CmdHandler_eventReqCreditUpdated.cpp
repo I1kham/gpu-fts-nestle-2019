@@ -10,7 +10,7 @@ void CmdHandler_eventReqCreditUpdated::handleRequestFromGUI (const HThreadMsgW h
 }
 
 //***********************************************************
-void CmdHandler_eventReqCreditUpdated::handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU)
+void CmdHandler_eventReqCreditUpdated::handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU)
 {
     //8 byte "stringa" con il prezzo già formattato con i decimali e la punteggiatura al posto giusto
     u8 buffer[16];

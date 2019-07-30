@@ -57,5 +57,9 @@ LIBRARY_NAME="rheaCommonLib"
 
 
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    Client.cpp
+
+HEADERS += \
+    Client.h
 

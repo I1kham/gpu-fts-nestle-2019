@@ -2,7 +2,8 @@
 #define _GUIBridgeServer_h_
 #include "../rheaCommonLib/rhea.h"
 #include "../rheaCommonLib/rheaThread.h"
-#include "Websocket/WebsocketServer.h"
+#include "../rheaCommonLib/Protocol/ProtocolServer.h"
+#include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "GUIBridgeEnumAndDefine.h"
 #include "CommandHandlerList.h"
 #include "IdentifiedClientList.h"
@@ -15,6 +16,8 @@ namespace guibridge
                                 Server();
                                 ~Server()               { close(); }
 
+        void                    useLogger (rhea::ISimpleLogger *loggerIN);
+
         bool                    open (u16 serverPort, const HThreadMsgR hQMessageIN, const HThreadMsgW hQMessageOUT);
         void                    close();
         void                    run();
@@ -25,8 +28,10 @@ namespace guibridge
 
 
     private:
-        WebsocketServer         *server;
+        rhea::ProtocolServer    *server;
         rhea::Allocator         *localAllocator;
+        rhea::ISimpleLogger     *logger;
+        rhea::NullLogger        nullLogger;
         rhea::LinearBuffer      buffer;
         IdentifiedClientList    identifiedClientList;
         CommandHandlerList      cmdHandlerList;

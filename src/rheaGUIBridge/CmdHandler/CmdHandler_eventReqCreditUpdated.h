@@ -22,7 +22,7 @@ namespace guibridge
                     {  }
 
         void        handleRequestFromGUI (const HThreadMsgW hQMessageToWebserver, const u8 *payload, u16 payloadLen);
-        void        handleAnswerToGUI (WebsocketServer *server, const u8 *dataFromGPU);
+        void        handleAnswerToGUI (rhea::ProtocolServer *server, const u8 *dataFromGPU);
     };
 } // namespace guibridge
 #endif // _CmdHandler_eventReqCreditUpdated_h_

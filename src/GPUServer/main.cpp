@@ -1,4 +1,5 @@
 #include "../rheaGUIBridge/GUIBridge.h"
+#include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 
 struct sGPUThreadInitParam
 {
@@ -109,16 +110,15 @@ int main()
 {
     rhea::init(NULL);
 
+    rhea::StdoutLogger logger;
+
     //inizializza il webserver e recupera un handle sul quale è possibile restare in ascolto per vedere
     //quando il server invia delle richieste (tipo: WEBSOCKET_COMMAND_START_SELECTION)
     HThreadMsgR hQMessageFromWebserver;
     HThreadMsgW hQMessageToWebserver;
     rhea::HThread hServer;
-    if (!guibridge::startServer(&hServer, &hQMessageFromWebserver, &hQMessageToWebserver))
-    {
-        printf ("server > failed to start...");
+    if (!guibridge::startServer(&hServer, &hQMessageFromWebserver, &hQMessageToWebserver, &logger))
         return -1;
-    }
 
 
     //creo un thread che si occupa di fare le veci della GPU, rispondendo alle eventuali richieste che arrivano da guibridge::server
@@ -135,10 +135,10 @@ int main()
     //attendo che il thread del server muoia
     rhea::thread::waitEnd(hServer);
 
-    printf ("server killed\n");
+    logger.log ("server killed\n");
     rhea::deinit();
 
-    printf ("fin\n");
+    logger.log ("fin\n");
     return 0;
 }
 

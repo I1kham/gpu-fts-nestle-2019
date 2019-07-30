@@ -42,7 +42,7 @@ bool setBlockingMode (OSSocket &sok, bool bBlocking)
 }
 
 //*************************************************
-eSocketError platform::socket_openAsTCP (OSSocket *sok, int portNumber)
+eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
 {
 	socket_init(sok);
 

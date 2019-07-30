@@ -1,6 +1,6 @@
 #ifndef _rheaStdoutLogger_h_
 #define _rheaStdoutLogger_h_
-#include "rheaDataTypes.h"
+#include "ISimpleLogger.h"
 
 namespace rhea
 {
@@ -10,7 +10,7 @@ namespace rhea
      * Semplice log con funzionalità di indentazione che butta
      * tutto sullo stdout
      */
-    class StdoutLogger
+    class StdoutLogger : public ISimpleLogger
     {
     public:
                             StdoutLogger();

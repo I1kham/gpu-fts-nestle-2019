@@ -4,28 +4,36 @@
 
 namespace rhea
 {
-    size_t      base64_howManyBytesNeededForEncoding (size_t sizeInBytesOfBufferToEncode);
-                /* ritorna il numero di bytes necessari a contenere la rappresentazione
-                 * in base64 di dei primi [sizeInBytesOfIn] di [in]
-                 */
+    namespace utils
+    {
 
-    bool        base64_encode (void *out, size_t sizeOfOutInBytes, const void *in, size_t sizeInBytesOfIn);
-                /* prende i primi [sizeInBytesOfIn] di [in] e li converte nella rappresentazione in base64.
-                 * Mette il risultato in out appendendo un 0x00 a fine buffer.
-                 *
-                 * Ritorna false se [sizeOfOutInBytes] non è suff ad ospitare la conversione
-                 */
+        size_t      base64_howManyBytesNeededForEncoding (size_t sizeInBytesOfBufferToEncode);
+                    /* ritorna il numero di bytes necessari a contenere la rappresentazione
+                     * in base64 di dei primi [sizeInBytesOfIn] di [in]
+                     */
 
-    int         base64_decode (u8 *binary, size_t *binary_length, const char *base64IN, size_t sizeInBytesOfbase64IN);
+        bool        base64_encode (void *out, size_t sizeOfOutInBytes, const void *in, size_t sizeInBytesOfIn);
+                    /* prende i primi [sizeInBytesOfIn] di [in] e li converte nella rappresentazione in base64.
+                     * Mette il risultato in out appendendo un 0x00 a fine buffer.
+                     *
+                     * Ritorna false se [sizeOfOutInBytes] non è suff ad ospitare la conversione
+                     */
 
-    bool        sha1 (void *out, size_t sizeOfOutInBytes, const void *in, size_t sizeInBytesOfIn);
-                /* Dato un buffer [in], mette in [out] un hash di 20 byte secondo l'algoritmo sha1
-                 *
-                 * out deve essere di almeno 20 bytes
-                 */
+        int         base64_decode (u8 *binary, size_t *binary_length, const char *base64IN, size_t sizeInBytesOfbase64IN);
 
+        bool        sha1 (void *out, size_t sizeOfOutInBytes, const void *in, size_t sizeInBytesOfIn);
+                    /* Dato un buffer [in], mette in [out] un hash di 20 byte secondo l'algoritmo sha1
+                     *
+                     * out deve essere di almeno 20 bytes
+                     */
 
+        u8          simpleChecksum8_calc (const void *bufferIN, u32 lenInBytes);
+                    /*  calcola un semplice checksum 8 bit */
 
+        u16          simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes);
+                    /*  calcola un semplice checksum 16 bit */
+
+    } //namespace utils
 } //namespace rhea
 
 #endif // _rheaUtils_h_

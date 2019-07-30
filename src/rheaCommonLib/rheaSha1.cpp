@@ -306,7 +306,7 @@ sha1_result(struct sha1_ctxt *ctxt, void *digest0)
 }
 
 //******************************************************************************
-bool rhea::sha1 (void *out, size_t sizeOfOutInBytes, const void *in, size_t length)
+bool rhea::utils::sha1 (void *out, size_t sizeOfOutInBytes, const void *in, size_t length)
 {
     if (sizeOfOutInBytes < 20)
         return false;

@@ -1,18 +1,24 @@
-#ifndef _GUIProtocol_h_
-#define _GUIProtocol_h_
-#include "rheaIProtocol.h"
+#ifndef _ProtocolGUI_h_
+#define _ProtocolGUI_h_
+#include "IProtocol.h"
 
 namespace rhea
 {
     /*************************************************++
-     * GUIProtocol
+     * ProtocolGUI
      *
      */
-    class GUIProtocol : public IProtocol
+    class ProtocolWebsocket : public IProtocol
     {
     public:
-                            GUIProtocol (rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer = 1024);
-        virtual             ~GUIProtocol ();
+        static i16          server_isValidaHandshake (char *bufferIN, u32 sizeOfBuffer, OSSocket &sok);
+                            /* il server si aspetta che il client inizi la connessione con uno specifico handshake.
+                             * Se il primi nByte letti dalla socket dopo la accept() sono un valido handshake, questa fn ritorna il numero
+                             * di byte consumati da bufferIN e provvede a rispondere al client, altrimenti ritorna 0
+                             */
+    public:
+                            ProtocolWebsocket (rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer = 1024);
+        virtual             ~ProtocolWebsocket ();
 
         void                close (OSSocket &sok);
         u16                 read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed);
@@ -58,4 +64,4 @@ namespace rhea
     };
 
 } //namespace rhea
-#endif // _GUIProtocol_h_
+#endif // _ProtocolGUI_h_
