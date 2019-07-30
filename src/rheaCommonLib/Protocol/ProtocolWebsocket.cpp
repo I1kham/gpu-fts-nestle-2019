@@ -1,33 +1,32 @@
-#include "WebsocketServer.h"
-#include "OS/OS.h"
-#include <stdio.h>
+#include "GUIProtocol.h"
+
+using namespace rhea;
+
 
 //****************************************************
-WebsocketClient::WebsocketClient(const OSSocket &sokIN, rhea::Allocator *allocatorIN)
+GUIProtocol::GUIProtocol (rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer)
 {
     allocator = allocatorIN;
-    sok = sokIN;
     nBytesInReadBuffer = 0;
 
     readBufferSize = 1024;
     rBuffer = (u8*)allocator->alloc(readBufferSize, __alignof(u8*));
-    wBuffer = (u8*)allocator->alloc(WRITEBUFFER_SIZE, __alignof(u8*));
+    wBuffer = (u8*)allocator->alloc(sizeOfWriteBuffer, __alignof(u8*));
 }
 
 //****************************************************
-WebsocketClient::~WebsocketClient()
+GUIProtocol::~GUIProtocol()
 {
-    this->close();
     allocator->dealloc(rBuffer);
     allocator->dealloc(wBuffer);
 }
 
 //****************************************************
-void WebsocketClient::close()
+void GUIProtocol::close(OSSocket &sok)
 {
     if (OSSocket_isOpen(sok))
     {
-        sendClose();
+        sendClose(sok);
         OSSocket_close(sok);
     }
 
@@ -35,7 +34,7 @@ void WebsocketClient::close()
 }
 
 //****************************************************
-void WebsocketClient::priv_growReadBuffer()
+void GUIProtocol::priv_growReadBuffer()
 {
     u32 newReadBufferSize = readBufferSize + 1024;
     if (newReadBufferSize < 0xffff)
@@ -56,7 +55,7 @@ void WebsocketClient::priv_growReadBuffer()
  *
  * Ritorna il numero di bytes messi in [out_buffer].
  */
-u16 WebsocketClient::read (rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
+u16 GUIProtocol::read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
 {
     *bSocketWasClosed = 0;
 
@@ -113,7 +112,7 @@ u16 WebsocketClient::read (rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
             {
                 //rispondo con close e chiudo
                 u16 n = priv_encodeBuffer (true, eWebSocketOpcode_CLOSE, NULL, 0);
-                priv_sendWBuffer(n);
+                priv_sendWBuffer(sok, n);
 
                 OSSocket_close(sok);
                 *bSocketWasClosed = 1;
@@ -126,7 +125,7 @@ u16 WebsocketClient::read (rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
                 printf ("PING\n");
                 //rispondo con pong
                 u16 n = priv_encodeBuffer (true, eWebSocketOpcode_PONG, decoded.payload, decoded.payloadLenInBytes);
-                priv_sendWBuffer(n);
+                priv_sendWBuffer(sok, n);
             }
             break;
 
@@ -140,7 +139,7 @@ u16 WebsocketClient::read (rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
                 printf ("???\n");
                 //ho ricevuto un OPCODE non supportato, chiudo
                 u16 n = priv_encodeBuffer (true, eWebSocketOpcode_CLOSE, NULL, 0);
-                priv_sendWBuffer(n);
+                priv_sendWBuffer(sok, n);
 
                 OSSocket_close(sok);
                  *bSocketWasClosed = 1;
@@ -166,7 +165,7 @@ u16 WebsocketClient::read (rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
  * qualcuno all'esterno continuerà ad appendere bytes al buffer fino a quando questo non conterrà un valido messaggio consumabile da
  * questa fn
  */
-u16 WebsocketClient::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
+u16 GUIProtocol::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
 {
     //ci devono essere almeno 2 bytes, questi sono obbligatori, il protocollo Websocket non ammette msg lunghi meno di 2 bytes
     if (nBytesInBuffer < 2)
@@ -255,7 +254,7 @@ u16 WebsocketClient::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeR
 }
 
 //****************************************************
-i16 WebsocketClient::writeText(const char *strIN)
+i16 GUIProtocol::writeText (OSSocket &sok, const char *strIN)
 {
     if (NULL == strIN)
         return 1;
@@ -265,36 +264,36 @@ i16 WebsocketClient::writeText(const char *strIN)
 
     u16 nToWrite = priv_encodeBuffer (true, eWebSocketOpcode_TEXT, strIN, n);
     if (nToWrite)
-        return priv_sendWBuffer(nToWrite);
+        return priv_sendWBuffer(sok, nToWrite);
     return -1;
 }
 
 //****************************************************
-i16 WebsocketClient::writeBuffer(const void *bufferIN, u16 nBytesToWrite)
+i16 GUIProtocol::writeBuffer(OSSocket &sok, const void *bufferIN, u16 nBytesToWrite)
 {
     u16 nToWrite = priv_encodeBuffer (true, eWebSocketOpcode_BINARY, bufferIN, nBytesToWrite);
 
     if (nToWrite)
-        return priv_sendWBuffer(nToWrite);
+        return priv_sendWBuffer(sok, nToWrite);
     return -1;
 }
 
 //****************************************************
-void WebsocketClient::sendPing()
+void GUIProtocol::sendPing(OSSocket &sok)
 {
     u16 n = priv_encodeBuffer (true, eWebSocketOpcode_PING, NULL, 0);
-    priv_sendWBuffer(n);
+    priv_sendWBuffer(sok, n);
 }
 
 //****************************************************
-void WebsocketClient::sendClose()
+void GUIProtocol::sendClose(OSSocket &sok)
 {
     u16 n = priv_encodeBuffer (true, eWebSocketOpcode_CLOSE, NULL, 0);
-    priv_sendWBuffer(n);
+    priv_sendWBuffer(sok, n);
 }
 
 //****************************************************
-i16 WebsocketClient::priv_sendWBuffer (u16 nBytesToWrite)
+i16 GUIProtocol::priv_sendWBuffer (OSSocket &sok, u16 nBytesToWrite)
 {
     i32 nWrittenSoFar = 0;
     while (1)
@@ -317,7 +316,7 @@ i16 WebsocketClient::priv_sendWBuffer (u16 nBytesToWrite)
  * Prepara un valido messaggio Websocket e lo mette in wBuffer a partire dal byte 0.
  * Ritorna la lunghezza in bytes del messaggio
  */
-u16 WebsocketClient::priv_encodeBuffer (bool bFin, eWebSocketOpcode opcode, const void *payloadToSend, u16 payloadLen)
+u16 GUIProtocol::priv_encodeBuffer (bool bFin, eWebSocketOpcode opcode, const void *payloadToSend, u16 payloadLen)
 {
     u16 ct = 0;
 
@@ -339,7 +338,6 @@ u16 WebsocketClient::priv_encodeBuffer (bool bFin, eWebSocketOpcode opcode, cons
     else
     {
         //i messaggi a lunghezza superiore ai 65k non li supporto
-        OSSocket_close(sok);
         return 0;
     }
 

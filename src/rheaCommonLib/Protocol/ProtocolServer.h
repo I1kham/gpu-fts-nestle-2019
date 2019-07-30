@@ -2,29 +2,17 @@
 #define _WebsocketServer_h_
 #include "OS/OSWaitableGrp.h"
 #include "rhea.h"
-#include "rheaLinearBuffer.h"
 #include "rheaHandleUID88.h"
 #include "rheaHandleArray.h"
 #include "rheaFastArray.h"
-
+#include "rheaIProtocol.h"
+#include "rheaStdoutLogger.h"
 
 class WebsocketServer;
 class WebsocketClient;
 
 //handle per la gestione dei client
 RHEATYPEDEF_HANDLE88(HWebsokClient)
-
-
-enum eWebSocketOpcode
-{
-    eWebSocketOpcode_CONTINUATION = 0x0,
-    eWebSocketOpcode_TEXT = 0x1,
-    eWebSocketOpcode_BINARY = 0x2,
-    eWebSocketOpcode_CLOSE = 0x8,
-    eWebSocketOpcode_PING = 0x9,
-    eWebSocketOpcode_PONG = 0x0A,
-    eWebSocketOpcode_UNKNOWN = 0xff
-};
 
 
 /**************************************************************************
@@ -102,6 +90,15 @@ public:
     u32                 client_getNumConnected() const              { return clientList.getNElem(); }
     HWebsokClient       client_getByIndex (u32 i) const             { return clientList(i); }
 
+private:
+    enum eClientType
+    {
+        eClientType_unknown = 0,
+        eClientType_GUI = 1,
+        eClientType_Console = 2,
+    };
+
+
 
 private:
     union uEventData
@@ -118,7 +115,7 @@ private:
 
     struct sRecord
     {
-        WebsocketClient *client;
+        rhea::IProtocol *client;
         HWebsokClient	handle;
 
         void            oneTimeInit()	{}
@@ -144,71 +141,10 @@ private:
     rhea::FastArray<HWebsokClient>              clientList;
     OSWaitableGrp                               waitableGrp;
     OSSocket                                    sok;
+    rhea::StdoutLogger                          log;
     u8                                          nEvents;
-
 };
 
-
-/**************************************************************************
- * WebsocketClient
- *
- */
-class WebsocketClient
-{
-private:
-                        WebsocketClient (const OSSocket &sok, rhea::Allocator *allocatorIN);
-                        /* solo WebsocketServer può creare istanze di questa classe tramite il metodo checkIncomingConnection()
-                         */
-
-public:
-    virtual             ~WebsocketClient();
-                        /* solo WebsocketServer può eliminare istanze di questa classe e lo fa in totale autonomia.
-                         * Questa fn dovrebbe infatti essere private.
-                         * In ogni caso la classe WebsocketClient non viene mai esposta all'esterno, per cui va bene
-                         */
-
-
-public:
-
-    void                close ();
-
-    u16                 read (rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed);
-
-    i16                 writeText (const char *strIN);
-    i16                 writeBuffer (const void *bufferIN, u16 nBytesToWrite);
-    void                sendPing();
-    void                sendClose();
-
-
-
-private:
-    static const u32    WRITEBUFFER_SIZE = 512;
-
-    struct sDecodeResult
-    {
-        const u8            *payload;
-        u16                 payloadLenInBytes;
-        eWebSocketOpcode    opcode;
-        bool                bIsLastFrame;
-    };
-
-private:
-    u16                 priv_decodeBuffer (u8 *rBuffer, u16 nBytesInBuffer, sDecodeResult *out_result) const;
-    u16                 priv_encodeBuffer (bool bFin, eWebSocketOpcode opcode, const void *payloadToSend, u16 payloadLen);
-    i16                 priv_sendWBuffer (u16 nBytesToWrite);
-    void                priv_growReadBuffer();
-
-private:
-    rhea::Allocator     *allocator;
-    u8                  *rBuffer;
-    u8                  *wBuffer;
-    u16                 readBufferSize;
-    u16                 nBytesInReadBuffer;
-    OSSocket            sok;
-
-
-    friend class WebsocketServer;
-};
 
 
 #endif // _WebsocketServer_h_

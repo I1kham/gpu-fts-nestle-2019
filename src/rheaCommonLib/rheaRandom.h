@@ -1,0 +1,27 @@
+#ifndef _GOSRandomHIncluso_
+#define _GOSRandomHIncluso_
+#include <math.h>
+#include "mtrand.h"
+#include "GOSDataTypes_basic.h"
+
+
+namespace gos
+{
+	/*===================================================
+	 *
+	 *==================================================*/
+	class Random
+	{
+	public:
+						Random	(u32 aSeed) : mt(aSeed)		{}
+		void			seed	(u32 aSeed)					{ mt.seed(aSeed); }
+		f32				get01()								{ return (f32)mt(); }
+							//ritorna un num compreso tra 0 e 1 inclusi
+		u32				getU32 (u32 iMax)					{ return (u32)floorf(0.5f + (f32)mt() * iMax); }
+							//ritorna un u32 compreso tra 0 e iMax incluso
+
+	private:
+		MTRand_closed	mt;
+	};
+};
+#endif

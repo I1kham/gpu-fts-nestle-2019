@@ -2,7 +2,7 @@
 #include "WebsocketServer.h"
 #include "../rheaString.h"
 #include "../rheaUtils.h"
-
+#include "ConsoleProtocol.h"
 
 // WebSocket Universally Unique IDentifier
 static const char   WS_UUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -25,11 +25,11 @@ WebsocketServer::~WebsocketServer()
 }
 
 //****************************************************
-eSocketError WebsocketServer::start(u16 portNumber)
+eSocketError WebsocketServer::start (u16 portNumber)
 {
     this->close();
 
-    eSocketError err = OSSocket_openAsTCP(&sok, portNumber);
+    eSocketError err = OSSocket_openAsTCPServer(&sok, portNumber);
     if (err != eSocketError_none)
         return err;
 
@@ -68,6 +68,59 @@ void WebsocketServer::close()
     OSSocket_close(sok);
 
     handleArray.unsetup();
+}
+
+/****************************************************
+ * wait
+ *
+ * resta in attesa per un massimo di timeoutMSec e si sveglia quando
+ * la socket riceve qualcosa, oppure quando uno qualunque degli oggetti
+ * della waitableGrp si sveglia
+ */
+u8 WebsocketServer::wait (u32 timeoutMSec)
+{
+    nEvents = 0;
+    u8 n = waitableGrp.wait (timeoutMSec);
+    if (n == 0)
+        return 0;
+
+    //scanno gli eventi perchè non tutti vanno ritornati, ce ne sono alcuni che devo gesire da me
+    for (u8 i=0; i<n; i++)
+    {
+        if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_osevent)
+        {
+            //un OSEvent è stato fired(), lo segnalo negli eventi che ritorno
+            eventList[nEvents].evtType = WebsocketServer::evt_osevent_fired;
+            eventList[nEvents++].data.osEvent = &waitableGrp.getEventSrcAsOSEvent(i);
+            continue;
+        }
+
+        else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
+        {
+            //l'evento è stato generato da una socket
+            if (waitableGrp.getEventUserParamAsU32(i) == u32MAX)
+            {
+                //se la socket è quella del server, allora gestiamo l'eventuale incoming connection
+                HWebsokClient clientHandle;
+                if (priv_checkIncomingConnection (&clientHandle))
+                {
+                    eventList[nEvents].evtType = WebsocketServer::evt_new_client_connected;
+                    eventList[nEvents++].data.clientHandleAsU32 = clientHandle.asU32();
+                }
+            }
+            else
+            {
+                //altimenti la socket che si è svegliata deve essere una dei miei client già connessi, segnalo
+                //e ritorno l'evento
+                const u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
+                eventList[nEvents].evtType = WebsocketServer::evt_client_has_data_avail;
+                eventList[nEvents++].data.clientHandleAsU32 = clientHandleAsU32;
+            }
+            continue;
+        }
+    }
+
+    return nEvents;
 }
 
 
@@ -125,52 +178,6 @@ HWebsokClient WebsocketServer::getEventSrcAsClientHandle(u8 iEvent) const
     return h;
 }
 
-//****************************************************
-u8 WebsocketServer::wait (u32 timeoutMSec)
-{
-    nEvents = 0;
-    u8 n = waitableGrp.wait (timeoutMSec);
-    if (n == 0)
-        return 0;
-
-    //scanno gli eventi perchè non tutti vanno ritornati, ce ne sono alcuni che devo gesire da me
-    for (u8 i=0; i<n; i++)
-    {
-        if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_osevent)
-        {
-            //un OSEvent è stato fired()
-            eventList[nEvents].evtType = WebsocketServer::evt_osevent_fired;
-            eventList[nEvents++].data.osEvent = &waitableGrp.getEventSrcAsOSEvent(i);
-            continue;
-        }
-
-        else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
-        {
-            //l'evento è stato generato da una socket
-            if (waitableGrp.getEventUserParamAsU32(i) == u32MAX)
-            {
-                //se la socket è quella del server, allora gestiamo l'eventuale incoming connection
-                HWebsokClient clientHandle;
-                if (priv_checkIncomingConnection (&clientHandle))
-                {
-                    eventList[nEvents].evtType = WebsocketServer::evt_new_client_connected;
-                    eventList[nEvents++].data.clientHandleAsU32 = clientHandle.asU32();
-                }
-            }
-            else
-            {
-                //altimenti la socket che si è svegliata deve essere una dei miei client già connessi
-                const u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
-                eventList[nEvents].evtType = WebsocketServer::evt_client_has_data_avail;
-                eventList[nEvents++].data.clientHandleAsU32 = clientHandleAsU32;
-            }
-            continue;
-        }
-    }
-
-    return nEvents;
-}
-
 
 //****************************************************
 bool WebsocketServer::priv_checkIncomingConnection (HWebsokClient *out_clientHandle)
@@ -187,28 +194,50 @@ bool WebsocketServer::priv_checkIncomingConnection (HWebsokClient *out_clientHan
     const u16 BUFFER_SIZE = 2048;
     char buffer[BUFFER_SIZE];
 
-    //waiting for handshake
-    OSSocket_read (clientSok, buffer, BUFFER_SIZE, 5000);
+    //attendo un tot in modo da ricevere una comunicazione dalla socket appena connessa.
+    //I dati che leggo devono essere un valido handshake per uno dei protocolli supportati
+    eClientType clientType = eClientType_unknown;
+    i32 nBytesRead = OSSocket_read (clientSok, buffer, BUFFER_SIZE, 5000);
 
-    //ok, vediamo se è valido ed eventualmente filliamo buffer con la risposta da rimandare indietro
-    if (!priv_handshake (buffer, buffer))
+    if (nBytesRead == 0)
     {
-        //printf ("\tinvalid handshake\n");
+        printf ("  timeout waiting for handshake, closing connection to the client");
         OSSocket_close (clientSok);
         return false;
     }
 
-    //invio indietro il mio handshake
-    //printf ("\tsending back handshake\n");
-    if (OSSocket_write (clientSok, buffer, strlen((const char*)buffer)) <= 0)
+    while (1)
     {
-        //printf ("\terr\n");
-        OSSocket_close (clientSok);
-        return false;
+        //Se è un client console, abbiamo un semplice handshake
+        if (rhea::ConsoleProtocol::server_isValidaHandshake(buffer, nBytesRead, clientSok) > 0)
+        {
+            printf ("  it's a console\n");
+            clientType = eClientType_Console;
+            break;
+        }
+
+        //se è un client GUI, serve l'handshake delle websocket
+        //ok, vediamo se è valido ed eventualmente filliamo buffer con la risposta da rimandare indietro
+        if (!priv_handshake (buffer, buffer))
+        {
+            //printf ("\tinvalid handshake\n");
+            OSSocket_close (clientSok);
+            return false;
+        }
+
+        //invio indietro il mio handshake
+        //printf ("\tsending back handshake\n");
+        if (OSSocket_write (clientSok, buffer, strlen((const char*)buffer)) <= 0)
+        {
+            //printf ("\terr\n");
+            OSSocket_close (clientSok);
+            return false;
+        }
+        clientType = eClientType_GUI;
+        break;
     }
 
-    //printf ("\tconnected!\n");
-
+    assert (clientType != eClientType_unknown);
 
     //genero un handle per il client
     sRecord *r = handleArray.allocIfYouCan();
@@ -220,12 +249,25 @@ bool WebsocketServer::priv_checkIncomingConnection (HWebsokClient *out_clientHan
     }
 
     //alloco il client
-    r->client = RHEANEW(allocator, WebsocketClient) (clientSok, allocator);
-    *out_clientHandle = r->handle;
+    switch (clientType)
+    {
+    case eClientType_Console:
+        r->client = RHEANEW(allocator, ConsoleClient) (clientSok, allocator);
+        break;
 
+    case eClientType_GUI:
+        r->client = RHEANEW(allocator, GUIClient) (clientSok, allocator);
+        break;
+
+    default:
+        printf ("  errore: client type is invalid [%d]\n", clientType);
+        handleArray.dealloc(r->handle);
+        return false;
+    }
+
+    *out_clientHandle = r->handle;
     waitableGrp.addSocket (r->client->sok, r->handle.asU32());
     clientList.append(r->handle);
-
     return true;
 }
 
@@ -270,11 +312,11 @@ bool WebsocketServer::priv_handshake_make_accept(const char *received_key, char 
 
     //sha-1 della key concatenata
     u8 sha1_key[20];
-    rhea::sha1(sha1_key, sizeof(sha1_key), concat_key, strlen(concat_key));
+    rhea::utils::sha1(sha1_key, sizeof(sha1_key), concat_key, strlen(concat_key));
 
     //converto la sha_key in base 64
     //Mi servono almeno 31 bytes (vedi rhea::base64_howManyBytesNeededForEncoding())
-    return rhea::base64_encode ((char*)acceptKey, sizeOfAcceptKeyInBytes, sha1_key, sizeof(sha1_key));
+    return rhea::utils::base64_encode ((char*)acceptKey, sizeOfAcceptKeyInBytes, sha1_key, sizeof(sha1_key));
 }
 
 //****************************************************
