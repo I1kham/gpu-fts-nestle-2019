@@ -14,7 +14,7 @@ namespace rhea
     //a thread handle
     typedef void* HThread;
 
-    //thread main fn prototype
+    //thread thread main-fn prototype
     typedef i16 (*ThMainFunction)(void *userParam);
 
 
@@ -84,6 +84,36 @@ namespace rhea
         inline void     pushMsg (const HThreadMsgW &h, u16 what, const void *src, u32 sizeInBytes)                       { pushMsg(h, what, 0, src, sizeInBytes); }
 
 
+		/**********************************************************
+		 * comunicazione 2 way tra thread
+		 *
+		 *	Basandosi sulla msgQ di cui al punto sopra, le seguenti incapsulano un meccanismo di comunicazione 2 way tra 2 thread, identificati come e2WayMsgQThread1 ed e2WayMsgQThread2.
+		 *	Il thread1 può pushsare un messaggio usando pushMsg (h, e2WayMsgQThread1, ...) in modo che il thread2 lo possa poppare usando popMsg (h, e2WayMsgQThread2,...)
+		 *	Analogamemte, il thread2 può pushsare un messaggio usando pushMsg (h, e2WayMsgQThread2, ...) in modo che il thread1 lo possa poppare usando popMsg (h, e2WayMsgQThread1,...)
+		 *
+		 */
+		struct sHThread2WayMsgQ
+		{
+			HThreadMsgR	hRead[2];
+			HThreadMsgW	hWrite[2];
+		};
+
+		enum e2WayMsgQThread
+		{
+			e2WayMsgQThread1	= 0,
+			e2WayMsgQThread2	= 1
+		};
+
+		bool            create2WayMsgQ (sHThread2WayMsgQ *out);
+		void            delete2WayMsgQ (sHThread2WayMsgQ &s);
+
+		//read
+		bool            popMsg (const sHThread2WayMsgQ &h, e2WayMsgQThread me, sMsg *out_msg);
+
+		//write
+		void            pushMsg (const sHThread2WayMsgQ &h, e2WayMsgQThread me, u16 what, u32 paramU32, const void *src, u32 sizeInBytes);
+		inline void     pushMsg (const sHThread2WayMsgQ &h, e2WayMsgQThread me, u16 what, u32 paramU32)											{ pushMsg (h, me, what, paramU32, NULL, 0); }
+		inline void     pushMsg (const sHThread2WayMsgQ &h, e2WayMsgQThread me, u16 what, const void *src, u32 sizeInBytes)						{ pushMsg (h, me, what, 0, src, sizeInBytes); }
 
 
     } //namespace thread

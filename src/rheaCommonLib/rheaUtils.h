@@ -27,10 +27,11 @@ namespace rhea
                      * out deve essere di almeno 20 bytes
                      */
 
+
         u8          simpleChecksum8_calc (const void *bufferIN, u32 lenInBytes);
                     /*  calcola un semplice checksum 8 bit */
 
-        u16          simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes);
+        u16         simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes);
                     /*  calcola un semplice checksum 16 bit */
 
     } //namespace utils

@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="CmdHandler">
+      <UniqueIdentifier>{fabc77cd-1aef-4339-a9d0-ceb2dbea9cb2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler_eventReq.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\IdentifiedClientList.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\SocketBridge.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\SocketBridgeServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler_eventReq.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CommandHandlerList.h" />
+    <ClInclude Include="..\..\src\SocketBridge\IdentifiedClientList.h" />
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridge.h" />
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridgeEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridgeServer.h" />
+  </ItemGroup>
+</Project>

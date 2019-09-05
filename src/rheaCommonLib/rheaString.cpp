@@ -1,6 +1,5 @@
 #include "rheaString.h"
-#include "rheaAllocator.h"
-
+#include "rheaMemory.h"
 
 using namespace rhea;
 
@@ -33,7 +32,7 @@ char* string::alloc (rhea::Allocator *allocator, const char *src)
         return NULL;
 
     size_t n = strlen(src);
-    char *ret = (char*)allocator->alloc (n+1, 8);
+    char *ret = (char*)RHEAALLOC(allocator, n+1);
     memcpy (ret, src, n);
     ret[n]=0;
     return ret;

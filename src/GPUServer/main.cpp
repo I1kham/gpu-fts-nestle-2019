@@ -1,144 +1,95 @@
-#include "../rheaGUIBridge/GUIBridge.h"
+#include "../CPUBridge/CPUBridge.h"
+#include "../CPUBridge/CPUChannelCom.h"
+#include "../CPUBridge/CPUChannelFakeCPU.h"
+#include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 
-struct sGPUThreadInitParam
+
+
+//*****************************************************
+bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::StdoutLogger *logger, rhea::HThread *out_hThread)
 {
-    HThreadMsgR hRead;
-    HThreadMsgW hWriteToServer;
-};
-
-
-u8 bSigTermKilled = 0;
-
-/**************************************************************************
- * Risponde alle richieste di guiBrdige simulando la presenza di una GPU
- */
-i16 gpuThreadFn (void *userParam)
-{
-    sGPUThreadInitParam *init = (sGPUThreadInitParam*)userParam;
-    HThreadMsgR chReadFromServer = init->hRead;
-    HThreadMsgW chWriteToServer = init->hWriteToServer;
-
-
-    rhea::thread::sMsg  msg;
-    OSEvent             hEventMsgAvail;
-    rhea::thread::getMsgQEvent (chReadFromServer, &hEventMsgAvail);
-
-    u64 timeToSendEndOfCurrentSelectionMSec = u64MAX;
-    while (1)
-    {
-        OSEvent_wait(hEventMsgAvail, 5000);
-
-        u64 timeNowMSec = OS_getTimeNowMSec();
-
-        //se avevo una selezione in "preparazione", dopo un po' invio il messaggio di "selezione terminata"
-        if (timeNowMSec >= timeToSendEndOfCurrentSelectionMSec)
-        {
-            timeToSendEndOfCurrentSelectionMSec = u64MAX;
-            //invio eSelectionReqStatus_finished
-            guibridge::CmdHandler_selStatus_buildAResponseAndPushItToServer (chWriteToServer, 4);
-        }
-
-
-        while (rhea::thread::popMsg(chReadFromServer, &msg))
-        {
-            if (msg.what == GUIBRIDGE_SERVER_DYING)
-            {
-                rhea::thread::deleteMsg(msg);
-                return 1;
-            }
-
-            if ((msg.what & 0xFF00) == 0x0100)
-            {
-                //è un msg da parte del server che prevede un handlerID da utilizzare per la risposta
-                u16 handlerID = (u16)(msg.paramU32 & 0x0000FFFF);
-
-                switch (msg.what)
-                {
-                default:
-                    //comando non suportato...
-                    break;
-
-                case GUIBRIDGE_REQ_SELAVAILABILITY:
-                    {
-                        //rispondo con una lista selezioin tutte abilitate
-                        const u8 NUM_SEL = 48;
-                        const u8 NUM_BYTES = 1 + NUM_SEL/8;
-                        unsigned int availList[NUM_BYTES];
-                        memset (availList, 0xff, NUM_BYTES);
-                        guibridge::CmdHandler_selAvailability_buildAResponseAndPushItToServer (chWriteToServer, handlerID, NUM_SEL, availList);
-                    }
-                    break;
-
-                case GUIBRIDGE_REQ_SELPRICES:
-                    {
-                        //rispondo con una lista prezzi tutta a zero
-                        const u8 NUM_SEL = 48;
-                        unsigned int priceList[NUM_SEL];
-                        memset (priceList, 0, sizeof(priceList));
-                        guibridge::CmdHandler_selPrices_buildAResponseAndPushItToServer (chWriteToServer, handlerID, NUM_SEL, priceList);
-
-                    }
-                    break;
-
-                case GUIBRIDGE_REQ_STARTSELECTION:
-                    //invio eSelectionReqStatus_preparing
-                    guibridge::CmdHandler_selStatus_buildAResponseAndPushItToServer (chWriteToServer, 2);
-
-                    timeToSendEndOfCurrentSelectionMSec = timeNowMSec + 4000;
-                    break;
-
-                case GUIBRIDGE_REQ_STOPSELECTION:
-                    //invio eSelectionReqStatus_finished
-                    guibridge::CmdHandler_selStatus_buildAResponseAndPushItToServer (chWriteToServer, 4);
-                    timeToSendEndOfCurrentSelectionMSec = u64MAX;
-                    break;
-
-                case GUIBRIDGE_REQ_CREDIT:
-                    break;
-
-                } //switch (msg.what)
-            }
-
-            rhea::thread::deleteMsg(msg);
-        }
-    }
+	return socketbridge::startServer(logger, hCPUServiceChannelW, out_hThread);
 }
+
+
+
+//*****************************************************
+bool startCPUBridge()
+{
+	rhea::StdoutLogger logger;
+
+	/*apro un canale di comunicazione con la CPU fisica
+	cpubridge::CPUChannelCom chToCPU;
+	bool b = chToCPU.open("COM5", &logger);
+	if (!b)
+		return false;
+	*/
+
+	cpubridge::CPUChannelFakeCPU chToCPU;
+	bool b = chToCPU.open (&logger);
+	if (!b)
+		return false;
+
+	//creo il thread di CPUBridge
+	rhea::HThread hCPUThread;
+	HThreadMsgW hCPUServiceChannelW;
+
+	if (!cpubridge::startServer(&chToCPU, &logger, &hCPUThread, &hCPUServiceChannelW))
+		return false;
+
+	//starto socketBridge che a sua volta siiscriver� a CPUBridge
+	rhea::HThread hSocketBridgeThread;
+	startSocketBridge(hCPUServiceChannelW, &logger, &hSocketBridgeThread);
+
+
+	//attendo che il thread CPU termini
+	rhea::thread::waitEnd (hCPUThread);
+
+	return true;
+}
+
+
+//*****************************************************
+void startSyandAloneSocketBridge()
+{
+	rhea::StdoutLogger logger;
+
+	HThreadMsgW hCPUServiceChannelW;
+	hCPUServiceChannelW.setInvalid();
+
+	rhea::HThread hSocketBridgeThread;
+	if (!startSocketBridge(hCPUServiceChannelW, &logger, &hSocketBridgeThread))
+		return;
+
+	//attendo che il thread termini
+	rhea::thread::waitEnd(hSocketBridgeThread);
+}
+
 
 //*****************************************************
 int main()
 {
-    rhea::init(NULL);
+#ifdef WIN32
+	HINSTANCE hInst = NULL;
+    rhea::init(&hInst);
+#else
+	rhea::init(NULL);
+#endif
 
-    rhea::StdoutLogger logger;
-
-    //inizializza il webserver e recupera un handle sul quale è possibile restare in ascolto per vedere
-    //quando il server invia delle richieste (tipo: WEBSOCKET_COMMAND_START_SELECTION)
-    HThreadMsgR hQMessageFromWebserver;
-    HThreadMsgW hQMessageToWebserver;
-    rhea::HThread hServer;
-    if (!guibridge::startServer(&hServer, &hQMessageFromWebserver, &hQMessageToWebserver, &logger))
-        return -1;
-
-
-    //creo un thread che si occupa di fare le veci della GPU, rispondendo alle eventuali richieste che arrivano da guibridge::server
-    rhea::HThread hGPU;
-    {
-        sGPUThreadInitParam    init;
-        init.hRead = hQMessageFromWebserver;
-        init.hWriteToServer = hQMessageToWebserver;
-
-        rhea::thread::create (&hGPU, gpuThreadFn, &init);
-    }
+	char out[64];
+	rhea::string::format::currency(1, 2, '.', out, sizeof(out));
+	rhea::string::format::currency(12, 2, '.', out, sizeof(out));
+	rhea::string::format::currency(123, 2, '.', out, sizeof(out));
+	rhea::string::format::currency(1234, 2, '.', out, sizeof(out));
+	
 
 
-    //attendo che il thread del server muoia
-    rhea::thread::waitEnd(hServer);
+	startCPUBridge();
 
-    logger.log ("server killed\n");
+	//startSyandAloneSocketBridge();
+
     rhea::deinit();
-
-    logger.log ("fin\n");
     return 0;
 }
 

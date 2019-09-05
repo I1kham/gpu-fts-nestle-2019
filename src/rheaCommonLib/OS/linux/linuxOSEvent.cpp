@@ -5,7 +5,7 @@
 
 
 //*******************************************************
-bool platform::event_init (OSEvent *out_ev)
+bool platform::event_open (OSEvent *out_ev)
 {
     out_ev->evfd = eventfd(0, EFD_NONBLOCK);
     if (out_ev->evfd == -1)

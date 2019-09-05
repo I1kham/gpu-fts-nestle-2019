@@ -3,6 +3,10 @@
 #include "OSInclude.h"
 #include "OSEnum.h"
 
+inline void     OSSerialPort_setInvalid (OSSerialPort &sp)														{ return platform::serialPort_setInvalid(sp); }
+inline bool     OSSerialPort_isInvalid (const OSSerialPort &sp)													{ return platform::serialPort_isInvalid(sp); }
+inline bool     OSSerialPort_isValid (const OSSerialPort &sp)													{ return !platform::serialPort_isInvalid(sp); }
+
 inline bool     OSSerialPort_open (OSSerialPort *out_serialPort, const char *deviceName,
                                     OSSerialPortConfig::eBaudRate baudRate,
                                     bool RST_on,
@@ -10,24 +14,15 @@ inline bool     OSSerialPort_open (OSSerialPort *out_serialPort, const char *dev
                                     OSSerialPortConfig::eDataBits dataBits =    OSSerialPortConfig::Data8,
                                     OSSerialPortConfig::eParity parity =        OSSerialPortConfig::NoParity,
                                     OSSerialPortConfig::eStopBits stop =        OSSerialPortConfig::OneStop,
-                                    OSSerialPortConfig::eFlowControl flowCtrl = OSSerialPortConfig::NoFlowControl)  { return platform::serialPort_open (out_serialPort, deviceName, baudRate, RST_on, DTR_on, dataBits, parity, stop, flowCtrl); }
-                /* apre la seriale e la imposta in modalità "non bloccante", RTS=on, DTR=on
+                                    OSSerialPortConfig::eFlowControl flowCtrl = OSSerialPortConfig::NoFlowControl,
+									bool bBlocking = true)														{ return platform::serialPort_open (out_serialPort, deviceName, baudRate, RST_on, DTR_on, dataBits, parity, stop, flowCtrl, bBlocking); }
+                /* apre la seriale, RTS=on, DTR=on
                  */
 
 inline void     OSSerialPort_close (OSSerialPort &sp)                                                           { return platform::serialPort_close(sp); }
 
 inline void     OSSerialPort_setRTS (OSSerialPort &sp, bool bON_OFF)                                            { platform::serialPort_setRTS(sp, bON_OFF); }
 inline void     OSSerialPort_setDTR (OSSerialPort &sp, bool bON_OFF)                                            { platform::serialPort_setDTR(sp, bON_OFF); }
-
-inline bool     OSSerialPort_setAsBlocking (OSSerialPort &sp, u8 minNumOfCharToBeReadInOrderToSblock)           { return platform::serialPort_setAsBlocking(sp, minNumOfCharToBeReadInOrderToSblock); }
-                /* imposta la seriale come "bloccante". Questo vuol dire che le chiamate a readBuffer() sono bloccanti e ritorneranno
-                 * solo quando almeno [minNumOfCharToBeReadInOrderToSblock] sono stati letti dalla seriale
-                 */
-
-inline bool     OSSerialPort_setAsNonBlocking (OSSerialPort &sp, u8 numOfDSecToWaitBeforeReturn = 0)            { return platform::serialPort_setAsNonBlocking(sp, numOfDSecToWaitBeforeReturn); }
-                /* imposta la seriale come "non bloccante". Le chiamate a readBuffer() quindi ritornano subito SE c'è almeno un byte pronto da leggere altrimenti
-                 * aspettano un massimo di [numOfDSecToWaitBeforeReturn] dSec dopodichè ritornano anche se non ci sono byte da leggere
-                 */
 
 inline void     OSSerialPort_flushIO (OSSerialPort &sp)                                                         { platform::serialPort_flushIO(sp); }
                 /* flusha i buffer di input e output discardando tutto quanto

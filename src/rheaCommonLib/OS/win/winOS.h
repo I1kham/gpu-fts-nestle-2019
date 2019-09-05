@@ -25,8 +25,10 @@ namespace platform
 	void            killThread (OSThread &handle);
 	void            waitThreadEnd(OSThread &handle);
 
-	inline bool     event_init (OSEvent *out_ev)										{ out_ev->h = ::CreateEvent(NULL, false, false, NULL); return true; }
-	inline void     event_close (OSEvent &ev)											{ ::CloseHandle(ev.h); }
+	inline void     event_setInvalid(OSEvent &ev)										{ ev.h = INVALID_HANDLE_VALUE; }
+	inline bool		event_isInvalid(const OSEvent &ev)									{ return (ev.h == INVALID_HANDLE_VALUE);  }
+	inline bool     event_open (OSEvent *out_ev)										{ out_ev->h = ::CreateEvent(NULL, false, false, NULL); return true; }
+	inline void     event_close (OSEvent &ev)											{ ::CloseHandle(ev.h); ev.h = INVALID_HANDLE_VALUE; }
 	inline bool		event_compare(const OSEvent &a, const OSEvent &b)					{ return (a.h == b.h); }
 	inline void     event_fire (const OSEvent &ev)										{ ::SetEvent(ev.h); }
 	inline bool     event_wait (const OSEvent &ev, size_t timeoutMSec)					{ if (WAIT_OBJECT_0 == ::WaitForSingleObject(ev.h, timeoutMSec)) return true; return false; }

@@ -41,7 +41,7 @@ namespace rhea
 
         void        push (const T &data)
                     {
-                        sRecord *p = (sRecord*)allocator->alloc(sizeof(sRecord));
+                        sRecord *p = RHEAALLOCSTRUCT(allocator, sRecord);
                         memcpy (&p->data, &data, sizeof(T));
                         p->next = NULL;
 

@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="CmdHandler">
+      <UniqueIdentifier>{f6e75bb0-84e1-421c-b2cc-89f835cad3a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{40997621-d056-47c1-b015-42c470006091}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqCPUMessage.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqSelAvailability.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqSelPrices.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqSelStatus.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqStartSel.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler_ajaxReq.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\CmdHandler_eventReq.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\GUIBridge.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\GUIBridgeServer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaGUIBridge\IdentifiedClientList.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqCPUMessage.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqSelAvailability.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqSelPrices.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqSelStatus.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqStartSel.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler\CmdHandler_eventReqStopSel.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler_ajaxReq.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CmdHandler_eventReq.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\CommandHandlerList.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\GUIBridge.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\GUIBridgeEnumAndDefine.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\GUIBridgeServer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaGUIBridge\IdentifiedClientList.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

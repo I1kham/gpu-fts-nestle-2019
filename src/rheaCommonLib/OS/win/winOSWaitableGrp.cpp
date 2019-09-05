@@ -7,10 +7,11 @@
 //***********************************************
 OSWaitableGrp::OSWaitableGrp()
 {
+	debug_bWaiting = 0;
     base = NULL;
 	nEventsReady = 0;
-	for (int i = 0; i < MAX_EVENTS_PER_CALL; i++)
-		events[i] = INVALID_HANDLE_VALUE;
+	for (int i = 0; i < MAX_EVENTS_HANDLE_PER_CALL; i++)
+		eventsHandle[i] = INVALID_HANDLE_VALUE;
 }
 
 //***********************************************
@@ -39,22 +40,26 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_newRecord ()
 //***********************************************
 void OSWaitableGrp::priv_removeHandle (HANDLE h)
 {
-	for (int i = 0; i < MAX_EVENTS_PER_CALL; i++)
+	/*
+	non serve dato che eventsHandle viene ribuildato ad ogni wait
+	for (int i = 0; i < MAX_EVENTS_HANDLE_PER_CALL; i++)
 	{
-		if (events[i] == h)
+		if (eventsHandle[i] == h)
 		{
-			u32 nToCopy = MAX_EVENTS_PER_CALL - (i+1);
+			u32 nToCopy = MAX_EVENTS_HANDLE_PER_CALL - (i+1);
 			if (nToCopy)
-				memcpy(&events[i], &events[i + 1], sizeof(HANDLE) * nToCopy);
-			events[MAX_EVENTS_PER_CALL-1] = INVALID_HANDLE_VALUE;
+				memcpy(&eventsHandle[i], &eventsHandle[i + 1], sizeof(HANDLE) * nToCopy);
+			eventsHandle[MAX_EVENTS_HANDLE_PER_CALL-1] = INVALID_HANDLE_VALUE;
 			return;
 		}
 	}
+	*/
 }
 
 //***********************************************
 void OSWaitableGrp::removeSocket (OSSocket &sok)
 { 
+	assert (debug_bWaiting == 0);
 	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
 
 	sRecord *q = NULL;
@@ -63,20 +68,29 @@ void OSWaitableGrp::removeSocket (OSSocket &sok)
 	{
 		if (p->originType == evt_origin_socket)
 		{
-			if (sok.hEventNotify == p->origin.osSocket.sok.hEventNotify)
+			if (OSSocket_compare(sok, p->origin.osSocket.sok))
 			{
-				priv_removeHandle (sok.hEventNotify);
-				WSACloseEvent(sok.hEventNotify);
-				sok.hEventNotify = INVALID_HANDLE_VALUE;
+				priv_removeHandle (p->origin.osSocket.hEventNotify);
+				WSACloseEvent(p->origin.osSocket.hEventNotify);
 
-				if (q == NULL)
+				
+				//rimuovo eventuali eventi che sono ancora nel miobuffer di eventi-generati
+				for (u32 i = 0; i < nEventsReady; i++)
 				{
-					base = base->next;
-					allocator->dealloc(p);
-					return;
+					if (generatedEventList[i]->originType == evt_origin_socket)
+					{
+						if (OSSocket_compare (sok, generatedEventList[i]->origin.osSocket.sok))
+						{
+							generatedEventList[i]->originType = evt_origin_deleted;
+						}
+					}
 				}
 
-				q->next = p->next;
+				if (q == NULL)
+					base = base->next;
+				else
+					q->next = p->next;
+
 				allocator->dealloc(p);
 				return;
 			}
@@ -90,15 +104,15 @@ void OSWaitableGrp::removeSocket (OSSocket &sok)
 //***********************************************
 OSWaitableGrp::sRecord* OSWaitableGrp::priv_addSocket (OSSocket &sok)
 {
-	assert(sok.hEventNotify == INVALID_HANDLE_VALUE);
-
-	sok.hEventNotify = WSACreateEvent();
-	//WSAEventSelect(sok.socketID, sok.hEventNotify, FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE | FD_QOS | FD_ROUTING_INTERFACE_CHANGE | FD_ADDRESS_LIST_CHANGE);
-	WSAEventSelect(sok.socketID, sok.hEventNotify, FD_READ | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE | FD_QOS | FD_ROUTING_INTERFACE_CHANGE | FD_ADDRESS_LIST_CHANGE);
-
+	assert(debug_bWaiting == 0);
 	sRecord *s = priv_newRecord();
-    s->originType = (u8)evt_origin_socket;
-    s->origin.osSocket.sok = sok;
+	s->originType = (u8)evt_origin_socket;
+	s->origin.osSocket.sok = sok;
+	s->origin.osSocket.hEventNotify = WSACreateEvent();
+
+	//WSAEventSelect(sok.socketID, sok.hEventNotify, FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE | FD_QOS | FD_ROUTING_INTERFACE_CHANGE | FD_ADDRESS_LIST_CHANGE);
+	WSAEventSelect (sok.socketID, s->origin.osSocket.hEventNotify, FD_READ | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE | FD_QOS | FD_ROUTING_INTERFACE_CHANGE | FD_ADDRESS_LIST_CHANGE);
+
     return s;
 }
 
@@ -106,6 +120,7 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_addSocket (OSSocket &sok)
 //***********************************************
 void OSWaitableGrp::removeEvent (const OSEvent &evt)
 {
+	assert(debug_bWaiting == 0);
 	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
 
 	sRecord *q = NULL;
@@ -118,14 +133,22 @@ void OSWaitableGrp::removeEvent (const OSEvent &evt)
 			{
 				priv_removeHandle(p->origin.osEvent.evt.h);
 
-				if (q == NULL)
+				//rimuovo eventuali eventi che sono ancora nel miobuffer di eventi-generati
+				for (u32 i = 0; i < nEventsReady; i++)
 				{
-					base = base->next;
-					allocator->dealloc(p);
-					return;
+					if (generatedEventList[i]->originType == evt_origin_osevent)
+					{
+						if (OSEvent_compare(evt, generatedEventList[i]->origin.osEvent.evt))
+						{
+							generatedEventList[i]->originType = evt_origin_deleted;
+						}
+					}
 				}
 
-				q->next = p->next;
+				if (q == NULL)
+					base = base->next;
+				else
+					q->next = p->next;
 				allocator->dealloc(p);
 				return;
 			}
@@ -139,6 +162,7 @@ void OSWaitableGrp::removeEvent (const OSEvent &evt)
 //***********************************************
 OSWaitableGrp::sRecord* OSWaitableGrp::priv_addEvent (const OSEvent &evt)
 {
+	assert(debug_bWaiting == 0);
 	sRecord *s = priv_newRecord();
 	s->originType = (u8)evt_origin_osevent;
     s->origin.osEvent.evt = evt;
@@ -146,7 +170,17 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_addEvent (const OSEvent &evt)
 }
 
 //***********************************************
-u8 OSWaitableGrp::wait (u32 timeoutMSec)
+u8 OSWaitableGrp::wait(u32 timeoutMSec)
+{
+	assert(debug_bWaiting == 0);
+	debug_bWaiting = 1;
+	u8 ret = priv_wait(timeoutMSec);
+	debug_bWaiting = 0;
+	return ret;
+}
+
+//***********************************************
+u8 OSWaitableGrp::priv_wait(u32 timeoutMSec)
 {
 //per printare un po' di info di debug, definisci la seguente
 #undef OSWAITABLE_GRP_DEBUG_TEXT
@@ -161,42 +195,49 @@ u8 OSWaitableGrp::wait (u32 timeoutMSec)
 #endif
 
 
-	for (int i = 0; i < MAX_EVENTS_PER_CALL; i++)
-		events[i] = INVALID_HANDLE_VALUE;
+	for (int i = 0; i < MAX_EVENTS_HANDLE_PER_CALL; i++)
+		eventsHandle[i] = INVALID_HANDLE_VALUE;
 
+	//creo la lista di handle sulla quale fare la WaitForMultipleObjects
 	DWORD n = 0;
 	sRecord *p = base;
 	while (p)
 	{
 		switch (p->originType)
 		{
-			default:
-				DBGBREAK;
-				break;
+		default:
+			DBGBREAK;
+			break;
 
 		case (u8)evt_origin_socket:
-			events[n++] = p->origin.osSocket.sok.hEventNotify;
+			eventsHandle[n++] = p->origin.osSocket.hEventNotify;
 			break;
 
 		case (u8)evt_origin_osevent:
-			events[n++] = p->origin.osEvent.evt.h;
+			eventsHandle[n++] = p->origin.osEvent.evt.h;
 			break;
 		}
-		
 		p = p->next;
 	}
+	assert(n <= MAX_EVENTS_HANDLE_PER_CALL);
 
+
+	//timeout per la wait
 	DWORD dwMilliseconds = (DWORD)timeoutMSec;
 	if (timeoutMSec == u32MAX)
 		dwMilliseconds = INFINITE;
 
+
 	DEBUG_PRINTF("\n\nOSWaitableGrp::wait\n");
 	DEBUG_PRINTF("  n=%d\n", n);
-	for (int i = 0; i < MAX_EVENTS_PER_CALL; i++)
-		DEBUG_PRINTF("  %X", events[i]);
+	for (int i = 0; i < MAX_EVENTS_HANDLE_PER_CALL; i++)
+		DEBUG_PRINTF("  %X", eventsHandle[i]);
 
+	//Attendo pazientemente...
 	nEventsReady = 0;
-	DWORD ret = WaitForMultipleObjects(n, events, FALSE, dwMilliseconds);
+	assert(debug_bWaiting == 1);
+	DWORD ret = WaitForMultipleObjects(n, eventsHandle, FALSE, dwMilliseconds);
+	assert(debug_bWaiting == 1);
 
 	DEBUG_PRINTF("  ret=%d\n", ret);
 
@@ -213,8 +254,6 @@ u8 OSWaitableGrp::wait (u32 timeoutMSec)
 		return 0;
 	}
 
-	
-
 	DWORD index;
 	if (ret >= WAIT_ABANDONED_0)
 		index = ret - WAIT_ABANDONED_0;
@@ -222,7 +261,7 @@ u8 OSWaitableGrp::wait (u32 timeoutMSec)
 		index = ret - WAIT_OBJECT_0;
 		
 
-	//cerco l'handle
+	//cerco l'handle che ha generato l'interruzione
 	p = base;
 	while (p)
 	{
@@ -234,12 +273,12 @@ u8 OSWaitableGrp::wait (u32 timeoutMSec)
 			break;
 
 		case (u8)evt_origin_socket:
-			if (events[index] == p->origin.osSocket.sok.hEventNotify)
+			if (eventsHandle[index] == p->origin.osSocket.hEventNotify)
 				bFound = true;
 			break;
 
 		case (u8)evt_origin_osevent:
-			if (events[index] == p->origin.osEvent.evt.h)
+			if (eventsHandle[index] == p->origin.osEvent.evt.h)
 				bFound = true;
 			break;
 		}
@@ -248,22 +287,19 @@ u8 OSWaitableGrp::wait (u32 timeoutMSec)
 		{
 			if (p->originType == evt_origin_socket)
 			{
-				
 				WSANETWORKEVENTS networkEvents;
-				//WSAEnumNetworkEvents(p->origin.osSocket.sok.socketID, p->origin.osSocket.sok.hEventNotify, &networkEvents);
 				WSAEnumNetworkEvents(p->origin.osSocket.sok.socketID, NULL, &networkEvents);
 
 				if (networkEvents.lNetworkEvents == 0)
-					::ResetEvent(p->origin.osSocket.sok.hEventNotify);
+					::ResetEvent(p->origin.osSocket.hEventNotify);
 				
-
 				DEBUG_PRINTF("  was a socket [userparam=%d], event bits = 0x%X\n", p->userParam.asU32, networkEvents.lNetworkEvents);
+				if ((networkEvents.lNetworkEvents & FD_CLOSE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CLOSE")
 				if ((networkEvents.lNetworkEvents & FD_READ) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_READ")
 				if ((networkEvents.lNetworkEvents & FD_WRITE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_WRITE")
 				if ((networkEvents.lNetworkEvents & FD_OOB) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_OOB")
 				if ((networkEvents.lNetworkEvents & FD_ACCEPT) != 0)					ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ACCEPT")
 				if ((networkEvents.lNetworkEvents & FD_CONNECT) != 0)					ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CONNECT")
-				if ((networkEvents.lNetworkEvents & FD_CLOSE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CLOSE")
 				if ((networkEvents.lNetworkEvents & FD_QOS) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_QOS")
 				if ((networkEvents.lNetworkEvents & FD_ROUTING_INTERFACE_CHANGE) != 0)	ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ROUTING_INTERFACE_CHANGE")
 				if ((networkEvents.lNetworkEvents & FD_ADDRESS_LIST_CHANGE) != 0)		ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ADDRESS_LIST_CHANGE")
@@ -289,6 +325,7 @@ u8 OSWaitableGrp::wait (u32 timeoutMSec)
 //***********************************************
 OSWaitableGrp::eEventOrigin OSWaitableGrp::getEventOrigin (u8 iEvent) const
 {
+	assert(debug_bWaiting == 0);
     assert (iEvent < nEventsReady);
 	return (eEventOrigin)generatedEventList[iEvent]->originType;
 }
@@ -296,6 +333,7 @@ OSWaitableGrp::eEventOrigin OSWaitableGrp::getEventOrigin (u8 iEvent) const
 //***********************************************
 void* OSWaitableGrp::getEventUserParamAsPtr (u8 iEvent) const
 {
+	assert(debug_bWaiting == 0);
 	assert(iEvent < nEventsReady);
 	return generatedEventList[iEvent]->userParam.asPtr;
 }
@@ -303,6 +341,7 @@ void* OSWaitableGrp::getEventUserParamAsPtr (u8 iEvent) const
 //***********************************************
 u32 OSWaitableGrp::getEventUserParamAsU32 (u8 iEvent) const
 {
+	assert(debug_bWaiting == 0);
 	assert(iEvent < nEventsReady);
 	return generatedEventList[iEvent]->userParam.asU32;
 }
@@ -310,6 +349,7 @@ u32 OSWaitableGrp::getEventUserParamAsU32 (u8 iEvent) const
 //***********************************************
 OSSocket& OSWaitableGrp::getEventSrcAsOSSocket (u8 iEvent) const
 {
+	assert(debug_bWaiting == 0);
     assert (getEventOrigin(iEvent) == evt_origin_socket);
     return generatedEventList[iEvent]->origin.osSocket.sok;
 }
@@ -317,6 +357,7 @@ OSSocket& OSWaitableGrp::getEventSrcAsOSSocket (u8 iEvent) const
 //***********************************************
 OSEvent& OSWaitableGrp::getEventSrcAsOSEvent (u8 iEvent) const
 {
+	assert(debug_bWaiting == 0);
     assert (getEventOrigin(iEvent) == evt_origin_osevent);
 	return generatedEventList[iEvent]->origin.osEvent.evt;
 }

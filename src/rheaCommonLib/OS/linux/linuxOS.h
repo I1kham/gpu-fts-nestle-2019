@@ -27,7 +27,9 @@ namespace platform
     void            killThread (OSThread &handle);
     void            waitThreadEnd(OSThread &handle);
 
-    bool            event_init (OSEvent *out_ev);
+	inline void     event_setInvalid(OSEvent &ev)													{ ev.evfd = -1; }
+	inline bool		event_isInvalid(const OSEvent &ev)												{ return (ev.evfd == -1); }
+    bool            event_open (OSEvent *out_ev);
 	inline bool		event_compare (const OSEvent &a, const OSEvent &b)								{ return (a.evfd == b.evfd); }
     void            event_close (OSEvent &ev);
     void            event_fire (const OSEvent &ev);

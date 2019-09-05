@@ -2,14 +2,23 @@
 var 	RHEA_DEFAULT_FALLOFF_LANGUAGE = "GB";
 
 //costanti di comodo da passare come parametro alla fn requestGPUEvent() e/o ricevuti come eventi dalla GPU
-var 	RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED = 97;
-var	RHEA_EVENT_SELECTION_PRICES_UPDATED = 98;
-var	RHEA_EVENT_CREDIT_UPDATED = 99;
-var	RHEA_EVENT_CPU_MESSAGE = 100;
-var	RHEA_EVENT_SELECTION_REQ_STATUS = 101;
-var	RHEA_EVENT_START_SELECTION = 102;
-var	RHEA_EVENT_STOP_SELECTION = 103;
+var RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED = 97; 	//'a'
+var	RHEA_EVENT_SELECTION_PRICES_UPDATED = 98;			//'b'
+var	RHEA_EVENT_CREDIT_UPDATED = 99;						//'c'
+var	RHEA_EVENT_CPU_MESSAGE = 100;						//'d'
+var	RHEA_EVENT_SELECTION_REQ_STATUS = 101;				//'e'
+var	RHEA_EVENT_START_SELECTION = 102;					//'f'
+var	RHEA_EVENT_STOP_SELECTION = 103;					//'g'
+var	RHEA_EVENT_CPU_STATUS = 104;						//'h'
+var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
 
+
+
+//info sulla versione attuale del codice (viene comunicata a GPU in fase di registrazione)
+var RHEA_CLIENT_INFO__API_VERSION = 0x01;
+var RHEA_CLIENT_INFO__UNUSED1 = 0x00;
+var RHEA_CLIENT_INFO__UNUSED2 = 0x00;
+var RHEA_CLIENT_INFO__UNUSED3 = 0x00;
 
 /*********************************************************
 
@@ -22,6 +31,12 @@ function Rhea()
 	//lingua corrente
 	if (this.Session_getValue ("lang") === undefined)
 		this.Session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
+	
+	
+	this.idCode_0 = 0;
+	this.idCode_1 = 0;
+	this.idCode_2 = 0;
+	this.idCode_3 = 0;
 	
 	//ajax    
 	this.nextAjaxRequestID = 1;
@@ -85,7 +100,10 @@ Rhea.prototype.webSocket_connect = function()
 		me.websocket.onopen = 		function(evt) 
 		{ 
 			rheaLog("Rhea::webSocket connected...");
+			
+			me.webSocket_requestIDCodeAfterConnection();
 			me.webSocket_identifyAfterConnection();
+			
 			resolve(1); 
 		};
 		me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };
@@ -96,22 +114,6 @@ Rhea.prototype.webSocket_connect = function()
 	});
 }
 
-Rhea.prototype.webSocket_identifyAfterConnection = function()
-{
-	rheaLog("Rhea::webSocket identifying..."); 
-
-	var buffer = new Uint8Array(8);
-	buffer[0] = 0x01;	//API version
-	
-	buffer[1] = 0x02;	//identification code MSB
-	buffer[2] = 0x03;	//..
-	buffer[3] = 0x04;	//..
-	buffer[4] = 0x05;	//identification code LSB
-	buffer[5] = 0;		//unused
-	buffer[6] = 0;		//unused
-	buffer[7] = 0;		//unused
-	this.sendGPUCommand("W", buffer, 0, 0);
-}
 
 
 /*********************************************************
@@ -168,6 +170,16 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 				var payloadLen = parseInt(256 * data[6]) + parseInt(data[7]);
 				switch (eventTypeID)
 				{
+				case RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST:
+					{
+						rheaLog ("RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST:");
+						idCode_0 = parseInt(data[8]);
+						idCode_1 = parseInt(data[9]);
+						idCode_2 = parseInt(data[10]);
+						idCode_3 = parseInt(data[11]);
+					}
+					break;
+					
 				case RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED:
 					{
 						rheaLog ("RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED:");
@@ -409,3 +421,44 @@ Rhea.prototype.requestGPUEvent = function (eventTypeID)
 }
 
 
+/*********************************************************
+ * webSocket_requestIDCodeAfterConnection
+ *
+ *	inviata automaticamente (se necessario) durante la connessione.
+ *	Serve a chiedere alla GPU un idCode univoco da utilizzare da ora
+ *	in poi durante ogni successiva riconnessione
+ */
+Rhea.prototype.webSocket_requestIDCodeAfterConnection = function()
+{
+	rheaLog("Rhea::webSocket requesting idCode"); 
+
+	var buffer = new Uint8Array(4);
+	buffer[0] = RHEA_CLIENT_INFO__API_VERSION;	//API version
+	buffer[1] = RHEA_CLIENT_INFO__UNUSED1;
+	buffer[2] = RHEA_CLIENT_INFO__UNUSED2;
+	buffer[3] = RHEA_CLIENT_INFO__UNUSED3;
+	this.sendGPUCommand("I", buffer, 0, 0);
+}
+
+/*********************************************************
+ * webSocket_identifyAfterConnection
+ *
+ *	inviata automaticamente durante la connessione.
+ *	Serve ad identificarsi con la GPU
+ */
+Rhea.prototype.webSocket_identifyAfterConnection = function()
+{
+	rheaLog("Rhea::webSocket sending idCode"); 
+
+	var buffer = new Uint8Array(8);
+	buffer[0] = RHEA_CLIENT_INFO__API_VERSION;	//API version
+	buffer[1] = RHEA_CLIENT_INFO__UNUSED1;
+	buffer[2] = RHEA_CLIENT_INFO__UNUSED2;
+	buffer[3] = RHEA_CLIENT_INFO__UNUSED3;
+	
+	buffer[4] = 0x02;	//identification code MSB
+	buffer[5] = 0x03;	//..
+	buffer[6] = 0x04;	//..
+	buffer[7] = 0x05;	//identification code LSB
+	this.sendGPUCommand("W", buffer, 0, 0);
+}

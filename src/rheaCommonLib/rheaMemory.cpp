@@ -1,9 +1,11 @@
 #include "rheaMemory.h"
 #include "rheaAllocatorSimple.h"
+#include "rheaMemoryTracker.h"
 
 
 rhea::AllocatorSimpleWithMemTrack *defaultAllocator = NULL;
 size_t  sizeOfAPointer = 0;
+rhea::MemoryTracker *memTracker = NULL;
 
 
 //**************************************
@@ -26,6 +28,20 @@ void rhea::internal_memory_deinit()
     if (defaultAllocator)
         delete defaultAllocator;
     defaultAllocator=NULL;
+
+	if (memTracker)
+	{
+		delete memTracker;
+		memTracker = NULL;
+	}
+}
+
+//**************************************
+rhea::MemoryTracker* rhea::internal_getMemoryTracker()
+{
+	if (NULL == memTracker)
+		memTracker = new rhea::MemoryTracker();
+	return memTracker;
 }
 
 
@@ -42,5 +58,9 @@ rhea::Allocator* rhea::memory_getDefaultAllocator()
     return defaultAllocator;
 }
 
-
+//**************************************
+rhea::Allocator* rhea::memory_getScrapAllocator()
+{
+	return defaultAllocator;
+}
 

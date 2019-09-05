@@ -4,30 +4,43 @@
 using namespace rhea;
 
 // WebSocket Universally Unique IDentifier
-static const char   WS_UUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+static const char WS_UUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+static const char HEADER_UPGRADE[] = "Upgrade: websocket";
+static const char HEADER_CONNECTION[] = "Connection: Upgrade";
+static const char HEADER_CONNECTION2[] = "Connection: keep-alive, Upgrade";
+static const char HEADER_HOST[] = "Host: ";
+static const char HEADER_KEY[] = "Sec-WebSocket-Key: ";
+static const char HEADER_VERSION[] = "Sec-WebSocket-Version: ";
+static const char HEADER_EXTENSION[] = "Sec-WebSocket-Extensions: ";
+static const char HEADER_PROTOCOL[] = "Sec-WebSocket-Protocol: ";
 
 
-//****************************************************
-ProtocolWebsocket::ProtocolWebsocket (rhea::Allocator *allocatorIN, u32 sizeOfWriteBuffer)
+/****************************************************
+ * client_sendHandshake
+ *
+ *	Dovrebbe iniziare l'handshake lato client, ma non lo implemento
+ *	per ora perchè non mi serve. 
+ */
+bool ProtocolWebsocket::handshake_clientSend (IProtocolChannell *ch, rhea::ISimpleLogger *logger)
 {
-    allocator = allocatorIN;
-    nBytesInReadBuffer = 0;
+	if (logger)
+	{
+		logger->log("handshake..\n");
+		logger->incIndent();
+	}
 
-    readBufferSize = 1024;
-    rBuffer = (u8*)allocator->alloc(readBufferSize, __alignof(u8*));
-    wBuffer = (u8*)allocator->alloc(sizeOfWriteBuffer, __alignof(u8*));
+	if (logger)
+		logger->log("error, function non implemented\n");
+
+	if (logger)
+		logger->decIndent();
+
+	return false;
 }
 
-//****************************************************
-ProtocolWebsocket::~ProtocolWebsocket()
-{
-    allocator->dealloc(rBuffer);
-    allocator->dealloc(wBuffer);
-}
-
 
 //****************************************************
-bool ProtocolServer_handshake_check_header(const char *src, const char *header)
+bool ProtocolServer_handshake_check_header (const char *src, const char *header)
 {
     return (strncmp(src, header, strlen(header)) == 0);
 }
@@ -48,7 +61,7 @@ void ProtocolServer_handshake_copy_header (char *out, const char *src, u16 maxSi
 }
 
 //****************************************************
-bool ProtocolServer_handshake_make_accept(const char *received_key, char *acceptKey, u32 sizeOfAcceptKeyInBytes)
+bool ProtocolServer_handshake_make_accept (const char *received_key, char *acceptKey, u32 sizeOfAcceptKeyInBytes)
 {
     if (sizeOfAcceptKeyInBytes < 32)
         return false;
@@ -75,245 +88,192 @@ bool ProtocolServer_handshake_make_accept(const char *received_key, char *accept
 }
 
 //****************************************************
-i16 ProtocolWebsocket::server_isValidaHandshake (char *bufferIN, u32 sizeOfBuffer, OSSocket &clientSok)
+bool ProtocolWebsocket::server_isAValidHandshake(const void *bufferIN, u32 sizeOfBuffer)
 {
-    static const char HEADER_UPGRADE[] = "Upgrade: websocket";
-    static const char HEADER_CONNECTION[] = "Connection: Upgrade";
-    static const char HEADER_CONNECTION2[] = "Connection: keep-alive, Upgrade";
-    static const char HEADER_HOST[] = "Host: ";
-    static const char HEADER_KEY[] = "Sec-WebSocket-Key: ";
-    static const char HEADER_VERSION[] = "Sec-WebSocket-Version: ";
-    static const char HEADER_EXTENSION[] = "Sec-WebSocket-Extensions: ";
-    static const char HEADER_PROTOCOL[] = "Sec-WebSocket-Protocol: ";
+	Handshake hs;
+	return priv_server_isAValidHandshake(bufferIN, sizeOfBuffer, &hs);
+}
+
+//****************************************************
+bool ProtocolWebsocket::priv_server_isAValidHandshake(const void *bufferIN, u32 sizeOfBufferIN, Handshake *out)
+{
+	const u16 MAX_BUFFER_SIZE = 1024;
+	char buffer[MAX_BUFFER_SIZE];
+
+	if (sizeOfBufferIN >= MAX_BUFFER_SIZE - 1)
+		return false;
+	memcpy(buffer, bufferIN, sizeOfBufferIN);
+	buffer[sizeOfBufferIN] = 0;
+
+	memset(out, 0x00, sizeof(Handshake));
+
+	//il buffer di handshake deve iniziare con la classica richiesta HTTP
+	if (sscanf(buffer, "GET %s HTTP/1.1", out->resource) != 1)
+	{
+		//printf ("Invalid HTTP GET request.\n");
+		return false;
+	}
+
+	//parsing dell'handshake ricevuto
+	char *token = NULL;
+	char *tokState;
+	token = strtok_r(buffer, "\r\n", &tokState);
+	while (token)
+	{
+		if (ProtocolServer_handshake_check_header(token, HEADER_UPGRADE))
+			out->upgrade = 1;
+
+		else if (ProtocolServer_handshake_check_header(token, HEADER_CONNECTION))
+			out->connection = 1;
+
+		else if (ProtocolServer_handshake_check_header(token, HEADER_CONNECTION2))
+			out->connection = 2;
+
+		else if (ProtocolServer_handshake_check_header(token, HEADER_HOST))
+			ProtocolServer_handshake_copy_header(out->host, &token[strlen(HEADER_HOST)], sizeof(out->host));
+
+		else if (ProtocolServer_handshake_check_header(token, HEADER_KEY))
+			ProtocolServer_handshake_copy_header(out->received_key, &token[strlen(HEADER_KEY)], sizeof(out->received_key));
+
+		else if (ProtocolServer_handshake_check_header(token, HEADER_VERSION))
+			out->version = rhea::string::convert::toU32(&token[strlen(HEADER_VERSION)]);
+
+		else if (ProtocolServer_handshake_check_header(token, HEADER_EXTENSION))
+			ProtocolServer_handshake_copy_header(out->extension, &token[strlen(HEADER_EXTENSION)], sizeof(out->extension));
+
+		else if (ProtocolServer_handshake_check_header(token, HEADER_PROTOCOL))
+			ProtocolServer_handshake_copy_header(out->protocol, &token[strlen(HEADER_PROTOCOL)], sizeof(out->protocol));
 
 
-    struct Handshake
-    {
-        char    resource[32];
-        char    host[64];
-        char    received_key[256];
-        char    extension[256];
-        char    protocol[128];
-        u8      upgrade;
-        u8      connection;
-        u32     version;
-    } hs;
-    memset (&hs, 0, sizeof(Handshake));
+		token = strtok_r(NULL, "\r\n", &tokState);
+	}
 
-    //il buffer di handshake deve iniziare con la classica richiesta HTTP
-    if (sscanf((char*)bufferIN, "GET %s HTTP/1.1", hs.resource) != 1)
-    {
-        //printf ("Invalid HTTP GET request.\n");
-        return 0;
-    }
+	//se tutto ok, preparo l'handshake di risposta
+	if (out->upgrade && out->connection && out->host && out->received_key && out->version)
+		return true;
 
-
-    //parsing dell'handshake ricevuto
-    char *token = NULL;
-    char *tokState;
-    token = strtok_r(bufferIN, "\r\n", &tokState);
-    while(token)
-    {
-        if (ProtocolServer_handshake_check_header(token, HEADER_UPGRADE))
-            hs.upgrade = 1;
-
-        else if (ProtocolServer_handshake_check_header(token, HEADER_CONNECTION))
-            hs.connection = 1;
-
-        else if (ProtocolServer_handshake_check_header(token, HEADER_CONNECTION2))
-            hs.connection = 2;
-
-        else if (ProtocolServer_handshake_check_header(token, HEADER_HOST))
-            ProtocolServer_handshake_copy_header(hs.host, &token[strlen(HEADER_HOST)], sizeof(hs.host));
-
-        else if (ProtocolServer_handshake_check_header(token, HEADER_KEY))
-            ProtocolServer_handshake_copy_header(hs.received_key, &token[strlen(HEADER_KEY)], sizeof(hs.received_key));
-
-        else if (ProtocolServer_handshake_check_header(token, HEADER_VERSION))
-            hs.version = rhea::string::convert::toU32(&token[strlen(HEADER_VERSION)]);
-
-        else if (ProtocolServer_handshake_check_header(token, HEADER_EXTENSION))
-            ProtocolServer_handshake_copy_header(hs.extension, &token[strlen(HEADER_EXTENSION)], sizeof(hs.extension));
-
-        else if (ProtocolServer_handshake_check_header(token, HEADER_PROTOCOL))
-            ProtocolServer_handshake_copy_header(hs.protocol, &token[strlen(HEADER_PROTOCOL)], sizeof(hs.protocol));
-
-        token = strtok_r(NULL, "\r\n", &tokState);
-    }
-
-    //se tutto ok, preparo l'handshake di risposta
-    if (hs.upgrade && hs.connection && hs.host && hs.received_key && hs.version)
-    {
-        //calcolo la key di risposta
-        char    send_key[32];
-        if (ProtocolServer_handshake_make_accept(hs.received_key, send_key, sizeof(send_key)))
-        {
-            //printf ("Handshake request from %s:\n\tReceived key: \t%s\n\tSend key: \t%s\n", hs.host, hs.received_key, send_key);
-
-            //fillo il buffer con la risposta da rimandare indietro
-            const char *connection = HEADER_CONNECTION;
-            if (hs.connection == 2)
-                connection = HEADER_CONNECTION2;
-            sprintf(bufferIN,    "HTTP/1.1 101 Switching Protocols\r\n"\
-                                "Upgrade: websocket\r\n"\
-                                "%s\r\n"\
-                                "Sec-WebSocket-Accept: %s\r\n"\
-                                "Sec-WebSocket-Protocol: %s\r\n\r\n",
-                                connection, send_key, hs.protocol);
-            //printf ("Handshake response: %s\n", out);
-
-
-            if (OSSocket_write (clientSok, bufferIN, (u16)strlen((const char*)bufferIN)) <= 0)
-            {
-                //printf ("\terr\n");
-                return 0;
-            }
-
-            return (i16)sizeOfBuffer;
-
-        }
-    }
-
-    return 0;
+	return false;
 }
 
 
 //****************************************************
-void ProtocolWebsocket::close(OSSocket &sok)
+bool ProtocolWebsocket::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISimpleLogger *logger)
 {
-    if (OSSocket_isOpen(sok))
-    {
-        sendClose(sok);
-        OSSocket_close(sok);
-    }
+	Handshake hs;
+	if (!priv_server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer(), &hs))
+		return false;
+	ch->consumeReadBuffer(ch->getNumBytesInReadBuffer());
 
-    nBytesInReadBuffer = 0;
+    //calcolo la key di risposta
+    char    send_key[32];
+	if (!ProtocolServer_handshake_make_accept(hs.received_key, send_key, sizeof(send_key)))
+		return false;
+
+    //printf ("Handshake request from %s:\n\tReceived key: \t%s\n\tSend key: \t%s\n", hs.host, hs.received_key, send_key);
+
+    //fillo il buffer con la risposta da rimandare indietro
+    const char *connection = HEADER_CONNECTION;
+    if (hs.connection == 2)
+        connection = HEADER_CONNECTION2;
+	char answer[256];
+    sprintf(answer,    "HTTP/1.1 101 Switching Protocols\r\n"\
+                        "Upgrade: websocket\r\n"\
+                        "%s\r\n"\
+                        "Sec-WebSocket-Accept: %s\r\n"\
+                        "Sec-WebSocket-Protocol: %s\r\n\r\n",
+                        connection, send_key, hs.protocol);
+    //printf ("Handshake response: %s\n", out);
+
+
+	u16 n = ch->write((const u8*)answer, (u16)strlen(answer), 2000);
+    if (n == 0 || n >= protocol::RES_ERROR)
+        return false;
+    return true;
 }
 
-//****************************************************
-void ProtocolWebsocket::priv_growReadBuffer()
-{
-    u32 newReadBufferSize = readBufferSize + 1024;
-    if (newReadBufferSize < 0xffff)
-    {
-        u8 *p = (u8*)allocator->alloc(newReadBufferSize);
-        memcpy (p, rBuffer, readBufferSize);
-        readBufferSize = (u16)newReadBufferSize;
 
-        allocator->dealloc(rBuffer);
-        rBuffer= p;
-    }
-}
+
 
 /****************************************************
- * Legge dalla socket ed eventualmente interpreta i messaggi ricevuti
- * I messaggi di stato sono gestiti automaticamente qui dentro (ping, pong, close..)
- * Nel caso si ricevano messaggi TEXT o BINARY, allora il loro payload viene messo in out_buffer
- *
- * Ritorna il numero di bytes messi in [out_buffer].
+ * vedi IProtocol.h
  */
-u16 ProtocolWebsocket::read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *bSocketWasClosed)
+u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer, u16 nBytesInBuffer, LinearBuffer &out_result, u16 *out_nBytesInseritiInOutResult)
 {
-    *bSocketWasClosed = 0;
+	*out_nBytesInseritiInOutResult = 0;
 
-    u32 nMaxToRead = readBufferSize - nBytesInReadBuffer;
-    if (nMaxToRead == 0)
-    {
-        priv_growReadBuffer();
-        nMaxToRead = readBufferSize - nBytesInReadBuffer;
-    }
-
-    i32 nBytesLetti = OSSocket_read (sok, &rBuffer[nBytesInReadBuffer], nMaxToRead, 0);
-    if (nBytesLetti == 0)
-    {
-        *bSocketWasClosed = 1;
-        return 0;
-    }
-
-    if (nBytesLetti < 0)
-        return 0;
-
-    nBytesInReadBuffer += (u16)nBytesLetti;
-
-    u16 bytesAppendedToOutBuffer = 0;
-    while (nBytesInReadBuffer)
-    {
-        //prova a decodificare i dati che sono nel buffer di lettura per vedere
-        //se riesce a tirarci fuori un frame
-        sDecodeResult decoded;
-        u16 nBytesConsumati = priv_decodeBuffer (rBuffer, nBytesInReadBuffer, &decoded);
-        if (nBytesConsumati == u16MAX)
-        {
-            *bSocketWasClosed = 1;
-            OSSocket_close(sok);
-            return bytesAppendedToOutBuffer;
-        }
-
-        if (nBytesConsumati == 0)
-            return bytesAppendedToOutBuffer;
-
-        //in decoded c'è un messaggio buono, vediamo di cosa si tratta
-        switch (decoded.opcode)
-        {
-        case eWebSocketOpcode_TEXT:
-        case eWebSocketOpcode_BINARY:
-            //copio il payload appena ricevuto nel buffer utente
-            if (decoded.payloadLenInBytes)
-            {
-                out_buffer->write (decoded.payload, 0, decoded.payloadLenInBytes, true);
-                bytesAppendedToOutBuffer += (u16)decoded.payloadLenInBytes;
-            }
-            break;
-
-        case eWebSocketOpcode_CLOSE:
-            {
-                //rispondo con close e chiudo
-                u16 n = priv_encodeBuffer (true, eWebSocketOpcode_CLOSE, NULL, 0);
-                priv_sendWBuffer(sok, n);
-
-                OSSocket_close(sok);
-                *bSocketWasClosed = 1;
-                return bytesAppendedToOutBuffer;
-            }
-            break;
-
-        case eWebSocketOpcode_PING:
-            {
-                printf ("PING\n");
-                //rispondo con pong
-                u16 n = priv_encodeBuffer (true, eWebSocketOpcode_PONG, decoded.payload, decoded.payloadLenInBytes);
-                priv_sendWBuffer(sok, n);
-            }
-            break;
+	//prova a decodificare i dati che sono nel buffer di lettura per vedere
+	//se riesce a tirarci fuori un frame
+	sDecodeResult decoded;
+	u16 nBytesConsumed = priv_decodeOneMessage (buffer, nBytesInBuffer, &decoded);
+	if (nBytesConsumed == 0 || nBytesConsumed >= protocol::RES_ERROR)
+		return nBytesConsumed;
 
 
-        case eWebSocketOpcode_PONG:
-            printf("PONG\n");
-            break;
+	//in decoded c'è un messaggio buono, vediamo di cosa si tratta
+	switch (decoded.opcode)
+	{
+		case eWebSocketOpcode_TEXT:
+		case eWebSocketOpcode_BINARY:
+			//copio il payload appena ricevuto nel buffer utente
+			if (decoded.payloadLen)
+			{
+				out_result.write (decoded.payload, 0, decoded.payloadLen, true);
+				*out_nBytesInseritiInOutResult += (u16)decoded.payloadLen;
 
-        default:
-            {
-                printf ("???\n");
-                //ho ricevuto un OPCODE non supportato, chiudo
-                u16 n = priv_encodeBuffer (true, eWebSocketOpcode_CLOSE, NULL, 0);
-                priv_sendWBuffer(sok, n);
+				if (decoded.isMasked)
+				{
+					//unmask del payload se necessario
+					u8 *p = out_result._getPointer(0);
+					for (u16 i = 0; i < decoded.payloadLen; i++)
+						p[i] ^= decoded.keys[i % 4];
+				}
+			}
+			return nBytesConsumed;
+			break;
 
-                OSSocket_close(sok);
-                 *bSocketWasClosed = 1;
-                return bytesAppendedToOutBuffer;
-            }
-            break;
-        }
+		case eWebSocketOpcode_PING:
+		{
+			//unmask del payload se necessario
+			if (decoded.isMasked)
+			{
+				u8 *p = out_result._getPointer(0);
+				for (u16 i = 0; i < decoded.payloadLen; i++)
+					p[i] ^= decoded.keys[i % 4];
+			}
+			
+			//rispondo con pong
+			u8 wBuffer[32];
+			u16 n = priv_encodeAMessage(true, eWebSocketOpcode_PONG, decoded.payload, decoded.payloadLen, wBuffer, sizeof(wBuffer));
+			ch->write(wBuffer, n, 500);
+			return nBytesConsumed;
+		}
+		break;
 
 
-        //shifto il read buffer
-        assert(nBytesInReadBuffer >= nBytesConsumati);
-        nBytesInReadBuffer -= nBytesConsumati;
-        if (nBytesInReadBuffer >  0)
-            memcpy (rBuffer, &rBuffer[nBytesConsumati], nBytesInReadBuffer);
-    }
+		case eWebSocketOpcode_PONG:
+			//ho ricevuto un pong
+			return nBytesConsumed;
+			break;
 
-    return bytesAppendedToOutBuffer;
+		case eWebSocketOpcode_CLOSE:
+		{
+			//rispondo a mia volta con close e chiudo
+			sendClose(ch);
+			return protocol::RES_PROTOCOL_CLOSED;
+		}
+		break;
+
+
+		default:
+		{
+			//messaggio invalido, chiudo il canale
+			sendClose(ch);
+			return protocol::RES_PROTOCOL_CLOSED;
+		}
+		break;
+	}
+
+	return protocol::RES_PROTOCOL_CLOSED;
 }
 
 /****************************************************
@@ -322,7 +282,7 @@ u16 ProtocolWebsocket::read (OSSocket &sok, rhea::LinearBuffer *out_buffer, u8 *
  * qualcuno all'esterno continuerà ad appendere bytes al buffer fino a quando questo non conterrà un valido messaggio consumabile da
  * questa fn
  */
-u16 ProtocolWebsocket::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
+u16 ProtocolWebsocket::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
 {
     //ci devono essere almeno 2 bytes, questi sono obbligatori, il protocollo Websocket non ammette msg lunghi meno di 2 bytes
     if (nBytesInBuffer < 2)
@@ -356,62 +316,104 @@ u16 ProtocolWebsocket::priv_decodeBuffer (u8 *buffer, u16 nBytesInBuffer, sDecod
 
     //dal secondo byte si ricava "isMasked" e una indicazione sulla lunghezza del payload
     b = buffer[ct++];
-        bool isMasked = ((b & 0x80) != 0);
+	out_result->isMasked = ((b & 0x80) != 0);
 
-        //payload length
-        u16 payloadLen = (b & 0x7f);
+    //payload length
+	out_result->payloadLen = (b & 0x7f);
 
 
     //la lunghezza del payload potrebbe essere indicata da ulteriori bytes.
-    if (payloadLen == 126)
+    if (out_result->payloadLen == 126)
     {
         if (nBytesInBuffer < 4)
             return 0;
-        payloadLen = buffer[ct++];
-        payloadLen <<= 8;
-        payloadLen += buffer[ct++];
+		out_result->payloadLen = buffer[ct++];
+		out_result->payloadLen <<= 8;
+		out_result->payloadLen += buffer[ct++];
     }
     //If payloadLen == 127, the following 8 bytes interpreted as a 64-bit unsigned integer
-    else if (payloadLen == 127)
+    else if (out_result->payloadLen == 127)
     {
         //non lo sto nemmeno ad implementare. Se voglio mandare più di 65K di roba in un messaggio è certamente un errore
         out_result->opcode = eWebSocketOpcode_UNKNOWN;
-        return u16MAX;
+        return protocol::RES_PROTOCOL_CLOSED;
     }
-    out_result->payloadLenInBytes = payloadLen;
 
 
     //se il messaggio è cifrato, a seguire ci sono 4 bytes con la chiave
     u8 keys[4] = {0,0,0,0};
-    if (isMasked)
+    if (out_result->isMasked)
     {
         if (nBytesInBuffer < ct+4)
             return 0;
-        keys[0] = buffer[ct++];
-        keys[1] = buffer[ct++];
-        keys[2] = buffer[ct++];
-        keys[3] = buffer[ct++];
+		out_result->keys[0] = buffer[ct++];
+		out_result->keys[1] = buffer[ct++];
+		out_result->keys[2] = buffer[ct++];
+		out_result->keys[3] = buffer[ct++];
     }
 
     //payload
-    if (nBytesInBuffer < ct + payloadLen)
+    if (nBytesInBuffer < ct + out_result->payloadLen)
         return 0;
     out_result->payload = &buffer[ct];
-
-    if(isMasked)
-    {
-        //unmask del payload se necessario
-        for(u16 i=0; i<payloadLen; i++)
-            buffer[ct++] ^= keys[i % 4];
-    }
-    else
-        ct += payloadLen;
+	ct += out_result->payloadLen;
 
     return ct;
 }
 
+/****************************************************
+ * vedi IProtocol.h
+ */
+u16 ProtocolWebsocket::virt_encodeBuffer(const u8 *bufferToEncode, u16 nBytesToEncode, u8 *out_buffer, u16 sizeOfOutBuffer)
+{
+	return priv_encodeAMessage (true, eWebSocketOpcode_BINARY, bufferToEncode, nBytesToEncode, out_buffer, sizeOfOutBuffer);
+}
+
+/****************************************************
+ * Prepara un valido messaggio Websocket e lo mette in wBuffer a partire dal byte 0.
+ * Ritorna la lunghezza in bytes del messaggio
+ */
+u16 ProtocolWebsocket::priv_encodeAMessage(bool bFin, eWebSocketOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *wBuffer, u16 sizeOfOutBuffer) const
+{
+	u16 ct = 0;
+
+	//primo byte : fin, RSV1, RSV2, RSV3, opcode
+	wBuffer[ct] = (u8)opcode;
+	if (bFin)
+		wBuffer[ct] |= 0x80;
+	++ct;
+
+	//secondo byte: isMasked | payloadLen
+	if (payloadLen < 126)
+		wBuffer[ct++] = (u8)payloadLen;
+	else if (payloadLen < 0xffff)
+	{
+		wBuffer[ct++] = 126;
+		wBuffer[ct++] = (u8)((payloadLen & 0xff00) >> 8);
+		wBuffer[ct++] = (u8)(payloadLen & 0x00ff);
+	}
+	else
+	{
+		//i messaggi a lunghezza superiore ai 65k non li supporto
+		return 0;
+	}
+
+	//payload
+	if (payloadLen > 0)
+	{
+		memcpy(&wBuffer[ct], payloadToSend, payloadLen);
+		ct += payloadLen;
+	}
+
+	assert(ct + payloadLen <= sizeOfOutBuffer);
+	return ct;
+}
+
+
+
+
 //****************************************************
-i16 ProtocolWebsocket::writeText (OSSocket &sok, const char *strIN)
+i16 ProtocolWebsocket::writeText (IProtocolChannell *ch, const char *strIN)
 {
     if (NULL == strIN)
         return 1;
@@ -419,91 +421,39 @@ i16 ProtocolWebsocket::writeText (OSSocket &sok, const char *strIN)
     if (n < 1)
         return 1;
 
-    u16 nToWrite = priv_encodeBuffer (true, eWebSocketOpcode_TEXT, strIN, (u16)n);
-    if (nToWrite)
-        return priv_sendWBuffer(sok, nToWrite);
+	u16 nToWrite = priv_encodeAMessage (true, eWebSocketOpcode_TEXT, strIN, (u16)n, bufferW, BUFFERW_SIZE);
+	if (nToWrite)
+	{
+		ch->write (bufferW, nToWrite, 1000);
+		return (i16)nToWrite;
+	}
+	return -1;
+}
+
+//****************************************************
+i16 ProtocolWebsocket::writeBuffer (IProtocolChannell *ch, const void *bufferIN, u16 nBytesToWrite)
+{
+    u16 nToWrite = priv_encodeAMessage(true, eWebSocketOpcode_BINARY, bufferIN, nBytesToWrite, bufferW, BUFFERW_SIZE);
+	if (nToWrite)
+	{
+		ch->write(bufferW, nToWrite, 1000);
+		return (i16)nToWrite;
+	}
     return -1;
 }
 
 //****************************************************
-i16 ProtocolWebsocket::writeBuffer(OSSocket &sok, const void *bufferIN, u16 nBytesToWrite)
+void ProtocolWebsocket::sendPing (IProtocolChannell *ch)
 {
-    u16 nToWrite = priv_encodeBuffer (true, eWebSocketOpcode_BINARY, bufferIN, nBytesToWrite);
-
-    if (nToWrite)
-        return priv_sendWBuffer(sok, nToWrite);
-    return -1;
+	u8 wBuffer[32];
+	u16 n = priv_encodeAMessage(true, eWebSocketOpcode_PING, NULL, 0, wBuffer, sizeof(wBuffer));
+	ch->write(wBuffer, n, 1000);
 }
 
 //****************************************************
-void ProtocolWebsocket::sendPing(OSSocket &sok)
+void ProtocolWebsocket::sendClose(IProtocolChannell *ch)
 {
-    u16 n = priv_encodeBuffer (true, eWebSocketOpcode_PING, NULL, 0);
-    priv_sendWBuffer(sok, n);
-}
-
-//****************************************************
-void ProtocolWebsocket::sendClose(OSSocket &sok)
-{
-    u16 n = priv_encodeBuffer (true, eWebSocketOpcode_CLOSE, NULL, 0);
-    priv_sendWBuffer(sok, n);
-}
-
-//****************************************************
-i16 ProtocolWebsocket::priv_sendWBuffer (OSSocket &sok, u16 nBytesToWrite)
-{
-    i32 nWrittenSoFar = 0;
-    while (1)
-    {
-        i32 n = OSSocket_write (sok, &wBuffer[nWrittenSoFar], (nBytesToWrite-nWrittenSoFar) );
-        if (n == 0)
-            return 0;
-        if (n > 0)
-        {
-            nWrittenSoFar += n;
-            if (nWrittenSoFar >= nBytesToWrite)
-                return 1;
-        }
-
-        OS_sleepMSec(50);
-    }
-}
-
-/****************************************************
- * Prepara un valido messaggio Websocket e lo mette in wBuffer a partire dal byte 0.
- * Ritorna la lunghezza in bytes del messaggio
- */
-u16 ProtocolWebsocket::priv_encodeBuffer (bool bFin, eWebSocketOpcode opcode, const void *payloadToSend, u16 payloadLen)
-{
-    u16 ct = 0;
-
-    //primo byte : fin, RSV1, RSV2, RSV3, opcode
-    wBuffer[ct] = (u8)opcode;
-    if (bFin)
-        wBuffer[ct] |= 0x80;
-    ++ct;
-
-    //secondo byte: isMasked | payloadLen
-    if (payloadLen < 126)
-        wBuffer[ct++] = (u8)payloadLen;
-    else if (payloadLen < 0xffff)
-    {
-        wBuffer[ct++] = 126;
-        wBuffer[ct++] = (u8)((payloadLen & 0xff00) >>8 );
-        wBuffer[ct++] = (u8)(payloadLen & 0x00ff);
-    }
-    else
-    {
-        //i messaggi a lunghezza superiore ai 65k non li supporto
-        return 0;
-    }
-
-    //payload
-    if (payloadLen > 0)
-    {
-        memcpy(&wBuffer[ct], payloadToSend, payloadLen);
-        ct += payloadLen;
-    }
-
-    return ct;
+	u8 wBuffer[32];
+	u16 n = priv_encodeAMessage(true, eWebSocketOpcode_CLOSE, NULL, 0, wBuffer, sizeof(wBuffer));
+	ch->write(wBuffer, n, 200);
 }

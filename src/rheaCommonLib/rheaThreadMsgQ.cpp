@@ -60,9 +60,7 @@ sThreadMsgQ* thread_fromHandleToPointer (const HThreadMsgR &h)
     //OSCriticalSection_leave(glob.cs);
 
 
-#ifdef _DEBUG
     assert (s != NULL);
-#endif
 
     return s;
 
@@ -94,7 +92,7 @@ bool thread::createMsgQ (HThreadMsgR *out_handleR, HThreadMsgW *out_handleW)
     }
 
     s->fifo = RHEANEW(glob.allocator, FIFO<thread::sMsg>) (glob.allocator);
-    OSEvent_init(&s->osEvent);
+    OSEvent_open(&s->osEvent);
     OSCriticalSection_init (&s->cs);
 
     *out_handleR = s->handle;
@@ -148,7 +146,7 @@ void thread::pushMsg (const HThreadMsgW &h, u16 what, u32 paramU32, const void *
     if (src && sizeInBytes>0)
     {
         msg.bufferSize = sizeInBytes;
-        msg.buffer = glob.allocator->alloc (sizeInBytes);
+        msg.buffer = RHEAALLOC(glob.allocator, sizeInBytes);
         memcpy (msg.buffer, src, sizeInBytes);
     }
     else
@@ -200,4 +198,41 @@ void thread::deleteMsg (const sMsg &msg)
 
 
 
+
+//**************************************************************
+bool thread::create2WayMsgQ (sHThread2WayMsgQ *out)
+{
+	bool b = createMsgQ (&out->hRead[0], &out->hWrite[0]);
+	if (!b)
+		return false;
+
+	b = createMsgQ (&out->hRead[1], &out->hWrite[1]);
+	if (!b)
+	{
+		thread::deleteMsgQ(out->hRead[0], out->hWrite[0]);
+		return false;
+	}
+
+	return true;
+}
+
+//**************************************************************
+void thread::delete2WayMsgQ (sHThread2WayMsgQ &s)
+{
+	thread::deleteMsgQ (s.hRead[0], s.hWrite[0]);
+	thread::deleteMsgQ (s.hRead[1], s.hWrite[1]);
+}
+
+//**************************************************************
+bool thread::popMsg (const sHThread2WayMsgQ &h, e2WayMsgQThread me, sMsg *out_msg)
+{
+	return thread::popMsg (h.hRead[(u8)me], out_msg);
+}
+
+//**************************************************************
+void thread::pushMsg (const sHThread2WayMsgQ &h, e2WayMsgQThread me, u16 what, u32 paramU32, const void *src, u32 sizeInBytes)
+{
+	const u8 i = 1 - (u8)me;
+	thread::pushMsg (h.hWrite[i], what, paramU32, src, sizeInBytes);
+}
 

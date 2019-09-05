@@ -20,17 +20,18 @@
 class OSWaitableGrp
 {
 public:
-	static const u8 MAX_EVENTS_PER_CALL = 8;
+	static const u8 MAX_EVENTS_HANDLE_PER_CALL = 8;
 
 	enum eEventOrigin
 	{
 		evt_origin_socket = 1,
 		evt_origin_osevent = 2,
-		evt_origin_serialPort = 3
+		evt_origin_serialPort = 3,
+		evt_origin_deleted = 4
 	};
 public:
-	OSWaitableGrp();
-	~OSWaitableGrp();
+					OSWaitableGrp();
+					~OSWaitableGrp();
 
 	bool            addSocket(OSSocket &sok, void *userParam = NULL)					{ sRecord *s = priv_addSocket(sok); if (s) s->userParam.asPtr = userParam; return (s != NULL); }
 	bool            addSocket(OSSocket &sok, u32 userParam)								{ sRecord *s = priv_addSocket(sok); if (s) s->userParam.asU32 = userParam; return (s != NULL); }
@@ -84,6 +85,7 @@ private:
 	struct sIfSocket
 	{
 		OSSocket	sok;
+		HANDLE		hEventNotify;
 	};
 
 	struct sIfEvent
@@ -117,12 +119,15 @@ private:
 	sRecord*        priv_addSocket(OSSocket &sok);
 	sRecord*        priv_addEvent(const OSEvent &evt);
 	sRecord*        priv_addSerialPort(const OSSerialPort &sp);
+	u8              priv_wait(u32 timeoutMSec);
 
 private:
 	sRecord         *base;
-	HANDLE			events[MAX_EVENTS_PER_CALL];
+	HANDLE			eventsHandle[MAX_EVENTS_HANDLE_PER_CALL];
 	u32				nEventsReady;
 	sRecord*		generatedEventList[MAX_EVENTS_RETURNED];
+
+	u8				debug_bWaiting;
 };
 
 

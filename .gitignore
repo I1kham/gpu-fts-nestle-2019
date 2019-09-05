@@ -12,3 +12,11 @@ lib/
 MSVC17/.vs/
 MSVC17/rheaCommonLib/build/
 .vs/
+MSVC17/CPUBridge/build/WINRelease/CPUBridge.obj
+MSVC17/CPUBridge/build/
+MSVC17/GPUConsole/build/
+MSVC17/GPUServer/build/WINDebug/GPUServer.tlog/CL.write.1.tlog
+MSVC17/GPUServer/build/
+MSVC17/rheaGUIBridge/build/
+MSVC17/SocketBridge/build/
+bin/

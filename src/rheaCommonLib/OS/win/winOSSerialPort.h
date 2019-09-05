@@ -6,22 +6,19 @@
 
 namespace platform
 {
+	void			serialPort_setInvalid (OSSerialPort &sp);
+	bool			serialPort_isInvalid(const OSSerialPort &sp);
+
 	bool            serialPort_open(OSSerialPort *out_serialPort, const char *deviceName,
 									OSSerialPortConfig::eBaudRate baudRate,
-									bool RST_on,
-									bool DTR_on,
-									OSSerialPortConfig::eDataBits dataBits,
-									OSSerialPortConfig::eParity parity,
-									OSSerialPortConfig::eStopBits stop,
-									OSSerialPortConfig::eFlowControl flowCtrl);
+									bool RST_on, bool DTR_on,
+									OSSerialPortConfig::eDataBits dataBits, OSSerialPortConfig::eParity parity,
+									OSSerialPortConfig::eStopBits stop, OSSerialPortConfig::eFlowControl flowCtrl, bool bBlocking);
 
 	void            serialPort_close(OSSerialPort &sp);
 
 	void            serialPort_setRTS(OSSerialPort &sp, bool bON_OFF);
 	void            serialPort_setDTR(OSSerialPort &sp, bool bON_OFF);
-
-	bool            serialPort_setAsBlocking(OSSerialPort &sp, u8 minNumOfCharToBeReadInOrderToSblock);
-	bool            serialPort_setAsNonBlocking(OSSerialPort &sp, u8 numOfDSecToWaitBeforeReturn);
 
 	void            serialPort_flushIO(OSSerialPort &sp);
 

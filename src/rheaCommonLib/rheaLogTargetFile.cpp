@@ -10,7 +10,7 @@ using namespace rhea;
 //*********************************************
 LogTargetFile::~LogTargetFile()
 {
-    RHEADELETE(memory_getDefaultAllocator(), filename);
+    memory_getDefaultAllocator()->dealloc(filename);
 }
 
 //*********************************************

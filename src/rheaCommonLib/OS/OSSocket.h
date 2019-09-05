@@ -45,5 +45,9 @@ inline i32                  OSSocket_read (OSSocket &sok, void *buffer, u16 buff
                              */
 
 inline i32                  OSSocket_write(const OSSocket &sok, const void *buffer, u16 nBytesToSend)               { return platform::socket_write(sok, buffer, nBytesToSend); }
+							/*	Ritorna il numero di btye scritti sulla socket.
+							 *	Se ritorna 0, vuol dire che la chiamata sarebbe stata bloccante e quindi
+							 *	l'ha evitata
+							 */
 
 #endif //_OSSocket_h_

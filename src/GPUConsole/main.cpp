@@ -1,7 +1,7 @@
 #include "../rheaGUIBridge/GUIBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
-#include "Client.h"
-
+#include "../rheaCommonLib/Protocol/ProtocolConsole.h"
+#include "../rheaCommonLib/Protocol/ProtocolChSocketTCP.h"
 
 struct sConsoleInitParam
 {
@@ -9,7 +9,33 @@ struct sConsoleInitParam
     HThreadMsgW hWriteToServer;
 };
 
-rhea::StdoutLogger  log;
+rhea::StdoutLogger		logger;
+
+struct sClient
+{
+	rhea::IProtocolChannell	*ch;
+	rhea::ProtocolConsole	*protocol;
+};
+	
+#ifndef WIN32
+//*****************************************************
+int _getch(void)
+{
+	struct termios oldattr, newattr;
+	int ch;
+	tcgetattr(STDIN_FILENO, &oldattr);
+	newattr = oldattr;
+	newattr.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
+	ch = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
+	return ch;
+}
+#else
+#include <conio.h>
+#endif
+
+
 
 //**************************************************************************
 i16 consoleThreadFn (void *userParam)
@@ -73,7 +99,7 @@ i16 consoleThreadFn (void *userParam)
                 u32 clientHandleAsU32;
                 if (rhea::string::convert::hexToInt (&clientHex[2], &clientHandleAsU32))
                 {
-                    HWebsokClient hClient;
+                    HSokServerClient hClient;
                     hClient.initFromU32(clientHandleAsU32);
 
                     const char *everythingAfterClientHex = iter.getCurStrPointer();
@@ -210,63 +236,68 @@ i16 gpuThreadFn (void *userParam)
     }
 }
 
-//*****************************************************
-int getch(void)
-{
-    struct termios oldattr, newattr;
-    int ch;
-    tcgetattr( STDIN_FILENO, &oldattr );
-    newattr = oldattr;
-    newattr.c_lflag &= ~( ICANON | ECHO );
-    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
-    ch = getchar();
-    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
-    return ch;
-}
 
+
+//*****************************************************
+void end_pressAKey()
+{
+#ifdef WIN32
+	printf("press any key to terminate\n");
+	_getch();
+#endif
+}
 
 //*****************************************************
 bool openSocket (OSSocket *sok, const char *ip, u32 port)
 {
-    log.log ("opening socket [%s:%d]: ", ip, port);
+    logger.log ("opening socket [%s:%d]: ", ip, port);
     eSocketError sokErr = OSSocket_openAsTCPClient (sok, ip, port);
     if (sokErr != eSocketError_none)
     {
-        log.log ("FAIL, error code=%d\n", sokErr);
+        logger.log ("FAIL, error code=%d\n", sokErr);
+		end_pressAKey();
         return false;
     }
-    log.log ("OK\n");
+    logger.log ("OK\n");
     return true;
 }
-
-
-//*****************************************************
-void waitAnswer (Client &client)
-{}
 
 
 /*****************************************************
  * true se quit
  */
-bool processCommand (Client &client, const char *str)
+bool processCommand (sClient &client, rhea::LinearBuffer *readBuffer, const char *str)
 {
     if (strcasecmp(str,"quit") == 0)
     {
-        client.sendClose();
-        log.log ("quitting...\n");
+        logger.log ("quitting...\n");
         return true;
     }
-    if (strcasecmp(str,"ping") == 0)
+
+	/*if (strcasecmp(str,"ping") == 0)
     {
+		logger.log("sending ping...\n", str);
         client.sendPing();
-        return true;
+		logger.incIndent();
+			u8 bSocketWasClosed = 0;
+			client.waitAndRead(&readBuffer, &bSocketWasClosed, 2000);
+		logger.decIndent();
+		if (bSocketWasClosed)
+			return true;
+		return false;
     }
+	*/
+
+/*	else if (strcasecmp(str, "killserver") == 0)
+	{
+		GUIBRIDGE_CONSOLE_EVENT_QUIT
+	}
     else if (strcasecmp(str,"clientlist") == 0)
     {
         //rhea::thread::pushMsg (chWriteToServer, GUIBRIDGE_CONSOLE_EVENT_CLIENT_LIST, (u32)0);
         return false;
     }
-
+	*/
     /*se inizia con 0x vuol dire che voglio parlare al client
     else if (strncmp(str,"0x", 2) == 0)
     {
@@ -282,7 +313,7 @@ bool processCommand (Client &client, const char *str)
             u32 clientHandleAsU32;
             if (rhea::string::convert::hexToInt (&clientHex[2], &clientHandleAsU32))
             {
-                HWebsokClient hClient;
+                HSokServerClient hClient;
                 hClient.initFromU32(clientHandleAsU32);
 
                 const char *everythingAfterClientHex = iter.getCurStrPointer();
@@ -315,90 +346,115 @@ bool processCommand (Client &client, const char *str)
     }
     */
 
-    log.log ("unknown command\n");
+    logger.log ("unknown command\n");
     return false;
 }
 
 //*****************************************************
-void handleInput (Client &client)
+void handleInput (sClient &client, rhea::LinearBuffer *readBuffer)
 {
     bool bQuit = false;
     while ( bQuit == false)
     {
         char str[64];
-        log.log (">");
+        logger.log (">");
 
-        int c;
-        u16 ct=0;
-        str[0] = 0x00;
-        while ( (c = getch()) )
-        {
-            log.log ("%c", (char)c);
+		char c;
+		u16 ct = 0;
+		str[0] = 0x00;
+		while ((c = getchar()))
+		{
+			if (c == '\n' || c == 0x00)
+			{
+				str[ct] = 0;
+				break;
+			}
 
-            if (c=='\n' || c==0x00)
-            {
-                str[ct] = 0;
-                break;
-            }
+			str[ct++] = c;
+			if (ct >= sizeof(str))
+			{
+				str[sizeof(str) - 1] = 0;
+				break;
+			}
 
+		}
 
-            str[ct++] = c;
-            if (ct >= sizeof(str))
-            {
-                str[sizeof(str)-1] = 0;
-                break;
-            }
-        }
-
-        log.incIndent();
-        bQuit = processCommand(client, str);
-        log.decIndent();
+        bQuit = processCommand (client, readBuffer, str);
     }
+}
+
+
+
+
+//*****************************************************
+int run()
+{
+	const char			IP[] = { "127.0.0.1" };
+	const int			PORT_NUMBER = 2280;
+	rhea::Allocator		*allocator = rhea::memory_getDefaultAllocator();
+	OSSocket			sok;
+
+	logger.log("==============================================\n");
+	logger.log("=         RHEAConsole, version 1.0           =\n");
+	logger.log("==============================================\n");
+
+	logger.log("opening socket %s:%d\n", IP, PORT_NUMBER);
+	logger.incIndent();
+	if (!openSocket(&sok, IP, PORT_NUMBER))
+		return 0;
+
+	sClient	client;
+	client.ch = RHEANEW(allocator, rhea::ProtocolChSocketTCP) (allocator, 1024, sok);
+	client.protocol = RHEANEW(allocator, rhea::ProtocolConsole) (allocator);
+
+	//handshake
+	if (!client.protocol->handshake_clientSend(client.ch, &logger))
+	{
+		logger.log("FAIL\n");
+		client.ch->close();
+		RHEADELETE(allocator, client.ch);
+		RHEADELETE(allocator, client.protocol);
+		end_pressAKey();
+		return 0;
+	}
+	logger.log("OK\n");
+	logger.log("ready, type quit to terminate\n\n");
+	logger.decIndent();
+
+
+	//main loop
+	rhea::LinearBuffer		readBuffer;
+	readBuffer.setup(allocator, 4096);
+		
+	handleInput (client, &readBuffer);
+	readBuffer.unsetup();
+
+
+	logger.log("protocol close\n");
+	client.protocol->close(client.ch);
+
+	logger.log("socket close\n");
+	client.ch->close();
+	RHEADELETE(allocator, client.protocol);
+	RHEADELETE(allocator, client.ch);
+
+	return 1;
 }
 
 //*****************************************************
 int main()
 {
-    const char IP[] = {"127.0.0.1"};
-    const int PORT_NUMBER = 2280;
-    OSSocket sok;
+#ifdef WIN32
+	HINSTANCE hInst = NULL;
+	rhea::init(&hInst);
+#else
+	rhea::init(NULL);
+#endif
 
-    rhea::init(NULL);
-
-    log.log ("==============================================\n");
-    log.log ("RHEAConsole, version 1.0\n");
-    log.log ("==============================================\n");
-
-    log.log ("connecting...\n");
-    log.incIndent();
-        if (!openSocket (&sok,IP, PORT_NUMBER))
-            return 0;
-
-        log.log ("sending handshake: ");
-        if (!rhea::ProtocolConsole::client_handshake(sok, &log))
-        {
-            log.log ("FAIL\n");
-            OSSocket_close(sok);
-            return 0;
-        }
-        log.log ("OK\n");
-        log.log ("ready, type quit to terminate\n\n");
-    log.decIndent();
-
-
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
-    {
-        Client *client = RHEANEW(allocator, Client)(allocator, sok);
-        handleInput (*client);
-        RHEADELETE(allocator, client);
-    }
-
-
-    log.log ("closing socket\n");
-    OSSocket_close (sok);
-
-    log.log ("\n\nFIN\n\n");
+	int ret = run();
     rhea::deinit();
-    return 0;
+	
+	logger.log("FIN\n\n");
+	return 0;
 }
 

@@ -19,6 +19,12 @@
     <Filter Include="SimpleLogger">
       <UniqueIdentifier>{b6177456-7dcb-4536-84bb-3875fbf5fb03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Protocol\channel">
+      <UniqueIdentifier>{11342bd8-fb26-4c82-9f1d-ec2ac23cf63d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocol\protocols">
+      <UniqueIdentifier>{a02074dd-86b8-4d42-8bec-b4b7d3286654}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp">
@@ -120,17 +126,35 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaUtils.cpp">
       <Filter>rhea</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.cpp">
-      <Filter>Protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolServer.cpp">
-      <Filter>Protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.cpp">
-      <Filter>Protocol</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.cpp">
       <Filter>SimpleLogger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.cpp">
+      <Filter>Protocol\protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\IProtocol.cpp">
+      <Filter>Protocol\protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.cpp">
+      <Filter>Protocol\protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\IProtocolChannell.cpp">
+      <Filter>Protocol\channel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolSocketServer.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolChSocketTCP.cpp">
+      <Filter>Protocol\channel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaMemoryTracker.cpp">
+      <Filter>rhea</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaAllocator.cpp">
+      <Filter>rhea</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaDateTime.cpp">
+      <Filter>rhea</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -275,18 +299,6 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaWaitableFIFO.h">
       <Filter>rhea</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\IProtocol.h">
-      <Filter>Protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.h">
-      <Filter>Protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolServer.h">
-      <Filter>Protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.h">
-      <Filter>Protocol</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\ISimpleLogger.h">
       <Filter>SimpleLogger</Filter>
     </ClInclude>
@@ -295,6 +307,30 @@
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.h">
       <Filter>SimpleLogger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.h">
+      <Filter>Protocol\protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\IProtocol.h">
+      <Filter>Protocol\protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.h">
+      <Filter>Protocol\protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\IProtocolChannell.h">
+      <Filter>Protocol\channel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\Protocol.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolSocketServer.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolChSocketTCP.h">
+      <Filter>Protocol\channel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaMemoryTracker.h">
+      <Filter>rhea</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -9,13 +9,13 @@ LoggerContext::LoggerContext()
 {
     bufferSize = 0;
     bufferMaxSize = 1024;
-    buffer = (char*)memory_getDefaultAllocator()->alloc (bufferMaxSize, __alignof(char*));
+    buffer = (char*)RHEAALIGNEDALLOC(memory_getDefaultAllocator(), bufferMaxSize, __alignof(char*));
 }
 
 //****************************************
 LoggerContext::~LoggerContext()
 {
-    memory_getDefaultAllocator()->dealloc (buffer);
+	RHEAFREE(memory_getDefaultAllocator(), buffer);
 }
 
 //****************************************
@@ -46,8 +46,8 @@ LoggerContext& LoggerContext::append (const char *text, u32 lenInByte)
     {
         while (bufferSize + lenInByte >= bufferMaxSize)
             bufferMaxSize += 1024;
-        memory_getDefaultAllocator()->dealloc (buffer);
-        buffer = (char*)memory_getDefaultAllocator()->alloc (bufferMaxSize, 2);
+        RHEAFREE(memory_getDefaultAllocator(), buffer);
+        buffer = (char*)RHEAALLOC(memory_getDefaultAllocator(), bufferMaxSize);
     }
 
     memcpy (&buffer[bufferSize], text, lenInByte);

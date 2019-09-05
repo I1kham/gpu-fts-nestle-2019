@@ -9,8 +9,50 @@
 
 
 //*****************************************************
+bool serialPort_setAsBlocking(OSSerialPort &sp, u8 minNumOfCharToBeReadInOrderToSblock)
+{
+	if (sp.fd == -1)
+		return false;
+
+	sp.config.c_cc[VMIN] = minNumOfCharToBeReadInOrderToSblock; //leggi almeno n char prima di ritornare
+	sp.config.c_cc[VTIME] = 0; //attende per sempre
+
+	if (tcsetattr(sp.fd, TCSAFLUSH, &sp.config) < 0)
+		return false;
+
+	return true;
+}
+
+//*****************************************************
+bool serialPort_setAsNonBlocking(OSSerialPort &sp, u8 numOfDSecToWaitBeforeReturn)
+{
+	if (sp.fd == -1)
+		return false;
+
+	sp.config.c_cc[VMIN] = 0;
+	sp.config.c_cc[VTIME] = numOfDSecToWaitBeforeReturn;   //numero di dSec massimi di attesa dalla lettura dell'ultimo char
+
+	if (tcsetattr(sp.fd, TCSAFLUSH, &sp.config) < 0)
+		return false;
+
+	return true;
+}
+
+//*****************************************************
+void platform::serialPort_setInvalid (OSSerialPort &sp)
+{
+	sp.fd = -1;
+}
+
+//*****************************************************
+bool platform::serialPort_isInvalid (const OSSerialPort &sp)
+{
+	return (sp.fd == -1;);
+}
+
+//*****************************************************
 bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *deviceName, OSSerialPortConfig::eBaudRate baudRate, bool RST_on, bool DTR_on, OSSerialPortConfig::eDataBits dataBits,
-                        OSSerialPortConfig::eParity parity, OSSerialPortConfig::eStopBits stopBits, OSSerialPortConfig::eFlowControl flowCtrl)
+                        OSSerialPortConfig::eParity parity, OSSerialPortConfig::eStopBits stopBits, OSSerialPortConfig::eFlowControl flowCtrl, bool bBlocking)
 {
     out_serialPort->fd = ::open(deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
     if (out_serialPort->fd == -1)
@@ -88,10 +130,16 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
     }
 
 
-    //di default imposto a non blocante
-    out_serialPort->config.c_cc[VMIN] =     0;
-    out_serialPort->config.c_cc[VTIME] =    0;
-
+	if (bBlocking)
+	{
+		out_serialPort->config.c_cc[VMIN] = 1; //leggi almeno n char prima di ritornare
+		out_serialPort->config.c_cc[VTIME] = 0; //attende per sempre
+	}
+	else
+	{
+		out_serialPort->config.c_cc[VMIN] = 0;
+		out_serialPort->config.c_cc[VTIME] = 0;
+	}
 
     //applica i parametri
     if (tcsetattr(out_serialPort->fd, TCSAFLUSH, &out_serialPort->config) < 0)
@@ -99,6 +147,11 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
 
     serialPort_setRTS (*out_serialPort, RST_on);
     serialPort_setDTR (*out_serialPort, DTR_on);
+	
+	if (tcsetattr(sp.fd, TCSAFLUSH, &sp.config) < 0)
+		return false;
+
+
     return true;
 }
 
@@ -134,39 +187,6 @@ void platform::serialPort_setDTR (OSSerialPort &sp, bool bON_OFF)
     else
         ioctl(sp.fd, TIOCMBIC, &flag);//clear RTS pin
 }
-
-//*****************************************************
-bool platform::serialPort_setAsBlocking (OSSerialPort &sp, u8 minNumOfCharToBeReadInOrderToSblock)
-{
-    if (sp.fd == -1)
-        return false;
-
-    sp.config.c_cc[VMIN] = minNumOfCharToBeReadInOrderToSblock; //leggi almeno n char prima di ritornare
-    sp.config.c_cc[VTIME] = 0; //attende per sempre
-
-    if (tcsetattr(sp.fd, TCSAFLUSH, &sp.config) < 0)
-        return false;
-
-    return true;
-}
-
-//*****************************************************
-bool platform::serialPort_setAsNonBlocking (OSSerialPort &sp, u8 numOfDSecToWaitBeforeReturn)
-{
-    if (sp.fd == -1)
-        return false;
-
-    sp.config.c_cc[VMIN] = 0;
-    sp.config.c_cc[VTIME] = numOfDSecToWaitBeforeReturn;   //numero di dSec massimi di attesa dalla lettura dell'ultimo char
-
-    if (tcsetattr(sp.fd, TCSAFLUSH, &sp.config) < 0)
-        return false;
-
-    return true;
-}
-
-
-
 
 //*****************************************************
 void platform::serialPort_flushIO (OSSerialPort &sp)

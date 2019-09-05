@@ -188,19 +188,22 @@ void format::currency (u16 price, u8 numDecimal, char decimalPointCharacter, cha
         sprintf (s, "%d", price);
     else
     {
-        const u16 divisore = numDecimal * 10;
+		u16 divisore;
+		switch (numDecimal)
+		{
+			case 1:	divisore = 10; break;
+			case 2:	divisore = 100; break;
+			case 3:	divisore = 1000; break;
+			case 4:	
+			default:
+				divisore = 10000; 
+				break;
+		}
 
         u16 parteIntera = price / divisore;
         u16 parteDecimale = price - (parteIntera * divisore);
 
-        sprintf (s, "%d%c", parteIntera, decimalPointCharacter);
-
-        char sd[8];
-        sprintf (sd, "%d", parteDecimale);
-        while (strlen(sd) < numDecimal)
-            strcat(sd, "0");
-
-        strcat (s, sd);
+        sprintf (s, "%d%c%02d", parteIntera, decimalPointCharacter, parteDecimale);
     }
 
     strncpy (out_s, s, sizeOfOut-1);

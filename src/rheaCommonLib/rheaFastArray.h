@@ -31,8 +31,9 @@ namespace rhea
                         //======================================= get / set
         T&				append (const T& t)																				{ T *ret = _insert(nElem);  (*ret)=t; return *ret; }
         T&				operator[] (int i)																				{ assert(i>=0); return *_insert((u32)i); }
-        const T&		getElem (u32 i)	const																			{ assert(i<nElem && i>=0);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
-        const T&		operator() (int i)	const																		{ assert(i<(int)nElem && i>=0);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
+        T&				getElem (u32 i) const																			{ assert(i<nElem && i>=0);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
+		const T&		queryElem(u32 i) const																			{ assert(i < nElem && i >= 0);	return *(T*)memBlock._getPointer(i * sizeof(T)); }
+		const T&		operator() (int i)	const																		{ return queryElem(i); }
         T&				insertAt (u32 i, const T& t)
                         {
                             if (nElem == 0)
@@ -130,7 +131,7 @@ namespace rhea
         u32				simpleSearch (const T &tofind) const
                         {
                             for (u32 i=0; i<nElem; i++)
-                                if (getElem(i) == tofind)
+                                if (queryElem(i) == tofind)
                                     return i;
                             return u32MAX;
                         }

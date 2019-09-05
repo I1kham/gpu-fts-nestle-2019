@@ -53,7 +53,7 @@ typedef void* (*OSThreadFunction)(void *userParam);
   */
 typedef struct sOSSerialPort
 {
-	int todo;
+	HANDLE hComm;
 } OSSerialPort;
 
 
@@ -82,7 +82,7 @@ typedef struct sOSSocket
 {
 	u32             readTimeoutMSec;
 	SOCKET          socketID;
-	HANDLE			hEventNotify;
+	//HANDLE			hEventNotify;
 } OSSocket;
 
 

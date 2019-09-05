@@ -18,7 +18,7 @@ namespace rhea
     class WaitableFIFO
     {
     public:
-                        WaitableFIFO (Allocator *allocatorIN) : fifo(allocatorIN)                           { OSEvent_init(&event); }
+                        WaitableFIFO (Allocator *allocatorIN) : fifo(allocatorIN)                           { OSEvent_open(&event); }
 
         virtual         ~WaitableFIFO()                                                                     { OSEvent_close(event); }
 

@@ -1,6 +1,7 @@
 #ifndef _rheaStdoutLogger_h_
 #define _rheaStdoutLogger_h_
 #include "ISimpleLogger.h"
+#include "../rhea.h"
 
 namespace rhea
 {
@@ -14,10 +15,10 @@ namespace rhea
     {
     public:
                             StdoutLogger();
-        virtual             ~StdoutLogger()                                  { }
+		virtual             ~StdoutLogger();
 
-        void                incIndent()                             { ++indent; priv_buildIndentStr(); }
-        void                decIndent()                             { if (indent) --indent; priv_buildIndentStr(); }
+		void                incIndent();
+		void                decIndent();
         void                log (const char *format, ...);
 
 
@@ -34,6 +35,7 @@ namespace rhea
         char                strIndent[MAX_INDENT_CHAR+1];
         char                buffer[INTERNAL_BUFFER_SIZE];
         u8                  isANewLine;
+		OSCriticalSection	cs;
 
     };
 } //namespace rhea

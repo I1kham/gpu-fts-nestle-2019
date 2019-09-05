@@ -32,7 +32,7 @@ void* threadFunctionWrapper (void *userParam)
 	OS_killThread(th->osThreadHandle);
 	
 	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
-    allocator->dealloc(th);
+    RHEAFREE(allocator, th);
 
     
     return NULL;
@@ -52,7 +52,7 @@ eThreadError rhea::thread::create (HThread *out_hThread, ThMainFunction threadFu
 
     Allocator *allocator = memory_getDefaultAllocator();
 
-    ThreadInfo *th = (ThreadInfo*)allocator->alloc(sizeof(ThreadInfo));
+    ThreadInfo *th = RHEAALLOCSTRUCT(allocator, ThreadInfo);
     memset (th, 0x00, sizeof(ThreadInfo));
     th->threadMainFn = threadFunction;
     th->userParam = userParam;

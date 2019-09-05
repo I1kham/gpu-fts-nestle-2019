@@ -8,13 +8,14 @@
 
 
 
+
 //*************************************************
 void platform::socket_init (OSSocket *sok)
 {
 	assert(sok != NULL);
 	sok->socketID = INVALID_SOCKET;
 	sok->readTimeoutMSec = 10000;
-	sok->hEventNotify = INVALID_HANDLE_VALUE;
+	//sok->hEventNotify = INVALID_HANDLE_VALUE;
 }
 
 //*************************************************
@@ -84,46 +85,18 @@ eSocketError platform::socket_openAsTCPClient(OSSocket *sok, const char *connect
 	if (sokErr != eSocketError_none)
 		return sokErr;
 
-	/*
-	struct hostent *server = ::gethostbyname(connectToIP);
-	if (server == NULL)
-	{
-		::closesocket(sok->socketID);
-		sok->socketID = -1;
-		return eSocketError_no_such_host;
-	}
-
-	struct sockaddr_in serv_addr;
-	memset(&serv_addr, 0x00, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	memcpy(server->h_addr, &serv_addr.sin_addr.s_addr, server->h_length);
-	serv_addr.sin_port = htons(portNumber);*/
+	sockaddr_in clientService;
+	clientService.sin_family = AF_INET;
+	clientService.sin_addr.s_addr = inet_addr(connectToIP);
+	clientService.sin_port = htons(portNumber);
 
 
-	struct addrinfo *serv_addr = NULL;
-	struct addrinfo hints;
-
-	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-
-	char strPort[32];
-	sprintf_s(strPort, sizeof(strPort), "%d", portNumber);
-	DWORD dwRetval = getaddrinfo (connectToIP, strPort, &hints, &serv_addr);
-	if (dwRetval != 0) 
-	{
-		freeaddrinfo(serv_addr);
-		::closesocket(sok->socketID);
-		sok->socketID = -1;
-		return eSocketError_no_such_host;
-	}
-
-	if (0 != connect(sok->socketID, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))
+	if (0 != connect(sok->socketID, (SOCKADDR *)& clientService, sizeof(clientService)))
 	{
 		::closesocket(sok->socketID);
 		sok->socketID = -1;
 
+		int err = errno;
 		switch (errno)
 		{
 		case EACCES:
@@ -138,7 +111,6 @@ eSocketError platform::socket_openAsTCPClient(OSSocket *sok, const char *connect
 		}
 	}
 
-	freeaddrinfo(serv_addr);
 	return eSocketError_none;
 }
 
