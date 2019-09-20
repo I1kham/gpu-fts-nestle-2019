@@ -1,5 +1,6 @@
 #include "CPUChannelFakeCPU.h"
 #include "../rheaCommonLib/rheaUtils.h"
+#include "../rheaCommonLib/rheaDateTime.h"
 
 using namespace cpubridge;
 
@@ -11,6 +12,14 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
 	VMCState = eVMCState_DISPONIBILE;
 	memset(&runningSel, 0, sizeof(runningSel));
+
+	memset(cpuMessage1, 0x00, sizeof(cpuMessage1));
+	memset(cpuMessage2, 0x00, sizeof(cpuMessage2));
+
+	sprintf_s(cpuMessage1, sizeof(cpuMessage1), "CPU message example 1");
+	sprintf_s(cpuMessage2, sizeof(cpuMessage2), "CPU message example 2");
+	curCPUMessage = cpuMessage2;
+	timeToSwapCPUMsgMesc = 0;
 }
 
 //*****************************************************************
@@ -19,27 +28,39 @@ CPUChannelFakeCPU::~CPUChannelFakeCPU()
 }
 
 //*****************************************************************
-bool CPUChannelFakeCPU::open (rhea::ISimpleLogger *logger)
+bool CPUChannelFakeCPU::open(rhea::ISimpleLogger *logger)
 {
 	assert(logger != NULL);
 
-	logger->log ("CPUChannelFakeCPU::open\n");
+	logger->log("CPUChannelFakeCPU::open\n");
 	logger->incIndent();
-		logger->log("OK\n");
+	logger->log("OK\n");
 	logger->decIndent();
 	return true;
 }
 
 //*****************************************************************
-void CPUChannelFakeCPU::close (rhea::ISimpleLogger *logger)
+void CPUChannelFakeCPU::close(rhea::ISimpleLogger *logger)
 {
 	logger->log("CPUChannelFakeCPU::close\n");
+}
+
+//*****************************************************************
+void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
+{
+	if (timeNowMSec < timeToSwapCPUMsgMesc)
+		return;
+	timeToSwapCPUMsgMesc = timeNowMSec + 20000;
+	if (curCPUMessage == cpuMessage1)
+		curCPUMessage = cpuMessage2;
+	else
+		curCPUMessage = cpuMessage1;
 }
 
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
  */
-bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
+bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
 {
 	const eCPUCommand cpuCommand = (eCPUCommand)bufferToSend[1];
 	u8 msgLen = bufferToSend[2];
@@ -49,7 +70,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToS
 	{
 	default:
 		DBGBREAK;
-		logger->log ("CPUChannelFakeCPU::sendAndWaitAnswer() => ERR, cpuCommand not supported [%d]\n", (u8)cpuCommand);
+		logger->log("CPUChannelFakeCPU::sendAndWaitAnswer() => ERR, cpuCommand not supported [%d]\n", (u8)cpuCommand);
 		*out_answer = NULL;
 		*in_out_sizeOfAnswer = 0;
 		return false;
@@ -58,6 +79,29 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToS
 	case eCPUCommand_checkStatus_B:
 		//ho ricevuto una richiesta di stato, rispondo in maniera appropriata
 		{
+			/*unsigned char rawData[147] = {
+				0x23, 0x42, 0x40, 0x02, 0x00, 0x00, 0xFF, 0x0F, 0x2C, 0x40, 0x03, 0x40,
+				0x41, 0x30, 0x32, 0x39, 0xA7, 0x04, 0x20, 0x20, 0x20, 0x20, 0x20, 0x30,
+				0x2E, 0x30, 0x30, 0x40, 0x41, 0x30, 0x32, 0x36, 0xA7, 0x01, 0x20, 0x20,
+				0x20, 0x20, 0x20, 0x30, 0x2E, 0x30, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x0D, 0x00, 0x31, 0x47, 0x42, 0x00, 0x20, 0x20, 0x20, 0x20, 0x30,
+				0x2E, 0x30, 0x30, 0x6D, 0x97, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0xFF, 0x00, 0xFD, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00,
+				0x00, 0x1C, 0x01, 0x0C, 0x10, 0x00, 0x0C, 0x0E, 0x60, 0xF4, 0xEB, 0x20,
+				0x00, 0x00, 0x00, 0x04, 0x01, 0x20, 0x00, 0x20, 0x91, 0x30, 0x00, 0x00,
+				0x28, 0x91, 0x00, 0x21, 0x00, 0xFE, 0x00, 0x00, 0x06, 0x00, 0xF0, 0x00,
+				0x00, 0xFE, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0xFF, 0x00, 0x00
+			};
+			*in_out_sizeOfAnswer = 64;
+			memcpy(out_answer, rawData, *in_out_sizeOfAnswer);
+			return true;*/
+			
+
+
+			priv_updateCPUMessageToBeSent(rhea::getTimeNowMSec());
+
 			const u8 tastoPremuto = bufferToSend[3];
 
 			if (statoPreparazioneBevanda == eStatoPreparazioneBevanda_doing_nothing)
@@ -67,16 +111,16 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToS
 					//hanno richiesto una selezione!!!
 					statoPreparazioneBevanda = eStatoPreparazioneBevanda_wait;
 					runningSel.selNum = tastoPremuto;
-					runningSel.timeStartedMSec = OS_getTimeNowMSec();
+					runningSel.timeStartedMSec = rhea::getTimeNowMSec();
 					VMCState = eVMCState_PREPARAZIONE_BEVANDA;
 				}
 			}
 			else
 			{
 				//sto facendo una selezione, rispondo "eStatoPreparazioneBevanda_wait" per un paio di secondi, poi vado in running per un altro paio di secondo
-				const u64 timeElapsedMSec = OS_getTimeNowMSec() - runningSel.timeStartedMSec;
+				const u64 timeElapsedMSec = rhea::getTimeNowMSec() - runningSel.timeStartedMSec;
 				bool bFinished = false;
-				if (timeElapsedMSec < 2000)
+				if (timeElapsedMSec < 1500)
 				{
 					statoPreparazioneBevanda = eStatoPreparazioneBevanda_wait;
 					if (tastoPremuto != 0)
@@ -101,7 +145,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToS
 				}
 			}
 
-			priv_buildAnswerTo_checkStatus_B (out_answer, in_out_sizeOfAnswer);
+			priv_buildAnswerTo_checkStatus_B(out_answer, in_out_sizeOfAnswer);
 			*in_out_sizeOfAnswer = out_answer[2];
 			return true;
 		}
@@ -113,10 +157,11 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToS
 			assert(*in_out_sizeOfAnswer >= 116);
 
 			u16 year, month, day;
-			OS_getDateNow(&year, &month, &day);
+			rhea::Date::getDateNow(&year, &month, &day);
 
 			u8 hour, minute, seconds;
-			OS_getTimeNow(&hour, &minute, &seconds);
+			rhea::Time24::getTimeNow(&hour, &minute, &seconds);
+
 
 			out_answer[ct++] = '#';
 			out_answer[ct++] = 'C';
@@ -140,10 +185,10 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToS
 			out_answer[ct++] = 'P';
 			out_answer[ct++] = 'U';
 
-			//98 btyes composti da 49 prezzi ciascuno da 2 bytes
+			//98 btyes composti da 49 prezzi ciascuno da 2 bytes (byte basso byte alto)
 			for (u8 i = 0; i < 49; i++)
 			{
-				out_answer[ct++] = 0;
+				out_answer[ct++] = (i + 1);
 				out_answer[ct++] = 0;
 			}
 
@@ -155,12 +200,12 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToS
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			ct++;
 			out_answer[2] = (u8)ct;
-					   			 
+
 			*in_out_sizeOfAnswer = out_answer[2];
 			return true;
 		}
 		break;
-	
+
 	case eCPUCommand_restart:
 		*in_out_sizeOfAnswer = 0;
 		*out_answer = NULL;
@@ -179,7 +224,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	2		lunghezza in byte del messaggio
 	*/
 	out_answer[ct++] = '#';
-	out_answer[ct++] = 'C';
+	out_answer[ct++] = 'B';
 	out_answer[ct++] = 0; //lunghezza
 
 	/*
@@ -188,6 +233,15 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	5		VMCerrorType
 	*/
 	out_answer[ct++] = (u8)VMCState;
+	out_answer[ct++] = 0;
+	out_answer[ct++] = 0;
+
+	/*
+	6	??
+	7	??
+	8	??
+	*/
+	out_answer[ct++] = 0;
 	out_answer[ct++] = 0;
 	out_answer[ct++] = 0;
 
@@ -200,11 +254,30 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	//10		selection_CPU_current
 	out_answer[ct++] = 0;
 
-	//11-74		32 unicode char col messaggio di stato
-	for (u8 i = 0; i < 32; i++)
+
+	//messaggio di CPU
+	if (out_answer[1] == 'B')
 	{
-		out_answer[ct++] = 0;
-		out_answer[ct++] = 0;
+		memset(&out_answer[ct], 0x00, 32);
+		u32 n = (u32)strlen(curCPUMessage);
+		if (n)
+			memcpy(&out_answer[ct], curCPUMessage, n);
+		ct += 32;
+	}
+	else
+	{
+		//11-74		32 unicode char col messaggio di stato
+		assert(ct == 11);
+		memset(&out_answer[ct], 0x00, 64);
+		for (u8 i = 0; i < 32; i++)
+		{
+			out_answer[ct++] = 0;
+			out_answer[ct++] = curCPUMessage[i];
+			if (curCPUMessage[i] == 0x00)
+				break;
+		}
+
+		ct = 11 + 64;
 	}
 
 	/*

@@ -1,14 +1,15 @@
 #include "OS/OS.h"
 #include "rheaLogger.h"
 #include "rheaDateTime.h"
+#include "rheaCriticalSection.h"
 
 
 using namespace rhea;
 
 const LoggerContextEOL	Logger::EOL;
 
-#define ENTER_CRITICAL_SECTION  if (bEnabledThreadSafety) OSCriticalSection_enter(cs)
-#define LEAVE_CRITICAL_SECTION  if (bEnabledThreadSafety) OSCriticalSection_leave(cs);
+#define ENTER_CRITICAL_SECTION  if (bEnabledThreadSafety) rhea::criticalsection::enter(cs)
+#define LEAVE_CRITICAL_SECTION  if (bEnabledThreadSafety) rhea::criticalsection::leave(cs);
 
 
 
@@ -19,14 +20,14 @@ Logger::Logger(bool bEnableThreadSafety)
     bEnabledThreadSafety = bEnableThreadSafety;
 
     if (bEnabledThreadSafety)
-        OSCriticalSection_init(&cs);
+        rhea::criticalsection::init(&cs);
 }
 
 //****************************************
 Logger::~Logger()
 {
     if (bEnabledThreadSafety)
-        OSCriticalSection_close(cs);
+        rhea::criticalsection::close(cs);
 }
 
 

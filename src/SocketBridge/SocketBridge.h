@@ -2,7 +2,8 @@
 #define _SocketBridge_h_
 #include "SocketBridgeServer.h"
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
-
+#include "../rheaCommonLib/Protocol/IProtocolChannell.h"
+#include "../rheaCommonLib/Protocol/IProtocol.h"
 
 
 namespace socketbridge
@@ -11,6 +12,9 @@ namespace socketbridge
 				/*	crea il thread che monitora e gestisce la socket.
 					Se hCPUServiceChannelW è valido, allora thread in questione si "subscribe()" al thread della CPU in modo da riceverne le notifiche
 				*/
+
+					
+
 } // namespace socketbridge
 
 

@@ -43,9 +43,11 @@ namespace rhea
     private:
         enum eOpcode
         {
-            eOpcode_simpleMsg   = 0x01,
-            eOpcode_close       = 0x02,
-            eOpcode_unknown     = 0xff
+            eOpcode_msg						= 0x01,
+            eOpcode_close					= 0x02,
+			eOpcode_internal_simpledMsg		= 0xfd,
+			eOpcode_internal_extendedMsg	= 0xfe,
+            eOpcode_unknown					= 0xff
         };
 
         struct sDecodeResult

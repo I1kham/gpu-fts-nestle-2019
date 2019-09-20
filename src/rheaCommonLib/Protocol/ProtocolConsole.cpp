@@ -47,6 +47,7 @@ bool ProtocolConsole::handshake_clientSend(IProtocolChannell *ch, rhea::ISimpleL
         logger->log ("response length is %d bytes\n", ch->getNumBytesInReadBuffer());
     if (ch->getNumBytesInReadBuffer() < 12)
     {
+		ch->consumeReadBuffer(ch->getNumBytesInReadBuffer());
         if (logger)
         {
             logger->log("FAIL\n");
@@ -66,12 +67,14 @@ bool ProtocolConsole::handshake_clientSend(IProtocolChannell *ch, rhea::ISimpleL
             handshake[11] = 0;
             logger->log("Invalid answer: [%s], received key=%d, expected=%d\n", handshake, receivedKey, expectedKey);
             logger->decIndent();
+			ch->consumeReadBuffer(12);
         }
         return false;
     }
+	
 
-
-    if (logger)
+	ch->consumeReadBuffer(12);
+	if (logger)
     {
         logger->log("Done!\n");
         logger->decIndent();
@@ -133,7 +136,7 @@ u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer,
 	//in decoded c'è un messaggio buono, vediamo di cosa si tratta
 	switch (decoded.what)
 	{
-		case eOpcode_simpleMsg:
+		case eOpcode_msg:
 			//copio il payload appena ricevuto nel buffer utente
 			if (decoded.payloadLen)
 			{
@@ -189,41 +192,72 @@ u16 ProtocolConsole::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffer,
 	out_result->what = (eOpcode)buffer[ct++];
 	switch (out_result->what)
 	{
-		case eOpcode_simpleMsg:
-		{
-			/*  messaggio semplice, payloadLen <=255 byte, ck8 semplice a fine messaggio:
-					MAGIC1 MAGIC2 WHAT LEN data data data CK
-			*/
-			out_result->payloadLen = buffer[ct++];
-
-			//mi servono in tutto 4 + payloadLen +1 bytes nel buffer
-			if (nBytesInBuffer < 5 + out_result->payloadLen)
-				return 0;
-			out_result->payload = &buffer[ct];
-			ct += out_result->payloadLen;
-
-			//verifichiamo CK
-			const u8 ck = buffer[ct++];
-			const u8 calc_ck = rhea::utils::simpleChecksum8_calc (out_result->payload, out_result->payloadLen);
-			if (ck == calc_ck)
-				return ct;
-
-			printf("ERR ProtocolConsole::decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
-			out_result->what = eOpcode_unknown;
-			return ct;
-		}
-		break;
-
-		case eOpcode_close:
-			//ho ricevuto una esplicita richiesta di chiudere il canale
-			return protocol::RES_PROTOCOL_CLOSED;
-
 		default:
 			//Errore, opcode non riconosciuto
 			printf("ERR ProtocolConsole::priv_decodeOneMessage() => invalid opcode [%d]\n", out_result->what);
 			out_result->what = eOpcode_unknown;
 			out_result->payloadLen = 0;
 			return 3;
+
+		case eOpcode_close:
+			//ho ricevuto una esplicita richiesta di chiudere il canale
+			return protocol::RES_PROTOCOL_CLOSED;
+	
+		case eOpcode_internal_simpledMsg:
+			{
+				/*  messaggio semplice, payloadLen <=255 byte, ck8 semplice a fine messaggio:
+						MAGIC1 MAGIC2 WHAT LEN data data data CK
+				*/
+				out_result->what = eOpcode_msg;
+				out_result->payloadLen = buffer[ct++];
+
+				//mi servono in tutto 4 + payloadLen +1 bytes nel buffer
+				if (nBytesInBuffer < 5 + out_result->payloadLen)
+					return 0;
+				out_result->payload = &buffer[ct];
+				ct += out_result->payloadLen;
+
+				//verifichiamo CK
+				const u8 ck = buffer[ct++];
+				const u8 calc_ck = rhea::utils::simpleChecksum8_calc (out_result->payload, out_result->payloadLen);
+				if (ck == calc_ck)
+					return ct;
+
+				printf("ERR ProtocolConsole::decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
+				out_result->what = eOpcode_unknown;
+				return ct;
+			}
+			break;
+
+		case eOpcode_internal_extendedMsg:
+			{
+				//MAGIC1 MAGIC2 WHAT LEN_MSB LEN_LSB payload...payload CK(u16)
+				out_result->what = eOpcode_msg;
+				out_result->payloadLen = buffer[ct++];
+				out_result->payloadLen <<= 8;
+				out_result->payloadLen |= buffer[ct++];
+
+				//mi servono in tutto 5 + payloadLen +2 bytes nel buffer
+				if (nBytesInBuffer < 7 + out_result->payloadLen)
+					return 0;
+				out_result->payload = &buffer[ct];
+				ct += out_result->payloadLen;
+
+				//verifichiamo CK
+				u16 ck = buffer[ct++];
+				ck <<= 8;
+				ck |= buffer[ct++];
+
+				const u16 calc_ck = rhea::utils::simpleChecksum16_calc(out_result->payload, out_result->payloadLen);
+				if (ck == calc_ck)
+					return ct;
+
+				printf("ERR ProtocolConsole::decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
+				out_result->what = eOpcode_unknown;
+				return ct;
+
+			}
+			break;
 	}
 }
 
@@ -234,7 +268,7 @@ u16 ProtocolConsole::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffer,
  */
 u16 ProtocolConsole::virt_encodeBuffer(const u8 *bufferToEncode, u16 nBytesToEncode, u8 *out_buffer, u16 sizeOfOutBuffer)
 {
-	return priv_encodeAMessage(eOpcode_simpleMsg, bufferToEncode, nBytesToEncode, out_buffer, sizeOfOutBuffer);
+	return priv_encodeAMessage(eOpcode_msg, bufferToEncode, nBytesToEncode, out_buffer, sizeOfOutBuffer);
 }
 
 /****************************************************
@@ -243,6 +277,22 @@ u16 ProtocolConsole::virt_encodeBuffer(const u8 *bufferToEncode, u16 nBytesToEnc
  */
 u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *wBuffer, u16 sizeOfOutBuffer) const
 {
+	if (sizeOfOutBuffer < 3)
+	{
+		DBGBREAK;
+		return 0;
+	}
+
+	if (opcode == eOpcode_msg)
+	{
+		if (payloadLen == 0)
+			return 0;
+		if (payloadLen <= 0xff)
+			opcode = eOpcode_internal_simpledMsg;
+		else
+			opcode = eOpcode_internal_extendedMsg;
+	}
+
     u16 ct = 0;
 	wBuffer[ct++] = MAGIC_CODE_1;
 	wBuffer[ct++] = MAGIC_CODE_2;
@@ -250,22 +300,49 @@ u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToS
 
 	switch (opcode)
 	{
-	    case eOpcode_simpleMsg:
-			if (payloadLen == 0)
+		default:
+			DBGBREAK;
+			return 0;
+
+		case eOpcode_close:
+			return ct;
+
+		case eOpcode_internal_simpledMsg:
+			//MAGIC1 MAGIC2 WHAT LEN(byte) payload...payload CK(byte)
+			if (sizeOfOutBuffer < 5 + payloadLen)
+			{
+				DBGBREAK;
 				return 0;
-			assert (payloadLen <= 0xff);
+			}
+
 			wBuffer[ct++] = (u8)payloadLen;
 			memcpy (&wBuffer[ct], payloadToSend, payloadLen);
 			ct += payloadLen;
 			wBuffer[ct++] = rhea::utils::simpleChecksum8_calc (payloadToSend, payloadLen);
 			return ct;
     
-		case eOpcode_close:
-			return ct;
 
-		default:
-			DBGBREAK;
-			return 0;
+		case eOpcode_internal_extendedMsg:
+			if (payloadLen == 0)
+				return 0;
+
+			//MAGIC1 MAGIC2 WHAT LEN_MSB LEN_LSB payload...payload CK(u16)
+			if (sizeOfOutBuffer < 7 + payloadLen)
+			{
+				DBGBREAK;
+				return 0;
+			}
+
+			wBuffer[ct++] = (u8)((payloadLen & 0xFF00) >> 8);
+			wBuffer[ct++] = (u8) (payloadLen & 0x00FF);
+			
+			memcpy(&wBuffer[ct], payloadToSend, payloadLen);
+			ct += payloadLen;
+
+			u16 ck = rhea::utils::simpleChecksum16_calc (payloadToSend, payloadLen);
+			wBuffer[ct++] = (u8)((ck & 0xFF00) >> 8);
+			wBuffer[ct++] = (u8) (ck & 0x00FF);
+			return ct;
 	}
 }
 

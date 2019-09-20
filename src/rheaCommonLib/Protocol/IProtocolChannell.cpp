@@ -1,4 +1,6 @@
 #include "IProtocolChannell.h"
+#include "../rhea.h"
+#include "../rheaThread.h"
 
 using namespace rhea;
 
@@ -71,7 +73,7 @@ u16 IProtocolChannell::read (u32 timeoutMSec)
 //******************************************************
 u16 IProtocolChannell::write (const u8 *bufferToWrite, u16 nBytesToWrite, u32 timeoutMSec)
 { 
-	const u64 timeToExitMSec = OS_getTimeNowMSec() + timeoutMSec;
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
 	
 	u16 nWrittenSoFar = virt_write (bufferToWrite, nBytesToWrite);
 	
@@ -81,7 +83,7 @@ u16 IProtocolChannell::write (const u8 *bufferToWrite, u16 nBytesToWrite, u32 ti
 
 	do
 	{
-		OS_sleepMSec(50);
+		rhea::thread::sleepMSec (50);
 
 		u16 n = virt_write (&bufferToWrite[nWrittenSoFar], (nBytesToWrite - nWrittenSoFar));
 		if (n >= protocol::RES_ERROR)
@@ -94,7 +96,7 @@ u16 IProtocolChannell::write (const u8 *bufferToWrite, u16 nBytesToWrite, u32 ti
 				return nWrittenSoFar;
 		}
 	
-	} while (OS_getTimeNowMSec() < timeToExitMSec);
+	} while (rhea::getTimeNowMSec() < timeToExitMSec);
 
 	return nWrittenSoFar;
 }

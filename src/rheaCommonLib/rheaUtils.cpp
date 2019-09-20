@@ -22,3 +22,14 @@ u16 utils::simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes)
         ret += buffer[i];
     return ret;
 }
+
+
+//*************************************************************************
+u64 utils::filesize (FILE *fp)
+{
+	long prev = ftell (fp);
+	fseek (fp, 0L, SEEK_END);
+	long sz = ftell(fp);
+	fseek (fp, prev, SEEK_SET);
+	return sz;
+}

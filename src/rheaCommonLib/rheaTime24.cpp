@@ -1,3 +1,4 @@
+#include "rheaString.h"
 #include "rheaTime24.h"
 #include "OS/OS.h"
 
@@ -10,6 +11,20 @@ void Time24::setNow ()
     u8 h,m,s;
     OS_getTimeNow (&h, &m, &s);
     setHMS (h, m, s, 0);
+}
+
+//****************************
+void Time24::getTimeNow(u8 *out_hour, u8 *out_min, u8 *out_sec)
+{
+	OS_getTimeNow (out_hour, out_min, out_sec);
+}
+
+//****************************
+u32 Time24::formatAs_HHMMSS() const
+{
+	char s[8];
+	formatAs_HHMMSS(s, sizeof(s), 0x00);
+	return rhea::string::convert::toU32(s);
 }
 
 //****************************

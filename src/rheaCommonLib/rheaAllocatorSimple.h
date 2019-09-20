@@ -18,11 +18,11 @@ namespace rhea
 #endif
 
 #ifdef ALLOCATOR_SIMPLE_USE_MEM_TRACKER
-	#define MEMTRACKER_ON_ALLOC(fromWho,p,allocatedSizeInByte, debug_filename, debug_lineNumber)		rhea::internal_getMemoryTracker()->onAlloc(fromWho, p, allocatedSizeInByte, debug_filename, debug_lineNumber);
-	#define MEMTRACKER_ON_DEALLOC(name,p_original, allocated_size)										rhea::internal_getMemoryTracker()->onDealloc(name, p_original, allocated_size);
+	#define MEMTRACKER_ON_ALLOC(p,allocatedSizeInByte, debug_filename, debug_lineNumber)		rhea::internal_getMemoryTracker()->onAlloc(getAllocatorID(), getName(), p, allocatedSizeInByte, debug_filename, debug_lineNumber);
+	#define MEMTRACKER_ON_DEALLOC(p_original, allocated_size)									rhea::internal_getMemoryTracker()->onDealloc(getAllocatorID(), getName(), p_original, allocated_size);
 #else
-	#define MEMTRACKER_ON_ALLOC(fromWho,p,allocatedSizeInByte, debug_filename, debug_lineNumber)		
-	#define MEMTRACKER_ON_DEALLOC(name,p_original, allocated_size)
+	#define MEMTRACKER_ON_ALLOC(p,allocatedSizeInByte, debug_filename, debug_lineNumber)		
+	#define MEMTRACKER_ON_DEALLOC(p_original, allocated_size)
 #endif
 
 
@@ -113,7 +113,7 @@ namespace rhea
 
 								ret += 8;
 
-								MEMTRACKER_ON_ALLOC(getName(), p_original, real_size_to_alloc, debug_filename, debug_lineNumber);
+								MEMTRACKER_ON_ALLOC(p_original, real_size_to_alloc, debug_filename, debug_lineNumber);
 
 								assert(priv_validate_all_pointers());
                                 return ret;
@@ -148,7 +148,7 @@ namespace rhea
 								memset (p_original, 0xAC, allocated_size);
 #endif		
 
-								MEMTRACKER_ON_DEALLOC(getName(), p_original, allocated_size);
+								MEMTRACKER_ON_DEALLOC(p_original, allocated_size);
 
 								track.onDealloc(allocated_size);
 								OS_alignedFree(p_original);
@@ -235,15 +235,13 @@ namespace rhea
 							}
 
 
-		bool				priv_validate_all_pointers () const
+		bool				priv_validate_all_pointers() const
 							{
-#ifndef ALLOCATOR_SIMPLE_USE_MEM_TRACKER
-								return true;
-#else
-								MemoryTracker::sRecord *s = rhea::internal_getMemoryTracker()->getRoot();
+	#if (defined(ALLOCATOR_SIMPLE_USE_SAFE_GUARD) && defined(ALLOCATOR_SIMPLE_USE_MEM_TRACKER))
+								/*MemoryTracker::sRecord *s = rhea::internal_getMemoryTracker()->getRoot();
 								while (s)
 								{
-									if ((s->allocID & 0x80000000) == 0)
+									if (s->allocatorID == getAllocatorID() && (s->allocID & 0x80000000) == 0)
 									{
 										u8 *p_returned = (u8*)s->p;
 										p_returned += NUM_OF_RESERVED_BYTES;
@@ -256,12 +254,15 @@ namespace rhea
 									}
 									s = s->next;
 								}
+								*/
 								return true;
-#endif //ALLOCATOR_SIMPLE_USE_MEM_TRACKER
+	#else
+								return true;
+	#endif //#if defined(ALLOCATOR_SIMPLE_USE_SAFE_GUARD) && defined(ALLOCATOR_SIMPLE_USE_MEM_TRACKER)
 							}
-#endif //ALLOCATOR_SIMPLE_USE_SAFE_GUARD
 
-    private:
+#endif //ALLOCATOR_SIMPLE_USE_SAFE_GUARD
+	private:
         TrackingPolicy      track;
     };
 

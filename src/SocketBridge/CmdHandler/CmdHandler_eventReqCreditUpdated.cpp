@@ -5,13 +5,13 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_eventReqCreditUpdated::handleRequest (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
+void CmdHandler_eventReqCreditUpdated::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_QUERY_CURRENT_CREDIT(from, getHandlerID());
 }
 
 //***********************************************************
-void CmdHandler_eventReqCreditUpdated::handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_eventReqCreditUpdated::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
     //rispondo con:
 	//8 byte "stringa" con il prezzo già formattato con i decimali e la punteggiatura al posto giusto

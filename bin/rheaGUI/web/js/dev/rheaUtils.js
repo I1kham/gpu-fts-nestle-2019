@@ -32,7 +32,8 @@ var utf8ArrayToStr = (function ()
 
         result.length = 0;
 
-        for (var i = 0; i < buffLen;) {
+        for (var i = 0; i < buffLen;) 
+		{
             byte1 = array[i++];
 
             if (byte1 <= 0x7F) {

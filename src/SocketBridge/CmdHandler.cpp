@@ -3,16 +3,16 @@
 using namespace socketbridge;
 
 //***************************************************
-CmdHandler::CmdHandler(const HSokServerClient &h, u16 handlerID, u64 dieAfterHowManyMSec)
+CmdHandler::CmdHandler(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec)
 {
     this->handlerID = handlerID;
 
     if (dieAfterHowManyMSec == u64MAX)
         timeToDieMSec = u64MAX;
     else
-        timeToDieMSec = OS_getTimeNowMSec() + dieAfterHowManyMSec;
+        timeToDieMSec = rhea::getTimeNowMSec() + dieAfterHowManyMSec;
 
-    hClient = h;
+	this->identifiedClientHandle = identifiedClientHandle;
 }
 
 

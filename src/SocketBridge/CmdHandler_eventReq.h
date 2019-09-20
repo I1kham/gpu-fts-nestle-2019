@@ -13,13 +13,24 @@ namespace socketbridge
     class CmdHandler_eventReq : public CmdHandler
     {
     public:
-                                CmdHandler_eventReq (const HSokServerClient &h, u16 handlerID, u64 dieAfterHowManyMSec) :
-                                    CmdHandler(h, handlerID, dieAfterHowManyMSec)
+                                CmdHandler_eventReq (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :
+                                    CmdHandler(identifiedClientHandle, handlerID, dieAfterHowManyMSec)
                                 {
                                 }
 
-        virtual void            handleRequest (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen) = 0;
-		//virtual void			handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
+		virtual bool			needToPassDownToCPUBridge() const = 0;
+		virtual void            passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen) = 0;
+		//virtual void			onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
+
+		virtual void			handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient) 
+								{ 
+									//le classi derivate devono implementare questa fn SOLO se il messaggio in questione è di quelli che
+									//viene gestito direttamente da socketBridge.
+									//Si invece si tratta di un msg che deve essere passato al CPUBrige, i metodi da implementare sono passDownRequestToCPUBridge() e
+									//onCPUBridgeNotification()
+									DBGBREAK;  
+								}
+
     };
 
     /*********************************************************
@@ -30,8 +41,8 @@ namespace socketbridge
     class CmdHandler_eventReqFactory
     {
     public:
-        static CmdHandler_eventReq* spawnFromSocketClientEventType (rhea::Allocator *allocator, const HSokServerClient &h, eEventType eventType, u16 handlerID, u64 dieAfterHowManyMSec);
-		static CmdHandler_eventReq* spawnFromCPUBridgeEventID (rhea::Allocator *allocator, const HSokServerClient &h, u16 eventID, u16 handlerID, u64 dieAfterHowManyMSec);
+        static CmdHandler_eventReq* spawnFromSocketClientEventType (rhea::Allocator *allocator, const HSokBridgeClient &identifiedClientHandle, eEventType eventType, u16 handlerID, u64 dieAfterHowManyMSec);
+		static CmdHandler_eventReq* spawnFromCPUBridgeEventID (rhea::Allocator *allocator, const HSokBridgeClient &identifiedClientHandle, u16 eventID, u16 handlerID, u64 dieAfterHowManyMSec);
     };
 }//namespace socketbridge
 

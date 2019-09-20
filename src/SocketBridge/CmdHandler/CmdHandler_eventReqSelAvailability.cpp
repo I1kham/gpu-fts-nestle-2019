@@ -5,14 +5,16 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_eventReqSelAvailability::handleRequest (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
+void CmdHandler_eventReqSelAvailability::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_QUERY_SEL_AVAIL(from, getHandlerID());
 }
 
 //***********************************************************
-void CmdHandler_eventReqSelAvailability::handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_eventReqSelAvailability::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
+	//NB: se modifichi questa, modifica anche rhea::app::CurrentSelectionAvailability::decodeAnswer()
+
 	//rispondo con:
 	//  1 byte per il num sel
 	//  1 byte per ogni sel, dove 0x00 =sel non attiva, 0x01=sel attiva
@@ -24,7 +26,7 @@ void CmdHandler_eventReqSelAvailability::handleAnswer (socketbridge::Server *ser
 	buffer[0] = NUM_MAX_SELECTIONS;
 	for (u8 i = 1; i <= NUM_MAX_SELECTIONS; i++)
 	{
-		if (selAvail.isAvail(i + 1))
+		if (selAvail.isAvail(i))
 			buffer[i] = 0x01;
 		else
 			buffer[i] = 0x00;

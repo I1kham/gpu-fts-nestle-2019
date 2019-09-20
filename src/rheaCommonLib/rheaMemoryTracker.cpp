@@ -1,5 +1,6 @@
 #include "rheaMemoryTracker.h"
 #include "rheaDateTime.h"
+#include "rheaCriticalSection.h"
 
 using namespace rhea;
 
@@ -7,7 +8,7 @@ using namespace rhea;
 //*****************************************************
 MemoryTracker::MemoryTracker ()
 {
-	OSCriticalSection_init(&cs);
+	rhea::criticalsection::init(&cs);
 	allocID = 0;
 	root = NULL;
 
@@ -29,7 +30,7 @@ MemoryTracker::MemoryTracker ()
 //*****************************************************
 MemoryTracker::~MemoryTracker()
 {
-	OSCriticalSection_close(cs);
+	rhea::criticalsection::close(cs);
 
 	while (root)
 	{
@@ -41,18 +42,19 @@ MemoryTracker::~MemoryTracker()
 }
 
 //*****************************************************
-void MemoryTracker::onAlloc(const char *fromWho, const void *p, u32 allocatedSizeInByte, const char *debug_filename, u32 debug_lineNumber)
+void MemoryTracker::onAlloc(u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte, const char *debug_filename, u32 debug_lineNumber)
 {
-	OSCriticalSection_enter(cs);
+	rhea::criticalsection::enter(cs);
 		sRecord *s = (sRecord*)malloc(sizeof(sRecord));
 		s->p = p;
+		s->allocatorID = allocatorID;
 		s->allocID = allocID++;;
 		s->next = root;
 		root = s;
 
 		IntPointer from = PTR_TO_INT(p);
 		IntPointer to = from + allocatedSizeInByte;
-		fprintf (f, "%16.16s ALLOC %05d 0x%08X 0x%08X % 12d ", fromWho, s->allocID, from, to, allocatedSizeInByte);
+		fprintf (f, "%16.16s ALLOC %05d 0x%08X 0x%08X % 12d ", allocatorName, s->allocID, from, to, allocatedSizeInByte);
 
 		if (debug_filename != NULL)
 			fprintf(f, "%s [line:%d]\n", debug_filename, debug_lineNumber);
@@ -61,21 +63,22 @@ void MemoryTracker::onAlloc(const char *fromWho, const void *p, u32 allocatedSiz
 		fflush(f);
 
 		
-	OSCriticalSection_leave(cs);
+	rhea::criticalsection::leave(cs);
 }
 
 //*****************************************************
-void MemoryTracker::onDealloc(const char *fromWho, const void *p, u32 allocatedSizeInByte)
+void MemoryTracker::onDealloc(u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte)
 {
-	OSCriticalSection_enter(cs);
+	rhea::criticalsection::enter(cs);
 	sRecord *s = root;
 	while (s)
 	{
 		if (s->p == p)
 		{
+			assert(s->allocatorID == allocatorID);
 			IntPointer from = PTR_TO_INT(p);
 			IntPointer to = from + allocatedSizeInByte;
-			fprintf(f, "%16.16s DEALL %05d 0x%08X 0x%08X % 12d\n", fromWho, s->allocID, from, to, allocatedSizeInByte);
+			fprintf(f, "%16.16s DEALL %05d 0x%08X 0x%08X % 12d\n", allocatorName, s->allocID, from, to, allocatedSizeInByte);
 			fflush(f);
 
 			//verifico che non sia già stato deleted
@@ -84,13 +87,13 @@ void MemoryTracker::onDealloc(const char *fromWho, const void *p, u32 allocatedS
 			//lo marco come deletato
 			s->allocID |= 0x80000000;
 
-			OSCriticalSection_leave(cs);
+			rhea::criticalsection::leave(cs);
 			return;
 		}
 
 		s = s->next;
 	}
-	OSCriticalSection_leave(cs);
+	rhea::criticalsection::leave(cs);
 
 
 	//non ho trovato *p nella lista delle allocazioni!

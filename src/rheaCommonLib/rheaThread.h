@@ -3,6 +3,8 @@
 #include "rhea.h"
 #include "rheaHandleUID040210.h"
 #include "rheaHandleArray.h"
+#include "rheaEvent.h"
+#include "rheaCriticalSection.h"
 
 //handle per la comunicazione tra thread
 RHEATYPEDEF_HANDLE040210(HThreadMsgR)

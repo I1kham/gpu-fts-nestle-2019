@@ -9,7 +9,7 @@ using namespace socketbridge;
  * Factory
  *
  */
-CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator, const HSokServerClient &hClient, u8 ajaxRequestID, u8 *payload, u16 payloadLenInBytes, u16 handlerID, u64 dieAfterHowManyMSec, const char **out_params)
+CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator, const HSokBridgeClient &identifiedClientHandle, u8 ajaxRequestID, u8 *payload, u16 payloadLenInBytes, u16 handlerID, u64 dieAfterHowManyMSec, const char **out_params)
 {
     if (payloadLenInBytes < 5)
         return NULL;
@@ -28,7 +28,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
     //ora che abbiamo il commandName e i params, cerchiamo la classe che gestisce questo evento
 #define CHECK(TClass) \
     if (strcasecmp(command, TClass::getCommandName()) == 0)\
-        return RHEANEW(allocator, TClass)(hClient, handlerID, dieAfterHowManyMSec, ajaxRequestID);\
+        return RHEANEW(allocator, TClass)(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID);\
     \
 
 

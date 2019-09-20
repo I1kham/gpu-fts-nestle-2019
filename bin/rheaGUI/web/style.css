@@ -64,7 +64,7 @@ a:hover	{ text-decoration:none; outline: 0; }
 .pageMenu_icon { width:90%; height:90%; margin:5%; text-align:center; background-color:rgb(0, 0, 0); cursor:pointer; position:relative; }
 .pageMenu_icon.disabled { opacity:0.2; }
 .pageMenu_icon_img img {height: 100%; margin: 0 auto; }
-.pageMenu_icon_text { position: absolute; bottom:0; left:0; padding:10px; width:100%; }
+.pageMenu_icon_text { position: absolute; bottom:0; left:0; padding:0; width:100%; line-height:94%; }
 
 .pageMenu_navigator { display: inline-block; height:100%; min-height:100%; text-align:center; }
 .pageMenu_navigatorIcon { float:left; margin:0 5px 0 5px; padding:15px 12px 0 12px; min-width:30px; height:80px; min-height:50px; background-image:url(img/pageIndex-30.png); background-repeat: no-repeat; background-position: center 20%;}
@@ -132,3 +132,5 @@ a:hover	{ text-decoration:none; outline: 0; }
 .pageSelInProg_title { color:#e0e0e0; font-size:1.5em; font-weight:bold;}
 
 .pageSelInProg_textInProgress { height:30px; width:100%; text-align:center; font-weight:bold;}
+
+.btnQuadratoGrosso { border:solid 2px #aaa; background-color:#222; padding:20px 5px 20px 5px; border-radius:10px; color:#fff; font-size:1.0em; text-align:center; display:inline-block; min-width:200px; }

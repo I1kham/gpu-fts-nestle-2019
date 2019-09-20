@@ -42,6 +42,10 @@
     <ClCompile Include="..\..\src\SocketBridge\IdentifiedClientList.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\SocketBridge.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeServer.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.cpp">
+      <Filter>CmdHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\SocketBridgeFileT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h">
@@ -82,5 +86,11 @@
     <ClInclude Include="..\..\src\SocketBridge\SocketBridge.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeEnumAndDefine.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeServer.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.h">
+      <Filter>CmdHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridgeVersion.h" />
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridgeFileT.h" />
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridgeFileTEnumAndDefine.h" />
   </ItemGroup>
 </Project>

@@ -17,7 +17,7 @@
 	<div class="page">
 		<div class="pageConfirm_center">
 			<div id="divSelectionImage" class="pageConfirm_selectionImage"></div>
-			<div class="pageConfirm_selectionInfo" onclick="gotoSelectionInfo()"><img draggable='false' src="img/info.png"></div>
+			<div id="btnGotoSelectionInfo" class="pageConfirm_selectionInfo" onclick="gotoSelectionInfo()"><img draggable='false' src="img/info.png"></div>
 			<div class="pageConfirm_selectionName pageConfirm_bigFont" id="divSelectionName"></div>
 			<div class="pageConfirm_selectionBottom">
 				<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
@@ -146,6 +146,7 @@ function onRheaBootstrapFinished()
 	
 	rhea.onEvent_selectionReqStatus = function (status)
 	{
+		console.log ("selection status:" +status);
 		switch (status)
 		{
 			case 1: // wait for credit
@@ -167,6 +168,8 @@ function onRheaBootstrapFinished()
 				var dWait = rheaGetElemByID("rightPane_wait");
 				rheaHideElem(dWait);
 				rheaSetDisplayMode(dContent, "inline-block");
+				rheaShowElem(rheaGetElemByID("divBtnHome"));
+				rheaShowElem(rheaGetElemByID("btnGotoSelectionInfo"));
 				selThatWasStarted = 0;
 				break;
 		}
@@ -385,6 +388,9 @@ function onBtnStartSelection()
 	
 	var dWait = rheaGetElemByID("rightPane_wait");
 	rheaShowElem(dWait);
+	
+	rheaHideElem(rheaGetElemByID("divBtnHome"));
+	rheaHideElem(rheaGetElemByID("btnGotoSelectionInfo"));
 
 	selThatWasStarted = detectCurrentSelection();
 	console.log ("Starting sel num:" +selThatWasStarted);

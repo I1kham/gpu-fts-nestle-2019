@@ -1,11 +1,13 @@
 #ifdef WIN32
 #include "winOS.h"
-
+#include <mbstring.h>
+#include <shlobj.h>
 
 struct	sWin32PlatformData
 {
 	HINSTANCE			hInst;
 	char				applicationPathNoSlash[256];
+	char				writableFolderPathNoSlash[256];
 	u64					hiresTimerFreq;
 	uint64_t			timeStarted;
 	WSADATA				wsaData;
@@ -14,7 +16,7 @@ struct	sWin32PlatformData
 sWin32PlatformData	win32PlatformData;
 
 //**********************************************
-bool platform::internal_init (void *platformSpecificData)
+bool platform::internal_init (void *platformSpecificData, const char *appName)
 {
 	memset(&win32PlatformData, 0, sizeof(win32PlatformData));
 
@@ -40,6 +42,22 @@ bool platform::internal_init (void *platformSpecificData)
 	win32PlatformData.applicationPathNoSlash[n--] = 0x00;
 
 
+	//writable folder path
+	memset (win32PlatformData.writableFolderPathNoSlash, 0, sizeof(win32PlatformData.writableFolderPathNoSlash));
+	SHGetFolderPath(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, win32PlatformData.writableFolderPathNoSlash);
+	_mbscat_s((unsigned char*)win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), (unsigned char*)"/");
+	n = _mbstrlen(win32PlatformData.writableFolderPathNoSlash) - 1;
+	for (size_t t = 0; t < n; t++)
+	{
+		if (win32PlatformData.writableFolderPathNoSlash[t] == '\\')
+			win32PlatformData.writableFolderPathNoSlash[t] = '/';
+	}
+	win32PlatformData.writableFolderPathNoSlash[_mbstrlen(win32PlatformData.writableFolderPathNoSlash) - 1] = 0;
+	strcat_s(win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), "/");
+	strcat_s(win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), appName);
+	CreateDirectory(win32PlatformData.writableFolderPathNoSlash, NULL);
+
+
 	//initialize Winsock
 	if (0 != WSAStartup(MAKEWORD(2, 2), &win32PlatformData.wsaData))
 		return false;
@@ -62,18 +80,10 @@ void* platform::alignedAlloc(size_t alignment, size_t size)
 }
 
 //**********************************************
-void platform::alignedFree(void *p)
-{
-	_aligned_free(p);
-}
-
-
-//**********************************************
-const char* platform::getAppPathNoSlash()
-{
-	return win32PlatformData.applicationPathNoSlash;
-}
-
+void platform::alignedFree(void *p)							{ _aligned_free(p);  }
+const char* platform::getAppPathNoSlash()					{ return win32PlatformData.applicationPathNoSlash; }
+const char* platform::getPhysicalPathToWritableFolder()		{ return win32PlatformData.writableFolderPathNoSlash; }
+void platform::sleepMSec(size_t msec)						{ ::Sleep(msec); }
 
 //**********************************************
 uint64_t platform::getTimeNowMSec()
@@ -86,10 +96,7 @@ uint64_t platform::getTimeNowMSec()
 }
 
 //*******************************************************************
-void platform::sleepMSec(size_t msec)
-{
-	::Sleep(msec);
-}
+
 
 //*******************************************************************
 void platform::getDateNow(u16 *out_year, u16 *out_month, u16 *out_day)

@@ -1,3 +1,17 @@
+/******************************************************************************************************************
+ * In generale, le funzioni contenute in questo header non sono da chiamare direttamente.
+	Esiste sicuramente una funzione nel namespace rhea che a sua volta le utilizza.
+	Ad esempio, per sapere quanti msec sono trascorsi dall'inizio dell'applicazione, usa
+		rhea::getTimeNowMSec() e non chiamare direttamente OS_getTimeNowMSec().
+
+	Vuoi sapere che giorno è oggi?
+	Usa rhea::Date::getDateNow() e non direttamente OS_getDateNow()
+
+	Le funzioni qui definite sono tutte quelle che ogni piattaforma deve supportare per poter mantenere il codice piattaforma indipendente.
+	I file in OS/win ad esempio implementato queste fn per windows
+	I file in OS/linux lo fanno per linux
+ */
+
 #ifndef _os_h_
 #define _os_h_
 #include "OSInclude.h"
@@ -6,7 +20,7 @@
 /*********************************************************
  * uso interno (usate da rhea::init())
  */
-inline bool         internal_OSInit (void *platformSpecificData)																		{ return platform::internal_init(platformSpecificData); }
+inline bool         internal_OSInit (void *platformSpecificData, const char *appName)													{ return platform::internal_init(platformSpecificData, appName); }
 inline void         internal_OSDeinit ()																								{ platform::internal_deinit(); }
 
 
@@ -17,12 +31,12 @@ inline void*        OS_alignedAlloc (size_t alignment, size_t size)													
 inline void			OS_alignedFree(void *p)																								{ platform::alignedFree(p); }
 
 inline const char*  OS_getAppPathNoSlash ()																								{ return platform::getAppPathNoSlash(); }
-
+inline const char*  OS_getPhysicalPathToWritableFolder()																				{ return platform::getPhysicalPathToWritableFolder(); }
 
 /*********************************************************
  * High definition timer
  */
-inline uint64_t     OS_getTimeNowMSec ()																								{ return platform::getTimeNowMSec(); }
+inline uint64_t     OS_getTimeNowMSec()																									{ return platform::getTimeNowMSec(); }
 
 
 /***********************************************

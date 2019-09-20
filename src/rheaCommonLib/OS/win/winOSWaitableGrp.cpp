@@ -219,7 +219,14 @@ u8 OSWaitableGrp::priv_wait(u32 timeoutMSec)
 		}
 		p = p->next;
 	}
-	assert(n <= MAX_EVENTS_HANDLE_PER_CALL);
+
+	if (n > MAX_EVENTS_HANDLE_PER_CALL)
+	{
+		//posso gestire un numero finito di handle.
+		//Eventuali altri handle semplicemente li ignoro
+		n = MAX_EVENTS_HANDLE_PER_CALL;
+	}
+	
 
 
 	//timeout per la wait

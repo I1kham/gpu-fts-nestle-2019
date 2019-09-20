@@ -5,13 +5,14 @@
 
 namespace platform
 {
-	bool            internal_init (void *platformSpecificData);
+	bool            internal_init (void *platformSpecificData, const char *appName);
 	void            internal_deinit();
 
 	void*           alignedAlloc(size_t alignment, size_t size);
 	void			alignedFree(void *p);
 
 	const char*     getAppPathNoSlash();
+	const char*     getPhysicalPathToWritableFolder();
 
 	uint64_t        getTimeNowMSec();
 	void            sleepMSec(size_t msec);

@@ -276,7 +276,8 @@ i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u3
 
 		assert(ret == SOCKET_ERROR);
 		int myerrno = WSAGetLastError();
-		//if (myerrno == WSAETIMEDOUT || myerrno == WSAEWOULDBLOCK) continue;
+		if (myerrno == WSAEINPROGRESS || myerrno == WSAEWOULDBLOCK || myerrno==WSAETIMEDOUT) 
+			continue;
 
 		switch (myerrno)
 		{
@@ -304,14 +305,15 @@ i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u3
 			return 0;
 		
 		case WSAECONNRESET:
+			return 0;
+
 		case WSAEINVAL:
+			return 0;
+
 		case WSAECONNABORTED:
 			return 0;
 
-		case WSAEINPROGRESS:
-		case WSAEWOULDBLOCK:
-		case WSAETIMEDOUT:
-			continue;
+
 		}
 	} while (OS_getTimeNowMSec() < timeToExitMSec);
 
@@ -322,9 +324,10 @@ i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u3
 i32  platform::socket_write(const OSSocket &sok, const void *buffer, u16 nBytesToSend)
 {
 	i32 ret = ::send(sok.socketID, (const char*)buffer, nBytesToSend, 0);
-	if (ret != SOCKET_ERROR)
-		return ret;
+	if (ret == SOCKET_ERROR)
+		return WSAGetLastError();
 	
-	return WSAGetLastError();
+	assert(ret == nBytesToSend);
+	return ret;
 }
 #endif // WIN32

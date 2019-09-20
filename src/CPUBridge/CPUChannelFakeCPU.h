@@ -36,12 +36,18 @@ namespace cpubridge
 
 	private:
 		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer) const;
+		void					priv_updateCPUMessageToBeSent (u64 timeNowMSec);
 
 	private:
 		bool						bShowDialogStopSelezione;
 		eStatoPreparazioneBevanda	statoPreparazioneBevanda;
 		eVMCState					VMCState;
 		sRunningSel					runningSel;
+
+		char						cpuMessage1[36];
+		char						cpuMessage2[36];
+		const char					*curCPUMessage;
+		u64							timeToSwapCPUMsgMesc;
     };
 
 } // namespace cpubridge

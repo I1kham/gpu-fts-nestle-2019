@@ -1,5 +1,6 @@
 //Se si richiede un linguaggio che non è supportato (ie: mancano i file), allora si carica il RHEA_DEFAULT_FALLOFF_LANGUAGE
 var 	RHEA_DEFAULT_FALLOFF_LANGUAGE = "GB";
+var		RHEA_NUM_MAX_SELECTIONS = 48;
 
 //costanti di comodo da passare come parametro alla fn requestGPUEvent() e/o ricevuti come eventi dalla GPU
 var RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED = 97; 	//'a'
@@ -16,9 +17,32 @@ var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
 
 //info sulla versione attuale del codice (viene comunicata a GPU in fase di registrazione)
 var RHEA_CLIENT_INFO__API_VERSION = 0x01;
-var RHEA_CLIENT_INFO__UNUSED1 = 0x00;
+var RHEA_CLIENT_INFO__APP_TYPE = 0x01;
 var RHEA_CLIENT_INFO__UNUSED2 = 0x00;
 var RHEA_CLIENT_INFO__UNUSED3 = 0x00;
+
+
+/******************************************************
+ * clearSessionData
+ * 
+ * Utile per pulire le informazioni di sessione. Di solito usata allo startup della GUI
+ */
+Rhea_clearSessionData = function ()
+{
+	Rhea_session_setValue("idCode_0", 0);
+	Rhea_session_setValue("idCode_1", 0);
+	Rhea_session_setValue("idCode_2", 0);
+	Rhea_session_setValue("idCode_3", 0);
+	Rhea_session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
+	Rhea_session_setValue("credit", "0");
+	Rhea_session_setValue("debug", 0);
+	Rhea_session_setValue("debug_console", "");
+
+	//selection session clear
+	for (var i=1; i<=RHEA_NUM_MAX_SELECTIONS; i++)
+		Rhea_session_clearObject("selInfo" +i);
+}
+
 
 /*********************************************************
 
@@ -29,14 +53,23 @@ var RHEA_CLIENT_INFO__UNUSED3 = 0x00;
 function Rhea()
 {
 	//lingua corrente
-	if (this.Session_getValue ("lang") === undefined)
-		this.Session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
+	if (Rhea_session_getValue ("lang") === undefined)
+		Rhea_session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
 	
-	
-	this.idCode_0 = 0;
-	this.idCode_1 = 0;
-	this.idCode_2 = 0;
-	this.idCode_3 = 0;
+	//recupero il mio idCode che mi identifica con GPUServer
+	this.idCode_0 = parseInt (this.Session_getOrDefault("idCode_0", 0));
+	if (this.idCode_0 == 0)
+	{
+		this.idCode_1 = 0;
+		this.idCode_2 = 0;
+		this.idCode_3 = 0;
+	}
+	else
+	{
+		this.idCode_1 = parseInt (Rhea_session_getValue("idCode_1"));
+		this.idCode_2 = parseInt (Rhea_session_getValue("idCode_2"));
+		this.idCode_3 = parseInt (Rhea_session_getValue("idCode_3"));
+	}
 	
 	//ajax    
 	this.nextAjaxRequestID = 1;
@@ -51,7 +84,6 @@ function Rhea()
 	//L'aggiornamento di queste informazioni viene gestito in autonomia e le pagine possono sempre in ogni momento richiedere lo stato delle selezioni
 	//utilizzando la fn selection_getBySelNumber()
 	//Per sapere quali informazioni sono disponibili per ogni selezione, cerca la fn selection_createEmpty()
-	this.nMaxSelection = 48;
 	this.selection_sessionRestore();
 	
 	
@@ -60,26 +92,12 @@ function Rhea()
 	if (!this.Session_getValue("credit"))
 	{
 		this.credit = "0";
-		this.Session_setValue("credit", "0");
+		Rhea_session_setValue("credit", "0");
 	}
 	else
-		this.credit = this.Session_getValue("credit");
+		this.credit = Rhea_session_getValue("credit");
 }
 
-/******************************************************
- * clearSessionData
- * 
- * Utile per pulire le informazioni di sessione. Di solito usata allo startup della GUI
- */
-Rhea.prototype.clearSessionData = function ()
-{
-	this.selection_sessionClear();
-	this.Session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
-	this.credit = "0";
-	this.Session_setValue("credit", "0");
-	this.Session_setValue("debug", 0);
-	this.Session_setValue("debug_console", "");
-}
 
 
 
@@ -101,10 +119,35 @@ Rhea.prototype.webSocket_connect = function()
 		{ 
 			rheaLog("Rhea::webSocket connected...");
 			
-			me.webSocket_requestIDCodeAfterConnection();
-			me.webSocket_identifyAfterConnection();
-			
-			resolve(1); 
+			if (me.idCode_0 == 0)
+			{
+				me.webSocket_requestIDCodeAfterConnection();
+				
+				//attendo la risposta
+				var timeoutMs = 2000;
+				var waitIDCode = function()	{
+												console.warn('waiting idcode')
+												if (parseInt (Rhea_session_getValue ("idCode_3")) != 0)
+												{
+													me.webSocket_identifyAfterConnection();
+													resolve(1);
+												}
+												else if ((timeoutMs -= 100) < 0)
+												{
+													reject ("timed out 'waiting idcode");
+													reject(0);
+												}
+												else
+													setTimeout(waitIDCode, 100);
+											}
+
+				setTimeout(waitIDCode, 100)				
+			}
+			else
+			{
+				me.webSocket_identifyAfterConnection();
+				resolve(1); 
+			}
 		};
 		me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };
 		me.websocket.onmessage = 	function(evt) { me.webSocket_onRcv(evt) };
@@ -172,11 +215,21 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 				{
 				case RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST:
 					{
-						rheaLog ("RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST:");
-						idCode_0 = parseInt(data[8]);
-						idCode_1 = parseInt(data[9]);
-						idCode_2 = parseInt(data[10]);
-						idCode_3 = parseInt(data[11]);
+						if (me.idCode_0 == 0)
+						{
+							//var cpuBridgeVersion = parseInt(data[8]);
+							//var socketBridgeVersion = parseInt(data[9]);
+							me.idCode_0 = parseInt(data[10]);
+							me.idCode_1 = parseInt(data[11]);
+							me.idCode_2 = parseInt(data[12]);
+							me.idCode_3 = parseInt(data[13]);
+							
+							Rhea_session_setValue ("idCode_0", parseInt(me.idCode_0));
+							Rhea_session_setValue ("idCode_1", parseInt(me.idCode_1));
+							Rhea_session_setValue ("idCode_2", parseInt(me.idCode_2));
+							Rhea_session_setValue ("idCode_3", parseInt(me.idCode_3));
+							rheaLog (" idCode set: [" +Rhea_session_getValue("idCode_0") +"][" +Rhea_session_getValue("idCode_3") +"]");
+						}
 					}
 					break;
 					
@@ -251,7 +304,8 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 Rhea.prototype.sendBinary = function (buffer, byteStart, lengthInBytes)
 {
 	var toSend = new DataView(buffer.buffer, byteStart, lengthInBytes);
-	this.websocket.send(toSend);
+//	this.websocket.send(toSend);
+	this.websocket.send(buffer);
 }
 
 /***********************************************************
@@ -298,8 +352,8 @@ Rhea.prototype.sendGPUCommand = function (commandChar, bufferArrayIN, bReturnAPr
 	if (null != bufferArrayIN)
 		bufferLen = bufferArrayIN.length;
 	var bytesNeeded = 	1 +				//# 
-						1 +				//requestID
 						1 +				//char del comando
+						1 +				//requestID
 						2 +				//lunghezza di [bufferArrayIN] espressa come byte alto, byte basso
 						bufferLen +		//[bufferArrayIN]
 						2;				//cheksum espressa come byte alto, byte basso
@@ -425,7 +479,7 @@ Rhea.prototype.requestGPUEvent = function (eventTypeID)
  * webSocket_requestIDCodeAfterConnection
  *
  *	inviata automaticamente (se necessario) durante la connessione.
- *	Serve a chiedere alla GPU un idCode univoco da utilizzare da ora
+ *	Serve a chiedere alla SMU un idCode univoco da utilizzare da ora
  *	in poi durante ogni successiva riconnessione
  */
 Rhea.prototype.webSocket_requestIDCodeAfterConnection = function()
@@ -434,7 +488,7 @@ Rhea.prototype.webSocket_requestIDCodeAfterConnection = function()
 
 	var buffer = new Uint8Array(4);
 	buffer[0] = RHEA_CLIENT_INFO__API_VERSION;	//API version
-	buffer[1] = RHEA_CLIENT_INFO__UNUSED1;
+	buffer[1] = RHEA_CLIENT_INFO__APP_TYPE;
 	buffer[2] = RHEA_CLIENT_INFO__UNUSED2;
 	buffer[3] = RHEA_CLIENT_INFO__UNUSED3;
 	this.sendGPUCommand("I", buffer, 0, 0);
@@ -444,7 +498,7 @@ Rhea.prototype.webSocket_requestIDCodeAfterConnection = function()
  * webSocket_identifyAfterConnection
  *
  *	inviata automaticamente durante la connessione.
- *	Serve ad identificarsi con la GPU
+ *	Serve ad identificarsi con la SMU
  */
 Rhea.prototype.webSocket_identifyAfterConnection = function()
 {
@@ -452,13 +506,13 @@ Rhea.prototype.webSocket_identifyAfterConnection = function()
 
 	var buffer = new Uint8Array(8);
 	buffer[0] = RHEA_CLIENT_INFO__API_VERSION;	//API version
-	buffer[1] = RHEA_CLIENT_INFO__UNUSED1;
+	buffer[1] = RHEA_CLIENT_INFO__APP_TYPE;
 	buffer[2] = RHEA_CLIENT_INFO__UNUSED2;
 	buffer[3] = RHEA_CLIENT_INFO__UNUSED3;
 	
-	buffer[4] = 0x02;	//identification code MSB
-	buffer[5] = 0x03;	//..
-	buffer[6] = 0x04;	//..
-	buffer[7] = 0x05;	//identification code LSB
+	buffer[4] = this.idCode_0;	//identification code MSB
+	buffer[5] = this.idCode_1;
+	buffer[6] = this.idCode_2;
+	buffer[7] = this.idCode_3;
 	this.sendGPUCommand("W", buffer, 0, 0);
 }

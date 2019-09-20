@@ -2,6 +2,7 @@
 #define _CPUBridgeServer_h_
 #include "CPUBridgeEnumAndDefine.h"
 #include "CPUChannel.h"
+#include "lang.h"
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../rheaCommonLib/rheaFastArray.h"
@@ -69,13 +70,14 @@ namespace cpubridge
 		HThreadMsgR             hServiceChR;
 		bool					bQuit;
 		eStato					stato;
-		u8						langErrorCode;
 		u8						answerBuffer[256];
 		sCPUParamIniziali		cpuParamIniziali;
 		sCPUStatus				cpuStatus;
 		sRunningSelection		runningSel;
 		rhea::FastArray<sSubscription*>	subscriberList;
-
+		sLanguage				language;
+		u16						lastCPUMsg[LCD_BUFFER_SIZE_IN_U16];
+		u16						lastCPUMsgLen;
     };
 
 } // namespace cpubridge

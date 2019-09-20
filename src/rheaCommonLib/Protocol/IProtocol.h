@@ -42,7 +42,7 @@ namespace rhea
 
 		u16				read (IProtocolChannell *ch, u32 timeoutMSec, LinearBuffer &out_result);
 						/*	legge dal canale di comunicazione (non bloccante se timeoutMSec==0) ed interpreta il buffer di input.
-							Se ci sono validi messaggi "utente", ritorna il numero di bytes inseriti in out_result.
+							Se ci sono validi messaggi "utente", ritorna il numero di bytes inseriti in out_result (che corrisponde al primo msg utente estratto dal buffer).
 							Eventuali messaggi interni di protocollo (ping, close, keepalive..) vengono gestiti internamente e non
 							vengono passati a out_result.
 

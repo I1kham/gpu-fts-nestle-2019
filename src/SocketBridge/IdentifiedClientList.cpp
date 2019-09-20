@@ -1,4 +1,5 @@
 #include "IdentifiedClientList.h"
+#include "../rheaCommonLib/rheaDateTime.h"
 
 using namespace socketbridge;
 
@@ -8,6 +9,8 @@ void IdentifiedClientList::setup (rhea::Allocator *allocator)
 {
 	nextHandle.index = 0;
     list.setup (allocator, 32);
+
+
 }
 
 
@@ -42,10 +45,40 @@ u32 IdentifiedClientList::priv_findByHSokBridgeClient(const HSokBridgeClient &h)
 	return u32MAX;
 }
 
+//*********************************************************
+bool IdentifiedClientList::getHandleByIndex (u32 i, HSokBridgeClient *out_handle) const
+{
+	if (i < 0 || i >= list.getNElem())
+		return false;
+	*out_handle = list(i).handle;
+	return true;
+}
+
+//*********************************************************
+const sIdentifiedClientInfo* IdentifiedClientList::getInfoByIndex(u32 i) const
+{
+	if (i < 0 || i >= list.getNElem())
+		return NULL;
+	return &list(i);
+}
+
+//*********************************************************
+bool IdentifiedClientList::isBoundToSocket (const HSokBridgeClient &handle, HSokServerClient *out_h) const
+{
+	u32 i = priv_findByHSokBridgeClient(handle);
+	if (u32MAX == i)
+		return false;
+
+	if (u32MAX == list(i).currentWebSocketHandleAsU32)
+		return false;
+
+	out_h->initFromU32(list(i).currentWebSocketHandleAsU32);
+	return true;
+}
 
 
 //*********************************************************
-const IdentifiedClientList::sInfo* IdentifiedClientList::isKwnownSocket (const HSokServerClient &h) const
+const sIdentifiedClientInfo* IdentifiedClientList::isKwnownSocket (const HSokServerClient &h) const
 {
 	u32 i = priv_findByHSokServerClient(h);
 	if (u32MAX == i)
@@ -67,7 +100,7 @@ u32 IdentifiedClientList::priv_findByIDCode (const SokBridgeIDCode &idCode) cons
 
 
 //*********************************************************
-const IdentifiedClientList::sInfo* IdentifiedClientList::isKnownIDCode (const SokBridgeIDCode &idCode) const
+const sIdentifiedClientInfo* IdentifiedClientList::isKnownIDCode (const SokBridgeIDCode &idCode) const
 {
 	u32 i = priv_findByIDCode(idCode);
 	if (u32MAX == i)
@@ -76,10 +109,20 @@ const IdentifiedClientList::sInfo* IdentifiedClientList::isKnownIDCode (const So
 }
 
 //*********************************************************
-HSokBridgeClient& IdentifiedClientList::newEntry (const SokBridgeIDCode &idCode, u64 timeNowMSec)
+HSokBridgeClient& IdentifiedClientList::newEntry (u64 timeNowMSec, SokBridgeIDCode *out_idCode)
 {
-	//idCode deve essere univoco
-	assert(u32MAX == priv_findByIDCode(idCode));
+	//genera un idCode random, univoco
+	while (1)
+	{
+		out_idCode->data.buffer[0] = 1 + (u8)rhea::randomU32(254);
+		out_idCode->data.buffer[1] = 1 + (u8)rhea::randomU32(254);
+		out_idCode->data.buffer[2] = 1 + (u8)rhea::randomU32(254);
+		out_idCode->data.buffer[3] = 1 + (u8)rhea::randomU32(254);
+
+		if (u32MAX == priv_findByIDCode(*out_idCode))
+			break;
+	}
+
 
 	//genero un nuovo handle
 	nextHandle.index++;
@@ -90,15 +133,32 @@ HSokBridgeClient& IdentifiedClientList::newEntry (const SokBridgeIDCode &idCode,
 	u32 n = list.getNElem();
 	list[n].handle = nextHandle;
 	list[n].currentWebSocketHandleAsU32 = u32MAX;
-	list[n].idCode = idCode;
+	list[n].idCode = *out_idCode;
 	list[n].clientVer.zero();
+	//list[n].hasPendingRequest = 0;
 	list[n].timeCreatedMSec = timeNowMSec;
-	list[n].lastTimeConnectedMSec = 0;
-	list[n].lastTimeDisconnectedMSec = 0;
+	list[n].lastTimeRcvMSec = timeNowMSec;
 
 	return list[n].handle;
 }
 
+//*********************************************************
+void IdentifiedClientList::purge(u64 timeNowMSec)
+{
+	u32 n = list.getNElem();
+	for (u32 i = 0; i < n; i++)
+	{
+		if (u32MAX == list(i).currentWebSocketHandleAsU32)
+		{
+			if (timeNowMSec - list(i).lastTimeRcvMSec > 60000)
+			{
+				list.removeAndSwapWithLast(i);
+				i--;
+				n--;
+			}
+		}
+	}
+}
 
 //*********************************************************
 void IdentifiedClientList::updateClientVerInfo(const HSokBridgeClient &handle, const SokBridgeClientVer &v)
@@ -126,19 +186,54 @@ bool IdentifiedClientList::compareClientVerInfo (const HSokBridgeClient &handle,
 	return (list(i).clientVer == v);
 }
 
+/*********************************************************
+void IdentifiedClientList::markAsHavPendingRequest(const HSokBridgeClient &handle, bool b)
+{
+	u32 i = priv_findByHSokBridgeClient(handle);
+	if (u32MAX != i)
+	{
+		if (b)
+			list[i].hasPendingRequest = 1;
+		else
+			list[i].hasPendingRequest = 0;
+		return;
+	}
+
+	DBGBREAK;
+}
+
+/*********************************************************
+bool IdentifiedClientList::hasPendingRequest(const HSokBridgeClient &handle) const
+{
+	u32 i = priv_findByHSokBridgeClient(handle);
+	if (u32MAX != i)
+		return (list(i).hasPendingRequest != 0);
+
+	DBGBREAK;
+	return false;
+}
+*/
+
 //*********************************************************
-void IdentifiedClientList::bindSocket (const HSokBridgeClient &handle, const HSokServerClient &hSok, u64 timeNowMSec)
+bool IdentifiedClientList::bindSocket (const HSokBridgeClient &handle, const HSokServerClient &hSok, u64 timeNowMSec)
 {
 	u32 i = priv_findByHSokBridgeClient(handle);
 	if (u32MAX == i)
 	{
 		DBGBREAK;
-		return;
+		return false;
 	}
 
-	assert(list(i).currentWebSocketHandleAsU32 == u32MAX);
-	list[i].currentWebSocketHandleAsU32 = hSok.asU32();
-	list[i].lastTimeConnectedMSec = timeNowMSec;
+	//devo bindarmi ad uno slot che attualmente non sia già bindato
+	if (list(i).currentWebSocketHandleAsU32 == u32MAX)
+	{
+		list[i].currentWebSocketHandleAsU32 = hSok.asU32();
+		list[i].lastTimeRcvMSec = timeNowMSec;
+		return true;
+	}
+
+	DBGBREAK;
+	return false;
 }
 
 //*********************************************************
@@ -153,7 +248,6 @@ void IdentifiedClientList::unbindSocket(const HSokBridgeClient &handle, u64 time
 
 	assert(list(i).currentWebSocketHandleAsU32 != u32MAX);
 	list[i].currentWebSocketHandleAsU32 = u32MAX;
-	list[i].lastTimeDisconnectedMSec = timeNowMSec;
 }
 
 

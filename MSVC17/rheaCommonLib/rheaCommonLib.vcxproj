@@ -52,6 +52,7 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaMemory.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaMemoryTracker.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaSha1.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaStaticBuffer.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaString.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaStringConvert.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaStringFormat.cpp" />
@@ -93,10 +94,13 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorSimple.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorTrackingPolicy.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaBit.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaBufferView.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaCriticalSection.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaDataTypes.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaDate.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaDateTime.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaEvent.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaFastArray.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaFIFO.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleArray.h" />
@@ -112,7 +116,9 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaLogTargetFile.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaMemory.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaMemoryTracker.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaNetBufferView.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaRandom.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaStaticBuffer.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaString.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaThread.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaThreadSafePolicy.h" />

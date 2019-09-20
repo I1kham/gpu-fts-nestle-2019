@@ -5,13 +5,13 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_eventReqSelPrices::handleRequest (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
+void CmdHandler_eventReqSelPrices::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_QUERY_SEL_PRICES (from, getHandlerID());
 }
 
 //***********************************************************
-void CmdHandler_eventReqSelPrices::handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_eventReqSelPrices::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
 	u16 prices[NUM_MAX_SELECTIONS];
 	cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(msgFromCPUBridge, prices, sizeof(prices));

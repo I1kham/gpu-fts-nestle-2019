@@ -16,20 +16,21 @@ namespace socketbridge
     class CmdHandler
     {
     public:
-                        CmdHandler (const HSokServerClient &h, u16 handlerID, u64 dieAfterHowManyMSec);
-        virtual         ~CmdHandler()                                              {}
+							CmdHandler (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec);
+        virtual				~CmdHandler()                                              {}
 
-        virtual void    handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
-
-        u16             getHandlerID() const																					{ return handlerID; }
-        bool            isTimeToDie(u64 timeNowMSec) const																		{ return (timeNowMSec > timeToDieMSec); }
+        virtual void		onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
+		
+        u16					getHandlerID() const																					{ return handlerID; }
+        bool				isTimeToDie(u64 timeNowMSec) const																		{ return (timeNowMSec > timeToDieMSec); }
+		HSokBridgeClient	getIdentifiedClientHandle() const																		{ return identifiedClientHandle; }
 
     protected:
-        HSokServerClient   hClient;
+		HSokBridgeClient   identifiedClientHandle;
 
     private:
-        u16             handlerID;
-        u64             timeToDieMSec;
+        u16					handlerID;
+        u64					timeToDieMSec;
     };
 } // namespace socketbridge
 

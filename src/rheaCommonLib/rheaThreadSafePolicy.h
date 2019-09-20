@@ -33,11 +33,11 @@ namespace rhea
     class ThreadSafePolicy_cs
     {
     public:
-                        ThreadSafePolicy_cs ()                          { OSCriticalSection_init(&cs); }
-                        ~ThreadSafePolicy_cs ()							{ OSCriticalSection_close(cs); }
+                        ThreadSafePolicy_cs ()                          { rhea::criticalsection::init(&cs); }
+                        ~ThreadSafePolicy_cs ()							{ rhea::criticalsection::close(cs); }
 
-        void			lock ()	const									{ OSCriticalSection_enter(cs); }
-        void			unlock () const									{ OSCriticalSection_leave(cs); }
+        void			lock ()	const									{ rhea::criticalsection::enter(cs); }
+        void			unlock () const									{ rhea::criticalsection::leave(cs); }
         bool            isThreadSafe() const                            { return true; }
 
     private:

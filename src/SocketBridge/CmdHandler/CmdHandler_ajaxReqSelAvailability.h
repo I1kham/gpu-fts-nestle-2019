@@ -28,12 +28,12 @@ namespace socketbridge
     class CmdHandler_ajaxReqSelAvailability : public CmdHandler_ajaxReq
     {
     public:
-                            CmdHandler_ajaxReqSelAvailability (const HSokServerClient &h, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
-                                CmdHandler_ajaxReq(h, handlerID, dieAfterHowManyMSec, ajaxRequestID)
+                            CmdHandler_ajaxReqSelAvailability (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
+                                CmdHandler_ajaxReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID)
                                 { }
 
-        void                handleRequest (cpubridge::sSubscriber &from, const char *params);
-        void                handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge);
+        void                passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params);
+        void                onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge);
 
         static const char*  getCommandName()                            { return "selAvail"; }
     };

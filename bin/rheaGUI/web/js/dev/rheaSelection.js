@@ -25,38 +25,23 @@ Rhea.prototype.selection_createEmpty = function(selNumber)
  */
 Rhea.prototype.selection_getCount = function()
 {
-	return this.nMaxSelection;
+	return RHEA_NUM_MAX_SELECTIONS;
 }
 
 /*********************************************************
  * selection_getBySelNumber
  *
- *	[selNum]	=> da 1 a this.nMaxSelection
+ *	[selNum]	=> da 1 a RHEA_NUM_MAX_SELECTIONS
  */
 Rhea.prototype.selection_getBySelNumber = function (selNum)
 {
-	if (selNum < 1 || selNum > this.nMaxSelection)
+	if (selNum < 1 || selNum > RHEA_NUM_MAX_SELECTIONS)
 	{
 		rheaLog ("ERR:Rhea.selection_getBySelNumber(" +selNum +") => invalid sel number");
 		return this.selection_createEmpty(0);
 	}
 	
 	return this.selectionList[selNum-1];
-}
-
-/*********************************************************
- * selection_sessionClear
- *
- *	elimina tutte le info relative allo stato delle selezioni
- */
-Rhea.prototype.selection_sessionClear = function()
-{
-	rheaLog ("Rhea.selection_sessionClear()");
-	for (var i=1; i<=this.nMaxSelection; i++)
-		this.Session_clearObject("selInfo" +i);
-	
-	//lo ripopola con i valori di default
-	this.selection_sessionRestore();
 }
 
 /*********************************************************
@@ -68,7 +53,7 @@ Rhea.prototype.selection_sessionRestore = function()
 {
 	rheaLog ("Rhea.selection_sessionRestore()");
 	this.selectionList = [];
-	for (var i=1; i<=this.nMaxSelection; i++)
+	for (var i=1; i<=RHEA_NUM_MAX_SELECTIONS; i++)
 	{
 		var s = this.Session_getObject("selInfo" +i);
 		if (s === undefined)
@@ -88,7 +73,7 @@ Rhea.prototype.selection_sessionRestore = function()
 Rhea.prototype.selection_sessionStore = function()
 {
 	rheaLog ("Rhea.selection_sessionStore()");
-	for (var i=1; i<=this.nMaxSelection; i++)
+	for (var i=1; i<=RHEA_NUM_MAX_SELECTIONS; i++)
 	{
 		this.Session_setObject("selInfo" +i, this.selectionList[i-1]);
 	}

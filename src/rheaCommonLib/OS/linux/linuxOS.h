@@ -7,7 +7,7 @@
 
 namespace platform
 {
-    bool            internal_init (void *platformSpecificData);
+    bool            internal_init (void *platformSpecificData, const char *appName);
     void            internal_deinit ();
 
     void*           alignedAlloc (size_t alignment, size_t size);

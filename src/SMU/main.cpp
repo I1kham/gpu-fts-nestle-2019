@@ -72,18 +72,10 @@ int main()
 {
 #ifdef WIN32
 	HINSTANCE hInst = NULL;
-    rhea::init(&hInst);
+    rhea::init("rheaSMU", &hInst);
 #else
-	rhea::init(NULL);
+	rhea::init("rheaSMU", NULL);
 #endif
-
-	char out[64];
-	rhea::string::format::currency(1, 2, '.', out, sizeof(out));
-	rhea::string::format::currency(12, 2, '.', out, sizeof(out));
-	rhea::string::format::currency(123, 2, '.', out, sizeof(out));
-	rhea::string::format::currency(1234, 2, '.', out, sizeof(out));
-	
-
 
 	startCPUBridge();
 

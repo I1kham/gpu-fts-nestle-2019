@@ -13,7 +13,9 @@ namespace rhea
 	class Random
 	{
 	public:
+						Random() : mt((u32)0)				{}
 						Random	(u32 aSeed) : mt(aSeed)		{}
+
 		void			seed	(u32 aSeed)					{ mt.seed(aSeed); }
 		f32				get01()								{ return (f32)mt(); }
 							//ritorna un num compreso tra 0 e 1 inclusi

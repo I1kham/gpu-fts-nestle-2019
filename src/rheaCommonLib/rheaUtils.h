@@ -1,6 +1,7 @@
 #ifndef _rheaUtils_h_
 #define _rheaUtils_h_
 #include "rheaDataTypes.h"
+#include <stdio.h>
 
 namespace rhea
 {
@@ -18,6 +19,8 @@ namespace rhea
                      *
                      * Ritorna false se [sizeOfOutInBytes] non è suff ad ospitare la conversione
                      */
+
+		u64			filesize(FILE *fp);
 
         int         base64_decode (u8 *binary, size_t *binary_length, const char *base64IN, size_t sizeInBytesOfbase64IN);
 

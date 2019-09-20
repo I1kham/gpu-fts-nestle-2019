@@ -20,3 +20,6 @@ MSVC17/GPUServer/build/
 MSVC17/rheaGUIBridge/build/
 MSVC17/SocketBridge/build/
 bin/
+MSVC17/Debug/
+MSVC17/rheaAppLib/
+MSVC17/SMU/build/

@@ -4,7 +4,10 @@
 #include "../rheaCommonLib/rheaBit.h"
 
 #define		NUM_MAX_SELECTIONS					48
-#define		CPU_MSG_LCD_MAX_LEN_IN_BYTES		128
+#define		_CPU_MSG_LCD_MAX_LEN_IN_BYTES		64
+#define		LCD_BUFFER_SIZE_IN_BYTES			(_CPU_MSG_LCD_MAX_LEN_IN_BYTES+4)
+#define		LCD_BUFFER_SIZE_IN_U16				(LCD_BUFFER_SIZE_IN_BYTES/2)
+#define		TRANSLATED_LCD_BUFFER_SIZE_IN_U16	(LCD_BUFFER_SIZE_IN_U16 + 16)
 
 /**********************************************************************
  * Messaggi in/out sul canale di "servizio" di CPUBridge
@@ -33,7 +36,7 @@
 
  /**********************************************************************
   * msg che i subscriber di CPUBridge possono inviare usando la loro coda di write verso CPUBridge (vedi le fn ask_xxx in CPUBridge.h)
-  *	Se è prevista una risposta, CPUBrdige risponderà utilizzando 
+  *	
   */
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION			0x0800
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION				0x0801
@@ -59,11 +62,11 @@ namespace cpubridge
 
 	enum eRunningSelStatus
 	{
-		eRunningSelStatus_wait = 0,
-		eRunningSelStatus_running = 1,
-		eRunningSelStatus_runningCanUseStopBtn = 2,
-		eRunningSelStatus_finished_OK = 3,
-		eRunningSelStatus_finished_KO = 4
+		eRunningSelStatus_wait = 1,
+		eRunningSelStatus_running = 2,
+		eRunningSelStatus_finished_KO = 3,
+		eRunningSelStatus_finished_OK = 4,
+		eRunningSelStatus_runningCanUseStopBtn = 5
 	};
 
 	enum eStatoPreparazioneBevanda
@@ -119,7 +122,7 @@ namespace cpubridge
 
 	struct sCPULCDMessage
 	{
-		u16			buffer[CPU_MSG_LCD_MAX_LEN_IN_BYTES / 2];
+		u16			buffer[TRANSLATED_LCD_BUFFER_SIZE_IN_U16];
 		u16			ct;	//num di bytes "buffer" in msgLCG
 		u8			importanceLevel;
 	};

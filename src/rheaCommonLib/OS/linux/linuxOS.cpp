@@ -9,16 +9,18 @@
 struct	sLinuxPlatformData
 {
 	char	*appPathNoSlash;
+	char	writableFolderPathNoSlash[256];
 };
 sLinuxPlatformData	linuxPlatformData;
 
 //*******************************************************************
-bool platform::internal_init(void *platformSpecificData UNUSED_PARAM)
+bool platform::internal_init(void *platformSpecificData UNUSED_PARAM, const char *appName)
 {
-	memset(&linuxPlatformData, 0, sizeof(linuxPlatformData));
+	memset (&linuxPlatformData, 0, sizeof(linuxPlatformData));
 
 	//usa la malloc per allocare il path
 	linuxPlatformData.appPathNoSlash = get_current_dir_name();
+	sprintf_s(linuxPlatformData.writableFolderPathNoSlash, sizeof(linuxPlatformData.writableFolderPathNoSlash), "%s/%s", linuxPlatformData.appPathNoSlash, appName);
 	return true;
 }
 
@@ -30,22 +32,10 @@ void platform::internal_deinit()
 }
 
 //**********************************************
-const char* platform::getAppPathNoSlash()
-{
-	return linuxPlatformData.appPathNoSlash;
-}
-
-//**********************************************
-void* platform::alignedAlloc(size_t alignment, size_t size)
-{
-	return aligned_alloc(alignment, size);
-}
-
-//**********************************************
-void platform::alignedFree (void *p)
-{
-    ::free(p);
-}
+const char* platform::getAppPathNoSlash()							{ return linuxPlatformData.appPathNoSlash; }
+const char* platform::getPhysicalPathToWritableFolder()				{ return linuxPlatformData.writableFolderPathNoSlash; }
+void* platform::alignedAlloc(size_t alignment, size_t size)			{ return aligned_alloc(alignment, size); }
+void platform::alignedFree (void *p)								{ ::free(p); }
 
 //**********************************************
 uint64_t platform::getTimeNowMSec()

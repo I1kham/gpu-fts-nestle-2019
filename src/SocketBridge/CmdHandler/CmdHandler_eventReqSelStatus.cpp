@@ -5,14 +5,16 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_eventReqSelStatus::handleRequest (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
+void CmdHandler_eventReqSelStatus::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_QUERY_RUNNING_SEL_STATUS (from, getHandlerID());
 }
 
 //***********************************************************
-void CmdHandler_eventReqSelStatus::handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_eventReqSelStatus::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
+	//NB: se modifichi questo, modifica anche rhea::app::CurrentSelectionRunningStatus::decodeAnswer()
+
 	cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus_finished_KO;
 	cpubridge::translateNotify_CPU_RUNNING_SEL_STATUS (msgFromCPUBridge, &s);
 

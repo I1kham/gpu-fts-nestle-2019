@@ -16,15 +16,19 @@ namespace rhea
     class TemplateFIFO
     {
     public:
-                    TemplateFIFO (Allocator *allocatorIN)
-                    {
-                        //se la policy è di thread-safe, è necessario che anche l'allocatore lo sia
-                        assert( (tsPolicy.isThreadSafe() && allocatorIN->isThreadSafe()) || !tsPolicy.isThreadSafe() );
-                        allocator=allocatorIN;
-                        first = last = NULL;
-                    }
+                    TemplateFIFO ()														{ allocator = NULL; first = last = NULL; }
 
-        virtual     ~TemplateFIFO()                                                     { empty(); }
+        virtual     ~TemplateFIFO()                                                     { unsetup(); }
+
+		void		setup (Allocator *allocatorIN)
+					{
+						//se la policy è di thread-safe, è necessario che anche l'allocatore lo sia
+						assert((tsPolicy.isThreadSafe() && allocatorIN->isThreadSafe()) || !tsPolicy.isThreadSafe());
+						allocator = allocatorIN;
+						first = last = NULL;
+					}
+		
+		void		unsetup()															{ empty(); allocator = NULL; }
 
         void        empty()
                     {
@@ -78,6 +82,13 @@ namespace rhea
                         return true;
                     }
 
+		bool		isEmpty() const
+					{
+						tsPolicy.lock();
+						bool ret = (first == NULL);
+						tsPolicy.unlock();
+						return ret;
+					}
 
     private:
         struct sRecord
@@ -103,8 +114,8 @@ namespace rhea
     class FIFO : public TemplateFIFO<T,ThreadSafePolicy_none>
     {
     public:
-                    FIFO (Allocator *allocatorIN) : TemplateFIFO<T,ThreadSafePolicy_none>(allocatorIN)          { }
-        virtual     ~FIFO ()                                                                                    { }
+                    FIFO () : TemplateFIFO<T,ThreadSafePolicy_none>()			{ }
+        virtual     ~FIFO ()                                                    { }
     };
 
 
@@ -118,8 +129,8 @@ namespace rhea
     class FIFOts : public TemplateFIFO<T,ThreadSafePolicy_cs>
     {
     public:
-                    FIFOts (Allocator *allocatorIN) : TemplateFIFO<T,ThreadSafePolicy_cs>(allocatorIN)          { }
-        virtual     ~FIFOts ()                                                                                  { }
+                    FIFOts () : TemplateFIFO<T,ThreadSafePolicy_cs>()			{ }
+        virtual     ~FIFOts ()                                                  { }
     };
 
 } //namespace rhea

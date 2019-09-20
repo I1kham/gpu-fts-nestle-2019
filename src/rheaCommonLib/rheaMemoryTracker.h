@@ -12,6 +12,7 @@ namespace rhea
 		{
 			const void 	*p;
 			u32			allocID;
+			u32			allocatorID;
 			sRecord		*next;
 		};
 
@@ -19,8 +20,8 @@ namespace rhea
 							MemoryTracker ();
 							~MemoryTracker();
 
-		void				onAlloc (const char *fromWho, const void *p, u32 allocatedSizeInByte, const char *debug_filename, u32 debug_lineNumber);
-		void				onDealloc(const char *fromWho, const void *p, u32 allocatedSizeInByte);
+		void				onAlloc (u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte, const char *debug_filename, u32 debug_lineNumber);
+		void				onDealloc(u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte);
 
 		sRecord*			getRoot() const { return root; }
 

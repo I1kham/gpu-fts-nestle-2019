@@ -23,14 +23,17 @@
     <ClCompile Include="..\..\src\CPUBridge\CPUBridgeServer.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelCom.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelFakeCPU.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\lang.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeEnumAndDefine.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeServer.h" />
+    <ClInclude Include="..\..\src\CPUBridge\CPUBridgeVersion.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUChannel.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUChannelCom.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUChannelFakeCPU.h" />
+    <ClInclude Include="..\..\src\CPUBridge\lang.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

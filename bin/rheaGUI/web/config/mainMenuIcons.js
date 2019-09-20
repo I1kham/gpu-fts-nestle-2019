@@ -1,3 +1,4 @@
+var rheaCleaningSelection = 48;
 var rheaMainMenuIcons = [
 	{
 		//ristretto

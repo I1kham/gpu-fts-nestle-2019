@@ -60,9 +60,9 @@ bool CPUChannelCom::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, 
  */
 bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhea::ISimpleLogger *logger)
 {
-	const u64 timeToExitMSec = OS_getTimeNowMSec() + 2000;
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesSent = 0;
-	while (OS_getTimeNowMSec() < timeToExitMSec)
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		u32 nToWrite = (nBytesToSend - nBytesSent);
 		nBytesSent += OSSerialPort_writeBuffer(comPort, &buffer[nBytesSent], nToWrite);
@@ -79,11 +79,11 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 	const u16 sizeOfBuffer = *in_out_sizeOfAnswer;
 	*in_out_sizeOfAnswer = 0;
 
-	const u64 timeToExitMSec = OS_getTimeNowMSec() + 2000;
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesRcv = 0;
 	u8	commandChar = 0x00;
 	u8	msgLen = 0x00;
-	while (OS_getTimeNowMSec() < timeToExitMSec)
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		//aspetto di riceve un #
 		if (nBytesRcv == 0)

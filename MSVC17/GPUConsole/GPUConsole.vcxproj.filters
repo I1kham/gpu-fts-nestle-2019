@@ -2,5 +2,27 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\GPUConsole\main.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\videoBuffer.cpp">
+      <Filter>terminal</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\winTerminal.cpp">
+      <Filter>terminal</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\Terminal.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h">
+      <Filter>terminal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\winTerminal.h">
+      <Filter>terminal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\Terminal.h" />
+    <ClInclude Include="..\..\src\GPUConsole\enumAndDefine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="terminal">
+      <UniqueIdentifier>{ab26d006-9765-4936-b554-bdbcc9a3c993}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

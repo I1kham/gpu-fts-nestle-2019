@@ -1,6 +1,7 @@
 #include "CPUBridgeServer.h"
 #include "CPUBridge.h"
 #include "CPUChannelCom.h"
+#include "CPUBridgeVersion.h"
 #include "../rheaCommonLib/rheaBit.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/rheaMemory.h"
@@ -16,7 +17,6 @@ Server::Server()
 	localAllocator = NULL;
 	chToCPU = NULL;
 	logger = &nullLogger;
-	langErrorCode = 0;
 
 	runningSel.selNum = 0;
 	runningSel.sub = NULL;
@@ -48,6 +48,8 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 
 	memset (&cpuParamIniziali, 0, sizeof(sCPUParamIniziali));
 	memset (&cpuStatus, 0, sizeof(sCPUStatus));
+	memset(lastCPUMsg, 0, sizeof(lastCPUMsg));
+	lastCPUMsgLen = 0;
 
 	localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
 	subscriberList.setup(localAllocator, 8);
@@ -59,6 +61,10 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	else
 		logger->log("Started FAIL\n");
 	logger->decIndent();
+
+	//init language
+	lang_init(&language);
+	lang_open(&language, "GB");
 
 	return ret;
 }
@@ -79,7 +85,7 @@ void Server::close()
 	//notifica i subscriber
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
 		notify_CPUBRIDGE_DYING(subscriberList(i)->q);
-	OS_sleepMSec(500);
+	rhea::thread::sleepMSec(500);
 	
 	//rimuove i subscriber
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
@@ -148,7 +154,7 @@ void Server::priv_handleMsgQueues(u64 timeNowMSec, u32 timeOutMSec)
 				//evento generato dalla msgQ di uno dei miei subscriber
 				for (u32 i2 = 0; i2 < subscriberList.getNElem(); i2++)
 				{
-					if (OSEvent_compare(subscriberList(i2)->hEvent, waitList.getEventSrcAsOSEvent(i)))
+					if (rhea::event::compare(subscriberList(i2)->hEvent, waitList.getEventSrcAsOSEvent(i)))
 					{
 						priv_handleMsgFromSingleSubscriber(subscriberList.getElem(i2));
 						break;
@@ -192,7 +198,7 @@ void Server::priv_handleMsgFromServiceMsgQ()
 				//rispondo al thread richiedente
 				HThreadMsgW hToThreadW;
 				hToThreadW.initFromU32 (msg.paramU32);
-				rhea::thread::pushMsg (hToThreadW, CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER, &sub->q, sizeof(sSubscriber));
+				rhea::thread::pushMsg (hToThreadW, CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER, (u32)CPUBRIDGE_VERSION, &sub->q, sizeof(sSubscriber));
 
 				logger->log("OK");
 				logger->decIndent();
@@ -296,7 +302,7 @@ void Server::priv_handleState_comError()
 	//provo a mandarlo ad oltranza
 	while (stato == eStato_comError)
 	{
-		const u64 timeNowMSec = OS_getTimeNowMSec();
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
 		//invio comando initalParam
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
@@ -412,13 +418,13 @@ void Server::priv_handleState_normal()
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
 	while (stato == eStato_normal)
 	{
-		const u64 timeNowMSec = OS_getTimeNowMSec();
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
 		//ogni tot, invio un msg di stato alla CPU
 		if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
 		{
 			u8 bufferW[32];
-			u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (0, langErrorCode, bufferW, sizeof(bufferW));
+			u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (0, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
 			{
@@ -431,7 +437,7 @@ void Server::priv_handleState_normal()
 			priv_parseAnswer_checkStatus (answerBuffer, sizeOfAnswerBuffer);
 
 			//schedulo il prossimo msg di stato
-			nextTimeSendCheckStatusMsgWasMSec = OS_getTimeNowMSec() + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
+			nextTimeSendCheckStatusMsgWasMSec = rhea::getTimeNowMSec() + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
 		}
 
 		//ci sono messaggi in ingresso?
@@ -459,7 +465,9 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen)
 
 	if (cpuParamIniziali.protocol_version >= 1)
 	{
-		u8 z = 81;
+		u8 z = 17 + 32;
+		if (answer[1] != 'B')
+			z += 32;
 		cpuStatus.beepSelezioneLenMSec = answer[z + 1];
 		cpuStatus.beepSelezioneLenMSec *= 256;
 		cpuStatus.beepSelezioneLenMSec += answer[z];
@@ -474,7 +482,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen)
 			{
 				default:
 				case '0':
-					//lang_clearErrorCode(language);
+					lang_clearErrorCode(&language);
 					z += 2;
 					break;
 
@@ -487,12 +495,12 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen)
 					language_requested[1] = answer[z++];
 
 					//se necessario, cambio lingua
-					/*const char *curLang = lang_getCurLanguage (language);
+					const char *curLang = lang_getCurLanguage (&language);
 					if (curLang[0] != language_requested[0] || curLang[1] != language_requested[1])
 					{
 						language_requested[2] = 0x00;
-						lang_open (language, language_requested);
-					}*/
+						lang_open (&language, language_requested);
+					}
 				}
 				break;
 			}
@@ -554,28 +562,36 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen)
 	u8 selection_CPU_current = answer[10];
 
 
-	//64 bytes unicode di messaggio "testuale"
-	u16	msgLCD[CPU_MSG_LCD_MAX_LEN_IN_BYTES / 2];
+	//messaggio testuale, può essere in ASCII o in unicode
+	u16	msgLCD[LCD_BUFFER_SIZE_IN_U16];
 	u8 msgLCDct = 0;
 	u8 z = 11;
+	//64 bytes unicode di messaggio "testuale"
 	u16 firstGoodChar = ' ';
 	for (u8 i = 0; i < 32; i++)
 	{
-		msgLCD[msgLCDct] = (u16)answer[z] + (u16)answer[z + 1] * 256;
-		z += 2;
+		if (answer[1] == 'B')
+			msgLCD[msgLCDct] = answer[z++];
+		else //answer[1] == 'Z'
+		{
+			msgLCD[msgLCDct] = (u16)answer[z] + (u16)answer[z + 1] * 256;
+			z += 2;
+		}
 
 		if (msgLCD[msgLCDct] != ' ' && firstGoodChar == ' ')
 			firstGoodChar = msgLCD[msgLCDct];
 		msgLCDct++;
 
+		//mette uno spazio dopo i primi 16 char perchè storicamente il msg di CPU è composto da 2 messaggi da 16 char da visualizzare
+		//uno sotto l'altro. Noi invece li visualizziamo sulla stessa riga
 		if (msgLCDct == 16)
 		{
 			if (!isMultilangage || firstGoodChar != '@')
 				msgLCD[msgLCDct++] = ' ';
 		}
 	}
+	assert(msgLCDct <= LCD_BUFFER_SIZE_IN_U16);
 	msgLCD[msgLCDct] = 0;
-
 	
 	//1 bit per ogni selezione per indicare se la selezione è disponibile o no
 	//Considerando che NumMaxSelections=48, dovrebbero servire 6 byte
@@ -631,14 +647,51 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen)
 	
 	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato...
 	msgLCDct *= 2;
-	if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCDct != cpuStatus.LCDMsg.ct || memcmp(msgLCD, cpuStatus.LCDMsg.buffer, msgLCDct) != 0)
+	if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCDct != lastCPUMsgLen || memcmp(msgLCD, lastCPUMsg, msgLCDct) != 0)
 	{
-		memcpy (cpuStatus.LCDMsg.buffer, msgLCD, msgLCDct);
+		memcpy (lastCPUMsg, msgLCD, msgLCDct);
+		lastCPUMsgLen = msgLCDct;
+
 		cpuStatus.LCDMsg.ct = msgLCDct;
+		memcpy (cpuStatus.LCDMsg.buffer, msgLCD, msgLCDct);
+
+		//lo traduco se necessario
+		if (isMultilangage)
+		{
+			//se il primo ch diverso da "spazio" è "@", allora stiamo parlano di un messaggio custom
+			u16 i = 0;
+			while (lastCPUMsg[i] != 0x00)
+			{
+				if (lastCPUMsg[i] != ' ')
+					break;
+				++i;
+			}
+			if (lastCPUMsg[i] == LANG_CHIOCCIOLA)
+			{
+				u16 t = 0;
+				while (lastCPUMsg[i] != 0x00)
+					cpuStatus.LCDMsg.buffer[t++] = lastCPUMsg[i++];
+				cpuStatus.LCDMsg.buffer[t] = 0x00;
+
+				//rtrim
+				if (t > 0)
+				{
+					--t;
+					while (cpuStatus.LCDMsg.buffer[t] == ' ')
+						cpuStatus.LCDMsg.buffer[t--] = 0x00;
+
+					cpuStatus.LCDMsg.ct = lang_translate (&language, cpuStatus.LCDMsg.buffer, TRANSLATED_LCD_BUFFER_SIZE_IN_U16 -1);
+					assert(cpuStatus.LCDMsg.ct < TRANSLATED_LCD_BUFFER_SIZE_IN_U16);
+					cpuStatus.LCDMsg.ct *= 2;
+				}
+			}
+
+		}
+
+		//noticico tutti
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
 			notify_CPU_NEW_LCD_MESSAGE (subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
 	}
-
 }
 
 /***************************************************
@@ -699,7 +752,7 @@ bool Server::priv_enterState_selection (u8 selNumber, const sSubscription *sub)
 void Server::priv_handleState_selection()
 {
 	//mando la richiesta di stato alla CPU ogni tot msec
-	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 100;
+	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 200;
 	
 	//la cpu deve passare da DISPONIBILE a "BEVANDA IN PREPARAZIONE" entro il tempo definito qui sotto
 	const u32 TIMEOUT_SELEZIONE_1_MSEC = 12000;
@@ -711,14 +764,14 @@ void Server::priv_handleState_selection()
 	assert (runningSel.selNum >= 1 && runningSel.selNum <= NUM_MAX_SELECTIONS);
 
 
-	u64	timeStartedMSec = OS_getTimeNowMSec();
+	u64	timeStartedMSec = rhea::getTimeNowMSec();
 	u8 bBevandaInPreparazione = 0;
 
 	//loop fino alla fine della selezione
 	u64	nextTimeSendCheckStatusMsgMSec = 0;
 	while (stato == eStato_selection)
 	{
-		u64 timeNowMSec = OS_getTimeNowMSec();
+		u64 timeNowMSec = rhea::getTimeNowMSec();
 
 		//ogni tot, invio un msg di stato alla CPU, altrimenti non faccio niente, rimango in attesa della fine della selezione
 		//e controllo eventuali msg in ingresso dai subscriber
@@ -745,7 +798,7 @@ void Server::priv_handleState_selection()
 
 		//invio il msg di stato alla CPU
 		u8 bufferW[32];
-		u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (selNumberToSend, langErrorCode, bufferW, sizeof(bufferW));
+		u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (selNumberToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
 		{
@@ -761,7 +814,7 @@ void Server::priv_handleState_selection()
 		priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
 
 		//schedulo il prossimo msg di stato
-		timeNowMSec = OS_getTimeNowMSec();
+		timeNowMSec = rhea::getTimeNowMSec();
 		nextTimeSendCheckStatusMsgMSec = timeNowMSec + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
 
 

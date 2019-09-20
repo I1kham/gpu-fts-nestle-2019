@@ -13,14 +13,12 @@
 	<center><img src="img/animationRound.gif"></center>
 </div>
 
-<script src="js/rheaBootstrap.js"></script>
+<script id="rheaBootstrapTag" src="js/rheaBootstrap.js" clear-session-data="1"></script>
 <script language="javascript">
 
 function onRheaBootstrapFinished()
 {
 	console.log ("onRheaBootstrapFinished");
-
-	rhea.clearSessionData();
 	
 	querySelectionPrice()
 		.then ( function() { return querySelectionAvail(); } )

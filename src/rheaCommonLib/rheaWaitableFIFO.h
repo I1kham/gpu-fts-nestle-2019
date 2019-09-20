@@ -1,7 +1,7 @@
 #ifndef _rheaWaitableFIFO_h_
 #define _rheaWaitableFIFO_h_
 #include "rheaFIFO.h"
-#include "OS/OS.h"
+#include "rheaEvent.h"
 
 namespace rhea
 {
@@ -18,16 +18,18 @@ namespace rhea
     class WaitableFIFO
     {
     public:
-                        WaitableFIFO (Allocator *allocatorIN) : fifo(allocatorIN)                           { OSEvent_open(&event); }
+                        WaitableFIFO ()																		{ }
 
-        virtual         ~WaitableFIFO()                                                                     { OSEvent_close(event); }
+		virtual         ~WaitableFIFO()																		{ unsetup();  }
 
+		void			setup(Allocator *allocatorIN)														{ rhea::event::open(&event); fifo.setup(allocatorIN);  }
+		void			unsetup()																			{ empty(); fifo.unsetup(); rhea::event::close(event); }
 
-        void            empty()                                                                             { fifo.empty(); OSEvent_fire(event); }
+        void            empty()                                                                             { fifo.empty(); rhea::event::fire(event); }
 
-        bool            waitIncomingMessage (size_t timeoutMSec)                                            { return OSEvent_wait (event, timeoutMSec); }
+        bool            waitIncomingMessage (size_t timeoutMSec)                                            { return rhea::event::wait (event, timeoutMSec); }
 
-        void            push (const T &data)                                                                { fifo.push(data); OSEvent_fire (event); }
+        void            push (const T &data)                                                                { fifo.push(data); rhea::event::fire (event); }
 
         bool            pop (T *out_data)                                                                   { return fifo.pop(out_data); }
 

@@ -1,4 +1,5 @@
 #include "StdoutLogger.h"
+#include "../rheaCriticalSection.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,7 +10,7 @@ using namespace rhea;
 //*************************************************
 StdoutLogger::StdoutLogger()
 {
-	OSCriticalSection_init(&cs);
+	rhea::criticalsection::init(&cs);
 	indent = isANewLine = 0;
     priv_buildIndentStr();
 	
@@ -18,7 +19,7 @@ StdoutLogger::StdoutLogger()
 //*************************************************
 StdoutLogger::~StdoutLogger() 
 {
-	OSCriticalSection_close(cs);
+	rhea::criticalsection::close(cs);
 }
 
 //*************************************************
@@ -48,27 +49,27 @@ void StdoutLogger::priv_out (const char *what)
 //*************************************************
 void StdoutLogger::incIndent() 
 { 
-	OSCriticalSection_enter(cs);
+	rhea::criticalsection::enter(cs);
 	++indent; 
 	priv_buildIndentStr();
-	OSCriticalSection_leave(cs);
+	rhea::criticalsection::leave(cs);
 }
 
 //*************************************************
 void StdoutLogger::decIndent() 
 {
-	OSCriticalSection_enter(cs);
+	rhea::criticalsection::enter(cs);
 	if (indent) 
 		--indent; 
 	priv_buildIndentStr();
-	OSCriticalSection_leave(cs);
+	rhea::criticalsection::leave(cs);
 }
 
 
 //*************************************************
 void StdoutLogger::log (const char *format, ...)
 {
-	OSCriticalSection_enter(cs);
+	rhea::criticalsection::enter(cs);
 	
 	va_list argptr;
     va_start(argptr, format);
@@ -78,7 +79,7 @@ void StdoutLogger::log (const char *format, ...)
     u32 n = strlen(buffer);
 	if (n == 0)
 	{
-		OSCriticalSection_leave(cs);
+		rhea::criticalsection::leave(cs);
 		return;
 	}
 
@@ -119,7 +120,7 @@ void StdoutLogger::log (const char *format, ...)
         ++i;
     }
 
-	OSCriticalSection_leave(cs);
+	rhea::criticalsection::leave(cs);
 }
 
 

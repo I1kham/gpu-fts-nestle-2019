@@ -17,45 +17,39 @@
  *
  * elimina un entry dal db
  */
-Rhea.prototype.Session_clearValue = function (itemName)
-{
-	store.remove(itemName);
-}
+function Rhea_session_clearValue (itemName)							{ store.remove(itemName);}
+Rhea.prototype.Session_clearValue = function (itemName)				{ Rhea_session_clearValue(itemName);}
+
 /*********************************************************
  * Session_getValue
  *
  */
-Rhea.prototype.Session_getValue = function (itemName)
+function Rhea_session_getValue (itemName) 							{ return store.get(itemName); }
+function Rhea_session_getOrDefault (itemName, defaultValue)
 {
-	//return localStorage.getItem (itemName);
-	return store.get(itemName);
-}
-
-Rhea.prototype.Session_getOrDefault = function (itemName, defaultValue)
-{
-	var r = this.Session_getValue(itemName);
+	var r = Rhea_session_getValue(itemName);
 	if (r === undefined)
 		return defaultValue;
 	return r;
 }
+
+Rhea.prototype.Session_getValue = function (itemName)					{ return Rhea_session_getValue(itemName); }
+Rhea.prototype.Session_getOrDefault = function (itemName, defaultValue)	{ return Rhea_session_getOrDefault (itemName, defaultValue); }
+
+
 /*********************************************************
  * Session_setValue
  *
  */
-Rhea.prototype.Session_setValue = function (itemName, itemValue)
-{
-	//localStorage.setItem (itemName, itemValue);
-	store.set(itemName, itemValue);
-}
+function Rhea_session_setValue (itemName, itemValue)				{ store.set(itemName, itemValue); }
+Rhea.prototype.Session_setValue = function (itemName, itemValue)	{ Rhea_session_setValue(itemName, itemValue); }
 
 /*********************************************************
  * Session_clearObject
  *
  */
-Rhea.prototype.Session_clearObject = function (itemName, plainJSObject)
-{
-	this.Session_clearValue (itemName);
-}
+function Rhea_session_clearObject (itemName)								{ Rhea_session_clearValue(itemName); }
+Rhea.prototype.Session_clearObject = function (itemName, plainJSObject)		{ Rhea_session_clearObject(itemName); }
 
 
 /*********************************************************
@@ -64,10 +58,8 @@ Rhea.prototype.Session_clearObject = function (itemName, plainJSObject)
  * trasforma [plainJSObject] nella sua rappresentazione JSON e lo memorizza
  * Lavora in coppia con this.Session_getObject 
  */
-Rhea.prototype.Session_setObject = function (itemName, plainJSObject)
-{
-	this.Session_setValue (itemName, JSON.stringify(plainJSObject));
-}
+function Rhea_session_setObject (itemName, plainJSObject)					{ Rhea_session_setValue (itemName, JSON.stringify(plainJSObject)); }
+Rhea.prototype.Session_setObject = function (itemName, plainJSObject)		{ Rhea_session_setObject (itemName, plainJSObject); }	
 
 /*********************************************************
  * Session_getObject
@@ -75,11 +67,14 @@ Rhea.prototype.Session_setObject = function (itemName, plainJSObject)
  * riturna un plain JS object a partire dalla sua descrizione in formato JSON.
  * Lavora in coppia con this.Session_setObject
  */
-Rhea.prototype.Session_getObject = function (itemName)
+function Rhea_session_getObject (itemName) 
 {
-	var o = this.Session_getValue (itemName);
+	var o = Rhea_session_getValue (itemName);
 	if (!o)
 		return o;
 	return JSON.parse (o);
 }
+
+Rhea.prototype.Session_getObject = function (itemName)			{ return Rhea_session_getObject(itemName); }
+
 

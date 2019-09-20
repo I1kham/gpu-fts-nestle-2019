@@ -33,6 +33,18 @@ namespace socketbridge
                                     return NULL;
                                 }
 
+		CmdHandler*             findByIdentifiedCLientHandle(const HSokBridgeClient &h) const
+								{
+									u32 n = list.getNElem();
+									for (u32 i = 0; i < n; i++)
+									{
+										if (list(i)->getIdentifiedClientHandle() == h)
+											return list(i);
+									}
+									return NULL;
+								}
+		
+
         void                    removeAndDeleteByID (rhea::Allocator *allocator, u16 handlerID)
                                 {
                                     u32 n = list.getNElem();

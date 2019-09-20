@@ -314,7 +314,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
     if (NULL == r)
     {
         logger->log ("ProtocolServer::priv_checkIncomingConnection() => connection was accepted but we have no more free handle, closing client socket\n");
-        rhea::logger->logWarn ("ProtocolServer::checkIncomingConnection -> connection was accepted but we have no more free handle") << rhea::Logger::EOL;
+        rhea::sysLogger->logWarn ("ProtocolServer::checkIncomingConnection -> connection was accepted but we have no more free handle") << rhea::Logger::EOL;
 		
 		protocol->close(ch);
 		RHEADELETE(allocator, protocol);

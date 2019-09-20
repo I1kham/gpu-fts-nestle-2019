@@ -4,6 +4,7 @@
 #include "../rheaCommonLib/rhea.h"
 #include "../rheaCommonLib/rheaFastArray.h"
 #include "../rheaCommonLib/Protocol/ProtocolSocketServer.h"
+#include "../rheaCommonLib/rheaRandom.h"
 
 namespace socketbridge
 {
@@ -16,38 +17,24 @@ namespace socketbridge
     class IdentifiedClientList
     {
     public:
-        struct sInfo
-        {
-			HSokBridgeClient	handle;					
-			u32					currentWebSocketHandleAsU32;		//HSokServerClient  (invalid se la connessione al momento è chiusa)
-			
-			SokBridgeIDCode		idCode;								//codice univoco di identificazione
-			SokBridgeClientVer	clientVer;
-            
-			u64     timeCreatedMSec;								//timestamp della creazione del record
-            u64     lastTimeConnectedMSec;							//timestamp dell'ultima connessione (bind della socket)
-			u64     lastTimeDisconnectedMSec;						//timestamp dell'ultima disconnessione (unbind della socket)
-        };
-
-    public:
-							IdentifiedClientList()                          { }
+							IdentifiedClientList()							{ }
 							~IdentifiedClientList()                         { unsetup(); }
 
         void				setup (rhea::Allocator *allocator);
         void				unsetup();
 
-		const sInfo*		isKwnownSocket (const HSokServerClient &h) const;
+		const sIdentifiedClientInfo*		isKwnownSocket (const HSokServerClient &h) const;
 							/*	!=NULL se [h] è attualmente in lista.
 								NULL altrimenti
 							*/
 		
-		const sInfo*		isKnownIDCode (const SokBridgeIDCode &idCode) const;
+		const sIdentifiedClientInfo*		isKnownIDCode (const SokBridgeIDCode &idCode) const;
 							/*	true se [idCode] è attualmente in lista. In questo caso, ritorna un valido [out_handle].
 								false altrimenti
 							*/
 
-		HSokBridgeClient&	newEntry(const SokBridgeIDCode &idCode, u64 timeNowMSec);
-							/*	crea un nuovo record e gli associa [idCode].
+		HSokBridgeClient&	newEntry(u64 timeNowMSec, SokBridgeIDCode *out_idCode);
+							/*	crea un nuovo record e gli associa idCode univoco che ritorna in [out_idCode].
 								Il nuovo record non è bindato ad alcuna socket.
 								RItorna il suo handle
 							*/
@@ -57,17 +44,27 @@ namespace socketbridge
 							/*	true se [v] == sInfo->clientVer del client puntato dal [handle]
 							*/
 
-		void				bindSocket (const HSokBridgeClient &handle, const HSokServerClient &hSok, u64 timeNowMSec);
+		bool				bindSocket (const HSokBridgeClient &handle, const HSokServerClient &hSok, u64 timeNowMSec);
 		void				unbindSocket (const HSokBridgeClient &handle, u64 timeNowMSec);
 
+		void				purge(u64 timeNowMSec);
+							//elimina i record che hanno attualmente la socket non bindata ed il cui ultimo rcv risale a più di 60 sec
+
+		//void				markAsHavPendingRequest(const HSokBridgeClient &handle, bool b);
+		//bool				hasPendingRequest(const HSokBridgeClient &handle) const;
+
+		u32					getCount() const																					{ return list.getNElem();  }
+		bool				getHandleByIndex(u32 i, HSokBridgeClient *out_handle) const;
+		const sIdentifiedClientInfo*		getInfoByIndex(u32 i) const;
+		bool				isBoundToSocket (const HSokBridgeClient &handle, HSokServerClient *out_h) const;
 
     private:
-		u32				priv_findByHSokServerClient (const HSokServerClient &h) const;
-		u32				priv_findByHSokBridgeClient (const HSokBridgeClient &h) const;
-		u32				priv_findByIDCode (const SokBridgeIDCode &idCode) const;
+		u32					priv_findByHSokServerClient (const HSokServerClient &h) const;
+		u32					priv_findByHSokBridgeClient (const HSokBridgeClient &h) const;
+		u32					priv_findByIDCode (const SokBridgeIDCode &idCode) const;
 
 	private:
-		rhea::FastArray<sInfo>  list;
+		rhea::FastArray<sIdentifiedClientInfo>  list;
 		HSokBridgeClient		nextHandle;
 	};
 } // namespace socketbridge

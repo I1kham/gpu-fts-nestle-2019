@@ -26,12 +26,12 @@ bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &
     //crea il thread del server
     init.logger = logger;
 	init.hCPUServiceChannelW = hCPUServiceChannelW;
-	OSEvent_open (&init.hEvThreadStarted);
+	rhea::event::open (&init.hEvThreadStarted);
     rhea::thread::create (out_hThread, serverThreadFn, &init);
 
 	//attendo che il thread del server sia partito
-	bool bStarted = OSEvent_wait(init.hEvThreadStarted, 3000);
-	OSEvent_close(init.hEvThreadStarted);
+	bool bStarted = rhea::event::wait(init.hEvThreadStarted, 3000);
+	rhea::event::close(init.hEvThreadStarted);
 
 	return bStarted;
 }
@@ -46,10 +46,12 @@ i16 serverThreadFn (void *userParam)
 	if (server.open (2280, init->hCPUServiceChannelW))
 	{
 		//segnalo che il thread è partito con successo
-		OSEvent_fire(init->hEvThreadStarted);
+		rhea::event::fire(init->hEvThreadStarted);
 		server.run();
 	}
 	server.close();
 	return 1;
 }
+
+
 

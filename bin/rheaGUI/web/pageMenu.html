@@ -20,8 +20,7 @@
 			</div>
 		</div>
 		<div class="header_center">
-				<!--cn:特价时段 jp:ﾁｭｳｼｭﾂﾁｭｳ HE:שגיאה -->
-				<img draggable='false' src="upload/logo.png">
+			<img draggable='false' src="upload/logo.png">
 		</div>
 		<div class="header_right" style="background-color:#f00">
 			<input type="button" style="font-size:1.0em; padding:3px" value="2x4" onclick="changeGrid(2,4)">
@@ -65,7 +64,29 @@
 		</div>
 		<div class="clear"></div>
 	</div>
+	
+	
+	<!-- hotspot attorno al logo nell'header. Cliccando 4/5 volte su questo hotspot compare al "menu di acesso veloce"-->
+	<div id="divBtnLogo" style="position:absolute; top:0px; left:420px; width:180px; height:60px; background-color:transparent;" onclick="onLogoClicked()">
+	</div>
+
+	<!-- hotspot nell'angolo in alto a sx. Cliccando 4/5 volte su questo hotspot compare al "menu di acesso veloce"-->
+	<div id="divASx" style="position:absolute; top:0; left:0; width:110px; height:150px; background-color:transparent" onclick="onLogoClicked()">&nbsp;</div>
+	
+	
+	<!-- menu di accesso veloce -->
+	<div id="divFastMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
+		<div style="width:94%; margin:20px auto auto auto; position:relative">
+			<div id="btnBO_cleaning" class="btnQuadratoGrosso" style="display:none" onclick="onBtnCleaning()"></div>
+			<div class="btnQuadratoGrosso" style="position:absolute; top:480px; left:750px; color:#f00" onclick="hideFastMenu()">CLOSE</div>
+		</div>
+	</div>
+	
+	
 </div>
+
+
+
 
 <!-- le opzioni di layout per questa pagina sono qui -->
 <script src="config/pageMenu.js"></script>
@@ -126,6 +147,7 @@ function onAfterIconAreDisplayed()
 
 	resetTimerGotoPageStandby();
 	
+	//alert ("here");
 	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED);
 }
 
@@ -445,7 +467,10 @@ function resetTimerGotoPageStandby()
 	timerGotoPageStandby = setInterval(gotoPageStandby, rheaPageOptions.gotoPageStandbyAfterMSec);
 }
 
-function gotoPageStandby()  { window.location = "pageStandby.html"; }
+function gotoPageStandby()  
+{ 
+	//window.location = "pageStandby.html"; 
+}
 
 
 
@@ -581,6 +606,49 @@ function onBtnInfoClicked() 	{ resetTimerGotoPageStandby(); }
 function changeGrid(nRow, nCol) { window.location = "pageMenu.html?gridR=" +nRow + "&gridC=" +nCol; }
 function gotoPageInfo()			{ window.location = "pageInfo.html"; }
 
+
+//******************************************
+var debug_logo_nClick = 0;
+var debug_logo_lastTimeClicked = 0;	
+function onLogoClicked()
+{
+	if (debug_logo_lastTimeClicked == 0)
+	{
+		debug_logo_lastTimeClicked = getTimeMSec();
+		debug_logo_nClick = 1;
+	}
+	else
+	{
+		var timeNowMSec = getTimeMSec();
+		var diffMSec =  timeNowMSec - debug_logo_lastTimeClicked;
+		if (diffMSec > 1500)
+			debug_logo_lastTimeClicked = debug_logo_nClick = 0;
+		else
+		{
+			debug_logo_lastTimeClicked = timeNowMSec;
+			debug_logo_nClick++;
+			if (debug_logo_nClick >= 4)
+			{
+				debug_logo_lastTimeClicked = debug_logo_nClick = 0;
+				showFastMenu();
+			}
+		}
+	}
+}
+
+function showFastMenu() 		
+{ 
+	if (parseInt(rheaCleaningSelection) > 0)
+	{
+		var d = rheaGetElemByID("btnBO_cleaning");	
+		rheaSetElemHTML(d, "CLEANING (" +rheaCleaningSelection +")");
+		rheaSetDisplayMode(d, "inline-block");
+	}
+	
+	rheaShowElem (rheaGetElemByID("divFastMenu")); 
+}
+function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }
+function onBtnCleaning()		{ rhea.selection_start(rheaCleaningSelection); hideFastMenu(); }
 </script>
 
 

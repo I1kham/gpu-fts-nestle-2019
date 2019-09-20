@@ -13,14 +13,14 @@ namespace socketbridge
     class CmdHandler_ajaxReq : public CmdHandler
     {
     public:
-                                CmdHandler_ajaxReq (const HSokServerClient &h, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
-                                    CmdHandler(h, handlerID, dieAfterHowManyMSec)
+                                CmdHandler_ajaxReq (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
+                                    CmdHandler(identifiedClientHandle, handlerID, dieAfterHowManyMSec)
                                 {
                                     this->ajaxRequestID = ajaxRequestID;
                                 }
 
-        virtual void            handleRequest (cpubridge::sSubscriber &from, const char *params) = 0;
-		//virtual void			handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
+        virtual void            passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params) = 0;
+		//virtual void   onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
 
     protected:
 
@@ -41,7 +41,7 @@ namespace socketbridge
     class CmdHandler_ajaxReqFactory
     {
     public:
-        static CmdHandler_ajaxReq* spawn (rhea::Allocator *allocator, const HSokServerClient &h, u8 ajaxRequestID, u8 *payload, u16 payloadLenInBytes, u16 handlerID, u64 dieAfterHowManyMSec,
+        static CmdHandler_ajaxReq* spawn (rhea::Allocator *allocator, const HSokBridgeClient &identifiedClientHandle, u8 ajaxRequestID, u8 *payload, u16 payloadLenInBytes, u16 handlerID, u64 dieAfterHowManyMSec,
                                                    const char **out_params);
     };
 } // namespace socketbridge

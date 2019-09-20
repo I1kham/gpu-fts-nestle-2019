@@ -9,6 +9,7 @@
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelFakeCPU.cpp">
       <Filter>channel</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\CPUBridge\lang.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
@@ -23,6 +24,8 @@
     <ClInclude Include="..\..\src\CPUBridge\CPUChannelFakeCPU.h">
       <Filter>channel</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\CPUBridge\lang.h" />
+    <ClInclude Include="..\..\src\CPUBridge\CPUBridgeVersion.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="channel">

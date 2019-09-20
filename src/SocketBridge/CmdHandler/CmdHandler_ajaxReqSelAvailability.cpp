@@ -6,13 +6,13 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReqSelAvailability::handleRequest (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReqSelAvailability::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_QUERY_SEL_AVAIL (from, getHandlerID());
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqSelAvailability::handleAnswer (socketbridge::Server *server, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_ajaxReqSelAvailability::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
 	cpubridge::sCPUSelAvailability selAvail;
 	cpubridge::translateNotify_CPU_SEL_AVAIL_CHANGED (msgFromCPUBridge, &selAvail);

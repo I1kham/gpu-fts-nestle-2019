@@ -3,34 +3,76 @@
 #include "rheaMemory.h"
 #include "rheaThread.h"
 #include "rheaLogTargetFile.h"
+#include "rheaRandom.h"
 
 namespace rhea
 {
-    Logger   *logger = NULL;
+    Logger   *sysLogger = NULL;
 }
 
 struct sRheaGlobals
 {
     rhea::LogTargetFile     *fileLogger;
+	bool					bLittleEndiand;
+	rhea::DateTime			dateTimeStarted;
+	rhea::Random			rnd;
 };
 sRheaGlobals	rheaGlobals;
 
 
 //***************************************************
-bool rhea::init (void *platformSpecificInitData)
+bool rhea::init (const char *appNameIN, void *platformSpecificInitData)
 {
+	//elimino caratteri strani da appName perchè questo nome mi serve per creare una cartella dedicata e quindi non voglio che contenga caratteri non validi
+	char appName[64];
+	if (NULL == appNameIN)
+		sprintf_s(appName, sizeof(appName), "noname");
+	else if (appNameIN[0] == 0x00)
+		sprintf_s(appName, sizeof(appName), "noname");
+	else
+	{
+		u8 i = 0;
+		u8 t = 0;
+		while (appNameIN[i])
+		{
+			char c = appNameIN[i++];
+			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-')
+				appName[t++] = c;
+			else if (c == ' ')
+				appName[t++] = '_';
+
+			if (t == sizeof(appName) - 1)
+				break;
+		}
+		appName[t] = 0x00;
+
+		if (appName[0] == 0x00)
+			sprintf_s(appName, sizeof(appName), "noname");
+	}
+
+
 	//init OS Stuff
-	if (!internal_OSInit(platformSpecificInitData))
+	if (!internal_OSInit (platformSpecificInitData, appName))
 		return false;
 
-    //init memory
+	//little/big endian ?
+	u32 avalue = 0x01020304;
+	const unsigned char *p = (const unsigned char*)&avalue;
+	if (p[0] == 0x01)
+		rheaGlobals.bLittleEndiand = false;
+	else
+		rheaGlobals.bLittleEndiand = true;
+	
+	//init memory
     rhea::internal_memory_init();
 
+	//mi segno la data e l'ora di avvio
+	rheaGlobals.dateTimeStarted.setNow();
 
-    //init logger
-    logger = RHEANEW(memory_getDefaultAllocator(), Logger)(true);
+    //init sysLogger
+    sysLogger = RHEANEW(memory_getDefaultAllocator(), Logger)(true);
 
-    //aggiungo un file logger
+    //aggiungo un file sysLogger
     {
         char logFileName[1024];
         sprintf_s (logFileName, sizeof(logFileName), "%s/log.txt", rhea::getPhysicalPathToAppFolder());
@@ -38,38 +80,54 @@ bool rhea::init (void *platformSpecificInitData)
         rheaGlobals.fileLogger = RHEANEW(memory_getDefaultAllocator(), rhea::LogTargetFile)();
         if (!rheaGlobals.fileLogger->init (logFileName, true))
             return false;
-        logger->addTarget(rheaGlobals.fileLogger);
+        sysLogger->addTarget(rheaGlobals.fileLogger);
     }
 
-    logger->log ("**********************************************************************************", false, false) << Logger::EOL;
-    logger->log ("",true,false) << Logger::EOL;
-    logger->log ("**********************************************************************************", false, false) << Logger::EOL;
+    sysLogger->log ("**********************************************************************************", false, false) << Logger::EOL;
+    sysLogger->log ("",true,false) << Logger::EOL;
+    sysLogger->log ("**********************************************************************************", false, false) << Logger::EOL;
 
 
     //init thread
     thread::internal_init();
 
-
+	//generato random
+	{
+		u16 y, m, d;
+		u8 hh, mm, ss;
+		rhea::Date::getDateNow(&y, &m, &d);
+		rhea::Time24::getTimeNow(&hh, &mm, &ss);
+		u32 s = (y * 365 + m * 31 + d) * 24 * 3600 + hh * 3600 + mm * 60 + ss +(u32)getTimeNowMSec();
+		rheaGlobals.rnd.seed(s);
+	}
 
     //fine
-    logger->log ("rhea::init  DONE!") << Logger::EOL;
+    sysLogger->log ("rhea::init  DONE!") << Logger::EOL;
     return true;
 }
 
 //***************************************************
 void rhea::deinit()
 {
-    logger->log ("", false, false) << Logger::EOL;
-    logger->log ("Kernel::Deinit  STARTED") << Logger::EOL;
+    sysLogger->log ("", false, false) << Logger::EOL;
+    sysLogger->log ("Kernel::Deinit  STARTED") << Logger::EOL;
 
 
-    logger->log ("thread::Deinit  STARTED") << Logger::EOL;
+    sysLogger->log ("thread::Deinit  STARTED") << Logger::EOL;
     thread::internal_deinit();
 
-    logger->log ("mem::Deinit  STARTED") << Logger::EOL;
-    RHEADELETE(memory_getDefaultAllocator(), logger);
+    sysLogger->log ("mem::Deinit  STARTED") << Logger::EOL;
+    RHEADELETE(memory_getDefaultAllocator(), sysLogger);
     RHEADELETE(memory_getDefaultAllocator(), rheaGlobals.fileLogger);
     rhea::internal_memory_deinit();
 
 	internal_OSDeinit();
 }
+
+//***************************************************
+bool rhea::isLittleEndian()										{ return rheaGlobals.bLittleEndiand; }
+const rhea::DateTime& rhea::getDateTimeAppStarted()				{ return rheaGlobals.dateTimeStarted; }
+const rhea::Date& rhea::getDateAppStarted()						{ return rheaGlobals.dateTimeStarted.date; }
+const rhea::Time24& rhea::getTimeAppStarted()					{ return rheaGlobals.dateTimeStarted.time; }
+f32 rhea::random01()											{ return rheaGlobals.rnd.get01(); }
+u32 rhea::randomU32(u32 iMax)									{ return rheaGlobals.rnd.getU32(iMax); }

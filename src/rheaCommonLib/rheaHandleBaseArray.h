@@ -47,7 +47,7 @@ namespace rhea
                                             T	test;
 
                                             if (PTR_DIFF_TO_INT(&test.handle, &test) < 4)
-                                                rhea::logger->logErr ("BaseHandleArray<T>::BaseHandleArray() -> Type does not match specifications") << rhea::Logger::EOL;
+                                                rhea::sysLogger->logErr ("BaseHandleArray<T>::BaseHandleArray() -> Type does not match specifications") << rhea::Logger::EOL;
 
                                             //mi assicuro che il parametro handle sia = al tipo THandle indicato nel template
 #ifdef _DEBUG

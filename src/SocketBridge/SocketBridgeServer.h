@@ -7,6 +7,7 @@
 #include "SocketBridgeEnumAndDefine.h"
 #include "CommandHandlerList.h"
 #include "IdentifiedClientList.h"
+#include "SocketBridgeFileT.h"
 
 namespace socketbridge
 {
@@ -23,7 +24,7 @@ namespace socketbridge
         void                    run ();
 
 
-
+		void					sendTo (const HSokServerClient &h, const u8 *buffer, u32 nBytesToSend);
 		void					sendEvent (const HSokServerClient &h, eEventType eventType, const void *optionalData, u16 lenOfOptionalData);
 		void					sendAjaxAnwer(const HSokServerClient &h, u8 requestID, const char *ajaxData, u16 lenOfAjaxData);
 		
@@ -32,12 +33,15 @@ namespace socketbridge
 									//formatta i primi [] prezzi di [priceList] usando il corretto separatore decimale e numero di cifre dopo il separatore.
 									//Il risultato messo in [out] è una stringa coi prezzi separati dal carattere §
 
+		const IdentifiedClientList*	getIdentifieidClientList() const							{ return &identifiedClientList; }
+
+
     private:
         static const u16        RESERVED_HANDLE_RANGE = 1024;
 		
 
     private:
-		bool					priv_decodeMessage(u8 *buffer, u16 nBytesInBuffer, sDecodedMessage *out);
+		bool					priv_decodeMessage(rhea::LinearBuffer &buffer, u16 *in_out_offset, u16 nBytesInBuffer, sDecodedMessage *out);
 
 		bool					priv_encodeMessageOfTypeEvent(eEventType eventType, const void *optionalData, u16 lenOfOptionalData, u8 *out_buffer, u16 *in_out_bufferLength);
 								/* filla *out_buffer con i bytes necessari per inviare un comando di tipo "eOpcode_event_E".
@@ -54,14 +58,15 @@ namespace socketbridge
 
 		bool					priv_subsribeToCPU (const HThreadMsgW &hCPUServiceChannelW);
 		u16                     priv_getANewHandlerID ();
-        void                    priv_onClientHasDataAvail (u8 iEvent);
+        void                    priv_onClientHasDataAvail (u8 iEvent, u64 timeNowMSec);
         void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
-        void                    priv_onConsoleEvent (rhea::thread::sMsg &msg);
+		void                    priv_handleIdentification (const HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded);
 
 	private:
 		rhea::ProtocolSocketServer    *server;
 		rhea::Allocator         *localAllocator;
 		rhea::ISimpleLogger     *logger;
+		FileTransfer			fileTransfer;
 		rhea::NullLogger        nullLogger;
 		rhea::LinearBuffer      buffer;
 		cpubridge::sSubscriber	subscriber;
@@ -73,6 +78,7 @@ namespace socketbridge
 		u16                     _nextHandlerID;
 		u8						eventSeqNumber;
 		bool                    bQuit;
+		u8						cpuBridgeVersion;
     };
 
 } // namespace socketbridge
