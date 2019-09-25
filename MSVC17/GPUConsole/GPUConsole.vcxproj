@@ -19,12 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommandFactory.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\main.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\Terminal.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\videoBuffer.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\winTerminal.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpumsg.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpustatus.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_list.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_selavail.h" />
     <ClInclude Include="..\..\src\GPUConsole\enumAndDefine.h" />
     <ClInclude Include="..\..\src\GPUConsole\Terminal.h" />
     <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h" />

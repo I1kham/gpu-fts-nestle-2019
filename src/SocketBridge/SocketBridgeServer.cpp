@@ -161,37 +161,64 @@ bool Server::priv_subsribeToCPU(const HThreadMsgW &hCPUServiceChannelW)
 }
 
 //*****************************************************************
-bool Server::priv_decodeMessage(rhea::LinearBuffer &buffer, u16 *in_out_offset, u16 bufferSizeInByte, socketbridge::sDecodedMessage *out)
+bool Server::priv_extractOneMessage(u8 *bufferPt, u16 nBytesInBuffer, sDecodedMessage *out, u16 *out_nBytesConsumed) const
 {
-	if (*in_out_offset >= bufferSizeInByte)
-		return false;
-	
-	const u16 bytesLeft = bufferSizeInByte - (*in_out_offset);
-	u8 *bufferPt = buffer._getPointer(*in_out_offset);
-
 	//deve essere lungo almeno 7 byte e iniziare con #
-	if (bytesLeft < 7 || bufferPt[0] != '#')
+	if (nBytesInBuffer < 7)
+	{
+		//scarta il messaggio perchè non può essere un msg valido
+		DBGBREAK;
+		*out_nBytesConsumed = nBytesInBuffer;
 		return false;
+	}
+
+	if (bufferPt[0] != '#')
+	{
+		//msg non valido, avanzo fino a che non trovo un # oppure fine buffer
+		for (u16 i = 1; i < nBytesInBuffer; i++)
+		{
+			if (bufferPt[i] == '#')
+			{
+				bool ret = priv_extractOneMessage (&bufferPt[i], (nBytesInBuffer - i), out, out_nBytesConsumed);
+				*out_nBytesConsumed += i;
+				return ret;
+			}
+		}
+
+		//errore, non ho trovato un #, msg non valido
+		DBGBREAK;
+		*out_nBytesConsumed = nBytesInBuffer;
+		return false;
+	}
 
 
 	out->opcode = (eOpcode)bufferPt[1];
 	out->requestID = bufferPt[2];
 	out->payloadLen = ((u16)bufferPt[3] * 256) + (u16)bufferPt[4];
 
-	if (bytesLeft < 7 + out->payloadLen)
+	if (nBytesInBuffer < 7 + out->payloadLen)
+	{
+		//errore, non ci sono abbastanza byte nel buffer per l'intero msg
+		DBGBREAK;
+		*out_nBytesConsumed = nBytesInBuffer;
 		return false;
+	}
 
 	out->payload = &bufferPt[5];
 
 	//verifica della ck
 	const u16 ck = ((u16)bufferPt[5 + out->payloadLen] * 256) + bufferPt[6 + out->payloadLen];
-	if (ck != rhea::utils::simpleChecksum16_calc (bufferPt, 5 + out->payloadLen))
-		return false;
+	if (ck != rhea::utils::simpleChecksum16_calc(bufferPt, 5 + out->payloadLen))
+	{
+		//il messaggio sembrava buono ma la ck non lo è, lo scarto.
+		//Consumo il # e passo avanti
+		bool ret = priv_extractOneMessage (&bufferPt[1], (nBytesInBuffer - 1), out, out_nBytesConsumed);
+		*out_nBytesConsumed += 1;
+		return ret;
+	}
 
-	const u16 totalSizeOfThisMsg = out->payloadLen + 7;	
-	(*in_out_offset) += totalSizeOfThisMsg;
 
-	assert (bufferSizeInByte == totalSizeOfThisMsg);
+	*out_nBytesConsumed = (7 + out->payloadLen);
 	return true;
 }
 
@@ -506,27 +533,29 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 	}
 }
 
+
+
 /**************************************************************************
  * onClientHasDataAvail
  *
  * Un client già collegato ha inviato dei dati lungo la socket
  */
-void Server::priv_onClientHasDataAvail (u8 iEvent, u64 timeNowMSec)
+void Server::priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec)
 {
 	HSokServerClient h = server->getEventSrcAsClientHandle(iEvent);
-	const sIdentifiedClientInfo	*identifiedClient = identifiedClientList.isKwnownSocket(h);
+	const sIdentifiedClientInfo	*identifiedClient = identifiedClientList.isKwnownSocket(h, timeNowMSec);
 
-    i32 nBytesLetti = server->client_read (h, buffer);
-    if (nBytesLetti == -1)
-    {
-        logger->log ("connection [0x%08X] closed\n", h.asU32());
-		
+	i32 nBytesLetti = server->client_read(h, buffer);
+	if (nBytesLetti == -1)
+	{
+		logger->log("connection [0x%08X] closed\n", h.asU32());
+
 		//cerco il client che aveva questa socket e, se esiste, la unbindo.
 		//Il client rimane registrato nella lista degli identificati, ma non ha una socket associata
 		if (identifiedClient)
-			identifiedClientList.unbindSocket (identifiedClient->handle, rhea::getTimeNowMSec());
+			identifiedClientList.unbindSocket(identifiedClient->handle, rhea::getTimeNowMSec());
 		return;
-    }
+	}
 
 	if (nBytesLetti < 1)
 	{
@@ -534,91 +563,103 @@ void Server::priv_onClientHasDataAvail (u8 iEvent, u64 timeNowMSec)
 		return;
 	}
 
-    //ho ricevuto un messaggio, proviamo a decodificarlo
+	//ho ricevuto un messaggio, proviamo a decodificarlo
 	socketbridge::sDecodedMessage decoded;
-	u16 bufferOffset = 0;
-	while (priv_decodeMessage(buffer, &bufferOffset, (u16)nBytesLetti, &decoded))
+	u16 nBytesConsumed;
+	u8 *bufferPt = buffer._getPointer(0);
+	while (priv_extractOneMessage(bufferPt, (u16)nBytesLetti, &decoded, &nBytesConsumed))
 	{
-		//se la socket in questione non è stata ancora bindata ad un client, allora il cliente mi deve per
-		//forza aver mandato un messaggio di tipo [eOpcode_request_idCode] oppure [eOpcode_identify_W], altrimenti killo la connessione.
-		//Se invece la socket è già bindata ad un identified-client, nessun problema, passo ad analizzare il messaggio perchè il client è stato già identificato ad 
-		//un giro precedente
-		if (NULL == identifiedClient)
-		{
-			priv_handleIdentification(h, identifiedClient, decoded);
+		priv_onClientHasDataAvail2 (timeNowMSec, h, identifiedClient, decoded);
+
+		assert(nBytesLetti >= nBytesConsumed);
+		nBytesLetti -= nBytesConsumed;
+		if (nBytesLetti == 0)
 			return;
-		}
+		bufferPt += nBytesConsumed;
+	}
+}
+
+void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo	*identifiedClient, socketbridge::sDecodedMessage &decoded)
+{
+	//se la socket in questione non è stata ancora bindata ad un client, allora il cliente mi deve per
+	//forza aver mandato un messaggio di tipo [eOpcode_request_idCode] oppure [eOpcode_identify_W], altrimenti killo la connessione.
+	//Se invece la socket è già bindata ad un identified-client, nessun problema, passo ad analizzare il messaggio perchè il client è stato già identificato ad 
+	//un giro precedente
+	if (NULL == identifiedClient)
+	{
+		priv_handleIdentification(h, identifiedClient, decoded);
+		return;
+	}
 
 
-		//ok, vediamo che cosa mi sta chiedendo il client
-		//logger->log ("client [0x%08X]: rcv command [%c]\n", identifiedClient->idCode.data.asU32, decoded.opcode);
-		switch (decoded.opcode)
+	//ok, vediamo che cosa mi sta chiedendo il client
+	//logger->log ("client [0x%08X]: rcv command [%c]\n", identifiedClient->idCode.data.asU32, decoded.opcode);
+	switch (decoded.opcode)
+	{
+	default:
+		logger->log("unkown command [%c]\n", decoded.opcode);
+		return;
+
+	case socketbridge::eOpcode_event_E:
+		/*ho ricevuto una richiesta di tipo "scatena un evento"
+		Istanzio un "handler" appropriato che possa gestire la richiesta. Se quest'handler esiste, allora ci sono 2 possibiità:
+			1- la richiesta deve essere passata a CPUBrdige (per es mi stanno chiedendo un aggiornamento sullo stati di disp delle selezioni)
+			2- la richiesta la gestisce direttamente this (per es mi stanno chiedendo una lita dei client connessi).
+		Caso 1:
+			aggiungo l'handle alla lista degli handler attivi e chiamo il suo metodo passDownRequestToCPUBridge() che, a sua volta, appende una richiesta alla msgQ
+			verso CPUBridge in modo che CPUBridge possa intercettare la richiesta e rispondere sulla stessa msgQ.
+			La risposta di CPUBridge (che prevede tra i vari parametri anche l'handlerID), viene gestita dallo stesso handler che ho istanziato qui che, sostanzialmente, spedisce indietro
+			al client il risultato appena ottenuto da CPUBridge.
+			Il giro quindi è:
+				client chiede qualcosa a SocketBridge
+				SocketBridge istanzia un handler che a sua volta gira la richiesta a CPUBridge lungo la msgQ dedicata
+				CPUBridge riceve la richiesta e risponde a SocketBridge lungo la stessa msgQ
+				SocketBridge recupera la risposta di CPUBridge e la passa allo stesso handler che inizialmente si era preoccupato di girare la richiesta a CPUBridge
+				L'handler in questione fa le sue elaborazione e spedisce indietro il risultato al client
+
+		Caso 2:
+			chiamo direttamente il metodo handleRequestFromSocketBridge() dell'handler che risponde al cliente, e poi distruggo l'istanza di handler.
+		*/
+		if (decoded.payloadLen >= 1)
 		{
-		default:
-			logger->log("unkown command [%c]\n", decoded.opcode);
-			return;
-
-		case socketbridge::eOpcode_event_E:
-			/*ho ricevuto una richiesta di tipo "scatena un evento"
-			Istanzio un "handler" appropriato che possa gestire la richiesta. Se quest'handler esiste, allora ci sono 2 possibiità:
-				1- la richiesta deve essere passata a CPUBrdige (per es mi stanno chiedendo un aggiornamento sullo stati di disp delle selezioni)
-				2- la richiesta la gestisce direttamente this (per es mi stanno chiedendo una lita dei client connessi).
-			Caso 1:
-				aggiungo l'handle alla lista degli handler attivi e chiamo il suo metodo passDownRequestToCPUBridge() che, a sua volta, appende una richiesta alla msgQ
-				verso CPUBridge in modo che CPUBridge possa intercettare la richiesta e rispondere sulla stessa msgQ.
-				La risposta di CPUBridge (che prevede tra i vari parametri anche l'handlerID), viene gestita dallo stesso handler che ho istanziato qui che, sostanzialmente, spedisce indietro
-				al client il risultato appena ottenuto da CPUBridge.
-				Il giro quindi è:
-					client chiede qualcosa a SocketBridge
-					SocketBridge istanzia un handler che a sua volta gira la richiesta a CPUBridge lungo la msgQ dedicata
-					CPUBridge riceve la richiesta e risponde a SocketBridge lungo la stessa msgQ
-					SocketBridge recupera la risposta di CPUBridge e la passa allo stesso handler che inizialmente si era preoccupato di girare la richiesta a CPUBridge
-					L'handler in questione fa le sue elaborazione e spedisce indietro il risultato al client
-
-			Caso 2:
-				chiamo direttamente il metodo handleRequestFromSocketBridge() dell'handler che risponde al cliente, e poi distruggo l'istanza di handler.
-			*/
-			if (decoded.payloadLen >= 1)
+			socketbridge::eEventType evType = (socketbridge::eEventType)decoded.payload[0];
+			CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, identifiedClient->handle, evType, priv_getANewHandlerID(), 10000);
+			if (NULL != handler)
 			{
-				socketbridge::eEventType evType = (socketbridge::eEventType)decoded.payload[0];
-				CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, identifiedClient->handle, evType, priv_getANewHandlerID(), 10000);
-				if (NULL != handler)
-				{
-					if (handler->needToPassDownToCPUBridge())
-					{
-						cmdHandlerList.add(handler);
-						handler->passDownRequestToCPUBridge(subscriber, decoded.payload, decoded.payloadLen);
-					}
-					else
-					{
-						handler->handleRequestFromSocketBridge(this, h);
-						RHEADELETE(localAllocator, handler);
-					}
-				}
-			}
-			break;
-
-		case socketbridge::eOpcode_ajax_A:
-			/*	ho ricevuto una richiesta di tipo "ajax"
-				Funziona allo stesso modo di cui sopra, solo che non è previsto un comando che debba essere gestito da this.
-				Tutte le richieste di questo tipo sono da passare a CPUBrdige
-			*/
-			{
-				const char *params = NULL;
-				CmdHandler_ajaxReq *handler = CmdHandler_ajaxReqFactory::spawn(localAllocator, identifiedClient->handle, decoded.requestID, decoded.payload, decoded.payloadLen, priv_getANewHandlerID(), 10000, &params);
-				if (NULL != handler)
+				if (handler->needToPassDownToCPUBridge())
 				{
 					cmdHandlerList.add(handler);
-					handler->passDownRequestToCPUBridge(subscriber, params);
+					handler->passDownRequestToCPUBridge(subscriber, decoded.payload, decoded.payloadLen);
+				}
+				else
+				{
+					handler->handleRequestFromSocketBridge(this, h);
+					RHEADELETE(localAllocator, handler);
 				}
 			}
-			break;
-
-		case socketbridge::eOpcode_fileTransfer:
-			/*	messaggio di gestione dei file transfer */
-			fileTransfer.handleMsg(this, h, decoded, timeNowMSec);
-			break;
 		}
+		break;
+
+	case socketbridge::eOpcode_ajax_A:
+		/*	ho ricevuto una richiesta di tipo "ajax"
+			Funziona allo stesso modo di cui sopra, solo che non è previsto un comando che debba essere gestito da this.
+			Tutte le richieste di questo tipo sono da passare a CPUBrdige
+		*/
+		{
+			const char *params = NULL;
+			CmdHandler_ajaxReq *handler = CmdHandler_ajaxReqFactory::spawn(localAllocator, identifiedClient->handle, decoded.requestID, decoded.payload, decoded.payloadLen, priv_getANewHandlerID(), 10000, &params);
+			if (NULL != handler)
+			{
+				cmdHandlerList.add(handler);
+				handler->passDownRequestToCPUBridge(subscriber, params);
+			}
+		}
+		break;
+
+	case socketbridge::eOpcode_fileTransfer:
+		/*	messaggio di gestione dei file transfer */
+		fileTransfer.handleMsg(this, h, decoded, timeNowMSec);
+		break;
 	}
 }
 

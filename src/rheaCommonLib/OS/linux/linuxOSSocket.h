@@ -26,7 +26,7 @@ namespace platform
 
     i32                 socket_read (OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec);
 
-    i32                 socket_write(const OSSocket &sok, const void *buffer, u16 nBytesToSend);
+    i32                 socket_write(OSSocket &sok, const void *buffer, u16 nBytesToSend);
 }
 
 #endif // _linuxOSSocket_h_

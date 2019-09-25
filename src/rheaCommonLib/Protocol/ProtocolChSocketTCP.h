@@ -13,14 +13,14 @@ namespace rhea
 	class ProtocolChSocketTCP : public IProtocolChannell
 	{
 	public:
-							ProtocolChSocketTCP (Allocator *allocatorIN, u32 startingSizeOfReadBuffer, OSSocket &sokIN) :
-								IProtocolChannell(allocatorIN, startingSizeOfReadBuffer)
+							ProtocolChSocketTCP (Allocator *allocatorIN, u16 startingSizeOfReadBufferInBytes, u16 maxSizeOfReadBufferInBytes) :
+								IProtocolChannell(allocatorIN, startingSizeOfReadBufferInBytes, maxSizeOfReadBufferInBytes)
 							{
-								sok = sokIN;
+								OSSocket_init(&sok);
 							}
-
 		virtual				~ProtocolChSocketTCP()														{ }
 
+		void				bindSocket(OSSocket &sokIN)													{ sok = sokIN; }
 		OSSocket&			getSocket()																	{ return sok; }
 
 	protected:

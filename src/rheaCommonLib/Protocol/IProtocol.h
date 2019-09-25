@@ -18,7 +18,7 @@ namespace rhea
     class IProtocol
     {
     public:
-						IProtocol (Allocator * allocatorIN, u16 sizeOfWriteBuffer);
+						IProtocol (Allocator * allocatorIN, u16 startingSizeOfWriteBuffer, u16 maxSizeOfWriteBuffer);
 		virtual         ~IProtocol();
 
 
@@ -42,7 +42,7 @@ namespace rhea
 
 		u16				read (IProtocolChannell *ch, u32 timeoutMSec, LinearBuffer &out_result);
 						/*	legge dal canale di comunicazione (non bloccante se timeoutMSec==0) ed interpreta il buffer di input.
-							Se ci sono validi messaggi "utente", ritorna il numero di bytes inseriti in out_result (che corrisponde al primo msg utente estratto dal buffer).
+							Se c'è almeno un valido messaggi "utente", lo mette in out_result e ritorna il numero di bytes inseriti in out_result.
 							Eventuali messaggi interni di protocollo (ping, close, keepalive..) vengono gestiti internamente e non
 							vengono passati a out_result.
 
@@ -64,12 +64,12 @@ namespace rhea
 	protected:
 		virtual	void	virt_sendCloseMessage(IProtocolChannell *ch) = 0;
 
-		virtual u16		virt_decodeBuffer (IProtocolChannell *ch, const u8 *bufferIN, u16 nBytesInBufferIN, LinearBuffer &out_result, u16 *out_nBytesInseritiInOutResult) = 0;
+		virtual u16		virt_decodeBuffer (IProtocolChannell *ch, const u8 *bufferIN, u16 nBytesInBufferIN, LinearBuffer &out_result, u32 startOffset, u16 *out_nBytesInseritiInOutResult) = 0;
 						/*	Dato un [bufferIN] che contiene almeno [nBytesInBufferIN] letti da qualche device, questa fn prova ad interpretarne
 							il significato secondo il protocollo che implementa.
 							Se il buffer contiene almeno un valido pacchetto dati:
 								ritorna il numero di bytes di bufferIN "consumati"
-								mette in [out_result] il payload del msg
+								mette in [out_result] il payload del msg (a partire dal byte startOffset)
 								mette in [out_nBytesInseritiInOutResult] il num di bytes inseriti in out_result (ie: il payloadLen).
 
 							In caso di errore, ritorna >= protocol::RES_ERROR (vedi read)
@@ -89,7 +89,11 @@ namespace rhea
 
 	protected:
 		u8				*bufferW;
-		u16				BUFFERW_SIZE;
+		u16				BUFFERW_CUR_SIZE;
+		u16				BUFFERW_MAX_SIZE;
+
+	private:
+		bool			priv_growWriteBuffer();
 
 	private:
 		Allocator		*allocator;

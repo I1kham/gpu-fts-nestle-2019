@@ -12,14 +12,17 @@ using namespace rhea::app;
 #define STATUS_FINISHED_KO	0x02
 
 #define WHATAMIDOING_NONE					0x00
-#define WHATAMIDOING_UPLOAD_REQUEST_SENT	0x01		//ho chiesto a socketbridge se vuole accettare questo file, sono in attesa di risposta
-#define WHATAMIDOING_UPLOADING				0x02
+#define WHATAMIDOING_UPLOAD_REQUEST_SENT	0x10		//ho chiesto a socketbridge se vuole accettare questo file, sono in attesa di risposta
+#define WHATAMIDOING_UPLOADING				0x11
+#define WHATAMIDOING_DOWNLOAD_REQUEST_SENT	0x20		//ho chiesto a socketbridge di mandarmi un file
+#define WHATAMIDOING_DOWNLOADING			0x21
 
 //**********************************************************************
-void FileTransfer::setup(rhea::Allocator *allocatorIN)
+void FileTransfer::setup(rhea::Allocator *allocatorIN, rhea::ISimpleLogger *loggerIN)
 {
 	assert(localAllocator == NULL);
 	localAllocator = allocatorIN;
+	logger = loggerIN;
 
 	handleArray.setup(localAllocator, MAX_SIMULTANEOUS_TRANSFER, sizeof(sRecord));
 	activeHandleList.setup(localAllocator, MAX_SIMULTANEOUS_TRANSFER);
@@ -57,6 +60,12 @@ void FileTransfer::unsetup()
 }
 
 //**********************************************************************
+bool FileTransfer::priv_isUploading(const sRecord *s) const
+{
+	return (s->whatAmIDoing < WHATAMIDOING_DOWNLOAD_REQUEST_SENT);
+}
+
+//**********************************************************************
 void FileTransfer::priv_freeResources(sRecord *s) const
 {
 	if (NULL != s->f)
@@ -65,18 +74,25 @@ void FileTransfer::priv_freeResources(sRecord *s) const
 		s->f = NULL;
 	}
 
-	if (NULL != s->sendBuffer)
+	if (priv_isUploading(s))
 	{
-		RHEAFREE (localAllocator, s->sendBuffer);
-		s->sendBuffer = NULL;
-		s->sizeOfSendBuffer = 0;
+		//era un upload
+		if (NULL != s->other.whenUploading.sendBuffer)
+		{
+			RHEAFREE(localAllocator, s->other.whenUploading.sendBuffer);
+			s->other.whenUploading.sendBuffer = NULL;
+			s->other.whenUploading.sizeOfSendBuffer = 0;
+		}
+	}
+	else
+	{
+		//era un download
 	}
 }
 
 //**********************************************************************
 void FileTransfer::priv_failed (sRecord *s, socketbridge::eFileTransferFailReason failReason, bool bAppendFailEvent)
 {
-	priv_freeResources(s);
 	s->status = STATUS_FINISHED_KO;
 	s->whatAmIDoing = (u8)failReason;
 	s->timeoutMSec = 0;
@@ -102,11 +118,21 @@ bool FileTransfer::getTransferInfo (const Handle &h, sTansferInfo *out)
 }
 
 //**********************************************************************
-void FileTransfer::priv_fillTransferInfo(const sRecord *s, sTansferInfo *out) const
+void FileTransfer::priv_fillTransferInfo (const sRecord *s, sTansferInfo *out) const
 {
-	out->totalTransferSizeInBytes = s->fileSizeInBytes;
-	out->currentTransferSizeInBytes = s->packetSize * s->packetNum;
+	out->timeElapsedMSec = rhea::getTimeNowMSec() - s->timeStartedMSec;
 	out->handle = s->handle;
+	out->totalTransferSizeInBytes = s->fileSizeInBytes;
+	
+	if (priv_isUploading(s))
+	{
+		out->currentTransferSizeInBytes = s->packetSize * s->other.whenUploading.packetNum;
+	}
+	else
+	{
+		out->currentTransferSizeInBytes = s->packetSize * s->other.whenDownloading.lastGoodPacket;
+	}
+	
 	switch (s->status)
 	{
 	case STATUS_IN_PROGRESS:
@@ -159,6 +185,9 @@ void FileTransfer::onMessage (u64 timeNowMSec, const sDecodedFileTransfMsg &msg)
 
 	case socketbridge::eFileTransferOpcode_upload_request_fromApp_answ:				priv_on0x02(timeNowMSec, nbr); break;
 	case socketbridge::eFileTransferOpcode_upload_request_fromApp_packet_answ:		priv_on0x04(timeNowMSec, nbr); break;
+
+	case socketbridge::eFileTransferOpcode_download_request_fromApp_answ:			priv_on0x52(timeNowMSec, nbr); break;
+	case socketbridge::eFileTransferOpcode_download_request_fromApp_packet:			priv_on0x53(timeNowMSec, nbr); break;
 	}
 }
 
@@ -184,6 +213,12 @@ bool FileTransfer::update(u64 timeNowMSec)
 		//se è in stato di "finito", lo rimuovo dalla lista degli activeHandler
 		if (s->status == STATUS_FINISHED_OK || s->status == STATUS_FINISHED_KO)
 		{
+			//genero l'evento
+			sTansferInfo ev;
+			priv_fillTransferInfo(s, &ev);
+			eventList.push(ev);
+
+			//libero risorse
 			priv_freeResources(s);
 			activeHandleList.removeAndSwapWithLast(i);
 			--i;
@@ -210,6 +245,9 @@ bool FileTransfer::update(u64 timeNowMSec)
 
 	return (eventList.isEmpty() == false);
 }
+
+
+
 
 //**********************************************************************
 bool FileTransfer::startFileUpload (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u64 timeNowMSec, const char *fullFileNameAndPath, const char *usage, Handle *out_handle)
@@ -251,20 +289,24 @@ bool FileTransfer::startFileUpload (rhea::IProtocolChannell *ch, rhea::IProtocol
 
 	//setup della struttura dati necessaria al trasferimento
 	const u16 PROPOSED_PACKET_SIZE = 1024;
+	const u16 PROPOSED_NUM_PACKET_IN_A_CHUNK = 32;
 	s->f = f;
 	s->ch = ch;
 	s->proto = proto;
-	s->sizeOfSendBuffer = 0;
-	s->sendBuffer = NULL;
 	s->smuFileTransfUID = 0;
-	s->fileSizeInBytes = (u32)fileSizeInBytes;
-	s->packetNum = 0;
-	s->numOfPacketToBeSentInTotal = 0;
-	s->timeoutMSec = timeNowMSec + 2000; //se entro 2 secondi non mi risponde, abortisco l'operazione
+	s->timeStartedMSec = timeNowMSec;
+	s->timeoutMSec = timeNowMSec + 4000; //se entro 4 secondi non mi risponde, abortisco l'operazione
 	s->nextTimePushAnUpdateMSec = 0;
 	s->packetSize = PROPOSED_PACKET_SIZE;
+	s->numPacketInAChunk = PROPOSED_NUM_PACKET_IN_A_CHUNK;
+	s->fileSizeInBytes = (u32)fileSizeInBytes;
 	s->status = STATUS_IN_PROGRESS;
 	s->whatAmIDoing = WHATAMIDOING_UPLOAD_REQUEST_SENT;
+
+	s->other.whenUploading.sizeOfSendBuffer = 0;
+	s->other.whenUploading.sendBuffer = NULL;
+	s->other.whenUploading.packetNum = 0;
+	s->other.whenUploading.numOfPacketToBeSentInTotal = 0;
 	
 
 
@@ -277,20 +319,70 @@ bool FileTransfer::startFileUpload (rhea::IProtocolChannell *ch, rhea::IProtocol
 	data.packetSizeInBytes = s->packetSize;
 	data.fileSizeInBytes = s->fileSizeInBytes;
 	data.appTransfUID = s->handle.asU32();
+	data.numPacketInAChunk = s->numPacketInAChunk;
 	memcpy(data.usage, usage, usageLen + 1);
 
 	//spedisco
-	u8 optionalData[128];
-	u16 sizeOfOptionalData = data.encode(optionalData, sizeof(optionalData));
+	u8 serializedDataBuffer[128];
+	u16 sizeOfSerializedDataBuffer = data.encode(serializedDataBuffer, sizeof(serializedDataBuffer));
 
 	u8 sendBuffer[128];
-	app::RawFileTrans::sendToSocketBridge (ch, proto, sendBuffer, sizeof(sendBuffer), optionalData, sizeOfOptionalData);
+	app::RawFileTrans::sendToSocketBridge (ch, proto, sendBuffer, sizeof(sendBuffer), serializedDataBuffer, sizeOfSerializedDataBuffer);
 	return true;
 }
 
+//**********************************************************************
+void FileTransfer::priv_sendChunkOfPackets(sRecord *s, u16 nPacket)
+{
+	if (s->status != STATUS_IN_PROGRESS)
+		return;
+	if (s->whatAmIDoing != WHATAMIDOING_UPLOADING)
+		return;
+
+	if (s->packetSize > (SIZE_OF_READ_BUFFER_FROM_FILE - 32))
+	{
+		DBGBREAK;
+		priv_failed(s, socketbridge::eFileTransferFailReason_localReadBufferTooShort, true);
+		return;
+	}
+
+	rhea::NetStaticBufferViewW nbw;
+	nbw.setup(bufferReadFromFile, SIZE_OF_READ_BUFFER_FROM_FILE, rhea::eBigEndian);
+
+	u32 iPacket = s->other.whenUploading.packetNum;
+	u32 fileOffset = iPacket * s->packetSize;
+	u32 nBytesLeft = s->fileSizeInBytes - fileOffset;
+
+	u8 chunkSeq = 1;
+	fseek(s->f, fileOffset, SEEK_SET);
+	while (nPacket-- && nBytesLeft)
+	{
+		u16 nByteToRead = s->packetSize;
+		if (nBytesLeft < nByteToRead)
+		{
+			nByteToRead = (u16)nBytesLeft;
+			nBytesLeft = 0;
+		}
+		else
+			nBytesLeft -= nByteToRead;
+
+		nbw.seek(0, rhea::eSeekStart);
+		nbw.writeU8((u8)socketbridge::eFileTransferOpcode_upload_request_fromApp_packet);
+		nbw.writeU32(s->smuFileTransfUID);
+		nbw.writeU32(iPacket);
+		nbw.writeU8(chunkSeq);
+		fread(&bufferReadFromFile[nbw.length()], nByteToRead, 1, s->f);
+
+		//logger->log("FT => sending packet [%d]\n", s->packetNum);
+		app::RawFileTrans::sendToSocketBridge(s->ch, s->proto, s->other.whenUploading.sendBuffer, s->other.whenUploading.sizeOfSendBuffer, bufferReadFromFile, nbw.length() + nByteToRead);
+
+		iPacket++;
+		chunkSeq++;
+	}
+}
 
 //**********************************************************************
-void FileTransfer::priv_on0x02(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
+void FileTransfer::priv_on0x02 (u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
 {
 	socketbridge::fileT::sData0x02 data;
 	if (!data.decode(nbr))
@@ -318,15 +410,16 @@ void FileTransfer::priv_on0x02(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
 	s->status = STATUS_IN_PROGRESS;
 	s->whatAmIDoing = WHATAMIDOING_UPLOADING;
 	s->smuFileTransfUID = data.smuTransfUID;
-	s->packetSize = data.packetSizeInBytes;
-	s->sizeOfSendBuffer = s->packetSize + 32;
-	s->sendBuffer = (u8*)RHEAALLOC(localAllocator, s->sizeOfSendBuffer);
 	s->timeoutMSec = timeNowMSec + 5000;
+	s->packetSize = data.packetSizeInBytes;
+	s->numPacketInAChunk = data.numPacketInAChunk;
+	s->other.whenUploading.sizeOfSendBuffer = s->packetSize + 32;
+	s->other.whenUploading.sendBuffer = (u8*)RHEAALLOC(localAllocator, s->other.whenUploading.sizeOfSendBuffer);
 
 	//calcolo il num totale di pacchetti che si dovranno inviare
-	s->numOfPacketToBeSentInTotal = s->fileSizeInBytes / s->packetSize;
-	if (s->numOfPacketToBeSentInTotal * s->packetSize < s->fileSizeInBytes)
-		s->numOfPacketToBeSentInTotal++;
+	s->other.whenUploading.numOfPacketToBeSentInTotal = s->fileSizeInBytes / s->packetSize;
+	if (s->other.whenUploading.numOfPacketToBeSentInTotal * s->packetSize < s->fileSizeInBytes)
+		s->other.whenUploading.numOfPacketToBeSentInTotal++;
 
 	//genero un evento per segnalare l'inizio dell'upload
 	sTansferInfo ev;
@@ -334,44 +427,7 @@ void FileTransfer::priv_on0x02(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
 	eventList.push(ev);
 
 	//invio iul primo pacchetto
-	priv_advanceAndSendPacket(s);
-}
-
-//**********************************************************************
-void FileTransfer::priv_advanceAndSendPacket(sRecord *s)
-{
-	if (s->status != STATUS_IN_PROGRESS)
-		return;
-	if (s->whatAmIDoing != WHATAMIDOING_UPLOADING)
-		return;
-
-	if (s->packetSize > (SIZE_OF_READ_BUFFER_FROM_FILE - 32))
-	{
-		DBGBREAK;
-		priv_failed(s, socketbridge::eFileTransferFailReason_localReadBufferTooShort, true);
-		return;
-	}
-
-
-	//preparo il pacchetto
-	const u32 nBytesSentSoFar = s->packetNum * s->packetSize;
-	const u32 nBytesLeft = s->fileSizeInBytes - nBytesSentSoFar;
-	
-	rhea::NetStaticBufferViewW nbw;
-	nbw.setup (bufferReadFromFile, SIZE_OF_READ_BUFFER_FROM_FILE, rhea::eBigEndian);
-
-	nbw.writeU8((u8)socketbridge::eFileTransferOpcode_upload_request_fromApp_packet);
-	nbw.writeU32(s->smuFileTransfUID);
-	nbw.writeU32(s->packetNum);
-
-	//leggo da file
-	u16 nByteToRead = s->packetSize;
-	if (nBytesLeft < nByteToRead)
-		nByteToRead = (u16)nBytesLeft;
-	fseek(s->f, nBytesSentSoFar, SEEK_SET);
-	fread(&bufferReadFromFile[nbw.length()], nByteToRead, 1, s->f);
-
-	app::RawFileTrans::sendToSocketBridge (s->ch, s->proto, s->sendBuffer, s->sizeOfSendBuffer, bufferReadFromFile, nbw.length() + nByteToRead);
+	priv_sendChunkOfPackets(s, s->numPacketInAChunk);
 }
 
 //**********************************************************************
@@ -393,11 +449,11 @@ void FileTransfer::priv_on0x04 (u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr
 	}
 
 	//SMU ha accettato un pacchetto, aggiorno il mio stato
-	s->packetNum = data.packetNumAccepted + 1;
-	s->timeoutMSec = timeNowMSec + 4000;
+	s->other.whenUploading.packetNum = data.packetNumAccepted + 1;
+	s->timeoutMSec = timeNowMSec + 15000;
 
 	//vediamo se era l'ultimo
-	if (s->packetNum >= s->numOfPacketToBeSentInTotal)
+	if (s->other.whenUploading.packetNum >= s->other.whenUploading.numOfPacketToBeSentInTotal)
 	{
 		//ho finito!!
 		s->status = STATUS_FINISHED_OK;
@@ -422,5 +478,230 @@ void FileTransfer::priv_on0x04 (u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr
 	}
 
 	//invio il prossimo pacco
-	priv_advanceAndSendPacket(s);
+	priv_sendChunkOfPackets(s, s->numPacketInAChunk);
+}
+
+
+
+
+//**********************************************************************
+bool FileTransfer::startFileDownload(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u64 timeNowMSec, const char *what, const char *dstFullFileNameAndPath, Handle *out_handle)
+{
+	if (dstFullFileNameAndPath == NULL || what == NULL)
+		return false;
+	if (dstFullFileNameAndPath[0] == 0x00 || what[0] == 0x00)
+		return false;
+
+	const u32 whatLen = (u32)strlen(what);
+	if (whatLen >= socketbridge::fileT::sData0x51::MAX_WHAT_LEN)
+		return false;
+
+	//provo ad aprire il file in scrittura
+	FILE *f = fopen(dstFullFileNameAndPath, "wb");
+	if (NULL == f)
+		return false;
+
+	//pare tutto a posto, alloco un nuovo handle e invio la richiesta a socketBridge
+	sRecord *s = handleArray.allocIfYouCan();
+	if (NULL == s)
+	{
+		DBGBREAK;
+		fclose(f);
+		return false;
+	}
+
+	//aggiungo l'handle alla lista degli handle attivi
+	activeHandleList.append(s->handle);
+
+	//setup della struttura dati necessaria al trasferimento
+	const u16 PROPOSED_PACKET_SIZE = 1024;
+	s->f = f;
+	s->ch = ch;
+	s->proto = proto;
+	s->smuFileTransfUID = 0;
+	s->timeoutMSec = timeNowMSec + 4000; //se entro 4 secondi non mi risponde, abortisco l'operazione
+	s->timeStartedMSec = timeNowMSec;
+	s->status = STATUS_IN_PROGRESS;
+	s->whatAmIDoing = WHATAMIDOING_DOWNLOAD_REQUEST_SENT;
+	
+	s->other.whenDownloading.lastGoodPacket = u32MAX;
+	s->other.whenDownloading.numOfPacketToBeRcvInTotal = 0;
+
+
+	*out_handle = s->handle;
+
+
+	//*preparo la richiesta a SMU
+	socketbridge::fileT::sData0x51 data;
+	data.whatLen = whatLen;
+	data.appTransfUID = s->handle.asU32();
+	memcpy(data.what, what, whatLen + 1);
+
+	//spedisco
+	u8 serializedDataBuffer[128];
+	u16 sizeOfSerializedDataBuffer = data.encode(serializedDataBuffer, sizeof(serializedDataBuffer));
+
+	u8 sendBuffer[128];
+	app::RawFileTrans::sendToSocketBridge(ch, proto, sendBuffer, sizeof(sendBuffer), serializedDataBuffer, sizeOfSerializedDataBuffer);
+	return true;
+}
+
+//**********************************************************************
+void FileTransfer::priv_on0x52(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
+{
+	socketbridge::fileT::sData0x52 data;
+	if (!data.decode(nbr))
+	{
+		DBGBREAK;
+		return;
+	}
+
+	sRecord *s = priv_fromHandleAsU32(data.appTransfUID);
+	if (NULL == s)
+	{
+		DBGBREAK;
+		return;
+	}
+
+	if (data.reason_refused != 0)
+	{
+		//SMU ha rifiutato la mia richiesta
+		priv_failed(s, socketbridge::eFileTransferFailReason_smuRefused, true);
+		return;
+	}
+
+	//tutto bene, memorizzo le info sul transfer
+	s->status = STATUS_IN_PROGRESS;
+	s->whatAmIDoing = WHATAMIDOING_DOWNLOADING;
+	s->timeoutMSec = timeNowMSec + 5000;
+	s->smuFileTransfUID = data.smuTransfUID;
+	s->packetSize = data.packetSizeInBytes;
+	s->numPacketInAChunk = data.numPacketInAChunk;
+	s->fileSizeInBytes = data.fileSize;
+	
+	s->other.whenDownloading.nextTimeSendNACKMsec = 0;
+	s->other.whenDownloading.lastGoodPacket = u32MAX;
+	s->other.whenDownloading.numOfPacketToBeRcvInTotal = s->fileSizeInBytes / s->packetSize;
+	if (s->other.whenDownloading.numOfPacketToBeRcvInTotal * s->packetSize < s->fileSizeInBytes)
+		s->other.whenDownloading.numOfPacketToBeRcvInTotal++;
+		
+
+	//invio una ack per far partire il download
+	socketbridge::fileT::sData0x54 answ;
+	answ.smuFileTransfUID = s->smuFileTransfUID;
+	answ.packetNumAccepted = u32MAX;
+
+
+	//spedisco
+	u8 serializedDataBuffer[128];
+	u16 sizeOfSerializedDataBuffer = answ.encode(serializedDataBuffer, sizeof(serializedDataBuffer));
+
+	u8 sendBuffer[128];
+	app::RawFileTrans::sendToSocketBridge(s->ch, s->proto, sendBuffer, sizeof(sendBuffer), serializedDataBuffer, sizeOfSerializedDataBuffer);
+}
+
+//***********************************************************************
+void FileTransfer::priv_on0x53(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
+{
+	//ho ricevuto un pacchetto
+	u32 appFileTransfUID, packetNumReceived;
+	u8	chunkSeq;
+	nbr.readU32(appFileTransfUID);
+	nbr.readU32(packetNumReceived);
+	nbr.readU8(chunkSeq);
+
+	sRecord *s = priv_fromHandleAsU32(appFileTransfUID);
+	if (NULL == s)
+	{
+		DBGBREAK;
+		return;
+	}
+
+	if (s->status != STATUS_IN_PROGRESS)
+		return;
+
+	//aggiorno il timeout per questo tranfert
+	s->timeoutMSec = timeNowMSec + 15000;
+
+	//vediamo se il pacchetto ricevuto è coerente
+	u32 expectedPacketNum = s->other.whenDownloading.lastGoodPacket + 1;
+
+
+	if (packetNumReceived == expectedPacketNum)
+	{
+		//bene, era quello buono
+
+
+		//aggiorno le info sul trasferimento
+		s->other.whenDownloading.lastGoodPacket = packetNumReceived;
+
+		//per non spammare messagi a video, ne butto fuori uno ogni 5 secondi
+		if (timeNowMSec > s->nextTimePushAnUpdateMSec)
+		{
+			sTansferInfo ev;
+			priv_fillTransferInfo(s, &ev);
+			eventList.push(ev);
+			s->nextTimePushAnUpdateMSec = timeNowMSec + 5000;
+		}
+
+		//era l'ultimo pacchetto?
+		if (s->other.whenDownloading.lastGoodPacket + 1 >= s->other.whenDownloading.numOfPacketToBeRcvInTotal)
+		{
+			u32 lastPacketSize = s->fileSizeInBytes - s->other.whenDownloading.lastGoodPacket * s->packetSize;
+			nbr.readBlob(bufferReadFromFile, lastPacketSize);
+			fwrite(bufferReadFromFile, lastPacketSize, 1, s->f);
+
+			s->status = STATUS_FINISHED_OK;
+			fclose(s->f);
+			s->f = NULL;
+		}
+		else
+		{
+			nbr.readBlob(bufferReadFromFile, s->packetSize);
+			fwrite(bufferReadFromFile, s->packetSize, 1, s->f);
+		}
+
+		//rispondo confermando la ricezione
+		s->other.whenDownloading.nextTimeSendNACKMsec = 0;
+		if (chunkSeq == s->numPacketInAChunk || s->status == STATUS_FINISHED_OK)
+		{
+			socketbridge::fileT::sData0x54 answ;
+			answ.smuFileTransfUID = s->smuFileTransfUID;
+			answ.packetNumAccepted = s->other.whenDownloading.lastGoodPacket;
+
+			//spedisco
+			u8 serializedDataBuffer[128];
+			u16 sizeOfSerializedDataBuffer = answ.encode(serializedDataBuffer, sizeof(serializedDataBuffer));
+
+			u8 sendBuffer[128];
+			app::RawFileTrans::sendToSocketBridge(s->ch, s->proto, sendBuffer, sizeof(sendBuffer), serializedDataBuffer, sizeOfSerializedDataBuffer);
+			logger->log("FileTransfer => [0x%08X] send ACK for packet[%d]\n", s->handle.asU32(), s->other.whenDownloading.lastGoodPacket + 1);
+		}
+	}
+	else
+	{
+		//mi è arrivato un pacchetto che non era quello che mi aspettato (li voglio in ordine seqeuenziale).
+		//Confermo la ricezione per evitare il timeout, ma come "packetNumAccepted" spedisco il mio "last good packet"
+		//in modo che dall'altra parte ripartano a spedire pacchetti da dove dico io
+		if (timeNowMSec >= s->other.whenDownloading.nextTimeSendNACKMsec)
+		{
+			s->other.whenDownloading.nextTimeSendNACKMsec = timeNowMSec + 2000; //sta cosa serve per evitare di mandare 1000 NACK di seguito visto che presumibilmente c'è
+																					//un intero chunk di pacchetti in arrivo che sto per scartare
+			chunkSeq = s->numPacketInAChunk;
+
+			socketbridge::fileT::sData0x54 answ;
+			answ.smuFileTransfUID = s->smuFileTransfUID;
+			answ.packetNumAccepted = s->other.whenDownloading.lastGoodPacket;
+
+			//spedisco
+			//spedisco
+			u8 serializedDataBuffer[128];
+			u16 sizeOfSerializedDataBuffer = answ.encode(serializedDataBuffer, sizeof(serializedDataBuffer));
+
+			u8 sendBuffer[128];
+			app::RawFileTrans::sendToSocketBridge(s->ch, s->proto, sendBuffer, sizeof(sendBuffer), serializedDataBuffer, sizeOfSerializedDataBuffer);
+
+			logger->log("FileTransfer => [0x%08X] send NACK for packet[%d]\n", s->handle.asU32(), s->other.whenDownloading.lastGoodPacket + 1);
+		}
+	}
 }

@@ -7,12 +7,13 @@ using namespace rhea;
 
 
 //****************************************************
-IProtocolChannell::IProtocolChannell(Allocator *allocatorIN, u32 startingSizeOfReadBuffer)
+IProtocolChannell::IProtocolChannell(Allocator *allocatorIN, u16 startingSizeOfReadBufferInBytes, u16 maxSizeOfReadBufferInBytes)
 {
 	allocator = allocatorIN; 
 	
 	nBytesInReadBuffer = 0;
-	RBUFFER_SIZE = startingSizeOfReadBuffer;
+	RBUFFER_SIZE = startingSizeOfReadBufferInBytes;
+	MAX_RBUFFER_SIZE = maxSizeOfReadBufferInBytes;
 	rBuffer = (u8*)RHEAALLOC(allocator, RBUFFER_SIZE);
 }
 
@@ -23,18 +24,23 @@ IProtocolChannell::~IProtocolChannell()
 }
 
 //****************************************************
-void IProtocolChannell::priv_growReadBuffer()
+bool IProtocolChannell::priv_growReadBuffer()
 {
-	u32 newReadBufferSize = RBUFFER_SIZE + 1024;
-	if (newReadBufferSize < 0xffff)
+	if (RBUFFER_SIZE < MAX_RBUFFER_SIZE)
 	{
-		u8 *p = (u8*)RHEAALLOC(allocator, newReadBufferSize);
-		memcpy(p, rBuffer, RBUFFER_SIZE);
-		RBUFFER_SIZE = (u16)newReadBufferSize;
+		u32 newReadBufferSize = RBUFFER_SIZE * 2;
+		if (newReadBufferSize < 0xffff)
+		{
+			u8 *p = (u8*)RHEAALLOC(allocator, newReadBufferSize);
+			memcpy(p, rBuffer, RBUFFER_SIZE);
+			RBUFFER_SIZE = (u16)newReadBufferSize;
 
-		allocator->dealloc(rBuffer);
-		rBuffer = p;
+			allocator->dealloc(rBuffer);
+			rBuffer = p;
+			return true;
+		}
 	}
+	return false;
 }
 
 //****************************************************
@@ -56,18 +62,20 @@ u16 IProtocolChannell::read (u32 timeoutMSec)
 	u32 nMaxToRead = RBUFFER_SIZE - nBytesInReadBuffer;
 	if (nMaxToRead == 0)
 	{
-		priv_growReadBuffer();
+		if (!priv_growReadBuffer())
+			return 0;
 		nMaxToRead = RBUFFER_SIZE - nBytesInReadBuffer;
 	}
 
-	assert (nMaxToRead <= RBUFFER_SIZE);
+	assert (nBytesInReadBuffer + nMaxToRead <= RBUFFER_SIZE);
 	u16 n = virt_read (&rBuffer[nBytesInReadBuffer], nMaxToRead, timeoutMSec);
 	if (n >= protocol::RES_ERROR)
 		return n;
 
+	assert(n <= nMaxToRead);
 	nBytesInReadBuffer += n;
 	assert(nBytesInReadBuffer <= RBUFFER_SIZE);
-	return nBytesInReadBuffer;
+	return n;
 }
 
 //******************************************************

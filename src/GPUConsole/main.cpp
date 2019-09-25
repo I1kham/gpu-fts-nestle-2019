@@ -6,11 +6,16 @@
 #include "../rheaCommonLib/Protocol/ProtocolChSocketTCP.h"
 #include "../rheaCommonLib/Protocol/ProtocolConsole.h"
 #include "Terminal.h"
+#include "command/UserCommand.h"
+
+#define DEFAULT_PORT_NUMBER			2280
 
 socketbridge::SokBridgeClientVer	version;
 socketbridge::SokBridgeIDCode		idCode;
+UserCommandFactory					userCommandFactory;
 u32									SMUVersion = 0;
 bool								bQuitMainThread;
+
 
 struct sThreadInitParam
 {
@@ -28,6 +33,55 @@ void update_console_header(WinTerminal *wt)
 		idCode.data.asU32, 
 		(SMUVersion & 0x0000FF00)>>8, (SMUVersion & 0x000000FF));
 	wt->setHeader(s);
+}
+
+
+/*****************************************************
+ *	connect [ip] [port]
+ *
+ *	se ip no è specificato, assume di default IP=127.0.0.1 e PORT=DEFAULT_PORT_NUMBER
+ *	se ip è specificato e port non lo è, assume PORT=DEFAULT_PORT_NUMBER
+ */
+void handleCommandSyntax_connect (const char *s, char *out_ip, u32 sizeofIP, u16 *out_port)
+{
+	sprintf_s (out_ip, sizeofIP, "127.0.0.1");
+	*out_port = DEFAULT_PORT_NUMBER;
+
+	rhea::string::parser::Iter iter;
+	rhea::string::parser::Iter iter2;
+	
+	iter.setup(s);
+	rhea::string::parser::advanceUntil(iter, " ", 1);
+	rhea::string::parser::toNextValidChar(iter);
+
+	//se c'è un ip
+	if (rhea::string::parser::extractValue(iter, &iter2, " ", 1))
+	{
+		iter2.copyCurStr(out_ip, sizeofIP);
+
+		rhea::string::parser::toNextValidChar(iter);
+
+		i32 port;
+		if (rhea::string::parser::extractInteger(iter, &port))
+		{
+			if (port > 0 && port < 65536)
+				*out_port = (u16)port;
+		}
+	}
+
+}
+
+//*****************************************************
+void handleCommandSyntax_help (WinTerminal *logger)
+{
+	logger->log("Console command list:\n");
+	logger->incIndent();
+		logger->log("cls\n");
+		logger->log("connect [ip] | [port]\n");
+		logger->log("disconnect\n");
+		logger->log("exit\n");
+		userCommandFactory.help_commandLlist(logger);
+	logger->decIndent();
 }
 
 //*****************************************************
@@ -147,7 +201,6 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 	}
 }
 
-
 //*****************************************************
 void handleMsgFromSocketServer (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, rhea::LinearBuffer &bufferR, rhea::app::FileTransfer *ftransf, WinTerminal *log)
 {
@@ -160,8 +213,9 @@ void handleMsgFromSocketServer (rhea::IProtocolChannell *ch, rhea::IProtocol *pr
 			return;
 
 		rhea::app::sDecodedMsg decoded;
-		u16 nUsed = rhea::app::decodeSokBridgeMessage(bufferR._getPointer(0), nRead, &decoded);
-		if (nUsed)
+		u8 *buffer = bufferR._getPointer(0);
+		u16 nBytesUsed = 0;
+		while (rhea::app::decodeSokBridgeMessage(buffer, nRead, &decoded, &nBytesUsed))
 		{
 			switch (decoded.what)
 			{
@@ -177,40 +231,60 @@ void handleMsgFromSocketServer (rhea::IProtocolChannell *ch, rhea::IProtocol *pr
 				DBGBREAK;
 				break;
 			}
+
+			assert(nRead >= nBytesUsed);
+			nRead -= nBytesUsed;
+			if (nRead > 0)
+				buffer += nBytesUsed;
 		}
 	}
 }
 
-//*****************************************************
-void handleUserInput(const char *s, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf)
+/*****************************************************
+ * in generale ritorn 0 ma per alcuni msg specifici ritorna > 0
+ * Ritorna:
+ *	0xff => comando non riconosciuto
+ *	0x01 => se il comando è "connect"
+ *	0x02 => se il comando è "disconnect"
+ */
+u8 handleUserInput (const char *s, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf)
 {
-	if (strcasecmp(s, "list") == 0)
-	{
-		log->log("sending [%s]...\n", s);
-		rhea::app::ClientList::ask(ch, proto);
-		return;
-	}
-	if (strcasecmp(s, "cpumsg") == 0)
-	{
-		log->log("sending [%s]...\n", s);
-		rhea::app::CurrentCPUMessage::ask(ch, proto);
-		return;
-	}
-	if (strcasecmp(s, "cpustatus") == 0)
-	{
-		log->log("sending [%s]...\n", s);
-		rhea::app::CurrentCPUStatus::ask(ch, proto);
-		return;
-	}
-	if (strcasecmp(s, "selavail") == 0)
-	{
-		log->log("sending [%s]...\n", s);
-		rhea::app::CurrentSelectionAvailability::ask(ch, proto);
-		return;
-	}
-	
+	if (strncmp(s, "connect", 7) == 0)
+		return 0x01;
 
-	if (strcasecmp(s, "upload") == 0)
+	if (strncmp(s, "help", 4) == 0)
+	{
+		handleCommandSyntax_help(log);
+		return 0;
+	}
+
+	if (!ch->isOpen())
+	{
+		log->outText(true, false, false, "not connected\n");
+		return 0;
+	}
+
+	if (strcasecmp(s, "disconnect") == 0)
+		return 0x02;
+
+
+	if (userCommandFactory.handle(s, ch, proto, log, ftransf))
+		return 0;
+
+	if (strcasecmp(s, "upload1") == 0)
+	{
+		log->log("sending [%s]...\n", s);
+		log->incIndent();
+
+		rhea::app::FileTransfer::Handle handle;
+		if (ftransf->startFileUpload(ch, proto, rhea::getTimeNowMSec(), "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/test_upload_small_file.gif", "test", &handle))
+			log->log("file transfer started. Handle [0x%08X]\n", handle.asU32());
+		else
+			log->log("file transfer FAILED to start\n");
+		log->decIndent();
+		return 0;
+	}
+	if (strcasecmp(s, "upload2") == 0)
 	{
 		log->log("sending [%s]...\n", s);
 		log->incIndent();
@@ -221,10 +295,25 @@ void handleUserInput(const char *s, rhea::IProtocolChannell *ch, rhea::IProtocol
 		else
 			log->log("file transfer FAILED to start\n");
 		log->decIndent();
-		return;
+		return 0;
+	}
+
+	if (strcasecmp(s, "download-test") == 0)
+	{
+		log->log("sending [%s]...\n", s);
+		log->incIndent();
+
+		rhea::app::FileTransfer::Handle handle;
+		if (ftransf->startFileDownload(ch, proto, rhea::getTimeNowMSec(), "test", "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/file_downloadata_da_smu", &handle))
+			log->log("file transfer started. Handle [0x%08X]\n", handle.asU32());
+		else
+			log->log("file transfer FAILED to start\n");
+		log->decIndent();
+		return 0;
 	}
 
 	log->outText(true,false,false,"unknown command [%s]\n", s);
+	return 0xff;
 
 }
 
@@ -248,54 +337,93 @@ bool identify (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, rhea::Linear
 	return true;
 }
 
+
+//*****************************************************
+bool connect (rhea::ProtocolChSocketTCP *ch, rhea::IProtocol *proto, rhea::LinearBuffer &bufferR, const char *IP, u16 PORT_NUMBER, WinTerminal *logger)
+{
+	logger->log("connecting to [%s]:[%d]\n", IP, PORT_NUMBER);
+	logger->incIndent();
+
+	//apro una socket
+	OSSocket sok;
+	eSocketError err = OSSocket_openAsTCPClient (&sok, IP, PORT_NUMBER);
+	if (eSocketError_none != err)
+	{
+		logger->log("FAILED with errCode=%d\n", (u32)err);
+		logger->decIndent();
+		return false;
+	}
+
+	//bindo la socket al channel
+	logger->log("connected\n");
+	ch->bindSocket(sok);
+
+	//handshake
+	logger->log("sending handshake to SMU\n");
+	logger->incIndent();
+	if (!proto->handshake_clientSend(ch, logger))
+	{
+		logger->log("FAIL\n");
+		logger->decIndent();
+		logger->decIndent();
+		return false;
+	}
+
+	//siamo connessi
+	logger->log("handshake OK\n");
+	logger->decIndent();
+
+	//identificazione
+	if (identify (ch, proto, bufferR, logger))
+	{
+		logger->decIndent();
+		return true;
+	}
+
+	logger->decIndent();
+	return false;
+}
+
+//*****************************************************
+void disconnect (rhea::ProtocolChSocketTCP *ch, OSWaitableGrp *waitGrp, WinTerminal *logger)
+{
+	if (ch->isOpen())
+	{
+		logger->log("disconnecting\n");
+		waitGrp->removeSocket(ch->getSocket());
+		ch->close();
+	}
+}
+
 /*****************************************************
  * true se il main deve aspettare per un char prima di terminare
  * false se il main termina all'istante
  */
 bool run (const sThreadInitParam *init)
 {
+	//parametri di init
 	HThreadMsgR msgQHandleR = init->handleR;
-	WinTerminal *log = init->wt;
+	WinTerminal *logger = init->wt;
 
-	const char			IP[] = { "127.0.0.1" };
-	const int			PORT_NUMBER = 2280;
-	rhea::Allocator		*localAllocator = rhea::memory_getDefaultAllocator();
-	
-	//apro una socket
-	OSSocket sok;
-	log->log("opening socket %s:%d...", IP, PORT_NUMBER);
-	eSocketError err = OSSocket_openAsTCPClient(&sok, IP, PORT_NUMBER);
-	if (eSocketError_none != err)
-	{
-		log->log("FAILED with errCode=%d\n", (u32)err);
-		return true;
-	}
+	//allocatore locale
+	rhea::Allocator	*localAllocator = rhea::memory_getDefaultAllocator();
 
 	//canale di comunicazione
-	rhea::ProtocolChSocketTCP ch(localAllocator, 4096, sok);
+	rhea::ProtocolChSocketTCP ch(localAllocator, 4096, 8192);
 
 	//Protocollo 
-	rhea::ProtocolConsole proto(localAllocator, 1024);
+	rhea::ProtocolConsole proto(localAllocator, 1024, 4096);
 
-	//handshake
-	log->log("sending handshake to SMU\n");
-	log->incIndent();
-	if (!proto.handshake_clientSend(&ch, log))
-	{
-		log->log("FAIL\n");
-		log->decIndent();
-		return true;
-	}
+	//creazione del buffer di ricezione
+	rhea::LinearBuffer	bufferR;
+	bufferR.setup(localAllocator, 8192);
 
-	//siamo connessi
-	log->log ("socket connected!\n");
-	log->decIndent();
+	//handler dei file transfer
+	rhea::app::FileTransfer fileTransferManager;
+	fileTransferManager.setup(localAllocator, logger);
 
-
-	//Setup della waitableGrpo
+	//Setup della waitableGrp
 	OSWaitableGrp waitGrp;
-	waitGrp.addSocket(sok, u32MAX);
-
 	{
 		OSEvent hMsgQEvent;
 		rhea::thread::getMsgQEvent (msgQHandleR, &hMsgQEvent);
@@ -303,83 +431,107 @@ bool run (const sThreadInitParam *init)
 	}
 
 
-	//creazione del buffer di ricezione
-	rhea::LinearBuffer	bufferR;
-	bufferR.setup(localAllocator, 8192);
+	//setup della lista dei comandi utenti riconosciuti
+	userCommandFactory.setup(localAllocator);
+	userCommandFactory.utils_addAllKnownCommands();
 
 
-	if(identify(&ch, &proto, bufferR, log))
+	//connessione automatica a localhost
+	if (connect(&ch, &proto, bufferR, "127.0.0.1", DEFAULT_PORT_NUMBER, logger))
+		waitGrp.addSocket(ch.getSocket(), u32MAX);
+
+	//main loop
+	bool bQuit = false;
+	while (bQuit == false)
 	{
-		//handler dei file transfer
-		rhea::app::FileTransfer fileTransferManager;
-		fileTransferManager.setup(localAllocator);
+		//ogni 10 secondi mi sblocco indipendentemente dall'avere ricevuto notifiche o meno
+		u8 nEvent = waitGrp.wait(10000);
 
-		bool bQuit = false;
-		while (bQuit == false)
+		//vediamo cosa mi ha svegliato
+		for (u8 i = 0; i < nEvent; i++)
 		{
-			//ogni 10 secondi mi sblocco indipendentemente dall'avere ricevuto notifiche o meno
-			u8 nEvent = waitGrp.wait (10000);
-
-			//vediamo cosa mi ha svegliato
-			for (u8 i = 0; i < nEvent; i++)
+			if (OSWaitableGrp::evt_origin_socket == waitGrp.getEventOrigin(i))
 			{
-				if (OSWaitableGrp::evt_origin_socket == waitGrp.getEventOrigin(i))
+				//ho qualcosa sulla socket
+				handleMsgFromSocketServer(&ch, &proto, bufferR, &fileTransferManager, logger);
+			}
+			else if (OSWaitableGrp::evt_origin_osevent == waitGrp.getEventOrigin(i))
+			{
+				//ho qualcosa sulla msgQ di questo thread
+				rhea::thread::sMsg msg;
+				while (rhea::thread::popMsg(msgQHandleR, &msg))
 				{
-					//ho qualcosa sulla socket
-					handleMsgFromSocketServer(&ch, &proto, bufferR, &fileTransferManager, log);
-				}
-				else if (OSWaitableGrp::evt_origin_osevent == waitGrp.getEventOrigin(i))
-				{
-					//ho qualcosa sulla msgQ di questo thread
-					rhea::thread::sMsg msg;
-					while (rhea::thread::popMsg(msgQHandleR, &msg))
+					switch (msg.what)
 					{
-						switch (msg.what)
+					default:
+						DBGBREAK;
+						break;
+
+					case MSGQ_DIE:
+						bQuit = true;
+						break;
+
+					case MSGQ_USER_INPUT:
+						switch (handleUserInput((const char*)msg.buffer, &ch, &proto, logger, &fileTransferManager))
 						{
 						default:
-							DBGBREAK;
 							break;
 
-						case MSGQ_DIE:
-							bQuit = true;
+						case 0x01: //connect
+							{
+								disconnect(&ch, &waitGrp, logger);
+								
+								char ip[64];
+								u16 port;
+								handleCommandSyntax_connect((const char*)msg.buffer, ip, sizeof(ip), &port);
+								if (connect(&ch, &proto, bufferR, ip, port, logger))
+								{
+									waitGrp.addSocket(ch.getSocket(), u32MAX);
+								}
+							}
 							break;
 
-						case MSGQ_USER_INPUT:
-							handleUserInput((const char*)msg.buffer, &ch, &proto, log, &fileTransferManager);
+						case 0x02: //disconnect
+							disconnect(&ch, &waitGrp, logger);
 							break;
 						}
-						rhea::thread::deleteMsg(msg);
+						break;
 					}
+					rhea::thread::deleteMsg(msg);
 				}
 			}
-
-			//update del file transfer manager
-			u64 timeNowMSec = rhea::getTimeNowMSec();
-			if (fileTransferManager.update(timeNowMSec))
-			{
-				rhea::app::FileTransfer::sTansferInfo info;
-				while (fileTransferManager.popEvent(&info))
-				{
-					u32 handle = info.handle.asU32();
-					log->log("FTE => handle[0x%08X] status[%d=%s] totalBytes[%d] currentBytes[%d] failReason[%d=%s]\n", 
-									handle, 
-									info.status, rhea::app::utils::verbose_fileTransferStatus(info.status),
-									info.totalTransferSizeInBytes, 
-									info.currentTransferSizeInBytes,
-									info.failReason, rhea::app::utils::verbose_fileTransferFailReason(info.failReason)
-							);
-				}
-			}
-
 		}
 
-		fileTransferManager.unsetup();
-	}
-	bufferR.unsetup();
+		//update del file transfer manager
+		u64 timeNowMSec = rhea::getTimeNowMSec();
+		if (fileTransferManager.update(timeNowMSec))
+		{
+			rhea::app::FileTransfer::sTansferInfo info;
+			while (fileTransferManager.popEvent(&info))
+			{
+				u32 handle = info.handle.asU32();
+				const f32 timeElapsedSec = (f32)info.timeElapsedMSec / 1000.0f;
+				f32 KbSec = ((f32)info.currentTransferSizeInBytes / timeElapsedSec) / 1024.0f;
 
+				logger->log("FTE => handle[0x%08X] transferred[%d/%d], speed[%.2f] kB/s, status[%d = %s], fail[%d = %s]\n",
+					handle,
+					info.currentTransferSizeInBytes, info.totalTransferSizeInBytes,
+					KbSec,
+					info.status, rhea::app::utils::verbose_fileTransferStatus(info.status),
+					info.failReason, rhea::app::utils::verbose_fileTransferFailReason(info.failReason)
+				);
+			}
+		}
+
+	}
+
+	//unsetup
+	fileTransferManager.unsetup();
+	bufferR.unsetup();
+	userCommandFactory.unsetup();
 
 	//chiudo
-	log->log("closing connection\n");
+	logger->log("closing connection\n");
 	proto.close(&ch);
 	return false;
 }

@@ -25,6 +25,8 @@ namespace socketbridge
 
 	private:
 		static const u16		SIZE_OF_BUFFERW = 1024 + 256;
+		static const u16		PACKET_SIZE = 900;
+		static const u8			NUM_PACKET_IN_A_CHUNK = 24;
 
 	private:
 		enum eTransferStatus
@@ -34,27 +36,52 @@ namespace socketbridge
 			eTransferStatus_finished_KO = 2
 		};
 
+		struct sWhenAPPisUploading
+		{
+			u32 numOfPacketToBeRcvInTotal;
+			u32 lastGoodPacket;
+			u64 nextTimeSendNACKMsec;
+		};
+
+		struct sWhenAPPisDownloading
+		{
+			u8	*sendBuffer;
+			u16	sizeOfSendBuffer;
+			u32	numOfPacketToBeSentInTotal;
+			u32 nextPacketToSend;
+		};
+
+		union sOther
+		{
+			sWhenAPPisUploading whenAPPisUploading;
+			sWhenAPPisDownloading whenAPPisDownloading;
+		};
+
 		struct sActiveUploadRequest
 		{
 			eTransferStatus status;
-			u32	smuFileTransfUID;
-			u32 appFileTransfUID;
-			u32 totalFileSizeInBytes;
-			u32 packetSize;
-			u32 numOfPacketToBeRcvInTotal;
-			u64	timeoutMSec;
-			u64 nextTimeOutputANotificationMSec;
-			u32 lastGoodPacket;
-			FILE *f;
+			u8				isAppUploading;
+			u32				smuFileTransfUID;
+			u32				appFileTransfUID;
+			u64				timeoutMSec;
+			u64				nextTimeOutputANotificationMSec;
+			FILE			*f;
+			u32				totalFileSizeInBytes;
+			u32				packetSize;
+			u8				numPacketInAChunk;
+			sOther			other;
 		};
 
 	private:
-		void					priv_on_Opcode_upload_request_fromApp (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec);
-		void					priv_on_Opcode_upload_request_fromApp_packet(Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec);
+		void					priv_on0x01 (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec);
+		void					priv_on0x03(Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec);
+		void					priv_on0x51(Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec);
+		void					priv_on0x54(Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec);
 		void					priv_send (Server *server, const HSokServerClient &h, const u8 *what, u16 sizeofwhat);
 		u32						priv_generateUID() const;
 		u32						priv_findActiveTransferBySMUUID(u32 smuFileTransfUID) const;
 		void					priv_freeResources(u32 i);
+		void					priv_sendChunkOfPackets(Server *server, const HSokServerClient &h, sActiveUploadRequest *s, u16 nPacket);
 
 	private:
 		rhea::Allocator			*localAllocator;

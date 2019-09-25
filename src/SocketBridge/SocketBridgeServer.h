@@ -41,7 +41,7 @@ namespace socketbridge
 		
 
     private:
-		bool					priv_decodeMessage(rhea::LinearBuffer &buffer, u16 *in_out_offset, u16 nBytesInBuffer, sDecodedMessage *out);
+		bool					priv_extractOneMessage (u8 *buffer, u16 nBytesInBuffer, sDecodedMessage *out, u16 *out_nBytesConsumed) const;
 
 		bool					priv_encodeMessageOfTypeEvent(eEventType eventType, const void *optionalData, u16 lenOfOptionalData, u8 *out_buffer, u16 *in_out_bufferLength);
 								/* filla *out_buffer con i bytes necessari per inviare un comando di tipo "eOpcode_event_E".
@@ -59,6 +59,7 @@ namespace socketbridge
 		bool					priv_subsribeToCPU (const HThreadMsgW &hCPUServiceChannelW);
 		u16                     priv_getANewHandlerID ();
         void                    priv_onClientHasDataAvail (u8 iEvent, u64 timeNowMSec);
+		void					priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo	*identifiedClient, socketbridge::sDecodedMessage &decoded);
         void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
 		void                    priv_handleIdentification (const HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded);
 

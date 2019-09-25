@@ -9,6 +9,12 @@
       <Filter>terminal</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\GPUConsole\Terminal.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommandFactory.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h">
@@ -19,10 +25,28 @@
     </ClInclude>
     <ClInclude Include="..\..\src\GPUConsole\Terminal.h" />
     <ClInclude Include="..\..\src\GPUConsole\enumAndDefine.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_list.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpumsg.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpustatus.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_selavail.h">
+      <Filter>command</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="terminal">
       <UniqueIdentifier>{ab26d006-9765-4936-b554-bdbcc9a3c993}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="command">
+      <UniqueIdentifier>{bbefdcf1-2aa5-4fb7-b9be-7bd52a089afb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

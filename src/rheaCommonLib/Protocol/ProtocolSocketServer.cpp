@@ -253,7 +253,8 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
 		return false;
     }
 
-	ProtocolChSocketTCP	*ch = RHEANEW(allocator, ProtocolChSocketTCP) (allocator, 1024, acceptedSok);
+	ProtocolChSocketTCP	*ch = RHEANEW(allocator, ProtocolChSocketTCP) (allocator, 1024, 8192);
+	ch->bindSocket(acceptedSok);
 
 
 
@@ -277,7 +278,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
         if (ProtocolWebsocket::server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
         {
             //logger->log ("it's a websocket\n");
-			protocol = RHEANEW(allocator, ProtocolWebsocket) (allocator);
+			protocol = RHEANEW(allocator, ProtocolWebsocket) (allocator, 1024, 4096);
             break;
         }
 
@@ -285,7 +286,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
         if (ProtocolConsole::server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
         {
             //logger->log ("it's a console\n");
-			protocol = RHEANEW(allocator, ProtocolConsole) (allocator);
+			protocol = RHEANEW(allocator, ProtocolConsole) (allocator, 512, 4096);
             break;
         }
 

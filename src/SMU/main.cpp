@@ -7,7 +7,7 @@
 
 
 //*****************************************************
-bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::StdoutLogger *logger, rhea::HThread *out_hThread)
+bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)
 {
 	return socketbridge::startServer(logger, hCPUServiceChannelW, out_hThread);
 }
@@ -17,7 +17,16 @@ bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::StdoutLogger *log
 //*****************************************************
 bool startCPUBridge()
 {
-	rhea::StdoutLogger logger;
+#ifdef _DEBUG
+	rhea::StdoutLogger loggerSTD; 
+	//rhea::NullLogger loggerSTD;
+	rhea::ISimpleLogger *logger = &loggerSTD;
+#else
+	rhea::NullLogger loggerNULL;
+	rhea::ISimpleLogger *logger = &loggerNULL;
+#endif
+
+	
 
 	/*apro un canale di comunicazione con la CPU fisica
 	cpubridge::CPUChannelCom chToCPU;
@@ -27,7 +36,7 @@ bool startCPUBridge()
 	*/
 
 	cpubridge::CPUChannelFakeCPU chToCPU;
-	bool b = chToCPU.open (&logger);
+	bool b = chToCPU.open (logger);
 	if (!b)
 		return false;
 
@@ -35,12 +44,12 @@ bool startCPUBridge()
 	rhea::HThread hCPUThread;
 	HThreadMsgW hCPUServiceChannelW;
 
-	if (!cpubridge::startServer(&chToCPU, &logger, &hCPUThread, &hCPUServiceChannelW))
+	if (!cpubridge::startServer(&chToCPU, logger, &hCPUThread, &hCPUServiceChannelW))
 		return false;
 
 	//starto socketBridge che a sua volta siiscriverà a CPUBridge
 	rhea::HThread hSocketBridgeThread;
-	startSocketBridge(hCPUServiceChannelW, &logger, &hSocketBridgeThread);
+	startSocketBridge(hCPUServiceChannelW, logger, &hSocketBridgeThread);
 
 
 	//attendo che il thread CPU termini
@@ -50,7 +59,7 @@ bool startCPUBridge()
 }
 
 
-//*****************************************************
+/*****************************************************
 void startSyandAloneSocketBridge()
 {
 	rhea::StdoutLogger logger;
@@ -65,7 +74,7 @@ void startSyandAloneSocketBridge()
 	//attendo che il thread termini
 	rhea::thread::waitEnd(hSocketBridgeThread);
 }
-
+*/
 
 //*****************************************************
 int main()

@@ -15,7 +15,7 @@ namespace rhea
 	class IProtocolChannell
 	{
 	public:
-							IProtocolChannell (Allocator *allocatorIN, u32 startingSizeOfReadBuffer);	
+							IProtocolChannell (Allocator *allocatorIN, u16 startingSizeOfReadBufferInBytes, u16 maxSizeOfReadBufferInBytes);
 		virtual				~IProtocolChannell();
 
 		bool				isOpen() const														{ return virt_isOpen(); }
@@ -26,7 +26,10 @@ namespace rhea
 
 		u16					read (u32 timeoutMSec);
 							/*	legge dal canale di comunicazione (non bloccante se timeoutMSec==0) ed eventualmente filla un buffer interno con i bytes ricevuti.
-								Ritorna il numero di bytes attualmente presenti nel buffer di lettura.
+								Ritorna il numero di bytes letti e messi nel buffer di lettura.
+								Attenzione che il numero di byte letti in questa chiamata non è detto che sia == al numero di bytes attualmente presenti nel buffer (vedi getNumBytesInReadBuffer()).
+								Supponiamo di chiama read() una prima volta, questa ritorn 5. In questo momento abbiamo 5 bytes nel buffer.
+								Supponiamo di chiamarla di nuovo dopo 2 secondi, questa ritorna 2. Nel buffer ora abbiamo 7 bytes
 
 								In caso di errore, il valore ritornato è >= protocol::RES_ERROR
 								Ad esempio, se durante la lettura per qualunque motivo il canale dovesse chiudersi, la fn ritorna protocol::RES_CHANNEL_CLOSED
@@ -60,12 +63,13 @@ namespace rhea
 							/* riguardo al valore ritornato, deve seguire la stessa policy di write() */
 
 	private:
-		void				priv_growReadBuffer();
+		bool				priv_growReadBuffer();
 
 	private:
 		Allocator			*allocator;
 		u8                  *rBuffer;
 		u16                 RBUFFER_SIZE;
+		u16					MAX_RBUFFER_SIZE;
 		u16                 nBytesInReadBuffer;
 	};
 } // namespace rhea

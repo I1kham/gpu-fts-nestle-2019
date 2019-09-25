@@ -19,8 +19,11 @@ namespace rhea
                              */
 
     public:
-                            ProtocolConsole (Allocator *allocatorIN, u32 sizeOfWriteBuffer = 512) : IProtocol(allocatorIN, sizeOfWriteBuffer)		{ }
-		virtual             ~ProtocolConsole()																										{ }
+                            ProtocolConsole (Allocator *allocatorIN, u16 startingSizeOfWriteBuffer, u16 maxSizeOfWriteBuffer) : IProtocol(allocatorIN, startingSizeOfWriteBuffer, maxSizeOfWriteBuffer)		
+							{ }
+		
+		virtual             ~ProtocolConsole()																										
+							{ }
 
 
 		bool				handshake_clientSend (IProtocolChannell *ch, rhea::ISimpleLogger *logger = NULL);
@@ -32,7 +35,7 @@ namespace rhea
 
 	protected:
 		void				virt_sendCloseMessage (IProtocolChannell *ch);
-		u16					virt_decodeBuffer (IProtocolChannell *ch, const u8 *bufferIN, u16 nBytesInBufferIN, LinearBuffer &out_result, u16 *out_nBytesInseritiInOutResult);
+		u16					virt_decodeBuffer (IProtocolChannell *ch, const u8 *bufferIN, u16 nBytesInBufferIN, LinearBuffer &out_result, u32 startOffset, u16 *out_nBytesInseritiInOutResult);
 		u16					virt_encodeBuffer (const u8 *bufferToEncode, u16 nBytesToEncode, u8 *out_buffer, u16 sizeOfOutBuffer);
 
 
@@ -59,7 +62,7 @@ namespace rhea
 
 	private:
 		u16					priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const;
-		u16                 priv_encodeAMessage(eOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *out_buffer, u16 sizeOfOutBuffer) const;
+		u16                 priv_encodeAMessage(eOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *out_buffer, u16 sizeOfOutBuffer);
 
     };
 

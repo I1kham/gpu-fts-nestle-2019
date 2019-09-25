@@ -197,7 +197,7 @@ bool ProtocolWebsocket::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISim
 /****************************************************
  * vedi IProtocol.h
  */
-u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer, u16 nBytesInBuffer, LinearBuffer &out_result, u16 *out_nBytesInseritiInOutResult)
+u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer, u16 nBytesInBuffer, LinearBuffer &out_result, u32 startOffset, u16 *out_nBytesInseritiInOutResult)
 {
 	*out_nBytesInseritiInOutResult = 0;
 
@@ -217,13 +217,13 @@ u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffe
 			//copio il payload appena ricevuto nel buffer utente
 			if (decoded.payloadLen)
 			{
-				out_result.write (decoded.payload, 0, decoded.payloadLen, true);
+				out_result.write (decoded.payload, startOffset, decoded.payloadLen, true);
 				*out_nBytesInseritiInOutResult += (u16)decoded.payloadLen;
 
 				if (decoded.isMasked)
 				{
 					//unmask del payload se necessario
-					u8 *p = out_result._getPointer(0);
+					u8 *p = out_result._getPointer(startOffset);
 					for (u16 i = 0; i < decoded.payloadLen; i++)
 						p[i] ^= decoded.keys[i % 4];
 				}
@@ -236,9 +236,10 @@ u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffe
 			//unmask del payload se necessario
 			if (decoded.isMasked)
 			{
-				u8 *p = out_result._getPointer(0);
+				DBGBREAK;
+				/*u8 *p = decoded.payload;
 				for (u16 i = 0; i < decoded.payloadLen; i++)
-					p[i] ^= decoded.keys[i % 4];
+					p[i] ^= decoded.keys[i % 4];*/
 			}
 			
 			//rispondo con pong
@@ -373,9 +374,15 @@ u16 ProtocolWebsocket::virt_encodeBuffer(const u8 *bufferToEncode, u16 nBytesToE
  * Prepara un valido messaggio Websocket e lo mette in wBuffer a partire dal byte 0.
  * Ritorna la lunghezza in bytes del messaggio
  */
-u16 ProtocolWebsocket::priv_encodeAMessage(bool bFin, eWebSocketOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *wBuffer, u16 sizeOfOutBuffer) const
+u16 ProtocolWebsocket::priv_encodeAMessage(bool bFin, eWebSocketOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *wBuffer, u16 sizeOfOutBuffer)
 {
+	u32 nBytesRequired = payloadLen + 5;
+	if (sizeOfOutBuffer < nBytesRequired)
+		return protocol::RES_PROTOCOL_WRITEBUFFER_TOOSMALL;
+
 	u16 ct = 0;
+
+
 
 	//primo byte : fin, RSV1, RSV2, RSV3, opcode
 	wBuffer[ct] = (u8)opcode;
@@ -421,7 +428,7 @@ i16 ProtocolWebsocket::writeText (IProtocolChannell *ch, const char *strIN)
     if (n < 1)
         return 1;
 
-	u16 nToWrite = priv_encodeAMessage (true, eWebSocketOpcode_TEXT, strIN, (u16)n, bufferW, BUFFERW_SIZE);
+	u16 nToWrite = priv_encodeAMessage (true, eWebSocketOpcode_TEXT, strIN, (u16)n, bufferW, BUFFERW_CUR_SIZE);
 	if (nToWrite)
 	{
 		ch->write (bufferW, nToWrite, 1000);
@@ -433,7 +440,7 @@ i16 ProtocolWebsocket::writeText (IProtocolChannell *ch, const char *strIN)
 //****************************************************
 i16 ProtocolWebsocket::writeBuffer (IProtocolChannell *ch, const void *bufferIN, u16 nBytesToWrite)
 {
-    u16 nToWrite = priv_encodeAMessage(true, eWebSocketOpcode_BINARY, bufferIN, nBytesToWrite, bufferW, BUFFERW_SIZE);
+    u16 nToWrite = priv_encodeAMessage(true, eWebSocketOpcode_BINARY, bufferIN, nBytesToWrite, bufferW, BUFFERW_CUR_SIZE);
 	if (nToWrite)
 	{
 		ch->write(bufferW, nToWrite, 1000);

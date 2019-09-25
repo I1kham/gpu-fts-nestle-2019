@@ -104,12 +104,13 @@ const char*	utils::verbose_fileTransferStatus(eFileTransferStatus s)
 //***************************************************************
 const char*	utils::verbose_fileTransferFailReason(socketbridge::eFileTransferFailReason s)
 {
-	static const char v[5][28] = {
+	static const char v[6][32] = {
 		{"NONE"},
 		{"TIMEOUT"},
 		{"SMU_REFUSED"},
 		{"READBUF_TOO_SHORT"},
-		{"SMU-ERR OPENING FILE"}
+		{"SMU-ERR OPENING FILE"},
+		{"SMU-FILE TOO BIG OR EMPTY"}
 	};
 
 	switch (s)
@@ -120,5 +121,6 @@ const char*	utils::verbose_fileTransferFailReason(socketbridge::eFileTransferFai
 	case socketbridge::eFileTransferFailReason_smuRefused:			return v[2];
 	case socketbridge::eFileTransferFailReason_localReadBufferTooShort: return v[3];
 	case socketbridge::eFileTransferFailReason_smuErrorOpeningFile: return v[4];
+	case socketbridge::eFileTransferFailReason_smuFileTooBigOrEmpty: return v[5];
 	}
 }	

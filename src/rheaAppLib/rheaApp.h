@@ -10,12 +10,11 @@ namespace rhea
 	namespace app
 	{
 
-		u16			decodeSokBridgeMessage (const void *bufferIN, u16 nBytesInBuffer, sDecodedMsg *out);
-					/* decodifica un msg ricevuto da SockeBridge.
-						Ritorna il numero dy bytes "consumati" in bufferR per decodificare il msg
-						Se ritorna 0, vuol dire che nel bufferR non c'era un valido messaggio
-						
-						Se ritorna > 0, allora vuol dire che [out] contiene un valido messaggio.
+		bool		decodeSokBridgeMessage (const u8 *bufferIN, u16 nBytesInBuffer, sDecodedMsg *out, u16 *out_nBytesConsumed);
+					/*	decodifica un msg ricevuto da SockeBridge.
+						Se in [buffer] c'è un messaggio valido, ritorna true, filla [out] e scrive in [out_nBytesConsumed] il num di bytes
+						utilizzati per decodificare il msg.
+						Se ritorna true, allora vuol dire che [out] contiene un valido messaggio.
 						Il tipo di messaggio è indicato da out->what.
 						A seconda del valore di out->what, fare riferimento a out->data.asEvent oppure out->data.asFileTransf
 

@@ -140,7 +140,7 @@ void WinTerminal::priv_onKeyEvent(const KEY_EVENT_RECORD *ev)
 		return;
 
 	const char ascii = ev->uChar.AsciiChar;
-	if ( (ascii>='a' && ascii<='z') || (ascii >= 'A' && ascii <= 'Z') || (ascii >= '0' && ascii <= '9') || ascii ==' ' || ascii == '?')
+	if ( (ascii>='a' && ascii<='z') || (ascii >= 'A' && ascii <= 'Z') || (ascii >= '0' && ascii <= '9') || ascii ==' ' || ascii == '.' || ascii == '?' || ascii == '-' || ascii == ':' || ascii == '_')
 	{
 		for (u32 i = 0; i < ev->wRepeatCount; i++)
 		{

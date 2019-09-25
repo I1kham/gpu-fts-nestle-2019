@@ -293,7 +293,7 @@ i32 platform::socket_read (OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u
 }
 
 //*************************************************
-i32  platform::socket_write(const OSSocket &sok, const void *buffer, u16 nBytesToSend)
+i32  platform::socket_write(OSSocket &sok, const void *buffer, u16 nBytesToSend)
 {
     i32 ret = ::send(sok.socketID, buffer, nBytesToSend, 0);
     if (ret <= 0)

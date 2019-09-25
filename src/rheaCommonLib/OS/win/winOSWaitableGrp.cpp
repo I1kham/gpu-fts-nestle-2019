@@ -295,10 +295,40 @@ u8 OSWaitableGrp::priv_wait(u32 timeoutMSec)
 			if (p->originType == evt_origin_socket)
 			{
 				WSANETWORKEVENTS networkEvents;
-				WSAEnumNetworkEvents(p->origin.osSocket.sok.socketID, NULL, &networkEvents);
+				if (0 != WSAEnumNetworkEvents(p->origin.osSocket.sok.socketID, p->origin.osSocket.hEventNotify, &networkEvents))
+				{
+					int errCode = WSAGetLastError();
+					switch (errCode)
+					{
+					case WSANOTINITIALISED:
+						//A successful WSAStartup call must occur before using this function.
+						DBGBREAK;
+						break;
+					case WSAENETDOWN:
+						//The network subsystem has failed.
+						DBGBREAK;
+						break;
+					case WSAEINVAL:
+						//One of the specified parameters was invalid.
+						DBGBREAK;
+						break;
+					case WSAEINPROGRESS:
+						//A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.
+						DBGBREAK;
+						break;
+					case WSAENOTSOCK:
+						//The descriptor is not a socket.
+						DBGBREAK;
+						break;
+					case WSAEFAULT:
+						//The lpNetworkEvents parameter is not a valid part of the user address space.
+						DBGBREAK;
+						break;
 
-				if (networkEvents.lNetworkEvents == 0)
-					::ResetEvent(p->origin.osSocket.hEventNotify);
+					}
+				}
+
+				//if (networkEvents.lNetworkEvents == 0) ::ResetEvent(p->origin.osSocket.hEventNotify);
 				
 				DEBUG_PRINTF("  was a socket [userparam=%d], event bits = 0x%X\n", p->userParam.asU32, networkEvents.lNetworkEvents);
 				if ((networkEvents.lNetworkEvents & FD_CLOSE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CLOSE")

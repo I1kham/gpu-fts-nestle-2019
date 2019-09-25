@@ -121,7 +121,7 @@ bool ProtocolConsole::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISimpl
 /****************************************************
  * vedi IProtocol.h
  */
-u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer, u16 nBytesInBuffer, LinearBuffer &out_result, u16 *out_nBytesInseritiInOutResult)
+u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer, u16 nBytesInBuffer, LinearBuffer &out_result, u32 startOffset, u16 *out_nBytesInseritiInOutResult)
 {
 	*out_nBytesInseritiInOutResult = 0;
 
@@ -140,7 +140,7 @@ u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer,
 			//copio il payload appena ricevuto nel buffer utente
 			if (decoded.payloadLen)
 			{
-				out_result.write(decoded.payload, 0, decoded.payloadLen, true);
+				out_result.write(decoded.payload, startOffset, decoded.payloadLen, true);
 				*out_nBytesInseritiInOutResult += (u16)decoded.payloadLen;
 			}
 			return nBytesConsumed;
@@ -171,75 +171,84 @@ u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer,
 
 /****************************************************
  * Prova ad estrarre un valido messaggio dal buffer e ritorna il numero di bytes "consumati" durante il processo.
- * Se non ci sono abbastanza bytes per un valido completo messaggio, ritorna 0 in quanto non consuma alcun bytes. Si suppone che
- * qualcuno all'esterno continuerà ad appendere bytes al buffer fino a quando questo non conterrà un valido messaggio consumabile da
- * questa fn
+ * 
  */
-u16 ProtocolConsole::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
+u16 ProtocolConsole::priv_decodeOneMessage (const u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
 {
-    //ci devono essere almeno 3 bytes, questi sono obbligatori, il protocollo non ammette msg lunghi meno di 3 bytes
-    if (nBytesInBuffer < 3)
-        return 0;
-	
-    //i primi 2 byte sono il magic code
+	out_result->what = eOpcode_unknown;
+	if (nBytesInBuffer == 0)
+		return 0;
+
 	u16 ct = 0;
-	if (buffer[ct++] != MAGIC_CODE_1)
-        return 1;
-    if (buffer[ct++] != MAGIC_CODE_2)
-        return 2;
-
-    //il terzo byte è l'opcode
-	out_result->what = (eOpcode)buffer[ct++];
-	switch (out_result->what)
+	while (ct < nBytesInBuffer)
 	{
-		default:
-			//Errore, opcode non riconosciuto
-			printf("ERR ProtocolConsole::priv_decodeOneMessage() => invalid opcode [%d]\n", out_result->what);
-			out_result->what = eOpcode_unknown;
-			out_result->payloadLen = 0;
-			return 3;
+		//il primo char buono deve essere MAGIC_CODE_1
+		if (buffer[ct++] != MAGIC_CODE_1)
+			continue;
 
-		case eOpcode_close:
-			//ho ricevuto una esplicita richiesta di chiudere il canale
-			return protocol::RES_PROTOCOL_CLOSED;
-	
-		case eOpcode_internal_simpledMsg:
+		const u16 startOfThisMessage = ct - 1;
+
+		//a seguire ci deve essere MAGIC_CODE2 e opcode
+		if (ct+2 >= nBytesInBuffer)
+			return startOfThisMessage;
+
+		if (buffer[ct++] != MAGIC_CODE_2)
+			continue;
+		out_result->what = (eOpcode)buffer[ct++];
+
+		switch (out_result->what)
+		{
+			default:
+				//Errore, opcode non riconosciuto
+				printf("ERR ProtocolConsole::priv_decodeOneMessage() => invalid opcode [%d]\n", out_result->what);
+				out_result->what = eOpcode_unknown;
+				out_result->payloadLen = 0;
+				break;
+
+			case eOpcode_close:
+				//ho ricevuto una esplicita richiesta di chiudere il canale
+				return protocol::RES_PROTOCOL_CLOSED;
+
+			case eOpcode_internal_simpledMsg:
 			{
 				/*  messaggio semplice, payloadLen <=255 byte, ck8 semplice a fine messaggio:
 						MAGIC1 MAGIC2 WHAT LEN data data data CK
 				*/
+				if (ct >= nBytesInBuffer)
+					return nBytesInBuffer;
 				out_result->what = eOpcode_msg;
 				out_result->payloadLen = buffer[ct++];
 
-				//mi servono in tutto 4 + payloadLen +1 bytes nel buffer
-				if (nBytesInBuffer < 5 + out_result->payloadLen)
-					return 0;
+				//se non ci sono abbastanza bytes per il playload e la ck, ritorno "startOfThisMessage" perchè vuol dire che il buffer non ha ricevuto ancora abbastanza dati
+				//per completare il msg, ma i dati ricevuti fino ad ora sembrano validi
+				if (startOfThisMessage +5 +out_result->payloadLen > nBytesInBuffer)
+					return startOfThisMessage;
 				out_result->payload = &buffer[ct];
 				ct += out_result->payloadLen;
 
 				//verifichiamo CK
 				const u8 ck = buffer[ct++];
-				const u8 calc_ck = rhea::utils::simpleChecksum8_calc (out_result->payload, out_result->payloadLen);
+				const u8 calc_ck = rhea::utils::simpleChecksum8_calc(out_result->payload, out_result->payloadLen);
 				if (ck == calc_ck)
 					return ct;
 
 				printf("ERR ProtocolConsole::decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
 				out_result->what = eOpcode_unknown;
-				return ct;
 			}
 			break;
 
-		case eOpcode_internal_extendedMsg:
+			case eOpcode_internal_extendedMsg:
 			{
 				//MAGIC1 MAGIC2 WHAT LEN_MSB LEN_LSB payload...payload CK(u16)
+				if ((ct+1) >= nBytesInBuffer)
+					return nBytesInBuffer;
 				out_result->what = eOpcode_msg;
 				out_result->payloadLen = buffer[ct++];
 				out_result->payloadLen <<= 8;
 				out_result->payloadLen |= buffer[ct++];
 
-				//mi servono in tutto 5 + payloadLen +2 bytes nel buffer
-				if (nBytesInBuffer < 7 + out_result->payloadLen)
-					return 0;
+				if (startOfThisMessage + 7 + out_result->payloadLen > nBytesInBuffer)
+					return startOfThisMessage;
 				out_result->payload = &buffer[ct];
 				ct += out_result->payloadLen;
 
@@ -254,11 +263,15 @@ u16 ProtocolConsole::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffer,
 
 				printf("ERR ProtocolConsole::decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
 				out_result->what = eOpcode_unknown;
-				return ct;
-
 			}
 			break;
+		}
 	}
+	return nBytesInBuffer;
+
+	
+
+
 }
 
 
@@ -275,7 +288,7 @@ u16 ProtocolConsole::virt_encodeBuffer(const u8 *bufferToEncode, u16 nBytesToEnc
  * Prepara un valido messaggio e lo mette in wBuffer a partire dal byte 0.
  * Ritorna la lunghezza in bytes del messaggio
  */
-u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *wBuffer, u16 sizeOfOutBuffer) const
+u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToSend, u16 payloadLen, u8 *wBuffer, u16 sizeOfOutBuffer)
 {
 	if (sizeOfOutBuffer < 3)
 	{
@@ -310,10 +323,8 @@ u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToS
 		case eOpcode_internal_simpledMsg:
 			//MAGIC1 MAGIC2 WHAT LEN(byte) payload...payload CK(byte)
 			if (sizeOfOutBuffer < 5 + payloadLen)
-			{
-				DBGBREAK;
-				return 0;
-			}
+				return protocol::RES_PROTOCOL_WRITEBUFFER_TOOSMALL;
+
 
 			wBuffer[ct++] = (u8)payloadLen;
 			memcpy (&wBuffer[ct], payloadToSend, payloadLen);
@@ -328,10 +339,7 @@ u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToS
 
 			//MAGIC1 MAGIC2 WHAT LEN_MSB LEN_LSB payload...payload CK(u16)
 			if (sizeOfOutBuffer < 7 + payloadLen)
-			{
-				DBGBREAK;
-				return 0;
-			}
+				return protocol::RES_PROTOCOL_WRITEBUFFER_TOOSMALL;
 
 			wBuffer[ct++] = (u8)((payloadLen & 0xFF00) >> 8);
 			wBuffer[ct++] = (u8) (payloadLen & 0x00FF);

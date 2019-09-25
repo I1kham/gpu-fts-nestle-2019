@@ -106,8 +106,23 @@ void FileTransfer::priv_freeResources(u32 i)
 {
 	if (NULL != activeTransferList[i].f)
 	{
-		fclose(activeTransferList[i].f);
+		fclose (activeTransferList[i].f);
 		activeTransferList[i].f = NULL;
+	}
+
+	if (activeTransferList[i].isAppUploading)
+	{
+		//app stava uppando
+	}
+	else
+	{
+		//app stava downloadando
+		sWhenAPPisDownloading *s = &activeTransferList[i].other.whenAPPisDownloading;
+		if (NULL != s->sendBuffer)
+		{
+			RHEAFREE(localAllocator, s->sendBuffer);
+			s->sendBuffer = NULL;
+		}
 	}
 }
 
@@ -168,17 +183,80 @@ void FileTransfer::handleMsg (Server *server, const HSokServerClient &h, socketb
 
 	case eFileTransferOpcode_upload_request_fromApp:
 		//qualcuno vuole iniziare un upload verso di me
-		priv_on_Opcode_upload_request_fromApp (server, h, nbr, timeNowMSec);
+		priv_on0x01 (server, h, nbr, timeNowMSec);
 		break;
 
 	case eFileTransferOpcode_upload_request_fromApp_packet:
-		priv_on_Opcode_upload_request_fromApp_packet(server, h, nbr, timeNowMSec);
+		priv_on0x03(server, h, nbr, timeNowMSec);
 		break;
+
+	case eFileTransferOpcode_download_request_fromApp:
+		priv_on0x51(server, h, nbr, timeNowMSec);
+		break;
+
+	case eFileTransferOpcode_download_request_fromApp_packet_answ:
+		priv_on0x54(server, h, nbr, timeNowMSec);
+		break;
+
+	}
+}
+
+//**********************************************************************
+void FileTransfer::priv_sendChunkOfPackets (Server *server, const HSokServerClient &h, sActiveUploadRequest *s, u16 nPacket)
+{
+	if (s->status != eTransferStatus_pending)
+		return;
+	if (s->isAppUploading != 0)
+	{
+		DBGBREAK;
+		return;
+	}
+
+	if (s->packetSize > SIZE_OF_BUFFERW)
+	{
+		DBGBREAK;
+		s->timeoutMSec = 0;
+		return;
+	}
+
+	rhea::NetStaticBufferViewW nbw;
+	u8 *serializedDataBuffer = s->other.whenAPPisDownloading.sendBuffer;
+	nbw.setup (serializedDataBuffer, s->other.whenAPPisDownloading.sizeOfSendBuffer, rhea::eBigEndian);
+
+	u32 iPacket = s->other.whenAPPisDownloading.nextPacketToSend;
+	u32 fileOffset = iPacket * s->packetSize;
+	u32 nBytesLeft = s->totalFileSizeInBytes - fileOffset;
+
+	u8 chunkSeq = 1;
+	fseek(s->f, fileOffset, SEEK_SET);
+	while (nPacket-- && nBytesLeft)
+	{
+		u16 nByteToRead = s->packetSize;
+		if (nBytesLeft < nByteToRead)
+		{
+			nByteToRead = (u16)nBytesLeft;
+			nBytesLeft = 0;
+		}
+		else
+			nBytesLeft -= nByteToRead;
+		
+		nbw.seek(0, rhea::eSeekStart);
+		nbw.writeU8((u8)socketbridge::eFileTransferOpcode_download_request_fromApp_packet);
+		nbw.writeU32(s->appFileTransfUID);
+		nbw.writeU32(iPacket);
+		nbw.writeU8(chunkSeq);
+		fread (&serializedDataBuffer[nbw.length()], nByteToRead, 1, s->f);
+
+		//logger->log("FT => sending packet [%d]\n", s->packetNum);
+		priv_send (server, h, serializedDataBuffer, nbw.length() + nByteToRead);
+
+		iPacket++;
+		chunkSeq++;
 	}
 }
 
 //***************************************************
-void FileTransfer::priv_on_Opcode_upload_request_fromApp (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
+void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
 {
 	//decodifica e validazione dei dati ricevuti
 	fileT::sData0x01 data;
@@ -216,56 +294,59 @@ void FileTransfer::priv_on_Opcode_upload_request_fromApp (Server *server, const 
 	}
 
 
-	if (NULL != fDest)
+	if (NULL == fDest)
 	{
-		const u16 PACKET_SIZE = 512;
+		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s] or error opening file\n", data.usage);
+	}
+	else
+	{
 		//genero un UID per il trasferimento
 		//aggiungo il recordo alla lista dei trasferimenti attivi
 		sActiveUploadRequest info;
 		info.status = eTransferStatus_pending;
+		info.isAppUploading = 1;
 		info.f = fDest;
 		info.smuFileTransfUID = priv_generateUID();
 		info.appFileTransfUID = data.appTransfUID;
 		info.timeoutMSec = timeNowMSec + 5000;
 		info.nextTimeOutputANotificationMSec = 0;
 		info.packetSize = PACKET_SIZE;
-		info.lastGoodPacket = u32MAX;
+		info.numPacketInAChunk = NUM_PACKET_IN_A_CHUNK;
 		info.totalFileSizeInBytes = data.fileSizeInBytes;
-		info.numOfPacketToBeRcvInTotal = data.fileSizeInBytes / info.packetSize;
-		if (info.numOfPacketToBeRcvInTotal * info.packetSize < data.fileSizeInBytes)
-			info.numOfPacketToBeRcvInTotal++;
+
+		info.other.whenAPPisUploading.nextTimeSendNACKMsec = 0;
+		info.other.whenAPPisUploading.lastGoodPacket = u32MAX;
+		info.other.whenAPPisUploading.numOfPacketToBeRcvInTotal = data.fileSizeInBytes / info.packetSize;
+		if (info.other.whenAPPisUploading.numOfPacketToBeRcvInTotal * info.packetSize < data.fileSizeInBytes)
+			info.other.whenAPPisUploading.numOfPacketToBeRcvInTotal++;
+		
 
 		activeTransferList.append(info);
 
 		//preparo la risposta
 		answ.reason_refused = 0;
-		answ.packetSizeInBytes = info.packetSize;
 		answ.smuTransfUID = info.smuFileTransfUID;
-	}
-	else
-	{
-		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s] or error opening file\n", data.usage);
-		return;
-	}
+		answ.packetSizeInBytes = info.packetSize;
+		answ.numPacketInAChunk = info.numPacketInAChunk;
 
+		logger->log("FileTransfer => upload of [%s] accepted, smuUID[0x%08X] appUID[0x%08X]\n", data.usage, answ.smuTransfUID, answ.appTransfUID);
+	}
 
 	
 	//spedisco
-	u8	toSendBuffer[128];
-	u16 sizeOfToSendBuffer = answ.encode(toSendBuffer, sizeof(toSendBuffer));
-	priv_send (server, h, toSendBuffer, sizeOfToSendBuffer);
-
-
-	logger->log("FileTransfer => accepted, smuUID[0x%08X] appUID[0x%08X]\n", answ.smuTransfUID, answ.appTransfUID);
+	u8	serializedDataBuffer[128];
+	u16 n = answ.encode(serializedDataBuffer, sizeof(serializedDataBuffer));
+	priv_send(server, h, serializedDataBuffer, n);
 }
 
-
 //***************************************************
-void FileTransfer::priv_on_Opcode_upload_request_fromApp_packet (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
+void FileTransfer::priv_on0x03 (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
 {
 	u32 smuFileTransfUID, packetNumReceived;
+	u8	chunkSeq;
 	nbr.readU32(smuFileTransfUID);
 	nbr.readU32(packetNumReceived);
+	nbr.readU8(chunkSeq);
 
 	//ho ricevuto un pacchetto dati, vediamo se lo riconosco
 	u32 index = priv_findActiveTransferBySMUUID(smuFileTransfUID);
@@ -280,22 +361,22 @@ void FileTransfer::priv_on_Opcode_upload_request_fromApp_packet (Server *server,
 
 	if (req->status != eTransferStatus_pending)
 	{
-		DBGBREAK;
 		return;
 	}
 
 	//aggiorno il timeout per questo tranfert
-	req->timeoutMSec = timeNowMSec + 14000;
+	req->timeoutMSec = timeNowMSec + 15000;
 
 	//vediamo se il pacchetto ricevuto è coerente
-	u32 expectedPacketNum = req->lastGoodPacket + 1;
+	u32 expectedPacketNum = req->other.whenAPPisUploading.lastGoodPacket + 1;
 
 #ifdef _DEBUG
-	/*simulo un errore di trasferimento
-	if (rhea::random01() < 0.05f)
-	{
-		expectedPacketNum++;
-	}*/
+	//simulo un errore di trasferimento
+	if (rhea::random01() < 0.001f)	
+	{ 
+		logger->log("FileTransfer => [0x%08X] Error simulation\n", req->smuFileTransfUID); 
+		expectedPacketNum++; 
+	}
 #endif
 
 
@@ -303,21 +384,21 @@ void FileTransfer::priv_on_Opcode_upload_request_fromApp_packet (Server *server,
 	{
 		//bene, era quello buono
 		
-
+		
 		//aggiorno le info sul trasferimento
-		req->lastGoodPacket = packetNumReceived;
+		req->other.whenAPPisUploading.lastGoodPacket = packetNumReceived;
 
-		//per non spammare messagi, ne butto fuori uno ogni 5 secondi
+		//per non spammare messagi a video, ne butto fuori uno ogni 5 secondi
 		if (timeNowMSec > req->nextTimeOutputANotificationMSec)
 		{
-			logger->log("FileTransfer => [0x%08X] packet [%d]/[%d]\n", req->smuFileTransfUID, 1 + req->lastGoodPacket, req->numOfPacketToBeRcvInTotal);
-			req->nextTimeOutputANotificationMSec = timeNowMSec + 1000;
+			logger->log("FileTransfer => [0x%08X] packet [%d]/[%d]\n", req->smuFileTransfUID, 1 + req->other.whenAPPisUploading.lastGoodPacket, req->other.whenAPPisUploading.numOfPacketToBeRcvInTotal);
+			req->nextTimeOutputANotificationMSec = timeNowMSec + 5000;
 		}
 
 		//era l'ultimo pacchetto?
-		if (req->lastGoodPacket + 1 >= req->numOfPacketToBeRcvInTotal)
+		if (req->other.whenAPPisUploading.lastGoodPacket + 1 >= req->other.whenAPPisUploading.numOfPacketToBeRcvInTotal)
 		{
-			u32 lastPacketSize = req->totalFileSizeInBytes - req->lastGoodPacket * req->packetSize;
+			u32 lastPacketSize = req->totalFileSizeInBytes - req->other.whenAPPisUploading.lastGoodPacket * req->packetSize;
 			nbr.readBlob(bufferW, lastPacketSize);
 			fwrite(bufferW, lastPacketSize, 1, req->f);
 
@@ -331,24 +412,185 @@ void FileTransfer::priv_on_Opcode_upload_request_fromApp_packet (Server *server,
 			fwrite(bufferW, req->packetSize, 1, req->f);
 		}
 
+		//rispondo confermando la ricezione
+		req->other.whenAPPisUploading.nextTimeSendNACKMsec = 0;
+		if (chunkSeq == req->numPacketInAChunk || req->status == eTransferStatus_finished_OK)
+		{
+			fileT::sData0x04 answ;
+			answ.appTransfUID = req->appFileTransfUID;
+			answ.packetNumAccepted = req->other.whenAPPisUploading.lastGoodPacket;
 
-		
+			//spedisco
+			u8	toSendBuffer[128];
+			u16 sizeOfToSendBuffer = answ.encode(toSendBuffer, sizeof(toSendBuffer));
+			priv_send(server, h, toSendBuffer, sizeOfToSendBuffer);
+			//logger->log("FileTransfer => [0x%08X] send ACK for packet[%d]\n", req->smuFileTransfUID, req->lastGoodPacket + 1);
+		}
 	}
 	else
 	{
 		//mi è arrivato un pacchetto che non era quello che mi aspettato (li voglio in ordine seqeuenziale).
 		//Confermo la ricezione per evitare il timeout, ma come "packetNumAccepted" spedisco il mio "last good packet"
 		//in modo che dall'altra parte ripartano a spedire pacchetti da dove dico io
+		if (timeNowMSec >= req->other.whenAPPisUploading.nextTimeSendNACKMsec)
+		{
+			req->other.whenAPPisUploading.nextTimeSendNACKMsec = timeNowMSec + 2000; //sta cosa serve per evitare di mandare 1000 NACK di seguito visto che presumibilmente c'è
+																					//un intero chunk di pacchetti in arrivo che sto per scartare
+			chunkSeq = req->numPacketInAChunk;
+
+			fileT::sData0x04 answ;
+			answ.appTransfUID = req->appFileTransfUID;
+			answ.packetNumAccepted = req->other.whenAPPisUploading.lastGoodPacket;
+
+			//spedisco
+			u8	toSendBuffer[128];
+			u16 sizeOfToSendBuffer = answ.encode(toSendBuffer, sizeof(toSendBuffer));
+			priv_send(server, h, toSendBuffer, sizeOfToSendBuffer);
+
+			logger->log("FileTransfer => [0x%08X] send NACK for packet[%d]\n", req->smuFileTransfUID, req->other.whenAPPisUploading.lastGoodPacket + 1);
+		}
+	}
+}
+
+
+
+//***************************************************
+void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
+{
+	//decodifica e validazione dei dati ricevuti
+	fileT::sData0x51 data;
+	if (!data.decode(nbr))
+	{
+		DBGBREAK;
+		return;
+	}
+
+	//preparo la risposta
+	fileT::sData0x52 answ;
+	answ.reason_refused = 0;
+	answ.packetSizeInBytes = 0;
+	answ.smuTransfUID = 0;
+	answ.appTransfUID = data.appTransfUID;
+	answ.fileSize = 0;
+
+	//ok... qualcuno vuole downloadare qualcosa da me
+	//verifichiamo che il suo "what" sia lecito
+	FILE *fSRC = NULL;
+	u32 filesize = 0;
+	while (1)
+	{
+		if (strcasecmp(data.what, "test") == 0)
+		{
+			char s[256];
+			sprintf_s(s, sizeof(s), "%s/test.upload", rhea::getPhysicalPathToWritableFolder());
+			fSRC = fopen(s, "rb");
+			if (NULL == fSRC)
+				answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			else
+			{
+				const u64 UN_MEGA = 1024 * 1024;
+				const u64 fsize = rhea::utils::filesize(fSRC);
+				if (fsize==0 || fsize > 256 * UN_MEGA)
+				{
+					fclose(fSRC);
+					fSRC = NULL;
+					answ.reason_refused = (u8)eFileTransferFailReason_smuFileTooBigOrEmpty;
+				}
+				else
+					filesize = (u32)fsize;
+			}
+			break;
+		}
+
+		break;
 	}
 
 
-	//rispondo confermando la ricezione
-	fileT::sData0x04 answ;
-	answ.appTransfUID = req->appFileTransfUID;
-	answ.packetNumAccepted = req->lastGoodPacket;
+	if (NULL == fSRC)
+	{
+		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s] or error opening file\n", data.what);
+	}
+	else
+	{
+		//genero un UID per il trasferimento
+		//aggiungo il recordo alla lista dei trasferimenti attivi
+		sActiveUploadRequest info;
+		info.status = eTransferStatus_pending;
+		info.isAppUploading = 0;
+		info.f = fSRC;
+		info.smuFileTransfUID = priv_generateUID();
+		info.appFileTransfUID = data.appTransfUID;
+		info.timeoutMSec = timeNowMSec + 5000;
+		info.nextTimeOutputANotificationMSec = 0;
+		info.totalFileSizeInBytes = filesize;
+		info.packetSize = PACKET_SIZE;
+		info.numPacketInAChunk = NUM_PACKET_IN_A_CHUNK;
+
+		info.other.whenAPPisDownloading.sizeOfSendBuffer = info.packetSize + 32;
+		info.other.whenAPPisDownloading.sendBuffer = (u8*)RHEAALLOC(localAllocator, info.other.whenAPPisDownloading.sizeOfSendBuffer);
+
+		//calcolo il num totale di pacchetti che si dovranno inviare
+		info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal = info.totalFileSizeInBytes / info.packetSize;
+		if (info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal * info .packetSize < info.totalFileSizeInBytes)
+			info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal++;
+		
+
+		activeTransferList.append(info);
+
+		//preparo la risposta
+		answ.reason_refused = 0;
+		answ.smuTransfUID = info.smuFileTransfUID;
+		answ.packetSizeInBytes = info.packetSize;
+		answ.numPacketInAChunk = info.numPacketInAChunk;
+		answ.fileSize = info.totalFileSizeInBytes;
+
+		logger->log("FileTransfer => download of [%s] accepted, smuUID[0x%08X] appUID[0x%08X]\n", data.what, answ.smuTransfUID, answ.appTransfUID);
+	}
+
 
 	//spedisco
-	u8	toSendBuffer[128];
-	u16 sizeOfToSendBuffer = answ.encode(toSendBuffer, sizeof(toSendBuffer));
-	priv_send(server, h, toSendBuffer, sizeOfToSendBuffer);
+	u8	serializedDataBuffer[128];
+	u16 n = answ.encode(serializedDataBuffer, sizeof(serializedDataBuffer));
+	priv_send(server, h, serializedDataBuffer, n);
+	
+}
+
+//***************************************************
+void FileTransfer::priv_on0x54(Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
+{
+	//decodifica e validazione dei dati ricevuti
+	fileT::sData0x54 data;
+	if (!data.decode(nbr))
+	{
+		DBGBREAK;
+		return;
+	}
+
+	//ho ricevuto un pacchetto dati, vediamo se lo riconosco
+	u32 index = priv_findActiveTransferBySMUUID(data.smuFileTransfUID);
+	if (u32MAX == index)
+	{
+		//sconosciuto...
+		DBGBREAK;
+		return;
+	}
+
+	//app ha confermato la ricezione di un chunk
+	sActiveUploadRequest *req = &activeTransferList.getElem(index);
+	if (req->status != eTransferStatus_pending)
+		return;
+
+	//aggiorno il timeout per questo tranfert
+	req->timeoutMSec = timeNowMSec + 15000;
+	req->other.whenAPPisDownloading.nextPacketToSend = data.packetNumAccepted + 1;
+
+	//era l'ultimo ?
+	if (req->other.whenAPPisDownloading.nextPacketToSend >= req->other.whenAPPisDownloading.numOfPacketToBeSentInTotal)
+	{
+		//ho finito!!
+		req->status = eTransferStatus_finished_OK;
+		req->timeoutMSec = 0;
+	}
+	else
+		priv_sendChunkOfPackets(server, h, req, req->numPacketInAChunk);
 }

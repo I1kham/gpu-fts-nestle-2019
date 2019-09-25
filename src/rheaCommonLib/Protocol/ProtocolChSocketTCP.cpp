@@ -23,5 +23,6 @@ u16 ProtocolChSocketTCP::virt_write (const u8 *bufferToWrite, u16 nBytesToWrite)
 	i32 n = OSSocket_write (sok, bufferToWrite, nBytesToWrite);
 	if (n < 0)
 		return protocol::RES_CHANNEL_CLOSED;
+	//assert(n == nBytesToWrite);
 	return (u16)n;
 }

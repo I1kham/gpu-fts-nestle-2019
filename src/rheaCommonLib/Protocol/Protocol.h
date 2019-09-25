@@ -9,6 +9,7 @@ namespace rhea
 	{
 		static const u16	RES_CHANNEL_CLOSED = u16MAX;
 		static const u16	RES_PROTOCOL_CLOSED = u16MAX - 1;
+		static const u16	RES_PROTOCOL_WRITEBUFFER_TOOSMALL = u16MAX - 2;
 
 		static const u16	RES_ERROR = (u16MAX - 10);
 	} //namespace protocol

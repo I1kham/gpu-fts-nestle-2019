@@ -23,9 +23,10 @@ namespace socketbridge
         void				setup (rhea::Allocator *allocator);
         void				unsetup();
 
-		const sIdentifiedClientInfo*		isKwnownSocket (const HSokServerClient &h) const;
+		const sIdentifiedClientInfo*		isKwnownSocket (const HSokServerClient &h, u64 timeNowMSec) ;
 							/*	!=NULL se [h] è attualmente in lista.
 								NULL altrimenti
+								Se != NULL, aggiorna il lastTimeRCV
 							*/
 		
 		const sIdentifiedClientInfo*		isKnownIDCode (const SokBridgeIDCode &idCode) const;

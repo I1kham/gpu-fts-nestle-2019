@@ -82,13 +82,11 @@ void priv_event_sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::IProtocol
 }
 
 //*****************************************************************
-u16 priv_event_decode (const void *bufferIN, u16 nBytesInBuffer, app::sDecodedEventMsg *out)
+u16 priv_event_decode (const u8 *buffer, u16 nBytesInBuffer, app::sDecodedEventMsg *out)
 {
 	//come minimo devono esserci 8 byte
 	if (nBytesInBuffer < 8)
 		return 0;
-
-	const u8 *buffer = static_cast<const u8*>(bufferIN);
 
 	if (buffer[0] == '#' && buffer[1] == 'e' && buffer[2] == 'V' && buffer[3] == 'n')
 	{
@@ -110,13 +108,11 @@ u16 priv_event_decode (const void *bufferIN, u16 nBytesInBuffer, app::sDecodedEv
 
 
 //*****************************************************************
-u16 priv_RawFileTrans_decodeMsg(const void *bufferIN, u16 nBytesInBuffer, app::sDecodedFileTransfMsg *out)
+u16 priv_RawFileTrans_decodeMsg(const u8 *buffer, u16 nBytesInBuffer, app::sDecodedFileTransfMsg *out)
 {
 	//come minimo devono esserci 8 byte
 	if (nBytesInBuffer < 8)
 		return 0;
-
-	const u8 *buffer = static_cast<const u8*>(bufferIN);
 
 	if (buffer[0] == '#' && buffer[1] == 'f' && buffer[2] == 'T' && buffer[3] == 'r')
 	{
@@ -146,24 +142,45 @@ u16 priv_RawFileTrans_decodeMsg(const void *bufferIN, u16 nBytesInBuffer, app::s
 
 
 //*****************************************************************
-u16 app::decodeSokBridgeMessage(const void *bufferIN, u16 nBytesInBuffer, app::sDecodedMsg *out)
+bool app::decodeSokBridgeMessage(const u8 *bufferIN, u16 nBytesInBufferIN, sDecodedMsg *out, u16 *out_nBytesConsumed)
 {
-	u16 ret = priv_event_decode(bufferIN, nBytesInBuffer, &out->data.asEvent);
-	if (ret)
-	{
-		out->what = eDecodedMsgType_event;
-		return ret;
-	}
+	if (nBytesInBufferIN < 1)
+		return false;
 
-	ret = priv_RawFileTrans_decodeMsg(bufferIN, nBytesInBuffer, &out->data.asFileTransf);
-	if (ret)
+	//il primo char deve essere un #
+	u16 i = 0;
+	while (i < nBytesInBufferIN)
 	{
-		out->what = eDecodedMsgType_fileTransf;
-		return ret;
+		if (bufferIN[i] == '#')
+		{
+			const u8 *buffer = &bufferIN[i];
+			u16 nBytesInBuffer = nBytesInBufferIN - i;
+			*out_nBytesConsumed = i;
+
+			//è un messaggio di tipo "evento" ?
+			u16 ret = priv_event_decode (buffer, nBytesInBuffer, &out->data.asEvent);
+			if (ret)
+			{
+				out->what = eDecodedMsgType_event;
+				*out_nBytesConsumed += ret;
+				return true;
+			}
+
+			//E' un messaggio di tipo "file transfer" ?
+			ret = priv_RawFileTrans_decodeMsg (buffer, nBytesInBuffer, &out->data.asFileTransf);
+			if (ret)
+			{
+				out->what = eDecodedMsgType_fileTransf;
+				*out_nBytesConsumed += ret;
+				return true;
+			}
+		}
+		i++;
 	}
 
 	out->what = eDecodedMsgType_unknown;
-	return 0;
+	*out_nBytesConsumed = nBytesInBufferIN;
+	return false;
 }
 
 
@@ -242,7 +259,9 @@ bool app::handleInitialRegistrationToSocketBridge (rhea::ISimpleLogger *logIN, r
 		}
 
 		app::sDecodedMsg decoded;
-		u16 nUsed = rhea::app::decodeSokBridgeMessage(bufferR._getPointer(0), nRead, &decoded);
+		u8 *buffer = bufferR._getPointer(0);
+		u16 nBytesConsumed = 0;
+		u16 nUsed = rhea::app::decodeSokBridgeMessage(buffer, nRead, &decoded, &nBytesConsumed);
 		if (nUsed > 0)
 		{
 			if (decoded.what != eDecodedMsgType_event)

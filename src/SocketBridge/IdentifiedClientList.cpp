@@ -78,11 +78,12 @@ bool IdentifiedClientList::isBoundToSocket (const HSokBridgeClient &handle, HSok
 
 
 //*********************************************************
-const sIdentifiedClientInfo* IdentifiedClientList::isKwnownSocket (const HSokServerClient &h) const
+const sIdentifiedClientInfo* IdentifiedClientList::isKwnownSocket (const HSokServerClient &h, u64 timeNowMSec)
 {
 	u32 i = priv_findByHSokServerClient(h);
 	if (u32MAX == i)
 		return NULL;
+	list[i].lastTimeRcvMSec = timeNowMSec;
 	return &list(i);
 }
 
@@ -185,34 +186,6 @@ bool IdentifiedClientList::compareClientVerInfo (const HSokBridgeClient &handle,
 
 	return (list(i).clientVer == v);
 }
-
-/*********************************************************
-void IdentifiedClientList::markAsHavPendingRequest(const HSokBridgeClient &handle, bool b)
-{
-	u32 i = priv_findByHSokBridgeClient(handle);
-	if (u32MAX != i)
-	{
-		if (b)
-			list[i].hasPendingRequest = 1;
-		else
-			list[i].hasPendingRequest = 0;
-		return;
-	}
-
-	DBGBREAK;
-}
-
-/*********************************************************
-bool IdentifiedClientList::hasPendingRequest(const HSokBridgeClient &handle) const
-{
-	u32 i = priv_findByHSokBridgeClient(handle);
-	if (u32MAX != i)
-		return (list(i).hasPendingRequest != 0);
-
-	DBGBREAK;
-	return false;
-}
-*/
 
 //*********************************************************
 bool IdentifiedClientList::bindSocket (const HSokBridgeClient &handle, const HSokServerClient &hSok, u64 timeNowMSec)
