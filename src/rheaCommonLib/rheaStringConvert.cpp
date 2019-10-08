@@ -64,6 +64,40 @@ bool convert::hexToInt (const char *s, u32 *out, u32 nBytes)
 	return true;
 }
 
+//*******************************************************************
+u32 convert::decodeURIinPlace(char *s)
+{
+	if (NULL == s)
+		return 0;
+	u32 n = strlen(s);
+	u8 *pIN = (u8*)s;
+	u8 *pOUT = pIN;
+	u32 ct = 0;
+	u32 i = 0;
+	while (pIN[i] != 0x00)
+	{
+		if (pIN[i] != '%')
+			pOUT[ct++] = pIN[i++];
+		else
+		{
+			u8 c2 = pIN[i + 1];
+			if ((c2 >= 'A' && c2 <= 'F') || (c2 >= '0' && c2 <= '9'))
+			{
+				u8 c3 = pIN[i + 2];
+				if ((c3 >= 'A' && c3 <= 'F') || (c3 >= '0' && c3 <= '9'))
+				{
+					u32 b = 0;
+					convert::hexToInt (&s[i + 1], &b, 2);
+					pOUT[ct++] = (u8)b;
+					i += 2;
+				}
+			}
+			++i;
+		}
+	}
+	pOUT[ct] = 0;
+	return ct;
+}
 
 //*******************************************************************
 u32 convert::hash (const char *str)

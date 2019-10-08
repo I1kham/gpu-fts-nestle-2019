@@ -289,6 +289,16 @@ void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea:
 				answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
 			break;
 		}
+		else if (strncmp(data.usage, "saveas:", 7) == 0)
+		{
+			//Qualcuno vuol uppare un file locale e metterelo in una cartella locale (serve quando per esempio da backoffice
+			//quando l'utente vuole caricare una immagine. Dopo [saveas:] mi aspetto una valido pathname locale che è esattamente dove vado a scrivere il
+			//file che ricevo
+			fDest = fopen(&data.usage[7], "wb");
+			if (NULL == fDest)
+				answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			break;
+		}
 
 		break;
 	}

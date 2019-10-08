@@ -11,38 +11,43 @@
 
 <div id="mainWrapper" class="wrapper1024x600" style="cursor:pointer; position:relative">	
 	<div id="divGalleryWindow" class="pageStandby_galleryContainer_window">
-		<div id="divGallery" class="pageStandby_galleryContainer">
-		</div>
+		<div id="divGallery" class="pageStandby_galleryContainer"></div>
 	</div>
 	<div style="position:relative">
 		<div id="divOverlay" class="pageStandby_overlay"></div>
-		<div id="divCPUMessage" class="pageStandby_overlay" style="display:none; background-color:rgba(0,0,0,0.8); color:#fff"></div>
 	</div>
+	
+	<div id="divCPUMessage" style="position:absolute; top:0; left:0; padding:5px 0 3px 0;width:100%; text-align:center; display:none; background-color:rgba(0,0,0,0.8); color:#fff"></div>
 </div>	
 
 
+
+
+<script src="config/lang.js"></script>
 <script src="config/pageStandby.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
 function onRheaBootstrapFinished()
+{
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
+}
+
+function onAfterLangLoaded()
 {
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
 		var dCPU = rheaGetElemByID ("divCPUMessage");
 		var dOverlay = rheaGetElemByID ("divOverlay");
 		if (importanceLevel == 0)
-		{
 			rheaHideElem(dCPU);
-			rheaShowElem(dOverlay);
-		}
 		else
 		{
 			rheaSetElemHTML(dCPU, msg);
 			rheaShowElem(dCPU);
-			rheaHideElem(dOverlay);
-		
 		}
 	}
+	
+	
 	
 	setupOverlay();
 	setupGallery();
@@ -72,6 +77,10 @@ function setupOverlay()
 	rheaSetElemTextColor(d,rheaPageOptions.overlay_textColor);
 	rheaSetElemHTML(d, rheaLang.LAB_PAGE_STANDBY);
 	rheaShowElem(d);
+	
+	d = rheaGetElemByID("divCPUMessage");
+	rheaSetElemBackgroundColor(d,rheaPageOptions.overlay_bgcolor);
+	rheaSetElemTextColor(d,rheaPageOptions.overlay_textColor);
 }
 
 
@@ -88,6 +97,7 @@ function setupGallery()
 		html += "<div class='pageStandby_galleryContainer_foto'><img draggable='false' src='upload/" +rheaPageOptions.gallery_images[i] +"'></div>";
 	}
 	
+	console.log (numImages);
 	d = rheaGetElemByID("divGallery");
 	if (numImages < 2)
 	{
@@ -117,7 +127,6 @@ function scrollToNextImage()
 	}
 
 	rheaSmoothScrollElemLeft(d, -curImage*1024, 500);
-	
 	setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
 }
 

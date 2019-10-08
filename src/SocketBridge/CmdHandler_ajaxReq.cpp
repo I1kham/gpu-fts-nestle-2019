@@ -1,7 +1,9 @@
 #include "CmdHandler_ajaxReq.h"
 #include "CmdHandler/CmdHandler_ajaxReqSelAvailability.h"
 #include "CmdHandler/CmdHandler_ajaxReqSelPrices.h"
-
+#include "CmdHandler/CmdHandler_ajaxReqDBC.h"
+#include "CmdHandler/CmdHandler_ajaxReqDBQ.h"
+#include "CmdHandler/CmdHandler_ajaxReqDBE.h"
 using namespace socketbridge;
 
 
@@ -32,10 +34,11 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
     \
 
 
-    CHECK(CmdHandler_ajaxReqSelAvailability)
-    CHECK(CmdHandler_ajaxReqSelPrices)
-
-
+	CHECK(CmdHandler_ajaxReqSelAvailability)
+	CHECK(CmdHandler_ajaxReqSelPrices)
+	CHECK(CmdHandler_ajaxReqDBC);
+	CHECK(CmdHandler_ajaxReqDBQ);
+	CHECK(CmdHandler_ajaxReqDBE);
 #undef CHECK
     return NULL;
 }

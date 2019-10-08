@@ -5,45 +5,54 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link href="style.css" rel="stylesheet" type="text/css">
+	<style>
+		#selText p { margin:0; padding:0; }
+	</style>
 </head>
 
 <body onLoad="rheaBootstrap()">
 
 <div id="mainWrapper" class="wrapper1024x600">
-	<div class="header">
-		<div class="header_left"></div>
-		<div class="header_center"><img draggable='false' src="upload/logo.png"></div>
-		<div class="header_right"></div>
-		<div class="clear"></div>
-	</div>
-
-	<div class="page" style="position:relative; text-align:center;">
-		<div id="divSpacerWhenNoBtnStop" style="display:none; height:50px">&nbsp;</div>
-		<div id="divImage" class="pageSelInProg_image"></div>
-		<div style="position:relative; top:-80px; left:0">
-			<div class="pageSelInProg_iconInProgress"><img draggable='false' src="img/animationRound.gif"></div>
-			<table border='0' cellspacing='0' cellpadding='0' height='100' width='100%'>
-				<tr valign="middle">
-					<td align="center"><div id="divTitle" class="pageSelInProg_title"></div></td>
-				</tr>
-			</table>
-			<div id="btnStop" class="btnStop" style="font-weight:bold; display:none" onclick="onBtnStopSelection()"></div>
+	<div id="divGalleryWindow" class="pageSelInProgress_galleryContainer_window">
+		<div id="divGallery" class="pageSelInProgress_galleryContainer">
 		</div>
 	</div>
+	<div id="divContent" style="height:300px; width:100%; overflow:hidden">
 	
-	<div class="footer">
-		<div class="footer_left"></div>
-		<div class="footer_center"><div id="divCPUMessage" style="display:none">CPU Message here</div></div>
-		<div class="footer_right"></div>
+		<div style="float:left; width:400px; text-align:center; margin-top:30px"><img draggable="false" id="selImage" src=""></div>
+		<div style="float:left; width:624px; color:#cdcdcd; font-weight:bold">
+			<div style="width:100%; height:180px; overflow:hidden; margin-top:40px;">
+				<div id="selName" class="pageConfirm_bigFont"></div>
+				<div id="selText">aaa</div>
+			</div>
+			
+			<div style="width:100%; height:80px; overflow:hidden; font-style:italic; font-size:0.9em">
+				Your beverage is being prepared.<br>
+				Please, wait...
+			</div>
+		</div>
 		<div class="clear"></div>
-	</div>	
+	</div>
+	
+	<div id="btnStop"></div>
+	
+	<div id="divCPUMessage" style="position:absolute; top:0; left:0; padding:5px 0 3px 0;width:100%; text-align:center; display:none; background-color:rgba(0,0,0,0.8); color:#fff"></div>
 </div>
 
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/MMI.js"></script>
+<script src="config/pageSelInProgress.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
 var iconNum = 0;
 var selNum = 0;
-function onRheaBootstrapFinished()
+function onRheaBootstrapFinished() 
+{
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
+}
+
+function onAfterLangLoaded()
 {
 	rhea.onEvent_selectionReqStatus = function (status)
 	{
@@ -53,49 +62,45 @@ function onRheaBootstrapFinished()
 			gotoSelFinished();
 	}
 	
-	/*rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
-		rheaSetDivHTMLByName("divCPUMessage", msg);
-	}*/	
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		if (importanceLevel == 0)
+			rheaHideElem(dCPU);
+		else
+		{
+			rheaSetElemHTML(dCPU, msg);
+			rheaShowElem(dCPU);
+		}
+	}
 	
 	
 	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
 	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
 	selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
 	var showBtnStop  = parseInt(rheaGetURLParamOrDefault("btnStop", 0));
-	if (showBtnStop != 1)
+	/*if (showBtnStop != 1)
 	{
 		showBtnStop = 0;
 		rheaShowElem(rheaGetElemByID("divSpacerWhenNoBtnStop"));
-	}
+	}*/
 	
-	var iconDisplayName = rhea.MMI_getDisplayName(iconNum);
-	var image = "<img draggable='false' src='" +rhea.MMI_getImgForPageConfirm(iconNum) +"'>";
+	var iconDisplayName = MMI_getDisplayName(iconNum);
+	rheaSetDivHTMLByName("selName", iconDisplayName);
 	
-	var d = rheaGetElemByID("divImage");
-	rheaSetElemHTML(d, image);
+	document.getElementById("selImage").src = MMI_getImgForPageConfirm(iconNum);
 	
-	d = rheaGetElemByID("divTitle");
-	rheaSetElemHTML(d, iconDisplayName);	
-	
-	if (showBtnStop == 1)
-	{
-		d = rheaGetElemByID("btnStop");
-		rheaSetElemHTML(d, rheaLang.BTN_STOP);
-		rheaSetDisplayMode(d, "inline-block");
-	}
+	setupGallery();
 	
 	
-	//your drink is dispensing msg..
-	var d = rheaGetElemByID("divCPUMessage");
-	rheaSetElemHTML (d, rheaLang["LAB_YOUR_DRINK_IS_DISPENSING"]);
-	rheaShowElem (d);
-	
-	
-	//alla peggio, dopo 50 secondi termino
-	//setTimeout (gotoSelFinished, 50000)
+	//carica i contenuti in lingua di questa pagina
+	lang_loadJS ("mainMenuIconsInfo")
+		.then ( function()
+		{
+			rheaSetDivHTMLByName("selText", rheaMainMenuIconsInfo[iconNum]);
+		});	
 }
-
+	
 
 function onBtnStopSelection()
 {
@@ -112,6 +117,75 @@ function gotoSelFinished()
 	rheaHideElem(d);
 	
 	window.location = "pageSelFinished.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+}
+
+
+var numImages = rheaPageOptions.gallery_images.length;
+var curImage = 0;
+function setupGallery()
+{
+	var d = rheaGetElemByID("divGalleryWindow");
+	var imageW = rheaGetElemWidth(d);
+	
+	var html = "";
+	for (var i=0; i<numImages; i++)
+	{
+		var imgTag = "<img id='slide" +i +"' draggable='false' ";
+		if (i==0)
+			imgTag += "src='upload/" +rheaPageOptions.gallery_images[i] +"'>";
+		else
+			imgTag += "src=''>";
+		html += "<div class='pageSelInProgress_galleryContainer_foto'>" +imgTag +"</div>";
+	}
+	
+	d = rheaGetElemByID("divGallery");
+	if (numImages < 2)
+	{
+		rheaSetElemWidth(d, imageW);
+		rheaSetElemHTML(d, html);
+	}
+	else
+	{
+		//appendo la prima immagine in fondo in modo da scrollare dalla ultima immagina alla prima senza effetti strani a video
+		numImages++;
+		html += "<div class='pageSelInProgress_galleryContainer_foto'><img draggable='false' src='upload/" +rheaPageOptions.gallery_images[0] +"'></div>";
+		rheaSetElemWidth(d, imageW * numImages);
+		rheaSetElemHTML(d, html);
+		setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
+
+		//schedulo il load dinamico delle slide successive alla prima
+		setTimeout ("loadSlide(1)", 300);
+	}
+	
+}
+
+function loadSlide(i)
+{
+	if (i>=numImages-1)
+		return;
+
+	var downloadingImage = new Image();
+	downloadingImage.onload = function() { 
+											document.getElementById("slide" +i).src = this.src; 
+											setTimeout ("loadSlide(" +(i+1) +")", 300);
+										  };
+	downloadingImage.src = "upload/" +rheaPageOptions.gallery_images[i];
+}
+
+function scrollToNextImage()
+{
+	var d = rheaGetElemByID("divGallery");
+	
+	curImage++;
+	if (curImage >= numImages)
+	{
+		curImage = 1;
+		rheaSetElemLeft(d, 0);
+	}
+
+	rheaSmoothScrollElemLeft(d, -curImage*1024, 500);
+	
+	setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
 }
 </script>
 

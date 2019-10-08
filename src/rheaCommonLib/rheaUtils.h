@@ -37,6 +37,11 @@ namespace rhea
         u16         simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes);
                     /*  calcola un semplice checksum 16 bit */
 
+		inline void	bufferWriteU32(u8 *buffer, u32 val)			{ buffer[0] = (u8)((val & 0xFF000000) >> 24); buffer[1] = (u8)((val & 0x00FF0000) >> 16); buffer[2] = (u8)((val & 0x0000FF00) >> 8); buffer[3] = (u8)(val & 0x000000FF); }
+		inline void	bufferWriteU16(u8 *buffer, u16 val)			{ buffer[0] = (u8)((val & 0xFF00) >> 8); buffer[1] = (u8)(val & 0x00FF); }
+		inline u32 bufferReadU32(const u8 *buffer)				{ return (((u32)buffer[0]) << 24) | (((u32)buffer[1]) << 16) | (((u32)buffer[2]) << 8) | ((u32)buffer[3]); }
+		inline u16 bufferReadU16(const u8 *buffer)				{ return (((u16)buffer[0]) << 8) | ((u16)buffer[1]); }
+
     } //namespace utils
 } //namespace rhea
 

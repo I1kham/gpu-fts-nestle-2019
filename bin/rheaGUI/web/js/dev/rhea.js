@@ -29,10 +29,7 @@ var RHEA_CLIENT_INFO__UNUSED3 = 0x00;
  */
 Rhea_clearSessionData = function ()
 {
-	Rhea_session_setValue("idCode_0", 0);
-	Rhea_session_setValue("idCode_1", 0);
-	Rhea_session_setValue("idCode_2", 0);
-	Rhea_session_setValue("idCode_3", 0);
+	window.name = "";
 	Rhea_session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
 	Rhea_session_setValue("credit", "0");
 	Rhea_session_setValue("debug", 0);
@@ -56,19 +53,27 @@ function Rhea()
 	if (Rhea_session_getValue ("lang") === undefined)
 		Rhea_session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
 	
-	//recupero il mio idCode che mi identifica con GPUServer
-	this.idCode_0 = parseInt (this.Session_getOrDefault("idCode_0", 0));
-	if (this.idCode_0 == 0)
+	/*Recupero il mio idCode che mi identifica con GPUServer
+	 *Non posso contare su session.storage() e nemmeno su i cookie perchè chrome e molti altri browser non supportano
+	 *l'uso di questi tool quando si caricano file in locale (ie: file:/// invece che http://).
+	 *Ho bisogno di un posto che posso usare per memorizzare il mio idCode e che sia diverso per ogni sessione. Se apro una seconda
+	 *finestra nel browser, questa 2nda finestra deve poter ottenere un nuovo idCode senza interferire con quello della prima finestra.
+	 *Ho scoperto che la proprietà window.name è associata ad ogni tab del browser, quindi uso quella per memorizzare l'idCode di ogni
+	 *sessione aperta*/
+	//if (this.idCode_0 == 0)
+	if (window.name == "")
 	{
+		this.idCode_0 = 0;
 		this.idCode_1 = 0;
 		this.idCode_2 = 0;
 		this.idCode_3 = 0;
 	}
 	else
 	{
-		this.idCode_1 = parseInt (Rhea_session_getValue("idCode_1"));
-		this.idCode_2 = parseInt (Rhea_session_getValue("idCode_2"));
-		this.idCode_3 = parseInt (Rhea_session_getValue("idCode_3"));
+		this.idCode_0 = parseInt (window.name.substr(4,3));
+		this.idCode_1 = parseInt (window.name.substr(8,3));
+		this.idCode_2 = parseInt (window.name.substr(12,3));
+		this.idCode_3 = parseInt (window.name.substr(16,3));
 	}
 	
 	//ajax    
@@ -89,13 +94,17 @@ function Rhea()
 	
 	//Variabile di sessione: credito attuale
 	//Viene gestita in autonomia, in modo che this.credit rifletta sempre l'attuale credito disponibile
-	if (!this.Session_getValue("credit"))
+	if (!Rhea_session_getValue("credit"))
 	{
 		this.credit = "0";
 		Rhea_session_setValue("credit", "0");
 	}
 	else
 		this.credit = Rhea_session_getValue("credit");
+	
+	//file transfer
+	this.nFileTransfer = 0;
+	this.fileTransfer = [];
 }
 
 
@@ -126,8 +135,7 @@ Rhea.prototype.webSocket_connect = function()
 				//attendo la risposta
 				var timeoutMs = 2000;
 				var waitIDCode = function()	{
-												console.warn('waiting idcode')
-												if (parseInt (Rhea_session_getValue ("idCode_3")) != 0)
+												if (me.idCode_3 != 0)
 												{
 													me.webSocket_identifyAfterConnection();
 													resolve(1);
@@ -195,6 +203,7 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						continue;
 					if (me.ajaxReceivedAnswerQ[i].requestID == reqID)
 					{
+						//console.log ("AJAX rcv for reqID=" +reqID);
 						me.ajaxReceivedAnswerQ[i].rcv = utf8ArrayToStr(data.subarray(6));
 						return;
 					}
@@ -224,11 +233,12 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 							me.idCode_2 = parseInt(data[12]);
 							me.idCode_3 = parseInt(data[13]);
 							
-							Rhea_session_setValue ("idCode_0", parseInt(me.idCode_0));
-							Rhea_session_setValue ("idCode_1", parseInt(me.idCode_1));
-							Rhea_session_setValue ("idCode_2", parseInt(me.idCode_2));
-							Rhea_session_setValue ("idCode_3", parseInt(me.idCode_3));
-							rheaLog (" idCode set: [" +Rhea_session_getValue("idCode_0") +"][" +Rhea_session_getValue("idCode_3") +"]");
+							var s1 = me.idCode_0.toString(); while (s1.length<3) s1="0"+s1;
+							var s2 = me.idCode_1.toString(); while (s2.length<3) s2="0"+s2;
+							var s3 = me.idCode_2.toString(); while (s3.length<3) s3="0"+s3;
+							var s4 = me.idCode_3.toString(); while (s4.length<3) s4="0"+s4;
+							var s = "rhea" +s1 +"-" +s2 +"-" +s3 +"-" +s4;
+							window.name = s;
 						}
 					}
 					break;
@@ -259,7 +269,7 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 					{
 						rheaLog ("RHEA_EVENT_CREDIT_UPDATED:");
 						me.credit = utf8ArrayToStr(data.subarray(8));
-						me.Session_setValue("credit", me.credit);
+						Rhea_session_setValue("credit", me.credit);
 						me.onEvent_creditUpdated();
 					}
 					break;
@@ -269,7 +279,7 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						var importanceLevel = data[8];
 						var lenInBytes = data[9] * 256 + data[10];
 						var msg = utf8ArrayToStr(data.subarray(11));
-						rheaLog ("RHEA_EVENT_CPU_MESSAGE: [" +importanceLevel +"] " +msg);
+						//rheaLog ("RHEA_EVENT_CPU_MESSAGE: [" +importanceLevel +"] " +msg);
 						if (msg != "")
 							me.onEvent_cpuMessage(msg, importanceLevel);
 					}
@@ -288,6 +298,62 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 			}
 		}
 
+
+		//vediamo se è un messaggio relativo al protocollo di filetransfer  (il buffer deve iniziare con #fTr.. dove al posto di ".." c'è u16 che indica il size dei dati che seguono
+		if (data.length >= 9)
+		{
+			if (data[0] == 35 && data[1] == 102 && data[2] == 84 && data[3] == 114)
+			{
+				var sizeOfWhat = parseInt(data[4])*256 + parseInt(data[5]);
+				var opcode = parseInt(data[6]);
+				switch (opcode)
+				{
+					case 2:
+						var sData0x02 = new Object();
+						sData0x02.reason_refused = parseInt(data[7]);
+						sData0x02.packetSizeInBytes = parseInt(data[8])*256 + parseInt(data[9]);
+						sData0x02.smuTransfUID = (parseInt(data[10])<<24) | (parseInt(data[11])<<16) | (parseInt(data[12])<<8) |parseInt(data[13]);
+						sData0x02.appTransfUID = (parseInt(data[14])<<24) | (parseInt(data[15])<<16) | (parseInt(data[16])<<8) |parseInt(data[17]);
+						sData0x02.numPacketInAChunk = parseInt(data[18]);
+						
+						for (var i=0; i<me.nFileTransfer; i++)
+						{
+							if (me.fileTransfer[i].appTransfUID == sData0x02.appTransfUID)
+							{
+								if (!me.fileTransfer[i].priv_on0x02 (sData0x02))
+									me.fileTransfer[i] = null;
+								return;
+							}
+						}
+						rheaLog ("ERR, file transfer not found. sData0x02.appTransfUID[" +ssData0x02.appTransfUID +"] sData0x02.smuTransfUID[" +sData0x02.smuTransfUID +"]");
+						return;
+						break;
+						
+					case 4:
+						var sData0x04 = new Object();
+						sData0x04.appTransfUID = (parseInt(data[7])<<24) | (parseInt(data[8])<<16) | (parseInt(data[9])<<8) | parseInt(data[10]);
+						sData0x04.packetNumAccepted = (parseInt(data[11])<<24) | (parseInt(data[12])<<16) | (parseInt(data[13])<<8) | parseInt(data[14]);
+						for (var i=0; i<me.nFileTransfer; i++)
+						{
+							if (me.fileTransfer[i].appTransfUID == sData0x04.appTransfUID)
+							{
+								if (!me.fileTransfer[i].priv_on0x04 (sData0x04))
+									me.fileTransfer[i] = null;
+								return;
+							}
+						}
+						
+						rheaLog ("ERR, file transfer not found. sData0x04.appTransfUID[" +sData0x04.appTransfUID +"] sData0x04.packetNumAccepted[" +sData0x04.packetNumAccepted +"]");
+						return;
+						break;	
+
+					default:						
+						rheaLog ("#fTr, opcode[" +opcode +"]");
+						return;
+						break;
+				}
+			}
+		}
 		//è arrivato qualcosa di strano
 		rheaLog ("Rhea::RCV [len=" +data.length +"] [" +utf8ArrayToStr(data) +"]");
 		
@@ -307,6 +373,7 @@ Rhea.prototype.sendBinary = function (buffer, byteStart, lengthInBytes)
 //	this.websocket.send(toSend);
 	this.websocket.send(buffer);
 }
+
 
 /***********************************************************
  * sendGPUCommand
@@ -339,7 +406,7 @@ Rhea.prototype.sendGPUCommand = function (commandChar, bufferArrayIN, bReturnAPr
 				break;
 			}
 		}
-
+			
 		if (iReq >= this.ajaxReceivedAnswerQ.length)
 		{
 			rheaLog ("Rhea::GPUCommand => too many request");
@@ -389,9 +456,10 @@ Rhea.prototype.sendGPUCommand = function (commandChar, bufferArrayIN, bReturnAPr
 					{
 						var timeoutMs = promiseTimeoutMSec;
 						var check = function()	{
-												//console.warn('checking')
+												//console.warn("checking[" +iReq +"]")
 												if (me.ajaxReceivedAnswerQ[iReq].rcv != null)
 												{
+													//console.log ("ireq="+iReq);
 													resolve(me.ajaxReceivedAnswerQ[iReq].rcv);
 													me.ajaxReceivedAnswerQ[iReq] = null;
 												}
@@ -438,6 +506,7 @@ Rhea.prototype.ajaxWithCustomTimeout = function(commandString, plainJSObject, ti
 	if (plainJSObject=="")
 		plainJSObject="{}";
 	var jo = JSON.stringify(plainJSObject);
+	//jo  = jo.replace(/[\u007F-\uFFFF]/g, function(chr) { return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4)})
 
 	var bytesNeeded = 	1 							//lenght di [commandString]
 						+ commandString.length		//[commandString]
@@ -502,7 +571,7 @@ Rhea.prototype.webSocket_requestIDCodeAfterConnection = function()
  */
 Rhea.prototype.webSocket_identifyAfterConnection = function()
 {
-	rheaLog("Rhea::webSocket sending idCode"); 
+	rheaLog("Rhea::webSocket sending idCode[" +this.idCode_0 +"][" +this.idCode_1 +"][" +this.idCode_2 +"][" +this.idCode_3 +"]"); 
 
 	var buffer = new Uint8Array(8);
 	buffer[0] = RHEA_CLIENT_INFO__API_VERSION;	//API version
@@ -515,4 +584,24 @@ Rhea.prototype.webSocket_identifyAfterConnection = function()
 	buffer[6] = this.idCode_2;
 	buffer[7] = this.idCode_3;
 	this.sendGPUCommand("W", buffer, 0, 0);
+}
+
+/*********************************************************
+ * filetransfer_startUpload
+ *
+ *	inizia l'upload di un file verso socketBridge
+ *	
+ */
+Rhea.prototype.filetransfer_startUpload = function(rawData, usage, fileName, userValue, callback_onStart, callback_onProgress, callback_onEnd)
+{
+	//vediamo se ho uno slot libero
+	for (var i=0; i<this.nFileTransfer; i++)
+	{
+		if (null == this.fileTransfer[i])
+		{
+			this.fileTransfer[i] = new RheaFileUpload(rawData, usage, fileName, userValue, callback_onStart, callback_onProgress, callback_onEnd);
+			return;
+		}
+	}
+	this.fileTransfer[this.nFileTransfer++] = new RheaFileUpload(rawData, usage, fileName, userValue, callback_onStart, callback_onProgress, callback_onEnd);
 }

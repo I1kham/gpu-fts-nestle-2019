@@ -43,8 +43,8 @@ const char*	utils::verbose_eRunningSelStatus(cpubridge::eRunningSelStatus s)
 	static const char v[5][32] = {
 		{"WAIT"},
 		{"RUNNING"},
-		{"FINISHED_OK"},
 		{"FINISHED_KO"},
+		{"FINISHED_OK"},
 		{"RUNNING_CAN_USE_BNT_STOP"}
 	};
 

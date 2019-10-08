@@ -20,7 +20,17 @@ namespace socketbridge
                                 }
 
         virtual void            passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params) = 0;
-		//virtual void   onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
+		//virtual void			onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
+		//virtual bool			needToPassDownToCPUBridge() const = 0;
+
+		virtual void			handleRequestFromSocketBridge (socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+								{
+									//le classi derivate devono implementare questa fn SOLO se il messaggio in questione è di quelli che
+									//viene gestito direttamente da socketBridge.
+									//Si invece si tratta di un msg che deve essere passato al CPUBrige, i metodi da implementare sono passDownRequestToCPUBridge() e
+									//onCPUBridgeNotification()
+									DBGBREAK;
+								}
 
     protected:
 

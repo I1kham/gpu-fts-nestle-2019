@@ -23,17 +23,17 @@ var rheaLang = {
 };
 
 var rheaLang_mainMenuIconName = [
-	"Ristretto",
-	"Espresso",
-	"Double Espresso",
-	"Lungo",	
-	"Cappuccino",
-	"Latte Macchiato",
-	"Mocha",
-	"Americano",
-	"Hot Chocolate",	
-	"Flat White",	
-	"Espresso Macchiato",
-	"Hot Water"
+	"RISTRETTO",
+	"ESPRESSO",
+	"DOUBLE ESPRESSO",
+	"LUNGO",	
+	"CAPPUCCINO",
+	"LATTE MACCHIATO",
+	"MOCHA",
+	"AMERICANO",
+	"HOT CHOCOLATE",	
+	"FLAT WHITE",	
+	"ESPRESSO MACCHIATO",
+	"HOT WATER"
 ];
 

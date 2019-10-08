@@ -74,6 +74,8 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW)
 
     logger->decIndent();
 
+	SEND_BUFFER_SIZE = 4096;
+	sendBuffer = (u8*)RHEAALLOC(localAllocator, SEND_BUFFER_SIZE);
 
     //elenco dei clienti identificati
     identifiedClientList.setup (localAllocator);
@@ -87,9 +89,13 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW)
 
     _nextHandlerID = 0;
 
-
 	//gestore del file transfer
 	fileTransfer.setup(localAllocator, logger);
+
+	//lista delle connessioni ai DB
+	nextTimePurgeDBList = 0;
+	dbList.setup(localAllocator);
+	rst.setup(localAllocator, 8);
     return true;
 }
 
@@ -99,10 +105,12 @@ void Server::close()
     if (NULL == localAllocator)
         return;
 
-	fileTransfer.unsetup();
-
     if (NULL != server)
     {
+		rst.unsetup();
+		dbList.unsetup();
+		fileTransfer.unsetup();
+
 		cpubridge::unsubscribe (subscriber);
 
         buffer.unsetup();
@@ -111,6 +119,9 @@ void Server::close()
 
         server->close();
         RHEADELETE(localAllocator, server);
+
+		RHEAFREE(localAllocator, sendBuffer);
+		sendBuffer = NULL;
     }
 
     RHEADELETE(rhea::memory_getDefaultAllocator(), localAllocator);
@@ -296,23 +307,35 @@ void Server::sendTo(const HSokServerClient &h, const u8 *buffer, u32 nBytesToSen
 //*****************************************************************
 void Server::sendAjaxAnwer (const HSokServerClient &h, u8 requestID, const char *ajaxData, u16 lenOfAjaxData)
 {
-	const u16 BUFFER_SIZE = 1024;
-	u8 buffer[BUFFER_SIZE];
-
-	u16 n = BUFFER_SIZE;
-	if (priv_encodeMessageOfAjax (requestID, ajaxData, lenOfAjaxData, buffer, &n))
-		sendTo(h, buffer, n);
+	u16 n = SEND_BUFFER_SIZE;
+	if (priv_encodeMessageOfAjax (requestID, ajaxData, lenOfAjaxData, sendBuffer, &n))
+		sendTo(h, sendBuffer, n);
+	else
+	{
+		RHEAFREE(localAllocator, sendBuffer);
+		while (SEND_BUFFER_SIZE < n)
+			SEND_BUFFER_SIZE += 1024;
+		
+		sendBuffer = (u8*)RHEAALLOC(localAllocator, SEND_BUFFER_SIZE);
+		sendAjaxAnwer(h, requestID, ajaxData, lenOfAjaxData);
+	}
 }
 
 //*****************************************************************
 void Server::sendEvent (const HSokServerClient &h, eEventType eventType, const void *optionalData, u16 lenOfOptionalData)
 {
-	const u16 BUFFER_SIZE = 1024;
-	u8 buffer[BUFFER_SIZE];
+	u16 n = SEND_BUFFER_SIZE;
+	if (priv_encodeMessageOfTypeEvent(eventType, optionalData, lenOfOptionalData, sendBuffer, &n))
+		sendTo(h, sendBuffer, n);
+	else
+	{
+		RHEAFREE(localAllocator, sendBuffer);
+		while (SEND_BUFFER_SIZE < n)
+			SEND_BUFFER_SIZE += 1024;
 
-	u16 n = BUFFER_SIZE;
-	if (priv_encodeMessageOfTypeEvent(eventType, optionalData, lenOfOptionalData, buffer, &n))
-		sendTo(h, buffer, n);
+		sendBuffer = (u8*)RHEAALLOC(localAllocator, SEND_BUFFER_SIZE);
+		sendEvent(h, eventType, optionalData, lenOfOptionalData);
+	}
 }
 
 //***************************************************
@@ -367,6 +390,12 @@ void Server::run()
 			identifiedClientList.purge(timeNowMSec);
 			nextTimePurgeCmdHandlerList = timeNowMSec + 10000;
         }
+
+		if (timeNowMSec > nextTimePurgeDBList)
+		{
+			dbList.purge(timeNowMSec);
+			nextTimePurgeDBList = timeNowMSec + 60000;
+		}
 
 		//aggiornamento degli eventuali file trnasfer in corso
 		fileTransfer.update(timeNowMSec);
@@ -510,25 +539,30 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 		logger->log("client [0x%08X]: reconnected with connection [0x%08X] \n", idCode.data.asU32, h.asU32());
 		if (!identifiedClientList.bindSocket(identifiedClient->handle, h, rhea::getTimeNowMSec()))
 		{
-			logger->log("error, socket is already bind\n");
+			logger->log("warn, socket is already bind\n");
+			identifiedClientList.unbindSocket(identifiedClient->handle, rhea::getTimeNowMSec());
+			identifiedClientList.bindSocket(identifiedClient->handle, h, rhea::getTimeNowMSec());
 		}
-		else
-		{
-			//gli mando l'attuale messaggio di CPU (uso la stessa procedura che userei se fosse stato davvero il client a chiedermelo)
-			CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, identifiedClient->handle, eEventType_cpuMessage, priv_getANewHandlerID(), 10000);
-			if (NULL != handler)
-			{
-				cmdHandlerList.add(handler);
-				handler->passDownRequestToCPUBridge(subscriber, NULL, 0);
-			}
 
+		//gli mando l'attuale messaggio di CPU (uso la stessa procedura che userei se fosse stato davvero il client a chiedermelo)
+		CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, identifiedClient->handle, eEventType_cpuMessage, priv_getANewHandlerID(), 10000);
+		if (NULL != handler)
+		{
+			cmdHandlerList.add(handler);
+			handler->passDownRequestToCPUBridge(subscriber, NULL, 0);
 		}
 		return;
 	}
 	else
 	{
-		logger->log("killing connection [0x%08X] because it's not identified\n", h.asU32());
+		logger->log("ERR: killing connection [0x%08X] because it's not identified [rcvd opcode=%d]\n", h.asU32(), decoded.opcode);
 		server->client_sendClose(h);
+
+		/*logger->log("reqID[%d], payloadLen[%d]\n", decoded.requestID, decoded.payloadLen);
+		for (u16 i = 0; i < decoded.payloadLen; i++)
+			logger->log("%c ", (char)decoded.payload[i]);
+		logger->log("\n");
+		*/		
 		return;
 	}
 }
@@ -576,10 +610,13 @@ void Server::priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec)
 		if (nBytesLetti == 0)
 			return;
 		bufferPt += nBytesConsumed;
+
+		if (NULL == identifiedClient)
+			identifiedClient = identifiedClientList.isKwnownSocket(h, timeNowMSec);
 	}
 }
 
-void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo	*identifiedClient, socketbridge::sDecodedMessage &decoded)
+void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded)
 {
 	//se la socket in questione non è stata ancora bindata ad un client, allora il cliente mi deve per
 	//forza aver mandato un messaggio di tipo [eOpcode_request_idCode] oppure [eOpcode_identify_W], altrimenti killo la connessione.
@@ -642,16 +679,23 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 
 	case socketbridge::eOpcode_ajax_A:
 		/*	ho ricevuto una richiesta di tipo "ajax"
-			Funziona allo stesso modo di cui sopra, solo che non è previsto un comando che debba essere gestito da this.
-			Tutte le richieste di questo tipo sono da passare a CPUBrdige
+			Funziona allo stesso modo di cui sopra
 		*/
 		{
 			const char *params = NULL;
 			CmdHandler_ajaxReq *handler = CmdHandler_ajaxReqFactory::spawn(localAllocator, identifiedClient->handle, decoded.requestID, decoded.payload, decoded.payloadLen, priv_getANewHandlerID(), 10000, &params);
 			if (NULL != handler)
 			{
-				cmdHandlerList.add(handler);
-				handler->passDownRequestToCPUBridge(subscriber, params);
+				if (handler->needToPassDownToCPUBridge())
+				{
+					cmdHandlerList.add(handler);
+					handler->passDownRequestToCPUBridge(subscriber, params);
+				}
+				else
+				{
+					handler->handleRequestFromSocketBridge(this, h, params);
+					RHEADELETE(localAllocator, handler);
+				}
 			}
 		}
 		break;
@@ -721,4 +765,24 @@ void Server::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 			}
 		}
 	}
+}
+
+//**************************************************************************
+u16 Server::DB_getOrCreateHandle(const char *fullFilePathAndName)
+{
+	return dbList.getOrCreateDBHandle(rhea::getTimeNowMSec(), fullFilePathAndName);
+}
+
+//**************************************************************************
+const rhea::SQLRst*	Server::DB_q(u16 dbHandle, const char *sql)
+{
+	if (dbList.q(dbHandle, rhea::getTimeNowMSec(), sql, &rst))
+		return &rst;
+	return NULL;
+}
+
+//**************************************************************************
+bool Server::DB_exec (u16 dbHandle, const char *sql)
+{
+	return dbList.exec(dbHandle, rhea::getTimeNowMSec(), sql);
 }

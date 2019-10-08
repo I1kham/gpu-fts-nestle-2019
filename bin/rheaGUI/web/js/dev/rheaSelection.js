@@ -55,11 +55,11 @@ Rhea.prototype.selection_sessionRestore = function()
 	this.selectionList = [];
 	for (var i=1; i<=RHEA_NUM_MAX_SELECTIONS; i++)
 	{
-		var s = this.Session_getObject("selInfo" +i);
+		var s = Rhea_session_getObject("selInfo" +i);
 		if (s === undefined)
 		{
 			s = this.selection_createEmpty(i);
-			this.Session_setObject("selInfo" +i, s);
+			Rhea_session_setObject("selInfo" +i, s);
 		}
 		this.selectionList.push (s);
 	}
@@ -75,7 +75,7 @@ Rhea.prototype.selection_sessionStore = function()
 	rheaLog ("Rhea.selection_sessionStore()");
 	for (var i=1; i<=RHEA_NUM_MAX_SELECTIONS; i++)
 	{
-		this.Session_setObject("selInfo" +i, this.selectionList[i-1]);
+		Rhea_session_setObject("selInfo" +i, this.selectionList[i-1]);
 	}
 }
 

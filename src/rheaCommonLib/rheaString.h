@@ -53,6 +53,10 @@ namespace rhea
             inline	u64		toU64 (const char *s)														{ if (NULL==s) return 0; return (u64)atoll(s); }
 					f32		toF32  (const char *s, u32 lenOfS=u32MAX);
 					u32		hash (const char *str);
+					u32		decodeURIinPlace(char *s);
+							/* sostituisce le sequenze %xx con la relativa rappresentazione in byte
+								Ritorna la nuova lunghezza di s
+							*/
 		};
 
 

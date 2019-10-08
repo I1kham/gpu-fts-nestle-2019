@@ -3,6 +3,8 @@
 #define _winOSSocket_h_
 #include "winOSInclude.h"
 
+#pragma comment(lib, "Ws2_32.lib")
+
 namespace platform
 {
 	void				socket_init (OSSocket *sok);

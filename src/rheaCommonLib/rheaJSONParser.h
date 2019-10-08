@@ -13,7 +13,7 @@ namespace rhea
 
         bool        parse (const char *s, RheaJSonTrapFunction onValueFound, void *userValue);
                         /*  parsa la stringa s che si suppone essere in formato JSON
-                         *  Ogni volta che ha disponbibile una copiia field:value, chiama la [onValueFound]
+                         *  Ogni volta che ha disponbibile una coppia field:value, chiama la [onValueFound]
                          *  Se la [onValueFound] ritorna false, il parsing termina, altrimenti prosegue
                          *
                          * Ritorna false in caso di errore nel parsing

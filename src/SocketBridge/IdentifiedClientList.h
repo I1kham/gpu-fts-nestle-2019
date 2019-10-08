@@ -29,7 +29,7 @@ namespace socketbridge
 								Se != NULL, aggiorna il lastTimeRCV
 							*/
 		
-		const sIdentifiedClientInfo*		isKnownIDCode (const SokBridgeIDCode &idCode) const;
+		const sIdentifiedClientInfo*		isKnownIDCode (const SokBridgeIDCode &idCode);
 							/*	true se [idCode] è attualmente in lista. In questo caso, ritorna un valido [out_handle].
 								false altrimenti
 							*/
@@ -63,6 +63,7 @@ namespace socketbridge
 		u32					priv_findByHSokServerClient (const HSokServerClient &h) const;
 		u32					priv_findByHSokBridgeClient (const HSokBridgeClient &h) const;
 		u32					priv_findByIDCode (const SokBridgeIDCode &idCode) const;
+		HSokBridgeClient&	priv_createHandle (u64 timeNowMSec, const SokBridgeIDCode &idCode);
 
 	private:
 		rhea::FastArray<sIdentifiedClientInfo>  list;

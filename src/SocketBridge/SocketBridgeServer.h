@@ -8,6 +8,7 @@
 #include "CommandHandlerList.h"
 #include "IdentifiedClientList.h"
 #include "SocketBridgeFileT.h"
+#include "DBList.h"
 
 namespace socketbridge
 {
@@ -36,10 +37,18 @@ namespace socketbridge
 		const IdentifiedClientList*	getIdentifieidClientList() const							{ return &identifiedClientList; }
 
 
+		u16						DB_getOrCreateHandle (const char *fullFilePathAndName);
+								//ritorna 0 se non è possibile aprire il DB
+
+		const rhea::SQLRst*		DB_q (u16 dbHandle, const char *sql);
+								//NULL in caso di errore
+
+		bool					DB_exec (u16 dbHandle, const char *sql);
+
+
     private:
         static const u16        RESERVED_HANDLE_RANGE = 1024;
 		
-
     private:
 		bool					priv_extractOneMessage (u8 *buffer, u16 nBytesInBuffer, sDecodedMessage *out, u16 *out_nBytesConsumed) const;
 
@@ -73,13 +82,19 @@ namespace socketbridge
 		cpubridge::sSubscriber	subscriber;
 		OSEvent					hSubscriberEvent;
 
+		u16						SEND_BUFFER_SIZE;
+		u8						*sendBuffer;
+
 		IdentifiedClientList    identifiedClientList;
 		CommandHandlerList      cmdHandlerList;
 		u64                     nextTimePurgeCmdHandlerList;
+		u64						nextTimePurgeDBList;
 		u16                     _nextHandlerID;
 		u8						eventSeqNumber;
 		bool                    bQuit;
 		u8						cpuBridgeVersion;
+		DBList					dbList;
+		rhea::SQLRst			rst;
     };
 
 } // namespace socketbridge

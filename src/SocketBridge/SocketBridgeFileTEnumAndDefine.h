@@ -36,7 +36,7 @@ namespace socketbridge
 	{
 		struct sData0x01
 		{
-			static const u8 MAX_USAGE_LEN = 32;
+			static const u8 MAX_USAGE_LEN = 255;
 			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode_upload_request_fromApp;
 
 					sData0x01()						{ opcode = OPCODE; }

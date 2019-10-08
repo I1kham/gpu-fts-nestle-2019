@@ -101,8 +101,27 @@ u32 IdentifiedClientList::priv_findByIDCode (const SokBridgeIDCode &idCode) cons
 
 
 //*********************************************************
-const sIdentifiedClientInfo* IdentifiedClientList::isKnownIDCode (const SokBridgeIDCode &idCode) const
+const sIdentifiedClientInfo* IdentifiedClientList::isKnownIDCode (const SokBridgeIDCode &idCode)
 {
+	//questo è per compatibilità con le GUI Fusion Beta v1, è da rimuovere prima o poi
+	if (idCode.data.buffer[0] == 0x05 && idCode.data.buffer[1] == 0 && idCode.data.buffer[2] == 0 && idCode.data.buffer[3] == 0)
+	{
+		u32 i = priv_findByIDCode(idCode);
+		if (u32MAX != i)
+			return &list(i);
+
+		//aggiungo un record d'ufficio per gestire questo caso
+		priv_createHandle (rhea::getTimeNowMSec(), idCode);
+		i = priv_findByIDCode(idCode);
+		list[i].clientVer.apiVersion = 0x01;
+		list[i].clientVer.appType = 0x02;
+		list[i].clientVer.unused2 = 0x03;
+		list[i].clientVer.unused3 = 0x04;
+		return &list(i);
+	}
+
+
+
 	u32 i = priv_findByIDCode(idCode);
 	if (u32MAX == i)
 		return NULL;
@@ -110,7 +129,7 @@ const sIdentifiedClientInfo* IdentifiedClientList::isKnownIDCode (const SokBridg
 }
 
 //*********************************************************
-HSokBridgeClient& IdentifiedClientList::newEntry (u64 timeNowMSec, SokBridgeIDCode *out_idCode)
+HSokBridgeClient& IdentifiedClientList::newEntry(u64 timeNowMSec, SokBridgeIDCode *out_idCode)
 {
 	//genera un idCode random, univoco
 	while (1)
@@ -120,11 +139,17 @@ HSokBridgeClient& IdentifiedClientList::newEntry (u64 timeNowMSec, SokBridgeIDCo
 		out_idCode->data.buffer[2] = 1 + (u8)rhea::randomU32(254);
 		out_idCode->data.buffer[3] = 1 + (u8)rhea::randomU32(254);
 
+		assert(out_idCode->data.buffer[0] > 0 && out_idCode->data.buffer[1] > 0 && out_idCode->data.buffer[2] > 0 && out_idCode->data.buffer[3] > 0);
 		if (u32MAX == priv_findByIDCode(*out_idCode))
 			break;
 	}
 
+	return priv_createHandle(timeNowMSec, *out_idCode);
+}
 
+//*********************************************************
+HSokBridgeClient& IdentifiedClientList::priv_createHandle (u64 timeNowMSec, const SokBridgeIDCode &idCode)
+{
 	//genero un nuovo handle
 	nextHandle.index++;
 	if (nextHandle.index == u16MAX)
@@ -134,7 +159,7 @@ HSokBridgeClient& IdentifiedClientList::newEntry (u64 timeNowMSec, SokBridgeIDCo
 	u32 n = list.getNElem();
 	list[n].handle = nextHandle;
 	list[n].currentWebSocketHandleAsU32 = u32MAX;
-	list[n].idCode = *out_idCode;
+	list[n].idCode = idCode;
 	list[n].clientVer.zero();
 	//list[n].hasPendingRequest = 0;
 	list[n].timeCreatedMSec = timeNowMSec;

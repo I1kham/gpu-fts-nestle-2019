@@ -19,6 +19,7 @@ namespace socketbridge
 							CmdHandler (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec);
         virtual				~CmdHandler()                                              {}
 
+		virtual bool		needToPassDownToCPUBridge() const = 0;
         virtual void		onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
 		
         u16					getHandlerID() const																					{ return handlerID; }

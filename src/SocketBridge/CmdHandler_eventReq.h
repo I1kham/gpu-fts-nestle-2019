@@ -18,9 +18,9 @@ namespace socketbridge
                                 {
                                 }
 
-		virtual bool			needToPassDownToCPUBridge() const = 0;
 		virtual void            passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen) = 0;
 		//virtual void			onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
+		//virtual bool			needToPassDownToCPUBridge() const = 0;
 
 		virtual void			handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient) 
 								{ 

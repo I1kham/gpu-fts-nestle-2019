@@ -10,85 +10,24 @@
 <body onLoad="rheaBootstrap()">
 
 <div id="mainWrapper" class="wrapper1024x600">
-	<div class="header">
-		<center><img draggable='false' src="upload/logo.png"></center>
-	</div>
+	<img draggable='false' src="upload/plan.jpg">
 
-
-	<br>
-	<div class="page">
-		<div class="pageInfo_content">
-			<div id="divContainer0" class="pageInfo_btn" onclick="gotoPageInfoDetail(0)">
-				<h2 id="box0_title"></h2>
-				<div id="box0_content" class="pageInfo_btn_content" onclick=""></div>
-			</div>
-			
-			<div id="divContainer1" class="pageInfo_btn" onclick="gotoPageInfoDetail(1)">
-				<h2 id="box1_title"></h2>
-				<div id="box1_content" class="pageInfo_btn_content"></div>
-			</div>
-			
-			<div id="divContainer2" class="pageInfo_btn" onclick="gotoPageInfoDetail(2)">
-				<h2 id="box2_title"></h2>
-				<div id="box2_content" class="pageInfo_btn_content"></div>
-			</div>
-			<div class="clear"></div>
-		</div>
-	</div>
-
-	<div class="footer">
-	</div>
-	
 	<!-- il btn home lo metto qui in position absolute per dargli una maggiore area di click -->
-	<div id="divBtnHome" style="position:absolute; top:0; left:0; width:200px; height:80px;">
-		<img class="header_left_btnHome" draggable='false' src="img/btnHome.png">
+	<div id="divBtnHome" class="btnIndietro">
+		<img draggable='false' src="img/btnHome.png">
 	</div>
 </div> <!-- wrapper1024x600 -->
 
-<script src="config/pageInfo.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
 function onRheaBootstrapFinished()
 {
-	//carica i contenuti in lingua di questa pagina
-	rhea.lang_loadJS ("pageInfo")
-		.then ( function()
-		{
-			setupBoxContent();
-		});
-		
 	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
 	var d = rheaGetElemByID("divBtnHome");
 	d.addEventListener('mouseup', function (ev)
 	{
 		window.location = "pageMenu.html";
 	}, true);			
-}
-
-function setupBoxContent()
-{
-	for (var i=0; i<3; i++)
-	{
-		//background image
-		if (rheaPageOptions.bg_images[i] != "")
-		{
-			var d = rheaGetElemByID("divContainer" + i);
-			rheaSetElemBackgroundImage(d, "upload/" +rheaPageOptions.bg_images[i]);
-		}
-
-		var d = rheaGetElemByID("box" + i +"_title");
-		rheaSetElemTextColor (d, rheaPageOptions.titleColor[i]);
-		rheaSetElemHTML (d, rheaPageContent.BOX_TITLE[i]);
-		
-		d = rheaGetElemByID("box" + i +"_content");
-		rheaSetElemTextColor (d, rheaPageOptions.textColor[i]);
-		rheaSetElemHTML (d, rheaPageContent.BOX_CONTENT[i]);		
-	}
-}
-
-function gotoPageInfoDetail(which)
-{
-	window.location = "pageInfoDetail.html?content=" +which;
 }
 </script>
 

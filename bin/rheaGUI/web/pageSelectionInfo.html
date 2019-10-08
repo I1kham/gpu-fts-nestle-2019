@@ -10,55 +10,78 @@
 <body onLoad="rheaBootstrap()">
 
 <div id="mainWrapper" class="wrapper1024x600">
-	<div class="header">
-		<center><img draggable='false' src="upload/logo.png"></center>
-	</div>
-
-	<div class="pageInfoDetailContent">
-		<div id="divTitle" class="pageInfoDetailContent_title"></div>
-		<div id="divContentWrapper" class="pageInfoDetailContent_content">
-			<div id="divContent" style="position:absolute; top:0; left:0"></div>
+	<div class="pageConfirm">
+		<div style="float:left; width:40%; text-align:center;">
+			<table border='0' cellspacing='0' cellpadding='0' width="100%" height="100%">
+				<tr valign="middle">
+					<td align="center">
+						<div id="selImage"></div>
+						<div id="selName" class="pageSelInfo_title"></div>
+						<div id="selInfo" class="pageSelInfo_detail"></div>
+					</td>
+				</tr>
+			</table>
 		</div>
+		
+		<div style="float:right; width:58%; text-align:center">
+			<table border='0' cellspacing='0' cellpadding='0' width="100%" height="100%">
+				<tr valign="middle">
+					<td align="center">
+						<img draggable='false'  src="upload/nutriotionalInfo1.png">
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div class="clear"></div>
 	</div>
 
 	
 	<!-- il btn home lo metto qui in position absolute per dargli una maggiore area di click -->
-	<div id="divBtnBack" style="position:absolute; top:0; left:0; width:200px; height:80px;">
-		<img class="header_left_btnHome" draggable='false' src="img/btnBack.png">
+	<div id="divBtnHome" class="btnIndietro">
+		<img draggable='false' src="img/btnHome.png">
 	</div>
 </div> <!-- wrapper1024x600 -->
 
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/MMI.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
-function onRheaBootstrapFinished()
+function onRheaBootstrapFinished() 
+{
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
+}
+
+function onAfterLangLoaded()
 {
 	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
 	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
 	
+	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
+	var d = rheaGetElemByID("selImage");
+	rheaSetElemHTML(d, image);
+	
 	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
-	var d = rheaGetElemByID("divBtnBack");
+	d = rheaGetElemByID("divBtnHome");
 	d.addEventListener('mouseup', function (ev)
 	{
 		window.location = "pageConfirm.html?iconMenu=" +iconNum;
 	}, true);
 
 	
-	var iconDisplayName = rhea.MMI_getDisplayName(iconNum);
+	var iconDisplayName = MMI_getDisplayName(iconNum);
 	
 	//carica i contenuti in lingua di questa pagina
-	rhea.lang_loadJS ("mainMenuIconsInfo")
+	lang_loadJS ("mainMenuIconsInfo")
 		.then ( function()
 		{
-			var d = rheaGetElemByID("divTitle");
+			var d = rheaGetElemByID("selName");
 			rheaSetElemHTML(d, iconDisplayName);
 			
-			d = rheaGetElemByID("divContent");
-			rheaSetElemHTML(d, rheaMainMenuIconsInfo[iconNum]);
 			
-			var wrapperH = rheaGetElemHeight (rheaGetElemByID("divContentWrapper"));
-			var contentH = rheaGetElemHeight (d);
-			if (contentH > wrapperH)
-				rheaSetDivAsScrollabelByGesture("divContent", "divContentWrapper" , contentH, wrapperH);	
+			d = rheaGetElemByID("selInfo");
+			rheaSetElemHTML(d, rheaMainMenuIconsInfo[iconNum]);
 		});
 }
 

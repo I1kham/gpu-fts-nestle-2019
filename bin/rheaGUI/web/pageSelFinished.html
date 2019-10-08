@@ -11,10 +11,6 @@
 
 <div id="mainWrapper" class="wrapper1024x600">
 	<div class="header">
-		<div class="header_left"></div>
-		<div class="header_center"><img draggable='false' src="upload/logo.png"></div>
-		<div class="header_right"></div>
-		<div class="clear"></div>
 	</div>
 
 	<div class="page" style="position:relative; text-align:center;">
@@ -30,9 +26,17 @@
 	</div>	
 </div>
 
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/MMI.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
-function onRheaBootstrapFinished()
+function onRheaBootstrapFinished() 
+{
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
+}
+
+function onAfterLangLoaded()
 {
 	/*rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
@@ -43,8 +47,8 @@ function onRheaBootstrapFinished()
 	var iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
 	var selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
 	
-	var iconDisplayName = rhea.MMI_getDisplayName(iconNum);
-	var image = "<img draggable='false' src='" +rhea.MMI_getImgForPageConfirm(iconNum) +"'>";
+	var iconDisplayName = MMI_getDisplayName(iconNum);
+	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
 	
 	var d = rheaGetElemByID("divImage");
 	rheaSetElemHTML(d, image);

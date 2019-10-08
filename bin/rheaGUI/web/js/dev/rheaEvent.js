@@ -24,3 +24,4 @@ Rhea.prototype.onEvent_creditUpdated = function()	{}
 Rhea.prototype.onEvent_cpuMessage = function(msg, importanceLevel)	{}
 
 Rhea.prototype.onEvent_selectionReqStatus = function(status)	{}
+

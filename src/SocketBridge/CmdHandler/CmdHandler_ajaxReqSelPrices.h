@@ -30,6 +30,7 @@ namespace socketbridge
                                 CmdHandler_ajaxReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID)
                                 { }
 
+		bool				needToPassDownToCPUBridge() const { return true; }
         void                passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params);
         void                onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge);
 

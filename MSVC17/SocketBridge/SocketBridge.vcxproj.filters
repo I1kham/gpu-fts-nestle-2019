@@ -4,80 +4,66 @@
     <Filter Include="CmdHandler">
       <UniqueIdentifier>{fabc77cd-1aef-4339-a9d0-ceb2dbea9cb2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CmdHandler\ajax">
+      <UniqueIdentifier>{9f32f6e4-6be2-43a9-a88c-050737c161ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\event">
+      <UniqueIdentifier>{81ee35b6-3e99-4a9a-9c8e-5953762f48a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler_eventReq.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\IdentifiedClientList.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\SocketBridge.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeServer.cpp" />
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.cpp">
-      <Filter>CmdHandler</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeFileT.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\DBList.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler_eventReq.h" />
@@ -86,11 +72,51 @@
     <ClInclude Include="..\..\src\SocketBridge\SocketBridge.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeEnumAndDefine.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeServer.h" />
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.h">
-      <Filter>CmdHandler</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeVersion.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeFileT.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeFileTEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\SocketBridge\DBList.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

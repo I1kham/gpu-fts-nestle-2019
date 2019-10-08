@@ -20,6 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.cpp" />
@@ -33,6 +36,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler_eventReq.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\DBList.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\IdentifiedClientList.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\SocketBridge.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeFileT.cpp" />
@@ -40,6 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.h" />
@@ -54,6 +61,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler_eventReq.h" />
     <ClInclude Include="..\..\src\SocketBridge\CommandHandlerList.h" />
+    <ClInclude Include="..\..\src\SocketBridge\DBList.h" />
     <ClInclude Include="..\..\src\SocketBridge\IdentifiedClientList.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridge.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeEnumAndDefine.h" />

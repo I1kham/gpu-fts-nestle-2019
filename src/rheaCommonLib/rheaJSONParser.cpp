@@ -137,7 +137,7 @@ bool json::parse (const char *s, RheaJSonTrapFunction onValueFound, void *userVa
     const u8 MAX_SIZE_OF_FIELD_NAME = 64;
     char fieldName[MAX_SIZE_OF_FIELD_NAME];
 
-    const u8 MAX_SIZE_OF_FIELD_VALUE = 128;
+    const u16 MAX_SIZE_OF_FIELD_VALUE = 4096;
     char fieldValue[MAX_SIZE_OF_FIELD_VALUE];
 
     parser::Iter iter1;

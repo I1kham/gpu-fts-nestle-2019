@@ -6,8 +6,8 @@ function rheaDebug_showWindow()
 	var d = rheaDoesElemExistsByID("rheaDebugWin");
 	if (undefined === d)
 	{
-		if (undefined === rhea.Session_getValue("debug_console", ""))
-			rhea.Session_setValue("debug_console", "");
+		if (undefined === Rhea_session_getValue("debug_console", ""))
+			Rhea_session_setValue("debug_console", "");
 		
 		var divMainWrapper = rheaGetElemByID("mainWrapper");
 			d = document.createElement("div");
@@ -17,7 +17,7 @@ function rheaDebug_showWindow()
 		
 		
 		var html = "<div id='rheaDebugWin_console' style='font-family:Courier,monospace; width:100%; height:100%; overflow:hidden; overflow-y:auto; font-size:16px;'>";
-			html+=     rhea.Session_getValue("debug_console");
+			html+=  Rhea_session_getValue("debug_console");
 			html+= "</div>";
 			html+= "<div style='position:absolute; top:0; right:20px; background-color:#f00; color:#fff; padding:2px; font-weight:bold' onclick='rheaDebug_minMaxWinDebug()'>X</div>";
 		
@@ -41,13 +41,13 @@ function rheaDebug_addText (s)
 	var today = new Date();
 	var time = rheaDebug_addZero(today.getHours()) + ":" + rheaDebug_addZero(today.getMinutes()) + ":" + rheaDebug_addZero(today.getSeconds());
 	
-	var text = rhea.Session_getValue("debug_console");
+	var text = Rhea_session_getValue("debug_console");
 	text = time +">  " +s +"<br>" + text;
 	
 	if (text.length > 10240)
 		text = text.substr(0, 5000);	
 	
-	rhea.Session_setValue("debug_console", text);
+	Rhea_session_setValue("debug_console", text);
 	
 	var d = rheaGetElemByID("rheaDebugWin_console");
 	rheaSetElemHTML(d, text);

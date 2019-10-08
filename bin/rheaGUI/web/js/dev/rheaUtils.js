@@ -14,6 +14,77 @@ function RheaAjaxAnswer (requestID)
 	this.rcv = null;
 }
 
+//**************************************************
+function rheaAddU16ToUint8Buffer (buffer, offset, u16Value)
+{
+	var n = parseInt(u16Value);
+	buffer[offset]   = ((n & 0xFF00) >> 8);
+	buffer[offset+1] = (n & 0x00FF);
+}
+
+//**************************************************
+function rheaAddU32ToUint8Buffer (buffer, offset, u32Value)
+{
+	var n = parseInt(u32Value);
+	buffer[offset]     = ((n & 0xFF000000) >> 24);
+	buffer[offset+1]   = ((n & 0x00FF0000) >> 16);
+	buffer[offset+2]   = ((n & 0x0000FF00) >> 8);
+	buffer[offset+3]   =  (n & 0x000000FF);
+}
+
+/**************************************************
+ * Cookie
+ */
+function rheaSetCookie (name, value, days)
+{
+    var expires = "";
+    if (days) 
+	{
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+	
+	console.log ("SET COOKIE [" +name +"][" +value +"][" +days +"]");
+}
+
+function rheaGetCookie (name) 
+{
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++)
+	{
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+function rheaGetCookieOrDefault (name, defValue) { var ret=rheaGetCookie(name); if(null==ret) return defValue; return ret; } 
+function rheaEraseCookie(name) { document.cookie = name+'=; Max-Age=-99999999;';  }
+
+
+/**************************************************
+ * rheaGetCurPath
+ *
+ *  Ritorna il path assoluto della pagina attualmente visualizzata.
+ *	Non stiamo parlando della URL, ma del path fisico su HD.
+ *	Il path ritornato non ha lo slash finale
+ */
+function rheaGetAbsolutePhysicalPath()
+{
+	var currentDirectory = window.location.pathname.split('/').slice(0, -1).join('/')
+	
+	/*	se inizia con slash, verifico se il terzo ch è un : nel qual caso tolgo lo slash iniziale
+		es: /C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/rheaGUI/web
+		su windows non sarebbe un path valido, tolgo lo slash iniziale
+	*/
+	if (currentDirectory.substr(0,1) == '/' && currentDirectory.substr(2,1) == ':')
+		currentDirectory = currentDirectory.substr(1);	
+	
+	return currentDirectory;
+}
 
 /**************************************************
  * utf8ArrayToStr

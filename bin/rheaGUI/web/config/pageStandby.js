@@ -1,11 +1,1 @@
-var rheaPageOptions = {
-	overlay_visible: 1,
-	overlay_bgcolor: "rgba(155,92,10,0.8)",
-	overlay_textColor: "#fff",
-	
-	gallery_timeToNextImageMSec: 3000,
-	gallery_images: [
-		"standby_gallery_01.jpg",
-		"standby_gallery_02.jpg"
-	]
-};
+var rheaPageOptions={overlay_visible:1,overlay_bgcolor:"rgba(0,0,0,0.80)",overlay_textColor:"rgb(255,255,255)",gallery_timeToNextImageMSec:3000,gallery_images:["../upload/standby_gallery_01.jpg","../upload/standby_gallery_02.jpg"]};

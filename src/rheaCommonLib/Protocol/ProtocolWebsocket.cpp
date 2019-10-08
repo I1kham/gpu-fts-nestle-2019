@@ -304,7 +304,8 @@ u16 ProtocolWebsocket::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffe
         //opcode
         switch ((b & 0x0F))
         {
-        case 0x00:  out_result->opcode = eWebSocketOpcode_CONTINUATION; break;
+        case 0x00:  out_result->opcode = eWebSocketOpcode_CONTINUATION; 
+			break;
         case 0x01:  out_result->opcode = eWebSocketOpcode_TEXT; break;
         case 0x02:  out_result->opcode = eWebSocketOpcode_BINARY; break;
         case 0x08:  out_result->opcode = eWebSocketOpcode_CLOSE; break;
@@ -408,11 +409,11 @@ u16 ProtocolWebsocket::priv_encodeAMessage(bool bFin, eWebSocketOpcode opcode, c
 	//payload
 	if (payloadLen > 0)
 	{
+		assert(ct + payloadLen <= sizeOfOutBuffer);
 		memcpy(&wBuffer[ct], payloadToSend, payloadLen);
 		ct += payloadLen;
 	}
 
-	assert(ct + payloadLen <= sizeOfOutBuffer);
 	return ct;
 }
 

@@ -141,7 +141,14 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			for (u32 i = 0; i < nClientInfo; i++)
 			{
 				char sVerInfo[64];
-				rhea::app::utils::verbose_SokBridgeClientVer(list[i].clientVer, sVerInfo, sizeof(sVerInfo));
+				if (list[i].clientVer.apiVersion == 0x01 && list[i].clientVer.appType == 0x02 && list[i].clientVer.unused2 == 0x03 && list[i].clientVer.unused3 == 0x04 &&
+					list[i].idCode.data.buffer[0] == 0x05 && list[i].idCode.data.buffer[1] == 0 && list[i].idCode.data.buffer[2] == 0 && list[i].idCode.data.buffer[3] == 0)
+				{
+					//caso speciale delle prime GU FUsione beta v1, s'ha da rimuovere prima o poi
+					sprintf_s(sVerInfo, sizeof(sVerInfo), "old-GUI_beta-v1");
+				}
+				else
+					rhea::app::utils::verbose_SokBridgeClientVer(list[i].clientVer, sVerInfo, sizeof(sVerInfo));
 
 				log->log("-----------------------------------------------------client #%02d\n", (i + 1));
 				log->log("idCode: 0x%08X\n", list[i].idCode.data.asU32);
