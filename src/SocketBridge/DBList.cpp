@@ -38,6 +38,17 @@ void DBList::priv_freeResouce(sEntry *s)
 //*********************************************************
 void DBList::purge(u64 timeNowMSec)
 {
+	/*	il concetto di purge() è corretto.
+	Il problema è che se una GUI si collega e apre il DB, e poi per 5 minuti non fa nulla, finische che chiudo
+	la connessione al DB anche se la GUI è ancora collegata. Quando poi questa dopo 10 minuti decide di fare una query,
+	trova il DB chiuso perchè l'ho purged().
+	Bisogna quindi mantenere una serie di identifiedClient associata ad ogni connessione DB e fare il purge() dei DB che non hanno
+	più identifiedClient attivi associati.
+	Non si considerano più i 5 minuti quindi, ma la connessione DB rimane viva fintanto che anche uno solo dei client che la sta usando è viva.
+	Questa cosa richiedere un po' di tempo, la farò in futuro.
+	Per il momento la connessione DB la lascio sempre aperta...
+	*/
+	/*
 	u32 n = list.getNElem();
 	for (u32 i = 0; i < n; i++)
 	{
@@ -49,6 +60,7 @@ void DBList::purge(u64 timeNowMSec)
 			--n;
 		}
 	}
+	*/
 }
 
 //*********************************************************

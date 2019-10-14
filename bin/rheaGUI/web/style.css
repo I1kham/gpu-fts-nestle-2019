@@ -8,8 +8,11 @@
     user-select: none;
 }
 
-//@font-face { font-family: "MyRoboto"; src: url(./fonts/Roboto-Light.ttf) format("truetype"); }
-@font-face { font-family: "MyFont"; src: url(./fonts/Nescafe-Sans-Light.ttf) format("truetype"); }
+@font-face { font-family: "MyFont"; src: url(./fonts/Nescafe-Sans-Regular.ttf) format("truetype"); font-weight: normal;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Nescafe-Sans-Bold.ttf) format("truetype"); font-weight: bold;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Nescafe-Sans-Italic.ttf) format("truetype"); font-weight: normal; font-style: italic;}
+    
+
 
 *		{ font-family: "MyFont", "Roboto-Light", "Noto Sans CJK SC", "DejaVu Sans"; }
 html	{ background-color:#bbb; }
@@ -79,10 +82,8 @@ a:hover	{ text-decoration:none; outline: 0; }
 .btnSingleLang { width:326px; height:55px; display:inline-block; background-image:url(img/btnSingleLang-OFF.png); text-align:center; 
 				 color:#AAA; font-weight:bold; position:relative; cursor:pointer;}
 .btnSingleLang:hover, .btnSingleLang.selected { background-image:url(img/btnSingleLang-ON.png); color:#000; }
-.btnSingleLang img { display:block; position:absolute; top:6px; left:4px; height:45px; }
+.btnSingleLang img { display:block; position:absolute; top:4px; left:4px; height:45px; }
 .btnSingleLang p   { display:block; position:absolute; top:-23px; left:80px; line-height:55px; font-size:26px; font-weight:900; }
-
-
 
 ul.langList { list-style-type:none; margin:0; padding:0;}
 ul.langList li { display:inline-block; width:500px; text-align:center; margin:20px 0 20px 0;}
@@ -108,7 +109,7 @@ ul.langList li { display:inline-block; width:500px; text-align:center; margin:20
 
 .pageConfirm_iconOptionA { display:table-cell; vertical-align: middle; width:120px; min-width:120px; height:54px; min-height:54px; overflow:hidden; text-align:center; background-image:url(upload/optionBtnA-OFF.png); background-repeat: no-repeat; background-position: left top; }
 .pageConfirm_iconOptionA.selected { background-image:url(upload/optionBtnA-ON.png); color:#000; }
-.pageConfirm_iconOptionA p { display:inline-block; line-height:20px; margin:5px 0 0 0; padding:0; font-size:0.85em; font-weight:bold; }
+.pageConfirm_iconOptionA p { display:inline-block; line-height:20px; margin:5px 0 0 0; padding:0; font-size:0.75em; font-weight:bold; }
 
 .pageConfirm_iconOptionB { display:table-cell; vertical-align: middle; width:121px; min-width:121px; height:94px; min-height:94px; overflow:hidden; text-align:center; background-image:url(upload/optionBtnB-OFF.png); background-repeat: no-repeat; background-position: left top; }
 .pageConfirm_iconOptionB.selected { background-image:url(upload/optionBtnB-ON.png); color:#000; }

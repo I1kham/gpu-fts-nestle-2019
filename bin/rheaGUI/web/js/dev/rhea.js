@@ -27,7 +27,7 @@ var RHEA_CLIENT_INFO__UNUSED3 = 0x00;
  * 
  * Utile per pulire le informazioni di sessione. Di solito usata allo startup della GUI
  */
-Rhea_clearSessionData = function ()
+Rhea_clearSessionData = function (defaultLanguage)
 {
 	window.name = "";
 	Rhea_session_setValue ("lang", RHEA_DEFAULT_FALLOFF_LANGUAGE);
@@ -463,16 +463,16 @@ Rhea.prototype.sendGPUCommand = function (commandChar, bufferArrayIN, bReturnAPr
 													resolve(me.ajaxReceivedAnswerQ[iReq].rcv);
 													me.ajaxReceivedAnswerQ[iReq] = null;
 												}
-												else if ((timeoutMs -= 100) < 0)
+												else if ((timeoutMs -= 25) < 0)
 												{
 													reject ("timed out [reqID:" +me.ajaxReceivedAnswerQ[iReq].requestID +"][pos:" +iReq +"]");
 													me.ajaxReceivedAnswerQ[iReq] = null;
 												}
 												else
-													setTimeout(check, 100);
+													setTimeout(check, 25);
 											}
 
-						setTimeout(check, 100);
+						setTimeout(check, 25);
 					});			
 };
 

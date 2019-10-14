@@ -13,6 +13,8 @@
 	<center><img src="img/animationRound.gif"></center>
 </div>
 
+<script src="config/allowedLang.js"></script>
+<script src="config/lang.js"></script>
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
 
@@ -22,6 +24,7 @@ function onRheaBootstrapFinished()
 	
 	querySelectionPrice()
 		.then ( function() { return querySelectionAvail(); } )
+		.then ( function() { return lang_loadLang(defaultLang); })
 		.then ( function() { 
 			window.location = "pageStandby.html";
 		})

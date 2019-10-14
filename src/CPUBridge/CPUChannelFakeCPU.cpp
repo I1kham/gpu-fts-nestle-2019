@@ -126,7 +126,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					if (tastoPremuto != 0)
 						bFinished = true; //simula il tasto stop
 				}
-				else if (timeElapsedMSec < 5000)
+				else if (timeElapsedMSec < 12000)
 				{
 					statoPreparazioneBevanda = eStatoPreparazioneBevanda_running;
 					if (tastoPremuto != 0)

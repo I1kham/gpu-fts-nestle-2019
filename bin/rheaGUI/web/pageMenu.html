@@ -73,7 +73,7 @@
 	<!-- menu lingue -->
 	<div id="divLangMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
 		<div class="btnIndietro" onclick="divLangMenu_close()"><img draggable='false' src="img/btnHome.png"></div> 
-		<div class="pageConfirm_bigFont" style="text-align:center; color:#aaa; margin:25px 0 80px 0;">SELECT YOUR LANGUAGE</div>
+		<div class="pageConfirm_bigFont" style="text-align:center; color:#aaa; margin:25px 0 60px 0;">SELECT YOUR LANGUAGE</div>
 
 		<div id="divLangMenu_content"></div>
 	</div>
@@ -84,10 +84,12 @@
 
 
 <!-- le opzioni di layout per questa pagina sono qui -->
+<script src="config/allowedLang.js"></script>
 <script src="config/lang.js"></script>
 <script src="config/mainMenuIcons.js"></script>
 <script src="config/pageMenu.js"></script>
 <script src="config/MMI.js"></script>
+<script src="config/pageStandby.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
 
@@ -117,8 +119,8 @@ function onAfterLangLoaded()
 
 
 	//il numero di righe/colonne della grid può essere passato anche via urlGet
-	var nGridRow = rheaGetURLParamOrDefault("gridR", rheaPageOptions.icon_numRow);
-	var nGridCol = rheaGetURLParamOrDefault("gridC", rheaPageOptions.icon_numIconPerRow);
+	var nGridRow = rheaGetURLParamOrDefault("gridR", mainMenuPageOptions.icon_numRow);
+	var nGridCol = rheaGetURLParamOrDefault("gridC", mainMenuPageOptions.icon_numIconPerRow);
 	setupIconContainer(nGridRow, nGridCol);
 }
 
@@ -378,17 +380,19 @@ function goToPageMenu(pageIN)
 
 function resetTimerGotoPageStandby() 
 {
-	if (rheaPageOptions.gotoPageStandbyAfterMSec <= 0)
+	if (mainMenuPageOptions.gotoPageStandbyAfterMSec <= 1000)
 		return;
 
 	if (null != timerGotoPageStandby)
 		clearInterval(timerGotoPageStandby);
 
-	timerGotoPageStandby = setInterval(gotoPageStandby, rheaPageOptions.gotoPageStandbyAfterMSec);
+	timerGotoPageStandby = setInterval(gotoPageStandby, mainMenuPageOptions.gotoPageStandbyAfterMSec);
 }
 
 function gotoPageStandby()  
 { 
+	if (standbyPageOptions.enabled==0)
+		return;
 	window.location = "pageStandby.html"; 
 }
 
@@ -573,21 +577,14 @@ function onBtnCleaning()		{ rhea.selection_start(rheaCleaningSelection); hideFas
 
 
 //--------------------------------------------------------
-var allLang = [	{iso:"FR",	text:"FRANÇAISE"},
-				{iso:"GB",	text:"ENGLISH"},
-				{iso:"IT",	text:"ITALIANO"},
-				{iso:"DE",	text:"DEUTSCH"},
-				{iso:"ES",	text:"ESPAÑOL"},
-				{iso:"NL",	text:"NEDERLANDS"}
-			];
-
 function divLangMenu_setup(currentLangISO)
 {
 	var html = "<ul class='langList'>";
-	for (var i=0; i<allLang.length; i++)
+	var eLang = allLang.split(",");
+	for (var i=0; i<eLang.length; i++)
 	{
-		var iso = allLang[i].iso;
-		var text= allLang[i].text;
+		var iso = eLang[i];
+		var text= allLangLocale[i];
 		
 		var cssClass = "btnSingleLang";
 		if (iso == currentLangISO)
@@ -614,9 +611,10 @@ function divLangMenu_close()
 
 function divLangMenu_select(isoOfSelectedLang)
 {
-	for (var i=0; i<allLang.length; i++)
+	var eLang = allLang.split(",");
+	for (var i=0; i<eLang.length; i++)
 	{
-		var iso = allLang[i].iso;
+		var iso = eLang[i];
 		var d = rheaGetElemByID("divLangMenu_" +iso);
 		rheaRemoveClassToElem(d, "selected");
 		if (iso == isoOfSelectedLang)

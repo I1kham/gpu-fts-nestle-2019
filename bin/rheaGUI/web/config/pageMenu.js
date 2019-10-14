@@ -1,6 +1,1 @@
-var rheaPageOptions = {
-	icon_numRow: 3,
-	icon_numIconPerRow: 4,
-	
-	gotoPageStandbyAfterMSec: 30000
-};
+var mainMenuPageOptions={icon_numRow:2,icon_numIconPerRow:4,gotoPageStandbyAfterMSec:30000};

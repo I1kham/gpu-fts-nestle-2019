@@ -29,6 +29,10 @@
 <script language="javascript">
 function onRheaBootstrapFinished()
 {
+	if (standbyPageOptions.enabled=="0")
+	{
+		gotoMenuPage();
+	}
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
 }
 
@@ -69,22 +73,22 @@ function gotoMenuPage()
 
 function setupOverlay()
 {
-	if (rheaPageOptions.overlay_visible == 0)
+	if (standbyPageOptions.overlay_visible == 0)
 		return;
 	
 	var d = rheaGetElemByID("divOverlay");
-	rheaSetElemBackgroundColor(d,rheaPageOptions.overlay_bgcolor);
-	rheaSetElemTextColor(d,rheaPageOptions.overlay_textColor);
+	rheaSetElemBackgroundColor(d,standbyPageOptions.overlay_bgcolor);
+	rheaSetElemTextColor(d,standbyPageOptions.overlay_textColor);
 	rheaSetElemHTML(d, rheaLang.LAB_PAGE_STANDBY);
 	rheaShowElem(d);
 	
 	d = rheaGetElemByID("divCPUMessage");
-	rheaSetElemBackgroundColor(d,rheaPageOptions.overlay_bgcolor);
-	rheaSetElemTextColor(d,rheaPageOptions.overlay_textColor);
+	rheaSetElemBackgroundColor(d,standbyPageOptions.overlay_bgcolor);
+	rheaSetElemTextColor(d,standbyPageOptions.overlay_textColor);
 }
 
 
-var numImages = rheaPageOptions.gallery_images.length;
+var numImages = standbyPageOptions.gallery_images.length;
 var curImage = 0;
 function setupGallery()
 {
@@ -94,10 +98,14 @@ function setupGallery()
 	var html = "";
 	for (var i=0; i<numImages; i++)
 	{
-		html += "<div class='pageStandby_galleryContainer_foto'><img draggable='false' src='upload/" +rheaPageOptions.gallery_images[i] +"'></div>";
+		var imgTag = "<img id='slide" +i +"' draggable='false' ";
+		if (i==0)
+			imgTag += "src='upload/" +standbyPageOptions.gallery_images[i] +"'>";
+		else
+			imgTag += "src=''>";	
+		html += "<div class='pageStandby_galleryContainer_foto'>" +imgTag +"</div>";
 	}
 	
-	console.log (numImages);
 	d = rheaGetElemByID("divGallery");
 	if (numImages < 2)
 	{
@@ -108,11 +116,28 @@ function setupGallery()
 	{
 		//appendo la prima immagine in fondo in modo da scrollare dalla ultima immagina alla prima senza effetti strani a video
 		numImages++;
-		html += "<div class='pageStandby_galleryContainer_foto'><img draggable='false' src='upload/" +rheaPageOptions.gallery_images[0] +"'></div>";
+		html += "<div class='pageStandby_galleryContainer_foto'><img draggable='false' src='upload/" +standbyPageOptions.gallery_images[0] +"'></div>";
 		rheaSetElemWidth(d, imageW * numImages);
 		rheaSetElemHTML(d, html);
-		setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
+		setTimeout ("scrollToNextImage()", standbyPageOptions.gallery_timeToNextImageMSec);
+		
+		//schedulo il load dinamico delle slide successive alla prima
+		setTimeout ("loadSlide(1)", 600);
 	}
+}
+
+function loadSlide(i)
+{
+	if (i>=numImages-1)
+		return;
+
+	var downloadingImage = new Image();
+	downloadingImage.onload = function() { 
+											console.log ("loaded " +i);
+											document.getElementById("slide" +i).src = this.src; 
+											setTimeout ("loadSlide(" +(i+1) +")", 300);
+										  };
+	downloadingImage.src = "upload/" +standbyPageOptions.gallery_images[i];
 }
 
 function scrollToNextImage()
@@ -127,7 +152,7 @@ function scrollToNextImage()
 	}
 
 	rheaSmoothScrollElemLeft(d, -curImage*1024, 500);
-	setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
+	setTimeout ("scrollToNextImage()", standbyPageOptions.gallery_timeToNextImageMSec);
 }
 
 </script>
