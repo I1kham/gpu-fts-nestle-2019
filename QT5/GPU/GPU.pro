@@ -95,25 +95,23 @@ CONFIG(release, debug|release) {
 SOURCES += \
     ../../src/GPU/formboot.cpp \
     ../../src/GPU/formprog.cpp \
-    ../../src/GPU/formresetgrncounter.cpp \
     ../../src/GPU/history.cpp \
     ../../src/GPU/main.cpp \
     ../../src/GPU/mainwindow.cpp \
-    ../../src/GPU/Utils.cpp
+    ../../src/GPU/Utils.cpp \
+    ../../src/GPU/FormBrowser.cpp
 
 HEADERS  += \
-    ../../src/GPU/enumAndDefine.h \
     ../../src/GPU/formboot.h \
     ../../src/GPU/formprog.h \
-    ../../src/GPU/formresetgrncounter.h \
     ../../src/GPU/header.h \
     ../../src/GPU/history.h \
     ../../src/GPU/mainwindow.h \
-    ../../src/GPU/SelectionAvailiability.h \
-    ../../src/GPU/Utils.h
+    ../../src/GPU/Utils.h \
+    ../../src/GPU/FormBrowser.h
 
 FORMS    += \
     ../../src/GPU/formboot.ui \
     ../../src/GPU/formprog.ui \
-    ../../src/GPU/formresetgrncounter.ui \
-    ../../src/GPU/mainwindow.ui
+    ../../src/GPU/mainwindow.ui \
+    ../../src/GPU/FormBrowser.ui

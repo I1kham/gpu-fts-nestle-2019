@@ -22,8 +22,8 @@
   <widget class="QPushButton" name="buttonStart">
    <property name="geometry">
     <rect>
-     <x>810</x>
-     <y>490</y>
+     <x>860</x>
+     <y>500</y>
      <width>150</width>
      <height>60</height>
     </rect>
@@ -35,14 +35,14 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>30</y>
-     <width>911</width>
+     <x>10</x>
+     <y>40</y>
+     <width>1001</width>
      <height>451</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tabVMCSettings">
     <attribute name="title">
@@ -51,10 +51,10 @@
     <widget class="QListWidget" name="listVMCSettingsFiles">
      <property name="geometry">
       <rect>
-       <x>60</x>
-       <y>40</y>
-       <width>780</width>
-       <height>291</height>
+       <x>20</x>
+       <y>20</y>
+       <width>961</width>
+       <height>311</height>
       </rect>
      </property>
      <property name="font">
@@ -66,7 +66,7 @@
     <widget class="QPushButton" name="buttonWriteSettings">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>20</x>
        <y>340</y>
        <width>280</width>
        <height>60</height>
@@ -79,7 +79,7 @@
     <widget class="QPushButton" name="buttonReadSettings">
      <property name="geometry">
       <rect>
-       <x>450</x>
+       <x>710</x>
        <y>340</y>
        <width>280</width>
        <height>60</height>
@@ -209,8 +209,8 @@
     <widget class="QPushButton" name="buttonReadAudit">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>160</y>
+       <x>340</x>
+       <y>110</y>
        <width>250</width>
        <height>60</height>
       </rect>
@@ -252,13 +252,13 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QLabel" name="labelStatus">
+  <widget class="QLabel" name="labStatus">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>0</x>
      <y>570</y>
-     <width>351</width>
-     <height>17</height>
+     <width>1024</width>
+     <height>30</height>
     </rect>
    </property>
    <property name="font">
@@ -267,22 +267,28 @@
      <pointsize>14</pointsize>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#888; color:#fff</string>
+   </property>
    <property name="text">
-    <string>labelStatus_text</string>
+    <string>labStatus</string>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
   </widget>
-  <widget class="QLabel" name="labelWarning">
+  <widget class="QLabel" name="labWarn">
    <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>490</y>
-     <width>521</width>
+     <x>150</x>
+     <y>504</y>
+     <width>701</width>
      <height>51</height>
     </rect>
    </property>
@@ -299,10 +305,10 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 0, 0);</string>
+    <string notr="true">background-color:#a00; color:#fff</string>
    </property>
    <property name="text">
-    <string>labelWarning</string>
+    <string>labWarn</string>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -312,6 +318,25 @@
    </property>
    <property name="wordWrap">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labCPUMessage">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1024</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#000; color:#fff</string>
+   </property>
+   <property name="text">
+    <string>labCPUMessage</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>

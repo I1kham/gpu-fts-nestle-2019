@@ -113,7 +113,7 @@ void History::incCounterSelezioni()
 
     fclose(f);
 
-    DEBUG_MSG("History::incCountSel => now=%d", nSelezioni);
+    utils::DEBUG_MSG("History::incCountSel => now=%d", nSelezioni);
 }
 
 //******************************************************************************
@@ -122,12 +122,12 @@ void History::DEBUG_toScreen()
     sTheFile fileInMem;
     readAllInMemory (&fileInMem);
 
-    DEBUG_MSG("History:");
-    DEBUG_MSG("  nSel: %d", fileInMem.nSelezioni);
+    utils::DEBUG_MSG("History:");
+    utils::DEBUG_MSG("  nSel: %d", fileInMem.nSelezioni);
     for (UINT8 i=0; i<fileInMem.nRecord; i++)
     {
 
-        DEBUG_MSG(" type:%d, data:%d-%d-%d %d:%d:%d, file:%s",
+        utils::DEBUG_MSG(" type:%d, data:%d-%d-%d %d:%d:%d, file:%s",
                         fileInMem.recordList[i].type,
                         fileInMem.recordList[i].year,
                           fileInMem.recordList[i].month,
@@ -152,8 +152,8 @@ void History::addEntry (eHistoryType what, const char *filename)
     sTheFile fileInMem;
     readAllInMemory (&fileInMem);
 
-    //il record lo devo aggiungere solo se non esiste giÃ .
-    //Se esiste giÃ , sovrascrivo quello esistente
+    //il record lo devo aggiungere solo se non esiste giÃ .
+    //Se esiste giÃ , sovrascrivo quello esistente
     sRecord *rec = NULL;
     for (UINT8 i=0; i<fileInMem.nRecord; i++)
     {

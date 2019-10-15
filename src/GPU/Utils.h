@@ -7,6 +7,7 @@
 
 namespace utils
 {
+    void                DEBUG_MSG (const char* format, ...);
     void                hideMouse();
     void                getRightFontForLanguage (QFont &out, int pointSize, const char *iso2LettersLanguageCode);
 
@@ -26,7 +27,8 @@ namespace utils
     const QString&      getFolder_Usb_Audit();
     const QString&      getFolder_Usb_Lang();
 
-    double              updateCPUStats();
+    double              updateCPUStats(unsigned long timeSinceLastCallMSec);
+    bool                copyRecursively (const QString &srcFilePath, const QString &tgtFilePath);
 }
 
 #endif // _utils_h_

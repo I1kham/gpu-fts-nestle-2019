@@ -27,27 +27,9 @@
 #endif
 
 
-#define ScreenW 1024
-#define ScreenH 600
-
-#define labelStatus_Prog_W          800
-#define labelStatus_MarginBottom    8   
-#define labelStatusProg_H           48
-
-
-#define TIMER_INTERVAL_MSEC         50
-
-
-
-
 #include "../rheaCommonLib/rhea.h"
 #include "Utils.h"
 
-
-#define FormStatus_NORMAL               0
-#define FormStatus_SELECTION_RUNNING    4
-#define FormStatus_BOOT                 98
-#define FormStatus_PROG                 99
 
 
 #define ConfigFileSize 10048 

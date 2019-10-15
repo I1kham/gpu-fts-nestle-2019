@@ -46,12 +46,6 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	rhea::thread::getMsgQEvent (hServiceChR, &hMsgQEvent);
 	waitList.addEvent(hMsgQEvent, u32MAX);
 
-	memset (&cpuParamIniziali, 0, sizeof(sCPUParamIniziali));
-	memset (&cpuStatus, 0, sizeof(sCPUStatus));
-	memset(lastCPUMsg, 0, sizeof(lastCPUMsg));
-	lastCPUMsgLen = 0;
-	lastBtnProgStatus = 0;
-
 	localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
 	subscriberList.setup(localAllocator, 8);
 
@@ -104,18 +98,18 @@ void Server::run()
 
 	while (bQuit == false)
 	{
-		switch (stato)
+        switch (stato.get())
 		{
 		default:
-		case eStato_comError:
+        case sStato::eStato_comError:
 			priv_handleState_comError();
 			break;
 
-		case eStato_normal:
+        case sStato::eStato_normal:
 			priv_handleState_normal();
 			break;
 
-		case eStato_selection:
+        case sStato::eStato_selection:
 			priv_handleState_selection();
 			break;
 		}
@@ -214,7 +208,9 @@ void Server::priv_handleMsgFromServiceMsgQ()
 	}
 }
 
-//***************************************************
+/***************************************************
+ * Uno dei miei subscriber mi ha inviato una richiesta
+ */
 void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 {
 	rhea::thread::sMsg msg;
@@ -241,9 +237,14 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION:
-			if (stato == eStato_selection)
+            if (stato.get() == sStato::eStato_selection)
 				runningSel.stopSelectionWasRequested = 1;
 			break;
+
+        case CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM:
+            //Al prossimo invio del comando di stato, invierò questo buttonNum invece del solito zero
+            translate_CPU_SEND_BUTTON(msg, &nextButtonNumToSend);
+            break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_RUNNING_SEL_STATUS:
 			notify_CPU_RUNNING_SEL_STATUS(sub->q, handlerID, logger, runningSel.status);
@@ -276,17 +277,147 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE:
 			notify_CPU_STATE_CHANGED (sub->q, handlerID, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
 			break;
+
+        case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
+            if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
+            {
+                priv_downloadDataAudit(&sub->q, handlerID);
+            }
+            else
+            {
+                //rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
+                notify_READ_DATA_AUDIT_PROGRESS (sub->q, handlerID, logger, eReadDataAuditErrorCode_finishedKO_cantStart_invalidState, 0);
+            }
+            break;
 		}
 		rhea::thread::deleteMsg(msg);
 	}
 }
 
 //***************************************************
+eReadDataAuditStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID)
+{
+    //il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
+    char dataAuditFileName[256];
+    sprintf_s(dataAuditFileName, sizeof(dataAuditFileName), "%s/dataAudit.txt", rhea::getPhysicalPathToWritableFolder());
+    rhea::deleteFile(dataAuditFileName);
+
+    FILE *f = fopen (dataAuditFileName, "wb");
+
+
+    u8 bufferW[32];
+    const u16 nBytesToSend = cpubridge::buildMsg_readDataAudit (bufferW, sizeof(bufferW));
+
+    u32 bytesReadSoFar = 0;
+    u16 kbReadSoFar = 0;
+    u16 lastKbReadSent = u16MAX;
+
+    while (1)
+    {
+        u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+        if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+        {
+            //errore, la CPU non ha risposto, abortisco l'operazione
+            if (NULL != subscriber)
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataAuditErrorCode_finishedKO_cpuDidNotAnswer, kbReadSoFar);
+            fclose(f);
+            return eReadDataAuditErrorCode_finishedKO_cpuDidNotAnswer;
+        }
+
+        //scrivo su file i dati ricevuti
+        const u8 payloadLen = sizeOfAnswerBuffer - 6;
+        const u8* payload = &answerBuffer[5];
+        fwrite (payload, payloadLen, 1, f);
+
+        //aggiorno contatore di byte letti
+        bytesReadSoFar += payloadLen;
+        kbReadSoFar = (u16)(bytesReadSoFar >> 10);
+
+
+        if (answerBuffer[3] != 0)
+        {
+            //finito!
+            if (NULL != subscriber)
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataAuditStatus_finishedOK, kbReadSoFar);
+
+            fclose(f);
+            return eReadDataAuditStatus_finishedOK;
+        }
+
+        //notifico che ho letto un altro Kb
+        if (kbReadSoFar != lastKbReadSent)
+        {
+            lastKbReadSent = kbReadSoFar;
+
+            if (NULL!= subscriber)
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataAuditStatus_inProgress, kbReadSoFar);
+        }
+    }
+
+}
+
+/***************************************************
+ * Manda il maessaggio B alla CPU e attende la sua risposta.
+ *
+ * Ritorna 0 se la CPU non ha risposta
+ * Ritorna il numero di byte ricevuti se la CPU ha effettivamente risposto. La risposta viene messa nella variabile di classe "answerBuffer"
+ */
+u16 Server::priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend)
+{
+    //se devo mandare un bottone in particolare (per es a seguito di una richiesta CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM,
+    //lo faccio qui ma solo quando btnNumberToSend==0.
+    //L'idea è che qui sto preparando il solito messaggio di stato...se non avevo nessun btn in particolare da invia (btnNumberToSend==0) e se
+    //ne avevo uno in canna in attesa (nextButtonNumToSend!=0), allora lo mando ora
+    if (0 == btnNumberToSend && 0 != nextButtonNumToSend)
+    {
+        btnNumberToSend = nextButtonNumToSend;
+        nextButtonNumToSend = 0;
+    }
+
+    u8 bufferW[32];
+    u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnNumberToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+    u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+    if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+        return 0;
+    return sizeOfAnswerBuffer;
+}
+
+//***************************************************
 void Server::priv_enterState_comError()
 {
 	logger->log("CPUBridgeServer::priv_enterState_comError()\n");
-	stato = eStato_comError;
-	lastBtnProgStatus = 0;
+
+    stato.set (sStato::eStato_comError, sStato::eWhatToDo_nothing);
+
+    memset (&cpuParamIniziali, 0, sizeof(sCPUParamIniziali));
+    memset (&cpuStatus, 0, sizeof(sCPUStatus));
+    memset(lastCPUMsg, 0, sizeof(lastCPUMsg));
+    lastCPUMsgLen = 0;
+    lastBtnProgStatus = 0;
+    nextButtonNumToSend = 0;
+
+    cpuStatus.VMCstate = eVMCState_COM_ERROR;
+
+    cpuStatus.LCDMsg.buffer[0] = 'C';
+    cpuStatus.LCDMsg.buffer[1] = 'O';
+    cpuStatus.LCDMsg.buffer[2] = 'M';
+    cpuStatus.LCDMsg.buffer[3] = ' ';
+    cpuStatus.LCDMsg.buffer[4] = 'E';
+    cpuStatus.LCDMsg.buffer[5] = 'R';
+    cpuStatus.LCDMsg.buffer[6] = 'R';
+    cpuStatus.LCDMsg.buffer[7] = 'O';
+    cpuStatus.LCDMsg.buffer[8] = 'R';
+    cpuStatus.LCDMsg.buffer[9] = 0x00;
+    cpuStatus.LCDMsg.ct = 10;
+    cpuStatus.LCDMsg.importanceLevel = 0xff;
+
+    //segnalo ai miei subscriber che sono in com-error
+    for (u32 i = 0; i < subscriberList.getNElem(); i++)
+    {
+        notify_CPU_STATE_CHANGED (subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+        notify_CPU_SEL_AVAIL_CHANGED (subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
+        notify_CPU_NEW_LCD_MESSAGE (subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
+    }
 }
 
 /***************************************************
@@ -302,7 +433,7 @@ void Server::priv_handleState_comError()
 	const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 
 	//provo a mandarlo ad oltranza
-	while (stato == eStato_comError)
+    while (stato.get() == sStato::eStato_comError)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -402,7 +533,7 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 void Server::priv_enterState_normal()
 {
 	logger->log("CPUBridgeServer::priv_enterState_normal()\n");
-	stato = eStato_normal;;
+    stato.set (sStato::eStato_normal, sStato::eWhatToDo_nothing);
 }
 
 /***************************************************
@@ -418,17 +549,15 @@ void Server::priv_handleState_normal()
 	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 250;
 
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
-	while (stato == eStato_normal)
+    while (stato.get() == sStato::eStato_normal)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
 		//ogni tot, invio un msg di stato alla CPU
 		if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
 		{
-			u8 bufferW[32];
-			u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (0, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
-			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+            u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+            if (0 == sizeOfAnswerBuffer)
 			{
 				//la CPU non ha risposto al mio comando di stato, passo in com_error
 				priv_enterState_comError();
@@ -725,7 +854,7 @@ bool Server::priv_enterState_selection (u8 selNumber, const sSubscription *sub)
 {
 	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [%d]\n", selNumber);
 
-	if (stato != eStato_normal)
+    if (stato.get() != sStato::eStato_normal)
 	{
 		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
 		if (sub)
@@ -750,7 +879,7 @@ bool Server::priv_enterState_selection (u8 selNumber, const sSubscription *sub)
 	}
 
 
-	stato = eStato_selection;
+    stato.set (sStato::eStato_selection, sStato::eWhatToDo_nothing);
 	runningSel.selNum = selNumber;
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.sub = sub;
@@ -790,7 +919,7 @@ void Server::priv_handleState_selection()
 
 	//loop fino alla fine della selezione
 	u64	nextTimeSendCheckStatusMsgMSec = 0;
-	while (stato == eStato_selection)
+    while (stato.get() == sStato::eStato_selection)
 	{
 		u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -818,10 +947,8 @@ void Server::priv_handleState_selection()
 		}
 
 		//invio il msg di stato alla CPU
-		u8 bufferW[32];
-		u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (selNumberToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
-		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+        u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(selNumberToSend);
+        if (0 == sizeOfAnswerBuffer)
 		{
 			//la CPU non ha risposto al mio comando di stato, passo in com_error
 			runningSel.status = eRunningSelStatus_finished_KO;

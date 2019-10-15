@@ -10,7 +10,7 @@ typedef uint32_t UINT32;
 
 
 /*
-    la struttura del file history da esportare √® cosi' costruita:
+    la struttura del file history da esportare Ë cosi' costruita:
     2 bytes		LEN	= lunghezza dell'header
 
                 HEADER
@@ -28,10 +28,10 @@ typedef uint32_t UINT32;
 
 
 
-    Tecnicamente, la struttura √® costruita in modo da poter memorizzare un numero "infinito" di record.
-    Per motivi di spazio su HD (non su questa macchina in particolare, ma sulle TT che montano il PIC24 per esempio), si √® deciso
+    Tecnicamente, la struttura Ë costruita in modo da poter memorizzare un numero "infinito" di record.
+    Per motivi di spazio su HD (non su questa macchina in particolare, ma sulle TT che montano il PIC24 per esempio), si Ë deciso
     di memorizzare sempre e comunque solo l'ultimo file che l'utente ha uppato.
-    Quindi nel file, al max, ci sar√† un recordo per l'ultima CPU caricata, uno per la GPU, uno per il DA3 e via dicendo.
+    Quindi nel file, al max, ci sar‡  un recordo per l'ultima CPU caricata, uno per la GPU, uno per il DA3 e via dicendo.
 */
 
 
@@ -48,6 +48,10 @@ enum eHistoryType
 };
 
 
+/*********************************************************************
+ * History
+ *
+ */
 class History
 {
 private:

@@ -3,6 +3,8 @@
 #include <string.h>
 #include "header.h"
 #include <QDir>
+#include <QFile>
+
 
 struct sFolderInfo
 {
@@ -22,6 +24,11 @@ struct sFolderInfo
     QString usbPenDrive_Lang;
 };
 sFolderInfo folderInfo;
+
+//****************************************************
+void utils::DEBUG_MSG (const char* format, ...)
+{}
+
 
 //****************************************************
 void utils::hideMouse()
@@ -113,7 +120,7 @@ struct sCPUStats
 };
 sCPUStats cpuStats;
 
-double utils::updateCPUStats()
+double utils::updateCPUStats(unsigned long timeSinceLastCallMSec)
 {
     if (cpuStats.i == 0)
         cpuStats.i = 1;
@@ -128,7 +135,7 @@ double utils::updateCPUStats()
 
     if (cpuStats.i == 1)
     {
-        cpuStats.timerMsec += TIMER_INTERVAL_MSEC;
+        cpuStats.timerMsec += timeSinceLastCallMSec;
         if (cpuStats.timerMsec >= 250)
         {
             cpuStats.timerMsec = 0;
@@ -147,4 +154,38 @@ double utils::updateCPUStats()
     return cpuStats.loadavg;
 }
 
+//****************************************************
+bool utils::copyRecursively (const QString &srcFilePath, const QString &tgtFilePath)
+{
+    QFileInfo srcFileInfo(srcFilePath);
+    if (srcFileInfo.isDir())
+    {
+        QDir targetDir(tgtFilePath);
+        targetDir.cdUp();
+        if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName()))
+        {
+            //QMessageBox::information(NULL, "t_A", tgtFilePath);
+            return false;
+        }
 
+
+        QDir sourceDir(srcFilePath);
+        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+        foreach (const QString &fileName, fileNames)
+        {
+            const QString newSrcFilePath= srcFilePath + QLatin1Char('/') + fileName;
+            const QString newTgtFilePath= tgtFilePath + QLatin1Char('/') + fileName;
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath))
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        if (!QFile::copy(srcFilePath, tgtFilePath))
+            return false;
+    }
+
+    return true;
+}

@@ -22,12 +22,32 @@ namespace cpubridge
 		void                    close ();
 
 	private:
-		enum eStato
-		{
-			eStato_comError = 0,
-			eStato_normal = 1,
-			eStato_selection = 2
-		};
+        struct sStato
+        {
+        public:
+            enum eStato
+            {
+                eStato_comError = 0,
+                eStato_normal = 1,
+                eStato_selection = 2
+            };
+
+            enum eWhatToDo
+            {
+                eWhatToDo_nothing = 0,
+                eWhatToDo_readDataAudit = 1,
+            };
+
+        public:
+                        sStato()                        { set(eStato_comError, eWhatToDo_nothing); }
+            void        set (eStato s, eWhatToDo w)     { stato=s; what=w; }
+            eStato      get() const                     { return stato; }
+            eWhatToDo   whatToDo() const                { return what; }
+
+        private:
+            eStato      stato;
+            eWhatToDo   what;
+        };
 
 		struct sSubscription
 		{
@@ -61,6 +81,9 @@ namespace cpubridge
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 
+        u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend);
+        eReadDataAuditStatus    priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
+
 	private:
 		rhea::Allocator         *localAllocator;
 		rhea::ISimpleLogger     *logger;
@@ -69,7 +92,7 @@ namespace cpubridge
 		rhea::NullLogger        nullLogger;
 		HThreadMsgR             hServiceChR;
 		bool					bQuit;
-		eStato					stato;
+        sStato					stato;
 		u8						answerBuffer[256];
 		sCPUParamIniziali		cpuParamIniziali;
 		sCPUStatus				cpuStatus;
@@ -79,6 +102,7 @@ namespace cpubridge
 		u16						lastCPUMsg[LCD_BUFFER_SIZE_IN_U16];
 		u16						lastCPUMsgLen;
 		u8						lastBtnProgStatus;
+        u8                      nextButtonNumToSend;
     };
 
 } // namespace cpubridge

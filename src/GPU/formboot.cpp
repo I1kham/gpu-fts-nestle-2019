@@ -14,60 +14,40 @@
 #include <unistd.h>
 #include "Utils.h"
 
-QTimer *timerBoot;
-QString destFilePath;
 
+//***********************************************************
 eHistoryType history_type = HISTORY_TYPE_UNK;
 QString history_lastFileName;
+void logToHistoryFile()
+{
+    if (history_type == HISTORY_TYPE_UNK)
+        return;
+    if (history_lastFileName.length() == 0)
+        return;
 
-
-
-int ReadConfigFile_saveToFile();
-int Audit_saveToFile(void);
-unsigned char Serial_WaitCharTimeout(unsigned char datoWait, unsigned long timeoutLoopVal);
-void Serial_PutChar(unsigned char datoSend);
-void RestartCPU(void);
-unsigned char CPU_ConvertToNum(int index_p);
-unsigned char WriteByteMasterNext(unsigned char dato_8, unsigned char isLastFlag);
-static bool copyRecursively(const QString &srcFilePath, const QString &tgtFilePath);
-void myDelay(long msec_p);
-
-
-
-
-extern QSerialPort* serialCPU;
-extern unsigned char TxBufCPU[MaxLenBufferComCPU_Tx];
-extern QByteArray QarrayTX;
-extern int FormStatus;
-extern unsigned char FormBoot_ActiveStatus;
-extern unsigned char ComCommandRequest;
-extern unsigned char ComStatus;
-extern QByteArray myFileArray;
-extern QByteArray myAuditArray;
-extern int myFileArray_index;
-extern unsigned char ConfigFileOperation_status;
-extern unsigned char ConfigFileOperation_errorCode;
-
-#define labelStatus_H               40
-#define labelStatus_W               600
+    History::addEntry (history_type, history_lastFileName.toStdString().c_str());
+    history_lastFileName="";
+    history_type = HISTORY_TYPE_UNK;
+}
 
 
 //********************************************************
-FormBoot::FormBoot(QWidget *parent) :    QDialog(parent), ui(new Ui::FormBoot)
+FormBoot::FormBoot(QWidget *parent) :
+    QDialog(parent), ui(new Ui::FormBoot)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-
     bBtnStartVMCEnabled = true;
 
+    ui->labCPUMessage->setText("");
+    ui->labCPUMessage->setVisible(true);
 
-    ui->labelStatus->setGeometry((ScreenW-labelStatus_W)/2 ,ScreenH-labelStatus_H-labelStatus_MarginBottom, labelStatus_W, labelStatus_H);
-    ui->labelStatus->raise();
-    ui->labelStatus->setText("");
-    ui->labelStatus->setAlignment(Qt::AlignCenter);
+    ui->labStatus->setText("");
+    ui->labStatus->setVisible(true);
 
-    ui->labelWarning->setVisible(false);
+    ui->labWarn->setText("");
+    ui->labWarn->setVisible(false);
 
 
     //vmc settings
@@ -132,38 +112,18 @@ FormBoot::FormBoot(QWidget *parent) :    QDialog(parent), ui(new Ui::FormBoot)
 
     ui->tabWidget->setCurrentWidget(ui->tabVMCSettings);
 
-    timerBoot = new QTimer(this);
-    connect(timerBoot, SIGNAL(timeout()), this, SLOT(timerInterrupt()));
-
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(timerInterrupt()));
 }
 
-
+//***********************************************************
 FormBoot::~FormBoot()
 {
     timerBoot->stop();
     delete ui;
 }
 
-
-
-void logToHistoryFile()
-{
-    if (history_type == HISTORY_TYPE_UNK)
-        return;
-    if (history_lastFileName.length() == 0)
-        return;
-
-    History::addEntry (history_type, history_lastFileName.toStdString().c_str());
-    history_lastFileName="";
-    history_type = HISTORY_TYPE_UNK;
-}
-
-
-unsigned char RecType, NumByte, dato8;
-int SerialIndex;
-#define max_check_cont 400
-
-
+//***********************************************************
 void FormBoot::foreverDisableBtnStartVMC()
 {
     if (!bBtnStartVMCEnabled)
@@ -174,19 +134,165 @@ void FormBoot::foreverDisableBtnStartVMC()
     ui->buttonStart->setText ("Please restart\nVMC");
 }
 
+//*******************************************
+void FormBoot::on_buttonStart_clicked()
+{
+    if (bBtnStartVMCEnabled == false)
+        return;
+    this->done(0);
+}
+
+/**********************************************************************
+ *
+ * copia tutti i file *.lng dalla USB all'HD locale
+ *
+ */
+void FormBoot::on_btnWriteLang_clicked()
+{
+    priv_langCopy (utils::getFolder_Usb_Lang(), utils::getFolder_Lang(), 10000);
+}
+
+/**********************************************************************
+ * copia la cartella lang su una chiavetta USB in rhea/lang
+ *
+ */
+void FormBoot::on_btnReadLang_clicked()
+{
+    priv_langCopy (utils::getFolder_Lang(), utils::getFolder_Usb_Lang(), 30000);
+}
+
+//**********************************************************************
+bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder, long timeToWaitDuringCopyFinalizingMSec) const
+{
+    ui->btnReadLang->setEnabled(false);
+    ui->btnWriteLang->setEnabled(false);
+    ui->buttonStart->setVisible(false);
+
+    ui->labStatus->setText("copying files...");
+    QApplication::processEvents();
+
+
+    //se la directory dst non esiste, la creo, se esiste, la svuoto
+    {
+        QDir root_dir(dstFolder);
+        if (root_dir.exists())
+            root_dir.removeRecursively();
+        root_dir.mkpath(".");
+    }
+
+    //copia
+    QDir directory (srcFolder, "*.lng", QDir::Unsorted, QDir::Files);
+    QStringList list = directory.entryList();
+    bool bFailed = false;
+    for (int i=0; i<list.count(); i++)
+    {
+        QString src = srcFolder +"/" +list.at(i);
+        QString dst = dstFolder +"/" +list.at(i);
+
+        ui->labStatus->setText(list.at(i));
+        try
+        {
+            if (QFile::exists (dst))
+                QFile::remove(dst);
+            if (!QFile::copy(src, dst))
+            {
+                ui->labStatus->setText(QString("Error copying ") +src);
+                bFailed = true;
+                i = list.count()+1;
+            }
+        }
+        catch (const std::exception& e)
+        {
+            bFailed = true;
+            ui->labStatus->setText(QString("Error: ") +e.what());
+            i = list.count()+1;
+        }
+    }
+
+    if (!bFailed)
+    {
+        //aspetto un tot di secondi per dare tempo alla chiave USB di poter essere unmounted
+        ui->labStatus->setText("Finalizing copy");
+        long timeToExitMSec = getTimeNowMSec() + timeToWaitDuringCopyFinalizingMSec;
+        while (getTimeNowMSec() < timeToExitMSec)
+        {
+            QApplication::processEvents();
+        }
+
+        //fine
+        ui->labStatus->setText("Done!");
+    }
+
+    ui->buttonStart->setVisible(true);
+    ui->btnReadLang->setEnabled(true);
+    ui->btnWriteLang->setEnabled(true);
+    return (!bFailed);
+}
+
+//**********************************************************************
+void FormBoot::on_buttonWriteManual_clicked()
+{
+    bool res;
+    try
+    {
+        if (ui->listManualFiles->selectedItems().count()==0) return;
+        QListWidgetItem *item = ui->listManualFiles->selectedItems().at(0);
+        QString sourceFilePath = utils::getFolder_Usb_Manual() + "/" +  item->text();
+
+        destFilePath = utils::getFolder_Manual() + "/" +  item->text();
+
+
+        QDir root_dir(utils::getFolder_Manual());
+        /*
+        if (!root_dir.exists())
+        {
+            root_dir.mkpath(".");
+        }
+        */
+        if (root_dir.exists())
+        {
+            root_dir.removeRecursively();
+        }
+        root_dir.mkpath(".");
+
+
+
+        ui->labStatus->setText("erasing current Manual..."); myDelay(20);
+        QDir dest_dir(destFilePath);
+        if (dest_dir.exists())
+        {
+            dest_dir.removeRecursively();
+        }
+
+
+        ui->labStatus->setText("copying Manual..."); myDelay(20);
+        res = utils::copyRecursively(sourceFilePath, destFilePath);
+
+        if (res==true) ui->labStatus->setText("Manual copy OK");
+        else ui->labStatus->setText("Manual copy failed");
+    }
+    catch (...)
+    {
+        ui->labStatus->setText("Manual copy failed -1");
+    }
+}
+
+
+
+//*******************************************
 void FormBoot::timerInterrupt()
 {
     int i;
     switch(ConfigFileOperation_status)
     {
         case ConfigFileOperation_status_Write_inProgress:
-            this->ui->labelStatus->setText ("Writing: " +QString::number(TxBufCPU[3]) +" / " +QString::number(TxBufCPU[4]));
+            this->ui->labStatus->setText ("Writing: " +QString::number(TxBufCPU[3]) +" / " +QString::number(TxBufCPU[4]));
             break;
 
         case ConfigFileOperation_status_Write_endKO:
             timerBoot->stop();
             ui->buttonStart->setVisible(true);
-            ui->labelStatus->setText("Configuration file write failed " + QString::number(ConfigFileOperation_errorCode));
+            ui->labStatus->setText("Configuration file write failed " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status = ConfigFileOperation_status_idle;
 
             ui->buttonWriteSettings->setEnabled(true);
@@ -197,7 +303,7 @@ void FormBoot::timerInterrupt()
             timerBoot->stop();
             foreverDisableBtnStartVMC();
             ui->buttonStart->setVisible(true);
-            ui->labelStatus->setText("Configuration file write OK");
+            ui->labStatus->setText("Configuration file write OK");
             ConfigFileOperation_status = ConfigFileOperation_status_idle;
             logToHistoryFile();
 
@@ -210,12 +316,12 @@ void FormBoot::timerInterrupt()
 
 
         case ConfigFileOperation_status_Read_inProgress:
-            this->ui->labelStatus->setText ("Reading: " +QString::number(TxBufCPU[3]) +" / " +QString::number(ConfigFileSize/ConfigFile_blockDim));
+            this->ui->labStatus->setText ("Reading: " +QString::number(TxBufCPU[3]) +" / " +QString::number(ConfigFileSize/ConfigFile_blockDim));
             break;
 
         case ConfigFileOperation_status_Read_endKO:
             timerBoot->stop();
-            ui->labelStatus->setText("Configuration file read failed " + QString::number(ConfigFileOperation_errorCode));
+            ui->labStatus->setText("Configuration file read failed " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ui->buttonStart->setVisible(true);
             ui->buttonWriteSettings->setEnabled(true);
@@ -225,7 +331,7 @@ void FormBoot::timerInterrupt()
         case ConfigFileOperation_status_Read_endOK:
             timerBoot->stop();
             ReadConfigFile_saveToFile();
-            ui->labelStatus->setText("Configuration file read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
+            ui->labStatus->setText("Configuration file read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ui->buttonStart->setVisible(true);
             ui->buttonWriteSettings->setEnabled(true);
@@ -237,7 +343,7 @@ void FormBoot::timerInterrupt()
 
         case ConfigFileOperation_status_CPU_inProgress:
             timerBoot->stop();
-            ui->labelStatus->setText("init CPU update...");
+            ui->labStatus->setText("init CPU update...");
             RestartCPU();
 
             if (Serial_WaitCharTimeout('k', 5000)!=1) {ConfigFileOperation_errorCode=1; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start(); break;}
@@ -246,9 +352,9 @@ void FormBoot::timerInterrupt()
 
             if (Serial_WaitCharTimeout('M', 3000)!=1) {ConfigFileOperation_errorCode=2; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start(); break;}
 
-            ui->labelStatus->setText("Erasing Flash...");
+            ui->labStatus->setText("Erasing Flash...");
             if (Serial_WaitCharTimeout('h', 15000)!=1) {ConfigFileOperation_errorCode=3; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start(); break;}
-            ui->labelStatus->setText("Writing Flash...");
+            ui->labStatus->setText("Writing Flash...");
 
             SerialIndex = 0;
             do
@@ -311,7 +417,7 @@ void FormBoot::timerInterrupt()
             timerBoot->stop();
             ui->buttonStart->setVisible(true);
             ui->buttonWriteCPU->setEnabled(true);
-            ui->labelStatus->setText("CPU update failed - " + QString::number(ConfigFileOperation_errorCode));
+            ui->labStatus->setText("CPU update failed - " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ComCommandRequest=ComCommandRequest_CheckStatus_req;
             ComStatus=ComStatus_Idle;
@@ -322,7 +428,7 @@ void FormBoot::timerInterrupt()
             foreverDisableBtnStartVMC();
             ui->buttonStart->setVisible(true);
             ui->buttonWriteCPU->setEnabled(true);
-            ui->labelStatus->setText("CPU update OK");
+            ui->labStatus->setText("CPU update OK");
             logToHistoryFile();
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ComCommandRequest=ComCommandRequest_CheckStatus_req;
@@ -338,13 +444,13 @@ void FormBoot::timerInterrupt()
                 float KbReadSoFar = (float)myFileArray_index / 1024.0f;
                 char s[128];
                 sprintf (s, "Reading: %.1f Kb", KbReadSoFar);
-                this->ui->labelStatus->setText (s);
+                this->ui->labStatus->setText (s);
             }
             break;
 
         case ConfigFileOperation_status_Audit_endKO:
             timerBoot->stop();
-            ui->labelStatus->setText("Audit read failed " + QString::number(ConfigFileOperation_errorCode));
+            ui->labStatus->setText("Audit read failed " + QString::number(ConfigFileOperation_errorCode));
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ui->buttonStart->setVisible(true);
             ui->buttonReadAudit->setEnabled(true);
@@ -353,7 +459,7 @@ void FormBoot::timerInterrupt()
         case ConfigFileOperation_status_Audit_endOK:
             timerBoot->stop();
             Audit_saveToFile();
-            ui->labelStatus->setText("Audit read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
+            ui->labStatus->setText("Audit read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
             ConfigFileOperation_status=ConfigFileOperation_status_idle;
             ui->buttonStart->setVisible(true);
             ui->buttonReadAudit->setEnabled(true);
@@ -365,15 +471,11 @@ void FormBoot::timerInterrupt()
 
 
 
-//*******************************************
-void FormBoot::on_buttonStart_clicked()
-{
-    if (bBtnStartVMCEnabled == false)
-        return;
+unsigned char RecType, NumByte, dato8;
+int SerialIndex;
+#define max_check_cont 400
 
-    FormBoot_ActiveStatus=2;
-    this->close();
-}
+
 
 
 
@@ -395,7 +497,6 @@ unsigned char Serial_WaitCharTimeout(unsigned char datoWait, unsigned long timeo
     return 0;
 }
 
-
 void Serial_PutChar(unsigned char datoSend)
 {
     QByteArray Qdata(1, 0);
@@ -405,7 +506,6 @@ void Serial_PutChar(unsigned char datoSend)
     serialCPU->flush();
     QCoreApplication::processEvents();
 }
-
 
 void RestartCPU(void)
 {
@@ -428,7 +528,6 @@ unsigned char CPU_ConvertToNum(int index_p)
     else BB = (unsigned char)(BB - 55);
     return (unsigned char)(BB + AA * 16);
 }
-
 
 unsigned char WriteByteMasterNext(unsigned char dato_8, unsigned char isLastFlag)
 {
@@ -455,35 +554,6 @@ unsigned char WriteByteMasterNext(unsigned char dato_8, unsigned char isLastFlag
 }
 
 
-
-static bool copyRecursively(const QString &srcFilePath, const QString &tgtFilePath)
-{
-    QFileInfo srcFileInfo(srcFilePath);
-    if (srcFileInfo.isDir()) {
-        QDir targetDir(tgtFilePath);
-        targetDir.cdUp();
-        if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName()))
-
-            { QMessageBox::information(NULL, "t_A", tgtFilePath); return false; }
-        QDir sourceDir(srcFilePath);
-        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-        foreach (const QString &fileName, fileNames) {
-            const QString newSrcFilePath
-                    = srcFilePath + QLatin1Char('/') + fileName;
-            const QString newTgtFilePath
-                    = tgtFilePath + QLatin1Char('/') + fileName;
-            if (!copyRecursively(newSrcFilePath, newTgtFilePath))
-
-                { QMessageBox::information(NULL, "t_B", newSrcFilePath); return false; }
-        }
-    } else {
-        if (!QFile::copy(srcFilePath, tgtFilePath))
-
-            { QMessageBox::information(NULL, "t_C", srcFilePath); return false; }
-
-    }
-    return true;
-}
 
 
 void myDelay(long msec_p)
@@ -523,7 +593,7 @@ void FormBoot::on_buttonWriteSettings_clicked()
     QFile myFile(destFilePath);
     if (!myFile.open(QIODevice::ReadOnly))
     {
-        ui->labelStatus->setText("Configuration file write failed - 1a");
+        ui->labStatus->setText("Configuration file write failed - 1a");
         return;
     }
 
@@ -541,7 +611,7 @@ void FormBoot::on_buttonWriteSettings_clicked()
     ui->buttonWriteSettings->setEnabled(false);
     ui->buttonReadSettings->setEnabled(false);
     ui->buttonStart->setVisible(false);
-    ui->labelStatus->setText("writing config file...");
+    ui->labStatus->setText("writing config file...");
     timerBoot->start(500);
 }
 
@@ -561,7 +631,7 @@ void FormBoot::on_buttonReadSettings_clicked()
     ui->buttonWriteSettings->setEnabled(false);
     ui->buttonReadSettings->setEnabled(false);
     ui->buttonStart->setVisible(false);
-    ui->labelStatus->setText("reading config file...");
+    ui->labStatus->setText("reading config file...");
     timerBoot->start(500);
 }
 
@@ -637,7 +707,7 @@ void FormBoot::on_buttonWriteCPU_clicked()
     QFile myFile(destFilePath);
     if (!myFile.open(QIODevice::ReadOnly))
     {
-        ui->labelStatus->setText("CPU file write failed - 1a");
+        ui->labStatus->setText("CPU file write failed - 1a");
         return ;
     }
     myFileArray.resize(myFile.size());
@@ -651,7 +721,7 @@ void FormBoot::on_buttonWriteCPU_clicked()
 
     ui->buttonStart->setVisible(false);
     ui->buttonWriteCPU->setEnabled(false);
-    ui->labelStatus->setText("init CPU update...");
+    ui->labStatus->setText("init CPU update...");
     timerBoot->start(300);
 }
 
@@ -668,7 +738,7 @@ void FormBoot::on_buttonWriteGUI_clicked()
         destFilePath = utils::getFolder_GUI();
 
 
-        ui->labelStatus->setText("erasing current GUI..."); myDelay(20);
+        ui->labStatus->setText("erasing current GUI..."); myDelay(20);
         QDir dest_dir(utils::getFolder_GUI());
         if (dest_dir.exists())
         {
@@ -679,24 +749,24 @@ void FormBoot::on_buttonWriteGUI_clicked()
         ui->buttonStart->setVisible(false);
         ui->buttonWriteGUI->setEnabled(false);
         ui->buttonReadGUI->setEnabled(false);
-        ui->labelStatus->setText("writing GUI..."); myDelay(20);
+        ui->labStatus->setText("writing GUI..."); myDelay(20);
         res = copyRecursively(sourceFilePath, destFilePath);
 
         sync();
 
         if (res==false)
-            ui->labelStatus->setText("GUI write failed");
+            ui->labStatus->setText("GUI write failed");
         else
         {
             History::addEntry (HISTORY_TYPE_GUI, item->text().toStdString().c_str());
 
-            ui->labelStatus->setText("GUI write OK");
+            ui->labStatus->setText("GUI write OK");
         }
 
     }
     catch (...)
     {
-        ui->labelStatus->setText("GUI write failed -1");
+        ui->labStatus->setText("GUI write failed -1");
     }
 
     ui->buttonWriteGUI->setEnabled(true);
@@ -722,17 +792,17 @@ void FormBoot::on_buttonReadGUI_clicked()
         ui->buttonStart->setVisible(false);
         ui->buttonWriteGUI->setEnabled(false);
         ui->buttonReadGUI->setEnabled(false);
-        ui->labelStatus->setText("reading GUI..."); myDelay(20);
+        ui->labStatus->setText("reading GUI..."); myDelay(20);
         res = copyRecursively(sourceFilePath, destFilePath);
 
         sync();
 
-        if (res==true) ui->labelStatus->setText("GUI read OK");
-        else ui->labelStatus->setText("GUI read failed");
+        if (res==true) ui->labStatus->setText("GUI read OK");
+        else ui->labStatus->setText("GUI read failed");
     }
     catch (...)
     {
-        ui->labelStatus->setText("GUI read failed -1");
+        ui->labStatus->setText("GUI read failed -1");
     }
 
     ui->buttonWriteGUI->setEnabled(true);
@@ -742,54 +812,6 @@ void FormBoot::on_buttonReadGUI_clicked()
 
 
 
-
-
-void FormBoot::on_buttonWriteManual_clicked()
-{
-    bool res;
-    try
-    {
-        if (ui->listManualFiles->selectedItems().count()==0) return;
-        QListWidgetItem *item = ui->listManualFiles->selectedItems().at(0);
-        QString sourceFilePath = utils::getFolder_Usb_Manual() + "/" +  item->text();
-
-        destFilePath = utils::getFolder_Manual() + "/" +  item->text();
-
-
-        QDir root_dir(utils::getFolder_Manual());
-        /*
-        if (!root_dir.exists())
-        {
-            root_dir.mkpath(".");
-        }
-        */
-        if (root_dir.exists())
-        {
-            root_dir.removeRecursively();
-        }
-        root_dir.mkpath(".");
-
-
-
-        ui->labelStatus->setText("erasing current Manual..."); myDelay(20);
-        QDir dest_dir(destFilePath);
-        if (dest_dir.exists())
-        {
-            dest_dir.removeRecursively();
-        }
-
-
-        ui->labelStatus->setText("copying Manual..."); myDelay(20);
-        res = copyRecursively(sourceFilePath, destFilePath);
-
-        if (res==true) ui->labelStatus->setText("Manual copy OK");
-        else ui->labelStatus->setText("Manual copy failed");
-    }
-    catch (...)
-    {
-        ui->labelStatus->setText("Manual copy failed -1");
-    }
-}
 
 
 
@@ -805,7 +827,7 @@ void FormBoot::on_buttonReadAudit_clicked()
 
     ui->buttonReadAudit->setEnabled(false);
     ui->buttonStart->setVisible(false);
-    ui->labelStatus->setText("reading audit (machine=>USB) ...");
+    ui->labStatus->setText("reading audit (machine=>USB) ...");
     timerBoot->start(500);
 }
 
@@ -847,89 +869,5 @@ int Audit_saveToFile(void)
 }
 
 
-/**********************************************************************
- * copia la cartella lang su una chiavetta USB in rhea/lang
- *
- */
-void FormBoot::on_btnReadLang_clicked()
-{
-    priv_langCopy (utils::getFolder_Lang(), utils::getFolder_Usb_Lang(), 30000);
-}
 
-/**********************************************************************
- *
- * copia tutti i file *.lng dalla USB all'HD locale
- *
- */
-void FormBoot::on_btnWriteLang_clicked()
-{
-    priv_langCopy (utils::getFolder_Usb_Lang(), utils::getFolder_Lang(), 10000);
-}
-
-//**********************************************************************
-bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder, long timeToWaitDuringCopyFinalizingMSec) const
-{
-    ui->btnReadLang->setEnabled(false);
-    ui->btnWriteLang->setEnabled(false);
-    ui->buttonStart->setVisible(false);
-
-    ui->labelStatus->setText("copying files...");
-    myDelay(20);
-
-    //se la directory dst non esiste, la creo, se esiste, la svuoto
-    {
-        QDir root_dir(dstFolder);
-        if (root_dir.exists())
-            root_dir.removeRecursively();
-        root_dir.mkpath(".");
-    }
-
-    //copia
-    QDir directory(srcFolder, "*.lng", QDir::Unsorted, QDir::Files);
-    QStringList list = directory.entryList();
-    bool bFailed = false;
-    for (int i=0; i<list.count(); i++)
-    {
-        QString src = srcFolder +"/" +list.at(i);
-        QString dst = dstFolder +"/" +list.at(i);
-
-        ui->labelStatus->setText(list.at(i));
-        try
-        {
-            if (QFile::exists (dst))
-                QFile::remove(dst);
-            if (!QFile::copy(src, dst))
-            {
-                ui->labelStatus->setText(QString("Error copying ") +src);
-                bFailed = true;
-                i = list.count()+1;
-            }
-        }
-        catch (const std::exception& e)
-        {
-            bFailed = true;
-            ui->labelStatus->setText(QString("Error: ") +e.what());
-            i = list.count()+1;
-        }
-    }
-
-    if (!bFailed)
-    {
-        //aspetto un tot di secondi per dare tempo alla chiave USB di poter essere unmounted
-        ui->labelStatus->setText("Finalizing copy");
-        long timeToExitMSec = getTimeNowMSec() + timeToWaitDuringCopyFinalizingMSec;
-        while (getTimeNowMSec() < timeToExitMSec)
-        {
-            QCoreApplication::processEvents();
-        }
-
-        //fine
-        ui->labelStatus->setText("Done!");
-    }
-
-    ui->buttonStart->setVisible(true);
-    ui->btnReadLang->setEnabled(true);
-    ui->btnWriteLang->setEnabled(true);
-    return (!bFailed);
-}
 

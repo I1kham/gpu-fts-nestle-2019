@@ -21,18 +21,19 @@
  *	ad una specifica richiesta di un subsriber (vedi le fn ask_xxx in CPUBridge.h)
  *	Per convenzione, valori validi sono tra 0x0100 e 0x01FF
  */
-#define		CPUBRIDGE_NOTIFY_DYING					0x0100
-#define		CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED		0x0101
-#define		CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE	0x0102
-#define		CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED		0x0103
-#define		CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED	0x0104
-#define		CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED	0x0105
-#define		CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS	0x0106
-#define		CPUBRIDGE_NOTIFY_CPU_FULLSTATE			0x0107
-#define		CPUBRIDGE_NOTIFY_CPU_INI_PARAM			0x0108
-#define		CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED		0x0109
+#define		CPUBRIDGE_NOTIFY_DYING                      0x0100
+#define		CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED          0x0101
+#define		CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE        0x0102
+#define		CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED         0x0103
+#define		CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED      0x0104
+#define		CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED     0x0105
+#define		CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS     0x0106
+#define		CPUBRIDGE_NOTIFY_CPU_FULLSTATE              0x0107
+#define		CPUBRIDGE_NOTIFY_CPU_INI_PARAM              0x0108
+#define		CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED           0x0109
+#define		CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS   0x010A
 
-#define		CPUBRIDGE_NOTIFY_MAX_ALLOWED			0x01FF
+#define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
 
 
  /**********************************************************************
@@ -49,16 +50,23 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_LCD_MESSAGE			0x0807
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_CURRENT_CREDIT		0x0808
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE				0x0809
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM			0x080A
+#define		CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT                0x080B
+
 
 namespace cpubridge
 {
 	enum eCPUCommand
 	{
 		eCPUCommand_checkStatus_B = 'B',
-		eCPUCommand_initialParam_C = 'C',
+        eCPUCommand_checkStatus_B_Unicode = 'Z',
+        eCPUCommand_initialParam_C = 'C',
 		eCPUCommand_restart = 'U',
+        eCPUCommand_readDataAudit = 'L'
 		//eCPUCommand_writeConfigFile = 'D',
-		//eCPUCommand_readConfigFile = 'E'
+        //eCPUCommand_readConfigFile = 'E',
+        //eCPUCommand_writeHexFile = 'H'
+        //eCPUCommand_readHexFile= 'h'
 	};
 
 	enum eRunningSelStatus
@@ -89,7 +97,16 @@ namespace cpubridge
 		eVMCState_LAVAGGIO_AUTO = 8,
 		eVMCState_RICARICA_ACQUA = 9,
 		eVMCState_ATTESA_TEMPERATURA = 10,
+        eVMCState_COM_ERROR     = 101
 	};
+
+    enum eReadDataAuditStatus
+    {
+        eReadDataAuditStatus_inProgress = 0,
+        eReadDataAuditStatus_finishedOK = 1,
+        eReadDataAuditErrorCode_finishedKO_cantStart_invalidState = 2,
+        eReadDataAuditErrorCode_finishedKO_cpuDidNotAnswer = 3
+    };
 
 	struct sSubscriber
 	{

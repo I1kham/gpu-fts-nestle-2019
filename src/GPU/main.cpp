@@ -19,7 +19,7 @@ bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *lo
 
 
 //*****************************************************
-bool startCPUBridge()
+bool startCPUBridge(HThreadMsgW *hCPUServiceChannelW)
 {
 #ifdef _DEBUG
     rhea::StdoutLogger loggerSTD;
@@ -45,14 +45,14 @@ bool startCPUBridge()
 
     //creo il thread di CPUBridge
     rhea::HThread hCPUThread;
-    HThreadMsgW hCPUServiceChannelW;
 
-    if (!cpubridge::startServer(&chToCPU, logger, &hCPUThread, &hCPUServiceChannelW))
+
+    if (!cpubridge::startServer(&chToCPU, logger, &hCPUThread, hCPUServiceChannelW))
         return false;
 
-    //starto socketBridge che a sua volta siiscriver√† a CPUBridge
+    //starto socketBridge che a sua volta siiscriver√  a CPUBridge
     rhea::HThread hSocketBridgeThread;
-    startSocketBridge(hCPUServiceChannelW, logger, &hSocketBridgeThread);
+    startSocketBridge(*hCPUServiceChannelW, logger, &hSocketBridgeThread);
 
 
     //attendo che il thread CPU termini
@@ -63,22 +63,48 @@ bool startCPUBridge()
 
 
 
-
 //****************************************************
-unsigned char _button_keyNum_tx=0;
-unsigned char getButtonKeyNum ()    { return _button_keyNum_tx; }
-void setButtonKeyNum (unsigned char i)
+bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)
 {
-    if (_button_keyNum_tx != i)
+    bool ret = false;
+
+    //creo una msgQ temporanea per ricevere da CPUBridge la risposta alla mia richiesta di iscrizione
+    HThreadMsgR hMsgQR;
+    HThreadMsgW hMsgQW;
+    rhea::thread::createMsgQ (&hMsgQR, &hMsgQW);
+
+    //invio la richiesta
+    cpubridge::subscribe (hCPUServiceChannelW, hMsgQW);
+
+    //attendo risposta
+    u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
+    do
     {
-        DEBUG_MSG ("Button keynum=%d", (int)i);
-        _button_keyNum_tx=i;
-    }
+        rhea::thread::sleepMSec(50);
+
+        rhea::thread::sMsg msg;
+        if (rhea::thread::popMsg(hMsgQR, &msg))
+        {
+            //ok, ci siamo
+            if (msg.what == CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER)
+            {
+                u8 cpuBridgeVersion = 0;
+                cpubridge::translate_SUBSCRIPTION_ANSWER (msg, out_subscriber, &cpuBridgeVersion);
+                rhea::thread::deleteMsg(msg);
+                ret = true;
+                break;
+            }
+
+            rhea::thread::deleteMsg(msg);
+        }
+    } while (rhea::getTimeNowMSec() < timeToExitMSec);
+
+    //delete della msgQ
+    rhea::thread::deleteMsgQ (hMsgQR, hMsgQW);
+
+
+    return ret;
 }
-
-
-
-
 
 //****************************************************
 int main(int argc, char *argv[])
@@ -90,14 +116,23 @@ int main(int argc, char *argv[])
     rhea::init("rheaSMU", NULL);
 #endif
 
-    startCPUBridge();
+    //Avvio della SMU
+    HThreadMsgW hCPUServiceChannelW;
+    startCPUBridge(&hCPUServiceChannelW);
+
+
+    //Mi iscrivo alla CPU per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
+    cpubridge::sSubscriber subscriber;
+    subscribeToCPU (hCPUServiceChannelW, &subscriber);
+
+
 
     QApplication app(argc, argv);
-    hideMouse();
+    utils::hideMouse();
 
     utils::gatherFolderInfo (qApp->applicationDirPath());
 
-    myMainWindow = new MainWindow ();
+    myMainWindow = new MainWindow(subscriber);
     myMainWindow->show();
 
     int ret = app.exec();

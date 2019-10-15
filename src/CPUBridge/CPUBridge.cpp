@@ -128,6 +128,12 @@ u8 cpubridge::buildMsg_restart_U(u8 *out_buffer, u8 sizeOfOutBuffer)
 	return cpubridge_buildMsg (cpubridge::eCPUCommand_restart, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_readDataAudit (u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+    u8 optionalData[2] = {0,0};
+    return cpubridge_buildMsg (cpubridge::eCPUCommand_readDataAudit, optionalData, 2, out_buffer, sizeOfOutBuffer);
+}
 
 
 //***************************************************
@@ -298,6 +304,30 @@ void cpubridge::translateNotify_CPU_BTN_PROG_PRESSED(const rhea::thread::sMsg &m
 	assert(msg.what == CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED);
 }
 
+//***************************************************
+void cpubridge::notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataAuditStatus errorCode, u16 totKbSoFar)
+{
+    logger->log("notify_READ_DATA_AUDIT_PROGRESS\n");
+
+    u32 data = (u32)errorCode;
+    data <<= 16;
+    data |= totKbSoFar;
+    rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS, handlerID, &data, 4);
+}
+
+//***************************************************
+void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataAuditStatus *out_errorCode, u16 *out_totKbSoFar)
+{
+    assert(msg.what == CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS);
+
+    u32 data;
+    memcpy (&data, msg.buffer, 4);
+    *out_errorCode = (eReadDataAuditStatus)((data & 0xFFFF0000) >> 16);
+    *out_totKbSoFar = (u16)(data & 0x0000FFFF);
+}
+
+
+
 
 
 //***************************************************
@@ -310,13 +340,26 @@ void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
 void cpubridge::translate_CPU_START_SELECTION (const rhea::thread::sMsg &msg, u8 *out_selNumber)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION);
-	*out_selNumber = (eStatoPreparazioneBevanda)msg.paramU32;
+    *out_selNumber = (u8)msg.paramU32;
 }
 
 //***************************************************
 void cpubridge::ask_CPU_STOP_SELECTION (const sSubscriber &from)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION, (u32)0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_SEND_BUTTON(const sSubscriber &from, u8 buttonNum)
+{
+    rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM, (u32)buttonNum);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SEND_BUTTON(const rhea::thread::sMsg &msg, u8 *out_buttonNum)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM);
+    *out_buttonNum = (u8)msg.paramU32;
 }
 
 //***************************************************

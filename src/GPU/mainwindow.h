@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QMessageBox>
-
+#include "../CPUBridge/CPUBridge.h"
 
 
 namespace Ui
@@ -21,18 +21,16 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit                MainWindow ();
+    explicit                MainWindow (const cpubridge::sSubscriber &subscriber);
                             ~MainWindow();
 
 private slots:
     void                    timerInterrupt();
 
-private:
-    void                    priv_loadGUIFirstPage();
 
 private:
+    cpubridge::sSubscriber  subscriber;
     Ui::MainWindow          *ui;
-    bool                    isInterruptActive;
     QTimer                  *timer;
 };
 

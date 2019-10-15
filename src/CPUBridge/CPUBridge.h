@@ -36,6 +36,7 @@ namespace cpubridge
 	u8			buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_initialParam_C (u8 gpuVersionMajor, u8 gpuVersionMinor, u8 gpuVersionBuild, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_restart_U (u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_readDataAudit (u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -73,9 +74,11 @@ namespace cpubridge
 	void		notify_CPU_INI_PARAM (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUParamIniziali *s);
 	void		translateNotify_CPU_INI_PARAM(const rhea::thread::sMsg &msg, sCPUParamIniziali *out_s);
 
-	void		notify_CPU_BTN_PROG_PRESSED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
-	void		translateNotify_CPU_BTN_PROG_PRESSED(const rhea::thread::sMsg &msg);
+    void		notify_CPU_BTN_PROG_PRESSED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+    void		translateNotify_CPU_BTN_PROG_PRESSED (const rhea::thread::sMsg &msg);
 
+    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataAuditStatus errorCode, u16 totKbSoFar);
+    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataAuditStatus *errorCode, u16 *totKbSoFar);
 
 
 	/***********************************************
@@ -91,7 +94,11 @@ namespace cpubridge
 	void		ask_CPU_STOP_SELECTION(const sSubscriber &from);
 				//alla ricezione di questo msg, CPUBridge NON risponderà alcunchè
 	
-	void		ask_CPU_QUERY_RUNNING_SEL_STATUS(const sSubscriber &from, u16 handlerID);
+    void		ask_CPU_SEND_BUTTON(const sSubscriber &from, u8 buttonNum);
+                //alla ricezione di questo msg, CPUBridge NON risponderà alcunchè
+    void		translate_CPU_SEND_BUTTON(const rhea::thread::sMsg &msg, u8 *out_buttonNum);
+
+    void		ask_CPU_QUERY_RUNNING_SEL_STATUS(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con notify_CPU_RUNNING_SEL_STATUS
 
 	void		ask_CPU_QUERY_FULLSTATE (const sSubscriber &from, u16 handlerID);
@@ -112,9 +119,11 @@ namespace cpubridge
 	void		ask_CPU_QUERY_CURRENT_CREDIT(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_CREDIT_CHANGED
 
-	void		ask_CPU_QUERY_STATE(const sSubscriber &from, u16 handlerID);
+    void		ask_CPU_QUERY_STATE (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_STATE_CHANGED
 
+    void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID);
+                    //alla ricezione di questo msg, CPUBridge risponderà con un notify_READ_DATA_AUDIT_PROGRESS.
 	
 } // namespace cpubridge
 

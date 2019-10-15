@@ -45,6 +45,8 @@ namespace rhea
 
 
 
+    bool                deleteFile (const char *fullFileNameAndPath);
+
 
 } //namespace rhea
 

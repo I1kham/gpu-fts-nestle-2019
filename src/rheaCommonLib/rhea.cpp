@@ -131,3 +131,10 @@ const rhea::Date& rhea::getDateAppStarted()						{ return rheaGlobals.dateTimeSt
 const rhea::Time24& rhea::getTimeAppStarted()					{ return rheaGlobals.dateTimeStarted.time; }
 f32 rhea::random01()											{ return rheaGlobals.rnd.get01(); }
 u32 rhea::randomU32(u32 iMax)									{ return rheaGlobals.rnd.getU32(iMax); }
+
+
+//***************************************************
+bool rhea::deleteFile (const char *fullFileNameAndPath)
+{
+    return (::remove (fullFileNameAndPath) == 0);
+}
