@@ -640,8 +640,8 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 	case socketbridge::eOpcode_event_E:
 		/*ho ricevuto una richiesta di tipo "scatena un evento"
 		Istanzio un "handler" appropriato che possa gestire la richiesta. Se quest'handler esiste, allora ci sono 2 possibiità:
-			1- la richiesta deve essere passata a CPUBrdige (per es mi stanno chiedendo un aggiornamento sullo stati di disp delle selezioni)
-			2- la richiesta la gestisce direttamente this (per es mi stanno chiedendo una lita dei client connessi).
+			1- la richiesta deve essere passata a CPUBridge (per es mi stanno chiedendo un aggiornamento sullo stati di disp delle selezioni)
+			2- la richiesta la gestisce direttamente this (per es mi stanno chiedendo una lista dei client connessi).
 		Caso 1:
 			aggiungo l'handle alla lista degli handler attivi e chiamo il suo metodo passDownRequestToCPUBridge() che, a sua volta, appende una richiesta alla msgQ
 			verso CPUBridge in modo che CPUBridge possa intercettare la richiesta e rispondere sulla stessa msgQ.

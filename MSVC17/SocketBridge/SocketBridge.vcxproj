@@ -26,6 +26,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUMessage.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUStatus.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.h" />

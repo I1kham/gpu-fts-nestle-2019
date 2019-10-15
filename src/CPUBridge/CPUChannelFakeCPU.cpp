@@ -325,5 +325,6 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	//116 ck
 	out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 	ct++;
-    out_answer[2] = (*in_out_sizeOfAnswer) = (u8)ct;
+    out_answer[2] = (u8)ct;
+	(*in_out_sizeOfAnswer) = (u16)ct;
 }

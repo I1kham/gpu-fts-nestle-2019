@@ -62,6 +62,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -117,6 +120,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.h">
       <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.h">
+      <Filter>CmdHandler\event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

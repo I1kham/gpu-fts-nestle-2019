@@ -78,6 +78,7 @@ namespace cpubridge
 		sLanguage				language;
 		u16						lastCPUMsg[LCD_BUFFER_SIZE_IN_U16];
 		u16						lastCPUMsgLen;
+		u8						lastBtnProgStatus;
     };
 
 } // namespace cpubridge

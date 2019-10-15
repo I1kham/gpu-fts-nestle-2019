@@ -9,6 +9,7 @@
 #include "CmdHandler/CmdHandler_eventReqStartSel.h"
 #include "CmdHandler/CmdHandler_eventReqStopSel.h"
 #include "CmdHandler/CmdHandler_eventReqClientList.h"
+#include "CmdHandler/CmdHandler_eventReqCPUBtnProgPressed.h"
 
 using namespace socketbridge;
 
@@ -56,6 +57,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqStartSel)
 	CHECK(CmdHandler_eventReqStopSel)
 	CHECK(CmdHandler_eventReqClientList);
+	CHECK(CmdHandler_eventReqCPUBtnProgPressed);
 
 #undef CHECK
 

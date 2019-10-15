@@ -468,6 +468,14 @@ void app::CurrentSelectionAvailability::decodeAnswer(const sDecodedEventMsg &msg
 
 
 
+/*****************************************************************
+ * ButtonProgPressed
+ */
+void app::ButtonProgPressed::decodeAnswer(const sDecodedEventMsg &msg)
+{
+	assert(msg.eventType == socketbridge::eEventType_btnProgPressed);
+}
+
 
 
 
