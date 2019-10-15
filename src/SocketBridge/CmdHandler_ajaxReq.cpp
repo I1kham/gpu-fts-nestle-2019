@@ -25,7 +25,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
     payload[1+commandLen] = 0x00;
     payload[3+commandLen+paramLen] = 0x00;
 
-    printf ("Ajax => reqID=%d, command=%s, params=%s\n", ajaxRequestID, command, *out_params);
+    //printf ("Ajax => reqID=%d, command=%s, params=%s\n", ajaxRequestID, command, *out_params);
 
     //ora che abbiamo il commandName e i params, cerchiamo la classe che gestisce questo evento
 #define CHECK(TClass) \

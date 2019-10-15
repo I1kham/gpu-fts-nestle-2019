@@ -48,7 +48,7 @@ u32 IdentifiedClientList::priv_findByHSokBridgeClient(const HSokBridgeClient &h)
 //*********************************************************
 bool IdentifiedClientList::getHandleByIndex (u32 i, HSokBridgeClient *out_handle) const
 {
-	if (i < 0 || i >= list.getNElem())
+    if (i >= list.getNElem())
 		return false;
 	*out_handle = list(i).handle;
 	return true;
@@ -57,7 +57,7 @@ bool IdentifiedClientList::getHandleByIndex (u32 i, HSokBridgeClient *out_handle
 //*********************************************************
 const sIdentifiedClientInfo* IdentifiedClientList::getInfoByIndex(u32 i) const
 {
-	if (i < 0 || i >= list.getNElem())
+    if (i >= list.getNElem())
 		return NULL;
 	return &list(i);
 }
@@ -235,7 +235,7 @@ bool IdentifiedClientList::bindSocket (const HSokBridgeClient &handle, const HSo
 }
 
 //*********************************************************
-void IdentifiedClientList::unbindSocket(const HSokBridgeClient &handle, u64 timeNowMSec)
+void IdentifiedClientList::unbindSocket(const HSokBridgeClient &handle, u64 timeNowMSec UNUSED_PARAM)
 {
 	u32 i = priv_findByHSokBridgeClient(handle);
 	if (u32MAX == i)

@@ -54,7 +54,7 @@ void MemoryTracker::onAlloc(u32 allocatorID, const char *allocatorName, const vo
 
 		IntPointer from = PTR_TO_INT(p);
 		IntPointer to = from + allocatedSizeInByte;
-		fprintf (f, "%16.16s ALLOC %05d 0x%08X 0x%08X % 12d ", allocatorName, s->allocID, from, to, allocatedSizeInByte);
+        fprintf (f, "%16.16s ALLOC %05d 0x%08X 0x%08X % 12d ", allocatorName, s->allocID, (u32)from, (u32)to, allocatedSizeInByte);
 
 		if (debug_filename != NULL)
 			fprintf(f, "%s [line:%d]\n", debug_filename, debug_lineNumber);
@@ -78,7 +78,7 @@ void MemoryTracker::onDealloc(u32 allocatorID, const char *allocatorName, const 
 			assert(s->allocatorID == allocatorID);
 			IntPointer from = PTR_TO_INT(p);
 			IntPointer to = from + allocatedSizeInByte;
-			fprintf(f, "%16.16s DEALL %05d 0x%08X 0x%08X % 12d\n", allocatorName, s->allocID, from, to, allocatedSizeInByte);
+            fprintf(f, "%16.16s DEALL %05d 0x%08X 0x%08X % 12d\n", allocatorName, s->allocID, (u32)from, (u32)to, allocatedSizeInByte);
 			fflush(f);
 
 			//verifico che non sia già stato deleted

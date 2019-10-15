@@ -36,7 +36,7 @@ void DBList::priv_freeResouce(sEntry *s)
 }
 
 //*********************************************************
-void DBList::purge(u64 timeNowMSec)
+void DBList::purge(u64 timeNowMSec UNUSED_PARAM)
 {
 	/*	il concetto di purge() è corretto.
 	Il problema è che se una GUI si collega e apre il DB, e poi per 5 minuti non fa nulla, finische che chiudo

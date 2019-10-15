@@ -25,3 +25,6 @@ MSVC17/rheaAppLib/
 MSVC17/SMU/build/
 MSVC17/rheaDB/build/
 MSVC17/testDB/build/
+*.o
+QT5/build/
+bin

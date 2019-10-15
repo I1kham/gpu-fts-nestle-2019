@@ -23,7 +23,7 @@ namespace socketbridge
 		//virtual void			onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) = 0;
 		//virtual bool			needToPassDownToCPUBridge() const = 0;
 
-		virtual void			handleRequestFromSocketBridge (socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+        virtual void			handleRequestFromSocketBridge (socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const char *params UNUSED_PARAM)
 								{
 									//le classi derivate devono implementare questa fn SOLO se il messaggio in questione è di quelli che
 									//viene gestito direttamente da socketBridge.

@@ -42,7 +42,7 @@ void CmdHandler_ajaxReqDBQ::handleRequestFromSocketBridge(socketbridge::Server *
 	const rhea::SQLRst *rst = NULL;
 	sInput data;
 
-	if (rhea::json::parse(params, ajaxReqDBQ_jsonTrapFunction, &data))
+    if (rhea::json::parse(params, ajaxReqDBQ_jsonTrapFunction, &data))
 		rst = server->DB_q(data.dbHandle, data.sql);
 	
 

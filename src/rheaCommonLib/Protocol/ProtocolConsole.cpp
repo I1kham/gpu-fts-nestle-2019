@@ -34,7 +34,6 @@ bool ProtocolConsole::handshake_clientSend(IProtocolChannell *ch, rhea::ISimpleL
 
 
 	//aspetta la risposta dal server
-	u8 bChannelWasClosed = 0;
     u16 n = ch->read (5000);
 	if (n >= protocol::RES_ERROR)
 	{
@@ -91,13 +90,12 @@ bool ProtocolConsole::server_isAValidHandshake (const void *bufferIN, u32 sizeOf
 
     if (memcmp (bufferIN, "RHEACONSOLE", 11) != 0)
         return false;
-
-	return true;
-
+    else
+        return true;
 }
 
 //****************************************************
-bool ProtocolConsole::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISimpleLogger *logger)
+bool ProtocolConsole::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISimpleLogger *logger UNUSED_PARAM)
 {
 	if (!server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
 		return false;

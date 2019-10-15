@@ -69,8 +69,7 @@ u32 convert::decodeURIinPlace(char *s)
 {
 	if (NULL == s)
 		return 0;
-	u32 n = strlen(s);
-	u8 *pIN = (u8*)s;
+    u8 *pIN = (u8*)s;
 	u8 *pOUT = pIN;
 	u32 ct = 0;
 	u32 i = 0;

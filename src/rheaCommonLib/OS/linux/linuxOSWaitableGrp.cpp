@@ -1,7 +1,7 @@
 #ifdef LINUX
 #include <string.h>
 #include "linuxOSWaitableGrp.h"
-#include "rheaMemory.h"
+#include "../../rheaMemory.h"
 
 
 //***********************************************
@@ -173,7 +173,7 @@ u8 OSWaitableGrp::wait(u32 timeoutMSec)
         epollTimeout = (int)timeoutMSec;
 
     nEventsReady = 0;
-    int n = epoll_wait(hfd, events, MAX_EVENTS_PER_CALL, epollTimeout);
+    int n = epoll_wait(hfd, events, MAX_EVENTS_HANDLE_PER_CALL, epollTimeout);
     if (n <= 0)
         return 0;
 

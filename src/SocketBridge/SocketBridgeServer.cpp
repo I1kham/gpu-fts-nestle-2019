@@ -496,7 +496,7 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 		logger->log("connection [0x%08X] is requesting new idCode. Sending [0x%08X]\n", h.asU32(), idCode.data.asU32);
 
 		//rispodo al client inviandogli il suo idCode
-		u32 version = (((u32)cpuBridgeVersion) << 8) | SOCKETBRIDGE_VERSION;
+        //u32 version = (((u32)cpuBridgeVersion) << 8) | SOCKETBRIDGE_VERSION;
 		u8 toSend[8] = { cpuBridgeVersion, SOCKETBRIDGE_VERSION, idCode.data.buffer[0], idCode.data.buffer[1], idCode.data.buffer[2], idCode.data.buffer[3], 0 ,0 };
 		sendEvent(h, eEventType_answer_to_idCodeRequest, toSend, 6);
 		return;
@@ -716,7 +716,7 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 void Server::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 {
 	const u16 handlerID = (msg.paramU32 & 0x0000FFFF);
-    const u8 *data = (const u8*)msg.buffer;
+    //const u8 *data = (const u8*)msg.buffer;
 
 	if (handlerID == 0)
 	{

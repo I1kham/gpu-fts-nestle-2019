@@ -23,7 +23,7 @@
 class OSWaitableGrp
 {
 public:
-    static const u8 MAX_EVENTS_PER_CALL = 8;
+    static const u8 MAX_EVENTS_HANDLE_PER_CALL = 16;
 
     enum eEventOrigin
     {
@@ -58,7 +58,7 @@ public:
                      * Nel caso di eventi ricevuti, usare getEventOrigin() per conoscere il tipo di oggetto che ha generato
                      * l'evento i-esimo (es: OSSocket oppure OSEvent) e usare la getEventSrc() per ottenere il puntatore all'oggetto
                      *
-                     * Il numero massimo di eventi per chiamata è MAX_EVENTS_PER_CALL
+                     * Il numero massimo di eventi per chiamata è MAX_EVENTS_HANDLE_PER_CALL
                      * Ad ogni chiamata di wait(), eventuali eventi precedentemente ritornati andranno persi
                      */
 
@@ -119,7 +119,7 @@ private:
 private:
     sRecord         *base;
     int             hfd;
-    epoll_event     events[MAX_EVENTS_PER_CALL];
+    epoll_event     events[MAX_EVENTS_HANDLE_PER_CALL];
     u8              nEventsReady;
 
 

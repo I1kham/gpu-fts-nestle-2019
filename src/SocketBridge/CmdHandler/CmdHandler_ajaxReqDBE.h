@@ -29,8 +29,8 @@ namespace socketbridge
 		bool				needToPassDownToCPUBridge() const			{ return false; }
 		void				handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params);
 
-		void                passDownRequestToCPUBridge(cpubridge::sSubscriber &from, const char *params) {}
-		void                onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) {}
+        void                passDownRequestToCPUBridge(cpubridge::sSubscriber &from UNUSED_PARAM, const char *params UNUSED_PARAM) {}
+        void                onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM) {}
 
         static const char*  getCommandName()                            { return "DBE"; }
     };

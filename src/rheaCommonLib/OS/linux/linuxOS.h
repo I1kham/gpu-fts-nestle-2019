@@ -14,6 +14,7 @@ namespace platform
     void            alignedFree (void *p);
 
     const char*     getAppPathNoSlash ();
+    const char*     getPhysicalPathToWritableFolder();
 
     uint64_t        getTimeNowMSec();
     void            sleepMSec (size_t msec);

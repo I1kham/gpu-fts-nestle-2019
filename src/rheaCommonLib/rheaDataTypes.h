@@ -53,6 +53,10 @@ namespace rhea
 	inline i32		endianConvertI32(i32 w)								{ return ((w >> 24) & 0x000000FF) | ((w >> 8) & 0x0000FF00) | ((w << 8) & 0x00FF0000) | ((w << 24) & 0xFF000000); }
 	inline u64		endianConvertU64(u64 w)								{ return ((w & 0x00000000000000ff) << 56) | ((w & 0x000000000000ff00) << 40) | ((w & 0x0000000000ff0000) << 24) | ((w & 0x00000000ff000000) << 8) | ((w & 0x000000ff00000000) >> 8) | ((w & 0x0000ff0000000000) >> 24) | ((w & 0x00ff000000000000) >> 40) | ((w & 0xff00000000000000) >> 56); }
 	inline i64		endianConvertI64(u64 w)								{ return ((w & 0x00000000000000ff) << 56) | ((w & 0x000000000000ff00) << 40) | ((w & 0x0000000000ff0000) << 24) | ((w & 0x00000000ff000000) << 8) | ((w & 0x000000ff00000000) >> 8) | ((w & 0x0000ff0000000000) >> 24) | ((w & 0x00ff000000000000) >> 40) | ((w & 0xff00000000000000) >> 56); }
+
+#ifdef LINUX
+    #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
 	inline f32		endianConvertF32(f32 f)								{ u32 w = ((u32*)&f)[0]; u32 t = ((w >> 24) & 0x000000FF) | ((w >> 8) & 0x0000FF00) | ((w << 8) & 0x00FF0000) | ((w << 24) & 0xFF000000);  f32 ret; memcpy(&ret, &t, 4); return ret; }
 }; //namespace rhea
 

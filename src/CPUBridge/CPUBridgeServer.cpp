@@ -135,7 +135,7 @@ void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsr
 /***************************************************
  * gestisce tutti i msg in ingresso provenienti dal canale di "servizio" o dai subsriber
  */
-void Server::priv_handleMsgQueues(u64 timeNowMSec, u32 timeOutMSec)
+void Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 {
 	//vediamo se ho dei messaggi in coda
 	u8 nEvent = waitList.wait (timeOutMSec);
@@ -457,7 +457,7 @@ void Server::priv_handleState_normal()
  *		CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED		se il credito disponibile è cambiato
  *		CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED	se la disponibilità delle selezioni è cambiata
  */
-void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen)
+void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSED_PARAM)
 {
 	u8 isMultilangage = 0;
 	const u8 prevMsgLcdCPUImportanceLevel = cpuStatus.LCDMsg.importanceLevel;
@@ -559,7 +559,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen)
 	*/
 	cpuStatus.statoPreparazioneBevanda = (eStatoPreparazioneBevanda)((answer[9] & 0x60) >> 5);
 
-	u8 selection_CPU_current = answer[10];
+    //u8 selection_CPU_current = answer[10];
 
 
 	//messaggio testuale, può essere in ASCII o in unicode

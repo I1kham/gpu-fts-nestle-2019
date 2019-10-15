@@ -19,7 +19,7 @@ namespace rhea
 
 		bool			read  (void *dest, u32 offset, u32 nBytesToread) const;
 		bool			write (const void *src, u32 offset, u32 nBytesTowrite, bool bCangrow=false);
-		bool			growIncremental (u32 howManyBytesToAdd)																	{ return false; }
+        bool			growIncremental (u32 howManyBytesToAdd UNUSED_PARAM)													{ return false; }
 		bool			growUpTo (u32 finalSize)																				{ return (finalSize <= allocatedSize); }
 		u32				getTotalSizeAllocated() const																			{ return allocatedSize; }
 
@@ -46,7 +46,7 @@ namespace rhea
 
 		bool			read(void *dest, u32 offset, u32 nBytesToread) const;
 		bool			write (const void *src, u32 offset, u32 nBytesTowrite, bool bCangrow = false);
-		bool			growIncremental(u32 howManyBytesToAdd)															{ return false; }
+        bool			growIncremental(u32 howManyBytesToAdd UNUSED_PARAM)												{ return false; }
 		bool			growUpTo(u32 finalSize)																			{ return (finalSize <= allocatedSize); }
 		u32				getTotalSizeAllocated() const																	{ return allocatedSize; }
 
