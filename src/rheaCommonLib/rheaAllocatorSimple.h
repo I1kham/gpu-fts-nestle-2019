@@ -10,7 +10,7 @@ namespace rhea
 {
 #ifdef _DEBUG
 	#define ALLOCATOR_SIMPLE_USE_SAFE_GUARD
-	#undef ALLOCATOR_SIMPLE_USE_MEM_TRACKER
+    #undef ALLOCATOR_SIMPLE_USE_MEM_TRACKER
 #endif
 
 #ifdef ALLOCATOR_SIMPLE_USE_SAFE_GUARD
@@ -138,9 +138,6 @@ namespace rhea
 								assert(getAllocatorID() == allocatorID);
 								assert(( bPlacementNew && (size_and_align & 0x40000000) != 0) ||
 									   (!bPlacementNew && (size_and_align & 0x40000000) == 0));
-								u8 real_align = 4;
-								if ((size_and_align & 0x80000000) != 0)
-									real_align = 8;
 
 #ifdef ALLOCATOR_SIMPLE_USE_SAFE_GUARD
 								//memsetto l'intero buffer per cancellare ogni traccia di quello che c'era prima

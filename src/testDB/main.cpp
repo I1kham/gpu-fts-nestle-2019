@@ -1,11 +1,15 @@
+#ifdef WIN32
 #include <conio.h>
+#endif
 #include "../rheaCommonLib/rhea.h"
 #include "../rheaDB/SQLite3/SQLInterface_SQLite.h"
 
 void printErrAndWaitKey(const char *err)
 {
-	printf(err);
-	_getch();
+    printf("%s", err);
+#ifdef WIN32
+    _getch();
+#endif
 }
 
 //*****************************************************
@@ -114,7 +118,9 @@ void test2()
 	}
 
 
+#ifdef WIN32
 	_getch();
+#endif
 	
 }
 
@@ -128,8 +134,8 @@ int main()
 	rhea::init("rheaSMU", NULL);
 #endif
 
-	//test1();
-	//testInsert();
+    //test1();
+    //testInsert();
 	test2();
 	
     rhea::deinit();

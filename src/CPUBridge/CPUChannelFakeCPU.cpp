@@ -60,10 +60,10 @@ void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
  */
-bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
+bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend UNUSED_PARAM, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
 {
 	const eCPUCommand cpuCommand = (eCPUCommand)bufferToSend[1];
-	u8 msgLen = bufferToSend[2];
+    //u8 msgLen = bufferToSend[2];
 	u32 ct = 0;
 
 	switch (cpuCommand)
@@ -71,7 +71,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 	default:
 		DBGBREAK;
 		logger->log("CPUChannelFakeCPU::sendAndWaitAnswer() => ERR, cpuCommand not supported [%d]\n", (u8)cpuCommand);
-		*out_answer = NULL;
 		*in_out_sizeOfAnswer = 0;
 		return false;
 		break;
@@ -208,7 +207,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 	case eCPUCommand_restart:
 		*in_out_sizeOfAnswer = 0;
-		*out_answer = NULL;
 		return true;
 	}
 }
@@ -327,5 +325,5 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	//116 ck
 	out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 	ct++;
-	out_answer[2] = (u8)ct;
+    out_answer[2] = (*in_out_sizeOfAnswer) = (u8)ct;
 }

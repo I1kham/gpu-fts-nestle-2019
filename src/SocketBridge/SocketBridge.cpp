@@ -20,7 +20,6 @@ i16     serverThreadFn (void *userParam);
  */
 bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &hCPUServiceChannelW, rhea::HThread *out_hThread)
 {
-    bool ret = true;
     sServerInitParam    init;
 
     //crea il thread del server

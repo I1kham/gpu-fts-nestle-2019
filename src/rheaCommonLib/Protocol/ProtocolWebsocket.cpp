@@ -21,7 +21,7 @@ static const char HEADER_PROTOCOL[] = "Sec-WebSocket-Protocol: ";
  *	Dovrebbe iniziare l'handshake lato client, ma non lo implemento
  *	per ora perchè non mi serve. 
  */
-bool ProtocolWebsocket::handshake_clientSend (IProtocolChannell *ch, rhea::ISimpleLogger *logger)
+bool ProtocolWebsocket::handshake_clientSend (IProtocolChannell *ch UNUSED_PARAM, rhea::ISimpleLogger *logger)
 {
 	if (logger)
 	{
@@ -157,7 +157,7 @@ bool ProtocolWebsocket::priv_server_isAValidHandshake(const void *bufferIN, u32 
 
 
 //****************************************************
-bool ProtocolWebsocket::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISimpleLogger *logger)
+bool ProtocolWebsocket::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISimpleLogger *logger UNUSED_PARAM)
 {
 	Handshake hs;
 	if (!priv_server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer(), &hs))
@@ -174,8 +174,10 @@ bool ProtocolWebsocket::handshake_serverAnswer(IProtocolChannell *ch, rhea::ISim
     //fillo il buffer con la risposta da rimandare indietro
     const char *connection = HEADER_CONNECTION;
     if (hs.connection == 2)
+    {
         connection = HEADER_CONNECTION2;
-	char answer[256];
+    }
+    char answer[300];
     sprintf(answer,    "HTTP/1.1 101 Switching Protocols\r\n"\
                         "Upgrade: websocket\r\n"\
                         "%s\r\n"\
@@ -343,7 +345,7 @@ u16 ProtocolWebsocket::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffe
 
 
     //se il messaggio è cifrato, a seguire ci sono 4 bytes con la chiave
-    u8 keys[4] = {0,0,0,0};
+    out_result->keys[0] = out_result->keys[1] = out_result->keys[2] = out_result->keys[3] = 0x00;
     if (out_result->isMasked)
     {
         if (nBytesInBuffer < ct+4)
@@ -427,7 +429,9 @@ i16 ProtocolWebsocket::writeText (IProtocolChannell *ch, const char *strIN)
         return 1;
     size_t n = strlen(strIN);
     if (n < 1)
+    {
         return 1;
+    }
 
 	u16 nToWrite = priv_encodeAMessage (true, eWebSocketOpcode_TEXT, strIN, (u16)n, bufferW, BUFFERW_CUR_SIZE);
 	if (nToWrite)

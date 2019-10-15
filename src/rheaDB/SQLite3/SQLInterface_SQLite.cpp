@@ -52,8 +52,9 @@ bool SQLInterface_SQLite::q(const char *query, SQLRst *out_result)
 	if (NULL == db)
 		return false;
 
-	sqlite3_stmt *stmt;
-	int rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
+
+    sqlite3_stmt *stmt = NULL;
+    int rc = sqlite3_prepare_v2 (db, query, strlen(query), &stmt, NULL);
 	if (rc != SQLITE_OK) 
 	{
 		//printf("error: ", sqlite3_errmsg(db));

@@ -18,7 +18,6 @@ i16     cpuCommThreadFn (void *userParam);
 //****************************************************************************
 bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread, HThreadMsgW *out_hServiceChannelW)
 {
-	bool ret = true;
 	sThreadInitParam    init;
 
 	//creo una coda FIFO da associare al thread in modo che sia possibile comunicare con il thread stesso

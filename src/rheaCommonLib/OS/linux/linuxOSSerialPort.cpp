@@ -5,8 +5,19 @@
 #include <unistd.h>
 #include <memory.h>
 #include <sys/ioctl.h>
-#include "rhea.h"
+#include "../../rhea.h"
 
+//*****************************************************
+void platform::serialPort_setInvalid (OSSerialPort &sp)
+{
+    sp.fd = -1;
+}
+
+//*****************************************************
+bool platform::serialPort_isInvalid (const OSSerialPort &sp)
+{
+    return (sp.fd == -1);
+}
 
 //*****************************************************
 bool serialPort_setAsBlocking(OSSerialPort &sp, u8 minNumOfCharToBeReadInOrderToSblock)
@@ -38,17 +49,6 @@ bool serialPort_setAsNonBlocking(OSSerialPort &sp, u8 numOfDSecToWaitBeforeRetur
 	return true;
 }
 
-//*****************************************************
-void platform::serialPort_setInvalid (OSSerialPort &sp)
-{
-	sp.fd = -1;
-}
-
-//*****************************************************
-bool platform::serialPort_isInvalid (const OSSerialPort &sp)
-{
-	return (sp.fd == -1;);
-}
 
 //*****************************************************
 bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *deviceName, OSSerialPortConfig::eBaudRate baudRate, bool RST_on, bool DTR_on, OSSerialPortConfig::eDataBits dataBits,
@@ -57,7 +57,7 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
     out_serialPort->fd = ::open(deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
     if (out_serialPort->fd == -1)
     {
-        rhea::logger->logErr ("serialPort_open() => errno=") << errno << " [" << strerror(errno) << "]" <<rhea::Logger::EOL;
+        DBGBREAK;
         return false;
     }
 
@@ -148,7 +148,7 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
     serialPort_setRTS (*out_serialPort, RST_on);
     serialPort_setDTR (*out_serialPort, DTR_on);
 	
-	if (tcsetattr(sp.fd, TCSAFLUSH, &sp.config) < 0)
+    if (tcsetattr(out_serialPort->fd, TCSAFLUSH, &out_serialPort->config) < 0)
 		return false;
 
 

@@ -12,7 +12,7 @@ CmdHandler::CmdHandler(const HSokBridgeClient &identifiedClientHandle, u16 handl
     else
         timeToDieMSec = rhea::getTimeNowMSec() + dieAfterHowManyMSec;
 
-	this->identifiedClientHandle = identifiedClientHandle;
+    this->identifiedClientHandle = identifiedClientHandle;
 }
 
 

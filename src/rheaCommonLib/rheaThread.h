@@ -43,7 +43,7 @@ namespace rhea
         /************************************************************
          * creazione
          */
-        eThreadError    create (HThread *out_hThread, ThMainFunction threadFunction, void *userParam, u16 stackSizeInKb=8);
+        eThreadError    create (HThread *out_hThread, ThMainFunction threadFunction, void *userParam, u16 stackSizeInKb=2048);
 
 
         /************************************************************

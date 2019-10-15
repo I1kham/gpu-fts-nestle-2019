@@ -16,7 +16,7 @@ bool StaticBuffer::read  (void *dest, u32 offset, u32 nBytesToread) const
 }
 
 //******************************************
-bool StaticBuffer::write  (const void *src, u32 offset, u32 nBytesTowrite, bool bCangrow)
+bool StaticBuffer::write  (const void *src, u32 offset, u32 nBytesTowrite, bool bCangrow UNUSED_PARAM)
 {
 	if (nBytesTowrite == 0)
 		return true;

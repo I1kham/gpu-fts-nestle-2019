@@ -352,8 +352,8 @@ void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea:
 //***************************************************
 void FileTransfer::priv_on0x03 (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
 {
-	u32 smuFileTransfUID, packetNumReceived;
-	u8	chunkSeq;
+    u32 smuFileTransfUID = 0, packetNumReceived = 0;
+    u8	chunkSeq = 0;
 	nbr.readU32(smuFileTransfUID);
 	nbr.readU32(packetNumReceived);
 	nbr.readU8(chunkSeq);

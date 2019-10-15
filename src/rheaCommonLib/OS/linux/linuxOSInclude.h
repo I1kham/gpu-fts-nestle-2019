@@ -4,8 +4,8 @@
 #include <assert.h>
 #include <errno.h>
 #include <pthread.h>
-#include "rheaDataTypes.h"
-#include "rheaEnumAndDefine.h"
+#include "../../rheaDataTypes.h"
+#include "../../rheaEnumAndDefine.h"
 #include <signal.h>
 #include <stddef.h>
 #include <stdint.h>

@@ -58,7 +58,7 @@ bool CPUChannelCom::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, 
  *	true se il buffer è stato spedito interamente
  *	false in caso contrario. In ogni caso, entro 2000Msec la fn ritorna false
  */
-bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhea::ISimpleLogger *logger)
+bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhea::ISimpleLogger *logger UNUSED_PARAM)
 {
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesSent = 0;

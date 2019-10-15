@@ -2,10 +2,12 @@
 #ifndef _linuxOSSerialPort_h_
 #define linuxOSSerialPort_h_
 #include "linuxOSInclude.h"
-#include "OS/OSEnum.h"
-
+#include "../OSEnum.h"
 namespace platform
 {
+    void			serialPort_setInvalid (OSSerialPort &sp);
+    bool			serialPort_isInvalid(const OSSerialPort &sp);
+
     bool            serialPort_open (OSSerialPort *out_serialPort, const char *deviceName,
                                         OSSerialPortConfig::eBaudRate baudRate,
                                         bool RST_on, bool DTR_on,
