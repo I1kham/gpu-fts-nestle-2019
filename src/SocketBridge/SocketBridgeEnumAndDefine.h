@@ -43,6 +43,7 @@ namespace socketbridge
 		eEventType_answer_to_idCodeRequest = 'i',			//105	0x69
 		
 		eEventType_reqClientList ='j',						//106	0x6A
+		eEventType_btnProgPressed ='k',						//107	0x6B
 
         eEventType_unknown = 0xff
     };

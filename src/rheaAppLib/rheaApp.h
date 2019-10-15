@@ -86,6 +86,14 @@ namespace rhea
 			//				out_selectionAvailability[0] si riferisce alla selezione 1
 		}
 
+		namespace ButtonProgPressed
+		{
+			//void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
+			void		decodeAnswer(const sDecodedEventMsg &msg);
+			//ask_		=> non è possibile chiedere lo stato del btnProg, è CPUBridge che invia le notifica alla bisogna
+			//decode_	=> decodifica la risposta ricevuta
+		}
+
 
 
 		/******************************************************************************

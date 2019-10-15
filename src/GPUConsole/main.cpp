@@ -205,6 +205,11 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			log->decIndent();
 		}
 		break;
+
+	case socketbridge::eEventType_btnProgPressed:
+		rhea::app::ButtonProgPressed::decodeAnswer(decoded);
+		log->outText(true, true, false, "RCV [btn prog pressed]\n");
+		break;
 	}
 }
 

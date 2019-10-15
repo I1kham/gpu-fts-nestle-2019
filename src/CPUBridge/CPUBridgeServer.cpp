@@ -50,6 +50,7 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	memset (&cpuStatus, 0, sizeof(sCPUStatus));
 	memset(lastCPUMsg, 0, sizeof(lastCPUMsg));
 	lastCPUMsgLen = 0;
+	lastBtnProgStatus = 0;
 
 	localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
 	subscriberList.setup(localAllocator, 8);
@@ -285,6 +286,7 @@ void Server::priv_enterState_comError()
 {
 	logger->log("CPUBridgeServer::priv_enterState_comError()\n");
 	stato = eStato_comError;
+	lastBtnProgStatus = 0;
 }
 
 /***************************************************
@@ -521,11 +523,30 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 					for (u32 i = 0; i < subscriberList.getNElem(); i++)
 						notify_CPU_CREDIT_CHANGED (subscriberList(i)->q, 0, logger, cpuStatus.userCurrentCredit, 8);
 				}
-				z += 8;
+				z += 8;		
 
-				
-			}
 
+				if (cpuParamIniziali.protocol_version >= 4)
+				{
+					//1 byte per indicare se il btnProg è attualmente in stato di PRESSED
+					u8 btnProgIsPressedNOW = answer[z++];
+					if (btnProgIsPressedNOW == 1)
+					{
+						if (lastBtnProgStatus == 0)
+						{
+							//la CPU mi segnala che è stato premuto il btnPROG, diramo l'evento a tutti
+							lastBtnProgStatus = 1;
+							for (u32 i = 0; i < subscriberList.getNElem(); i++)
+								notify_CPU_BTN_PROG_PRESSED(subscriberList(i)->q, 0, logger);
+						}
+					}
+					else
+					{
+						lastBtnProgStatus = 0;
+					}
+					
+				}
+			}//if (cpuParamIniziali.protocol_version >= 3)
 		} // if (cpuParamIniziali.protocol_version >= 2)
 	} //if (cpuParamIniziali.protocol_version >= 1)
 

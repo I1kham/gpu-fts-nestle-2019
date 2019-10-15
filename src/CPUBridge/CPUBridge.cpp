@@ -285,8 +285,18 @@ void cpubridge::translateNotify_CPU_INI_PARAM(const rhea::thread::sMsg &msg, sCP
 	memcpy(out_s, msg.buffer, sizeof(sCPUParamIniziali));
 }
 
+//***************************************************
+void cpubridge::notify_CPU_BTN_PROG_PRESSED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_CPU_BTN_PROG_PRESSED\n");
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED, handlerID);
+}
 
-
+//***************************************************
+void cpubridge::translateNotify_CPU_BTN_PROG_PRESSED(const rhea::thread::sMsg &msg)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED);
+}
 
 
 

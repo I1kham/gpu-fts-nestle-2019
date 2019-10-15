@@ -73,6 +73,8 @@ namespace cpubridge
 	void		notify_CPU_INI_PARAM (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUParamIniziali *s);
 	void		translateNotify_CPU_INI_PARAM(const rhea::thread::sMsg &msg, sCPUParamIniziali *out_s);
 
+	void		notify_CPU_BTN_PROG_PRESSED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+	void		translateNotify_CPU_BTN_PROG_PRESSED(const rhea::thread::sMsg &msg);
 
 
 
