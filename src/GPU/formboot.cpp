@@ -9,7 +9,6 @@
 #include <QTime>
 #include <QTimer>
 #include <QMessageBox>
-#include <QSerialPort>
 #include <QThread>
 #include <QProcess>
 #include <unistd.h>

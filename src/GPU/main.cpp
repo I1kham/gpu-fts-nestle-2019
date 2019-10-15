@@ -1,141 +1,68 @@
 #include "header.h"
 #include "mainwindow.h"
-#include "formboot.h"
-#include "formdebug.h"
 #include <QApplication>
-#include <qdir.h>
-#include <qfile.h>
-#include "../rheaGUIBridge/GUIBridge.h"
-#include "Utils.h"
+#include "../CPUBridge/CPUBridge.h"
+#include "../CPUBridge/CPUChannelCom.h"
+#include "../CPUBridge/CPUChannelFakeCPU.h"
+#include "../SocketBridge/SocketBridge.h"
+#include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 
 
 MainWindow *myMainWindow = NULL;
-FormDEBUG *_formDEBUG = NULL;
 
 
-
-//****************************************************
-long long timeNowStartedAt = 0;
-long getTimeNowMSec()
+//*****************************************************
+bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)
 {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    long long milliseconds = ts.tv_sec*1000LL + ts.tv_nsec/1000000;
+    return socketbridge::startServer(logger, hCPUServiceChannelW, out_hThread);
+}
 
 
-    //struct timeval te;
-    //gettimeofday(&te, NULL);
-    //long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
+//*****************************************************
+bool startCPUBridge()
+{
+#ifdef _DEBUG
+    rhea::StdoutLogger loggerSTD;
+    rhea::ISimpleLogger *logger = &loggerSTD;
+#else
+    rhea::NullLogger loggerNULL;
+    rhea::ISimpleLogger *logger = &loggerNULL;
+#endif
 
-    if (timeNowStartedAt == 0)
-    {
-        timeNowStartedAt = milliseconds;
-        return 0;
-    }
-    else
-    {
-//        if (milliseconds < timeNowStartedAt)timeNowStartedAt=milliseconds;
-        return (long)(milliseconds - timeNowStartedAt);
-    }
+
+#ifdef PLATFORM_YOCTO_EMBEDDED
+    //apro un canale di comunicazione con la CPU fisica
+    cpubridge::CPUChannelCom chToCPU;
+    bool b = chToCPU.open(CPU_COMPORT, &logger);
+#else
+    //apro un canale di comunicazione con una finta CPU
+    cpubridge::CPUChannelFakeCPU chToCPU;
+    bool b = chToCPU.open (logger);
+#endif
+
+    if (!b)
+        return false;
+
+    //creo il thread di CPUBridge
+    rhea::HThread hCPUThread;
+    HThreadMsgW hCPUServiceChannelW;
+
+    if (!cpubridge::startServer(&chToCPU, logger, &hCPUThread, &hCPUServiceChannelW))
+        return false;
+
+    //starto socketBridge che a sua volta siiscriverà a CPUBridge
+    rhea::HThread hSocketBridgeThread;
+    startSocketBridge(hCPUServiceChannelW, logger, &hSocketBridgeThread);
+
+
+    //attendo che il thread CPU termini
+    //rhea::thread::waitEnd (hCPUThread);
+
+    return true;
 }
 
 
 
-//****************************************************
-bool bEnabledFormDEBUG = false;
-
-void enableFormDEBUG()                { bEnabledFormDEBUG=true; }
-
-FormDEBUG* getFormDEBUG()
-{
-    if (!bEnabledFormDEBUG)
-        return NULL;
-
-    if (NULL == myMainWindow)
-        return NULL;
-    if (NULL == _formDEBUG)
-    {
-        _formDEBUG = new FormDEBUG(myMainWindow);
-        int w = (myMainWindow->width() * 3) / 4;
-        int h = (myMainWindow->height() * 3) / 4;
-        _formDEBUG->resize (w, h);
-        _formDEBUG->setWindowFlags( Qt::WindowStaysOnTopHint );
-        _formDEBUG->show ();
-    }
-
-
-    return _formDEBUG;
-}
-
-
-
-//****************************************************
-void DEBUG_COMM_MSG (const unsigned char *buffer, int start, int lenInBytes, bool bIsGPUSending)
-{
-    FormDEBUG *f = getFormDEBUG();
-    if (f)
-        f->addBuffer( buffer, start, lenInBytes, bIsGPUSending);
-}
-
-//****************************************************
-void DEBUG_rawBuffer (const unsigned char *buffer, int start, int lenInBytes)
-{
-    FormDEBUG *f = getFormDEBUG();
-    if (f)
-        f->addRawBuffer( buffer, start, lenInBytes);
-}
-
-//****************************************************
-void DEBUG_MSG (const char* format, ...)
-{
-    FormDEBUG *f = getFormDEBUG();
-    if (f)
-    {
-        char buffer[1024];
-        va_list args;
-        va_start (args, format);
-        vsnprintf (buffer, sizeof(buffer), format, args);
-        va_end (args);
-
-        f->addString(buffer);
-    }
-}
-
-//****************************************************
-void DEBUG_MSG_REPLACE_SPACES (const QString &q)
-{
-    FormDEBUG *f = getFormDEBUG();
-    if (f)
-    {
-        QString qs = q;
-        qs.replace(' ', '*');
-        f->addString(qs);
-    }
-
-}
-
-//****************************************************
-void DEBUG_MSG_REPLACE_SPACES (const char* format, ...)
-{
-    FormDEBUG *f = getFormDEBUG();
-    if (f)
-    {
-        char buffer[1024];
-        va_list args;
-        va_start (args, format);
-        vsnprintf (buffer, sizeof(buffer), format, args);
-        va_end (args);
-
-        int i=0;
-        while (buffer[i] != 0x00)
-        {
-            if (buffer[i] == ' ')
-                buffer[i]= '*';
-            i++;
-        }
-        f->addString(buffer);
-    }
-}
 
 //****************************************************
 unsigned char _button_keyNum_tx=0;
@@ -149,89 +76,28 @@ void setButtonKeyNum (unsigned char i)
     }
 }
 
-//****************************************************
-void hideMouse()
-{
-    #ifndef DEBUG_SHOW_MOUSE
-        QApplication::setOverrideCursor(Qt::BlankCursor);
-    #endif
-}
 
-
-/****************************************************
- * double updateCPUStats()
- *
- * ritorna la % di utilizzo attuale della CPU
- */
-struct sCPUStats
-{
-    long double v[8];
-    double loadavg;
-    unsigned char i;
-    unsigned long timerMsec;
-};
-sCPUStats cpuStats;
-
-double updateCPUStats()
-{
-    if (cpuStats.i == 0)
-        cpuStats.i = 1;
-    else
-        cpuStats.i = 0;
-
-    unsigned char index = cpuStats.i * 4;
-
-    FILE *f = fopen("/proc/stat","r");
-    fscanf(f,"%*s %Lf %Lf %Lf %Lf",&cpuStats.v[index],&cpuStats.v[index+1],&cpuStats.v[index+2],&cpuStats.v[index+3]);
-    fclose(f);
-
-    if (cpuStats.i == 1)
-    {
-        cpuStats.timerMsec += TIMER_INTERVAL_MSEC;
-        if (cpuStats.timerMsec >= 250)
-        {
-            cpuStats.timerMsec = 0;
-            long double a3 = cpuStats.v[0] + cpuStats.v[1] + cpuStats.v[2];
-            long double b3 = cpuStats.v[4] + cpuStats.v[5] + cpuStats.v[6];
-            long double d = (b3 + cpuStats.v[7]) - (a3 + cpuStats.v[3]);
-            if (d != 0)
-            {
-                cpuStats.loadavg = (double) ((b3 - a3) / d);
-                if (cpuStats.loadavg <= 0)
-                    cpuStats.loadavg = 0;
-            }
-        }
-    }
-
-    return cpuStats.loadavg;
-}
 
 
 
 //****************************************************
 int main(int argc, char *argv[])
 {
-    rhea::init(NULL);
+#ifdef WIN32
+    HINSTANCE hInst = NULL;
+    rhea::init("rheaSMU", &hInst);
+#else
+    rhea::init("rheaSMU", NULL);
+#endif
 
-    //inizializza il webserver e recupera un handle sul quale è possibile restare in ascolto per vedere
-    //quando il server invia delle richieste (tipo: WEBSOCKET_COMMAND_START_SELECTION)
-    HThreadMsgR hQMessageFromWebserver;
-    HThreadMsgW hQMessageToWebserver;
-    rhea::HThread hServer;
-    if (!guibridge::startServer(&hServer, &hQMessageFromWebserver, &hQMessageToWebserver))
-    {
-        return -1;
-    }
+    startCPUBridge();
 
-
-
-    memset (&cpuStats,0, sizeof(cpuStats));
     QApplication app(argc, argv);
     hideMouse();
 
     utils::gatherFolderInfo (qApp->applicationDirPath());
 
-    myMainWindow = new MainWindow (hQMessageFromWebserver, hQMessageToWebserver);
+    myMainWindow = new MainWindow ();
     myMainWindow->show();
 
     int ret = app.exec();

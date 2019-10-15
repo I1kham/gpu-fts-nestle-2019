@@ -7,12 +7,12 @@
 
 namespace utils
 {
-    u8                  evalChecksum (unsigned char *buf, unsigned int len);
-    char*               QCharToCStr (const QChar *in, char *out);
+    void                hideMouse();
     void                getRightFontForLanguage (QFont &out, int pointSize, const char *iso2LettersLanguageCode);
 
-    void                gatherFolderInfo (const QString &Folder_appGpu);
     bool                isUsbPresent();
+
+    void                gatherFolderInfo (const QString &Folder_appGpu);
     const QString&      getFolder_VMCSettings();
     const QString&      getFolder_CPU();
     const QString&      getFolder_GUI();
@@ -25,6 +25,8 @@ namespace utils
     const QString&      getFolder_Usb_Manual();
     const QString&      getFolder_Usb_Audit();
     const QString&      getFolder_Usb_Lang();
+
+    double              updateCPUStats();
 }
 
 #endif // _utils_h_

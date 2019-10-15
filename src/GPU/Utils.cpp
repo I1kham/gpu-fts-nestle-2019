@@ -23,6 +23,14 @@ struct sFolderInfo
 };
 sFolderInfo folderInfo;
 
+//****************************************************
+void utils::hideMouse()
+{
+    #ifndef DEBUG_SHOW_MOUSE
+        QApplication::setOverrideCursor(Qt::BlankCursor);
+    #endif
+}
+
 //*****************************************************
 void utils::gatherFolderInfo (const QString &Folder_appGpu)
 {
@@ -66,28 +74,6 @@ const QString& utils::getFolder_Manual()              { return folderInfo.manual
 const QString& utils::getFolder_Lang()                { return folderInfo.languages; }
 
 
-//*************************************************************************************
-u8 utils::evalChecksum (unsigned char *buf, unsigned int len)
-{
-    u8 res = 0;
-    for (u8 i=0; i<len; i++)
-        res += buf[i];
-    return res;
-}
-
-//****************************************************
-char* utils::QCharToCStr (const QChar *in, char *out)
-{
-    int i=0;
-    while (in[i] != 0x00)
-    {
-        out[i] = in[i].toLatin1();
-        i++;
-    }
-    out[i] =0;
-    return out;
-}
-
 /*****************************************************
  * Font
  * Il font col charset Latin, JP, chinese è "Noto Sans CJK SC", installato di default nella immagine dell'OS 5
@@ -111,5 +97,54 @@ void utils::getRightFontForLanguage (QFont &out, int pointSize, const char *iso2
 
 
 
+
+
+/****************************************************
+ * double updateCPUStats()
+ *
+ * ritorna la % di utilizzo attuale della CPU
+ */
+struct sCPUStats
+{
+    long double v[8];
+    double loadavg;
+    unsigned char i;
+    unsigned long timerMsec;
+};
+sCPUStats cpuStats;
+
+double utils::updateCPUStats()
+{
+    if (cpuStats.i == 0)
+        cpuStats.i = 1;
+    else
+        cpuStats.i = 0;
+
+    unsigned char index = cpuStats.i * 4;
+
+    FILE *f = fopen("/proc/stat","r");
+    fscanf(f,"%*s %Lf %Lf %Lf %Lf",&cpuStats.v[index],&cpuStats.v[index+1],&cpuStats.v[index+2],&cpuStats.v[index+3]);
+    fclose(f);
+
+    if (cpuStats.i == 1)
+    {
+        cpuStats.timerMsec += TIMER_INTERVAL_MSEC;
+        if (cpuStats.timerMsec >= 250)
+        {
+            cpuStats.timerMsec = 0;
+            long double a3 = cpuStats.v[0] + cpuStats.v[1] + cpuStats.v[2];
+            long double b3 = cpuStats.v[4] + cpuStats.v[5] + cpuStats.v[6];
+            long double d = (b3 + cpuStats.v[7]) - (a3 + cpuStats.v[3]);
+            if (d != 0)
+            {
+                cpuStats.loadavg = (double) ((b3 - a3) / d);
+                if (cpuStats.loadavg <= 0)
+                    cpuStats.loadavg = 0;
+            }
+        }
+    }
+
+    return cpuStats.loadavg;
+}
 
 

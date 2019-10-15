@@ -2,29 +2,23 @@
 #define RHEA_HEADER_H
 
 
-//Versione GPU
+//Versione GPU (Fusioe Beta v2)
 #define GPU_VERSION_MAJOR   2
 #define GPU_VERSION_MINOR   0
-#define GPU_VERSION_BUILD   0
+#define GPU_VERSION_BUILD   2
 
+
+
+#ifdef PLATFORM_UBUNTU_DESKTOP
+    #define CPU_COMPORT  "/dev/ttyUSB0"
+#else
+    #define CPU_COMPORT  "/dev/ttymxc3"
+#endif
 
 
 //define per mostrare il puntatore del mouse
 #undef DEBUG_SHOW_MOUSE
 
-//se definita, mostra una label con la % di utilizzo della CPU
-#undef DEBUG_MONITOR_CPU_USAGE
-
-/*  define per visualizzare la finestra di debug che mostra la comunicazione tra CPU e GPU
-    In generale, premendo 10 volte il btn grafico "info" la finestra viene visualizzata.
-    Se si vuole però vedere la finestra sin da subito, è necessario abilitare questa define*/
-#undef SHOW_DEBUG_WINDOW_WITH_COM_MESSAGES_AT_STARTUP
-
-//la cpu deve passare da DISPONIBILE a "BEVANDA IN PREPARAZIONE" entro il tempo definito qui sotto
-#define TIMEOUT_SELEZIONE_1_MSEC    12000
-
-//una volta che la CPU è entrata in "PREPARAZIONE", deve tornare disponibile entro il tempo definito qui sotto
-#define TIMEOUT_SELEZIONE_2_MSEC    240000
 
 #ifdef _DEBUG
     #ifndef DEBUG_SHOW_MOUSE
@@ -43,40 +37,11 @@
 
 #define TIMER_INTERVAL_MSEC         50
 
-#define BTN_RESET_GROUND_COUNTER_TEXT   "RESET"
-#define BTN_STOP_CURRENT_SELECTION_TEXT "STOP"
-#define BTN_LAVAGGIO_MILKER_TEXT        "CLEAN\nMILKER"
 
 
 
-#ifdef PLATFORM_UBUNTU_DESKTOP
-    #define serialCPU_NAME  "/dev/ttyUSB0"
-#else
-    #define serialCPU_NAME  "/dev/ttymxc3"  
-#endif
-
-
-#include <qstring.h>
-long            getTimeNowMSec();
-void            enableFormDEBUG();
-void            DEBUG_COMM_MSG (const unsigned char *buffer, int start, int lenInBytes, bool bIsGPUSending);
-void            DEBUG_MSG (const char* format, ...);
-void            DEBUG_MSG_REPLACE_SPACES (const char* format, ...);
-void            DEBUG_MSG_REPLACE_SPACES (const QString &q);
-void            DEBUG_rawBuffer (const unsigned char *buffer, int start, int lenInBytes);
-void            hideMouse();
-bool            isUsbPresent ();
-double          updateCPUStats();
-
-
-/*  questo rappresenta il "bottone" premuto dall'utente. Viene inviato alla CPU periodicamente
- *  Deriva dal fatto che inizialmente la macchina aveva una tastiera fisica con 16 bottoni. Il touch in sostanza
- *  simula la stessa cosa
- */
-unsigned char   getButtonKeyNum ();
-void            setButtonKeyNum (unsigned char i);
-
-
+#include "../rheaCommonLib/rhea.h"
+#include "Utils.h"
 
 
 #define FormStatus_NORMAL               0
@@ -108,20 +73,6 @@ void            setButtonKeyNum (unsigned char i);
 #define AUDIT_BLOCK_DIM         64
 
 
-#define VMCSTATE_DISPONIBILE                    2
-#define VMCSTATE_PREPARAZIONE_BEVANDA           3
-#define VMCSTATE_PROGRAMMAZIONE                 4
-#define VMCSTATE_INITIAL_CHECK                  5
-#define VMCSTATE_ERROR                          6
-#define VMCSTATE_LAVAGGIO_MANUALE               7
-#define VMCSTATE_LAVAGGIO_AUTO                  8
-#define VMCSTATE_RICARICA_ACQUA                 9
-#define VMCSTATE_ATTESA_TEMPERATURA             10
-#define VMCSTATE_SPENTA                         16
-#define VMCSTATE_COM_ERROR                      101
-#define VMCSTATE_SHOW_DIALOG_RESET_GRND_COUNTER 200
-#define VMCSTATE_SHOW_DIALOG_LAVAGGIO_MILKER    201
-
 
 #define charHeaderPacket                '#'
 #define CommandCPUCheckStatus           'B'
@@ -133,47 +84,6 @@ void            setButtonKeyNum (unsigned char i);
 #define CommandCPUWriteHexFile          'H'
 #define CommandCPUReadHexFile           'h'
 #define CommandCPUReadAudit             'L'
-
-
-#define ComStatus_Idle                  0
-#define ComStatus_Tx1                   1
-#define ComStatus_Tx2                   2
-#define ComStatus_Rx                    3
-#define ComStatus_HandleReply           4
-#define ComStatus_ReplyOK               5
-#define ComStatus_Error                 101
-#define ComStatus_Error_WaitRestart     102
-#define ComStatus_Disabled              110
-
-
-
-#define Com_MAX_TIMEOUT_CHAR_MSEC       2000
-#define Com_MAX_TOT_TIMEOUT_COMMAND     20
-
-
-
-#define ComCommandRequest_CheckStatus_req       0
-#define ComCommandRequest_RestartCPU_req        10
-#define ComCommandRequest_InitialParam_req      30
-#define ComCommandRequest_WriteConfigFile_req	40
-#define ComCommandRequest_ReadConfigFile_req	50
-#define ComCommandRequest_ReadAudit_req         60
-
-
-
-#define MaxLenBufferComCPU_Rx	240	
-#define MaxLenBufferComCPU_Tx	400	
-#define MAXLEN_MSG_LCD            32
-#define MAX_GPU_MESSAGE_LEN     64
-
-
-#define NUM_MAX_SELECTIONS 48
-
-
-
-
-
-
 
 
 
