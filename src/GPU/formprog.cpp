@@ -13,14 +13,13 @@ extern QString CPU_version;
 
 
 //************************************************************
-FormProg::FormProg(QWidget *parent, const cpubridge::sSubscriber &subscriberIN) :
+FormProg::FormProg(QWidget *parent, const sGlobal *globIN) :
         QDialog(parent),
         ui(new Ui::FormProg)
 {
+    glob = globIN;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-
-    subscriber = subscriberIN;
 }
 
 //************************************************************
@@ -61,14 +60,14 @@ void FormProg::updateLabelVersion()
 }
 
 //************************************************************
-void FormProg::on_buttonB1_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 1); }
-void FormProg::on_buttonB2_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 2); }
-void FormProg::on_buttonB3_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 3); }
-void FormProg::on_buttonB4_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 4); }
-void FormProg::on_buttonB5_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 5); }
-void FormProg::on_buttonB6_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 6); }
-void FormProg::on_buttonB7_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 7); }
-void FormProg::on_buttonB8_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 8); }
-void FormProg::on_buttonB9_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 9); }
-void FormProg::on_buttonB10_pressed()       { cpubridge::ask_CPU_SEND_BUTTON (subscriber, 10); }
+void FormProg::on_buttonB1_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 1); }
+void FormProg::on_buttonB2_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 2); }
+void FormProg::on_buttonB3_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 3); }
+void FormProg::on_buttonB4_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 4); }
+void FormProg::on_buttonB5_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 5); }
+void FormProg::on_buttonB6_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 6); }
+void FormProg::on_buttonB7_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 7); }
+void FormProg::on_buttonB8_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 8); }
+void FormProg::on_buttonB9_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 9); }
+void FormProg::on_buttonB10_pressed()       { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 10); }
 

@@ -21,7 +21,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit                MainWindow (const cpubridge::sSubscriber &subscriber);
+    explicit                MainWindow (const sGlobal *glob);
                             ~MainWindow();
 
 private slots:
@@ -29,7 +29,7 @@ private slots:
 
 
 private:
-    cpubridge::sSubscriber  subscriber;
+    const sGlobal           *glob;
     Ui::MainWindow          *ui;
     QTimer                  *timer;
 };

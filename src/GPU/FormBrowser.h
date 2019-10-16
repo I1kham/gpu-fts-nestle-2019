@@ -18,7 +18,7 @@ class FormBrowser : public QDialog
     Q_OBJECT
 
 public:
-    explicit                FormBrowser(QWidget *parent, const cpubridge::sSubscriber &subscriber);
+    explicit                FormBrowser(QWidget *parent, const sGlobal *glob);
                             ~FormBrowser();
 
 private slots:
@@ -28,7 +28,7 @@ private:
     void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
 
 private:
-    cpubridge::sSubscriber  subscriber;
+    const sGlobal           *glob;
     Ui::FormBrowser          *ui;
     bool                    isInterruptActive;
     QTimer                  *timer;

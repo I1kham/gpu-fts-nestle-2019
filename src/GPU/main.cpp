@@ -1,7 +1,7 @@
 #include "header.h"
 #include "mainwindow.h"
 #include <QApplication>
-#include "../CPUBridge/CPUBridge.h"
+#include <QDir>
 #include "../CPUBridge/CPUChannelCom.h"
 #include "../CPUBridge/CPUChannelFakeCPU.h"
 #include "../SocketBridge/SocketBridge.h"
@@ -61,8 +61,6 @@ bool startCPUBridge(HThreadMsgW *hCPUServiceChannelW)
     return true;
 }
 
-
-
 //****************************************************
 bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)
 {
@@ -106,33 +104,81 @@ bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscrib
     return ret;
 }
 
+
+/****************************************************
+ * Filla [glob] con i path dei vari folder utilizzati dalla GPU
+ */
+void setupFolderInformation (sGlobal *glob)
+{
+    char s[1024];
+    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+
+    //local folders
+    const char *baseLocalFolder = rhea::getPhysicalPathToWritableFolder();
+
+    sprintf_s (s, sizeof(s), "%s/GUI", baseLocalFolder);
+    glob->localFolder_GUI = rhea::string::alloc(allocator, s);
+
+
+    //USB folders
+#ifdef PLATFORM_YOCTO_EMBEDDED
+    sprintf_s (s, sizeof(s), "/run/media/sda1/rhea");
+#else
+    sprintf_s (s, sizeof(s), "%s/simula-chiavetta-usb", baseLocalFolder);
+#endif
+
+    //vediamo se il folder della USB esiste
+    if (QDir(s).exists())
+    {
+        glob->usbFolder = rhea::string::alloc(allocator, s);
+
+        sprintf_s (s, sizeof(s), "%s/rheaData", glob->usbFolder);
+        glob->usbFolder_VMCSettings = rhea::string::alloc(allocator, s);
+
+        sprintf_s (s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
+        glob->usbFolder_CPUFW = rhea::string::alloc(allocator, s);
+
+        sprintf_s (s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
+        glob->usbFolder_GUI = rhea::string::alloc(allocator, s);
+
+        sprintf_s (s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
+        glob->usbFolder_Audit = rhea::string::alloc(allocator, s);
+
+        sprintf_s (s, sizeof(s), "%s/lang", glob->usbFolder);
+        glob->usbFolder_Lang = rhea::string::alloc(allocator, s);
+    }
+    else
+    {
+        glob->usbFolder = glob->usbFolder_VMCSettings = glob->usbFolder_CPUFW =
+        glob->usbFolder_GUI = glob->usbFolder_Audit = glob->usbFolder_Lang = NULL;
+    }
+}
+
+
+
 //****************************************************
 int main(int argc, char *argv[])
 {
-#ifdef WIN32
-    HINSTANCE hInst = NULL;
-    rhea::init("rheaSMU", &hInst);
-#else
-    rhea::init("rheaSMU", NULL);
-#endif
+    rhea::init("rheaGPU", NULL);
 
     //Avvio della SMU
     HThreadMsgW hCPUServiceChannelW;
     startCPUBridge(&hCPUServiceChannelW);
 
 
+    //recupero informazioni sui vari folder
+    sGlobal glob;
+    setupFolderInformation(&glob);
+
     //Mi iscrivo alla CPU per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
-    cpubridge::sSubscriber subscriber;
-    subscribeToCPU (hCPUServiceChannelW, &subscriber);
+    subscribeToCPU (hCPUServiceChannelW, &glob.subscriber);
 
 
-
+    //Avvio del main form
     QApplication app(argc, argv);
     utils::hideMouse();
 
-    utils::gatherFolderInfo (qApp->applicationDirPath());
-
-    myMainWindow = new MainWindow(subscriber);
+    myMainWindow = new MainWindow (&glob);
     myMainWindow->show();
 
     int ret = app.exec();

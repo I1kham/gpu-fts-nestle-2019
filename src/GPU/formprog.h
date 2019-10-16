@@ -18,7 +18,7 @@ class FormProg : public QDialog
     Q_OBJECT
 
 public:
-    explicit                    FormProg(QWidget *parent, const cpubridge::sSubscriber &subscriber);
+    explicit                    FormProg(QWidget *parent, const sGlobal *glob);
                                 ~FormProg();
 
    void                        initForm (const char *iso2LettersLanguageCode);
@@ -39,7 +39,7 @@ private slots:
 
 private:
     Ui::FormProg                *ui;
-    cpubridge::sSubscriber      subscriber;
+    const sGlobal               *glob;
     QFont                       theFont,theFontSmall;
 };
 

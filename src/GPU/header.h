@@ -8,7 +8,7 @@
 #define GPU_VERSION_BUILD   2
 
 
-
+//nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
     #define CPU_COMPORT  "/dev/ttyUSB0"
 #else
@@ -19,7 +19,6 @@
 //define per mostrare il puntatore del mouse
 #undef DEBUG_SHOW_MOUSE
 
-
 #ifdef _DEBUG
     #ifndef DEBUG_SHOW_MOUSE
         #define DEBUG_SHOW_MOUSE
@@ -28,8 +27,26 @@
 
 
 #include "../rheaCommonLib/rhea.h"
+#include "../CPUBridge/CPUBridge.h"
 #include "Utils.h"
 
+
+/****************************************************+
+ *
+ */
+struct sGlobal
+{
+    cpubridge::sSubscriber subscriber;
+
+    char *localFolder_GUI;              //folder locale nella quale è salvata la GUI
+
+    char *usbFolder;                    //path di base verso il folder rhea su chiavetta USB (NULL se la chiavetta USB non esiste)
+    char *usbFolder_VMCSettings;        //folder su chiavetta USB per i da3
+    char *usbFolder_CPUFW;              //folder su chiavetta USB per il fw di CPU
+    char *usbFolder_GUI;                //folder su chiavetta USB per le GUI
+    char *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
+    char *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
+};
 
 
 #define ConfigFileSize 10048 

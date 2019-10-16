@@ -7,15 +7,16 @@
 
 
 //********************************************************************************
-FormBrowser::FormBrowser(QWidget *parent, const cpubridge::sSubscriber &subscriberIN) :
+FormBrowser::FormBrowser(QWidget *parent, const sGlobal *globIN) :
     QDialog(parent),
     ui(new Ui::FormBrowser)
 {
+    glob = globIN;;
+    isInterruptActive=false;
+
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-    subscriber = subscriberIN;
-    isInterruptActive=false;
 
     //Settaggi del browser
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
@@ -37,8 +38,9 @@ FormBrowser::FormBrowser(QWidget *parent, const cpubridge::sSubscriber &subscrib
 #endif
 
     //carico la GUI nel browser
-    QString url = "file://" + utils::getFolder_GUI() + "/web/startup.html";
-    ui->webView->load(QUrl(url));
+    char s[1024];
+    sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->localFolder_GUI);
+    ui->webView->load(QUrl(s));
     ui->webView->setFocus();
     utils::hideMouse();
 
@@ -64,7 +66,7 @@ void FormBrowser::timerInterrupt()
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg(subscriber.hFromCpuToOtherR, &msg))
+    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
     {
         priv_onCPUBridgeNotification(msg);
         rhea::thread::deleteMsg(msg);
