@@ -38,14 +38,9 @@ void CmdHandler_eventReqClientList::handleRequestFromSocketBridge(socketbridge::
 		+ sizeof(sIdentifiedClientInfo) * nClientInfoSent; //uno per ogni client
 	u8 *buffer = (u8*)RHEAALLOC(allocator, bufferSize);
 
-
-	//static buffer che "punta" al buffer appena allocato
-	rhea::StaticBuffer sb;
-	sb.setup(buffer, bufferSize);
-
 	//NetBufferView per poter inserire i dati in maniera "indian indipendent"
-	rhea::NetBufferViewW< rhea::StaticBuffer> nbw;
-	nbw.setup(&sb, 0, rhea::eBigEndian, false);
+	rhea::NetStaticBufferViewW nbw;
+	nbw.setup(buffer, bufferSize, rhea::eBigEndian);
 
 	//serializzo i dati nel buffer
 	nbw.writeU16(nClient);

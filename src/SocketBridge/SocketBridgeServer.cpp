@@ -12,6 +12,7 @@
 using namespace socketbridge;
 
 
+
 //***************************************************
 Server::Server()
 {
@@ -22,6 +23,7 @@ Server::Server()
 	cpuBridgeVersion = 0x00;
 	rhea::event::setInvalid (hSubscriberEvent);
 }
+
 
 //***************************************************
 void Server::useLogger (rhea::ISimpleLogger *loggerIN)

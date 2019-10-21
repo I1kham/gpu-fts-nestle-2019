@@ -62,7 +62,7 @@ void FileTransfer::unsetup()
 //**********************************************************************
 bool FileTransfer::priv_isUploading(const sRecord *s) const
 {
-	return (s->whatAmIDoing < WHATAMIDOING_DOWNLOAD_REQUEST_SENT);
+	return (s->isAnUpload != 0);
 }
 
 //**********************************************************************
@@ -268,7 +268,7 @@ bool FileTransfer::startFileUpload (rhea::IProtocolChannell *ch, rhea::IProtocol
 
 	//pongo un limite alla dimensione massima ragionevole di un transferimento
 	const u64 UN_MEGA = 1024 * 1024;
-	u64 fileSizeInBytes = rhea::utils::filesize(f);
+	u64 fileSizeInBytes = rhea::fs::filesize(f);
 	if (fileSizeInBytes == 0 || fileSizeInBytes > 256 * UN_MEGA || fileSizeInBytes >= u32MAX)
 	{
 		fclose(f);
@@ -302,6 +302,7 @@ bool FileTransfer::startFileUpload (rhea::IProtocolChannell *ch, rhea::IProtocol
 	s->fileSizeInBytes = (u32)fileSizeInBytes;
 	s->status = STATUS_IN_PROGRESS;
 	s->whatAmIDoing = WHATAMIDOING_UPLOAD_REQUEST_SENT;
+	s->isAnUpload = 1;
 
 	s->other.whenUploading.sizeOfSendBuffer = 0;
 	s->other.whenUploading.sendBuffer = NULL;
@@ -523,6 +524,7 @@ bool FileTransfer::startFileDownload(rhea::IProtocolChannell *ch, rhea::IProtoco
 	s->timeStartedMSec = timeNowMSec;
 	s->status = STATUS_IN_PROGRESS;
 	s->whatAmIDoing = WHATAMIDOING_DOWNLOAD_REQUEST_SENT;
+	s->isAnUpload = 0;
 	
 	s->other.whenDownloading.lastGoodPacket = u32MAX;
 	s->other.whenDownloading.numOfPacketToBeRcvInTotal = 0;

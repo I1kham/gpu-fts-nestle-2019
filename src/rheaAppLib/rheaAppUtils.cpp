@@ -10,7 +10,7 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 //***************************************************************
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
-	static const char v[9][16] = {
+	static const char v[18][16] = {
 		{"DISP"},
 		{"PREP_BEVANDA"},
 		{"PROG"},
@@ -19,7 +19,17 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 		{"LAVAGGIO_MAN"},
 		{"LAVAGGIO_AUTO"},
 		{"RICARICA_ACQUA"},
-		{"ATTESA TEMP"}
+		{"ATTESA TEMP"},
+		{"CARICA_MASTER"},
+		{"INSTALLAZIONE"},
+		{"DISINST"},
+		{"FINE_INSTALL"},
+		{"FINE_DISINST"},
+		{"ENERGY_SAVING"},
+		{"LAVAGGIO_SAN"},
+		{"DATA_AUDIT"},
+
+		{"COM_ERROR"},
 	};
 
 	switch (s)
@@ -34,6 +44,18 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 	case cpubridge::eVMCState_LAVAGGIO_AUTO:			return v[6];
 	case cpubridge::eVMCState_RICARICA_ACQUA:			return v[7];
 	case cpubridge::eVMCState_ATTESA_TEMPERATURA:		return v[8];
+
+	case cpubridge::eVMCState_ATTESA_CARICA_MASTER:		return v[9];
+	case cpubridge::eVMCState_INSTALLAZIONE:			return v[10];
+	case cpubridge::eVMCState_DISINSTALLAZIONE:			return v[11];
+	case cpubridge::eVMCState_FINE_INSTALLAZIONE:		return v[12];
+	case cpubridge::eVMCState_FINE_DISINSTALLAZIONE:	return v[13];
+	case cpubridge::eVMCState_ENERGY_SAVING:			return v[14];
+	case cpubridge::eVMCState_LAVAGGIO_SANITARIO:		return v[15];
+	case cpubridge::eVMCState_DATA_AUDIT:				return v[16];
+
+
+	case cpubridge::eVMCState_COM_ERROR:				return v[17];
 	}
 }
 
@@ -124,3 +146,51 @@ const char*	utils::verbose_fileTransferFailReason(socketbridge::eFileTransferFai
 	case socketbridge::eFileTransferFailReason_smuFileTooBigOrEmpty: return v[5];
 	}
 }	
+
+
+//***************************************************************
+const char* utils::verbose_readDataFileStatus(cpubridge::eReadDataFileStatus status)
+{
+	static const char v[5][40] = {
+		{"IN_PROGRESS"},
+		{"FINISHED_OK"},
+		{"FINISHED_KO_CANT_START_INVALID_STATE"},
+		{"FINISHED_KO_CPU_NO_ANSWER"},
+		{"FINISHED_KO_CPU_CANT_CREATE_FILE"},
+	};
+
+	switch (status)
+	{
+	default:																	return UNKNOWN;
+	case cpubridge::eReadDataFileStatus_inProgress:								return v[0];
+	case cpubridge::eReadDataFileStatus_finishedOK:								return v[1];
+	case cpubridge::eReadDataFileStatus_finishedKO_cantStart_invalidState:		return v[2];
+	case cpubridge::eReadDataFileStatus_finishedKO_cpuDidNotAnswer:				return v[3];
+	case cpubridge::eReadDataFileStatus_finishedKO_unableToCreateFile:			return v[4];
+	}
+}
+
+
+//***************************************************************
+const char* utils::verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus status)
+{
+	static const char v[6][40] = {
+		{"IN_PROGRESS"},
+		{"FINISHED_OK"},
+		{"FINISHED_KO_CANT_START_INVALID_STATE"},
+		{"FINISHED_KO_CPU_NO_ANSWER"},
+		{"FINISHED_KO_CPU_CANT_COPY_LOCAL_FILE"},
+		{"FINISHED_KO_CPU_CANT_OPEN_LOCAL_FILE"},
+	};
+
+	switch (status)
+	{
+	default:																	return UNKNOWN;
+	case cpubridge::eWriteDataFileStatus_inProgress:							return v[0];
+	case cpubridge::eWriteDataFileStatus_finishedOK:							return v[1];
+	case cpubridge::eWriteDataFileStatus_finishedKO_cantStart_invalidState:		return v[2];
+	case cpubridge::eWriteDataFileStatus_finishedKO_cpuDidNotAnswer:			return v[3];
+	case cpubridge::eWriteDataFileStatus_finishedKO_unableToCopyFile:			return v[4];
+	case cpubridge::eWriteDataFileStatus_finishedKO_unableToOpenLocalFile:		return v[5];
+	}
+}

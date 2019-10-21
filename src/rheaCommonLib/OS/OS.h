@@ -52,6 +52,18 @@ inline void         OS_getTimeNow (u8 *out_hour, u8 *out_min, u8 *out_sec)						
  */
 inline void         OS_runShellCommandNoWait (const char *cmd)																			{ platform::runShellCommandNoWait(cmd); }
 
+/*********************************************************
+ * File system
+ */
+inline bool			OS_FS_DirectoryCreate(const char *path)																				{ return platform::FS_DirectoryCreate(path); }
+inline bool			OS_FS_DirectoryDelete(const char *path)																				{ return platform::FS_DirectoryDelete(path); }
+inline bool			OS_FS_DirectoryExists(const char *path)																				{ return platform::FS_DirectoryExists(path); }
+
+inline bool			OS_FS_fileExists(const char *filename)																				{ return platform::FS_fileExists(filename); }
+inline bool			OS_FS_fileDelete(const char *filename)																				{ return platform::FS_fileDelete(filename); }
+inline bool			OS_FS_fileRename(const char *oldFilename, const char *newFilename)													{ return platform::FS_fileRename(oldFilename, newFilename); }
+
+
 
 
 /***********************************************

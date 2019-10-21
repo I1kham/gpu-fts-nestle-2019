@@ -10,6 +10,13 @@
 #include "CmdHandler/CmdHandler_eventReqStopSel.h"
 #include "CmdHandler/CmdHandler_eventReqClientList.h"
 #include "CmdHandler/CmdHandler_eventReqCPUBtnProgPressed.h"
+#include "CmdHandler/CmdHandler_eventReqDataAudit.h"
+#include "CmdHandler/CmdHandler_eventReqCPUIniParam.h"
+#include "CmdHandler/CmdHandler_eventReqVMCDataFile.h"
+#include "CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.h"
+#include "CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.h"
+
+
 
 using namespace socketbridge;
 
@@ -34,7 +41,11 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReqStartSel)
 	CHECK(CmdHandler_eventReqStopSel)
 	CHECK(CmdHandler_eventReqClientList);
-    
+	CHECK(CmdHandler_eventReqDataAudit);
+	CHECK(CmdHandler_eventReqCPUIniParam);
+	CHECK(CmdHandler_eventReqVMCDataFile);
+	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
+	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
 
 #undef CHECK
 
@@ -58,6 +69,11 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqStopSel)
 	CHECK(CmdHandler_eventReqClientList);
 	CHECK(CmdHandler_eventReqCPUBtnProgPressed);
+	CHECK(CmdHandler_eventReqDataAudit);
+	CHECK(CmdHandler_eventReqCPUIniParam);
+	CHECK(CmdHandler_eventReqVMCDataFile);
+	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
+	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
 
 #undef CHECK
 

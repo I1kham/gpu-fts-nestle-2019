@@ -3,6 +3,41 @@
 
 using namespace cpubridge;
 
+//attiva questa define per dumpare su file tutto il traffico lungo la seriale
+#define DUMP_COMMUNICATION_TO_FILE
+
+
+//se non siamo in DEBUG, disabilito il dump d'ufficio
+#ifndef _DEBUG
+	#ifdef DUMP_COMMUNICATION_TO_FILE
+		#undef DUMP_COMMUNICATION_TO_FILE
+	#endif
+#endif
+
+
+#ifdef DUMP_COMMUNICATION_TO_FILE
+	FILE *fDUMP_CPUChannelCom = NULL;
+
+	#define DUMP_OPEN()	{\
+							char dumpFileName[256];\
+							sprintf_s(dumpFileName, sizeof(dumpFileName), "%s/DUMP_CPUChannelCom.txt", rhea::getPhysicalPathToWritableFolder());\
+							rhea::fs::fileDelete(dumpFileName);\
+							fDUMP_CPUChannelCom = fopen(dumpFileName, "wt");\
+						}\
+
+
+	#define DUMP_CLOSE()				if (NULL != fDUMP_CPUChannelCom)	{ fclose(fDUMP_CPUChannelCom); fDUMP_CPUChannelCom = NULL; }
+	#define DUMP(buffer, lenInBytes)	rhea::utils::dumpBufferInASCII(fDUMP_CPUChannelCom, buffer, lenInBytes);
+	#define DUMPMSG(string)				fprintf(fDUMP_CPUChannelCom, string); fflush(fDUMP_CPUChannelCom);
+#else
+	#define DUMP_OPEN()
+	#define DUMP_CLOSE()
+	#define DUMP(buffer, lenInBytes)	
+	#define DUMPMSG(string)
+#endif
+
+
+//dumpBufferInASCII
 
 //*****************************************************************
 CPUChannelCom::CPUChannelCom()
@@ -13,6 +48,7 @@ CPUChannelCom::CPUChannelCom()
 //*****************************************************************
 CPUChannelCom::~CPUChannelCom()
 {
+	DUMP_CLOSE();
 }
 
 //*****************************************************************
@@ -30,6 +66,8 @@ bool CPUChannelCom::open (const char *COMPORT, rhea::ISimpleLogger *logger)
 		logger->log("FAIL\n");
 
 	logger->decIndent();
+
+	DUMP_OPEN();
 	return ret;
 }
 
@@ -38,6 +76,8 @@ void CPUChannelCom::close (rhea::ISimpleLogger *logger)
 {
 	logger->log("CPUChannelCom::close\n");
 	OSSerialPort_close(comPort);
+
+	DUMP_CLOSE();
 }
 
 //*****************************************************************
@@ -60,8 +100,11 @@ bool CPUChannelCom::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, 
  */
 bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhea::ISimpleLogger *logger UNUSED_PARAM)
 {
+	DUMPMSG("SND: "); DUMP(buffer, nBytesToSend);	DUMPMSG("\n");
+
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesSent = 0;
+	
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		u32 nToWrite = (nBytesToSend - nBytesSent);
@@ -70,12 +113,16 @@ bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhe
 			return true;
 	}
 
+	logger->log("CPUChannelCom::priv_handleMsg_send() => unable to send all data. Sent [%d] of [%d]\n", nBytesSent, nBytesToSend);
+	DUMPMSG("\nWARN: unable to send all data.\n");
 	return false;
+
 }
 
 //***************************************************
 bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
 {
+	DUMPMSG("RCV: ");
 	const u16 sizeOfBuffer = *in_out_sizeOfAnswer;
 	*in_out_sizeOfAnswer = 0;
 
@@ -91,6 +138,9 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 			u8 b = 0x00;
 			if (0 == OSSerialPort_readBuffer(comPort, &b, 1))
 				continue;
+
+			DUMP(&b, 1);
+
 			if (b != (u8)'#')
 				continue;
 			nBytesRcv++;
@@ -102,6 +152,8 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 			if (0 == OSSerialPort_readBuffer(comPort, &commandChar, 1))
 				continue;
 			nBytesRcv++;
+
+			DUMP(&commandChar, 1);
 		}
 
 		//aspetto di riceve la lunghezza totale del messaggio
@@ -111,9 +163,16 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 				continue;
 			nBytesRcv++;
 
+			DUMP(&msgLen, 1);
+
 			if (sizeOfBuffer < msgLen)
 			{
 				logger->log("CPUChannelCom::priv_handleMsg_rcv() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOfBuffer);
+				return false;
+			}
+			if (msgLen < 4)
+			{
+				logger->log("CPUChannelCom::priv_handleMsg_rcv() => ERR invalid msg len [%d]\n", msgLen);
 				return false;
 			}
 
@@ -127,18 +186,35 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 		if (nBytesRcv >= 3)
 		{
 			const u16 nMissing = msgLen - nBytesRcv;
-			nBytesRcv += OSSerialPort_readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
+			const u16 nLetti = (u16)OSSerialPort_readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
+			DUMP(&out_answer[nBytesRcv], nLetti);
+
+			nBytesRcv += nLetti;
 			if (nBytesRcv >= msgLen)
 			{
+				DUMPMSG("\n");
 				//eval checksum
 				if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
 					return true;
 
+
+				//HACK: le versioni non beta della CPU calcolano male il CK del msg C
+				if (out_answer[1] == 'C')
+				{
+					logger->log("CPUChannelCom::priv_handleMsg_rcv() => HACK. messaggio C con ck invalida, lo accetto lo stesso\n");
+					return true;
+				}
+
+
 				logger->log("CPUChannelCom::priv_handleMsg_rcv() => ERR, invalid checksum\n", msgLen, sizeOfBuffer);
+				DUMPMSG("\nERR, invalid checksum\n");
+
 				return false;
 			}
 		}
 	}
+
+	DUMPMSG("\nERR, timeout rcv\n\n");
 	return false;
 }
 

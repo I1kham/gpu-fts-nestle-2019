@@ -37,6 +37,9 @@ namespace cpubridge
 	u8			buildMsg_initialParam_C (u8 gpuVersionMajor, u8 gpuVersionMinor, u8 gpuVersionBuild, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_restart_U (u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_readDataAudit (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -77,8 +80,23 @@ namespace cpubridge
     void		notify_CPU_BTN_PROG_PRESSED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
     void		translateNotify_CPU_BTN_PROG_PRESSED (const rhea::thread::sMsg &msg);
 
-    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataAuditStatus errorCode, u16 totKbSoFar);
-    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataAuditStatus *errorCode, u16 *totKbSoFar);
+    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
+    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
+					/* fileID è un numero che viene appeso al nome del file durante lo scaricamento.
+						Posto che il download vada a buon fine, il file localmente si trova in app/temp/dataAudit[FILE_ID].txt (es app/temp/dataAudit5.txt
+					*/
+
+	void		notify_READ_VMCDATAFILE_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
+	void		translateNotify_READ_VMCDATAFILE_PROGRESS(const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
+					/* fileID è un numero che viene appeso al nome del file durante lo scaricamento.
+						Posto che il download vada a buon fine, il file localmente si trova in app/temp/vmcDataFile[FILE_ID].da3 (es app/temp/vmcDataFile7.da3
+					*/
+
+	void		notify_WRITE_VMCDATAFILE_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eWriteDataFileStatus status, u16 totKbSoFar);
+	void		translateNotify_WRITE_VMCDATAFILE_PROGRESS(const rhea::thread::sMsg &msg, eWriteDataFileStatus *out_status, u16 *out_totKbSoFar);
+	
+	void		notify_CPU_VMCDATAFILE_TIMESTAMP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUVMCDataFileTimeStamp &ts);
+	void		translateNotify_CPU_VMCDATAFILE_TIMESTAMP (const rhea::thread::sMsg &msg, sCPUVMCDataFileTimeStamp *out);
 
 
 	/***********************************************
@@ -123,8 +141,19 @@ namespace cpubridge
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_STATE_CHANGED
 
     void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID);
-                    //alla ricezione di questo msg, CPUBridge risponderà con un notify_READ_DATA_AUDIT_PROGRESS.
+                    //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_DATA_AUDIT_PROGRESS.
 	
+	void        ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID);
+				//alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_VMCDATAFILE_PROGRESS.
+
+	void        ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath);
+					//alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_VMCDATAFILE_PROGRESS
+	void		translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut);
+
+
+	void        ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_VMCDATAFILE_TIMESTAMP
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

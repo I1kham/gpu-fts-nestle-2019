@@ -108,6 +108,14 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
+	case socketbridge::eEventType_creditUpdated:
+		{
+			char credit[16];
+			rhea::app::CurrentCredit::decodeAnswer(decoded, (u8*)&credit, sizeof(credit));
+			log->outText(true, true, false, "RCV [creditChange] => [%s]\n", credit);
+		}
+		break;
+
 	case socketbridge::eEventType_selectionRequestStatus:
 		{
 			cpubridge::eRunningSelStatus runningSelStatus;
@@ -120,6 +128,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		{
 			cpubridge::eVMCState vmcState;
 			u8 vmcErrorCode, vmcErrorType;
+
 			rhea::app::CurrentCPUStatus::decodeAnswer (decoded, &vmcState, &vmcErrorCode, &vmcErrorType);
 			log->outText (true, true, false, "RCV [cpuStatus] => state=[%d %s], err_code=[%d], err_type=[%d]\n", vmcState, rhea::app::utils::verbose_eVMCState(vmcState), vmcErrorCode, vmcErrorType);
 		}
@@ -210,6 +219,67 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		rhea::app::ButtonProgPressed::decodeAnswer(decoded);
 		log->outText(true, true, false, "RCV [btn prog pressed]\n");
 		break;
+
+	case socketbridge::eEventType_reqDataAudit:
+		{
+			cpubridge::eReadDataFileStatus status;
+			u16 toKbSoFar;
+			u16 fileID;
+			rhea::app::ReadDataAudit::decodeAnswer(decoded, &status, &toKbSoFar, &fileID);
+
+			log->outText(true, true, true, "readDataAudit: status[%s] totKbSoFar[%d] fileID[%d]\n", rhea::app::utils::verbose_readDataFileStatus(status), toKbSoFar, fileID);
+		}
+		break;
+
+	case socketbridge::eEventType_reqIniParam:
+		{
+			cpubridge::sCPUParamIniziali iniParam;
+			rhea::app::CurrentCPUInitParam::decodeAnswer(decoded, &iniParam);
+			log->outText(true, true, true, "RCV [iniParam]: CPU_ver[%s] protocol_ver[%d]\n", iniParam.CPU_version, iniParam.protocol_version);
+		}
+		break;
+
+	case socketbridge::eEventType_reqVMCDataFile:
+		{
+			cpubridge::eReadDataFileStatus status;
+			u16 toKbSoFar;
+			u16 fileID;
+			rhea::app::ReadVMCDataFile::decodeAnswer(decoded, &status, &toKbSoFar, &fileID);
+			log->outText(true, true, true, "readVMCDataFile: status[%s] totKbSoFar[%d] fileID[%d]\n", rhea::app::utils::verbose_readDataFileStatus(status), toKbSoFar, fileID);
+		}
+		break;
+
+	case socketbridge::eEventType_reqVMCDataFileTimestamp:
+		{
+			char text[128];
+			sprintf_s(text, sizeof(text), "da3 timestamp:");
+
+			cpubridge::sCPUVMCDataFileTimeStamp ts;
+			rhea::app::CurrentVMCDataFileTimestamp::decodeAnswer(decoded, &ts);
+			u8 buffer[16];
+			ts.writeToBuffer(buffer);
+			for (u8 i = 0; i < ts.getLenInBytes(); i++)
+			{
+				char s[4];
+				rhea::string::format::Hex8(buffer[i], s, sizeof(s));
+
+				char ss[16];
+				sprintf_s (ss, sizeof(ss), " [%s]",s);
+				strcat_s(text, sizeof(text), ss);
+			}
+			strcat_s(text, sizeof(text), "\n");
+			log->outText(true, true, true, text);
+		}
+		break;
+
+	case socketbridge::eEventType_reqWriteLocalVMCDataFile:
+		{
+			cpubridge::eWriteDataFileStatus status;
+			u16 toKbSoFar;
+			rhea::app::WriteLocalVMCDataFile::decodeAnswer(decoded, &status, &toKbSoFar);
+			log->outText(true, true, true, "WriteLocalVMCDataFile: status[%s] totKbSoFar[%d]\n", rhea::app::utils::verbose_writeDataFileStatus(status), toKbSoFar);
+		}
+		break;
 	}
 }
 
@@ -280,49 +350,47 @@ u8 handleUserInput (const char *s, rhea::IProtocolChannell *ch, rhea::IProtocol 
 		return 0x02;
 
 
+
+	if (strcasecmp(s, "upload-da3-1") == 0)
+	{
+		//shortcut di comodo per uppare uno specifico file da3 che uso come test
+		char s[256];
+		sprintf_s(s, sizeof(s), "upload C:\\Users\\gbrunelli\\AppData\\Roaming\\rheaConsole\\lucrezia_001.da3");
+		log->log("%s\n", s);
+		userCommandFactory.handle(s, ch, proto, log, ftransf);
+		return 0;
+	}
+	if (strcasecmp(s, "upload-da3-2") == 0)
+	{
+		//shortcut di comodo per uppare uno specifico file da3 che uso come test
+		char s[256];
+		sprintf_s(s, sizeof(s), "upload C:\\Users\\gbrunelli\\AppData\\Roaming\\rheaConsole\\lucrezia_002.da3");
+		log->log("%s\n", s);
+		userCommandFactory.handle(s, ch, proto, log, ftransf);
+		return 0;
+	}
+
+	if (strcasecmp(s, "install-da3-1") == 0)
+	{
+		//shortcut di comodo per chiedere alla SMU di installare il da3 uppato con "upload-da3-1"
+		char s[64];
+		sprintf_s(s, sizeof(s), "APP:/temp/lucrezia_001.da3");
+		log->log("install %s\n", s);
+		rhea::app::WriteLocalVMCDataFile::ask(ch, proto, s);
+		return 0;
+	}
+	if (strcasecmp(s, "install-da3-2") == 0)
+	{
+		//shortcut di comodo per chiedere alla SMU di installare il da3 uppato con "upload-da3-1"
+		char s[64];
+		sprintf_s(s, sizeof(s), "APP:/temp/lucrezia_002.da3");
+		log->log("install %s\n", s);
+		rhea::app::WriteLocalVMCDataFile::ask(ch, proto, s);
+		return 0;
+	}
+
 	if (userCommandFactory.handle(s, ch, proto, log, ftransf))
 		return 0;
-
-	if (strcasecmp(s, "upload1") == 0)
-	{
-		log->log("sending [%s]...\n", s);
-		log->incIndent();
-
-		rhea::app::FileTransfer::Handle handle;
-		if (ftransf->startFileUpload(ch, proto, rhea::getTimeNowMSec(), "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/test_upload_small_file.gif", "test", &handle))
-			log->log("file transfer started. Handle [0x%08X]\n", handle.asU32());
-		else
-			log->log("file transfer FAILED to start\n");
-		log->decIndent();
-		return 0;
-	}
-	if (strcasecmp(s, "upload2") == 0)
-	{
-		log->log("sending [%s]...\n", s);
-		log->incIndent();
-
-		rhea::app::FileTransfer::Handle handle;
-		if (ftransf->startFileUpload(ch, proto, rhea::getTimeNowMSec(), "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/test_upload_big_file.gif", "test", &handle))
-			log->log("file transfer started. Handle [0x%08X]\n", handle.asU32());
-		else
-			log->log("file transfer FAILED to start\n");
-		log->decIndent();
-		return 0;
-	}
-
-	if (strcasecmp(s, "download-test") == 0)
-	{
-		log->log("sending [%s]...\n", s);
-		log->incIndent();
-
-		rhea::app::FileTransfer::Handle handle;
-		if (ftransf->startFileDownload(ch, proto, rhea::getTimeNowMSec(), "test", "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/file_downloadata_da_smu", &handle))
-			log->log("file transfer started. Handle [0x%08X]\n", handle.asU32());
-		else
-			log->log("file transfer FAILED to start\n");
-		log->decIndent();
-		return 0;
-	}
 
 	log->outText(true,false,false,"unknown command [%s]\n", s);
 	return 0xff;

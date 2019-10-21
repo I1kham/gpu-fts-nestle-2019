@@ -65,6 +65,21 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqDataAudit.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUIniParam.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFileTimestamp.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -122,6 +137,21 @@
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqDataAudit.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUIniParam.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFileTimestamp.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
   </ItemGroup>

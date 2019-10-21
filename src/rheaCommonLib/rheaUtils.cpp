@@ -1,5 +1,5 @@
 #include "rheaUtils.h"
-
+#include "rheaString.h"
 
 using namespace rhea;
 
@@ -25,11 +25,17 @@ u16 utils::simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes)
 
 
 //*************************************************************************
-u64 utils::filesize (FILE *fp)
+void utils::dumpBufferInASCII (FILE *f, const u8 *buffer, u32 lenInBytes)
 {
-	long prev = ftell (fp);
-	fseek (fp, 0L, SEEK_END);
-	long sz = ftell(fp);
-	fseek (fp, prev, SEEK_SET);
-	return sz;
+	for (u32 i = 0; i < lenInBytes; i++)
+	{
+		if (buffer[i] >= 32 && buffer[i] <= 126)
+			fprintf(f, "%c", (char)buffer[i]);
+		else
+		{
+			char hex[4];
+			string::format::Hex8(buffer[i], hex, sizeof(hex));
+			fprintf(f, "[%s]", hex);
+		}		
+	}
 }

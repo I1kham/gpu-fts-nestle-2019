@@ -2,6 +2,7 @@
 #ifndef _winos_h_
 #define _winos_h_
 #include "winOSInclude.h"
+#include "../../rheaDateTime.h"
 
 namespace platform
 {
@@ -39,6 +40,25 @@ namespace platform
 	inline bool     criticalSection_enter(OSCriticalSection &cs)						{ ::EnterCriticalSection(&cs.cs); return true; }
 	inline void     criticalSection_leave(OSCriticalSection &cs)						{ ::LeaveCriticalSection(&cs.cs); }
 	inline bool     criticalSection_tryEnter(OSCriticalSection &cs)						{ return (TryEnterCriticalSection(&cs.cs) == TRUE); }
+
+					//====================================== file system
+	bool			FS_DirectoryCreate(const char *path);
+	bool			FS_DirectoryDelete(const char *path);
+	bool			FS_DirectoryExists(const char *path);
+
+	bool			FS_fileExists(const char *filename);
+	bool			FS_fileDelete(const char *filename);
+	bool			FS_fileRename(const char *oldFilename, const char *newFilename);
+
+	bool			FS_findFirst (OSFileFind *h, const char *strPathNoSlash, const char *strJolly);
+	bool			FS_findNext (OSFileFind &h);
+	bool			FS_findIsDirectory (const OSFileFind &h);
+	void			FS_findGetFileName (const OSFileFind &h, char *out, u32 sizeofOut);
+	const char*		FS_findGetFileName(const OSFileFind &h);
+	void			FS_findGetCreationTime (const OSFileFind &h, rhea::DateTime *out);
+	void			FS_findGetLastTimeModified (const OSFileFind &h, rhea::DateTime *out);
+	void			FS_findClose(OSFileFind &h);
+
 
 }   //namespace platform
 

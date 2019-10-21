@@ -75,6 +75,23 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		return false;
 		break;
 
+	case eCPUCommand_getVMCDataFileTimeStamp:
+		{
+			cpubridge::sCPUVMCDataFileTimeStamp ts;
+			ts.setInvalid();
+			out_answer[ct++] = '#';
+			out_answer[ct++] = 'T';
+			out_answer[ct++] = 0; //lunghezza
+			ts.writeToBuffer(&out_answer[ct]);
+			ct += ts.getLenInBytes();
+			
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+			return true;
+		}
+		break;
+
 	case eCPUCommand_checkStatus_B:
 		//ho ricevuto una richiesta di stato, rispondo in maniera appropriata
 		{
@@ -196,9 +213,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = 3;
 
 			//116 ck
+			out_answer[2] = (u8)ct+1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			ct++;
-			out_answer[2] = (u8)ct;
 
 			*in_out_sizeOfAnswer = out_answer[2];
 			return true;
@@ -323,8 +340,8 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 
 
 	//116 ck
+	out_answer[2] = (u8)ct+1;
 	out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 	ct++;
-    out_answer[2] = (u8)ct;
 	(*in_out_sizeOfAnswer) = (u16)ct;
 }

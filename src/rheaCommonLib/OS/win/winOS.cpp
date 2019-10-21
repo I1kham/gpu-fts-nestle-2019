@@ -2,6 +2,7 @@
 #include "winOS.h"
 #include <mbstring.h>
 #include <shlobj.h>
+#include "../../rhea.h"
 
 struct	sWin32PlatformData
 {
@@ -40,6 +41,8 @@ bool platform::internal_init (void *platformSpecificData, const char *appName)
 	while (n && win32PlatformData.applicationPathNoSlash[n] != '/')
 		win32PlatformData.applicationPathNoSlash[n--] = 0x00;
 	win32PlatformData.applicationPathNoSlash[n--] = 0x00;
+	rhea::fs::sanitizePathInPlace(win32PlatformData.applicationPathNoSlash);
+
 
 
 	//writable folder path
@@ -56,6 +59,7 @@ bool platform::internal_init (void *platformSpecificData, const char *appName)
 	strcat_s(win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), "/");
 	strcat_s(win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), appName);
 	CreateDirectory(win32PlatformData.writableFolderPathNoSlash, NULL);
+	rhea::fs::sanitizePathInPlace(win32PlatformData.writableFolderPathNoSlash);
 
 
 	//initialize Winsock

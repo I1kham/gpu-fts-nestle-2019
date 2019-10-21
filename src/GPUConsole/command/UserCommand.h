@@ -13,16 +13,17 @@
 class UserCommand
 {
 public:
-						UserCommand(const char *commandName);
-	virtual				~UserCommand()	{ }
+							UserCommand(const char *commandName);
+	virtual					~UserCommand()	{ }
 
 
-	virtual void		handle (const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const = 0;
+	virtual void			handle (const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const = 0;
 
-	const char*			getCommandName() const					{ return command; }
+	const char*				getCommandName() const					{ return command; }
+	virtual const char*		getExplain() const						{ return command; }
 
 private:
-	char				command[32];
+	char					command[32];
 };
 
 

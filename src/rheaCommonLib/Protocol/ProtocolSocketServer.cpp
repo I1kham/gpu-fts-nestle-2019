@@ -348,13 +348,13 @@ i32 ProtocolSocketServer::client_read (const HSokServerClient hClient, rhea::Lin
     }
 
     u16 ret = r->protocol->read (r->ch, 0, out_buffer);
-	//logger->log("ProtocolSocketServer::client_read => rcv [%d] bytes\n", ret);
 	if (ret >= protocol::RES_ERROR)
     {
         priv_onClientDeath(r);
         return -1;
     }
 
+	
     return (i32)ret;
 }
 

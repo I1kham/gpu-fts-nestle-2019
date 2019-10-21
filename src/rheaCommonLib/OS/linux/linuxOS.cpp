@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <time.h>
-
+#include "../../rhea.h"
 
 struct	sLinuxPlatformData
 {
@@ -20,7 +20,10 @@ bool platform::internal_init(void *platformSpecificData UNUSED_PARAM, const char
 
 	//usa la malloc per allocare il path
 	linuxPlatformData.appPathNoSlash = get_current_dir_name();
+	rhea::fs::sanitizePathInPlace(linuxPlatformData.appPathNoSlash);
+	
 	sprintf_s(linuxPlatformData.writableFolderPathNoSlash, sizeof(linuxPlatformData.writableFolderPathNoSlash), "%s/%s", linuxPlatformData.appPathNoSlash, appName);
+	rhea::fs::sanitizePathInPlace(linuxPlatformData.writableFolderPathNoSlash);
 	return true;
 }
 

@@ -8,6 +8,8 @@
 #define		LCD_BUFFER_SIZE_IN_BYTES			(_CPU_MSG_LCD_MAX_LEN_IN_BYTES+4)
 #define		LCD_BUFFER_SIZE_IN_U16				(LCD_BUFFER_SIZE_IN_BYTES/2)
 #define		TRANSLATED_LCD_BUFFER_SIZE_IN_U16	(LCD_BUFFER_SIZE_IN_U16 + 16)
+#define		VMCDATAFILE_BLOCK_SIZE_IN_BYTE		64
+#define		VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE	10048
 
 /**********************************************************************
  * Messaggi in/out sul canale di "servizio" di CPUBridge
@@ -32,6 +34,9 @@
 #define		CPUBRIDGE_NOTIFY_CPU_INI_PARAM              0x0108
 #define		CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED           0x0109
 #define		CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS   0x010A
+#define		CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS  0x010B
+#define		CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS 0x010C
+#define		CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP		0x010D
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
 
@@ -52,7 +57,9 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE				0x0809
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM			0x080A
 #define		CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT                0x080B
-
+#define		CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE				0x080C
+#define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE				0x080D
+#define		CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP			0x080E
 
 namespace cpubridge
 {
@@ -62,11 +69,12 @@ namespace cpubridge
         eCPUCommand_checkStatus_B_Unicode = 'Z',
         eCPUCommand_initialParam_C = 'C',
 		eCPUCommand_restart = 'U',
-        eCPUCommand_readDataAudit = 'L'
-		//eCPUCommand_writeConfigFile = 'D',
-        //eCPUCommand_readConfigFile = 'E',
+        eCPUCommand_readDataAudit = 'L',
+		eCPUCommand_writeVMCDataFile = 'D',
+        eCPUCommand_readVMCDataFile= 'E',
         //eCPUCommand_writeHexFile = 'H'
-        //eCPUCommand_readHexFile= 'h'
+        //eCPUCommand_readHexFile= 'h',
+		eCPUCommand_getVMCDataFileTimeStamp = 'T'
 	};
 
 	enum eRunningSelStatus
@@ -97,16 +105,35 @@ namespace cpubridge
 		eVMCState_LAVAGGIO_AUTO = 8,
 		eVMCState_RICARICA_ACQUA = 9,
 		eVMCState_ATTESA_TEMPERATURA = 10,
-        eVMCState_COM_ERROR     = 101
+		eVMCState_ATTESA_CARICA_MASTER = 11,
+		eVMCState_INSTALLAZIONE = 12,
+		eVMCState_DISINSTALLAZIONE = 13,
+		eVMCState_FINE_INSTALLAZIONE = 14,
+		eVMCState_FINE_DISINSTALLAZIONE = 15,
+		eVMCState_ENERGY_SAVING = 16,
+		eVMCState_LAVAGGIO_SANITARIO = 17,
+		eVMCState_DATA_AUDIT = 18,
+		eVMCState_COM_ERROR     = 101
 	};
 
-    enum eReadDataAuditStatus
+    enum eReadDataFileStatus
     {
-        eReadDataAuditStatus_inProgress = 0,
-        eReadDataAuditStatus_finishedOK = 1,
-        eReadDataAuditErrorCode_finishedKO_cantStart_invalidState = 2,
-        eReadDataAuditErrorCode_finishedKO_cpuDidNotAnswer = 3
+        eReadDataFileStatus_inProgress = 0,
+        eReadDataFileStatus_finishedOK = 1,
+        eReadDataFileStatus_finishedKO_cantStart_invalidState = 2,
+        eReadDataFileStatus_finishedKO_cpuDidNotAnswer = 3,
+		eReadDataFileStatus_finishedKO_unableToCreateFile = 4
     };
+
+	enum eWriteDataFileStatus
+	{
+		eWriteDataFileStatus_inProgress = 0,
+		eWriteDataFileStatus_finishedOK = 1,
+		eWriteDataFileStatus_finishedKO_cantStart_invalidState = 2,
+		eWriteDataFileStatus_finishedKO_cpuDidNotAnswer = 3,
+		eWriteDataFileStatus_finishedKO_unableToCopyFile = 4,
+		eWriteDataFileStatus_finishedKO_unableToOpenLocalFile = 5
+	};
 
 	struct sSubscriber
 	{
@@ -158,6 +185,24 @@ namespace cpubridge
 		sCPUSelAvailability				selAvailability;
 		u16								beepSelezioneLenMSec;
 		sCPULCDMessage					LCDMsg;
+	};
+
+	struct sCPUVMCDataFileTimeStamp
+	{
+				sCPUVMCDataFileTimeStamp()										{ setInvalid(); }
+				
+		void	setInvalid()													{ memset(data, 0xFF, SIZE_OF_BUFFER); data[1] = 0xfe; data[3] = 0xfc; }
+		u8		readFromBuffer(const void *buffer)								{ memcpy(data, buffer, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
+		u8		writeToBuffer(void *buffer) const								{ memcpy(buffer, data, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
+		u8		readFromFile (FILE *f)											{ fread(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
+		u8		writeToFile(FILE *f) const										{ fwrite(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
+
+		bool	areEqual(const sCPUVMCDataFileTimeStamp &b) const				{ return (memcmp(data, b.data, SIZE_OF_BUFFER) == 0); }
+		u8		getLenInBytes() const											{ return SIZE_OF_BUFFER; }
+
+	private:
+		static const u8 SIZE_OF_BUFFER = 6;
+		u8	data[SIZE_OF_BUFFER];
 	};
 } // namespace cpubridge
 

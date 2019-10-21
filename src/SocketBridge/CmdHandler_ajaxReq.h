@@ -26,8 +26,9 @@ namespace socketbridge
         virtual void			handleRequestFromSocketBridge (socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const char *params UNUSED_PARAM)
 								{
 									//le classi derivate devono implementare questa fn SOLO se il messaggio in questione è di quelli che
-									//viene gestito direttamente da socketBridge.
-									//Si invece si tratta di un msg che deve essere passato al CPUBrige, i metodi da implementare sono passDownRequestToCPUBridge() e
+									//viene gestito direttamente da socketBridge senza passare per CPUBridge (es: CmdHandler_eventReqClientList che chiede una lista dei client
+									//connessi alla socket).
+									//Se invece si tratta di un msg che deve essere passato al CPUBrige, i metodi da implementare sono passDownRequestToCPUBridge() e
 									//onCPUBridgeNotification()
 									DBGBREAK;
 								}

@@ -107,6 +107,7 @@ namespace rhea
 				u8								numPacketInAChunk;
 				u8								status;
 				u8								whatAmIDoing;
+				u8								isAnUpload;
 				sData							other;
 
 				void oneTimeInit() {}

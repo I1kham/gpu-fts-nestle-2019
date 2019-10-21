@@ -280,38 +280,265 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
         case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
             if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
-            {
                 priv_downloadDataAudit(&sub->q, handlerID);
-            }
             else
-            {
                 //rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
-                notify_READ_DATA_AUDIT_PROGRESS (sub->q, handlerID, logger, eReadDataAuditErrorCode_finishedKO_cantStart_invalidState, 0);
-            }
+                notify_READ_DATA_AUDIT_PROGRESS (sub->q, handlerID, logger, eReadDataFileStatus_finishedKO_cantStart_invalidState, 0, 0);
             break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE:
+			if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
+				priv_downloadVMCDataFile(&sub->q, handlerID);
+			else
+				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del file
+				notify_READ_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus_finishedKO_cantStart_invalidState, 0, 0);
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE:
+			{
+				char srcFullFileNameAndPath[512];
+				translate_WRITE_VMCDATAFILE(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+				if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
+					priv_uploadVMCDataFile(&sub->q, handlerID, srcFullFileNameAndPath);
+				else
+					//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
+					notify_WRITE_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eWriteDataFileStatus_finishedKO_cantStart_invalidState, 0);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP:
+			{
+				sCPUVMCDataFileTimeStamp ts;
+				if (!priv_askVMCDataFileTimeStampAndWaitAnswer(&ts))
+					ts.setInvalid();
+				notify_CPU_VMCDATAFILE_TIMESTAMP(sub->q, handlerID, logger, ts);
+			}
+			break;
+
 		}
 		rhea::thread::deleteMsg(msg);
 	}
 }
 
-//***************************************************
-eReadDataAuditStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID)
+/***************************************************
+ * Dato un file da3 localmente accessibile, lo invia alla CPU.
+ * Periodicamente emette un notify_WRITE_VMCDATAFILE_PROGRESS() con lo stato dell'upload.
+ * Al termine dell'upload, se tutto è andatao bene, il da3 sorgente viene copiato pari pari (compreso il suo nome originale) in 
+ *	app/last_installed/da3/nomeFileSrc.da3 e anche in  app/current/vmcDataFile.da3
+ * Al termine della copia, chiede a CPU il timestamp del da3 e lo salva in current/vmcDataFile.timestamp
+ */
+eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath)
 {
-    //il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
-    char dataAuditFileName[256];
-    sprintf_s(dataAuditFileName, sizeof(dataAuditFileName), "%s/dataAudit.txt", rhea::getPhysicalPathToWritableFolder());
-    rhea::deleteFile(dataAuditFileName);
+	char fileName[256];
+	char tempFilePathAndName[512];
+	rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, fileName, sizeof(fileName));
 
-    FILE *f = fopen (dataAuditFileName, "wb");
+	if (strncmp(srcFullFileNameAndPath, "APP:/temp/", 10) == 0)
+	{
+		//il file si suppone già esistere nella mia cartella temp
+		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+	}
+	else
+	{
+		//copio il file nella mia directory locale temp
+		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+		{
+			notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_unableToCopyFile, 0);
+			return eWriteDataFileStatus_finishedKO_unableToCopyFile;
+		}
+	}
+
+	FILE *f = fopen(tempFilePathAndName, "rb");
+	if (NULL == f)
+	{
+		notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_unableToOpenLocalFile, 0);
+		return eWriteDataFileStatus_finishedKO_unableToOpenLocalFile;
+	}
+
+	//il meccanismo attuale prevedere che la io mandi pacchetti da 64b di dati alla CPU fino al raggiungimento della
+	//dimensione totale del file. Il tutto è hard-codato...
+	u32 bytesWrittenSoFar = 0;
+	u16 kbWrittenSoFar = 0;
+	u16 lastKbWriteSent = u16MAX;
+	const u8 TOT_NUM_BLOCKS = VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE / VMCDATAFILE_BLOCK_SIZE_IN_BYTE;
+	for (u8 blockNum=0; blockNum < TOT_NUM_BLOCKS; blockNum++)
+	{
+		//leggo da file
+		u8 fileBuffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE];
+		fread(fileBuffer, VMCDATAFILE_BLOCK_SIZE_IN_BYTE, 1, f);
+
+		//creo il msg da mandare a CPU
+		u8 bufferCPUMsg[VMCDATAFILE_BLOCK_SIZE_IN_BYTE +32];
+		const u16 nBytesToSend = buildMsg_writeVMCDataFile(fileBuffer, blockNum, TOT_NUM_BLOCKS, bufferCPUMsg, sizeof(bufferCPUMsg));
+		
+		//invio
+		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+		if (!chToCPU->sendAndWaitAnswer(bufferCPUMsg, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+		{
+			//errore, la CPU non ha risposto, abortisco l'operazione
+			if (NULL != subscriber)
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_cpuDidNotAnswer, kbWrittenSoFar);
+			fclose(f);
+			return eWriteDataFileStatus_finishedKO_cpuDidNotAnswer;
+		}
+
+		//aggiorno contatore di byte scritti
+		bytesWrittenSoFar += VMCDATAFILE_BLOCK_SIZE_IN_BYTE;
+		kbWrittenSoFar = (u16)(bytesWrittenSoFar >> 10);
+
+		//notifico che ho letto un altro Kb
+		if (kbWrittenSoFar != lastKbWriteSent)
+		{
+			lastKbWriteSent = kbWrittenSoFar;
+
+			if (NULL != subscriber)
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, 0, logger, eWriteDataFileStatus_inProgress, kbWrittenSoFar);
+		}
+	}
+
+	//finito!
+	fclose(f);
+	assert(bytesWrittenSoFar >= VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE);
+
+
+	//a questo punto, copio il file temporaneo nella mia cartella last_installed e nella cartella current (qui gli cambio anche il nome con quello di default)
+	char s[512];
+	sprintf_s(s, sizeof(s), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());
+	rhea::fs::deleteAllFileInFolderRecursively(s, false);
+
+	sprintf_s(s, sizeof(s), "%s/last_installed/da3/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+	rhea::fs::fileCopy(tempFilePathAndName, s);
+
+	sprintf_s(s, sizeof(s), "%s/current/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	rhea::fs::fileCopy(tempFilePathAndName, s);
+
+	rhea::fs::fileDelete(tempFilePathAndName);
+
+
+	//chiedo alla CPU il nuovo timestamp del file ricevuto e lo salvo localmente
+	sCPUVMCDataFileTimeStamp	vmcDataFileTimeStamp;
+	priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp);
+	priv_saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
+
+
+	//notifico il client e finisco
+	if (NULL != subscriber)
+		notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedOK, kbWrittenSoFar);
+
+	return eWriteDataFileStatus_finishedOK;
+}
+
+/***************************************************
+ * Chiede alla CPU il file di da3 e lo salva localmente in app/temp/vmcDataFile%d.da3
+ * [%d] è un progressivo che viene comunicato alla fine del download nel messaggio di conferma.
+ * Periodicamente notifica emettendo un messaggio notify_READ_VMCDATAFILE_PROGRESS() che contiene lo stato di avanzamento
+ * del download
+ */
+eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID)
+{
+	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
+	char fullFilePathAndName[256];
+	u16 fileID = 0;
+	while (1)
+	{
+		sprintf_s(fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/vmcDataFile%d.da3", rhea::getPhysicalPathToAppFolder(), fileID);
+		if (!rhea::fs::fileExists(fullFilePathAndName))
+			break;
+		fileID++;
+	}
+
+	FILE *f = fopen(fullFilePathAndName, "wb");
+	if (NULL == f)
+	{
+		notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_unableToCreateFile, 0, fileID);
+		return eReadDataFileStatus_finishedKO_unableToCreateFile;
+	}
+
+	//il meccanismo attuale prevedere che la CPU mandi pacchetti da 64b di dati fino al raggiungimento della
+	//dimensione totale del file. Il tutto è hard-codato...
+	u8 bufferW[32];
+	u32 nPacketSoFar = 0;
+	u32 bytesReadSoFar = 0;
+	u16 kbReadSoFar = 0;
+	u16 lastKbReadSent = u16MAX;
+	while (1)
+	{
+		u16 nBytesToSend = buildMsg_readVMCDataFile(nPacketSoFar++, bufferW, sizeof(bufferW));
+		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+		{
+			//errore, la CPU non ha risposto, abortisco l'operazione
+			if (NULL != subscriber)
+				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+			fclose(f);
+			return eReadDataFileStatus_finishedKO_cpuDidNotAnswer;
+		}
+
+		//scrivo su file i dati ricevuti
+		const u8 payloadLen = sizeOfAnswerBuffer - 6;
+		const u8* payload = &answerBuffer[5];
+		fwrite(payload, payloadLen, 1, f);
+
+		//aggiorno contatore di byte letti
+		bytesReadSoFar += payloadLen;
+		kbReadSoFar = (u16)(bytesReadSoFar >> 10);
+
+
+		if (bytesReadSoFar >= VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE)
+		{
+			//finito!
+			if (NULL != subscriber)
+				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
+
+			fclose(f);
+			return eReadDataFileStatus_finishedOK;
+		}
+
+		//notifico che ho letto un altro Kb
+		if (kbReadSoFar != lastKbReadSent)
+		{
+			lastKbReadSent = kbReadSoFar;
+
+			if (NULL != subscriber)
+				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
+		}
+	}
+}
+
+/***************************************************
+ * Chiede alla CPU il file di data-audit e lo salva localmente in app/temp/dataAudit%d.txt
+ * [%d] è un progressivo che viene comunicato alla fine del download nel messaggio di conferma.
+ * Periodicamente notifica emettendo un messaggio notify_READ_DATA_AUDIT_PROGRESS() che contiene lo stato di avanzamento
+ * del download
+ */
+eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID)
+{
+	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
+	char fullFilePathAndName[256];
+	u16 fileID = 0;
+	while (1)
+	{
+		sprintf_s(fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/dataAudit%d.txt", rhea::getPhysicalPathToAppFolder(), fileID);
+		if (!rhea::fs::fileExists(fullFilePathAndName))
+			break;
+		fileID++;
+	}
+
+	FILE *f = fopen(fullFilePathAndName, "wb");
+	if (NULL == f)
+	{
+		notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_unableToCreateFile, 0, fileID);
+		return eReadDataFileStatus_finishedKO_unableToCreateFile;
+	}
 
 
     u8 bufferW[32];
-    const u16 nBytesToSend = cpubridge::buildMsg_readDataAudit (bufferW, sizeof(bufferW));
+    const u16 nBytesToSend = cpubridge::buildMsg_readDataAudit(bufferW, sizeof(bufferW));
 
     u32 bytesReadSoFar = 0;
     u16 kbReadSoFar = 0;
     u16 lastKbReadSent = u16MAX;
-
     while (1)
     {
         u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
@@ -319,9 +546,9 @@ eReadDataAuditStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *sub
         {
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataAuditErrorCode_finishedKO_cpuDidNotAnswer, kbReadSoFar);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
             fclose(f);
-            return eReadDataAuditErrorCode_finishedKO_cpuDidNotAnswer;
+            return eReadDataFileStatus_finishedKO_cpuDidNotAnswer;
         }
 
         //scrivo su file i dati ricevuti
@@ -338,10 +565,10 @@ eReadDataAuditStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *sub
         {
             //finito!
             if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataAuditStatus_finishedOK, kbReadSoFar);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
 
             fclose(f);
-            return eReadDataAuditStatus_finishedOK;
+            return eReadDataFileStatus_finishedOK;
         }
 
         //notifico che ho letto un altro Kb
@@ -350,11 +577,58 @@ eReadDataAuditStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *sub
             lastKbReadSent = kbReadSoFar;
 
             if (NULL!= subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataAuditStatus_inProgress, kbReadSoFar);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
         }
     }
 
 }
+
+//***************************************************
+bool Server::priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out)
+{
+	u8 bufferW[16];
+	const u8 nBytesToSend = buildMsg_getVMCDataFileTimeStamp(bufferW, sizeof(bufferW));
+
+	//invio richiesta a CPU
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+	{
+		//errore, la CPU non ha risposto, abortisco l'operazione
+		return false;
+	}
+
+	//la CPU risponde con [#] [T] [len] [secondi] [minuti] [ore] [giorno] [mese] [anno] [ck]
+	out->readFromBuffer(&answerBuffer[3]);
+	return true;
+}
+
+//***************************************************
+void Server::priv_loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out) const
+{
+	out->setInvalid();
+
+	char s[512];
+	sprintf_s(s, sizeof(s), "%s/current/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
+	FILE *f = fopen(s, "rb");
+	if (NULL == f)
+		return;
+	out->readFromFile(f);
+	fclose(f);
+}
+
+//***************************************************
+bool Server::priv_saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts) const
+{
+	char s[512];
+	sprintf_s(s, sizeof(s), "%s/current/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
+	FILE *f = fopen(s, "wb");
+	if (NULL == f)
+		return false;
+	ts.writeToFile(f);
+	fclose(f);
+	return true;
+}
+
 
 /***************************************************
  * Manda il maessaggio B alla CPU e attende la sua risposta.
@@ -397,6 +671,7 @@ void Server::priv_enterState_comError()
     nextButtonNumToSend = 0;
 
     cpuStatus.VMCstate = eVMCState_COM_ERROR;
+	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
 
     cpuStatus.LCDMsg.buffer[0] = 'C';
     cpuStatus.LCDMsg.buffer[1] = 'O';
@@ -408,8 +683,8 @@ void Server::priv_enterState_comError()
     cpuStatus.LCDMsg.buffer[7] = 'O';
     cpuStatus.LCDMsg.buffer[8] = 'R';
     cpuStatus.LCDMsg.buffer[9] = 0x00;
-    cpuStatus.LCDMsg.ct = 10;
-    cpuStatus.LCDMsg.importanceLevel = 0xff;
+    cpuStatus.LCDMsg.ct = 20;
+    cpuStatus.LCDMsg.importanceLevel = 123;
 
     //segnalo ai miei subscriber che sono in com-error
     for (u32 i = 0; i < subscriberList.getNElem(); i++)
@@ -547,6 +822,8 @@ void Server::priv_enterState_normal()
 void Server::priv_handleState_normal()
 {
 	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 250;
+	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 2;
+	u8 nRetry = 0;
 
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
     while (stato.get() == sStato::eStato_normal)
@@ -560,12 +837,19 @@ void Server::priv_handleState_normal()
             if (0 == sizeOfAnswerBuffer)
 			{
 				//la CPU non ha risposto al mio comando di stato, passo in com_error
-				priv_enterState_comError();
-				return;
+				nRetry++;
+				if (nRetry >= ALLOW_N_RETRY_BEFORE_COMERROR)
+				{
+					priv_enterState_comError();
+					return;
+				}
 			}
-
-			//parso la risposta
-			priv_parseAnswer_checkStatus (answerBuffer, sizeOfAnswerBuffer);
+			else
+			{
+				//parso la risposta
+				nRetry = 0;
+				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+			}
 
 			//schedulo il prossimo msg di stato
 			nextTimeSendCheckStatusMsgWasMSec = rhea::getTimeNowMSec() + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
@@ -594,10 +878,17 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	const u8 prevMsgLcdCPUImportanceLevel = cpuStatus.LCDMsg.importanceLevel;
 	cpuStatus.LCDMsg.importanceLevel = 0xff;
 
+	if (answer[1] != eCPUCommand_checkStatus_B && answer[1] != eCPUCommand_checkStatus_B_Unicode)
+	{
+		//mi aspettavo la risposta al mio comando B, invece ho ricevuto dell'altro
+		logger->log("WARN: I was expecintg B or Z, received [%c]\n", (char)answer[1]);
+		return;
+	}
+
 	if (cpuParamIniziali.protocol_version >= 1)
 	{
 		u8 z = 17 + 32;
-		if (answer[1] != 'B')
+		if (answer[1] != eCPUCommand_checkStatus_B)
 			z += 32;
 		cpuStatus.beepSelezioneLenMSec = answer[z + 1];
 		cpuStatus.beepSelezioneLenMSec *= 256;
@@ -748,9 +1039,10 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	//ATTENZIONE che bit==0 significa che la selezione è OK, bit==1 significa KO
 	//Io invece traduco al contrario, per cui per me cupStatus.selAvailability == 1 se la selezione è disponibile
 	//if (cpuStatus.VMCstate != VMCSTATE_INITIAL_CHECK && cpuStatus.VMCstate != VMCSTATE_ERROR)
+	u8 anythingChanged = 0;
+	if (cpuStatus.VMCstate == eVMCState_DISPONIBILE || cpuStatus.VMCstate == eVMCState_PREPARAZIONE_BEVANDA)
 	{
 		u8 mask = 0x01;
-		u8 anythingChanged = 0;
 		for (u8 i = 0; i < NUM_MAX_SELECTIONS; i++)
 		{
 			u8 isSelectionAvail = 1;
@@ -759,7 +1051,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 
 			if (isSelectionAvail)
 			{
-				if (!cpuStatus.selAvailability.isAvail(i+1))
+				if (!cpuStatus.selAvailability.isAvail(i + 1))
 				{
 					anythingChanged = 1;
 					cpuStatus.selAvailability.setAsAvail(i + 1);
@@ -767,7 +1059,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			}
 			else
 			{
-				if (cpuStatus.selAvailability.isAvail(i+1))
+				if (cpuStatus.selAvailability.isAvail(i + 1))
 				{
 					anythingChanged = 1;
 					cpuStatus.selAvailability.setAsNotAvail(i + 1);
@@ -782,12 +1074,21 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			else
 				mask <<= 1;
 		}
-
-		if (anythingChanged)
+	}
+	else
+	{
+		//la CPU non è in uno stato valido per fare erogazioni, per cui forzo a priori  la totalte
+		//indisponibilità delle bevande
+		if (cpuStatus.selAvailability.areAllNotAvail() == false)
 		{
-			for (u32 i = 0; i < subscriberList.getNElem(); i++)
-				notify_CPU_SEL_AVAIL_CHANGED (subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
+			cpuStatus.selAvailability.reset();
+			anythingChanged = 1;
 		}
+	}
+	if (anythingChanged)
+	{
+		for (u32 i = 0; i < subscriberList.getNElem(); i++)
+			notify_CPU_SEL_AVAIL_CHANGED (subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
 	}
 
 	//se non c'è nemmeno una selezione disponibile, mostro sempre e cmq il msg di CPU anche se non fosse "importante"
@@ -905,11 +1206,13 @@ void Server::priv_handleState_selection()
 	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 200;
 	
 	//la cpu deve passare da DISPONIBILE a "BEVANDA IN PREPARAZIONE" entro il tempo definito qui sotto
-	const u32 TIMEOUT_SELEZIONE_1_MSEC = 12000;
+	const u32 TIMEOUT_SELEZIONE_1_MSEC = 60000;
 
 	//una volta che la CPU è entrata in "PREPARAZIONE", deve tornare disponibile entro il tempo definito qui sotto
 	const u32 TIMEOUT_SELEZIONE_2_MSEC = 240000;
 
+	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 2;
+	u8 nRetry = 0;
 
 	assert (runningSel.selNum >= 1 && runningSel.selNum <= NUM_MAX_SELECTIONS);
 
@@ -951,15 +1254,22 @@ void Server::priv_handleState_selection()
         if (0 == sizeOfAnswerBuffer)
 		{
 			//la CPU non ha risposto al mio comando di stato, passo in com_error
-			runningSel.status = eRunningSelStatus_finished_KO;
-			if (runningSel.sub)
-				notify_CPU_RUNNING_SEL_STATUS (runningSel.sub->q, 0, logger, runningSel.status);
-			priv_enterState_comError();
-			return;
+			nRetry++;
+			if (nRetry >= ALLOW_N_RETRY_BEFORE_COMERROR)
+			{
+				runningSel.status = eRunningSelStatus_finished_KO;
+				if (runningSel.sub)
+					notify_CPU_RUNNING_SEL_STATUS(runningSel.sub->q, 0, logger, runningSel.status);
+				priv_enterState_comError();
+				return;
+			}
 		}
-
-		//parso la risposta
-		priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+		else
+		{
+			//parso la risposta
+			priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+			nRetry = 0;
+		}
 
 		//schedulo il prossimo msg di stato
 		timeNowMSec = rhea::getTimeNowMSec();

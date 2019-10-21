@@ -4,6 +4,12 @@
 #include "UserCommand_cpumsg.h"
 #include "UserCommand_cpustatus.h"
 #include "UserCommand_selavail.h"
+#include "UserCommand_readDataAudit.h"
+#include "UserCommand_cpuiniparam.h"
+#include "UserCommand_readDA3.h"
+#include "UserCommand_da3ts.h"
+#include "UserCommand_download.h"
+#include "UserCommand_upload.h"
 
 //**********************************************************
 void UserCommandFactory::setup (rhea::Allocator *allocatorIN)
@@ -56,7 +62,7 @@ void UserCommandFactory::help_commandLlist(WinTerminal *logger) const
 	u32 n = cmdList.getNElem();
 	for (u32 i = 0; i < n; i++)
 	{
-		const char *s = cmdList(i)->getCommandName();
+		const char *s = cmdList(i)->getExplain();
 		logger->log("%s\n", s);
 	}
 }
@@ -68,4 +74,10 @@ void UserCommandFactory::utils_addAllKnownCommands()
 	this->addCommand < UserCommand_cpumsg>();
 	this->addCommand < UserCommand_cpustatus>();
 	this->addCommand < UserCommand_selavail>();
+	this->addCommand < UserCommand_readDataAudit>();
+	this->addCommand < UserCommand_cpuiniparam>();
+	this->addCommand < UserCommand_readDA3>();
+	this->addCommand < UserCommand_da3ts>();
+	this->addCommand < UserCommand_download>();
+	this->addCommand < UserCommand_upload>();
 }

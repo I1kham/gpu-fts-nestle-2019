@@ -30,8 +30,9 @@ namespace rhea
 			void	F32 (f32 val, u32 numDecimal, char thousandSep, char decimalSep, char *out, u32 numCharInOut);
 			void	U32 (u32 val, char thousandSep, char *out, u32 numCharInOut);
 			void	U64 (u64 val, char thousandSep, char *out, u32 numCharInOut);
-			void	Hex (u32 hex, char *out, u32 sizeofout);
-						//filla out con la rappresentazione esadecimale di hex (senza lo 0x davanti)
+			void	Hex32 (u32 hex, char *out, u32 sizeofout);	//filla out con la rappresentazione esadecimale di hex (senza lo 0x davanti)
+			void	Hex16 (u16 hex, char *out, u32 sizeofout);	//filla out con la rappresentazione esadecimale di hex (senza lo 0x davanti)
+			void	Hex8 (u8 hex, char *out, u32 sizeofout);	//filla out con la rappresentazione esadecimale di hex (senza lo 0x davanti)
 			void	timeMicroSecToHHMMSSMsUs (u64 microSec, char *out, u32 numCharInOut);
 
             void    currency (u16 price, u8 numDecimal, char decimalPointCharacter, char *out_s, u16 sizeOfOut);

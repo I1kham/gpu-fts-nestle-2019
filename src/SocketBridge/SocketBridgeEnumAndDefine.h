@@ -44,7 +44,12 @@ namespace socketbridge
 		
 		eEventType_reqClientList ='j',						//106	0x6A
 		eEventType_btnProgPressed ='k',						//107	0x6B
-
+		eEventType_reqDataAudit = 'l',						//108	0x6C
+		eEventType_reqIniParam = 'm',						//109	0x6D
+		eEventType_reqVMCDataFile = 'n',					//110	0x6E
+		eEventType_reqVMCDataFileTimestamp = 'o',			//111	0x6F
+		eEventType_reqWriteLocalVMCDataFile = 'p',			//112	0x70
+		
         eEventType_unknown = 0xff
     };
 

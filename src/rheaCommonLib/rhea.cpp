@@ -13,6 +13,7 @@ namespace rhea
 struct sRheaGlobals
 {
     rhea::LogTargetFile     *fileLogger;
+	char					appName[64];
 	bool					bLittleEndiand;
 	rhea::DateTime			dateTimeStarted;
 	rhea::Random			rnd;
@@ -24,11 +25,10 @@ sRheaGlobals	rheaGlobals;
 bool rhea::init (const char *appNameIN, void *platformSpecificInitData)
 {
 	//elimino caratteri strani da appName perchè questo nome mi serve per creare una cartella dedicata e quindi non voglio che contenga caratteri non validi
-	char appName[64];
 	if (NULL == appNameIN)
-		sprintf_s(appName, sizeof(appName), "noname");
+		sprintf_s(rheaGlobals.appName, sizeof(rheaGlobals.appName), "noname");
 	else if (appNameIN[0] == 0x00)
-		sprintf_s(appName, sizeof(appName), "noname");
+		sprintf_s(rheaGlobals.appName, sizeof(rheaGlobals.appName), "noname");
 	else
 	{
 		u8 i = 0;
@@ -37,22 +37,22 @@ bool rhea::init (const char *appNameIN, void *platformSpecificInitData)
 		{
 			char c = appNameIN[i++];
 			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-')
-				appName[t++] = c;
+				rheaGlobals.appName[t++] = c;
 			else if (c == ' ')
-				appName[t++] = '_';
+				rheaGlobals.appName[t++] = '_';
 
-			if (t == sizeof(appName) - 1)
+			if (t == sizeof(rheaGlobals.appName) - 1)
 				break;
 		}
-		appName[t] = 0x00;
+		rheaGlobals.appName[t] = 0x00;
 
-		if (appName[0] == 0x00)
-			sprintf_s(appName, sizeof(appName), "noname");
+		if (rheaGlobals.appName[0] == 0x00)
+			sprintf_s(rheaGlobals.appName, sizeof(rheaGlobals.appName), "noname");
 	}
 
 
 	//init OS Stuff
-	if (!internal_OSInit (platformSpecificInitData, appName))
+	if (!internal_OSInit (platformSpecificInitData, rheaGlobals.appName))
 		return false;
 
 	//little/big endian ?
@@ -126,6 +126,7 @@ void rhea::deinit()
 
 //***************************************************
 bool rhea::isLittleEndian()										{ return rheaGlobals.bLittleEndiand; }
+const char* rhea::getAppName()									{ return rheaGlobals.appName; }
 const rhea::DateTime& rhea::getDateTimeAppStarted()				{ return rheaGlobals.dateTimeStarted; }
 const rhea::Date& rhea::getDateAppStarted()						{ return rheaGlobals.dateTimeStarted.date; }
 const rhea::Time24& rhea::getTimeAppStarted()					{ return rheaGlobals.dateTimeStarted.time; }
@@ -133,8 +134,3 @@ f32 rhea::random01()											{ return rheaGlobals.rnd.get01(); }
 u32 rhea::randomU32(u32 iMax)									{ return rheaGlobals.rnd.getU32(iMax); }
 
 
-//***************************************************
-bool rhea::deleteFile (const char *fullFileNameAndPath)
-{
-    return (::remove (fullFileNameAndPath) == 0);
-}

@@ -192,6 +192,12 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaStaticBuffer.cpp">
       <Filter>rhea\buffer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaFS.cpp">
+      <Filter>rhea</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSFS.cpp">
+      <Filter>OS\windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h">

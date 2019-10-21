@@ -4,6 +4,16 @@
 
 namespace rhea
 {
+	//Attiva questa define per dumpare su file tutto il traffico lungo in canale (viene creato un file diverso per ogni istanza di canale)
+	#undef DUMP_CProtocolChSocketTCP_TO_FILE
+
+	//se non siamo in DEBUG, disabilito il DUMP d'ufficio
+#ifndef _DEBUG
+	#ifdef DUMP_CProtocolChSocketTCP_TO_FILE
+		#undef DUMP_CProtocolChSocketTCP_TO_FILE
+	#endif
+#endif
+
 	/************************************************
 	 * ProtocolSocketTCP
 	 *	Implementa un canale di comunicazione basato su socket TCP
@@ -13,12 +23,8 @@ namespace rhea
 	class ProtocolChSocketTCP : public IProtocolChannell
 	{
 	public:
-							ProtocolChSocketTCP (Allocator *allocatorIN, u16 startingSizeOfReadBufferInBytes, u16 maxSizeOfReadBufferInBytes) :
-								IProtocolChannell(allocatorIN, startingSizeOfReadBufferInBytes, maxSizeOfReadBufferInBytes)
-							{
-								OSSocket_init(&sok);
-							}
-		virtual				~ProtocolChSocketTCP()														{ }
+							ProtocolChSocketTCP(Allocator *allocatorIN, u16 startingSizeOfReadBufferInBytes, u16 maxSizeOfReadBufferInBytes);
+		virtual				~ProtocolChSocketTCP();
 
 		void				bindSocket(OSSocket &sokIN)													{ sok = sokIN; }
 		OSSocket&			getSocket()																	{ return sok; }
@@ -32,6 +38,10 @@ namespace rhea
 	private:
 		OSSocket			sok;
 
+#ifdef DUMP_CProtocolChSocketTCP_TO_FILE
+		static u16			dump_nextDumpFileID;
+		FILE				*fDUMP;
+#endif
 
 	
 	};

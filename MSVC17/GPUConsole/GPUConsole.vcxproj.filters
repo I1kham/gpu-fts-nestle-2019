@@ -15,6 +15,12 @@
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommandFactory.cpp">
       <Filter>command</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_download.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_upload.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h">
@@ -38,6 +44,24 @@
       <Filter>command</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_selavail.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDataAudit.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuiniparam.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDA3.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_da3ts.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_download.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_upload.h">
       <Filter>command</Filter>
     </ClInclude>
   </ItemGroup>

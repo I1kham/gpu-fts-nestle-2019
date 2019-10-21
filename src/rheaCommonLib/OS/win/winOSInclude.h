@@ -86,7 +86,16 @@ typedef struct sOSSocket
 } OSSocket;
 
 
+/***********************************************
+ * socket
+ */
+typedef struct sOSFileFind
+{
+	HANDLE			h;
+	WIN32_FIND_DATA	findData;
 
+					sOSFileFind()					{h = INVALID_HANDLE_VALUE; }
+} OSFileFind;
 
 
 #endif //_winOSInclude_h_

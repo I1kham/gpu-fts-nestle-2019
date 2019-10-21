@@ -28,17 +28,12 @@ bool startCPUBridge()
 
 	
 
-	/*apro un canale di comunicazione con la CPU fisica
-	cpubridge::CPUChannelCom chToCPU;
-	bool b = chToCPU.open("COM5", &logger);
-	if (!b)
-		return false;
-	*/
+	//apro un canale di comunicazione con la CPU fisica
+	//cpubridge::CPUChannelCom chToCPU; if (!chToCPU.open("COM5", logger)) return false;
 
-	cpubridge::CPUChannelFakeCPU chToCPU;
-	bool b = chToCPU.open (logger);
-	if (!b)
-		return false;
+	//apro un canale con la CPU fake
+	cpubridge::CPUChannelFakeCPU chToCPU; if (!chToCPU.open(logger)) return false;
+	
 
 	//creo il thread di CPUBridge
 	rhea::HThread hCPUThread;

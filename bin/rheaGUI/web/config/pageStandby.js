@@ -1,1 +1,0 @@
-var standbyPageOptions={enabled:1,overlay_visible:1,overlay_bgcolor:"rgba(0,0,0,0.70)",overlay_textColor:"rgb(255,255,255)",gallery_timeToNextImageMSec:3000,gallery_images:["../upload/strandby1.jpg","../upload/strandby2.jpg","../upload/strandby3.jpg","../upload/strandby4.jpg","../upload/strandby5.jpg","../upload/strandby6.jpg"]};

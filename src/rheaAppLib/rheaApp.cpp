@@ -69,7 +69,7 @@ bool priv_prepareCommandBuffer (char commandChar, u8 requestID, const void *opti
 //*****************************************************************
 void priv_event_sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, const void *optionalData, u8 sizeoOfOptionalData)
 {
-	u8	sendBuffer[32]; //32 bytes dovrebbero essere più che suff per ogni tipo di richiesta che le app inviano a socketbridge
+	u8	sendBuffer[64]; //64 bytes dovrebbero essere più che suff per il 99% delle richieste che le app inviano a socketbridge
 	u16 sizeOSendfBuffer = sizeof(sendBuffer);
 
 	if (priv_prepareCommandBuffer(socketbridge::eOpcode_event_E, 0xff, optionalData, sizeoOfOptionalData, sendBuffer, &sizeOSendfBuffer))
@@ -78,7 +78,13 @@ void priv_event_sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::IProtocol
 		return;
 	}
 
-	DBGBREAK;
+	sizeOSendfBuffer += 4;
+
+	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	u8 *temp = (u8*)RHEAALLOC(allocator, sizeOSendfBuffer);
+	priv_prepareCommandBuffer(socketbridge::eOpcode_event_E, 0xff, optionalData, sizeoOfOptionalData, temp, &sizeOSendfBuffer);
+	proto->write(ch, temp, sizeOSendfBuffer, 1000);
+	RHEAFREE(allocator, temp);
 }
 
 //*****************************************************************
@@ -321,6 +327,29 @@ void app::CurrentSelectionRunningStatus::decodeAnswer (const sDecodedEventMsg &m
 }
 
 
+/****************************************************************
+ * CurrentCredit
+ */
+void app::CurrentCredit::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_creditUpdated;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
+
+void app::CurrentCredit::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_creditoInFormatoStringa, u32 sizeOfOut)
+{
+	assert(msg.eventType == socketbridge::eEventType_creditUpdated);
+	assert(msg.payloadLen >= 8);
+	
+	u32 n = msg.payloadLen;
+	if (n > sizeOfOut - 1)
+		n = sizeOfOut - 1;
+	memcpy(out_creditoInFormatoStringa, msg.payload, n);
+	out_creditoInFormatoStringa[n] = 0;
+
+}
+
 
 /****************************************************************
  * CurrentCPUMessage
@@ -476,7 +505,126 @@ void app::ButtonProgPressed::decodeAnswer(const sDecodedEventMsg &msg)
 	assert(msg.eventType == socketbridge::eEventType_btnProgPressed);
 }
 
+/*****************************************************************
+ * namespace CurrentCPUInitParam
+ */
+void app::CurrentCPUInitParam::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_reqIniParam;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
 
+void app::CurrentCPUInitParam::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sCPUParamIniziali *out)
+{
+	assert(msg.eventType == socketbridge::eEventType_reqIniParam);
+
+	rhea::NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	nbr.readBlob(out->CPU_version, sizeof(out->CPU_version));
+	nbr.readU8(out->protocol_version);
+	for (u8 i = 0; i < 48; i++)
+		nbr.readU16(out->prices[i]);
+}
+
+/*****************************************************************
+ * namespace ReadDataAudit
+ */
+void app::ReadDataAudit::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_reqDataAudit;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
+
+void app::ReadDataAudit::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eReadDataFileStatus *status, u16 *totKbSoFar, u16 *out_fileID)
+{
+	assert(msg.eventType == socketbridge::eEventType_reqDataAudit);
+	assert(msg.payloadLen >= 5);
+
+	rhea::NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	u16 u;
+	nbr.readU16(u); *out_fileID = u;
+	nbr.readU16(u); *totKbSoFar = u;
+
+	u8 b;
+	nbr.readU8(b); *status = (cpubridge::eReadDataFileStatus)b;
+}
+
+/*****************************************************************
+ * namespace ReadVMCDataFile
+ */
+void app::ReadVMCDataFile::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_reqVMCDataFile;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
+
+void app::ReadVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eReadDataFileStatus *status, u16 *totKbSoFar, u16 *out_fileID)
+{
+	assert(msg.eventType == socketbridge::eEventType_reqVMCDataFile);
+	assert(msg.payloadLen >= 5);
+
+	rhea::NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	u16 u;
+	nbr.readU16(u); *out_fileID = u;
+	nbr.readU16(u); *totKbSoFar = u;
+
+	u8 b;
+	nbr.readU8(b); *status = (cpubridge::eReadDataFileStatus)b;
+}
+
+/*****************************************************************
+ * namespace WriteLocalVMCDataFile
+ */
+void app::WriteLocalVMCDataFile::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, const char *localFilePathAndName)
+{
+	u8 optionalData[256];
+	optionalData[0] = (u8)socketbridge::eEventType_reqWriteLocalVMCDataFile;
+	u32 n = strlen(localFilePathAndName);
+	memcpy(&optionalData[1], localFilePathAndName, n+1);
+	priv_event_sendToSocketBridge(ch, proto, optionalData, n+2);
+}
+
+void app::WriteLocalVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eWriteDataFileStatus *status, u16 *totKbSoFar)
+{
+	assert(msg.eventType == socketbridge::eEventType_reqWriteLocalVMCDataFile);
+	assert(msg.payloadLen >= 3);
+
+	rhea::NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	u16 u;
+	nbr.readU16(u); *totKbSoFar = u;
+
+	u8 b;
+	nbr.readU8(b); *status = (cpubridge::eWriteDataFileStatus)b;
+}
+
+
+
+/*****************************************************************
+ * namespace CurrentVMCDataFileTimestamp
+ */
+void app::CurrentVMCDataFileTimestamp::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_reqVMCDataFileTimestamp;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
+
+void app::CurrentVMCDataFileTimestamp::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sCPUVMCDataFileTimeStamp *out)
+{
+	assert(msg.eventType == socketbridge::eEventType_reqVMCDataFileTimestamp);
+	assert(msg.payloadLen >= out->getLenInBytes());
+	out->readFromBuffer(msg.payload);
+}
 
 
 /*****************************************************************

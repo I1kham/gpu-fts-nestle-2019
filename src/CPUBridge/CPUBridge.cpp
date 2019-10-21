@@ -1,6 +1,7 @@
 #include "CPUBridge.h"
 #include "CPUBridgeServer.h"
 #include "../rheaCommonLib/rheaUtils.h"
+#include "../rheaCommonLib/rheaNetBufferView.h"
 
 struct sThreadInitParam
 {
@@ -18,6 +19,24 @@ i16     cpuCommThreadFn (void *userParam);
 //****************************************************************************
 bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread, HThreadMsgW *out_hServiceChannelW)
 {
+	//creo la struttura di cartelle necessarie al corretto funzionamento
+	char s[1024];
+	sprintf_s(s, sizeof(s), "%s/current", rhea::getPhysicalPathToAppFolder());					
+	rhea::fs::folderCreate(s);
+	sprintf_s(s, sizeof(s), "%s/current/lang", rhea::getPhysicalPathToAppFolder());				
+	rhea::fs::folderCreate(s);
+
+	sprintf_s(s, sizeof(s), "%s/last_installed", rhea::getPhysicalPathToAppFolder());			
+	rhea::fs::folderCreate(s);
+	sprintf_s(s, sizeof(s), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());		
+	rhea::fs::folderCreate(s);
+	
+	sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());		
+	rhea::fs::folderCreate(s);
+	rhea::fs::deleteAllFileInFolderRecursively(s, false);
+
+	
+	
 	sThreadInitParam    init;
 
 	//creo una coda FIFO da associare al thread in modo che sia possibile comunicare con il thread stesso
@@ -87,10 +106,10 @@ u8 cpubridge_buildMsg (cpubridge::eCPUCommand command, const u8 *optionalData, u
 		ct += sizeOfOptionaData;
 	}
 
+	out_buffer[2] = (ct+1);	//length
 	out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
 	ct++;
-
-	out_buffer[2] = ct;	//length
+	
 	return ct;
 }
 
@@ -135,6 +154,29 @@ u8 cpubridge::buildMsg_readDataAudit (u8 *out_buffer, u8 sizeOfOutBuffer)
     return cpubridge_buildMsg (cpubridge::eCPUCommand_readDataAudit, optionalData, 2, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[2] = { blockNum, 0 };
+	return cpubridge_buildMsg(cpubridge::eCPUCommand_readVMCDataFile, optionalData, 2, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[VMCDATAFILE_BLOCK_SIZE_IN_BYTE + 2];
+	optionalData[0] = blockNum;
+	optionalData[1] = totNumBlocks;
+	memcpy(&optionalData[2], buffer64yteLettiDalFile, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand_writeVMCDataFile, optionalData, sizeof(optionalData), out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return cpubridge_buildMsg(cpubridge::eCPUCommand_getVMCDataFileTimeStamp, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
@@ -170,7 +212,7 @@ void cpubridge::notify_CPU_STATE_CHANGED(const sSubscriber &to, u16 handlerID, r
 	logger->log("notify_CPU_STATE_CHANGED\n");
 
 	u8 state[4] = { (u8)VMCstate , VMCerrorCode, VMCerrorType, 0 };
-	rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, &state, 3);
+	rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, state, 3);
 }
 
 //***************************************************
@@ -188,7 +230,7 @@ void cpubridge::translateNotify_CPU_STATE_CHANGED(const rhea::thread::sMsg &msg,
 void cpubridge::notify_CPU_CREDIT_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const void *credit, u8 sizeOfCredit)
 {
 	logger->log("notify_CPU_CREDIT_CHANGED\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, credit, sizeOfCredit);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED, handlerID, credit, sizeOfCredit);
 }
 
 //***************************************************
@@ -305,27 +347,112 @@ void cpubridge::translateNotify_CPU_BTN_PROG_PRESSED(const rhea::thread::sMsg &m
 }
 
 //***************************************************
-void cpubridge::notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataAuditStatus errorCode, u16 totKbSoFar)
+void cpubridge::notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID)
 {
     logger->log("notify_READ_DATA_AUDIT_PROGRESS\n");
 
-    u32 data = (u32)errorCode;
-    data <<= 16;
-    data |= totKbSoFar;
-    rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS, handlerID, &data, 4);
+	u8 buffer[8];
+	rhea::NetStaticBufferViewW nbw;
+	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.writeU16(fileID);
+	nbw.writeU16(totKbSoFar);
+	nbw.writeU8((u8)status);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS, handlerID, buffer, nbw.length());
 }
 
 //***************************************************
-void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataAuditStatus *out_errorCode, u16 *out_totKbSoFar)
+void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID)
 {
     assert(msg.what == CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS);
 
-    u32 data;
-    memcpy (&data, msg.buffer, 4);
-    *out_errorCode = (eReadDataAuditStatus)((data & 0xFFFF0000) >> 16);
-    *out_totKbSoFar = (u16)(data & 0x0000FFFF);
+	rhea::NetStaticBufferViewR nbr;
+	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
+
+	u16 u;
+	nbr.readU16(u); *out_fileID = u;
+	nbr.readU16(u); *out_totKbSoFar = u;
+	
+	u8 b;
+	nbr.readU8(b); *out_status = (eReadDataFileStatus)b;
 }
 
+//***************************************************
+void cpubridge::notify_READ_VMCDATAFILE_PROGRESS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID)
+{
+	logger->log("notify_READ_VMCDATAFILE_PROGRESS\n");
+
+	u8 buffer[8];
+	rhea::NetStaticBufferViewW nbw;
+	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.writeU16(fileID);
+	nbw.writeU16(totKbSoFar);
+	nbw.writeU8((u8)status);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS, handlerID, buffer, nbw.length());
+}
+
+//***************************************************
+void cpubridge::translateNotify_READ_VMCDATAFILE_PROGRESS(const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS);
+
+	rhea::NetStaticBufferViewR nbr;
+	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
+
+	u16 u;
+	nbr.readU16(u); *out_fileID = u;
+	nbr.readU16(u); *out_totKbSoFar = u;
+
+	u8 b;
+	nbr.readU8(b); *out_status = (eReadDataFileStatus)b;
+}
+
+//***************************************************
+void cpubridge::notify_WRITE_VMCDATAFILE_PROGRESS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eWriteDataFileStatus status, u16 totKbSoFar)
+{
+	logger->log("notify_WRITE_VMCDATAFILE_PROGRESS\n");
+
+	u8 buffer[8];
+	rhea::NetStaticBufferViewW nbw;
+	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.writeU16(totKbSoFar);
+	nbw.writeU8((u8)status);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS, handlerID, buffer, nbw.length());
+}
+
+//***************************************************
+void cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS(const rhea::thread::sMsg &msg, eWriteDataFileStatus *out_status, u16 *out_totKbSoFar)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS);
+
+	rhea::NetStaticBufferViewR nbr;
+	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
+
+	u16 u;
+	nbr.readU16(u); *out_totKbSoFar = u;
+
+	u8 b;
+	nbr.readU8(b); *out_status = (eWriteDataFileStatus)b;
+}
+
+//***************************************************
+void cpubridge::notify_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUVMCDataFileTimeStamp &ts)
+{
+	logger->log("notify_CPU_VMCDATAFILE_TIMESTAMP\n");
+
+	const u8 BUFFER_SIZE = 16;
+	u8 buffer[BUFFER_SIZE];
+	assert(ts.getLenInBytes() <= BUFFER_SIZE);
+	ts.writeToBuffer(buffer);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP, handlerID, buffer, ts.getLenInBytes());
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_VMCDATAFILE_TIMESTAMP(const rhea::thread::sMsg &msg, sCPUVMCDataFileTimeStamp *out)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP);
+
+	out->readFromBuffer(msg.buffer);
+}
 
 
 
@@ -409,3 +536,42 @@ void cpubridge::ask_CPU_QUERY_STATE(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE, handlerID);
 }
+
+//***************************************************
+void cpubridge::ask_READ_DATA_AUDIT(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE, handlerID, srcFullFileNameAndPath, strlen(srcFullFileNameAndPath)+1);
+}
+
+//***************************************************
+void cpubridge::translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE);
+	u32 n = msg.bufferSize;
+	if (n > sizeOfOut)
+	{
+		DBGBREAK;
+		n = sizeOfOut;
+	}
+
+	memcpy(out_srcFullFileNameAndPath, msg.buffer, n);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP, handlerID);
+}
+

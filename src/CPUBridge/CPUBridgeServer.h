@@ -64,6 +64,7 @@ namespace cpubridge
 		};
 
 	private:
+
 		void					priv_handleMsgQueues(u64 timeNowMSec, u32 timeOutMSec);
 		void					priv_handleMsgFromServiceMsgQ();
 		void					priv_handleMsgFromSingleSubscriber(sSubscription *sub);
@@ -81,8 +82,14 @@ namespace cpubridge
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 
+		bool					priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out);
+		void					priv_loadVMCDataFileTimeStamp(sCPUVMCDataFileTimeStamp *out) const;
+		bool					priv_saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts) const;
+
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend);
-        eReadDataAuditStatus    priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
+        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
+		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID);
+		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
 
 	private:
 		rhea::Allocator         *localAllocator;

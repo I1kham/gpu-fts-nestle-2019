@@ -17,6 +17,9 @@ namespace rhea
 
 			const char*		verbose_fileTransferStatus (eFileTransferStatus status);
 			const char*		verbose_fileTransferFailReason(socketbridge::eFileTransferFailReason failReason);
+
+			const char*		verbose_readDataFileStatus(cpubridge::eReadDataFileStatus status);
+			const char*		verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus status);
 		} //namespace utils
 	} // namespace app
 

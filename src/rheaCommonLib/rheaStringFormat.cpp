@@ -157,7 +157,7 @@ void format::F32 (f32 val, u32 numDecimal, char thousandSep, char decimalSep, ch
 
 
 //*******************************************************************
-void format::Hex (u32 hex, char *out, u32 sizeofout)
+void format::Hex32 (u32 hex, char *out, u32 sizeofout)
 {
 	assert (sizeofout > 8);
 	u32 mask = 0x0000000F;
@@ -176,6 +176,49 @@ void format::Hex (u32 hex, char *out, u32 sizeofout)
 	}
 	out[8] = 0;
 }
+
+//*******************************************************************
+void format::Hex16(u16 hex, char *out, u32 sizeofout)
+{
+	assert(sizeofout > 4);
+	u16 mask = 0x000F;
+	u16 shift = 0;
+	u8 i = 4;
+	while (i--)
+	{
+		u16 n = (hex & mask) >> shift;
+		mask <<= 4;
+		shift += 4;
+
+		if (n < 10)
+			out[i] = '0' + (char)n;
+		else
+			out[i] = 'A' + (char)(n - 10);
+	}
+	out[4] = 0;
+}
+
+//*******************************************************************
+void format::Hex8(u8 hex, char *out, u32 sizeofout)
+{
+	assert(sizeofout > 2);
+	u8 mask = 0x0F;
+	u8 shift = 0;
+	u8 i = 2;
+	while (i--)
+	{
+		u32 n = (hex & mask) >> shift;
+		mask <<= 4;
+		shift += 4;
+
+		if (n < 10)
+			out[i] = '0' + (char)n;
+		else
+			out[i] = 'A' + (char)(n - 10);
+	}
+	out[2] = 0;
+}
+
 
 /*******************************************************************
  * formatta [price] riempendo [out] con una stringa che rappresenta il numero [price] le cui ultime [numDecimal]

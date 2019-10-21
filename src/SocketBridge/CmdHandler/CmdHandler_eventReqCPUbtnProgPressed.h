@@ -31,4 +31,4 @@ namespace socketbridge
     };
 } // namespace socketbridge
 
-#endif // _CmdHandler_eventReqCPUStatus_h_
+#endif // _CmdHandler_eventReqCPUBtnProgPressed_h_

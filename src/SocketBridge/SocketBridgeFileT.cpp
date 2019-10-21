@@ -135,7 +135,7 @@ void FileTransfer::update(u64 timeNowMSec)
 		switch (activeTransferList(i).status)
 		{
 		case eTransferStatus_finished_OK:
-			logger->log("Transfert [0x%08X] finished OK\n", activeTransferList(i).smuFileTransfUID);
+			logger->log("Transfer [0x%08X] finished OK\n", activeTransferList(i).smuFileTransfUID);
 			priv_freeResources(i);
 			activeTransferList.removeAndSwapWithLast(i);
 			--i;
@@ -143,7 +143,7 @@ void FileTransfer::update(u64 timeNowMSec)
 			break;
 
 		case eTransferStatus_finished_KO:
-			logger->log("Transfert [0x%08X] finished KO\n", activeTransferList(i).smuFileTransfUID);
+			logger->log("Transfer [0x%08X] finished KO\n", activeTransferList(i).smuFileTransfUID);
 			priv_freeResources(i);
 			activeTransferList.removeAndSwapWithLast(i);
 			--i;
@@ -154,7 +154,7 @@ void FileTransfer::update(u64 timeNowMSec)
 			if (timeNowMSec > activeTransferList(i).timeoutMSec)
 			{
 				activeTransferList[i].status = eTransferStatus_finished_KO;
-				logger->log("Transfert [0x%08X] time out\n", activeTransferList(i).smuFileTransfUID);
+				logger->log("Transfer [0x%08X] time out\n", activeTransferList(i).smuFileTransfUID);
 			}
 			break;
 		}
@@ -255,7 +255,9 @@ void FileTransfer::priv_sendChunkOfPackets (Server *server, const HSokServerClie
 	}
 }
 
-//***************************************************
+/***************************************************
+ * qualcuno vuole iniziare un upload verso di me
+ */
 void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
 {
 	//decodifica e validazione dei dati ricevuti
@@ -278,37 +280,47 @@ void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea:
 	//ok... qualcuno vuole iniziare un upload verso di me
 	//verifichiamo che il suo "usage" sia lecito
 	FILE *fDest = NULL;
-	while (1)
+	if (strcasecmp(data.usage, "test") == 0)
 	{
-		if (strcasecmp(data.usage, "test") == 0)
+		char s[256];
+		sprintf_s(s, sizeof(s), "%s/test.upload", rhea::getPhysicalPathToWritableFolder());
+		fDest = fopen(s, "wb");
+		if (NULL == fDest)
+			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+	}
+	else if (strncmp(data.usage, "saveas:", 7) == 0)
+	{
+		//Qualcuno vuol uppare un file locale e metterelo in una cartella locale (serve quando per esempio da backoffice
+		//quando l'utente vuole caricare una immagine. Dopo [saveas:] mi aspetto una valido pathname locale che è esattamente dove vado a scrivere il
+		//file che ricevo
+		fDest = fopen(&data.usage[7], "wb");
+		if (NULL == fDest)
 		{
-			char s[256];
-			sprintf_s(s, sizeof(s), "%s/test.upload", rhea::getPhysicalPathToWritableFolder());
-			fDest = fopen(s, "wb");
-			if (NULL == fDest)
-				answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
-			break;
+			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() error opening file\n", data.usage);
 		}
-		else if (strncmp(data.usage, "saveas:", 7) == 0)
+	}
+	else if (strncmp(data.usage, "store:", 6) == 0)
+	{
+		//Qualcuno vuol uppare un file generico. Lo metto nella mia cartella temp
+		char s[256];
+		sprintf_s(s, sizeof(s), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), &data.usage[6]);
+		fDest = fopen(s, "wb");
+		if (NULL == fDest)
 		{
-			//Qualcuno vuol uppare un file locale e metterelo in una cartella locale (serve quando per esempio da backoffice
-			//quando l'utente vuole caricare una immagine. Dopo [saveas:] mi aspetto una valido pathname locale che è esattamente dove vado a scrivere il
-			//file che ricevo
-			fDest = fopen(&data.usage[7], "wb");
-			if (NULL == fDest)
-				answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
-			break;
+			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() error opening file\n", data.usage);
 		}
-
-		break;
+	}
+	else 
+	{
+		answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s]\n", data.usage);
 	}
 
 
-	if (NULL == fDest)
-	{
-		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s] or error opening file\n", data.usage);
-	}
-	else
+
+	if (NULL != fDest)
 	{
 		//genero un UID per il trasferimento
 		//aggiungo il recordo alla lista dei trasferimenti attivi
@@ -464,7 +476,9 @@ void FileTransfer::priv_on0x03 (Server *server, const HSokServerClient &h, rhea:
 
 
 
-//***************************************************
+/***************************************************
+ * qualcuno ha richiesto il download di qualcosa
+ */
 void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea::NetStaticBufferViewR &nbr, u64 timeNowMSec)
 {
 	//decodifica e validazione dei dati ricevuti
@@ -485,78 +499,88 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 
 	//ok... qualcuno vuole downloadare qualcosa da me
 	//verifichiamo che il suo "what" sia lecito
-	FILE *fSRC = NULL;
-	u32 filesize = 0;
-	while (1)
+	char s[256];
+	s[0] = 0x00;
+	if (strcasecmp(data.what, "test") == 0)
 	{
-		if (strcasecmp(data.what, "test") == 0)
-		{
-			char s[256];
-			sprintf_s(s, sizeof(s), "%s/test.upload", rhea::getPhysicalPathToWritableFolder());
-			fSRC = fopen(s, "rb");
-			if (NULL == fSRC)
-				answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
-			else
-			{
-				const u64 UN_MEGA = 1024 * 1024;
-				const u64 fsize = rhea::utils::filesize(fSRC);
-				if (fsize==0 || fsize > 256 * UN_MEGA)
-				{
-					fclose(fSRC);
-					fSRC = NULL;
-					answ.reason_refused = (u8)eFileTransferFailReason_smuFileTooBigOrEmpty;
-				}
-				else
-					filesize = (u32)fsize;
-			}
-			break;
-		}
-
-		break;
+		sprintf_s(s, sizeof(s), "%s/test.upload", rhea::getPhysicalPathToWritableFolder());
 	}
-
-
-	if (NULL == fSRC)
+	else if (strncasecmp(data.what, "audit", 5) == 0)
 	{
-		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s] or error opening file\n", data.what);
+		//si vuole scaricare il file app/temp/dataAudit%d.txt
+		sprintf_s(s, sizeof(s), "%s/temp/dataAudit%s.txt", rhea::getPhysicalPathToAppFolder(), &data.what[5]);
+	}
+	else if (strncasecmp(data.what, "da3", 3) == 0)
+	{
+		//si vuole scaricare il file app/temp/vmcDataFile%d.da3
+		sprintf_s(s, sizeof(s), "%s/temp/vmcDataFile%s.da3", rhea::getPhysicalPathToAppFolder(), &data.what[3]);
 	}
 	else
 	{
-		//genero un UID per il trasferimento
-		//aggiungo il recordo alla lista dei trasferimenti attivi
-		sActiveUploadRequest info;
-		info.status = eTransferStatus_pending;
-		info.isAppUploading = 0;
-		info.f = fSRC;
-		info.smuFileTransfUID = priv_generateUID();
-		info.appFileTransfUID = data.appTransfUID;
-		info.timeoutMSec = timeNowMSec + 5000;
-		info.nextTimeOutputANotificationMSec = 0;
-		info.totalFileSizeInBytes = filesize;
-		info.packetSize = PACKET_SIZE;
-		info.numPacketInAChunk = NUM_PACKET_IN_A_CHUNK;
-
-		info.other.whenAPPisDownloading.sizeOfSendBuffer = info.packetSize + 32;
-		info.other.whenAPPisDownloading.sendBuffer = (u8*)RHEAALLOC(localAllocator, info.other.whenAPPisDownloading.sizeOfSendBuffer);
-
-		//calcolo il num totale di pacchetti che si dovranno inviare
-		info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal = info.totalFileSizeInBytes / info.packetSize;
-		if (info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal * info .packetSize < info.totalFileSizeInBytes)
-			info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal++;
-		
-
-		activeTransferList.append(info);
-
-		//preparo la risposta
-		answ.reason_refused = 0;
-		answ.smuTransfUID = info.smuFileTransfUID;
-		answ.packetSizeInBytes = info.packetSize;
-		answ.numPacketInAChunk = info.numPacketInAChunk;
-		answ.fileSize = info.totalFileSizeInBytes;
-
-		logger->log("FileTransfer => download of [%s] accepted, smuUID[0x%08X] appUID[0x%08X]\n", data.what, answ.smuTransfUID, answ.appTransfUID);
+		answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s]\n");
 	}
 
+
+	if (s[0] != 0x00)
+	{
+		FILE *fSRC = NULL;
+
+		fSRC = fopen(s, "rb");
+		if (NULL == fSRC)
+		{
+			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() error opening file [%s]\n", s);
+		}
+		else
+		{
+			const u64 UN_MEGA = 1024 * 1024;
+			const u64 fsize = rhea::fs::filesize(fSRC);
+			u32 filesize = 0;
+			if (fsize == 0 || fsize > 256 * UN_MEGA)
+			{
+				fclose(fSRC);
+				fSRC = NULL;
+				answ.reason_refused = (u8)eFileTransferFailReason_smuFileTooBigOrEmpty;
+			}
+			else
+				filesize = (u32)fsize;
+
+			//genero un UID per il trasferimento
+			//aggiungo il recordo alla lista dei trasferimenti attivi
+			sActiveUploadRequest info;
+			info.status = eTransferStatus_pending;
+			info.isAppUploading = 0;
+			info.f = fSRC;
+			info.smuFileTransfUID = priv_generateUID();
+			info.appFileTransfUID = data.appTransfUID;
+			info.timeoutMSec = timeNowMSec + 5000;
+			info.nextTimeOutputANotificationMSec = 0;
+			info.totalFileSizeInBytes = filesize;
+			info.packetSize = PACKET_SIZE;
+			info.numPacketInAChunk = NUM_PACKET_IN_A_CHUNK;
+
+			info.other.whenAPPisDownloading.sizeOfSendBuffer = info.packetSize + 32;
+			info.other.whenAPPisDownloading.sendBuffer = (u8*)RHEAALLOC(localAllocator, info.other.whenAPPisDownloading.sizeOfSendBuffer);
+
+			//calcolo il num totale di pacchetti che si dovranno inviare
+			info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal = info.totalFileSizeInBytes / info.packetSize;
+			if (info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal * info.packetSize < info.totalFileSizeInBytes)
+				info.other.whenAPPisDownloading.numOfPacketToBeSentInTotal++;
+
+
+			activeTransferList.append(info);
+
+			//preparo la risposta
+			answ.reason_refused = 0;
+			answ.smuTransfUID = info.smuFileTransfUID;
+			answ.packetSizeInBytes = info.packetSize;
+			answ.numPacketInAChunk = info.numPacketInAChunk;
+			answ.fileSize = info.totalFileSizeInBytes;
+
+			logger->log("FileTransfer => download of [%s] accepted, smuUID[0x%08X] appUID[0x%08X]\n", data.what, answ.smuTransfUID, answ.appTransfUID);
+		}
+	}
 
 	//spedisco
 	u8	serializedDataBuffer[128];

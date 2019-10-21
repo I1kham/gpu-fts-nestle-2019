@@ -21,6 +21,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommandFactory.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_download.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_upload.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\main.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\Terminal.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\videoBuffer.cpp" />
@@ -28,10 +30,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuiniparam.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpumsg.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpustatus.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_da3ts.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_download.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_list.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDA3.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDataAudit.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_selavail.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_upload.h" />
     <ClInclude Include="..\..\src\GPUConsole\enumAndDefine.h" />
     <ClInclude Include="..\..\src\GPUConsole\Terminal.h" />
     <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h" />

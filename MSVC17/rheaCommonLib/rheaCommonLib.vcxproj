@@ -27,6 +27,7 @@
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSThread.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSWaitableGrp.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOS.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSFS.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSSerialPort.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSSocket.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSThread.cpp" />
@@ -43,6 +44,7 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaBit.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaDate.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaDateTime.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaFS.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaJSONParser.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaLinearBuffer.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaLogger.cpp" />

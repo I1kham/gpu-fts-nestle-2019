@@ -13,6 +13,8 @@ void CmdHandler_eventReqCreditUpdated::passDownRequestToCPUBridge (cpubridge::sS
 //***********************************************************
 void CmdHandler_eventReqCreditUpdated::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
+	//NB: se modifichi questo, modifica anche rhea::app::CurrentCredit::decodeAnswer()
+
     //rispondo con:
 	//8 byte "stringa" con il prezzo già formattato con i decimali e la punteggiatura al posto giusto
 
