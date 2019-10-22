@@ -25,6 +25,8 @@ bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, r
 	rhea::fs::folderCreate(s);
 	sprintf_s(s, sizeof(s), "%s/current/lang", rhea::getPhysicalPathToAppFolder());				
 	rhea::fs::folderCreate(s);
+    sprintf_s(s, sizeof(s), "%s/da3", rhea::getPhysicalPathToAppFolder());
+    rhea::fs::folderCreate(s);
 
 	sprintf_s(s, sizeof(s), "%s/last_installed", rhea::getPhysicalPathToAppFolder());			
 	rhea::fs::folderCreate(s);
@@ -62,6 +64,32 @@ bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, r
 	return false;
 }
 
+//***************************************************
+void cpubridge::loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out)
+{
+    out->setInvalid();
+
+    char s[512];
+    sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
+    FILE *f = fopen(s, "rb");
+    if (NULL == f)
+        return;
+    out->readFromFile(f);
+    fclose(f);
+}
+
+//***************************************************
+bool cpubridge::saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts)
+{
+    char s[512];
+    sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
+    FILE *f = fopen(s, "wb");
+    if (NULL == f)
+        return false;
+    ts.writeToFile(f);
+    fclose(f);
+    return true;
+}
 
 //*****************************************************************
 i16 cpuCommThreadFn (void *userParam)

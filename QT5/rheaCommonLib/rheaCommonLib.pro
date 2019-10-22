@@ -100,7 +100,10 @@ SOURCES += \
     ../../src/rheaCommonLib/Protocol/ProtocolConsole.cpp \
     ../../src/rheaCommonLib/Protocol/ProtocolSocketServer.cpp \
     ../../src/rheaCommonLib/Protocol/ProtocolWebsocket.cpp \
-    ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.cpp
+    ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.cpp \
+    ../../src/rheaCommonLib/OS/win/winOSFS.cpp \
+    ../../src/rheaCommonLib/rheaFS.cpp \
+    ../../src/rheaCommonLib/OS/linux/linuxOSFS.cpp
 
 
 HEADERS += \

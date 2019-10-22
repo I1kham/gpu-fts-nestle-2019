@@ -4,6 +4,7 @@
 #include "header.h"
 #include <QDir>
 #include <QFile>
+#include <QApplication>
 
 
 
@@ -20,6 +21,16 @@ void utils::hideMouse()
     #endif
 }
 
+//****************************************************
+void utils::waitAndProcessEvent (u32 msecToWait)
+{
+    const u64 timeToExit = rhea::getTimeNowMSec() + (u64)msecToWait;
+    while (rhea::getTimeNowMSec() < timeToExit)
+    {
+        QApplication::processEvents();
+        rhea::thread::sleepMSec(20);
+    }
+}
 
 /*****************************************************
  * Font

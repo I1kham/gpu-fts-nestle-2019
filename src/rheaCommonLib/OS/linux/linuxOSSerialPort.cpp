@@ -202,7 +202,10 @@ void platform::serialPort_flushIO (OSSerialPort &sp)
 //*****************************************************
 u32 platform::serialPort_readBuffer (OSSerialPort &sp, void *out_byteRead, u32 numMaxByteToRead)
 {
-    return ::read (sp.fd, out_byteRead, numMaxByteToRead);
+    int ret = ::read (sp.fd, out_byteRead, numMaxByteToRead);
+    if (ret >= 0)
+        return (u32)ret;
+    return 0;
 }
 
 

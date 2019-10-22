@@ -9,7 +9,7 @@
 #include "CmdHandler/CmdHandler_eventReqStartSel.h"
 #include "CmdHandler/CmdHandler_eventReqStopSel.h"
 #include "CmdHandler/CmdHandler_eventReqClientList.h"
-#include "CmdHandler/CmdHandler_eventReqCPUBtnProgPressed.h"
+#include "CmdHandler/CmdHandler_eventReqCPUbtnProgPressed.h"
 #include "CmdHandler/CmdHandler_eventReqDataAudit.h"
 #include "CmdHandler/CmdHandler_eventReqCPUIniParam.h"
 #include "CmdHandler/CmdHandler_eventReqVMCDataFile.h"

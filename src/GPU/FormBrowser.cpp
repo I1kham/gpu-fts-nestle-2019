@@ -1,5 +1,6 @@
 #include "header.h"
 #include <QTimer>
+#include <QWebSettings>
 #include "FormBrowser.h"
 #include "ui_FormBrowser.h"
 #include "history.h"
@@ -7,11 +8,11 @@
 
 
 //********************************************************************************
-FormBrowser::FormBrowser(QWidget *parent, const sGlobal *globIN) :
+FormBrowser::FormBrowser(QWidget *parent, sGlobal *globIN) :
     QDialog(parent),
     ui(new Ui::FormBrowser)
 {
-    glob = globIN;;
+    glob = globIN;
     isInterruptActive=false;
 
     ui->setupUi(this);
@@ -39,7 +40,7 @@ FormBrowser::FormBrowser(QWidget *parent, const sGlobal *globIN) :
 
     //carico la GUI nel browser
     char s[1024];
-    sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->localFolder_GUI);
+    sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
     ui->webView->load(QUrl(s));
     ui->webView->setFocus();
     utils::hideMouse();
@@ -96,9 +97,16 @@ void FormBrowser::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         case CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED:
         case CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED:
         case CPUBRIDGE_NOTIFY_CPU_FULLSTATE:
-        case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
         case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
         */
+
+    case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
+        {
+            cpubridge::sCPUParamIniziali iniParam;
+            cpubridge::translateNotify_CPU_INI_PARAM (msg, &iniParam);
+            strcpy (glob->cpuVersion, iniParam.CPU_version);
+        }
+        break;
 
         case CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS:
             {

@@ -56,7 +56,7 @@ void FormProg::updateLabelVersion()
 {
     char str[32];
     sprintf (str, "%d.%d.%d", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
-    ui->labelVersion->setText("GPU version: " + QString(str) + "  -  CPU:" + CPU_version);
+    ui->labelVersion->setText("GPU version: " + QString(str) + "  -  CPU:" + glob->cpuVersion);
 }
 
 //************************************************************

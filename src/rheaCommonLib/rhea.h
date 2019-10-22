@@ -57,6 +57,7 @@ namespace rhea
 		void				extractFileNameWithoutExt(const char *filename, char *out, u32 sizeofOut);
 		void				extractFilePathWithSlash(const char *filename, char *out, u32 sizeofOut);
 		void				extractFilePathWithOutSlash(const char *filename, char *out, u32 sizeofOut);
+        bool                doesFileNameMatchJolly (const char *strFilename, const char *strJolly);
 
 		inline bool			fileExists(const char *fullFileNameAndPath)											{ return OS_FS_fileExists(fullFileNameAndPath); }
 		inline bool         fileDelete(const char *fullFileNameAndPath)											{ return OS_FS_fileDelete(fullFileNameAndPath); }

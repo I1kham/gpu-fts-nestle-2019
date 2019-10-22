@@ -1,6 +1,6 @@
 #ifndef FORMPROG_H
 #define FORMPROG_H
-
+#include "header.h"
 #include <QDialog>
 #include "../CPUBridge/CPUBridge.h"
 

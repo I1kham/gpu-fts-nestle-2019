@@ -2,6 +2,7 @@
 #include "formboot.h"
 #include "ui_formboot.h"
 #include "history.h"
+#include "../rheaAppLib/rheaAppUtils.h"
 
 #include <QWidget>
 #include <QDir>
@@ -32,24 +33,33 @@ void logToHistoryFile()
 
 
 //********************************************************
-FormBoot::FormBoot(QWidget *parent) :
+FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     QDialog(parent), ui(new Ui::FormBoot)
 {
+    this->glob = glob;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-    bBtnStartVMCEnabled = true;
+    ui->frameFileList->setVisible(false);
 
+    bBtnStartVMCEnabled = true;
+    ui->labWait->setVisible(false);
     ui->labCPUMessage->setText("");
     ui->labCPUMessage->setVisible(true);
+    ui->labCPUStatus->setText ("");
 
-    ui->labStatus->setText("");
-    ui->labStatus->setVisible(true);
+    ui->labVersion_GPU->setText("");
+    ui->labVersion_CPU->setText("");
+    ui->labVersion_protocol->setText("");
 
-    ui->labWarn->setText("");
-    ui->labWarn->setVisible(false);
+    priv_updateLabelInfo();
 
 
+
+
+
+
+/*
     //vmc settings
     {
         QStringList nameFilter("*.da3");
@@ -109,26 +119,263 @@ FormBoot::FormBoot(QWidget *parent) :
             ui->btnWriteLang->setEnabled(false);
 
     }
+*/
 
-    ui->tabWidget->setCurrentWidget(ui->tabVMCSettings);
-
+    isInterruptActive = false;
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timerInterrupt()));
+    timer->start (100);
 }
 
 //***********************************************************
 FormBoot::~FormBoot()
 {
-    timerBoot->stop();
+    timer->stop();
     delete ui;
 }
+
+//*******************************************
+void FormBoot::timerInterrupt()
+{
+    if (isInterruptActive)
+        return;
+
+    isInterruptActive=true;
+
+    //vediamo se CPUBridge ha qualcosa da dirmi
+    rhea::thread::sMsg msg;
+    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    {
+        priv_onCPUBridgeNotification(msg);
+        rhea::thread::deleteMsg(msg);
+    }
+
+    isInterruptActive=false;
+}
+
+
+//*******************************************
+void FormBoot::priv_updateLabelInfo()
+{
+    char s[512];
+    OSFileFind ff;
+
+    //GPU Version
+    sprintf_s (s, sizeof(s), "GPU: %d.%d.%d", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
+    ui->labVersion_GPU->setText(s);
+
+    //CPU version + protocol version sono aggiornate on the fly mano mano che si ricevono i messaggi da CPU
+
+    //Installed files: CPU
+    ui->labInstalled_CPU->setText("CPU:");
+    if (rhea::fs::findFirst (&ff, glob->last_installed_cpu, "*.mhx"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+            {
+                sprintf_s (s, sizeof(s), "CPU: %s", rhea::fs::findGetFileName(ff));
+                ui->labInstalled_CPU->setText(s);
+                break;
+            }
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+
+    //Installed files: DA3
+    ui->labInstalled_DA3->setText("VMC Settings:");
+    if (rhea::fs::findFirst (&ff, glob->last_installed_da3, "*.da3"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+            {
+                sprintf_s (s, sizeof(s), "VMC Settings: %s", rhea::fs::findGetFileName(ff));
+                ui->labInstalled_DA3->setText(s);
+                break;
+            }
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+
+    //Installed files: GUI
+    ui->labInstalled_GUI->setText("GUI:");
+    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, "*.gui"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+            {
+                sprintf_s (s, sizeof(s), "GUI: %s", rhea::fs::findGetFileName(ff));
+                ui->labInstalled_GUI->setText(s);
+                break;
+            }
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+}
+
+/**************************************************************************
+ * priv_onCPUBridgeNotification
+ *
+ * E' arrivato un messaggio da parte di CPUBrdige sulla msgQ dedicata (ottenuta durante la subscribe di this a CPUBridge).
+ */
+void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
+{
+    const u16 handlerID = (msg.paramU32 & 0x0000FFFF);
+    assert (handlerID == 0);
+
+    const u16 notifyID = (u16)msg.what;
+    switch (notifyID)
+    {
+        /*
+        case CPUBRIDGE_NOTIFY_DYING:
+        case CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED:
+        case CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED:
+        case CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED:
+        case CPUBRIDGE_NOTIFY_CPU_FULLSTATE:
+        */
+
+    case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
+        {
+            char s[256];
+            cpubridge::sCPUParamIniziali iniParam;
+            cpubridge::translateNotify_CPU_INI_PARAM (msg, &iniParam);
+
+            sprintf_s (s, sizeof(s), "CPU: %s", iniParam.CPU_version);
+            ui->labVersion_CPU->setText (s);
+
+            sprintf_s (s, sizeof(s), "Protocol ver: %d", iniParam.protocol_version);
+            ui->labVersion_protocol->setText(s);
+
+            strcpy (glob->cpuVersion, iniParam.CPU_version);
+        }
+        break;
+
+    case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
+        {
+            cpubridge::eVMCState vmcState;
+            u8 vmcErrorCode, vmcErrorType;
+            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
+            ui->labCPUStatus->setText (rhea::app::utils::verbose_eVMCState (vmcState));
+        }
+        break;
+
+    case CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE:
+        {
+            cpubridge::sCPULCDMessage cpuMsg;
+            cpubridge::translateNotify_CPU_NEW_LCD_MESSAGE(msg, &cpuMsg);
+
+            u32 i=0;
+            for (; i< cpuMsg.ct; i++)
+                msgCPU[i] = cpuMsg.buffer[i];
+            msgCPU[i] = 0;
+            ui->labCPUMessage->setText(QString(msgCPU, -1));
+        }
+        break;
+
+    case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
+        //l'utente ha premuto il btn PROG, devo andare in programmazione
+        break;
+
+    case CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS:
+        {
+            cpubridge::eReadDataFileStatus status;
+            u16 totKbSoFar = 0;
+            u16 fileID = 0;
+            cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
+
+            char s[512];
+            if (status == cpubridge::eReadDataFileStatus_inProgress)
+            {
+                sprintf_s (s, sizeof(s), "Downloading data audit... %d Kb", totKbSoFar);
+                priv_pleaseWaitSetText (s);
+            }
+            else if (status == cpubridge::eReadDataFileStatus_finishedOK)
+            {
+                sprintf_s (s, sizeof(s), "Downloading data audit... SUCCESS. Copying to USB folder");
+                priv_pleaseWaitSetText (s);
+
+                //se non esiste, creo il folder di destinazione
+                rhea::fs::folderCreate (glob->usbFolder_Audit);
+
+                char src[256];
+                sprintf_s (src, sizeof(src), "%s/dataAudit%d.txt", glob->tempFolder, fileID);
+
+                char dstFilename[64];
+                rhea::DateTime dt;
+                dt.setNow();
+                dt.formatAs_YYYYMMDDHHMMSS (s, sizeof(s), '_', '-', '-');
+                sprintf_s (dstFilename, sizeof(dstFilename), "dataAudit_%s.txt", s);
+
+                char dst[256];
+                sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_Audit, dstFilename);
+                if (!rhea::fs::fileCopy(src, dst))
+                {
+                    priv_pleaseWaitSetError("Error copying file to USB");
+                }
+                else
+                {
+                    sprintf_s (s, sizeof(s), "Finalizing copy...");
+                    utils::waitAndProcessEvent(2000);
+
+                    sprintf_s (s, sizeof(s), "SUCCESS. The file [%s] has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
+                    priv_pleaseWaitSetText (s);
+                }
+
+                priv_pleaseWaitHide();
+
+            }
+            else
+            {
+                sprintf_s (s, sizeof(s), "Downloading data audit... ERROR: %s", rhea::app::utils::verbose_readDataFileStatus(status));
+                priv_pleaseWaitSetError(s);
+                priv_pleaseWaitHide();
+            }
+
+        }
+        break;
+
+    case CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS:
+        {
+            cpubridge::eWriteDataFileStatus status;
+            u16 totKbSoFar = 0;
+            cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS (msg, &status, &totKbSoFar);
+
+            char s[512];
+            if (status == cpubridge::eWriteDataFileStatus_inProgress)
+            {
+                sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d Kb", totKbSoFar);
+                priv_pleaseWaitSetText (s);
+            }
+            else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
+            {
+                sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");
+                priv_pleaseWaitSetText (s);
+                priv_updateLabelInfo();
+                priv_pleaseWaitHide();
+
+            }
+            else
+            {
+                sprintf_s (s, sizeof(s), "Installing VMC Settings...... ERROR: %s", rhea::app::utils::verbose_writeDataFileStatus(status));
+                priv_pleaseWaitSetError(s);
+                priv_pleaseWaitHide();
+            }
+
+        }
+        break;
+
+    }
+}
+
+
 
 //***********************************************************
 void FormBoot::foreverDisableBtnStartVMC()
 {
     if (!bBtnStartVMCEnabled)
         return;
-
     bBtnStartVMCEnabled = false;
     ui->buttonStart->setStyleSheet("QPushButton {color: #FF0000; border:  none}");
     ui->buttonStart->setText ("Please restart\nVMC");
@@ -139,38 +386,154 @@ void FormBoot::on_buttonStart_clicked()
 {
     if (bBtnStartVMCEnabled == false)
         return;
+    priv_pleaseWaitShow("Starting VMC...");
     this->done(0);
 }
+
+
+//**********************************************************************
+void FormBoot::priv_pleaseWaitShow(const char *message)
+{
+    ui->frameInstallBtn->setVisible(false);
+    ui->frameDownloadBtn->setVisible(false);
+    ui->buttonStart->setVisible(false);
+    priv_pleaseWaitSetText(message);
+}
+
+//**********************************************************************
+void FormBoot::priv_pleaseWaitHide ()
+{
+    ui->frameInstallBtn->setVisible(true);
+    ui->frameDownloadBtn->setVisible(true);
+    ui->buttonStart->setVisible(true);
+}
+
+//**********************************************************************
+void FormBoot::priv_pleaseWaitSetText (const char *message)
+{
+    if (NULL == message)
+        ui->labWait->setVisible(false);
+    else if (message[0] == 0x00)
+        ui->labWait->setVisible(false);
+    else
+    {
+        ui->labWait->setStyleSheet("QLabel { background-color:#43b441; color:#fff }");
+        ui->labWait->setVisible(true);
+        ui->labWait->setText(message);
+    }
+    QApplication::processEvents();
+}
+
+//**********************************************************************
+void FormBoot::priv_pleaseWaitSetError (const char *message)
+{
+    if (NULL == message)
+        ui->labWait->setVisible(false);
+    else if (message[0] == 0x00)
+        ui->labWait->setVisible(false);
+    else
+    {
+        ui->labWait->setStyleSheet("QLabel { background-color:#f00; color:#fff }");
+        ui->labWait->setVisible(true);
+        ui->labWait->setText(message);
+    }
+    QApplication::processEvents();
+}
+
+
+
+
+
+
+//**********************************************************************
+void FormBoot::priv_fileListShow (eFileListMode mode)
+{
+    fileListShowMode = mode;
+    ui->buttonStart->setVisible(false);
+    ui->frameFileList->move(10, 35);
+    ui->frameFileList->setVisible(true);
+    ui->frameFileList->raise();
+    ui->lbFileList->clear();
+}
+
+//**********************************************************************
+void FormBoot::priv_fileListHide()
+{
+    ui->frameFileList->setVisible(false);
+    ui->buttonStart->setVisible(true);
+}
+
+//**********************************************************************
+void FormBoot::priv_fileListPopulate(const char *pathNoSlash, const char *jolly, bool bClearList)
+{
+    if (bClearList)
+        ui->lbFileList->clear();
+
+    OSFileFind ff;
+
+    if (rhea::fs::findFirst(&ff, pathNoSlash, jolly))
+    {
+        do
+        {
+            if (rhea::fs::findIsDirectory(ff))
+                continue;
+            ui->lbFileList->addItem(rhea::fs::findGetFileName(ff));
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+}
+
+void FormBoot::on_lbFileList_doubleClicked(const QModelIndex &index)                { on_btnOK_clicked(); }
+void FormBoot::on_btnCancel_clicked()                                               { priv_fileListHide(); }
+
+//**********************************************************************
+void FormBoot::on_btnOK_clicked()
+{
+    if (ui->lbFileList->selectedItems().count() == 0)
+        return;
+
+    QListWidgetItem *item = ui->lbFileList->selectedItems().at(0);
+    QString srcFilename = item->text();
+    char src[512];
+
+    switch (fileListShowMode)
+    {
+    default:
+        priv_fileListHide();
+        break;
+
+    case eFileListMode_DA3:
+        sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_VMCSettings, srcFilename.toStdString().c_str());
+        priv_fileListHide();
+        priv_uploadDA3(src);
+        break;
+
+    //eFileListMode_CPU
+    //eFileListMode_GUI
+    //eFileListMode_Manual
+    }
+
+
+}
+
+
 
 /**********************************************************************
  *
  * copia tutti i file *.lng dalla USB all'HD locale
  *
  */
-void FormBoot::on_btnWriteLang_clicked()
+void FormBoot::on_btnInstall_languages_clicked()
 {
-    priv_langCopy (utils::getFolder_Usb_Lang(), utils::getFolder_Lang(), 10000);
-}
-
-/**********************************************************************
- * copia la cartella lang su una chiavetta USB in rhea/lang
- *
- */
-void FormBoot::on_btnReadLang_clicked()
-{
-    priv_langCopy (utils::getFolder_Lang(), utils::getFolder_Usb_Lang(), 30000);
+    priv_langCopy (glob->usbFolder_Lang, glob->current_lang, 10000);
 }
 
 //**********************************************************************
-bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder, long timeToWaitDuringCopyFinalizingMSec) const
+bool FormBoot::priv_langCopy (const char *srcFolder, const char *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec)
 {
-    ui->btnReadLang->setEnabled(false);
-    ui->btnWriteLang->setEnabled(false);
-    ui->buttonStart->setVisible(false);
+    priv_pleaseWaitShow("copying files...");
 
-    ui->labStatus->setText("copying files...");
     QApplication::processEvents();
-
 
     //se la directory dst non esiste, la creo, se esiste, la svuoto
     {
@@ -181,633 +544,104 @@ bool FormBoot::priv_langCopy (const QString &srcFolder, const QString &dstFolder
     }
 
     //copia
-    QDir directory (srcFolder, "*.lng", QDir::Unsorted, QDir::Files);
-    QStringList list = directory.entryList();
-    bool bFailed = false;
-    for (int i=0; i<list.count(); i++)
+    bool ret = rhea::fs::folderCopy (srcFolder, dstFolder);
+
+    if (ret)
     {
-        QString src = srcFolder +"/" +list.at(i);
-        QString dst = dstFolder +"/" +list.at(i);
-
-        ui->labStatus->setText(list.at(i));
-        try
-        {
-            if (QFile::exists (dst))
-                QFile::remove(dst);
-            if (!QFile::copy(src, dst))
-            {
-                ui->labStatus->setText(QString("Error copying ") +src);
-                bFailed = true;
-                i = list.count()+1;
-            }
-        }
-        catch (const std::exception& e)
-        {
-            bFailed = true;
-            ui->labStatus->setText(QString("Error: ") +e.what());
-            i = list.count()+1;
-        }
+        priv_pleaseWaitSetText("Finalizing copy...");
+        utils::waitAndProcessEvent (timeToWaitDuringCopyFinalizingMSec);
+        priv_pleaseWaitSetText("SUCCESS");
     }
+    else
+        priv_pleaseWaitSetError("Error during file copy!");
 
-    if (!bFailed)
-    {
-        //aspetto un tot di secondi per dare tempo alla chiave USB di poter essere unmounted
-        ui->labStatus->setText("Finalizing copy");
-        long timeToExitMSec = getTimeNowMSec() + timeToWaitDuringCopyFinalizingMSec;
-        while (getTimeNowMSec() < timeToExitMSec)
-        {
-            QApplication::processEvents();
-        }
+    priv_pleaseWaitHide();
+    return (ret);
+}
 
-        //fine
-        ui->labStatus->setText("Done!");
-    }
 
-    ui->buttonStart->setVisible(true);
-    ui->btnReadLang->setEnabled(true);
-    ui->btnWriteLang->setEnabled(true);
-    return (!bFailed);
+
+
+
+//**********************************************************************
+void FormBoot::on_btnDownload_audit_clicked()
+{
+    priv_pleaseWaitShow("Downloading data audit...");
+    cpubridge::ask_READ_DATA_AUDIT (glob->subscriber, 0);
+}
+
+
+
+//**********************************************************************
+void FormBoot::on_btnInstall_manual_clicked()
+{
+    priv_pleaseWaitShow("");
+    priv_pleaseWaitSetError("Feature not implemented");
+    priv_pleaseWaitHide();
+}
+
+
+
+//**********************************************************************
+void FormBoot::on_btnInstall_DA3_clicked()
+{
+    priv_fileListShow(eFileListMode_DA3);
+    priv_fileListPopulate(glob->usbFolder_VMCSettings, "*.da3", true);
+}
+
+void FormBoot::priv_uploadDA3 (const char *fullFilePathAndName)
+{
+    priv_pleaseWaitShow("Installing VMC Settings...");
+    cpubridge::ask_WRITE_VMCDATAFILE (glob->subscriber, 0, fullFilePathAndName);
 }
 
 //**********************************************************************
-void FormBoot::on_buttonWriteManual_clicked()
+void FormBoot::on_btnDownload_DA3_clicked()
 {
-    bool res;
-    try
+    priv_pleaseWaitShow("Downloading VMC Settings...");
+
+    char src[512];
+    sprintf_s (src, sizeof(src), "%s/vmcDataFile.da3", glob->current_da3);
+
+
+    //recupero il nome del file del last_installed da3
+    char lastInstalledDa3FileName[256];
+    lastInstalledDa3FileName[0] = 0x00;
+    OSFileFind ff;
+    if (rhea::fs::findFirst (&ff, glob->last_installed_da3, "*.da3"))
     {
-        if (ui->listManualFiles->selectedItems().count()==0) return;
-        QListWidgetItem *item = ui->listManualFiles->selectedItems().at(0);
-        QString sourceFilePath = utils::getFolder_Usb_Manual() + "/" +  item->text();
-
-        destFilePath = utils::getFolder_Manual() + "/" +  item->text();
-
-
-        QDir root_dir(utils::getFolder_Manual());
-        /*
-        if (!root_dir.exists())
-        {
-            root_dir.mkpath(".");
-        }
-        */
-        if (root_dir.exists())
-        {
-            root_dir.removeRecursively();
-        }
-        root_dir.mkpath(".");
-
-
-
-        ui->labStatus->setText("erasing current Manual..."); myDelay(20);
-        QDir dest_dir(destFilePath);
-        if (dest_dir.exists())
-        {
-            dest_dir.removeRecursively();
-        }
-
-
-        ui->labStatus->setText("copying Manual..."); myDelay(20);
-        res = utils::copyRecursively(sourceFilePath, destFilePath);
-
-        if (res==true) ui->labStatus->setText("Manual copy OK");
-        else ui->labStatus->setText("Manual copy failed");
-    }
-    catch (...)
-    {
-        ui->labStatus->setText("Manual copy failed -1");
-    }
-}
-
-
-
-//*******************************************
-void FormBoot::timerInterrupt()
-{
-    int i;
-    switch(ConfigFileOperation_status)
-    {
-        case ConfigFileOperation_status_Write_inProgress:
-            this->ui->labStatus->setText ("Writing: " +QString::number(TxBufCPU[3]) +" / " +QString::number(TxBufCPU[4]));
-            break;
-
-        case ConfigFileOperation_status_Write_endKO:
-            timerBoot->stop();
-            ui->buttonStart->setVisible(true);
-            ui->labStatus->setText("Configuration file write failed " + QString::number(ConfigFileOperation_errorCode));
-            ConfigFileOperation_status = ConfigFileOperation_status_idle;
-
-            ui->buttonWriteSettings->setEnabled(true);
-            ui->buttonReadSettings->setEnabled(true);
-        break;
-
-        case ConfigFileOperation_status_Write_endOK:
-            timerBoot->stop();
-            foreverDisableBtnStartVMC();
-            ui->buttonStart->setVisible(true);
-            ui->labStatus->setText("Configuration file write OK");
-            ConfigFileOperation_status = ConfigFileOperation_status_idle;
-            logToHistoryFile();
-
-            ui->buttonWriteSettings->setEnabled(true);
-            ui->buttonReadSettings->setEnabled(true);
-            break;
-
-
-
-
-
-        case ConfigFileOperation_status_Read_inProgress:
-            this->ui->labStatus->setText ("Reading: " +QString::number(TxBufCPU[3]) +" / " +QString::number(ConfigFileSize/ConfigFile_blockDim));
-            break;
-
-        case ConfigFileOperation_status_Read_endKO:
-            timerBoot->stop();
-            ui->labStatus->setText("Configuration file read failed " + QString::number(ConfigFileOperation_errorCode));
-            ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ui->buttonStart->setVisible(true);
-            ui->buttonWriteSettings->setEnabled(true);
-            ui->buttonReadSettings->setEnabled(true);
-            break;
-
-        case ConfigFileOperation_status_Read_endOK:
-            timerBoot->stop();
-            ReadConfigFile_saveToFile();
-            ui->labStatus->setText("Configuration file read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
-            ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ui->buttonStart->setVisible(true);
-            ui->buttonWriteSettings->setEnabled(true);
-            ui->buttonReadSettings->setEnabled(true);
-            break;
-
-
-
-
-        case ConfigFileOperation_status_CPU_inProgress:
-            timerBoot->stop();
-            ui->labStatus->setText("init CPU update...");
-            RestartCPU();
-
-            if (Serial_WaitCharTimeout('k', 5000)!=1) {ConfigFileOperation_errorCode=1; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start(); break;}
-            Serial_PutChar('k');
-            Serial_PutChar('M');
-
-            if (Serial_WaitCharTimeout('M', 3000)!=1) {ConfigFileOperation_errorCode=2; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start(); break;}
-
-            ui->labStatus->setText("Erasing Flash...");
-            if (Serial_WaitCharTimeout('h', 15000)!=1) {ConfigFileOperation_errorCode=3; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start(); break;}
-            ui->labStatus->setText("Writing Flash...");
-
-            SerialIndex = 0;
-            do
-            {
-                if (myFileArray[myFileArray_index] != 'S')
-                {
-                    ConfigFileOperation_errorCode=5; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start();
-                    break;
-                }
-                RecType = myFileArray[myFileArray_index+1];
-
-                NumByte = CPU_ConvertToNum(myFileArray_index+2);
-                myFileArray_index+=4;
-                if ( (RecType=='0')||(RecType=='3')||(RecType=='8')||(RecType=='9') || (NumByte==4) )
-                {
-                    myFileArray_index+=(NumByte+1)*2;
-                    continue;
-                }
-
-                if (WriteByteMasterNext(NumByte, 0) != 0)
-                {
-                    ConfigFileOperation_errorCode=6; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start();
-                    break;
-                }
-
-                for (i = 0; i<(NumByte-1); i++)
-                {
-                    dato8 = CPU_ConvertToNum(myFileArray_index);
-                    myFileArray_index+=2;
-                    if (WriteByteMasterNext(dato8, 0) != 0)
-                    {
-                        ConfigFileOperation_errorCode=7; ConfigFileOperation_status=ConfigFileOperation_status_CPU_endKO; timerBoot->start();
-                        break;
-                    }
-                }
-                myFileArray_index+=4;
-
-
-            } while (RecType < '7');
-
-            WriteByteMasterNext(4, 0);
-            WriteByteMasterNext(0, 1);
-            dato8 = 0;
-            for (i = 0; i < SerialIndex; i++)
-                dato8 += TxBufCPU[i];
-            if (Serial_WaitCharTimeout(dato8, 90)!=1)
-            {
-                ConfigFileOperation_errorCode = 8;
-                ConfigFileOperation_status = ConfigFileOperation_status_CPU_endKO;
-                timerBoot->start();
-                break;
-            }
-
-            RestartCPU();
-            ConfigFileOperation_status=ConfigFileOperation_status_CPU_endOK;
-            timerBoot->start();
-            break;
-
-        case ConfigFileOperation_status_CPU_endKO:
-            timerBoot->stop();
-            ui->buttonStart->setVisible(true);
-            ui->buttonWriteCPU->setEnabled(true);
-            ui->labStatus->setText("CPU update failed - " + QString::number(ConfigFileOperation_errorCode));
-            ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ComCommandRequest=ComCommandRequest_CheckStatus_req;
-            ComStatus=ComStatus_Idle;
-            break;
-
-        case ConfigFileOperation_status_CPU_endOK:
-            timerBoot->stop();
-            foreverDisableBtnStartVMC();
-            ui->buttonStart->setVisible(true);
-            ui->buttonWriteCPU->setEnabled(true);
-            ui->labStatus->setText("CPU update OK");
-            logToHistoryFile();
-            ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ComCommandRequest=ComCommandRequest_CheckStatus_req;
-            ComStatus=ComStatus_Idle;
-            break;
-
-
-
-
-
-    case ConfigFileOperation_status_Audit_inProgress:
-            {
-                float KbReadSoFar = (float)myFileArray_index / 1024.0f;
-                char s[128];
-                sprintf (s, "Reading: %.1f Kb", KbReadSoFar);
-                this->ui->labStatus->setText (s);
-            }
-            break;
-
-        case ConfigFileOperation_status_Audit_endKO:
-            timerBoot->stop();
-            ui->labStatus->setText("Audit read failed " + QString::number(ConfigFileOperation_errorCode));
-            ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ui->buttonStart->setVisible(true);
-            ui->buttonReadAudit->setEnabled(true);
-            break;
-
-        case ConfigFileOperation_status_Audit_endOK:
-            timerBoot->stop();
-            Audit_saveToFile();
-            ui->labStatus->setText("Audit read OK  [" +  destFilePath.section("/",-1,-1) + "]" );
-            ConfigFileOperation_status=ConfigFileOperation_status_idle;
-            ui->buttonStart->setVisible(true);
-            ui->buttonReadAudit->setEnabled(true);
-            break;
-
-    }
-}
-
-
-
-
-unsigned char RecType, NumByte, dato8;
-int SerialIndex;
-#define max_check_cont 400
-
-
-
-
-
-unsigned char Serial_WaitCharTimeout(unsigned char datoWait, unsigned long timeoutLoopVal)
-{
-    unsigned char RxData;
-    do
-    {
-        if (serialCPU->bytesAvailable()!=0)
-        {
-            serialCPU->getChar((char*)&RxData);
-            if (RxData==datoWait) return 1;
-        }
-
-        RxData=5;
-        myDelay(RxData);
-        timeoutLoopVal-=RxData;
-    } while(timeoutLoopVal>0);
-    return 0;
-}
-
-void Serial_PutChar(unsigned char datoSend)
-{
-    QByteArray Qdata(1, 0);
-    Qdata[0] = datoSend;
-    serialCPU->write(Qdata, 1);
-    QCoreApplication::processEvents();
-    serialCPU->flush();
-    QCoreApplication::processEvents();
-}
-
-void RestartCPU(void)
-{
-    serialCPU->readAll();
-    Serial_PutChar('#');
-    Serial_PutChar('U');
-    Serial_PutChar(4);
-    Serial_PutChar('#'+'U'+4);
-}
-
-unsigned char CPU_ConvertToNum(int index_p)
-{
-    unsigned char AA,BB;
-    AA=myFileArray[index_p];
-    BB=myFileArray[index_p+1];
-
-    if (AA >= '0' && AA <= '9') AA = (unsigned char)(AA - (unsigned char)'0');
-    else AA = (unsigned char)(AA - 55);
-    if (BB >= '0' && BB <= '9') BB = (unsigned char)(BB - (unsigned char)'0');
-    else BB = (unsigned char)(BB - 55);
-    return (unsigned char)(BB + AA * 16);
-}
-
-unsigned char WriteByteMasterNext(unsigned char dato_8, unsigned char isLastFlag)
-{
-    unsigned char checksum_counter = 0;
-    int i;
-    if (isLastFlag == 0)
-    {
-        TxBufCPU[SerialIndex++] = dato_8;
-        if (SerialIndex != max_check_cont) return 0;
-    }
-
-
-    for (i=0; i<SerialIndex;i++){ QarrayTX[i]=TxBufCPU[i];}
-    serialCPU->write(QarrayTX, SerialIndex);
-    serialCPU->flush();
-
-    for (int i = 0; i < SerialIndex; i++) checksum_counter += TxBufCPU[i];
-    myDelay(4);
-    if (isLastFlag == 1) return 0;
-
-    if (Serial_WaitCharTimeout(checksum_counter, 90)!=1) { return 1; }
-    SerialIndex = 0;
-    return 0;
-}
-
-
-
-
-void myDelay(long msec_p)
-{
-    QTime dieTime= QTime::currentTime().addMSecs(msec_p);
-    while (QTime::currentTime() < dieTime)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-}
-
-
-//***************************************************
-void FormBoot::on_buttonWriteSettings_clicked()
-{
-    int i;
-    if (ui->listVMCSettingsFiles->selectedItems().count()==0)
-        return;
-
-    QListWidgetItem *item = ui->listVMCSettingsFiles->selectedItems().at(0);
-    QString sourceFilePath = utils::getFolder_Usb_VMCSettings() + "/" +  item->text();
-    destFilePath = utils::getFolder_VMCSettings() + "/" +  item->text();
-
-    //prepara i dati per il log della hisotry
-    history_type = HISTORY_TYPE_DA3;
-    history_lastFileName = item->text();
-
-
-
-    QDir dest_dir(utils::getFolder_VMCSettings());
-    if (dest_dir.exists())
-    {
-        dest_dir.removeRecursively();
-    }
-    dest_dir.mkpath(".");
-
-    QFile::copy(sourceFilePath, destFilePath);
-
-    QFile myFile(destFilePath);
-    if (!myFile.open(QIODevice::ReadOnly))
-    {
-        ui->labStatus->setText("Configuration file write failed - 1a");
-        return;
-    }
-
-    ui->buttonStart->setVisible(false);
-
-    for (i=0;i<ConfigFileSize;i++)
-        myFileArray[i]=0;
-    myFileArray = myFile.readAll();
-    myFile.close();
-
-    myFileArray_index=0;
-    ConfigFileOperation_status = ConfigFileOperation_status_Write_inProgress;
-    ComCommandRequest = ComCommandRequest_WriteConfigFile_req;
-
-    ui->buttonWriteSettings->setEnabled(false);
-    ui->buttonReadSettings->setEnabled(false);
-    ui->buttonStart->setVisible(false);
-    ui->labStatus->setText("writing config file...");
-    timerBoot->start(500);
-}
-
-
-//**********************************************************
-void FormBoot::on_buttonReadSettings_clicked()
-{
-    int i;
-    for (i=0;i<ConfigFileSize;i++)
-        myFileArray[i]=0;
-
-    myFileArray_index=0;
-    ConfigFileOperation_status=ConfigFileOperation_status_Read_inProgress;
-    ComCommandRequest=ComCommandRequest_ReadConfigFile_req;
-
-
-    ui->buttonWriteSettings->setEnabled(false);
-    ui->buttonReadSettings->setEnabled(false);
-    ui->buttonStart->setVisible(false);
-    ui->labStatus->setText("reading config file...");
-    timerBoot->start(500);
-}
-
-//**********************************************************
-int ReadConfigFile_saveToFile()
-{
-    /* dato che non abbiamo modo di memorizzare nella history il nome del file della GPU (perchè è il bootloader che si
-     * occupa di aggiornare il file GPU), scrivo nell'history la versione della GPU in modo da avere comunque
-     * una informazione utile
-     */
-    char GPUFilenameForHistory[64];
-    sprintf (GPUFilenameForHistory, "GPU v %d.%d.%d", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
-    History::addEntry (HISTORY_TYPE_GPU, GPUFilenameForHistory);
-
-
-    int res=0;
-    int numFile;
-
-
-    numFile=0;
-    do
-    {
-        destFilePath = utils::getFolder_Usb_VMCSettings() + "/Read_" +  QString::number(numFile) + ".da3";
-        numFile++;
-    } while(QFile(destFilePath).exists());
-
-
-    QFile myFile(destFilePath);
-    myFile.open(QIODevice::WriteOnly);
-    myFile.write(myFileArray, ConfigFileSize);
-
-    History::appendAllDataToQFile(&myFile);
-
-    myFile.flush();
-    fsync(myFile.handle());
-    myFile.close();
-    sync();
-
-
-    return res;
-}
-
-
-
-
-
-//******************************************************
-void FormBoot::on_buttonWriteCPU_clicked()
-{
-    if (ui->listCPUFiles->selectedItems().count()==0)
-        return;
-    QListWidgetItem *item = ui->listCPUFiles->selectedItems().at(0);
-    QString sourceFilePath = utils::getFolder_Usb_CPU() + "/" +  item->text();
-    destFilePath = utils::getFolder_CPU() + "/" +  item->text();
-
-
-    //prepara i dati per il log della hisotry
-    history_type = HISTORY_TYPE_CPU;
-    history_lastFileName = item->text();
-
-
-
-    QDir dest_dir(utils::getFolder_CPU());
-    if (dest_dir.exists())
-    {
-        dest_dir.removeRecursively();
-    }
-
-    dest_dir.mkpath(".");
-
-    QFile::copy(sourceFilePath, destFilePath);
-
-    QFile myFile(destFilePath);
-    if (!myFile.open(QIODevice::ReadOnly))
-    {
-        ui->labStatus->setText("CPU file write failed - 1a");
-        return ;
-    }
-    myFileArray.resize(myFile.size());
-    myFileArray = myFile.readAll();
-    myFile.close();
-
-    myFileArray_index=0;
-    ConfigFileOperation_status = ConfigFileOperation_status_CPU_inProgress;
-
-    ComStatus = ComStatus_Disabled;
-
-    ui->buttonStart->setVisible(false);
-    ui->buttonWriteCPU->setEnabled(false);
-    ui->labStatus->setText("init CPU update...");
-    timerBoot->start(300);
-}
-
-//******************************************************************
-void FormBoot::on_buttonWriteGUI_clicked()
-{
-    bool res;
-    try
-    {
-        if (ui->listGUIFiles->selectedItems().count()==0)
-            return;
-        QListWidgetItem *item = ui->listGUIFiles->selectedItems().at(0);
-        QString sourceFilePath = utils::getFolder_Usb_GUI() + "/" +  item->text();
-        destFilePath = utils::getFolder_GUI();
-
-
-        ui->labStatus->setText("erasing current GUI..."); myDelay(20);
-        QDir dest_dir(utils::getFolder_GUI());
-        if (dest_dir.exists())
-        {
-            dest_dir.removeRecursively();
-        }
-
-
-        ui->buttonStart->setVisible(false);
-        ui->buttonWriteGUI->setEnabled(false);
-        ui->buttonReadGUI->setEnabled(false);
-        ui->labStatus->setText("writing GUI..."); myDelay(20);
-        res = copyRecursively(sourceFilePath, destFilePath);
-
-        sync();
-
-        if (res==false)
-            ui->labStatus->setText("GUI write failed");
-        else
-        {
-            History::addEntry (HISTORY_TYPE_GUI, item->text().toStdString().c_str());
-
-            ui->labStatus->setText("GUI write OK");
-        }
-
-    }
-    catch (...)
-    {
-        ui->labStatus->setText("GUI write failed -1");
-    }
-
-    ui->buttonWriteGUI->setEnabled(true);
-    ui->buttonReadGUI->setEnabled(true);
-    ui->buttonStart->setVisible(true);
-}
-
-
-void FormBoot::on_buttonReadGUI_clicked()
-{
-    bool res;
-    try
-    {
-        QString sourceFilePath = utils::getFolder_GUI();
-
-        int numFile=0;
         do
         {
-            destFilePath = utils::getFolder_Usb_GUI() + "/GUI_Read_" +  QString::number(numFile);
-            numFile++;
-        } while(QDir(destFilePath).exists());
-
-        ui->buttonStart->setVisible(false);
-        ui->buttonWriteGUI->setEnabled(false);
-        ui->buttonReadGUI->setEnabled(false);
-        ui->labStatus->setText("reading GUI..."); myDelay(20);
-        res = copyRecursively(sourceFilePath, destFilePath);
-
-        sync();
-
-        if (res==true) ui->labStatus->setText("GUI read OK");
-        else ui->labStatus->setText("GUI read failed");
+            if (!rhea::fs::findIsDirectory(ff))
+            {
+                strcpy (lastInstalledDa3FileName, rhea::fs::findGetFileName(ff));
+                break;
+            }
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
     }
-    catch (...)
+
+    if (lastInstalledDa3FileName[0] == 0x00)
+        sprintf_s (lastInstalledDa3FileName, sizeof(lastInstalledDa3FileName), "vmcDataFile.da3");
+
+    char dst[512];
+    rhea::fs::folderCreate(glob->usbFolder_VMCSettings);
+    sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_VMCSettings, lastInstalledDa3FileName);
+
+    if (rhea::fs::fileExists(dst))
+        rhea::fs::fileDelete(dst);
+
+    if (!rhea::fs::fileCopy(src, dst))
     {
-        ui->labStatus->setText("GUI read failed -1");
+        priv_pleaseWaitSetError("Error copying file to USB");
+    }
+    else
+    {
+        sprintf_s (dst, sizeof(dst), "SUCCESS. The file [%s] has been copied to your USB pendrive on the folder rhea/rheaData", lastInstalledDa3FileName);
+        priv_pleaseWaitSetText (dst);
     }
 
-    ui->buttonWriteGUI->setEnabled(true);
-    ui->buttonReadGUI->setEnabled(true);
-    ui->buttonStart->setVisible(true);
+    priv_pleaseWaitHide();
 }
 
 
@@ -815,58 +649,8 @@ void FormBoot::on_buttonReadGUI_clicked()
 
 
 
-//*****************************************************
-void FormBoot::on_buttonReadAudit_clicked()
-{
-    int i;
-    for (i=0;i<AUDIT_MAX_FILESIZE;i++)
-        myAuditArray[i]=0;
-    myFileArray_index=0;
-    ConfigFileOperation_status=ConfigFileOperation_status_Audit_inProgress;
-    ComCommandRequest = ComCommandRequest_ReadAudit_req;
-
-    ui->buttonReadAudit->setEnabled(false);
-    ui->buttonStart->setVisible(false);
-    ui->labStatus->setText("reading audit (machine=>USB) ...");
-    timerBoot->start(500);
-}
-
-//*****************************************************
-int Audit_saveToFile(void)
-{
-    int res=0;
-    int numFile;
-    int nWritten=0;
 
 
-    numFile=0;
-    do
-    {
-        destFilePath = utils::getFolder_Usb_Audit() + "/Eva_A_" +  QString::number(numFile) + ".txt";
-        numFile++;
-    } while(QFile(destFilePath).exists());
-
-
-
-    QDir dest_dir(utils::getFolder_Usb_Audit());
-    if (!dest_dir.exists())
-    {
-        dest_dir.mkpath(".");
-        sync();
-    }
-
-
-    QFile myFile(destFilePath);
-    myFile.open(QIODevice::WriteOnly);
-    nWritten=myFile.write(myAuditArray, myFileArray_index);
-    myFile.flush();
-    fsync(myFile.handle());
-    myFile.close();
-    sync();
-
-    if(nWritten<0) res=nWritten;
-    return res;
-}
 
 
 

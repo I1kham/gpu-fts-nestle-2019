@@ -3,9 +3,9 @@
 
 
 //Versione GPU (Fusioe Beta v2)
-#define GPU_VERSION_MAJOR   2
+#define GPU_VERSION_MAJOR   3
 #define GPU_VERSION_MINOR   0
-#define GPU_VERSION_BUILD   2
+#define GPU_VERSION_BUILD   0
 
 
 //nome della porta seriale
@@ -38,7 +38,18 @@ struct sGlobal
 {
     cpubridge::sSubscriber subscriber;
 
-    char *localFolder_GUI;              //folder locale nella quale è salvata la GUI
+    char  cpuVersion[128];
+
+    char *tempFolder;
+
+    char *current;
+    char *current_GUI;
+    char *current_lang;
+    char *current_da3;
+    char *last_installed_da3;
+    char *last_installed_cpu;
+    char *last_installed_manual;
+    char *last_installed_gui;
 
     char *usbFolder;                    //path di base verso il folder rhea su chiavetta USB (NULL se la chiavetta USB non esiste)
     char *usbFolder_VMCSettings;        //folder su chiavetta USB per i da3
@@ -47,43 +58,6 @@ struct sGlobal
     char *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
     char *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
 };
-
-
-#define ConfigFileSize 10048 
-#define ConfigFile_blockDim 64
-#define ConfigFileOperation_status_idle  0
-#define ConfigFileOperation_status_Write_inProgress  1
-#define ConfigFileOperation_status_Write_endOK  8
-#define ConfigFileOperation_status_Write_endKO  9
-#define ConfigFileOperation_status_Read_inProgress  11
-#define ConfigFileOperation_status_Read_endOK  18
-#define ConfigFileOperation_status_Read_endKO  19
-#define ConfigFileOperation_status_CPU_inProgress  21
-#define ConfigFileOperation_status_CPU_endOK  28
-#define ConfigFileOperation_status_CPU_endKO  29
-#define ConfigFileOperation_status_GUI_inProgress  31
-#define ConfigFileOperation_status_GUI_endOK  38
-#define ConfigFileOperation_status_GUI_endKO  39
-#define ConfigFileOperation_status_Audit_inProgress  41
-#define ConfigFileOperation_status_Audit_endOK  48
-#define ConfigFileOperation_status_Audit_endKO  49
-
-#define AUDIT_MAX_FILESIZE      (1024*64)
-#define AUDIT_BLOCK_DIM         64
-
-
-
-#define charHeaderPacket                '#'
-#define CommandCPUCheckStatus           'B'
-#define CommandCPUCheckStatus_Unicode	'Z' 
-#define CommandCPUInitialParam_C        'C'
-#define CommandCPURestart               'U'
-#define CommandCPUWriteConfigFile       'D'
-#define CommandCPUReadConfigFile        'E'
-#define CommandCPUWriteHexFile          'H'
-#define CommandCPUReadHexFile           'h'
-#define CommandCPUReadAudit             'L'
-
 
 
 

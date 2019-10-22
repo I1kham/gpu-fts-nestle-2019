@@ -14,6 +14,11 @@ using namespace cpubridge;
 	#endif
 #endif
 
+#ifdef LINUX
+    #ifdef DUMP_COMMUNICATION_TO_FILE
+        #undef DUMP_COMMUNICATION_TO_FILE
+    #endif
+#endif
 
 #ifdef DUMP_COMMUNICATION_TO_FILE
 	FILE *fDUMP_CPUChannelCom = NULL;

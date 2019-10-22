@@ -92,7 +92,13 @@ SOURCES += \
     ../../src/SocketBridge/IdentifiedClientList.cpp \
     ../../src/SocketBridge/SocketBridge.cpp \
     ../../src/SocketBridge/SocketBridgeFileT.cpp \
-    ../../src/SocketBridge/SocketBridgeServer.cpp
+    ../../src/SocketBridge/SocketBridgeServer.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUbtnProgPressed.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUIniParam.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqDataAudit.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFile.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -120,7 +126,13 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeFileT.h \
     ../../src/SocketBridge/SocketBridgeFileTEnumAndDefine.h \
     ../../src/SocketBridge/SocketBridgeServer.h \
-    ../../src/SocketBridge/SocketBridgeVersion.h
+    ../../src/SocketBridge/SocketBridgeVersion.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUbtnProgPressed.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUIniParam.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqDataAudit.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFile.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

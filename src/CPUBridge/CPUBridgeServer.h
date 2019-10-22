@@ -83,8 +83,6 @@ namespace cpubridge
 		void					priv_onSelezioneTerminataKO();
 
 		bool					priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out);
-		void					priv_loadVMCDataFileTimeStamp(sCPUVMCDataFileTimeStamp *out) const;
-		bool					priv_saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts) const;
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend);
         eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);

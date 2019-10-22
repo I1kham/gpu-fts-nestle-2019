@@ -19,25 +19,26 @@ bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *lo
 
 
 //*****************************************************
-bool startCPUBridge(HThreadMsgW *hCPUServiceChannelW)
+bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW)
 {
 #ifdef _DEBUG
-    rhea::StdoutLogger loggerSTD;
-    rhea::ISimpleLogger *logger = &loggerSTD;
+    rhea::ISimpleLogger *logger = new rhea::StdoutLogger();
 #else
-    rhea::NullLogger loggerNULL;
-    rhea::ISimpleLogger *logger = &loggerNULL;
+    rhea::ISimpleLogger *logger = new rhea::NullLogger();
 #endif
 
 
 #ifdef PLATFORM_YOCTO_EMBEDDED
     //apro un canale di comunicazione con la CPU fisica
-    cpubridge::CPUChannelCom chToCPU;
-    bool b = chToCPU.open(CPU_COMPORT, &logger);
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom()
+    bool b = chToCPU->open(CPU_COMPORT, &logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    cpubridge::CPUChannelFakeCPU chToCPU;
-    bool b = chToCPU.open (logger);
+    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+
+    //apro un canale con la CPU fisica
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
+
 #endif
 
     if (!b)
@@ -47,7 +48,7 @@ bool startCPUBridge(HThreadMsgW *hCPUServiceChannelW)
     rhea::HThread hCPUThread;
 
 
-    if (!cpubridge::startServer(&chToCPU, logger, &hCPUThread, hCPUServiceChannelW))
+    if (!cpubridge::startServer(chToCPU, logger, &hCPUThread, hCPUServiceChannelW))
         return false;
 
     //starto socketBridge che a sua volta siiscriverÃ  a CPUBridge
@@ -114,10 +115,44 @@ void setupFolderInformation (sGlobal *glob)
     rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
 
     //local folders
-    const char *baseLocalFolder = rhea::getPhysicalPathToWritableFolder();
+    const char *baseLocalFolder = rhea::getPhysicalPathToAppFolder();
 
-    sprintf_s (s, sizeof(s), "%s/GUI", baseLocalFolder);
-    glob->localFolder_GUI = rhea::string::alloc(allocator, s);
+    sprintf_s (s, sizeof(s), "%s/temp", baseLocalFolder);
+    glob->tempFolder = rhea::string::alloc(allocator, s);
+
+
+    sprintf_s (s, sizeof(s), "%s/current", baseLocalFolder);
+    glob->current = rhea::string::alloc(allocator, s);
+
+    sprintf_s (s, sizeof(s), "%s/gui", glob->current);
+    glob->current_GUI = rhea::string::alloc(allocator, s);
+    rhea::fs::folderCreate(s);
+
+    sprintf_s (s, sizeof(s), "%s/lang", glob->current);
+    glob->current_lang = rhea::string::alloc(allocator, s);
+    rhea::fs::folderCreate(s);
+
+    sprintf_s (s, sizeof(s), "%s/da3", glob->current);
+    glob->current_da3 = rhea::string::alloc(allocator, s);
+    rhea::fs::folderCreate(s);
+
+    sprintf_s (s, sizeof(s), "%s/last_installed/da3", baseLocalFolder);
+    glob->last_installed_da3 = rhea::string::alloc(allocator, s);
+    rhea::fs::folderCreate(s);
+
+    sprintf_s (s, sizeof(s), "%s/last_installed/cpu", baseLocalFolder);
+    glob->last_installed_cpu = rhea::string::alloc(allocator, s);
+    rhea::fs::folderCreate(s);
+
+    sprintf_s (s, sizeof(s), "%s/last_installed/manual", baseLocalFolder);
+    glob->last_installed_manual = rhea::string::alloc(allocator, s);
+    rhea::fs::folderCreate(s);
+
+    sprintf_s (s, sizeof(s), "%s/last_installed/gui", baseLocalFolder);
+    glob->last_installed_gui = rhea::string::alloc(allocator, s);
+    rhea::fs::folderCreate(s);
+
+
 
 
     //USB folders
@@ -128,7 +163,7 @@ void setupFolderInformation (sGlobal *glob)
 #endif
 
     //vediamo se il folder della USB esiste
-    if (QDir(s).exists())
+    if (rhea::fs::folderExists(s))
     {
         glob->usbFolder = rhea::string::alloc(allocator, s);
 
@@ -168,6 +203,7 @@ int main(int argc, char *argv[])
 
     //recupero informazioni sui vari folder
     sGlobal glob;
+    memset(&glob, 0, sizeof(glob));
     setupFolderInformation(&glob);
 
     //Mi iscrivo alla CPU per ricevere direttamente le notifiche che questa manda al cambiare del suo stato

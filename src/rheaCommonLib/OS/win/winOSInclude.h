@@ -87,7 +87,7 @@ typedef struct sOSSocket
 
 
 /***********************************************
- * socket
+ * filesystem
  */
 typedef struct sOSFileFind
 {

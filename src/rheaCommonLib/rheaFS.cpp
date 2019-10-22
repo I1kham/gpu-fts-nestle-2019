@@ -1,5 +1,6 @@
 #include <limits.h>
 #include "rhea.h"
+#include "rheaString.h"
 
 
 using namespace rhea;
@@ -7,7 +8,7 @@ using namespace rhea;
 /****************************************************
  * rimuove eventuali . e .. e doppi /
  */
-void fs::sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSanitzed)
+void fs::sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSanitzed UNUSED_PARAM)
 {
 	if (NULL == path)
 	{
@@ -20,7 +21,7 @@ void fs::sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSa
 		return;
 	}
 
-	strcpy_s(out_sanitizedPath, sizeOfOutSanitzed, path);
+    strcpy_s (out_sanitizedPath, sizeOfOutSanitzed, path);
 	sanitizePathInPlace(out_sanitizedPath);
 }
 
@@ -361,4 +362,64 @@ bool fs::folderCopy(const char *srcFullPathNoSlash, const char *dstFullPathNoSla
 	RHEAFREE(allocator, buffer);
 	return ret;
 
+}
+
+//*********************************************
+bool fs::doesFileNameMatchJolly (const char *strFilename, const char *strJolly)
+{
+    assert (NULL != strFilename && NULL != strJolly);
+    string::parser::Iter iterFilename;
+    iterFilename.setup (strFilename, 0, (u32)strlen(strFilename));
+
+    string::parser::Iter iterJolly;
+    iterJolly.setup (strJolly, 0, (u32)strlen(strJolly));
+
+    while (1)
+    {
+        if (iterJolly.getCurChar() == 0x00 || iterFilename.getCurChar() == 0x00)
+        {
+            if (iterJolly.getCurChar() == 0x00 && iterFilename.getCurChar() == 0x00)
+                return true;
+            return false;
+        }
+
+
+        if (iterJolly.getCurChar() == '?')
+        {
+            //il char jolly è ?, quindi va bene un char qualunque
+            iterFilename.next();
+            iterJolly.next();
+        }
+        else if (iterJolly.getCurChar() == '*')
+        {
+            //il char jolly è un *, quindi prendo il prox char jolly e lo cerco nel filename
+            iterJolly.next();
+            if (iterJolly.getCurChar() == 0x00)
+                return true;
+
+            //cerco il char jolly
+            while (1)
+            {
+                iterFilename.next();
+                if (iterFilename.getCurChar() == 0x00)
+                    return false;
+                if (iterFilename.getCurChar() == iterJolly.getCurChar())
+                {
+                    iterFilename.next();
+                    iterJolly.next();
+                    break;
+                }
+            }
+        }
+        else
+        {
+            //il carattere jolly è un char normale, quindi deve essere uguale al char del filename
+            if (iterFilename.getCurChar() != iterJolly.getCurChar())
+                return false;
+            iterFilename.next();
+            iterJolly.next();
+        }
+
+    }
+    return true;
 }

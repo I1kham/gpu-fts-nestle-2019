@@ -324,8 +324,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
  * Dato un file da3 localmente accessibile, lo invia alla CPU.
  * Periodicamente emette un notify_WRITE_VMCDATAFILE_PROGRESS() con lo stato dell'upload.
  * Al termine dell'upload, se tutto è andatao bene, il da3 sorgente viene copiato pari pari (compreso il suo nome originale) in 
- *	app/last_installed/da3/nomeFileSrc.da3 e anche in  app/current/vmcDataFile.da3
- * Al termine della copia, chiede a CPU il timestamp del da3 e lo salva in current/vmcDataFile.timestamp
+ *	app/last_installed/da3/nomeFileSrc.da3 e anche in  app/current/da3/vmcDataFile.da3
+ * Al termine della copia, chiede a CPU il timestamp del da3 e lo salva in current/da3/vmcDataFile.timestamp
  */
 eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath)
 {
@@ -410,7 +410,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	sprintf_s(s, sizeof(s), "%s/last_installed/da3/%s", rhea::getPhysicalPathToAppFolder(), fileName);
 	rhea::fs::fileCopy(tempFilePathAndName, s);
 
-	sprintf_s(s, sizeof(s), "%s/current/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+    sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
 	rhea::fs::fileCopy(tempFilePathAndName, s);
 
 	rhea::fs::fileDelete(tempFilePathAndName);
@@ -418,8 +418,15 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 
 	//chiedo alla CPU il nuovo timestamp del file ricevuto e lo salvo localmente
 	sCPUVMCDataFileTimeStamp	vmcDataFileTimeStamp;
-	priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp);
-	priv_saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
+    u8 nRetry = 20;
+    while (nRetry--)
+    {
+        if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp))
+        {
+            cpubridge::saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
+            break;
+        }
+    }
 
 
 	//notifico il client e finisco
@@ -599,33 +606,6 @@ bool Server::priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp 
 
 	//la CPU risponde con [#] [T] [len] [secondi] [minuti] [ore] [giorno] [mese] [anno] [ck]
 	out->readFromBuffer(&answerBuffer[3]);
-	return true;
-}
-
-//***************************************************
-void Server::priv_loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out) const
-{
-	out->setInvalid();
-
-	char s[512];
-	sprintf_s(s, sizeof(s), "%s/current/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
-	FILE *f = fopen(s, "rb");
-	if (NULL == f)
-		return;
-	out->readFromFile(f);
-	fclose(f);
-}
-
-//***************************************************
-bool Server::priv_saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts) const
-{
-	char s[512];
-	sprintf_s(s, sizeof(s), "%s/current/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
-	FILE *f = fopen(s, "wb");
-	if (NULL == f)
-		return false;
-	ts.writeToFile(f);
-	fclose(f);
 	return true;
 }
 

@@ -2,6 +2,7 @@
 #ifndef _linuxosinclude_h_
 #define _linuxosinclude_h_
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
 #include "../../rheaDataTypes.h"
@@ -23,6 +24,7 @@
  */
 #define sprintf_s snprintf
 #define strcat_s(dest, size, source) strcat(dest,source)
+#define strcpy_s(dest, size, source) strcpy(dest,source)
 #define UNUSED_PARAM	__attribute__((unused))
 
  //definisce un tipo di dati valido per rappresentare un puntatore in un intero di qualche tipo
@@ -86,6 +88,17 @@ typedef struct sOSSocket
     int             socketID;
 } OSSocket;
 
+/***********************************************
+ * filesystem
+ */
+typedef struct sOSFileFind
+{
+    DIR	*dirp;
+    struct dirent *dp;
+    char    strJolly[64];
+
+                    sOSFileFind()					{ dirp = NULL; }
+} OSFileFind;
 
 #endif //_linuxosinclude_h_
 #endif // LINUX

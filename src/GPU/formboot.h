@@ -1,6 +1,8 @@
 #ifndef FORMBOOT_H
 #define FORMBOOT_H
 #include <QDialog>
+#include "header.h"
+#include "../CPUBridge/CPUBridge.h"
 
 namespace Ui
 {
@@ -16,31 +18,55 @@ class FormBoot : public QDialog
     Q_OBJECT
 
 public:
-    explicit            FormBoot(QWidget *parent);
+    explicit            FormBoot(QWidget *parent, sGlobal *glob);
                         ~FormBoot();
 
 private slots:
     void                timerInterrupt();
-    void on_buttonStart_clicked();
-    void on_buttonWriteSettings_clicked();
-    void on_buttonReadSettings_clicked();
-    void on_buttonWriteCPU_clicked();
-    void on_buttonWriteGUI_clicked();
-    void on_buttonWriteManual_clicked();
-    void on_buttonReadGUI_clicked();
-    void on_buttonReadAudit_clicked();
-    void on_btnWriteLang_clicked();
-    void on_btnReadLang_clicked();
+    void                on_buttonStart_clicked();
+    void                on_btnInstall_languages_clicked();
+    void                on_btnInstall_manual_clicked();
+    void                on_btnDownload_audit_clicked();
+    void                on_btnInstall_DA3_clicked();
+    void                on_btnOK_clicked();
+    void                on_btnCancel_clicked();
+    void                on_lbFileList_doubleClicked(const QModelIndex &index);
 
-
-private:
-    bool                priv_langCopy (const QString &srcFolder, const QString &dstFolder, long timeToWaitDuringCopyFinalizingMSec) const;
-    void                foreverDisableBtnStartVMC();
+    void on_btnDownload_DA3_clicked();
 
 private:
-    Ui::FormBoot        *ui;
-    QTimer              *timer;
-    bool                bBtnStartVMCEnabled;
+    enum eFileListMode
+    {
+        eFileListMode_CPU = 0,
+        eFileListMode_DA3,
+        eFileListMode_GUI,
+        eFileListMode_Manual
+    };
+
+private:
+    void                    priv_pleaseWaitShow (const char *message);
+    void                    priv_pleaseWaitHide();
+    void                    priv_pleaseWaitSetText (const char *message);
+    void                    priv_pleaseWaitSetError (const char *message);
+
+    void                    priv_fileListShow(eFileListMode mode);
+    void                    priv_fileListPopulate(const char *pathNoSlash, const char *jolly, bool bClearList);
+    void                    priv_fileListHide();
+
+    void                    priv_updateLabelInfo();
+    void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    bool                    priv_langCopy (const char *srcFolder, const char *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec);
+    void                    foreverDisableBtnStartVMC();
+    void                    priv_uploadDA3 (const char *fullFilePathAndName);
+
+private:
+    sGlobal                 *glob;
+    Ui::FormBoot            *ui;
+    QTimer                  *timer;
+    bool                    isInterruptActive;
+    bool                    bBtnStartVMCEnabled;
+    QChar                   msgCPU[128];
+    eFileListMode           fileListShowMode;
 
 };
 

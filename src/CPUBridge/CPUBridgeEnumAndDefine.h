@@ -197,8 +197,12 @@ namespace cpubridge
 		u8		readFromFile (FILE *f)											{ fread(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
 		u8		writeToFile(FILE *f) const										{ fwrite(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
 
-		bool	areEqual(const sCPUVMCDataFileTimeStamp &b) const				{ return (memcmp(data, b.data, SIZE_OF_BUFFER) == 0); }
+        bool	isEqual(const sCPUVMCDataFileTimeStamp &b) const				{ return (memcmp(data, b.data, SIZE_OF_BUFFER) == 0); }
 		u8		getLenInBytes() const											{ return SIZE_OF_BUFFER; }
+
+        sCPUVMCDataFileTimeStamp&	operator= (const sCPUVMCDataFileTimeStamp& b)		{ memcpy(data, b.data, SIZE_OF_BUFFER); return *this; }
+        bool	operator== (const sCPUVMCDataFileTimeStamp &b) const            { return isEqual(b); }
+        bool	operator!= (const sCPUVMCDataFileTimeStamp &b) const            { return !isEqual(b); }
 
 	private:
 		static const u8 SIZE_OF_BUFFER = 6;

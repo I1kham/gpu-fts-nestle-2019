@@ -27,6 +27,9 @@ namespace cpubridge
 	void		translate_SUBSCRIPTION_ANSWER (const rhea::thread::sMsg &msg, sSubscriber *out, u8 *out_cpuBridgeVersion);
 
 	void		unsubscribe (const sSubscriber &sub);
+
+    void        loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out);
+    bool        saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts);
 	
 	/***********************************************
 		buildMsg_xxxx

@@ -13,6 +13,8 @@ namespace utils
 
     double              updateCPUStats(unsigned long timeSinceLastCallMSec);
     bool                copyRecursively (const QString &srcFilePath, const QString &tgtFilePath);
+
+    void                waitAndProcessEvent (u32 msecToWait);
 }
 
 #endif // _utils_h_
