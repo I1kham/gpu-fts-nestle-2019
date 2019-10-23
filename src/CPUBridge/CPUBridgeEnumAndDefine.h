@@ -189,20 +189,21 @@ namespace cpubridge
 
 	struct sCPUVMCDataFileTimeStamp
 	{
-				sCPUVMCDataFileTimeStamp()										{ setInvalid(); }
+                sCPUVMCDataFileTimeStamp()                                              { setInvalid(); }
 				
-		void	setInvalid()													{ memset(data, 0xFF, SIZE_OF_BUFFER); data[1] = 0xfe; data[3] = 0xfc; }
-		u8		readFromBuffer(const void *buffer)								{ memcpy(data, buffer, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
-		u8		writeToBuffer(void *buffer) const								{ memcpy(buffer, data, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
-		u8		readFromFile (FILE *f)											{ fread(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
-		u8		writeToFile(FILE *f) const										{ fwrite(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
+        void	setInvalid()                                                            { memset(data, 0xFF, SIZE_OF_BUFFER); data[1] = 0xfe; data[3] = 0xfc; }
+        bool    isInvaid()                                                              { return (data[0]==0xff && data[1]==0xfe &&  data[2]==0xff && data[3]==0xfc && data[4]==0xff && data[5]==0xff); }
+        u8		readFromBuffer(const void *buffer)                                      { memcpy(data, buffer, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
+        u8		writeToBuffer(void *buffer) const                                       { memcpy(buffer, data, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
+        u8		readFromFile (FILE *f)                                                  { fread(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
+        u8		writeToFile(FILE *f) const                                              { fwrite(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
 
-        bool	isEqual(const sCPUVMCDataFileTimeStamp &b) const				{ return (memcmp(data, b.data, SIZE_OF_BUFFER) == 0); }
-		u8		getLenInBytes() const											{ return SIZE_OF_BUFFER; }
+        bool	isEqual(const sCPUVMCDataFileTimeStamp &b) const                        { return (memcmp(data, b.data, SIZE_OF_BUFFER) == 0); }
+        u8		getLenInBytes() const                                                   { return SIZE_OF_BUFFER; }
 
         sCPUVMCDataFileTimeStamp&	operator= (const sCPUVMCDataFileTimeStamp& b)		{ memcpy(data, b.data, SIZE_OF_BUFFER); return *this; }
-        bool	operator== (const sCPUVMCDataFileTimeStamp &b) const            { return isEqual(b); }
-        bool	operator!= (const sCPUVMCDataFileTimeStamp &b) const            { return !isEqual(b); }
+        bool	operator== (const sCPUVMCDataFileTimeStamp &b) const                    { return isEqual(b); }
+        bool	operator!= (const sCPUVMCDataFileTimeStamp &b) const                    { return !isEqual(b); }
 
 	private:
 		static const u8 SIZE_OF_BUFFER = 6;

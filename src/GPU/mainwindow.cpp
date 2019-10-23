@@ -22,7 +22,7 @@ MainWindow::MainWindow (sGlobal *globIN) :
 
 
     isInterruptActive=false;
-    stato = eStato_sync_1_queryCpuStatus;
+    stato = eStato_sync_1_queryIniParam;
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timerInterrupt()));
@@ -70,41 +70,52 @@ void MainWindow::timerInterrupt()
         priv_start();
         return;
 
-
-    case eStato_sync_1_queryCpuStatus:
-        priv_setText("Querying cpu status...");
-        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+    case eStato_sync_1_queryIniParam:
+        priv_setText("Querying ini param...");
+        cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
         statoTimeout = rhea::getTimeNowMSec() + 10000;
         stato = eStato_sync_1_wait;
         break;
 
     case eStato_sync_1_wait:
         if (rhea::getTimeNowMSec() >= statoTimeout)
-            stato = eStato_sync_1_queryCpuStatus;
+            stato = eStato_sync_1_queryIniParam;
         break;
 
-    case eStato_sync_2_queryVMCSettingTS:
-        priv_setText("Querying cpu vmc settings timestamp...");
-        cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(glob->subscriber, 0);
+    case eStato_sync_2_queryCpuStatus:
+        priv_setText("Querying cpu status...");
+        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         statoTimeout = rhea::getTimeNowMSec() + 10000;
         stato = eStato_sync_2_wait;
         break;
 
     case eStato_sync_2_wait:
         if (rhea::getTimeNowMSec() >= statoTimeout)
-            stato = eStato_sync_1_queryCpuStatus;
+            stato = eStato_sync_2_queryCpuStatus;
         break;
 
-    case eStato_sync_3_downloadVMCSetting:
-        priv_setText("Downloading VMC Settings from CPU...");
-        cpubridge::ask_READ_VMCDATAFILE(glob->subscriber, 0);
-        statoTimeout = rhea::getTimeNowMSec() + 60000;
+    case eStato_sync_3_queryVMCSettingTS:
+        priv_setText("Querying cpu vmc settings timestamp...");
+        cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(glob->subscriber, 0);
+        statoTimeout = rhea::getTimeNowMSec() + 10000;
         stato = eStato_sync_3_wait;
         break;
 
     case eStato_sync_3_wait:
         if (rhea::getTimeNowMSec() >= statoTimeout)
-            stato = eStato_sync_1_queryCpuStatus;
+            stato = eStato_sync_2_queryCpuStatus;
+        break;
+
+    case eStato_sync_4_downloadVMCSetting:
+        priv_setText("Downloading VMC Settings from CPU...");
+        cpubridge::ask_READ_VMCDATAFILE(glob->subscriber, 0);
+        statoTimeout = rhea::getTimeNowMSec() + 60000;
+        stato = eStato_sync_4_wait;
+        break;
+
+    case eStato_sync_4_wait:
+        if (rhea::getTimeNowMSec() >= statoTimeout)
+            stato = eStato_sync_2_queryCpuStatus;
         break;
     }
 
@@ -130,6 +141,7 @@ void MainWindow::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::sCPUParamIniziali iniParam;
             cpubridge::translateNotify_CPU_INI_PARAM (msg, &iniParam);
             strcpy (glob->cpuVersion, iniParam.CPU_version);
+            stato = eStato_sync_2_queryCpuStatus;
         }
         break;
 
@@ -139,7 +151,7 @@ void MainWindow::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             u8 vmcErrorCode, vmcErrorType;
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
             if (vmcState != cpubridge::eVMCState_COM_ERROR)
-                stato = eStato_sync_2_queryVMCSettingTS;
+                stato = eStato_sync_3_queryVMCSettingTS;
         }
         break;
 
@@ -147,6 +159,13 @@ void MainWindow::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         {
             cpubridge::sCPUVMCDataFileTimeStamp cpuTS;
             cpubridge::translateNotify_CPU_VMCDATAFILE_TIMESTAMP (msg, &cpuTS);
+
+            //nel caso in cui sono connesso alla finta CPU software...
+            if (strcasecmp(glob->cpuVersion, "FAKE CPU") == 0)
+            {
+                stato = eStato_running;
+                break;
+            }
 
             //vediamo se il TS della CPU è lo stesso mio
             cpubridge::loadVMCDataFileTimeStamp(&myTS);
@@ -157,7 +176,7 @@ void MainWindow::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             {
                 myTS = cpuTS;
                 rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_da3, false);
-                stato = eStato_sync_3_downloadVMCSetting;
+                stato = eStato_sync_4_downloadVMCSetting;
             }
             break;
         }
@@ -202,13 +221,13 @@ void MainWindow::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 
                 rhea::fs::fileCopy(src, dst);
 
-                stato = eStato_sync_2_queryVMCSettingTS;
+                stato = eStato_sync_3_queryVMCSettingTS;
             }
             else
             {
                 sprintf_s (s, sizeof(s), "Downloading VMC Settings... ERROR: %s", rhea::app::utils::verbose_readDataFileStatus(status));
                 priv_setText(s);
-                stato = eStato_sync_1_queryCpuStatus;
+                stato = eStato_sync_2_queryCpuStatus;
                 utils::waitAndProcessEvent(3000);
             }
 

@@ -32,7 +32,7 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#26e326; color:#fff</string>
+    <string notr="true">background-color:#52d16d; color:#fff</string>
    </property>
    <property name="text">
     <string>START
@@ -47,6 +47,12 @@ VMC</string>
      <width>821</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#000; color:#fff</string>
@@ -81,7 +87,7 @@ VMC</string>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color:#cb5f29</string>
+    <string notr="true">color:#f27333</string>
    </property>
    <property name="text">
     <string>CURRENTLY INSTALLED FILES</string>
@@ -110,7 +116,7 @@ VMC</string>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color:#cb5f29</string>
+    <string notr="true">color:#f27333</string>
    </property>
    <property name="text">
     <string>SOFTWARE VERSION</string>
@@ -124,6 +130,12 @@ VMC</string>
      <width>601</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#353535</string>
@@ -141,6 +153,12 @@ VMC</string>
      <height>21</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
     <string notr="true">background-color:#353535</string>
    </property>
@@ -155,10 +173,16 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>640</x>
-     <y>110</y>
+     <y>100</y>
      <width>371</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#353535</string>
@@ -174,10 +198,16 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>110</y>
+     <y>100</y>
      <width>601</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#353535</string>
@@ -190,10 +220,16 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>150</y>
+     <y>130</y>
      <width>601</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#353535</string>
@@ -205,14 +241,14 @@ VMC</string>
   <widget class="QFrame" name="frameInstallBtn">
    <property name="geometry">
     <rect>
-     <x>-10</x>
-     <y>210</y>
+     <x>0</x>
+     <y>220</y>
      <width>1051</width>
      <height>131</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#005072</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -230,7 +266,7 @@ VMC</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -240,14 +276,14 @@ CPU FW</string>
    <widget class="QPushButton" name="btnInstall_DA3">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>340</x>
       <y>30</y>
       <width>150</width>
       <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -257,14 +293,14 @@ VMC settings</string>
    <widget class="QPushButton" name="btnInstall_GUI">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>560</x>
       <y>30</y>
       <width>150</width>
       <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -274,14 +310,14 @@ GUI</string>
    <widget class="QPushButton" name="btnInstall_manual">
     <property name="geometry">
      <rect>
-      <x>610</x>
+      <x>774</x>
       <y>30</y>
       <width>150</width>
       <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -291,14 +327,14 @@ Manual</string>
    <widget class="QPushButton" name="btnInstall_languages">
     <property name="geometry">
      <rect>
-      <x>780</x>
-      <y>30</y>
+      <x>1000</x>
+      <y>70</y>
       <width>150</width>
       <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -309,14 +345,14 @@ Languages</string>
   <widget class="QFrame" name="frameDownloadBtn">
    <property name="geometry">
     <rect>
-     <x>-20</x>
-     <y>360</y>
+     <x>0</x>
+     <y>350</y>
      <width>1051</width>
      <height>131</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#34a0d6</string>
+    <string notr="true">background-color:#495156</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -327,14 +363,14 @@ Languages</string>
    <widget class="QPushButton" name="btnDownload_audit">
     <property name="geometry">
      <rect>
-      <x>800</x>
+      <x>774</x>
       <y>30</y>
       <width>150</width>
       <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#fff; background-color:#34a0d6</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
@@ -344,31 +380,31 @@ Data Audit</string>
    <widget class="QPushButton" name="btnDownload_diagnostic">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>100</x>
       <y>30</y>
       <width>150</width>
       <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#000; background-color:#f1f152</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
-Diagnostic files</string>
+Service zip file</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnDownload_GUI">
     <property name="geometry">
      <rect>
-      <x>590</x>
+      <x>560</x>
       <y>30</y>
       <width>150</width>
       <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#fff; background-color:#34a0d6</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
@@ -385,7 +421,7 @@ GUI</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff</string>
+     <string notr="true">color:#fff; background-color:#34a0d6</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
@@ -397,10 +433,16 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>640</x>
-     <y>150</y>
+     <y>130</y>
      <width>371</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#353535</string>
@@ -421,6 +463,12 @@ VMC settings</string>
      <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
     <string notr="true">background-color:#000; color:#fff</string>
    </property>
@@ -435,26 +483,32 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>560</y>
+     <y>520</y>
      <width>851</width>
-     <height>31</height>
+     <height>71</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#43b441; color:#fff</string>
    </property>
    <property name="text">
-    <string>GUI: GUI_larhea_7inch_EE5_RVPL_GB_3_17_130218</string>
+    <string>ciao, sono un emssaggio molto lungo e devo capire se sto coso va a capo da solo oppure se devo fare qualche barbatrucco. Certo che ne devo scrivere di roba prima di andare a capo</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::PlainText</enum>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QFrame" name="frameFileList">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>100</y>
+     <y>580</y>
      <width>1004</width>
      <height>511</height>
     </rect>
@@ -494,7 +548,7 @@ VMC settings</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000</string>
+     <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
      <string>SELECT</string>
@@ -510,7 +564,7 @@ VMC settings</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000</string>
+     <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
      <string>CANCEL</string>
@@ -530,6 +584,44 @@ VMC settings</string>
     </property>
    </widget>
   </widget>
+  <widget class="QLabel" name="labInstalled_Manual">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>160</y>
+     <width>601</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#353535</string>
+   </property>
+   <property name="text">
+    <string>Manual: xxxxxxxxxxxxxxxxxxxx</string>
+   </property>
+  </widget>
+  <zorder>buttonStart</zorder>
+  <zorder>labCPUMessage</zorder>
+  <zorder>label</zorder>
+  <zorder>label_2</zorder>
+  <zorder>labInstalled_CPU</zorder>
+  <zorder>labVersion_CPU</zorder>
+  <zorder>labVersion_GPU</zorder>
+  <zorder>labInstalled_DA3</zorder>
+  <zorder>labInstalled_GUI</zorder>
+  <zorder>frameInstallBtn</zorder>
+  <zorder>frameDownloadBtn</zorder>
+  <zorder>labVersion_protocol</zorder>
+  <zorder>labCPUStatus</zorder>
+  <zorder>labWait</zorder>
+  <zorder>labInstalled_Manual</zorder>
+  <zorder>frameFileList</zorder>
  </widget>
  <resources/>
  <connections/>

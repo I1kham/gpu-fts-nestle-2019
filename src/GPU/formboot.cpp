@@ -52,74 +52,10 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labVersion_CPU->setText("");
     ui->labVersion_protocol->setText("");
 
+    ui->btnInstall_languages->setVisible(false);
+
     priv_updateLabelInfo();
 
-
-
-
-
-
-/*
-    //vmc settings
-    {
-        QStringList nameFilter("*.da3");
-        QDir directory(utils::getFolder_Usb_VMCSettings());
-        QStringList datFilesAndDirectories = directory.entryList(nameFilter);
-        ui->listVMCSettingsFiles->addItems(datFilesAndDirectories);
-        if(ui->listVMCSettingsFiles->count()!=0)
-            ui->listVMCSettingsFiles->item(0)->setSelected(true);
-    }
-
-
-    //CPU FW
-    {
-        QStringList nameFilterCPU("*.mhx");
-        QDir directoryCPU(utils::getFolder_Usb_CPU());
-        QStringList cpuFilesAndDirectories = directoryCPU.entryList(nameFilterCPU);
-        ui->listCPUFiles->addItems(cpuFilesAndDirectories);
-        if(ui->listCPUFiles->count()!=0)
-            ui->listCPUFiles->item(0)->setSelected(true);
-    }
-
-
-    //cerco le GUI sulla chiavetta  USB.
-    //Aggiungo solo le GUI FusionBetaV1 (ovvero che abbiano il file js/rheaBootstrap.js
-    {
-        QDir directoryGUI(utils::getFolder_Usb_GUI());
-        QStringList guiFilesAndDirectories = directoryGUI.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Time);
-        for (int i=0; i<guiFilesAndDirectories.count(); i++)
-        {
-            QString path = utils::getFolder_Usb_GUI() +"/" +guiFilesAndDirectories[i] +"/web/js/rheaBootstrap.js";
-            if (QFile(path).exists())
-                ui->listGUIFiles->addItem(guiFilesAndDirectories[i]);
-        }
-        //ui->listGUIFiles->addItems(guiFilesAndDirectories);
-        if(ui->listGUIFiles->count()!=0)
-            ui->listGUIFiles->item(0)->setSelected(true);
-    }
-
-
-    //manual
-    {
-        QDir directoryManual(utils::getFolder_Usb_Manual());
-        QStringList ManualFilesAndDirectories = directoryManual.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Time);
-        ui->listManualFiles->addItems(ManualFilesAndDirectories);
-        if(ui->listManualFiles->count()!=0)
-            ui->listManualFiles->item(0)->setSelected(true);
-    }
-
-
-    //languages
-    {
-        QDir directory(utils::getFolder_Usb_Lang(), "*.lng", QDir::Unsorted, QDir::Files);
-        QStringList list = directory.entryList();
-        if (list.count() > 0)
-            ui->btnWriteLang->setEnabled(true);
-        else
-            ui->btnWriteLang->setEnabled(false);
-
-    }
-*/
 
     isInterruptActive = false;
     timer = new QTimer(this);
@@ -161,7 +97,7 @@ void FormBoot::priv_updateLabelInfo()
     OSFileFind ff;
 
     //GPU Version
-    sprintf_s (s, sizeof(s), "GPU: %d.%d.%d", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
+    sprintf_s (s, sizeof(s), "<b>GPU</b>: %d.%d.%d", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
     ui->labVersion_GPU->setText(s);
 
     //CPU version + protocol version sono aggiornate on the fly mano mano che si ricevono i messaggi da CPU
@@ -174,7 +110,7 @@ void FormBoot::priv_updateLabelInfo()
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                sprintf_s (s, sizeof(s), "CPU: %s", rhea::fs::findGetFileName(ff));
+                sprintf_s (s, sizeof(s), "<b>CPU</b>: %s", rhea::fs::findGetFileName(ff));
                 ui->labInstalled_CPU->setText(s);
                 break;
             }
@@ -190,7 +126,7 @@ void FormBoot::priv_updateLabelInfo()
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                sprintf_s (s, sizeof(s), "VMC Settings: %s", rhea::fs::findGetFileName(ff));
+                sprintf_s (s, sizeof(s), "<b>VMC Settings</b>: %s", rhea::fs::findGetFileName(ff));
                 ui->labInstalled_DA3->setText(s);
                 break;
             }
@@ -200,14 +136,33 @@ void FormBoot::priv_updateLabelInfo()
 
     //Installed files: GUI
     ui->labInstalled_GUI->setText("GUI:");
-    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, "*.gui"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, "*.rheagui"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                sprintf_s (s, sizeof(s), "GUI: %s", rhea::fs::findGetFileName(ff));
+                char onlyFileName[256];
+                rhea::fs::extractFileNameWithoutExt (rhea::fs::findGetFileName(ff), onlyFileName, sizeof(onlyFileName));
+                sprintf_s (s, sizeof(s), "<b>GUI</b>: %s", onlyFileName);
                 ui->labInstalled_GUI->setText(s);
+                break;
+            }
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+
+
+    //Installed files: Manual
+    ui->labInstalled_Manual->setText("Manual:");
+    if (rhea::fs::findFirst (&ff, glob->last_installed_manual, "*.pdf"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+            {
+                sprintf_s (s, sizeof(s), "<b>Manual</b>: %s", rhea::fs::findGetFileName(ff));
+                ui->labInstalled_Manual->setText(s);
                 break;
             }
         } while (rhea::fs::findNext(ff));
@@ -242,10 +197,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::sCPUParamIniziali iniParam;
             cpubridge::translateNotify_CPU_INI_PARAM (msg, &iniParam);
 
-            sprintf_s (s, sizeof(s), "CPU: %s", iniParam.CPU_version);
+            sprintf_s (s, sizeof(s), "<b>CPU</b>: %s", iniParam.CPU_version);
             ui->labVersion_CPU->setText (s);
 
-            sprintf_s (s, sizeof(s), "Protocol ver: %d", iniParam.protocol_version);
+            sprintf_s (s, sizeof(s), "<b>Protocol ver</b>: %d", iniParam.protocol_version);
             ui->labVersion_protocol->setText(s);
 
             strcpy (glob->cpuVersion, iniParam.CPU_version);
@@ -352,15 +307,15 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             {
                 sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");
                 priv_pleaseWaitSetText (s);
-                priv_updateLabelInfo();
                 priv_pleaseWaitHide();
-
+                priv_updateLabelInfo();
             }
             else
             {
                 sprintf_s (s, sizeof(s), "Installing VMC Settings...... ERROR: %s", rhea::app::utils::verbose_writeDataFileStatus(status));
                 priv_pleaseWaitSetError(s);
                 priv_pleaseWaitHide();
+                priv_updateLabelInfo();
             }
 
         }
@@ -483,7 +438,7 @@ void FormBoot::priv_fileListPopulate(const char *pathNoSlash, const char *jolly,
     }
 }
 
-void FormBoot::on_lbFileList_doubleClicked(const QModelIndex &index)                { on_btnOK_clicked(); }
+void FormBoot::on_lbFileList_doubleClicked(const QModelIndex &index UNUSED_PARAM)                { on_btnOK_clicked(); }
 void FormBoot::on_btnCancel_clicked()                                               { priv_fileListHide(); }
 
 //**********************************************************************
@@ -508,11 +463,24 @@ void FormBoot::on_btnOK_clicked()
         priv_uploadDA3(src);
         break;
 
-    //eFileListMode_CPU
-    //eFileListMode_GUI
-    //eFileListMode_Manual
-    }
+    case eFileListMode_Manual:
+        sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder, srcFilename.toStdString().c_str());
+        priv_fileListHide();
+        priv_uploadManual(src);
+        break;
 
+    case eFileListMode_GUI:
+        sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_GUI, srcFilename.toStdString().c_str());
+        priv_fileListHide();
+        priv_uploadGUI(src);
+        break;
+
+    case eFileListMode_CPU:
+        sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_CPUFW, srcFilename.toStdString().c_str());
+        priv_fileListHide();
+        priv_uploadCPUFW(src);
+        break;
+    }
 
 }
 
@@ -561,28 +529,38 @@ bool FormBoot::priv_langCopy (const char *srcFolder, const char *dstFolder, u32 
 
 
 
-
-
-//**********************************************************************
-void FormBoot::on_btnDownload_audit_clicked()
-{
-    priv_pleaseWaitShow("Downloading data audit...");
-    cpubridge::ask_READ_DATA_AUDIT (glob->subscriber, 0);
-}
-
-
-
-//**********************************************************************
+/**********************************************************************
+ * Install manual
+ */
 void FormBoot::on_btnInstall_manual_clicked()
 {
-    priv_pleaseWaitShow("");
-    priv_pleaseWaitSetError("Feature not implemented");
+    priv_fileListShow(eFileListMode_Manual);
+    priv_fileListPopulate(glob->usbFolder, "*.pdf", true);
+}
+
+void FormBoot::priv_uploadManual (const char *srcFullFilePathAndName)
+{
+    //copio il pdf nella cartella locale
+    char srcFilename[256];
+    rhea::fs::extractFileNameWithExt (srcFullFilePathAndName, srcFilename, sizeof(srcFilename));
+
+    char dstFilePathAndName[512];
+    sprintf_s (dstFilePathAndName, sizeof(dstFilePathAndName), "%s/%s", glob->last_installed_manual, srcFilename);
+
+    priv_pleaseWaitShow("Copying manual to local folder...");
+    if (!rhea::fs::fileCopy (srcFullFilePathAndName, dstFilePathAndName))
+        priv_pleaseWaitSetError("ERROR copying files");
+    else
+        priv_pleaseWaitSetText("SUCCESS. Manual installed");
+
     priv_pleaseWaitHide();
+    priv_updateLabelInfo();
 }
 
 
-
-//**********************************************************************
+/**********************************************************************
+ * Install DA3
+ */
 void FormBoot::on_btnInstall_DA3_clicked()
 {
     priv_fileListShow(eFileListMode_DA3);
@@ -595,7 +573,97 @@ void FormBoot::priv_uploadDA3 (const char *fullFilePathAndName)
     cpubridge::ask_WRITE_VMCDATAFILE (glob->subscriber, 0, fullFilePathAndName);
 }
 
-//**********************************************************************
+
+/**********************************************************************
+ * Install GUI
+ */
+void FormBoot::on_btnInstall_GUI_clicked()
+{
+    priv_fileListShow(eFileListMode_GUI);
+
+    //popola la lista
+    ui->lbFileList->clear();
+    OSFileFind ff;
+    char s[512];
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_GUI, "*.*"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+                continue;
+            const char *dirName = rhea::fs::findGetFileName(ff);
+            if (dirName[0] == '.')
+                continue;
+
+            sprintf_s (s, sizeof(s), "%s/%s/template.rheagui", glob->usbFolder_GUI, dirName);
+            if (rhea::fs::fileExists(s))
+            {
+                ui->lbFileList->addItem(dirName);
+            }
+
+
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+}
+
+void FormBoot::priv_uploadGUI (const char *srcFullFolderPath)
+{
+    char s[512];
+    priv_pleaseWaitShow("Installing GUI...");
+
+    //elimino la roba attualmente installata
+    rhea::fs::deleteAllFileInFolderRecursively(glob->current_GUI, false);
+    rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_gui, false);
+
+    //copio la GUI nella cartella locale
+    char srcOnlyFolderName[256];
+    rhea::fs::extractFileNameWithoutExt (srcFullFolderPath, srcOnlyFolderName, sizeof(srcOnlyFolderName));
+    if (!rhea::fs::folderCopy(srcFullFolderPath, glob->current_GUI))
+        priv_pleaseWaitSetError("ERROR copying files");
+    else
+    {
+        //creo un file con il nome del folder e lo salvo in last_installed_gui in modo da poter visualizzare il "nome" dell'ultima gui installata
+        sprintf_s (s, sizeof(s), "%s/%s.rheagui", glob->last_installed_gui, srcOnlyFolderName);
+        FILE *f = fopen (s, "wt");
+        {
+            rhea::DateTime dt;
+            dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), ' ', '/', ':');
+            fprintf (f, "%s", s);
+        }
+        fclose(f);
+
+        priv_pleaseWaitSetText("SUCCESS. GUI installed");
+    }
+
+
+
+    priv_pleaseWaitHide();
+    priv_updateLabelInfo();
+}
+
+
+/************************************************************+
+ * Install CPU FW
+ */
+void FormBoot::on_btnInstall_CPU_clicked()
+{
+    priv_fileListShow(eFileListMode_CPU);
+    priv_fileListPopulate(glob->usbFolder_CPUFW, "*.mhx", true);
+
+}
+
+void FormBoot::priv_uploadCPUFW (const char *fullFilePathAndName)
+{
+    priv_pleaseWaitShow("Installing CPU FW...");
+    cpubridge::ask_WRITE_CPU_FW (glob->subscriber, 0, fullFilePathAndName);
+}
+
+
+
+/**********************************************************************
+ * Download DA3
+ */
 void FormBoot::on_btnDownload_DA3_clicked()
 {
     priv_pleaseWaitShow("Downloading VMC Settings...");
@@ -645,13 +713,79 @@ void FormBoot::on_btnDownload_DA3_clicked()
 }
 
 
+/************************************************************+
+ * Download GUI
+ */
+void FormBoot::on_btnDownload_GUI_clicked()
+{
+    priv_pleaseWaitShow("Downloading GUI...");
 
 
+    //recupero il nome della GUI dal file in last_installed/gui
+    char lastInstalledGUIName[256];
+    lastInstalledGUIName[0] = 0x00;
+    OSFileFind ff;
+    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, "*.rheagui"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+            {
+                rhea::fs::extractFileNameWithoutExt (rhea::fs::findGetFileName(ff), lastInstalledGUIName, sizeof(lastInstalledGUIName));
+                break;
+            }
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+
+    if (lastInstalledGUIName[0] == 0x00)
+    {
+        priv_pleaseWaitSetError("ERROR: there's no GUI installed!");
+        priv_pleaseWaitHide();
+        return;
+    }
+
+    char dst[512];
+    sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_GUI, lastInstalledGUIName);
+    rhea::fs::folderCreate(dst);
 
 
+    char s[512];
+    if (!rhea::fs::folderCopy(glob->current_GUI, dst))
+    {
+        sprintf_s (s, sizeof(s), "ERROR copying files to [%s]", dst);
+        priv_pleaseWaitSetError(s);
+    }
+    else
+    {
+        sprintf_s (s, sizeof(s), "SUCCESS. Files has been copied to yourt USB pendrive in the folder [%s]", dst);
+        priv_pleaseWaitSetText(s);
+    }
 
 
+    priv_pleaseWaitHide();
+}
 
 
+/************************************************************+
+ * Download Diagnostic
+ */
+void FormBoot::on_btnDownload_diagnostic_clicked()
+{
+    priv_pleaseWaitShow("Downloading Diagnostic zip file...");
+
+    priv_pleaseWaitSetError("Downloading Diagnostic zip file... ERROR: feature not implemented yet");
+    priv_pleaseWaitHide();
+}
+
+
+/**********************************************************************
+ * Download data audit
+ */
+void FormBoot::on_btnDownload_audit_clicked()
+{
+    priv_pleaseWaitShow("Downloading data audit...");
+    cpubridge::ask_READ_DATA_AUDIT (glob->subscriber, 0);
+}
 
 

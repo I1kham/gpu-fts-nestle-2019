@@ -34,10 +34,10 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW)
     bool b = chToCPU->open(CPU_COMPORT, &logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 
     //apro un canale con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
+    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
 
 #endif
 
@@ -156,15 +156,20 @@ void setupFolderInformation (sGlobal *glob)
 
 
     //USB folders
+    char baseUSBFolder[256];
 #ifdef PLATFORM_YOCTO_EMBEDDED
-    sprintf_s (s, sizeof(s), "/run/media/sda1/rhea");
+    sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "/run/media/sda1");
 #else
-    sprintf_s (s, sizeof(s), "%s/simula-chiavetta-usb", baseLocalFolder);
+    sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
 #endif
 
     //vediamo se il folder della USB esiste
-    if (rhea::fs::folderExists(s))
+    if (rhea::fs::folderExists(baseUSBFolder))
     {
+        //se non esiste, creo la cartella rhea su chiave USB
+        sprintf_s (s, sizeof(s), "%s/rhea", baseUSBFolder);
+        if (!rhea::fs::folderExists(s))
+            rhea::fs::folderCreate(s);
         glob->usbFolder = rhea::string::alloc(allocator, s);
 
         sprintf_s (s, sizeof(s), "%s/rheaData", glob->usbFolder);

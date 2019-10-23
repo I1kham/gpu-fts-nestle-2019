@@ -31,12 +31,14 @@ private:
     enum eStato
     {
         eStato_running = 0,
-        eStato_sync_1_queryCpuStatus,
+        eStato_sync_1_queryIniParam,
         eStato_sync_1_wait,
-        eStato_sync_2_queryVMCSettingTS,
+        eStato_sync_2_queryCpuStatus,
         eStato_sync_2_wait,
-        eStato_sync_3_downloadVMCSetting,
-        eStato_sync_3_wait
+        eStato_sync_3_queryVMCSettingTS,
+        eStato_sync_3_wait,
+        eStato_sync_4_downloadVMCSetting,
+        eStato_sync_4_wait
     };
 
 private:

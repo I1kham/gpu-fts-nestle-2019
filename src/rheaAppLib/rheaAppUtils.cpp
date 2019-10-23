@@ -11,24 +11,23 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
 	static const char v[18][16] = {
-		{"DISP"},
-		{"PREP_BEVANDA"},
+        {"READY"},      //DISPONIBILE
+        {"DISPENSING"}, //PREP BEVANDA
 		{"PROG"},
 		{"INI_CHECK"},
 		{"ERROR"},
-		{"LAVAGGIO_MAN"},
-		{"LAVAGGIO_AUTO"},
-		{"RICARICA_ACQUA"},
-		{"ATTESA TEMP"},
+        {"WASHING_MAN"},
+        {"WASHING_AUTO"},
+        {"WATER_RECHARGE"},
+        {"WAIT_TEMP"},
 		{"CARICA_MASTER"},
-		{"INSTALLAZIONE"},
-		{"DISINST"},
+        {"INSTALL"},
+        {"DISINSTALL"},
 		{"FINE_INSTALL"},
 		{"FINE_DISINST"},
 		{"ENERGY_SAVING"},
-		{"LAVAGGIO_SAN"},
+        {"WASHING_SAN"},
 		{"DATA_AUDIT"},
-
 		{"COM_ERROR"},
 	};
 

@@ -157,6 +157,10 @@ namespace cpubridge
 	void        ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_VMCDATAFILE_TIMESTAMP
 
+    void        ask_WRITE_CPUFW (const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath);
+                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
+    void		translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut);
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

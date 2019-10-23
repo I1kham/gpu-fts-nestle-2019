@@ -34,6 +34,14 @@ private slots:
 
     void on_btnDownload_DA3_clicked();
 
+    void on_btnInstall_GUI_clicked();
+
+    void on_btnDownload_GUI_clicked();
+
+    void on_btnDownload_diagnostic_clicked();
+
+    void on_btnInstall_CPU_clicked();
+
 private:
     enum eFileListMode
     {
@@ -57,7 +65,11 @@ private:
     void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
     bool                    priv_langCopy (const char *srcFolder, const char *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec);
     void                    foreverDisableBtnStartVMC();
-    void                    priv_uploadDA3 (const char *fullFilePathAndName);
+    void                    priv_uploadDA3 (const char *srcFullFilePathAndName);
+    void                    priv_uploadManual (const char *srcFullFilePathAndName);
+    void                    priv_uploadGUI (const char *srcFullFolderPath);
+    void                    priv_uploadCPUFW (const char *fullFilePathAndName);
+
 
 private:
     sGlobal                 *glob;
