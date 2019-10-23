@@ -27,9 +27,9 @@ namespace cpubridge
 
 		bool					isOpen() const																						{ return true; }
 
-		bool					sendOnlyAndDoNotWait(const u8 *bufferToSend, u16 nBytesToSend, rhea::ISimpleLogger *logger)			{ return false; }
-		bool					waitChar(u64 timeoutMSec, u8 *out_char)																{ return false; }
-		bool					waitForASpecificChar(u8 expectedChar, u64 timeoutMSec)												{ return false;  }
+        bool					sendOnlyAndDoNotWait(const u8 *bufferToSend UNUSED_PARAM, u16 nBytesToSend UNUSED_PARAM, rhea::ISimpleLogger *logger UNUSED_PARAM)  { return false; }
+        bool					waitChar(u64 timeoutMSec UNUSED_PARAM, u8 *out_char UNUSED_PARAM)                                                                   { return false; }
+        bool					waitForASpecificChar(u8 expectedChar UNUSED_PARAM, u64 timeoutMSec UNUSED_PARAM)                                                    { return false;  }
 
 	private:
 		struct sRunningSel

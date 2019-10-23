@@ -405,9 +405,8 @@ bool fs::doesFileNameMatchJolly (const char *strFilename, const char *strJolly)
                     return false;
                 if (iterFilename.getCurChar() == iterJolly.getCurChar())
                 {
-                    iterFilename.next();
-                    iterJolly.next();
-                    break;
+                    if (fs::doesFileNameMatchJolly (iterFilename.getCurStrPointer(), iterJolly.getCurStrPointer()))
+                        return true;
                 }
             }
         }

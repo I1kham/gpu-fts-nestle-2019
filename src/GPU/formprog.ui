@@ -191,6 +191,9 @@
   <property name="windowTitle">
    <string/>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QLabel" name="labelStatus">
    <property name="geometry">
     <rect>
@@ -236,6 +239,9 @@
      <bold>true</bold>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
+   </property>
    <property name="text">
     <string>B1 ⇨</string>
    </property>
@@ -256,6 +262,9 @@
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
    </property>
    <property name="text">
     <string>B2 ⇩</string>
@@ -278,6 +287,9 @@
      <bold>true</bold>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
+   </property>
    <property name="text">
     <string>B3 ⇧</string>
    </property>
@@ -298,6 +310,9 @@
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
    </property>
    <property name="text">
     <string>B4 [+]</string>
@@ -320,6 +335,9 @@
      <bold>true</bold>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
+   </property>
    <property name="text">
     <string>B5 [-]</string>
    </property>
@@ -340,6 +358,9 @@
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
    </property>
    <property name="text">
     <string>B6 ⇦</string>
@@ -362,6 +383,9 @@
      <bold>true</bold>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
+   </property>
    <property name="text">
     <string>B7</string>
    </property>
@@ -382,6 +406,9 @@
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
    </property>
    <property name="text">
     <string>B8</string>
@@ -404,6 +431,9 @@
      <bold>true</bold>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
+   </property>
    <property name="text">
     <string>B9</string>
    </property>
@@ -424,6 +454,9 @@
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff; color:#000</string>
    </property>
    <property name="text">
     <string>B10</string>

@@ -2,9 +2,6 @@
 #include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "formboot.h"
-#include "FormBrowser.h"
-#include "formprog.h"
 #include "../rheaAppLib/rheaAppUtils.h"
 
 
@@ -20,13 +17,25 @@ MainWindow::MainWindow (sGlobal *globIN) :
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     utils::hideMouse();
 
+    frmBoot = NULL;
+    if (NULL != glob->usbFolder)
+    {
+        frmBoot = new FormBoot(this, glob);
+        frmBoot->hide();
+    }
+
+    frmBrowser = new FormBrowser(this, glob);
+    frmBrowser->hide();
+
+    frmProg = NULL;
+
+    priv_scheduleFormChange (eForm_main);
+    priv_showForm(eForm_main);
 
     isInterruptActive=false;
-    stato = eStato_sync_1_queryIniParam;
-
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timerInterrupt()));
-    timer->start(100);
+    timer->start(50);
 }
 
 
@@ -37,20 +46,97 @@ MainWindow::~MainWindow()
 }
 
 //*****************************************************
+void MainWindow::priv_scheduleFormChange(eForm w)
+{
+    nextForm = w;
+}
+
+//*****************************************************
+void MainWindow::priv_showForm (eForm w)
+{
+    currentForm = w;
+    switch (currentForm)
+    {
+    case eForm_main:
+        if (frmProg)
+        {
+            frmProg->hide();
+            delete frmProg;
+            frmProg = NULL;
+        }
+        this->show();
+        stato = eStato_sync_1_queryIniParam;
+        break;
+
+    case eForm_boot:
+        this->hide();
+        frmBoot->showMe();
+        break;
+
+    case eForm_browser:
+        if (frmBoot)
+            frmBoot->hide();
+        else
+            this->hide();
+        frmBrowser->showMe();
+        break;
+
+    case eForm_prog:
+        frmBrowser->hide();
+        frmProg = new FormProg(this, glob);
+        frmProg->showMe();
+        break;
+    }
+}
+
+//*****************************************************
 void MainWindow::priv_setText (const char *s)
 {
     ui->labInfo->setText(s);
     utils::waitAndProcessEvent(300);
 }
 
+
 //*****************************************************
 void MainWindow::timerInterrupt()
 {
     if (isInterruptActive)
         return;
-
     isInterruptActive=true;
 
+
+    if (nextForm != currentForm)
+        priv_showForm(nextForm);
+
+    switch (currentForm)
+    {
+    case eForm_main:
+        priv_onTick();
+        break;
+
+    case eForm_boot:
+        if (frmBoot->onTick() != 0)
+            priv_scheduleFormChange(eForm_browser);
+        break;
+
+    case eForm_browser:
+        if (frmBrowser->onTick() != 0)
+            priv_scheduleFormChange(eForm_prog);
+        break;
+
+    case eForm_prog:
+        if (frmProg->onTick() != 0)
+            priv_scheduleFormChange(eForm_main);
+        break;
+    }
+
+    isInterruptActive=false;
+}
+
+
+//*****************************************************
+void MainWindow::priv_onTick()
+{
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
     while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
@@ -62,14 +148,6 @@ void MainWindow::timerInterrupt()
     //Aspetto di vedere la CPU viva e poi sincronizzo il mio DA3 con il suo
     switch (stato)
     {
-    case eStato_running:
-        timer->stop();
-        delete timer;
-        timer = NULL;
-        utils::hideMouse();
-        priv_start();
-        return;
-
     case eStato_sync_1_queryIniParam:
         priv_setText("Querying ini param...");
         cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
@@ -85,7 +163,7 @@ void MainWindow::timerInterrupt()
     case eStato_sync_2_queryCpuStatus:
         priv_setText("Querying cpu status...");
         cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
-        statoTimeout = rhea::getTimeNowMSec() + 10000;
+        statoTimeout = rhea::getTimeNowMSec() + 5000;
         stato = eStato_sync_2_wait;
         break;
 
@@ -117,10 +195,15 @@ void MainWindow::timerInterrupt()
         if (rhea::getTimeNowMSec() >= statoTimeout)
             stato = eStato_sync_2_queryCpuStatus;
         break;
+
+    case eStato_running:
+        //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
+        if (NULL != glob->usbFolder && rhea::fs::folderExists(glob->usbFolder))
+            priv_scheduleFormChange (eForm_boot);
+        else
+            priv_scheduleFormChange (eForm_browser);
+
     }
-
-    isInterruptActive=false;
-
 }
 
 /**************************************************************************
@@ -152,6 +235,8 @@ void MainWindow::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
             if (vmcState != cpubridge::eVMCState_COM_ERROR)
                 stato = eStato_sync_3_queryVMCSettingTS;
+            else
+                stato = eStato_running;
         }
         break;
 
@@ -237,34 +322,3 @@ void MainWindow::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 }
 
 
-
-//*****************************************************
-void MainWindow::priv_start()
-{
-    this->hide();
-
-    cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
-    cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
-
-    //siamo alla prima visualizzazione di questa finestra.
-    //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
-    if (NULL != glob->usbFolder)
-    {
-        FormBoot *frm = new FormBoot(this, glob);
-        frm->exec();
-        delete frm;
-    }
-
-    while (1)
-    {
-        //visualizziamo frm browser
-        FormBrowser *frmBrowser = new FormBrowser(this, glob);
-        frmBrowser->exec();
-        delete frmBrowser;
-
-        //se usciamo da frmBrowser, è per visualizzare frmProg dato che non è previsto un "quit"
-        FormProg *frmProg = new FormProg(this, glob);
-        frmProg->exec();
-        delete frmProg;
-    }
-}

@@ -31,6 +31,11 @@
      <height>91</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
     <string notr="true">background-color:#52d16d; color:#fff</string>
    </property>
@@ -50,8 +55,8 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -64,7 +69,7 @@ VMC</string>
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="labInstalledFiles">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -81,9 +86,10 @@ VMC</string>
    </property>
    <property name="font">
     <font>
+     <family>RotisSemiSans</family>
      <pointsize>16</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -93,7 +99,7 @@ VMC</string>
     <string>CURRENTLY INSTALLED FILES</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="labSoftwareVer">
    <property name="geometry">
     <rect>
      <x>800</x>
@@ -110,9 +116,10 @@ VMC</string>
    </property>
    <property name="font">
     <font>
+     <family>RotisSemiSans</family>
      <pointsize>16</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -133,8 +140,8 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -155,8 +162,8 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -180,8 +187,8 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -205,8 +212,8 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -227,8 +234,8 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -265,6 +272,12 @@ VMC</string>
       <height>71</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">color:#000; background-color:#fff</string>
     </property>
@@ -281,6 +294,12 @@ CPU FW</string>
       <width>150</width>
       <height>71</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">color:#000; background-color:#fff</string>
@@ -299,6 +318,12 @@ VMC settings</string>
       <height>71</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">color:#000; background-color:#fff</string>
     </property>
@@ -315,6 +340,12 @@ GUI</string>
       <width>150</width>
       <height>71</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">color:#000; background-color:#fff</string>
@@ -369,6 +400,12 @@ Languages</string>
       <height>71</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">color:#fff; background-color:#34a0d6</string>
     </property>
@@ -385,6 +422,12 @@ Data Audit</string>
       <width>150</width>
       <height>71</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">color:#000; background-color:#f1f152</string>
@@ -403,6 +446,12 @@ Service zip file</string>
       <height>71</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">color:#fff; background-color:#34a0d6</string>
     </property>
@@ -419,6 +468,12 @@ GUI</string>
       <width>150</width>
       <height>71</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">color:#fff; background-color:#34a0d6</string>
@@ -440,8 +495,8 @@ VMC settings</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -465,8 +520,8 @@ VMC settings</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -531,6 +586,12 @@ VMC settings</string>
       <height>21</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">color:#fff</string>
     </property>
@@ -546,6 +607,12 @@ VMC settings</string>
       <width>99</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">color:#000; background-color:#fff</string>
@@ -563,6 +630,12 @@ VMC settings</string>
       <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">color:#000; background-color:#fff</string>
     </property>
@@ -578,6 +651,12 @@ VMC settings</string>
       <width>984</width>
       <height>421</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>16</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color:#fff; color:#000</string>
@@ -595,8 +674,8 @@ VMC settings</string>
    </property>
    <property name="font">
     <font>
-     <family>Ubuntu</family>
-     <pointsize>11</pointsize>
+     <family>RotisSemiSans</family>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
@@ -608,8 +687,8 @@ VMC settings</string>
   </widget>
   <zorder>buttonStart</zorder>
   <zorder>labCPUMessage</zorder>
-  <zorder>label</zorder>
-  <zorder>label_2</zorder>
+  <zorder>labInstalledFiles</zorder>
+  <zorder>labSoftwareVer</zorder>
   <zorder>labInstalled_CPU</zorder>
   <zorder>labVersion_CPU</zorder>
   <zorder>labVersion_GPU</zorder>

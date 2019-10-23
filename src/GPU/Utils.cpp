@@ -16,7 +16,7 @@ void utils::DEBUG_MSG (const char* format, ...)
 //****************************************************
 void utils::hideMouse()
 {
-    #ifndef DEBUG_SHOW_MOUSE
+    #ifdef DEBUG_SHOW_MOUSE
         QApplication::setOverrideCursor(Qt::BlankCursor);
     #endif
 }

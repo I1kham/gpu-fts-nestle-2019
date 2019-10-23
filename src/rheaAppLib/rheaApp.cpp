@@ -434,8 +434,8 @@ void app::ClientList::decodeAnswer (const sDecodedEventMsg &msg, rhea::Allocator
 	NetStaticBufferViewR nbr;
 	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
 
-	u16 nClient, nClientInfo;
-	u64 u;
+    u16 nClient = 0, nClientInfo = 0;
+    u64 u = 0;
 	nbr.readU16(nClient);
 	nbr.readU16(nClientInfo);
 	nbr.readU64(u);
@@ -546,11 +546,11 @@ void app::ReadDataAudit::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eR
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
 
-	u16 u;
+    u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
 	nbr.readU16(u); *totKbSoFar = u;
 
-	u8 b;
+    u8 b = 0;
 	nbr.readU8(b); *status = (cpubridge::eReadDataFileStatus)b;
 }
 
@@ -572,11 +572,11 @@ void app::ReadVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
 
-	u16 u;
+    u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
 	nbr.readU16(u); *totKbSoFar = u;
 
-	u8 b;
+    u8 b = 0;
 	nbr.readU8(b); *status = (cpubridge::eReadDataFileStatus)b;
 }
 
@@ -600,10 +600,10 @@ void app::WriteLocalVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubr
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
 
-	u16 u;
+    u16 u = 0;
 	nbr.readU16(u); *totKbSoFar = u;
 
-	u8 b;
+    u8 b = 0;
 	nbr.readU8(b); *status = (cpubridge::eWriteDataFileStatus)b;
 }
 

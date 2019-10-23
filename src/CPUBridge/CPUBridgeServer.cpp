@@ -242,8 +242,20 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
         case CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM:
-            //Al prossimo invio del comando di stato, invierò questo buttonNum invece del solito zero
-            translate_CPU_SEND_BUTTON(msg, &nextButtonNumToSend);
+            {
+                //Al prossimo invio del comando di stato, invierò questo buttonNum invece del solito zero
+                //translate_CPU_SEND_BUTTON(msg, &nextButtonNumToSend);
+
+                //Ho optato per inviare subito il comando B invece che schedularlo al prossimo giro
+                u8 btnToSend = 0;
+                translate_CPU_SEND_BUTTON(msg, &btnToSend);
+
+                u8 bufferW[32];
+                const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+                    priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+            }
             break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_RUNNING_SEL_STATUS:
@@ -316,16 +328,28 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW:
-		{
-			char srcFullFileNameAndPath[512];
-			translate_WRITE_CPUFW(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-			if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
-				priv_uploadCPUFW(&sub->q, handlerID, srcFullFileNameAndPath);
-			else
-				//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
-				notify_WRITE_CPUFW_PROGRESS(sub->q, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_cantStart_invalidState, 0);
-		}
-		break;
+            {
+                char srcFullFileNameAndPath[512];
+                translate_WRITE_CPUFW(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+                priv_uploadCPUFW(&sub->q, handlerID, srcFullFileNameAndPath);
+            }
+            break;
+
+        case CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD:
+            {
+                eCPUProgrammingCommand c;
+                cpubridge::translate_CPU_PROGRAMMING_CMD (msg, &c);
+
+                u8 bufferW[32];
+                u8 nBytesToSend = cpubridge::buildMsg_Programming(c, bufferW, sizeof(bufferW));
+                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+                if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+                {
+                    logger->log ("ERR sending P command to CPU\n");
+                }
+            }
+            break;
+
 		}
 		rhea::thread::deleteMsg(msg);
 	}
@@ -411,7 +435,6 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	//per prima cosa si fa fare il reboot alla CPU
 	u8 bufferW[CPUFW_BLOCK_SIZE+16];
 	u8 nBytesToSend = cpubridge::buildMsg_restart_U(bufferW, 64);
-	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 	chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
 
 	//aspetto di leggere 'k' dal canale
@@ -462,7 +485,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	
 
 	//inizio scrittura flash
-	u16 ct = 0;
+    u32 ct = 0;
 	u8 recType = 0;
 	u32 bufferWCT = 0;
 	u16 lastKbWriteSent = u16MAX;
@@ -479,7 +502,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		}
 
 		recType = fileInMemory[ct + 1];
-		const u8 numByte = priv_2DigitHexToInt(fileInMemory, fileInMemory[ct + 2]);
+        const u8 numByte = priv_2DigitHexToInt(fileInMemory, ct + 2);
 		ct += 4;
 
 		if (recType == '0' || recType == '3' || recType == '8' || recType == '9' || numByte == 4)
@@ -550,6 +573,10 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		sprintf_s(s, sizeof(s), "%s/last_installed/cpu/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
 		rhea::fs::fileCopy(tempFilePathAndName, s);
 		rhea::fs::fileDelete(tempFilePathAndName);
+
+        //reboot CPU
+        nBytesToSend = cpubridge::buildMsg_restart_U(bufferW, 64);
+        chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
 	}
 	return ret;
 }
@@ -1418,7 +1445,7 @@ bool Server::priv_enterState_selection (u8 selNumber, const sSubscription *sub)
 void Server::priv_handleState_selection()
 {
 	//mando la richiesta di stato alla CPU ogni tot msec
-	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 200;
+    const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 500;
 	
 	//la cpu deve passare da DISPONIBILE a "BEVANDA IN PREPARAZIONE" entro il tempo definito qui sotto
 	const u32 TIMEOUT_SELEZIONE_1_MSEC = 60000;
@@ -1426,7 +1453,7 @@ void Server::priv_handleState_selection()
 	//una volta che la CPU è entrata in "PREPARAZIONE", deve tornare disponibile entro il tempo definito qui sotto
 	const u32 TIMEOUT_SELEZIONE_2_MSEC = 240000;
 
-	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 2;
+    const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 6;
 	u8 nRetry = 0;
 
 	assert (runningSel.selNum >= 1 && runningSel.selNum <= NUM_MAX_SELECTIONS);

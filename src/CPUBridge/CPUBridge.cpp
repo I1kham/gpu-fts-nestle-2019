@@ -209,6 +209,13 @@ u8 cpubridge::buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuff
 	return cpubridge_buildMsg(cpubridge::eCPUCommand_getVMCDataFileTimeStamp, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+    u8 optionalData[2];
+    optionalData[0] = (u8)cmd;
+    return cpubridge_buildMsg (cpubridge::eCPUCommand_programming, optionalData, 1, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
@@ -400,11 +407,11 @@ void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sM
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
 
-	u16 u;
+    u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
 	nbr.readU16(u); *out_totKbSoFar = u;
 	
-	u8 b;
+    u8 b = 0;
 	nbr.readU8(b); *out_status = (eReadDataFileStatus)b;
 }
 
@@ -430,11 +437,11 @@ void cpubridge::translateNotify_READ_VMCDATAFILE_PROGRESS(const rhea::thread::sM
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
 
-	u16 u;
+    u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
 	nbr.readU16(u); *out_totKbSoFar = u;
 
-	u8 b;
+    u8 b = 0;
 	nbr.readU8(b); *out_status = (eReadDataFileStatus)b;
 }
 
@@ -459,10 +466,10 @@ void cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS(const rhea::thread::s
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
 
-	u16 u;
+    u16 u = 0;
 	nbr.readU16(u); *out_totKbSoFar = u;
 
-	u8 b;
+    u8 b = 0;
 	nbr.readU8(b); *out_status = (eWriteDataFileStatus)b;
 }
 
@@ -487,10 +494,10 @@ void cpubridge::translateNotify_WRITE_CPUFW_PROGRESS(const rhea::thread::sMsg &m
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
 
-	u16 u;
+    u16 u = 0;
 	nbr.readU16(u); *out_param = u;
 
-	u8 b;
+    u8 b = 0;
 	nbr.readU8(b); *out_status = (eWriteCPUFWFileStatus)b;
 }
 
@@ -657,3 +664,19 @@ void cpubridge::translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, char *out_s
 }
 
 
+//***************************************************
+void cpubridge::ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand cmd)
+{
+    u8 otherData[4];
+    otherData[0] = (u8)cmd;
+    rhea::thread::pushMsg (from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD, handlerID, otherData, 1);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCPUProgrammingCommand *out)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD);
+
+    const u8 *p = (const u8*)msg.buffer;
+    *out = (eCPUProgrammingCommand)p[0];
+}

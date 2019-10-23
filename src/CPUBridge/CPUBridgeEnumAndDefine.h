@@ -62,6 +62,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE				0x080D
 #define		CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP			0x080E
 #define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW					0x080F
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD    		0x0810
 
 namespace cpubridge
 {
@@ -76,7 +77,8 @@ namespace cpubridge
         eCPUCommand_readVMCDataFile= 'E',
         //eCPUCommand_writeHexFile = 'H'
         //eCPUCommand_readHexFile= 'h',
-		eCPUCommand_getVMCDataFileTimeStamp = 'T'
+        eCPUCommand_getVMCDataFileTimeStamp = 'T',
+        eCPUCommand_programming = 'P',
 	};
 
 	enum eRunningSelStatus
@@ -150,6 +152,14 @@ namespace cpubridge
 		eWriteCPUFWFileStatus_finishedKO_h_notReceived,
 		eWriteCPUFWFileStatus_finishedKO_generalError
 	};
+
+    enum eCPUProgrammingCommand
+    {
+        eCPUProgrammingCommand_enterProg = 0x01,
+        eCPUProgrammingCommand_startRinsing = 0x02,
+        eCPUProgrammingCommand_startLavggioGrupo = 0x03,
+        eCPUProgrammingCommand_startLavaggioMixer = 0x04
+    };
 
 	struct sSubscriber
 	{

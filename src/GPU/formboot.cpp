@@ -37,13 +37,20 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     QDialog(parent), ui(new Ui::FormBoot)
 {
     this->glob = glob;
+    retCode = 0;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+
+    utils::getRightFontForLanguage (theFont, 16, "GB");
+    ui->labelStatus->setFont (theFont);
+
 
     ui->frameFileList->setVisible(false);
 
     bBtnStartVMCEnabled = true;
     ui->labWait->setVisible(false);
+    ui->labWait->setFont(fntButton);
+
     ui->labCPUMessage->setText("");
     ui->labCPUMessage->setVisible(true);
     ui->labCPUStatus->setText ("");
@@ -54,29 +61,49 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
 
     ui->btnInstall_languages->setVisible(false);
 
+    ui->buttonStart->setFont(fntButton);
+    ui->btnCancel->setFont(fntButton);
+    ui->btnDownload_audit->setFont(fntButton);
+    ui->btnDownload_DA3->->setFont(fntButton);
+    ui->btnDownload_diagnostic->setFont(fntButton);
+    ui->btnDownload_GUI->setFont(fntButton);
+    ui->btnInstall_CPU->setFont(fntButton);
+    ui->btnInstall_DA3->setFont(fntButton);
+    ui->btnInstall_GUI->setFont(fntButton);
+    ui->btnInstall_languages->setFont(fntButton);
+    ui->btnInstall_manual->setFont(fntButton);
+    ui->btnOK->setFont(fntButton);
+    ui->labInstalledFiles->setFont(fntButton);
+    ui->labSoftwareVer->setFont(fntButton);
+    ui->lbFileList->setFont(fntButton);
+
+
     priv_updateLabelInfo();
-
-
-    isInterruptActive = false;
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(timerInterrupt()));
-    timer->start (100);
 }
 
 //***********************************************************
 FormBoot::~FormBoot()
 {
-    timer->stop();
     delete ui;
 }
 
 //*******************************************
-void FormBoot::timerInterrupt()
+void FormBoot::showMe()
 {
-    if (isInterruptActive)
-        return;
+    retCode = 0;
+    cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+    cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
 
-    isInterruptActive=true;
+    priv_pleaseWaitSetText("");
+    priv_pleaseWaitHide();
+    this->show();
+}
+
+//*******************************************
+int FormBoot::onTick()
+{
+    if (retCode != 0)
+        return retCode;
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
@@ -86,7 +113,7 @@ void FormBoot::timerInterrupt()
         rhea::thread::deleteMsg(msg);
     }
 
-    isInterruptActive=false;
+    return 0;
 }
 
 
@@ -183,14 +210,6 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
-        /*
-        case CPUBRIDGE_NOTIFY_DYING:
-        case CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED:
-        case CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED:
-        case CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED:
-        case CPUBRIDGE_NOTIFY_CPU_FULLSTATE:
-        */
-
     case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
         {
             char s[256];
@@ -321,6 +340,39 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         }
         break;
 
+    case CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS:
+        {
+            cpubridge::eWriteCPUFWFileStatus status;
+            u16 param = 0;
+            cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
+
+            char s[512];
+            if (status == cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash)
+            {
+                priv_pleaseWaitSetText ("Installing CPU FW...erasing flash");
+            }
+            else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
+            {
+                sprintf_s (s, sizeof(s), "Installing CPU FW... %d Kb", param);
+                priv_pleaseWaitSetText (s);
+            }
+            else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
+            {
+                sprintf_s (s, sizeof(s), "Installing CPU FW... SUCCESS, please restart the machine");
+                priv_pleaseWaitSetText (s);
+                priv_pleaseWaitHide();
+                priv_updateLabelInfo();
+            }
+            else
+            {
+                sprintf_s (s, sizeof(s), "Installing CPU FW... ERROR: %s [%d]", rhea::app::utils::verbose_WriteCPUFWFileStatus(status), param);
+                priv_pleaseWaitSetError(s);
+                priv_pleaseWaitHide();
+                priv_updateLabelInfo();
+            }
+
+        }
+        break;
     }
 }
 
@@ -342,7 +394,7 @@ void FormBoot::on_buttonStart_clicked()
     if (bBtnStartVMCEnabled == false)
         return;
     priv_pleaseWaitShow("Starting VMC...");
-    this->done(0);
+    retCode = 1;
 }
 
 
@@ -656,7 +708,8 @@ void FormBoot::on_btnInstall_CPU_clicked()
 void FormBoot::priv_uploadCPUFW (const char *fullFilePathAndName)
 {
     priv_pleaseWaitShow("Installing CPU FW...");
-    cpubridge::ask_WRITE_CPU_FW (glob->subscriber, 0, fullFilePathAndName);
+    foreverDisableBtnStartVMC();
+    cpubridge::ask_WRITE_CPUFW (glob->subscriber, 0, fullFilePathAndName);
 }
 
 
@@ -694,7 +747,7 @@ void FormBoot::on_btnDownload_DA3_clicked()
 
     char dst[512];
     rhea::fs::folderCreate(glob->usbFolder_VMCSettings);
-    sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_VMCSettings, lastInstalledDa3FileName);
+    sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_VMCSettings, lastInstalledDa3FileName);
 
     if (rhea::fs::fileExists(dst))
         rhea::fs::fileDelete(dst);

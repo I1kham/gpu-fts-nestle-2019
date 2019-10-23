@@ -21,8 +21,8 @@ public:
     explicit                FormBrowser(QWidget *parent, sGlobal *glob);
                             ~FormBrowser();
 
-private slots:
-    void                    timerInterrupt();
+    void                    showMe();
+    int                     onTick();
 
 private:
     void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
@@ -30,9 +30,7 @@ private:
 private:
     sGlobal                 *glob;
     Ui::FormBrowser          *ui;
-    bool                    isInterruptActive;
-    QTimer                  *timer;
-
+    int                     retCode;
 };
 
 #endif // FORMBROWSER_H

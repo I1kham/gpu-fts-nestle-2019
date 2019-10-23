@@ -30,8 +30,8 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW)
 
 #ifdef PLATFORM_YOCTO_EMBEDDED
     //apro un canale di comunicazione con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom()
-    bool b = chToCPU->open(CPU_COMPORT, &logger);
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();
+    bool b = chToCPU->open(CPU_COMPORT, logger);
 #else
     //apro un canale di comunicazione con una finta CPU
     cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
@@ -166,7 +166,7 @@ void setupFolderInformation (sGlobal *glob)
     //vediamo se il folder della USB esiste
     if (rhea::fs::folderExists(baseUSBFolder))
     {
-        //se non esiste, creo la cartella rhea su chiave USB
+        //se non esiste già, creo la cartella rhea su chiave USB
         sprintf_s (s, sizeof(s), "%s/rhea", baseUSBFolder);
         if (!rhea::fs::folderExists(s))
             rhea::fs::folderCreate(s);

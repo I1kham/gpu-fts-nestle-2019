@@ -21,8 +21,10 @@ public:
     explicit            FormBoot(QWidget *parent, sGlobal *glob);
                         ~FormBoot();
 
+    void                showMe();
+    int                 onTick();
+
 private slots:
-    void                timerInterrupt();
     void                on_buttonStart_clicked();
     void                on_btnInstall_languages_clicked();
     void                on_btnInstall_manual_clicked();
@@ -74,11 +76,11 @@ private:
 private:
     sGlobal                 *glob;
     Ui::FormBoot            *ui;
-    QTimer                  *timer;
-    bool                    isInterruptActive;
     bool                    bBtnStartVMCEnabled;
     QChar                   msgCPU[128];
     eFileListMode           fileListShowMode;
+    int                     retCode;
+    QFont                   fntButton;
 
 };
 

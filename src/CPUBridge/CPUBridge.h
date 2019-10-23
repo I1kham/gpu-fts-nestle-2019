@@ -43,6 +43,7 @@ namespace cpubridge
 	u8			buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -162,6 +163,11 @@ namespace cpubridge
     void        ask_WRITE_CPUFW (const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath);
                      //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
     void		translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut);
+
+    void        ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand cmd);
+                    //invia un comando di tipo 'P' alla CPU
+                    //alla ricezione di quest msgt, CPUBridge non notificherà alcunche
+    void		translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCPUProgrammingCommand *out);
 
 } // namespace cpubridge
 

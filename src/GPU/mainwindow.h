@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QMessageBox>
+#include "formboot.h"
+#include "FormBrowser.h"
+#include "formprog.h"
 #include "../CPUBridge/CPUBridge.h"
 
 
@@ -28,6 +31,14 @@ private slots:
     void                    timerInterrupt();
 
 private:
+    enum eForm
+    {
+        eForm_main = 0,
+        eForm_boot,
+        eForm_browser,
+        eForm_prog
+    };
+
     enum eStato
     {
         eStato_running = 0,
@@ -42,9 +53,12 @@ private:
     };
 
 private:
+    void                    priv_showForm (eForm w);
     void                    priv_start();
     void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
     void                    priv_setText (const char *s);
+    void                    priv_onTick();
+    void                    priv_scheduleFormChange(eForm w);
 
 private:
     sGlobal                 *glob;
@@ -54,6 +68,10 @@ private:
     u64                     statoTimeout;
     bool                    isInterruptActive;
     cpubridge::sCPUVMCDataFileTimeStamp myTS;
+    eForm                   currentForm, nextForm;
+    FormBoot                *frmBoot;
+    FormBrowser             *frmBrowser;
+    FormProg                *frmProg;
 };
 
 #endif // MAINWINDOW_H

@@ -515,7 +515,7 @@ bool FileTransfer::startFileDownload(rhea::IProtocolChannell *ch, rhea::IProtoco
 	activeHandleList.append(s->handle);
 
 	//setup della struttura dati necessaria al trasferimento
-	const u16 PROPOSED_PACKET_SIZE = 1024;
+//	const u16 PROPOSED_PACKET_SIZE = 1024;
 	s->f = f;
 	s->ch = ch;
 	s->proto = proto;
@@ -606,8 +606,8 @@ void FileTransfer::priv_on0x52(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
 void FileTransfer::priv_on0x53(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
 {
 	//ho ricevuto un pacchetto
-	u32 appFileTransfUID, packetNumReceived;
-	u8	chunkSeq;
+    u32 appFileTransfUID = 0, packetNumReceived = 0;
+    u8	chunkSeq = 0;
 	nbr.readU32(appFileTransfUID);
 	nbr.readU32(packetNumReceived);
 	nbr.readU8(chunkSeq);

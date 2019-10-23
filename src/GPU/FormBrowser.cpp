@@ -13,7 +13,7 @@ FormBrowser::FormBrowser(QWidget *parent, sGlobal *globIN) :
     ui(new Ui::FormBrowser)
 {
     glob = globIN;
-    isInterruptActive=false;
+    retCode = 0;
 
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
@@ -37,18 +37,6 @@ FormBrowser::FormBrowser(QWidget *parent, sGlobal *globIN) :
     ui->webView->setEnabled(true);
     ui->webView->setFocus();
 #endif
-
-    //carico la GUI nel browser
-    char s[1024];
-    sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
-    ui->webView->load(QUrl(s));
-    ui->webView->setFocus();
-    utils::hideMouse();
-
-
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(timerInterrupt()));
-    timer->start (50);
 }
 
 //********************************************************************************
@@ -57,13 +45,25 @@ FormBrowser::~FormBrowser()
     delete ui;
 }
 
-
-//*****************************************************
-void FormBrowser::timerInterrupt()
+//*******************************************
+void FormBrowser::showMe()
 {
-    if (isInterruptActive)
-        return;
-    isInterruptActive=true;
+    retCode = 0;
+    this->show();
+
+    //carico la GUI nel browser
+    char s[1024];
+    sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
+    ui->webView->load(QUrl(s));
+    ui->webView->setFocus();
+
+}
+
+//********************************************************************************
+int FormBrowser::onTick()
+{
+    if (retCode != 0)
+        return retCode;
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
@@ -73,8 +73,7 @@ void FormBrowser::timerInterrupt()
         rhea::thread::deleteMsg(msg);
     }
 
-
-    isInterruptActive=false;
+    return 0;
 }
 
 /**************************************************************************
@@ -90,16 +89,6 @@ void FormBrowser::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
-        /*
-        case CPUBRIDGE_NOTIFY_DYING:
-        case CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE:
-        case CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED:
-        case CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED:
-        case CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED:
-        case CPUBRIDGE_NOTIFY_CPU_FULLSTATE:
-        case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
-        */
-
     case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
         {
             cpubridge::sCPUParamIniziali iniParam;
@@ -108,18 +97,19 @@ void FormBrowser::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         }
         break;
 
-        case CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS:
-            {
-                cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus_finished_KO;
-                cpubridge::translateNotify_CPU_RUNNING_SEL_STATUS (msg, &s);
-                if (s == cpubridge::eRunningSelStatus_finished_OK)
-                    History::incCounterSelezioni();
-            }
-            break;
+    case CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS:
+        {
+            cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus_finished_KO;
+            cpubridge::translateNotify_CPU_RUNNING_SEL_STATUS (msg, &s);
+            if (s == cpubridge::eRunningSelStatus_finished_OK)
+                History::incCounterSelezioni();
+        }
+        break;
 
-        case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
-            //l'utente ha premuto il btn PROG, devo andare in programmazione
-            break;
+    case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
+        //l'utente ha premuto il btn PROG, devo andare in programmazione
+        retCode = 1;
+        break;
     }
 }
 

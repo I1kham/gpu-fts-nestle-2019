@@ -29,8 +29,14 @@
       <x>10</x>
       <y>90</y>
       <width>1001</width>
-      <height>21</height>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>RotisSemiSans</family>
+      <pointsize>14</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>TextLabel</string>

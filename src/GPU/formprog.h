@@ -21,9 +21,8 @@ public:
     explicit                    FormProg(QWidget *parent, const sGlobal *glob);
                                 ~FormProg();
 
-   void                        initForm (const char *iso2LettersLanguageCode);
-   void                        updateLabelStatusProg(QString qs_p);
-   void                        updateLabelVersion();
+    void                        showMe();
+    int                         onTick();
 
 private slots:
     void                        on_buttonB1_pressed();
@@ -38,9 +37,15 @@ private slots:
     void                        on_buttonB10_pressed();
 
 private:
+    void                        priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    void                        priv_updateLabelVersion();
+
+private:
     Ui::FormProg                *ui;
     const sGlobal               *glob;
     QFont                       theFont,theFontSmall;
+    int                         retCode;
+    QChar                       msgCPU[128];
 };
 
 #endif // FORMPROG_H
