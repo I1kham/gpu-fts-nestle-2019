@@ -27,6 +27,10 @@ namespace cpubridge
 
 		bool					isOpen() const																						{ return OSSerialPort_isValid(comPort); }
 
+		bool					sendOnlyAndDoNotWait(const u8 *bufferToSend, u16 nBytesToSend, rhea::ISimpleLogger *logger)			{ return priv_handleMsg_send(bufferToSend, nBytesToSend, logger); }
+		bool					waitChar(u64 timeoutMSec, u8 *out_char);
+		bool					waitForASpecificChar(u8 expectedChar, u64 timeoutMSec);
+
 	private:
 		bool					priv_handleMsg_send(const u8 *buffer, u16 nBytesToSend, rhea::ISimpleLogger *logger);
 		bool					priv_handleMsg_rcv(u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger);

@@ -64,6 +64,8 @@ namespace rhea
 		inline bool			fileRename(const char *oldFilename, const char *newFilename)						{ return OS_FS_fileRename(oldFilename, newFilename); }
 		u64					filesize(FILE *fp);
 		bool				fileCopy(const char *srcFullFileNameAndPath, const char *dstFullFileNameAndPath);
+		u8*					fileCopyInMemory(const char *srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
+		u8*					fileCopyInMemory(FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 
 		inline bool			folderExists(const char *pathSenzaSlash)											{ return OS_FS_DirectoryExists(pathSenzaSlash); }
 		inline bool			folderCreate(const char *pathSenzaSlash)											{ return OS_FS_DirectoryCreate(pathSenzaSlash); }

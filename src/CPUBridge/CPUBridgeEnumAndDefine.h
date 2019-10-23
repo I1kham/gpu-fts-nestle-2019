@@ -37,6 +37,7 @@
 #define		CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS  0x010B
 #define		CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS 0x010C
 #define		CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP		0x010D
+#define		CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS		0x010E
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
 
@@ -60,6 +61,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE				0x080C
 #define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE				0x080D
 #define		CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP			0x080E
+#define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW					0x080F
 
 namespace cpubridge
 {
@@ -132,7 +134,21 @@ namespace cpubridge
 		eWriteDataFileStatus_finishedKO_cantStart_invalidState = 2,
 		eWriteDataFileStatus_finishedKO_cpuDidNotAnswer = 3,
 		eWriteDataFileStatus_finishedKO_unableToCopyFile = 4,
-		eWriteDataFileStatus_finishedKO_unableToOpenLocalFile = 5
+		eWriteDataFileStatus_finishedKO_unableToOpenLocalFile = 5,
+	};
+
+	enum eWriteCPUFWFileStatus
+	{
+		eWriteCPUFWFileStatus_inProgress_erasingFlash = 0,
+		eWriteCPUFWFileStatus_inProgress,
+		eWriteCPUFWFileStatus_finishedOK,
+		eWriteCPUFWFileStatus_finishedKO_cantStart_invalidState,
+		eWriteCPUFWFileStatus_finishedKO_unableToCopyFile,
+		eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile,
+		eWriteCPUFWFileStatus_finishedKO_k_notReceived,
+		eWriteCPUFWFileStatus_finishedKO_M_notReceived,
+		eWriteCPUFWFileStatus_finishedKO_h_notReceived,
+		eWriteCPUFWFileStatus_finishedKO_generalError
 	};
 
 	struct sSubscriber

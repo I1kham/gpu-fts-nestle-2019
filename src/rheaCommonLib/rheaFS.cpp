@@ -423,3 +423,49 @@ bool fs::doesFileNameMatchJolly (const char *strFilename, const char *strJolly)
     }
     return true;
 }
+
+
+//*********************************************
+u8* fs::fileCopyInMemory(const char *srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer)
+{
+	FILE *f = fopen(srcFullFileNameAndPath, "rb");
+	if (NULL == f)
+	{
+		*out_sizeOfAllocatedBuffer = 0;
+		return NULL;
+	}
+
+	u8 *ret = fs::fileCopyInMemory(f, allocator, out_sizeOfAllocatedBuffer);
+	fclose(f);
+	return ret;
+}
+
+
+//*********************************************
+u8* fs::fileCopyInMemory (FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer)
+{
+	u32 fsize = (u32)fs::filesize(f);
+
+	*out_sizeOfAllocatedBuffer = (u32)fsize;
+	u8 *buffer = (u8*)RHEAALLOC(allocator, (u32)fsize);
+	if (NULL == buffer)
+	{
+		*out_sizeOfAllocatedBuffer = 0;
+		return NULL;
+	}
+
+	u32 CHUNK = 1024 * 1024;
+	u32 ct = 0;
+	while (fsize >= CHUNK)
+	{
+		fread(&buffer[ct], CHUNK, 1, f);
+		fsize -= CHUNK;
+		ct += CHUNK;
+	}
+
+	if (fsize)
+		fread(&buffer[ct], fsize, 1, f);
+
+	return buffer;
+
+}

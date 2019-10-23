@@ -20,6 +20,7 @@ namespace rhea
 
 			const char*		verbose_readDataFileStatus(cpubridge::eReadDataFileStatus status);
 			const char*		verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus status);
+			const char*		verbose_WriteCPUFWFileStatus(cpubridge::eWriteCPUFWFileStatus status);
 		} //namespace utils
 	} // namespace app
 

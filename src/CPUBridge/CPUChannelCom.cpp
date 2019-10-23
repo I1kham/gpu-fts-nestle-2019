@@ -223,3 +223,33 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 	return false;
 }
 
+//***************************************************
+bool CPUChannelCom::waitChar(u64 timeoutMSec, u8 *out_char)
+{
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	{
+		if (1 == OSSerialPort_readBuffer(comPort, out_char, 1))
+			return true;
+	}
+
+	*out_char = 0x00;
+	return false;
+}
+
+//***************************************************
+bool CPUChannelCom::waitForASpecificChar(u8 expectedChar, u64 timeoutMSec)
+{
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	{
+		u8 c;
+		if (0 == OSSerialPort_readBuffer(comPort, &c, 1))
+			continue;
+
+		if (c == expectedChar)
+			return true;
+	}
+
+	return false;
+}

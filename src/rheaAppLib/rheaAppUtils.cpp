@@ -193,3 +193,35 @@ const char* utils::verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus s
 	case cpubridge::eWriteDataFileStatus_finishedKO_unableToOpenLocalFile:		return v[5];
 	}
 }
+
+//***************************************************************
+const char* utils::verbose_WriteCPUFWFileStatus (cpubridge::eWriteCPUFWFileStatus status)
+{
+	static const char v[10][40] = {
+		{"ERASING FLASH"},
+		{"IN_PROGRESS"},
+		{"FINISHED_OK"},
+		{"FINISHED_KO_CANT_START_INVALID_STATE"}, //3
+		{"FINISHED_KO_CPU_CANT_COPY_LOCAL_FILE"},
+		{"FINISHED_KO_CPU_CANT_OPEN_LOCAL_FILE"},
+		{"FINISHED_KO_k_notReceived"}, //6
+		{"FINISHED_KO_M_notReceived"}, //7
+		{"FINISHED_KO_h_notReceived"}, //8
+		{"FINISHED_KO_GENERAL_ERROR"} //9
+	};
+
+	switch (status)
+	{
+	default:																	return UNKNOWN;
+	case cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash:				return v[0];
+	case cpubridge::eWriteCPUFWFileStatus_inProgress: 							return v[1];
+	case cpubridge::eWriteCPUFWFileStatus_finishedOK: 							return v[2];
+	case cpubridge::eWriteCPUFWFileStatus_finishedKO_cantStart_invalidState:	return v[3];
+	case cpubridge::eWriteCPUFWFileStatus_finishedKO_unableToCopyFile:			return v[4];
+	case cpubridge::eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile:		return v[5];
+	case cpubridge::eWriteCPUFWFileStatus_finishedKO_k_notReceived: 			return v[6];
+	case cpubridge::eWriteCPUFWFileStatus_finishedKO_M_notReceived: 			return v[7];
+	case cpubridge::eWriteCPUFWFileStatus_finishedKO_h_notReceived: 			return v[8];
+	case cpubridge::eWriteCPUFWFileStatus_finishedKO_generalError: 				return v[9];
+	}
+}

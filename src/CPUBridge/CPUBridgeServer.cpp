@@ -315,10 +315,245 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW:
+		{
+			char srcFullFileNameAndPath[512];
+			translate_WRITE_CPUFW(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+			if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
+				priv_uploadCPUFW(&sub->q, handlerID, srcFullFileNameAndPath);
+			else
+				//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
+				notify_WRITE_CPUFW_PROGRESS(sub->q, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_cantStart_invalidState, 0);
+		}
+		break;
 		}
 		rhea::thread::deleteMsg(msg);
 	}
 }
+
+
+//**********************************************
+u8 Server::priv_2DigitHexToInt(const u8 *buffer, u32 index) const
+{
+	u32 ret = 0;
+	rhea::string::convert::hexToInt((const char*)&buffer[index], &ret, 2);
+	return (u8)ret;
+}
+
+/**********************************************
+ * copiato da codice originale e lievemente ripulito, sorry.
+ *	Ritorna 0 se tutto OK
+ */
+bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT) const
+{
+	if (!isLastFlag)
+	{
+		out_bufferW[in_out_bufferCT++] = dato_8;
+		if (in_out_bufferCT != CPUFW_BLOCK_SIZE)
+			return true;
+	}
+
+	chToCPU->sendOnlyAndDoNotWait(out_bufferW, in_out_bufferCT, logger);
+
+	u8 checksum_counter = 0;
+	for (u32 i = 0; i < in_out_bufferCT; i++)
+		checksum_counter += out_bufferW[i];
+
+	if (isLastFlag) 
+		return true;
+
+	if (!chToCPU->waitForASpecificChar(checksum_counter, 90))
+		return false;
+
+	in_out_bufferCT = 0;
+	return true;
+}
+
+
+/***************************************************
+ * Dato un file mhx localmente accessibile, lo usa per sovrascrivere il FW della CPU
+ * Periodicamente emette un notify_WRITE_CPUFW_PROGRESS() con lo stato dell'upload.
+ * Al termine dell'upload, se tutto è andato bene, il mhx sorgente viene copiato pari pari (compreso il suo nome originale) in
+ *	app/last_installed/cpu/nomeFileSrc.mhx
+ */
+eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath)
+{
+	char cpuFWFileNameOnly[256];
+	char tempFilePathAndName[512];
+	rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, cpuFWFileNameOnly, sizeof(cpuFWFileNameOnly));
+
+	if (strncmp(srcFullFileNameAndPath, "APP:/temp/", 10) == 0)
+	{
+		//il file si suppone già esistere nella mia cartella temp
+		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
+	}
+	else
+	{
+		//copio il file nella mia directory locale temp
+		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
+		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+		{
+			if (NULL != subscriber)
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToCopyFile, 0);
+			return eWriteCPUFWFileStatus_finishedKO_unableToCopyFile;
+		}
+	}
+
+
+	if (!rhea::fs::fileExists(tempFilePathAndName))
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS (*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile, 0);
+		return eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile;
+	}
+
+
+	//per prima cosa si fa fare il reboot alla CPU
+	u8 bufferW[CPUFW_BLOCK_SIZE+16];
+	u8 nBytesToSend = cpubridge::buildMsg_restart_U(bufferW, 64);
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
+
+	//aspetto di leggere 'k' dal canale
+	if (!chToCPU->waitForASpecificChar('k', 5000))
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_k_notReceived, 0);
+		return eWriteCPUFWFileStatus_finishedKO_k_notReceived;
+	}
+
+	bufferW[0] = 'k';
+	chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
+
+	bufferW[0] = 'M';
+	chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
+
+	//aspetto di leggere 'M' dal canale
+	if (!chToCPU->waitForASpecificChar('M', 3000))
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_M_notReceived, 0);
+		return eWriteCPUFWFileStatus_finishedKO_M_notReceived;
+	}
+
+	//erasing flash
+	if (NULL != subscriber)
+		notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus_inProgress_erasingFlash, 0);
+
+	char s[512];
+	sprintf_s(s, sizeof(s), "%s/last_installed/cpu", rhea::getPhysicalPathToAppFolder());
+	rhea::fs::deleteAllFileInFolderRecursively(s, false);
+
+
+	//aspetto di leggere 'h' dal canale
+	if (!chToCPU->waitForASpecificChar('h', 15000))
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_h_notReceived, 0);
+		return eWriteCPUFWFileStatus_finishedKO_h_notReceived;
+	}
+
+
+
+	//Carico il file mhx in memoria
+	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+	u32 fsize = 0;
+	u8 *fileInMemory = rhea::fs::fileCopyInMemory(tempFilePathAndName, allocator, &fsize);
+	
+
+	//inizio scrittura flash
+	u16 ct = 0;
+	u8 recType = 0;
+	u32 bufferWCT = 0;
+	u16 lastKbWriteSent = u16MAX;
+	u16 kbWrittenSoFar = 0;
+	eWriteCPUFWFileStatus ret = eWriteCPUFWFileStatus_finishedOK;
+	do
+	{
+		if (fileInMemory[ct] != 'S')
+		{
+			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+			if (NULL != subscriber)
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, ret, 5);
+			break;
+		}
+
+		recType = fileInMemory[ct + 1];
+		const u8 numByte = priv_2DigitHexToInt(fileInMemory, fileInMemory[ct + 2]);
+		ct += 4;
+
+		if (recType == '0' || recType == '3' || recType == '8' || recType == '9' || numByte == 4)
+		{
+			ct += (numByte + 1) * 2;
+			continue;
+		}
+
+		if (!priv_WriteByteMasterNext(numByte, false, bufferW, bufferWCT))
+		{
+			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+			if (NULL != subscriber)
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, ret, 6);
+			break;
+		}
+
+		for (u8 i = 0; i < (numByte - 1); i++)
+		{
+			const u8 dato8 = priv_2DigitHexToInt(fileInMemory, ct);
+			ct += 2;
+			if (!priv_WriteByteMasterNext(dato8, false, bufferW, bufferWCT))
+			{
+				ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+				if (NULL != subscriber)
+					notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, ret, 7);
+				break;
+			}
+		}
+		ct += 4;
+
+		//notifico che ho letto un altro Kb
+		kbWrittenSoFar = (u16)(ct >> 10);
+		if (kbWrittenSoFar != lastKbWriteSent)
+		{
+			lastKbWriteSent = kbWrittenSoFar;
+
+			if (NULL != subscriber)
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus_inProgress, kbWrittenSoFar);
+		}
+
+	} while (recType < '7');
+	
+	if (ret == eWriteCPUFWFileStatus_finishedOK)
+	{
+		priv_WriteByteMasterNext(4, false, bufferW, bufferWCT);
+		priv_WriteByteMasterNext(0, true, bufferW, bufferWCT);
+
+		u8 ck = 0;
+		for (u32 i = 0; i < bufferWCT; i++)
+			ck += bufferW[i];
+		if (!chToCPU->waitForASpecificChar(ck, 90))
+		{
+			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+			if (NULL != subscriber)
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_generalError, 8);
+		}
+		else	
+		{
+			if (NULL != subscriber)
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedOK, kbWrittenSoFar);
+		}
+	}
+	RHEAFREE(allocator, fileInMemory);
+
+	//in caso di successo, copio il file mhx nella mia cartella app/last_installed/cpu/nomeFileSrc.mhx
+	if (ret == eWriteCPUFWFileStatus_finishedOK)
+	{
+		sprintf_s(s, sizeof(s), "%s/last_installed/cpu/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
+		rhea::fs::fileCopy(tempFilePathAndName, s);
+		rhea::fs::fileDelete(tempFilePathAndName);
+	}
+	return ret;
+}
+
 
 /***************************************************
  * Dato un file da3 localmente accessibile, lo invia alla CPU.

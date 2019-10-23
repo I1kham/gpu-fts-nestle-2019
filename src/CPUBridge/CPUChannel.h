@@ -27,6 +27,21 @@ namespace cpubridge
 								*/
 
 		virtual bool			isOpen() const = 0;
+
+
+		virtual bool			sendOnlyAndDoNotWait(const u8 *bufferToSend, u16 nBytesToSend, rhea::ISimpleLogger *logger) = 0;
+									//invia ma non aspetta alcuna risposta
+
+		virtual bool			waitChar (u64 timeoutMSec, u8 *out_char) = 0;
+									/* prova a leggere un singolo carattere dal canale.
+										Se lo trova, ritorna true e mettere il ch in out_char
+										Se scade il timeout, ritorna false
+									*/
+		
+		virtual bool			waitForASpecificChar(u8 expectedChar, u64 timeoutMSec) = 0;
+									/* legge un carattere. Se questo è == a [expectedChar], allora termina con true, altrimenti prova a leggere un altro char.
+										Se entro il timeout non è arrivato il ch desiderato, termina con false
+									*/
     };
 
 } // namespace cpubridge

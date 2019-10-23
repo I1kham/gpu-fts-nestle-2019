@@ -22,6 +22,9 @@ namespace cpubridge
 		void                    close ();
 
 	private:
+		static const u16		CPUFW_BLOCK_SIZE = 400;
+
+	private:
         struct sStato
         {
         public:
@@ -88,6 +91,10 @@ namespace cpubridge
         eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
+		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
+		
+		u8						priv_2DigitHexToInt(const u8 *buffer, u32 index) const;
+		bool					priv_WriteByteMasterNext(u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT) const;
 
 	private:
 		rhea::Allocator         *localAllocator;
