@@ -298,17 +298,30 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	/*
 	75		6 byte con lo stato di disponibilità delle 48 selezioni
 	76		ATTENZIONE che il bit a zero significa che la selezione è disponibile, il bit
-	77		a  significa che NON è disponibile
+	77		a 1 significa che NON è disponibile
 	78
 	79
 	80
 	*/
-	out_answer[ct++] = 0;
-	out_answer[ct++] = 0;
-	out_answer[ct++] = 0;
-	out_answer[ct++] = 0;
-	out_answer[ct++] = 0;
-	out_answer[ct++] = 0;
+	const u8 selAvailability[6][8] = { 
+		{ 1, 1, 0, 0, 0, 0,	0, 0 },	//01-08
+		{ 1, 1, 0, 0, 0, 0,	0, 0 },	//09-16
+		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//17-24
+		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//25-32
+		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//33-40
+		{ 0, 0, 0, 0, 0, 0,	0, 0 }	//41-48
+	};
+
+	for (u8 i2 = 0; i2 < 6; i2++)
+	{
+		u8 b = 0;
+		for (u8 i3 = 0; i3 < 8; i3++)
+		{
+			if (selAvailability[i2][i3] != 0)
+				b |= (0x01 << i3);
+		}
+		out_answer[ct++] = b;
+	}
 
 	/*
 	81		beepTime dSec LSB
