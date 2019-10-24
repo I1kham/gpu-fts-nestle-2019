@@ -54,6 +54,7 @@ private:
     };
 
 private:
+    void                    priv_setButtonStyle (QPushButton *obj, const char *style);
     void                    priv_pleaseWaitShow (const char *message);
     void                    priv_pleaseWaitHide();
     void                    priv_pleaseWaitSetText (const char *message);
@@ -81,6 +82,7 @@ private:
     eFileListMode           fileListShowMode;
     int                     retCode;
     QFont                   fntButton;
+    QFont                   fnt12;
 
 };
 

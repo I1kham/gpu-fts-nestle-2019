@@ -16,15 +16,6 @@
 #endif
 
 
-//define per mostrare il puntatore del mouse
-#undef DEBUG_SHOW_MOUSE
-
-#ifdef _DEBUG
-    #ifndef DEBUG_SHOW_MOUSE
-        #define DEBUG_SHOW_MOUSE
-    #endif
-#endif
-
 
 #include "../rheaCommonLib/rhea.h"
 #include "../CPUBridge/CPUBridge.h"

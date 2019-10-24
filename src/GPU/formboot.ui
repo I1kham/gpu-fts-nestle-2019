@@ -60,7 +60,7 @@ VMC</string>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#000; color:#fff</string>
+    <string notr="true">background-color:#444; color:#fff</string>
    </property>
    <property name="text">
     <string>labCPUMessage</string>
@@ -249,13 +249,13 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>220</y>
+     <y>200</y>
      <width>1051</width>
      <height>131</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#000</string>
+    <string notr="true">background-color:#495156</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -525,7 +525,7 @@ VMC settings</string>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#000; color:#fff</string>
+    <string notr="true">background-color:#444; color:#fff</string>
    </property>
    <property name="text">
     <string>labCPUStatus</string>

@@ -38,44 +38,68 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
 {
     this->glob = glob;
     retCode = 0;
+    bBtnStartVMCEnabled = true;
+
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-    utils::getRightFontForLanguage (theFont, 16, "GB");
-    ui->labelStatus->setFont (theFont);
+    qApp->setStyleSheet("QPushButton { border-radius:5px }");
 
+    utils::getRightFontForLanguage (fntButton, 16, "GB");
+    utils::getRightFontForLanguage (fnt12, 12, "GB");
 
     ui->frameFileList->setVisible(false);
 
-    bBtnStartVMCEnabled = true;
     ui->labWait->setVisible(false);
-    ui->labWait->setFont(fntButton);
+    ui->labWait->setFont(fnt12);
 
+    //CPU message/status
     ui->labCPUMessage->setText("");
-    ui->labCPUMessage->setVisible(true);
+    ui->labCPUMessage->setFont(fnt12);
+
     ui->labCPUStatus->setText ("");
+    ui->labCPUStatus->setFont(fnt12);
 
-    ui->labVersion_GPU->setText("");
+    //Software version
+    ui->labSoftwareVer->setFont(fntButton);
     ui->labVersion_CPU->setText("");
+    ui->labVersion_CPU->setFont(fnt12);
+    ui->labVersion_GPU->setText("");
+    ui->labVersion_GPU->setFont(fnt12);
     ui->labVersion_protocol->setText("");
+    ui->labVersion_protocol->setFont(fnt12);
 
-    ui->btnInstall_languages->setVisible(false);
 
-    ui->buttonStart->setFont(fntButton);
+    //installed version
+    ui->labInstalledFiles->setFont(fntButton);
+    ui->labInstalled_CPU->setFont(fnt12);
+    ui->labInstalled_DA3->setFont(fnt12);
+    ui->labInstalled_GUI->setFont(fnt12);
+    ui->labInstalled_Manual->setFont(fnt12);
+
+
+    //list box con elenco file
+    ui->lbFileList->setFont(fntButton);
+    ui->btnOK->setFont(fntButton);
     ui->btnCancel->setFont(fntButton);
-    ui->btnDownload_audit->setFont(fntButton);
-    ui->btnDownload_DA3->->setFont(fntButton);
-    ui->btnDownload_diagnostic->setFont(fntButton);
-    ui->btnDownload_GUI->setFont(fntButton);
+
+
+    //Bottoni
     ui->btnInstall_CPU->setFont(fntButton);
     ui->btnInstall_DA3->setFont(fntButton);
     ui->btnInstall_GUI->setFont(fntButton);
-    ui->btnInstall_languages->setFont(fntButton);
     ui->btnInstall_manual->setFont(fntButton);
-    ui->btnOK->setFont(fntButton);
-    ui->labInstalledFiles->setFont(fntButton);
-    ui->labSoftwareVer->setFont(fntButton);
-    ui->lbFileList->setFont(fntButton);
+    ui->btnInstall_languages->setFont(fntButton);
+    ui->btnInstall_languages->setVisible(false);
+
+    ui->btnDownload_audit->setFont(fntButton);
+    ui->btnDownload_DA3->setFont(fntButton);
+    ui->btnDownload_diagnostic->setFont(fntButton);
+    ui->btnDownload_GUI->setFont(fntButton);
+
+    ui->buttonStart->setFont(fntButton);
+
+
 
 
     priv_updateLabelInfo();
@@ -116,6 +140,14 @@ int FormBoot::onTick()
     return 0;
 }
 
+//*******************************************
+void FormBoot::priv_setButtonStyle (QPushButton *obj, const char *style)
+{
+    QString s;
+    s = QString ("{ border-radius:5px;") + style +QString ("}");
+    obj->setStyleSheet (s);
+    obj->setFont(fntButton);
+}
 
 //*******************************************
 void FormBoot::priv_updateLabelInfo()

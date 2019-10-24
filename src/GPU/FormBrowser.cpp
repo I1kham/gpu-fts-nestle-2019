@@ -18,7 +18,6 @@ FormBrowser::FormBrowser(QWidget *parent, sGlobal *globIN) :
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-
     //Settaggi del browser
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::AutoLoadImages, true);
@@ -30,12 +29,9 @@ FormBrowser::FormBrowser(QWidget *parent, sGlobal *globIN) :
     ui->webView->settings()->setAttribute(QWebSettings::PluginsEnabled,true);
     ui->webView->settings()->setAttribute(QWebSettings::AutoLoadImages, true);
     ui->webView->settings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
-    ui->webView->setEnabled(false);
 
 #ifdef _DEBUG
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-    ui->webView->setEnabled(true);
-    ui->webView->setFocus();
 #endif
 }
 
@@ -56,7 +52,6 @@ void FormBrowser::showMe()
     sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
     ui->webView->load(QUrl(s));
     ui->webView->setFocus();
-
 }
 
 //********************************************************************************
