@@ -57,8 +57,10 @@ private:
     void                    priv_setButtonStyle (QPushButton *obj, const char *style);
     void                    priv_pleaseWaitShow (const char *message);
     void                    priv_pleaseWaitHide();
+    void                    priv_pleaseSetTextWithColor (const char *message, const char *bgColor, const char *textColor);
     void                    priv_pleaseWaitSetText (const char *message);
     void                    priv_pleaseWaitSetError (const char *message);
+    void                    priv_pleaseWaitSetOK (const char *message);
 
     void                    priv_fileListShow(eFileListMode mode);
     void                    priv_fileListPopulate(const char *pathNoSlash, const char *jolly, bool bClearList);
