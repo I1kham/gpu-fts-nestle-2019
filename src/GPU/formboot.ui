@@ -37,7 +37,7 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#52d16d; color:#fff</string>
+    <string notr="true">background-color:#f27333; color:#fff</string>
    </property>
    <property name="text">
     <string>START
@@ -538,13 +538,13 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>520</y>
+     <y>500</y>
      <width>851</width>
-     <height>71</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#43b441; color:#fff</string>
+    <string notr="true">background-color:#9b9; color:#fff</string>
    </property>
    <property name="text">
     <string>ciao, sono un emssaggio molto lungo e devo capire se sto coso va a capo da solo oppure se devo fare qualche barbatrucco. Certo che ne devo scrivere di roba prima di andare a capo</string>

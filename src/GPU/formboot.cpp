@@ -300,7 +300,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             else if (status == cpubridge::eReadDataFileStatus_finishedOK)
             {
                 sprintf_s (s, sizeof(s), "Downloading data audit... SUCCESS. Copying to USB folder");
-                priv_pleaseWaitSetText (s);
+                priv_pleaseWaitSetOK (s);
 
                 //se non esiste, creo il folder di destinazione
                 rhea::fs::folderCreate (glob->usbFolder_Audit);
@@ -325,8 +325,8 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
                     sprintf_s (s, sizeof(s), "Finalizing copy...");
                     utils::waitAndProcessEvent(2000);
 
-                    sprintf_s (s, sizeof(s), "SUCCESS. The file [%s] has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
-                    priv_pleaseWaitSetText (s);
+                    sprintf_s (s, sizeof(s), "SUCCESS.\nThe file [%s] has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
+                    priv_pleaseWaitSetOK (s);
                 }
 
                 priv_pleaseWaitHide();
@@ -357,7 +357,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
             {
                 sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");
-                priv_pleaseWaitSetText (s);
+                priv_pleaseWaitSetOK (s);
                 priv_pleaseWaitHide();
                 priv_updateLabelInfo();
             }
@@ -391,7 +391,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
             {
                 sprintf_s (s, sizeof(s), "Installing CPU FW... SUCCESS, please restart the machine");
-                priv_pleaseWaitSetText (s);
+                priv_pleaseWaitSetOK (s);
                 priv_pleaseWaitHide();
                 priv_updateLabelInfo();
             }
@@ -448,7 +448,7 @@ void FormBoot::priv_pleaseWaitHide ()
 }
 
 //**********************************************************************
-void FormBoot::priv_pleaseWaitSetText (const char *message)
+void FormBoot::priv_pleaseSetTextWithColor (const char *message, const char *bgColor, const char *textColor)
 {
     if (NULL == message)
         ui->labWait->setVisible(false);
@@ -456,29 +456,18 @@ void FormBoot::priv_pleaseWaitSetText (const char *message)
         ui->labWait->setVisible(false);
     else
     {
-        ui->labWait->setStyleSheet("QLabel { background-color:#43b441; color:#fff }");
+        char s[96];
+        sprintf_s (s, sizeof(s), "QLabel { background-color:%s; color:%s; }", bgColor, textColor);
+        ui->labWait->setStyleSheet(s);
         ui->labWait->setVisible(true);
         ui->labWait->setText(message);
     }
     QApplication::processEvents();
 }
 
-//**********************************************************************
-void FormBoot::priv_pleaseWaitSetError (const char *message)
-{
-    if (NULL == message)
-        ui->labWait->setVisible(false);
-    else if (message[0] == 0x00)
-        ui->labWait->setVisible(false);
-    else
-    {
-        ui->labWait->setStyleSheet("QLabel { background-color:#f00; color:#fff }");
-        ui->labWait->setVisible(true);
-        ui->labWait->setText(message);
-    }
-    QApplication::processEvents();
-}
-
+void FormBoot::priv_pleaseWaitSetText (const char *message)             { priv_pleaseSetTextWithColor (message, "#9b9", "#fff"); }
+void FormBoot::priv_pleaseWaitSetOK (const char *message)               { priv_pleaseSetTextWithColor (message, "#43b441", "#fff"); }
+void FormBoot::priv_pleaseWaitSetError (const char *message)            { priv_pleaseSetTextWithColor (message, "#f00", "#fff"); }
 
 
 
@@ -602,7 +591,7 @@ bool FormBoot::priv_langCopy (const char *srcFolder, const char *dstFolder, u32 
     {
         priv_pleaseWaitSetText("Finalizing copy...");
         utils::waitAndProcessEvent (timeToWaitDuringCopyFinalizingMSec);
-        priv_pleaseWaitSetText("SUCCESS");
+        priv_pleaseWaitSetOK("SUCCESS");
     }
     else
         priv_pleaseWaitSetError("Error during file copy!");
@@ -635,7 +624,7 @@ void FormBoot::priv_uploadManual (const char *srcFullFilePathAndName)
     if (!rhea::fs::fileCopy (srcFullFilePathAndName, dstFilePathAndName))
         priv_pleaseWaitSetError("ERROR copying files");
     else
-        priv_pleaseWaitSetText("SUCCESS. Manual installed");
+        priv_pleaseWaitSetOK("SUCCESS.\nManual installed");
 
     priv_pleaseWaitHide();
     priv_updateLabelInfo();
@@ -717,7 +706,7 @@ void FormBoot::priv_uploadGUI (const char *srcFullFolderPath)
         }
         fclose(f);
 
-        priv_pleaseWaitSetText("SUCCESS. GUI installed");
+        priv_pleaseWaitSetOK("SUCCESS.\nGUI installed");
     }
 
 
@@ -790,8 +779,8 @@ void FormBoot::on_btnDownload_DA3_clicked()
     }
     else
     {
-        sprintf_s (dst, sizeof(dst), "SUCCESS. The file [%s] has been copied to your USB pendrive on the folder rhea/rheaData", lastInstalledDa3FileName);
-        priv_pleaseWaitSetText (dst);
+        sprintf_s (dst, sizeof(dst), "SUCCESS.\nThe file [%s] has been copied to your USB pendrive on the folder rhea/rheaData", lastInstalledDa3FileName);
+        priv_pleaseWaitSetOK (dst);
     }
 
     priv_pleaseWaitHide();
@@ -843,8 +832,8 @@ void FormBoot::on_btnDownload_GUI_clicked()
     }
     else
     {
-        sprintf_s (s, sizeof(s), "SUCCESS. Files has been copied to yourt USB pendrive in the folder [%s]", dst);
-        priv_pleaseWaitSetText(s);
+        sprintf_s (s, sizeof(s), "SUCCESS.\nFiles has been copied to yourt USB pendrive in the folder [%s]", dst);
+        priv_pleaseWaitSetOK(s);
     }
 
 
@@ -857,9 +846,33 @@ void FormBoot::on_btnDownload_GUI_clicked()
  */
 void FormBoot::on_btnDownload_diagnostic_clicked()
 {
+    char s[512];
     priv_pleaseWaitShow("Downloading Diagnostic zip file...");
 
-    priv_pleaseWaitSetError("Downloading Diagnostic zip file... ERROR: feature not implemented yet");
+    sprintf_s (s, sizeof(s), "%s/RHEA_ServicePack.tar.gz", rhea::getPhysicalPathToAppFolder());
+    rhea::fs::fileDelete(s);
+
+    sprintf_s (s, sizeof(s), "%s/makeRheaServicePack.sh", rhea::getPhysicalPathToAppFolder());
+    system(s);
+
+
+    char dstFileName[64];
+    rhea::DateTime dt;
+    dt.setNow();
+    dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), '_', '-', '-');
+    sprintf_s (dstFileName, sizeof(dstFileName), "RHEA_ServicePack_%s.tar.gz", s);
+
+    char dst[256];
+    sprintf_s (s, sizeof(s), "%s/RHEA_ServicePack.tar.gz", rhea::getPhysicalPathToAppFolder());
+    sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder, dstFileName);
+
+    if (!rhea::fs::fileCopy (s, dst))
+        priv_pleaseWaitSetError("DERROR copying file to USB pendrive");
+    else
+    {
+        sprintf_s (s, sizeof(s),"SUCCESS.\nA file named [%s] has been put on your USB pendrive in the folder /rhea.", dstFileName);
+        priv_pleaseWaitSetOK(s);
+    }
     priv_pleaseWaitHide();
 }
 
