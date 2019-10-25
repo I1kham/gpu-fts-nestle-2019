@@ -17,28 +17,37 @@ i16     cpuCommThreadFn (void *userParam);
 
 
 //****************************************************************************
+bool cpubridge_helper_folder_create (const char *folder, rhea::ISimpleLogger *logger)
+{
+    char s[512];
+    sprintf_s(s, sizeof(s), "%s/%s", rhea::getPhysicalPathToAppFolder(), folder);
+    if (!rhea::fs::folderCreate(s))
+    {
+        logger->log ("ERR: can't create folder [%s]\n", s);
+        return false;
+    }
+    else
+    {
+        logger->log ("CREATED folder [%s]\n", s);
+        return true;
+    }
+}
+
+//****************************************************************************
 bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread, HThreadMsgW *out_hServiceChannelW)
 {
 	//creo la struttura di cartelle necessarie al corretto funzionamento
-	char s[1024];
-	sprintf_s(s, sizeof(s), "%s/current", rhea::getPhysicalPathToAppFolder());					
-	rhea::fs::folderCreate(s);
-	sprintf_s(s, sizeof(s), "%s/current/lang", rhea::getPhysicalPathToAppFolder());				
-	rhea::fs::folderCreate(s);
-    sprintf_s(s, sizeof(s), "%s/current/da3", rhea::getPhysicalPathToAppFolder());
-    rhea::fs::folderCreate(s);
-	sprintf_s(s, sizeof(s), "%s/current/cpu", rhea::getPhysicalPathToAppFolder());
-	rhea::fs::folderCreate(s);
+    cpubridge_helper_folder_create("current", logger);
+    cpubridge_helper_folder_create("current/lang", logger);
+    cpubridge_helper_folder_create("current/da3", logger);
+    cpubridge_helper_folder_create("current/cpu", logger);
+    cpubridge_helper_folder_create("last_installed", logger);
+    cpubridge_helper_folder_create("/last_installed/da3", logger);
+    cpubridge_helper_folder_create("last_installed/cpu", logger);
+    cpubridge_helper_folder_create("temp", logger);
 
-	sprintf_s(s, sizeof(s), "%s/last_installed", rhea::getPhysicalPathToAppFolder());			
-	rhea::fs::folderCreate(s);
-	sprintf_s(s, sizeof(s), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());		
-	rhea::fs::folderCreate(s);
-	sprintf_s(s, sizeof(s), "%s/last_installed/cpu", rhea::getPhysicalPathToAppFolder());
-	rhea::fs::folderCreate(s);
-
-	sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());		
-	rhea::fs::folderCreate(s);
+    char s[512];
+    sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());
 	rhea::fs::deleteAllFileInFolderRecursively(s, false);
 
 	
