@@ -28,3 +28,4 @@ MSVC17/testDB/build/
 *.o
 QT5/build/
 bin
+!/bin/varie
