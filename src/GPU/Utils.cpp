@@ -19,7 +19,9 @@ void utils::hideMouse()
 #ifdef PLATFORM_UBUNTU_DESKTOP
     return;
 #else
-    QApplication::setOverrideCursor(Qt::BlankCursor);
+    #ifndef _DEBUG
+        QApplication::setOverrideCursor(Qt::BlankCursor);
+    #endif
 #endif
 }
 

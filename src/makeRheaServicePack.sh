@@ -1,5 +1,5 @@
 #!/bin/bash
-clear
+
 DATA=`date '+%y%m%d'`
 filename="RHEA_ServicePack.tar.gz"
 

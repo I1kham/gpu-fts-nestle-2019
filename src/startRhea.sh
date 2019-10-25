@@ -10,8 +10,8 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 cd $SCRIPTPATH
 if [ -d "./GPUPackage2019" ]; then
   # Control will enter here if $DIRECTORY exists.
-  #rm -r ../GPUPackage2019
-  mv ./GPUPackage2019 ../GPUPackage2019
+  cp -r ./GPUPackage2019 ../
+  rm -r ./GPUPackage2019
 fi
 
 cd ../GPUPackage2019

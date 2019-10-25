@@ -94,9 +94,9 @@ LIBS += -ldl
 
 
 CONFIG(release, debug|release) {
-	QMAKE_CXXFLAGS += -O2
-	QMAKE_CFLAGS += -O2
-	CONFIG += optimize_full
+	#QMAKE_CXXFLAGS += -O2
+	#QMAKE_CFLAGS += -O2
+	#CONFIG += optimize_full
 	QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable
 }
 
@@ -106,8 +106,7 @@ SOURCES += \
     ../../src/GPU/history.cpp \
     ../../src/GPU/main.cpp \
     ../../src/GPU/mainwindow.cpp \
-    ../../src/GPU/Utils.cpp \
-    ../../src/GPU/FormBrowser.cpp
+    ../../src/GPU/Utils.cpp
 
 HEADERS  += \
     ../../src/GPU/formboot.h \
@@ -115,11 +114,9 @@ HEADERS  += \
     ../../src/GPU/header.h \
     ../../src/GPU/history.h \
     ../../src/GPU/mainwindow.h \
-    ../../src/GPU/Utils.h \
-    ../../src/GPU/FormBrowser.h
+    ../../src/GPU/Utils.h
 
 FORMS    += \
     ../../src/GPU/formboot.ui \
     ../../src/GPU/formprog.ui \
-    ../../src/GPU/mainwindow.ui \
-    ../../src/GPU/FormBrowser.ui
+    ../../src/GPU/mainwindow.ui

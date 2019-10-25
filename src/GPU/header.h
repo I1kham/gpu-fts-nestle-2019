@@ -48,6 +48,8 @@ struct sGlobal
     char *usbFolder_GUI;                //folder su chiavetta USB per le GUI
     char *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
     char *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
+
+    rhea::ISimpleLogger *logger;
 };
 
 

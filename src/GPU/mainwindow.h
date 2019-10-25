@@ -5,7 +5,6 @@
 #include <QWidget>
 #include <QMessageBox>
 #include "formboot.h"
-#include "FormBrowser.h"
 #include "formprog.h"
 #include "../CPUBridge/CPUBridge.h"
 
@@ -33,9 +32,9 @@ private slots:
 private:
     enum eForm
     {
-        eForm_main = 0,
+        eForm_main_syncWithCPU = 0,
         eForm_boot,
-        eForm_browser,
+        eForm_main_showBrowser,
         eForm_prog
     };
 
@@ -55,10 +54,12 @@ private:
 private:
     void                    priv_showForm (eForm w);
     void                    priv_start();
-    void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
-    void                    priv_setText (const char *s);
-    void                    priv_onTick();
+    void                    priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    void                    priv_addText (const char *s);
+    void                    priv_syncWithCPU_onTick();
     void                    priv_scheduleFormChange(eForm w);
+    int                     priv_showBrowser_onTick();
+    void                    priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &msg);
 
 private:
     sGlobal                 *glob;
@@ -70,8 +71,8 @@ private:
     cpubridge::sCPUVMCDataFileTimeStamp myTS;
     eForm                   currentForm, nextForm;
     FormBoot                *frmBoot;
-    FormBrowser             *frmBrowser;
     FormProg                *frmProg;
+    int                     retCode;
 };
 
 #endif // MAINWINDOW_H

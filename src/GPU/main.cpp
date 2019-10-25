@@ -19,15 +19,8 @@ bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *lo
 
 
 //*****************************************************
-bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW)
+bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logger)
 {
-#ifdef _DEBUG
-    rhea::ISimpleLogger *logger = new rhea::StdoutLogger();
-#else
-    rhea::ISimpleLogger *logger = new rhea::NullLogger();
-#endif
-
-
 #ifdef PLATFORM_YOCTO_EMBEDDED
     //apro un canale di comunicazione con la CPU fisica
     cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();
@@ -195,21 +188,26 @@ void setupFolderInformation (sGlobal *glob)
 }
 
 
-
 //****************************************************
-int main(int argc, char *argv[])
+void run(int argc, char *argv[])
 {
-    rhea::init("rheaGPU", NULL);
+    sGlobal glob;
+    memset(&glob, 0, sizeof(glob));
+
+    //creazione del logger
+#ifdef _DEBUG
+    glob.logger = new rhea::StdoutLogger();
+#else
+    glob.logger = new rhea::NullLogger();
+#endif
+
+    //recupero informazioni sui vari folder
+    setupFolderInformation (&glob);
+    glob.logger->log ("current folder is: %s\n", rhea::getPhysicalPathToAppFolder());
 
     //Avvio della SMU
     HThreadMsgW hCPUServiceChannelW;
-    startCPUBridge(&hCPUServiceChannelW);
-
-
-    //recupero informazioni sui vari folder
-    sGlobal glob;
-    memset(&glob, 0, sizeof(glob));
-    setupFolderInformation(&glob);
+    startCPUBridge (&hCPUServiceChannelW, glob.logger);
 
     //Mi iscrivo alla CPU per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
     subscribeToCPU (hCPUServiceChannelW, &glob.subscriber);
@@ -222,8 +220,17 @@ int main(int argc, char *argv[])
     myMainWindow = new MainWindow (&glob);
     myMainWindow->show();
 
-    int ret = app.exec();
+    app.exec();
+}
+
+
+//****************************************************
+int main (int argc, char *argv[])
+{
+    rhea::init("rheaGPU", NULL);
+
+    run (argc, argv);
 
     rhea::deinit();
-    return ret;
+    return 0;
 }
