@@ -112,6 +112,10 @@ void Server::run()
         case sStato::eStato_selection:
 			priv_handleState_selection();
 			break;
+
+        case sStato::eStato_programmazione:
+            priv_handleState_programmazione();
+            break;
 		}
 	}
 }
@@ -243,10 +247,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
         case CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM:
             {
-                //Al prossimo invio del comando di stato, invierò questo buttonNum invece del solito zero
-                //translate_CPU_SEND_BUTTON(msg, &nextButtonNumToSend);
-
                 //Ho optato per inviare subito il comando B invece che schedularlo al prossimo giro
+                keepOnSendingThisButtonNum=0;
                 u8 btnToSend = 0;
                 translate_CPU_SEND_BUTTON(msg, &btnToSend);
 
@@ -257,6 +259,21 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                     priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
             }
             break;
+
+        case CPUBRIDGE_SUBSCRIBER_ASK_CPU_KEEP_SENDING_BUTTON_NUM:
+            {
+                //Da ora in poi, nel comando B invio sempre quest bntNum fino a che non
+                //ricevo un analogo msg con btnNum = 0
+                translate_CPU_KEEP_SENDING_BUTTON_NUM(msg, &keepOnSendingThisButtonNum);
+
+                u8 bufferW[32];
+                const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (keepOnSendingThisButtonNum, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+                    priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+            }
+            break;
+
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_RUNNING_SEL_STATUS:
 			notify_CPU_RUNNING_SEL_STATUS(sub->q, handlerID, logger, runningSel.status);
@@ -884,11 +901,8 @@ u16 Server::priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend)
     //lo faccio qui ma solo quando btnNumberToSend==0.
     //L'idea è che qui sto preparando il solito messaggio di stato...se non avevo nessun btn in particolare da invia (btnNumberToSend==0) e se
     //ne avevo uno in canna in attesa (nextButtonNumToSend!=0), allora lo mando ora
-    if (0 == btnNumberToSend && 0 != nextButtonNumToSend)
-    {
-        btnNumberToSend = nextButtonNumToSend;
-        nextButtonNumToSend = 0;
-    }
+    if (0 == btnNumberToSend)
+        btnNumberToSend = keepOnSendingThisButtonNum;
 
     u8 bufferW[32];
     u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnNumberToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
@@ -910,7 +924,7 @@ void Server::priv_enterState_comError()
     memset(lastCPUMsg, 0, sizeof(lastCPUMsg));
     lastCPUMsgLen = 0;
     lastBtnProgStatus = 0;
-    nextButtonNumToSend = 0;
+    keepOnSendingThisButtonNum = 0;
 
     cpuStatus.VMCstate = eVMCState_COM_ERROR;
 	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
@@ -1091,6 +1105,12 @@ void Server::priv_handleState_normal()
 				//parso la risposta
 				nRetry = 0;
 				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+
+                if (this->cpuStatus.VMCstate == eVMCState_PROGRAMMAZIONE)
+                {
+                    priv_enterState_programmazione();
+                    return;
+                }
 			}
 
 			//schedulo il prossimo msg di stato
@@ -1102,6 +1122,61 @@ void Server::priv_handleState_normal()
 	}
 }
 
+
+//***************************************************
+void Server::priv_enterState_programmazione()
+{
+    logger->log("CPUBridgeServer::priv_enterState_programmazione()\n");
+    stato.set (sStato::eStato_programmazione, sStato::eWhatToDo_nothing);
+}
+
+//***************************************************
+void Server::priv_handleState_programmazione()
+{
+    const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 50;
+    const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 8;
+    u8 nRetry = 0;
+
+    u64	nextTimeSendCheckStatusMsgWasMSec = 0;
+    while (stato.get() == sStato::eStato_programmazione)
+    {
+        const u64 timeNowMSec = rhea::getTimeNowMSec();
+
+        //ogni tot, invio un msg di stato alla CPU
+        if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
+        {
+            u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+            if (0 == sizeOfAnswerBuffer)
+            {
+                //la CPU non ha risposto al mio comando di stato, passo in com_error
+                nRetry++;
+                if (nRetry >= ALLOW_N_RETRY_BEFORE_COMERROR)
+                {
+                    priv_enterState_comError();
+                    return;
+                }
+            }
+            else
+            {
+                //parso la risposta
+                nRetry = 0;
+                priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+
+                if (this->cpuStatus.VMCstate != eVMCState_PROGRAMMAZIONE)
+                {
+                    priv_enterState_normal();
+                    return;
+                }
+            }
+
+            //schedulo il prossimo msg di stato
+            nextTimeSendCheckStatusMsgWasMSec = rhea::getTimeNowMSec() + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
+        }
+
+        //ci sono messaggi in ingresso?
+        priv_handleMsgQueues (timeNowMSec, TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec);
+    }
+}
 /***************************************************
  *	priv_parseAnswer_checkStatus
  *

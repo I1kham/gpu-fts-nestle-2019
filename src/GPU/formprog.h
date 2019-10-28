@@ -35,6 +35,16 @@ private slots:
     void                        on_buttonB8_pressed();
     void                        on_buttonB9_pressed();
     void                        on_buttonB10_pressed();
+    void                        on_buttonB1_released();
+    void                        on_buttonB2_released();
+    void                        on_buttonB3_released();
+    void                        on_buttonB4_released();
+    void                        on_buttonB5_released();
+    void                        on_buttonB6_released();
+    void                        on_buttonB7_released();
+    void                        on_buttonB8_released();
+    void                        on_buttonB9_released();
+    void                        on_buttonB10_released();
 
 private:
     void                        priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);

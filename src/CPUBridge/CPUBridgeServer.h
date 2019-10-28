@@ -32,7 +32,8 @@ namespace cpubridge
             {
                 eStato_comError = 0,
                 eStato_normal = 1,
-                eStato_selection = 2
+                eStato_selection = 2,
+                eStato_programmazione = 3
             };
 
             enum eWhatToDo
@@ -81,7 +82,10 @@ namespace cpubridge
 		void					priv_handleState_normal();
 		void					priv_parseAnswer_checkStatus(const u8 *answer, u16 answerLen);
 
-		bool					priv_enterState_selection (u8 selNumber, const sSubscription *sub);
+        void					priv_enterState_programmazione();
+        void                    priv_handleState_programmazione();
+
+        bool					priv_enterState_selection (u8 selNumber, const sSubscription *sub);
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 
@@ -114,7 +118,7 @@ namespace cpubridge
 		u16						lastCPUMsg[LCD_BUFFER_SIZE_IN_U16];
 		u16						lastCPUMsgLen;
 		u8						lastBtnProgStatus;
-        u8                      nextButtonNumToSend;
+        u8                      keepOnSendingThisButtonNum;
     };
 
 } // namespace cpubridge
