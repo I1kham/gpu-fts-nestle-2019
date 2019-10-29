@@ -142,7 +142,7 @@ namespace rhea
 		namespace CurrentVMCDataFileTimestamp
 		{
 			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
-			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sCPUVMCDataFileTimeStamp *out);
+			void		decodeAnswer (const sDecodedEventMsg &msg, cpubridge::sCPUVMCDataFileTimeStamp *out);
 			//ask_		=> chiede a SocketBridge il file da3
 			//decode_	=> come sopra
 		}
@@ -152,6 +152,13 @@ namespace rhea
 			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 selNum);
 			//ask_		=> chiede a SocketBridge di iniziare una selezione.
 			//decode_	=> non esiste
+		}
+
+		namespace ExecuteSimpleProgramCmd
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd);
+				//ask_		=> chiede a SocketBridge di inviare uno specifico comando di programmazione alla CPU
+				//decode_	=> non esiste
 		}
 
 		namespace ExecuteCleaning

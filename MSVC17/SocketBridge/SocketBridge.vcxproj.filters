@@ -83,6 +83,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartCleaning.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSimpleProgramCmd.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -158,6 +161,9 @@
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartCleaning.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSimpleProgramCmd.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
   </ItemGroup>

@@ -640,6 +640,17 @@ void app::ExecuteSelection::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *pr
 
 
 /*****************************************************************
+ * namespace ExecuteSimpleProgramCmd
+ */
+void app::ExecuteSimpleProgramCmd::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)cmd;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
+
+
+/*****************************************************************
  * namespace ExecuteCleaning
  */
 void app::ExecuteCleaning::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType)

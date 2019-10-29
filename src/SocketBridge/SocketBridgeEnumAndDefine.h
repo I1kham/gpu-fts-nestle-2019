@@ -50,6 +50,7 @@ namespace socketbridge
 		eEventType_reqVMCDataFileTimestamp = 'o',			//111	0x6F
 		eEventType_reqWriteLocalVMCDataFile = 'p',			//112	0x70
 		eEventType_cleaning = 'q',							//113	0x71
+		eEventType_cpuSimpleProgrCommand = 'r',				//114	0x72
 		
         eEventType_unknown = 0xff
     };

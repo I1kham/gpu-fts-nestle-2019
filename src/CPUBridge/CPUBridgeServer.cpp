@@ -395,7 +395,7 @@ void Server::priv_handleProgrammingMessage(sSubscription *sub, eCPUProgrammingCo
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
 		{
-			logger->log("ERR sending P command to CPU\n");
+			logger->log("ERR sending P[%d] command to CPU\n", cmd);
 		}
 	}
 }
