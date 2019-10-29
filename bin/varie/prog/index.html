@@ -1,0 +1,164 @@
+<html>
+<head>
+	<title>PROGRAMMING MENU</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div class="wrapper1024x600">
+	<div id="pagePleaseWait" style="display:none">
+		<br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+	</div>
+			
+	<!-- page Main menu -->
+	<div class="header">
+		<div id="divCPUStatus" class="header_L">&nbsp;</div>
+		<div class="header_C"><center><img src="img/iconHome.png"> Programming Menu</center></div>
+		<div class="header_R colorGrey">02/10/2019 10:42</div>
+		<div class="clear"></div>
+	</div>		
+
+	<div id="divPage" class="page">
+		<!--- page Main Menu -->
+		<div id="pageMainMenu" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="MAINTENANCE" data-onclick="showPage('pageMaintenance')"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING" data-onclick="showPage('pageCleaning')"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DATA AUDIT" data-onclick=""></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="SELECTIONS<br>(max 48)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CALIBRATION"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DEVICES"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="TEMPERATURE"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PRODUCT<br>QUANTITY" data-onclick="showPage('pageCleaning')"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PAYMENT<br>SYSTEMS"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="showPage('pageMiscellaneous')"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CLOCK"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CAPPUCCINATORE"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div></td>
+						<td width="33%" align="center"></td>
+						<td></td>
+					</tr>					
+				</table>
+			</div>
+		</div>
+		
+		<!-- page Maintenance -->
+		<div id="pageMaintenance" class="UIWindow">
+			<div class="UIWindowContent">
+				PAGE MAINTENANCE<br>
+				<br>
+				<a href="javascript:showPage('pageMainMenu')">MAIN MENU</a><br>
+			</div>
+		</div>
+		
+		<!-- page Cleaning -->
+		<div id="pageCleaning" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>(MIXER + BREWER)" data-onclick="pageCleaning(160)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 1" data-onclick="pageCleaning(1)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START CLEANING HC" data-onclick="pageCleaning(8)"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 2" data-onclick="pageCleaning(2)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning(5)"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 3" data-onclick="pageCleaning(3)"></div></td>
+						</td>
+					</tr>
+					<tr valign="middle">
+						<td></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 4" data-onclick="pageCleaning(4)"></div></td>
+						</td>
+					</tr>					
+				</table>
+			</div>
+		</div>
+	
+		<!-- page pageMiscellaneous -->
+		<div id="pageMiscellaneous" class="UIWindow">
+			<div class="UIWindowContent">
+				PAGE MISCELLANEOUS<br>
+				<br>
+				<div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div>
+			</div>
+		</div>	
+		
+	</div> <!-- divPage -->
+
+	<div id="divFooter" class="footer">
+		<div id="bntBack" class="UIButton" data-caption="BACK" data-onclick="showPage('pageMainMenu')"></div>
+	</div>
+		
+			
+	
+</div> <!-- wrapper -->
+
+
+<script src="js/UI.js"></script>
+<script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
+<script language="javascript">
+var ui = null;
+
+function onRheaBootstrapFinished()
+{
+	rhea.onEvent_cpuStatus = function(statusID, statusStr)
+	{
+		var d = rheaGetElemByID ("divCPUStatus");
+		rheaSetElemHTML(d, statusStr +" [" +statusID +"]");
+		rheaShowElem(d);
+	}
+	
+	ui = new UI ("divPage");
+	ui.setupStandaloneButton("bntBack");
+	showPage ("pageMainMenu");
+}
+
+function showPage(pageID)
+{
+	ui.hideAllExcept (pageID);
+}
+
+/***************************************************************************
+ *
+ * pageCleaning
+ *
+ */
+function pageCleaning(what)
+{
+console.log ("pageCleaning(" +what +")");
+	rhea.requestGPUCleaning(parseInt(what));
+}
+
+
+/***************************************************************************
+ *
+ * pageMiscellaneous
+ *
+ */
+function pageMiscellaneous_oldProgMenu()
+{
+	window.location = "gotoLegacyMenu.html";
+}
+
+</script>
+
+</html>

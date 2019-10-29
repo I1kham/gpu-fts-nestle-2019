@@ -1,0 +1,67 @@
+* {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-Regular.ttf) format("truetype"); font-weight: normal;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-Bold.ttf) format("truetype"); font-weight: bold;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-Italic.ttf) format("truetype"); font-weight: normal; font-style: italic;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-BoldItalic.ttf) format("truetype"); font-weight: bold; font-style: italic;}
+    
+
+
+*		{ font-family: "MyFont"; }
+html	{ background-color:#bbb; }
+body 	{ font-size:15px; background-color:#bbb; color:#fff; margin:0; padding:0;}
+form, div, input, h1, h2, h3, h4, h5	{ margin:0; padding:0; }
+table { font-size:1.0em; }
+h1		{ font-size:1.3em; }	
+h2		{ font-size:1.2em; }
+h3		{ font-size:1.1em; }
+input 	{ font-size:14px;}
+a		{ color: #fff; text-decoration:none; outline: 0;}
+a:hover	{ text-decoration:none; outline: 0; }
+
+.clear 	{ float:none; clear:both; }
+
+.wrapper1024x600 	{ font-size:22px; background-color:#000; color:#fff; width:1024px; height:600px; margin:0 auto; overflow:hidden; position:relative; }
+.header	{ height:49px; width:100%; overflow:hidden; border-bottom:solid 1px #fff; line-height:50px;}
+	.header_L { float:left; width:160px; text-align:center; }
+	.header_C { float:left; width:704px; text-align:center; font-size:1.4em; line-height}
+	.header_R { float:left; width:150px; text-align:right; font-size:16px; }
+.footer	{ height:49px; width:1004px; overflow:hidden; border-top:solid 1px #fff; line-height:50px; padding:0 10px 0 10px; }
+
+.page { position:relative; top:0; left:0; width:100%; padding:0; margin:0; height:500px; }
+.UIWindow { position:absolute; top:5px; left:10px; width:1004px; height:495px; display:none; overflow:hidden;}
+.UIWindowContent  { position:absolute; top:0; left:0; width:100%;}
+
+.page-scrollable-wrapper { position:relative; height:500px; width:1024px; overflow:hidden; padding:0; margin:0; }
+.page-scrollable { position:absolute; top:0; left:0; width:100%;}
+
+.bigScrollArrowDown { position:absolute; width:100%; left:0; height:50px; background-image: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));}
+.bigScrollArrowUp   { position:absolute; width:100%; left:0; height:50px; background-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.1));}
+
+
+.UIButton 		{ cursor:pointer; display:table; overflow:hidden; background-color:#656565; color:#000; margin:0; padding:0; text-align:center;}
+.UIButton 		{ padding:0; margin:3px 0 3px 0; border-radius:5px;  font-size:1.0em; line-height:auto; }
+.UIButton p 	{ display: table-cell; vertical-align:middle; margin:0; padding:3px; display:table-cell; vertical-align: middle; }
+
+.bigButton3x4 	{ border-radius:10px; font-size:1.4em; width:322px; height:106px; min-height:106px; max-height:106px; }
+.bigButton3x4 p { padding:10px; }
+
+.bigButton4x4 	{ border-radius:10px; font-size:1.3em; width:241px; height:106px; min-height:106px; max-height:106px; }
+
+
+.numberSwipeContainer { display:inline-block; border:solid 1px #f00; color:#fff; width:60px; height:65px; position:relative; overflow:hidden; }
+.numberSwipeMask{ width:100%; height:100%; position:absolute; top:0; left:0; background-image:url(img/fader.png); background-repeat: repeat-x; }
+.numberSwipeStrip { position: absolute; top:-125px; left:0; width:100%; text-align:center; }
+.numberSwipeStrip p { margin:0;  line-height:35px; padding:0; max-height:35px; overflow:hidden; height:35px; font-size:1.5em;}
+
+.colorGrey { color:#999999; }
+.UIlit { background-color:#cc5f29; color:#fff; }
+.UIdisabled  { background-color:#222; color:#181818; }
