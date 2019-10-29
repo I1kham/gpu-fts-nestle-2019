@@ -4,7 +4,6 @@
 #include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 
-<<<<<<< HEAD
 //nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
 	#define CPU_COMPORT  "/dev/ttyUSB0"
@@ -13,18 +12,6 @@
 #else
 	#define CPU_COMPORT  "COM5"
 #endif
-=======
-
-//nome della porta seriale
-#ifdef PLATFORM_UBUNTU_DESKTOP
-    #define CPU_COMPORT  "/dev/ttyUSB0"
-#elif #PLATFORM_YOCTO_EMBEDDED
-    #define CPU_COMPORT  "/dev/ttymxc3"
-#else
-    #define CPU_COMPORT  "COM5"
-#endif
-
->>>>>>> cde7917fcf345f8f9632bc3923b002e5b0563277
 
 //*****************************************************
 bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)

@@ -19,7 +19,7 @@ namespace cpubridge
 		bool                    open (rhea::ISimpleLogger *logger);
 		void                    close (rhea::ISimpleLogger *logger);
 
-		bool					sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger);
+		bool					sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
 								/*
 									in ingresso, [in_out_sizeOfAnswer] contiene la dimensione di out_answer
 									in uscita, contiene il num di bytes inseriti in out_answer (ovvero la risposta della CPU)

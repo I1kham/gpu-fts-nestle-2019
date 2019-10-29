@@ -60,7 +60,7 @@ void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
  */
-bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend UNUSED_PARAM, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
+bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend UNUSED_PARAM, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec UNUSED_PARAM)
 {
 	const eCPUCommand cpuCommand = (eCPUCommand)bufferToSend[1];
     //u8 msgLen = bufferToSend[2];

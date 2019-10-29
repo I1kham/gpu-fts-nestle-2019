@@ -255,7 +255,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                 u8 bufferW[32];
                 const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
                 u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
                     priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
             }
             break;
@@ -269,7 +269,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                 u8 bufferW[32];
                 const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (keepOnSendingThisButtonNum, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
                 u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
                     priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
             }
             break;
@@ -393,7 +393,7 @@ void Server::priv_handleProgrammingMessage(sSubscription *sub, eCPUProgrammingCo
 	if (nBytesToSend)
 	{
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
 		{
 			logger->log("ERR sending P command to CPU\n");
 		}
@@ -680,7 +680,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		
 		//invio
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (!chToCPU->sendAndWaitAnswer(bufferCPUMsg, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+		if (!chToCPU->sendAndWaitAnswer(bufferCPUMsg, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 		{
 			//errore, la CPU non ha risposto, abortisco l'operazione
 			if (NULL != subscriber)
@@ -779,7 +779,7 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 	{
 		u16 nBytesToSend = buildMsg_readVMCDataFile(nPacketSoFar++, bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 		{
 			//errore, la CPU non ha risposto, abortisco l'operazione
 			if (NULL != subscriber)
@@ -855,7 +855,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
     while (1)
     {
         u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-        if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+        if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
         {
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
@@ -904,7 +904,7 @@ bool Server::priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp 
 
 	//invio richiesta a CPU
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 	{
 		//errore, la CPU non ha risposto, abortisco l'operazione
 		return false;
@@ -934,7 +934,7 @@ u16 Server::priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend)
     u8 bufferW[32];
     u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnNumberToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
     u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-    if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+    if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
         return 0;
     return sizeOfAnswerBuffer;
 }
@@ -997,7 +997,7 @@ void Server::priv_handleState_comError()
 
 		//invio comando initalParam
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 		{
 			//la CPU ha risposto, elaboro la risposta e passo in stato "normal"
 			priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);

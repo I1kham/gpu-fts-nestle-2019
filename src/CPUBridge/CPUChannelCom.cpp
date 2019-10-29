@@ -86,12 +86,12 @@ void CPUChannelCom::close (rhea::ISimpleLogger *logger)
 }
 
 //*****************************************************************
-bool CPUChannelCom::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
+bool CPUChannelCom::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
 {
 	if (!priv_handleMsg_send(bufferToSend, nBytesToSend, logger))
 		return false;
 
-	if (!priv_handleMsg_rcv(out_answer, in_out_sizeOfAnswer, logger))
+	if (!priv_handleMsg_rcv(out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec))
 		return false;
 
 	return true;
@@ -125,13 +125,13 @@ bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhe
 }
 
 //***************************************************
-bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger)
+bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
 {
 	DUMPMSG("RCV: ");
 	const u16 sizeOfBuffer = *in_out_sizeOfAnswer;
 	*in_out_sizeOfAnswer = 0;
 
-	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutRCVMsec;
 	u16 nBytesRcv = 0;
 	u8	commandChar = 0x00;
 	u8	msgLen = 0x00;
