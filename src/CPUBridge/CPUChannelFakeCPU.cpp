@@ -36,6 +36,8 @@ bool CPUChannelFakeCPU::open(rhea::ISimpleLogger *logger)
 	logger->incIndent();
 	logger->log("OK\n");
 	logger->decIndent();
+
+	memset(&cleaning, 0, sizeof(cleaning));
 	return true;
 }
 
@@ -225,12 +227,39 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 	case eCPUCommand_restart:
 		*in_out_sizeOfAnswer = 0;
 		return true;
+
+	case eCPUCommand_programming:
+		//# P len sub_command optional_params ... ck
+		switch ((eCPUProgrammingCommand)bufferToSend[3])
+		{
+		default:
+			return false;
+
+		case eCPUProgrammingCommand_cleaning:
+			//fino un cleaning
+			cleaning.isRunning = 1;
+			cleaning.timeToEnd = rhea::getTimeNowMSec() + 4000;
+			cleaning.prevState = this->VMCState;
+			this->VMCState = eVMCState_LAVAGGIO_MANUALE;
+			return true;
+		}
+		return false;
 	}
 }
 
 //*****************************************************************
-void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer) const
+void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {
+	if (cleaning.isRunning)
+	{
+		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+		{
+			cleaning.isRunning = 0;
+			this->VMCState = cleaning.prevState;
+		}
+	}
+
+
 	u32 ct = 0;
 
 	/*

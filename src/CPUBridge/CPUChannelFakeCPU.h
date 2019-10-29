@@ -38,8 +38,15 @@ namespace cpubridge
 			u64	timeStartedMSec;
 		};
 
+		struct sCleaning
+		{
+			u8 isRunning;
+			eVMCState prevState;
+			u64 timeToEnd;
+		};
+
 	private:
-		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer) const;
+		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
 		void					priv_updateCPUMessageToBeSent (u64 timeNowMSec);
 
 	private:
@@ -52,6 +59,7 @@ namespace cpubridge
 		char						cpuMessage2[36];
 		const char					*curCPUMessage;
 		u64							timeToSwapCPUMsgMesc;
+		sCleaning					cleaning;
     };
 
 } // namespace cpubridge
