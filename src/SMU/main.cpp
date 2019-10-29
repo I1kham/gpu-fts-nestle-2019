@@ -4,7 +4,14 @@
 #include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 
-
+//nome della porta seriale
+#ifdef PLATFORM_UBUNTU_DESKTOP
+	#define CPU_COMPORT  "/dev/ttyUSB0"
+#elif PLATFORM_YOCTO_EMBEDDED
+	#define CPU_COMPORT  "/dev/ttymxc3"
+#else
+	#define CPU_COMPORT  "COM5"
+#endif
 
 //*****************************************************
 bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)
@@ -34,10 +41,10 @@ bool startCPUBridge()
     bool b = chToCPU->open("/dev/ttymxc3", logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 
     //apro un canale con la CPU fisica
-    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
 
 #endif
 

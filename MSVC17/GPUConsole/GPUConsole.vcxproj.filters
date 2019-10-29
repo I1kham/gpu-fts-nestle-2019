@@ -21,6 +21,12 @@
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_upload.cpp">
       <Filter>command</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startsel.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h">
@@ -62,6 +68,12 @@
       <Filter>command</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_upload.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startsel.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.h">
       <Filter>command</Filter>
     </ClInclude>
   </ItemGroup>

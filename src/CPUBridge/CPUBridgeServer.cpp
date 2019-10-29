@@ -338,15 +338,9 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
         case CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD:
             {
                 eCPUProgrammingCommand c;
-                cpubridge::translate_CPU_PROGRAMMING_CMD (msg, &c);
-
-                u8 bufferW[32];
-                u8 nBytesToSend = cpubridge::buildMsg_Programming(c, bufferW, sizeof(bufferW));
-                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
-                {
-                    logger->log ("ERR sending P command to CPU\n");
-                }
+				const u8 *optionalData;
+                cpubridge::translate_CPU_PROGRAMMING_CMD (msg, &c, &optionalData);
+				priv_handleProgrammingMessage(sub, c, optionalData);
             }
             break;
 
@@ -355,6 +349,39 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 	}
 }
 
+
+//**********************************************
+void Server::priv_handleProgrammingMessage(sSubscription *sub, eCPUProgrammingCommand cmd, const u8 *optionalData)
+{
+	u8 bufferW[32];
+	u8 nBytesToSend = 0;
+	
+	switch (cmd)
+	{
+	default:
+		logger->log("ERR: invalid prog command [%d]\n", (u8)cmd);
+		break;
+
+	case eCPUProgrammingCommand_enterProg:
+		nBytesToSend = cpubridge::buildMsg_Programming(cmd, NULL, 0, bufferW, sizeof(bufferW));
+		break;
+
+	case eCPUProgrammingCommand_cleaning:
+		//in [optionalData] c'è un byte che indica il tipo di lavaggio
+		nBytesToSend = cpubridge::buildMsg_Programming(cmd, optionalData, 1, bufferW, sizeof(bufferW));
+		break;
+	}
+
+
+	if (nBytesToSend)
+	{
+		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger))
+		{
+			logger->log("ERR sending P command to CPU\n");
+		}
+	}
+}
 
 //**********************************************
 u8 Server::priv_2DigitHexToInt(const u8 *buffer, u32 index) const
@@ -1280,7 +1307,6 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	//Considerando che NumMaxSelections=48, dovrebbero servire 6 byte
 	//ATTENZIONE che bit==0 significa che la selezione è OK, bit==1 significa KO
 	//Io invece traduco al contrario, per cui per me cupStatus.selAvailability == 1 se la selezione è disponibile
-	//if (cpuStatus.VMCstate != VMCSTATE_INITIAL_CHECK && cpuStatus.VMCstate != VMCSTATE_ERROR)
 	u8 anythingChanged = 0;
 	if (cpuStatus.VMCstate == eVMCState_DISPONIBILE || cpuStatus.VMCstate == eVMCState_PREPARAZIONE_BEVANDA)
 	{

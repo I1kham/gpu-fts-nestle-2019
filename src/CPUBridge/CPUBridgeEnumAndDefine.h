@@ -156,10 +156,19 @@ namespace cpubridge
     enum eCPUProgrammingCommand
     {
         eCPUProgrammingCommand_enterProg = 0x01,
-        eCPUProgrammingCommand_startRinsing = 0x02,
-        eCPUProgrammingCommand_startLavggioGrupo = 0x03,
-        eCPUProgrammingCommand_startLavaggioMixer = 0x04
+        eCPUProgrammingCommand_cleaning = 0x02
     };
+
+	enum eCPUProgrammingCommand_cleaningType
+	{
+		eCPUProgrammingCommand_cleaningType_mixer1 = 0x01,
+		eCPUProgrammingCommand_cleaningType_mixer2 = 0x02,
+		eCPUProgrammingCommand_cleaningType_mixer3 = 0x03,
+		eCPUProgrammingCommand_cleaningType_mixer4 = 0x04,
+		eCPUProgrammingCommand_cleaningType_milker = 0x05,
+		eCPUProgrammingCommand_cleaningType_sanitario = 0x08,
+		eCPUProgrammingCommand_cleaningType_rinsing = 0xa0
+	};
 
 	struct sSubscriber
 	{

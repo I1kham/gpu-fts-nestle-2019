@@ -219,11 +219,14 @@ u8 cpubridge::buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuff
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalDataIN, u32 sizeOfOptionalDataIN, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-    u8 optionalData[2];
+	assert(sizeOfOptionalDataIN < 31);
+    u8 optionalData[32];
     optionalData[0] = (u8)cmd;
-    return cpubridge_buildMsg (cpubridge::eCPUCommand_programming, optionalData, 1, out_buffer, sizeOfOutBuffer);
+	if (NULL != optionalDataIN && sizeOfOptionalDataIN > 0)
+		memcpy(&optionalData[1], optionalDataIN, sizeOfOptionalDataIN);
+    return cpubridge_buildMsg (cpubridge::eCPUCommand_programming, optionalData, 1+ sizeOfOptionalDataIN, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -674,18 +677,22 @@ void cpubridge::translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, char *out_s
 
 
 //***************************************************
-void cpubridge::ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand cmd)
+void cpubridge::ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData)
 {
-    u8 otherData[4];
+	assert(sizeOfOptionalData < 31);
+    u8 otherData[32];
     otherData[0] = (u8)cmd;
-    rhea::thread::pushMsg (from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD, handlerID, otherData, 1);
+	if (optionalData != NULL && sizeOfOptionalData>0)
+		memcpy(&otherData[1], optionalData, sizeOfOptionalData);
+    rhea::thread::pushMsg (from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD, handlerID, otherData, 1+ sizeOfOptionalData);
 }
 
 //***************************************************
-void cpubridge::translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCPUProgrammingCommand *out)
+void cpubridge::translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCPUProgrammingCommand *out, const u8 **out_optionalData)
 {
     assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD);
 
     const u8 *p = (const u8*)msg.buffer;
     *out = (eCPUProgrammingCommand)p[0];
+	*out_optionalData = &p[1];
 }

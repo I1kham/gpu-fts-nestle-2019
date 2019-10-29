@@ -22,7 +22,7 @@ namespace socketbridge
                         CmdHandler_eventReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec)
                     {  }
 
-		bool		needToPassDownToCPUBridge() const { return true; }
+		bool		needToPassDownToCPUBridge() const																								{ return true; }
         void        passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen);
         void        onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge);
     };

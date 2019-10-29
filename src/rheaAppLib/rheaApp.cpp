@@ -628,6 +628,30 @@ void app::CurrentVMCDataFileTimestamp::decodeAnswer(const sDecodedEventMsg &msg,
 
 
 /*****************************************************************
+ * namespace ExecuteSelection
+ */
+void app::ExecuteSelection::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 selNum)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_startSelection;
+	optionalData[1] = selNum;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
+}
+
+
+/*****************************************************************
+ * namespace ExecuteCleaning
+ */
+void app::ExecuteCleaning::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_cleaning;
+	optionalData[1] = cleanType;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
+}
+
+
+/*****************************************************************
  * RawFileTrans
  */
  //*****************************************************************

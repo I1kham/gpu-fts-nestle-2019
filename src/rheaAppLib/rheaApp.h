@@ -145,9 +145,21 @@ namespace rhea
 			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sCPUVMCDataFileTimeStamp *out);
 			//ask_		=> chiede a SocketBridge il file da3
 			//decode_	=> come sopra
-
 		}
 
+		namespace ExecuteSelection
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 selNum);
+			//ask_		=> chiede a SocketBridge di iniziare una selezione.
+			//decode_	=> non esiste
+		}
+
+		namespace ExecuteCleaning
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType);
+			//ask_		=> chiede a SocketBridge di iniziare uno specifico tipo di cleaning
+			//decode_	=> non esiste
+		}
 
 		/******************************************************************************
 		 *

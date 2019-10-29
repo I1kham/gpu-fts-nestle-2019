@@ -43,7 +43,7 @@ namespace cpubridge
 	u8			buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
-    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -150,7 +150,9 @@ namespace cpubridge
                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_DATA_AUDIT_PROGRESS.
 	
 	void        ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID);
-				//alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_VMCDATAFILE_PROGRESS.
+					/* alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_VMCDATAFILE_PROGRESS.
+						Il da3 viene letto direttamente dalla CPU e salvato localmente nella cartella temp.
+						Vedi CPUBRidgeServer::priv_downloadVMCDataFile() per ulteriori info */
 
 	void        ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath);
 					//alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_VMCDATAFILE_PROGRESS
@@ -164,10 +166,12 @@ namespace cpubridge
                      //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
     void		translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut);
 
-    void        ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand cmd);
+    void        ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData);
                     //invia un comando di tipo 'P' alla CPU
                     //alla ricezione di quest msgt, CPUBridge non notificherà alcunche
-    void		translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCPUProgrammingCommand *out);
+    void		translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCPUProgrammingCommand *out, const u8 **out_optionalData);
+
+	inline void ask_CPU_PROGRAMMING_CMD_CLEANING (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_cleaningType what)					{ u8 optionalData = (u8)what; ask_CPU_PROGRAMMING_CMD(from, handlerID, eCPUProgrammingCommand_cleaning, &optionalData, 1); }
 
 } // namespace cpubridge
 

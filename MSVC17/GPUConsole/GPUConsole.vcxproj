@@ -22,6 +22,8 @@
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommandFactory.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_download.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startsel.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_upload.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\main.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\Terminal.cpp" />
@@ -39,6 +41,8 @@
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDA3.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDataAudit.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_selavail.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startsel.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_upload.h" />
     <ClInclude Include="..\..\src\GPUConsole\enumAndDefine.h" />
     <ClInclude Include="..\..\src\GPUConsole\Terminal.h" />

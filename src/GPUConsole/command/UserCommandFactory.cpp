@@ -10,6 +10,8 @@
 #include "UserCommand_da3ts.h"
 #include "UserCommand_download.h"
 #include "UserCommand_upload.h"
+#include "UserCommand_startsel.h"
+#include "UserCommand_startcleaning.h"
 
 //**********************************************************
 void UserCommandFactory::setup (rhea::Allocator *allocatorIN)
@@ -80,4 +82,6 @@ void UserCommandFactory::utils_addAllKnownCommands()
 	this->addCommand < UserCommand_da3ts>();
 	this->addCommand < UserCommand_download>();
 	this->addCommand < UserCommand_upload>();
+	this->addCommand < UserCommand_startsel>();
+	this->addCommand < UserCommand_startcleaning>();
 }

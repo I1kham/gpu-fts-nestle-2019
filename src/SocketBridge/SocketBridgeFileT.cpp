@@ -512,8 +512,15 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 	}
 	else if (strncasecmp(data.what, "da3", 3) == 0)
 	{
-		//si vuole scaricare il file app/temp/vmcDataFile%d.da3
-		sprintf_s(s, sizeof(s), "%s/temp/vmcDataFile%s.da3", rhea::getPhysicalPathToAppFolder(), &data.what[3]);
+		if (strlen(data.what) == 3)
+		{
+			sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+		}
+		else
+		{
+			//si vuole scaricare il file app/temp/vmcDataFile%d.da3
+			sprintf_s(s, sizeof(s), "%s/temp/vmcDataFile%s.da3", rhea::getPhysicalPathToAppFolder(), &data.what[3]);
+		}
 	}
 	else
 	{

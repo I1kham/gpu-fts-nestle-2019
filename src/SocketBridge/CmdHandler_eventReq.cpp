@@ -15,7 +15,7 @@
 #include "CmdHandler/CmdHandler_eventReqVMCDataFile.h"
 #include "CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.h"
 #include "CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.h"
-
+#include "CmdHandler/CmdHandler_eventReqStartCleaning.h"
 
 
 using namespace socketbridge;
@@ -46,7 +46,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReqVMCDataFile);
 	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
 	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
-
+	CHECK(CmdHandler_eventReqStartCleaning);
 #undef CHECK
 
     return NULL;
@@ -74,6 +74,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqVMCDataFile);
 	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
 	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
+	CHECK(CmdHandler_eventReqStartCleaning);
 
 #undef CHECK
 
