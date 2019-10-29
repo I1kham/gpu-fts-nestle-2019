@@ -9,11 +9,6 @@
 
 
 //****************************************************
-void utils::DEBUG_MSG (const char* format, ...)
-{}
-
-
-//****************************************************
 void utils::hideMouse()
 {
 #ifdef PLATFORM_UBUNTU_DESKTOP
@@ -45,13 +40,13 @@ void utils::getRightFontForLanguage (QFont &out, int pointSize, const char *iso2
 {
     if (strcasecmp(iso2LettersLanguageCode, "HE") == 0)
     {
-        DEBUG_MSG   ("FONT: using DejaVu Sans");
+        //DEBUG_MSG   ("FONT: using DejaVu Sans");
         out.setFamily("DejaVu Sans");
         out.setPointSize(pointSize);
     }
     else
     {
-        DEBUG_MSG   ("FONT: Noto Sans CJK SC");
+        //DEBUG_MSG   ("FONT: Noto Sans CJK SC");
         out.setFamily("Noto Sans CJK SC");
         out.setPointSize(pointSize);
     }

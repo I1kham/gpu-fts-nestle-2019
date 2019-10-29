@@ -13,7 +13,7 @@ void CmdHandler_eventReqStartCleaning::passDownRequestToCPUBridge (cpubridge::sS
 }
 
 //***********************************************************
-void CmdHandler_eventReqStartCleaning::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_eventReqStartCleaning::onCPUBridgeNotification (socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 	//quest fn non viene mai chiamata, il CPUBridge non risponde mai ad una richiesta di questo tipo
 }

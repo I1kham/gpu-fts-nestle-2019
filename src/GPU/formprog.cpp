@@ -45,7 +45,7 @@ FormProg::~FormProg()
 //*******************************************
 void FormProg::showMe()
 {
-    cpubridge::ask_CPU_PROGRAMMING_CMD (glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_enterProg);
+    cpubridge::ask_CPU_PROGRAMMING_CMD (glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_enterProg, NULL, 0);
 
     retCode = 0;
     this->show();

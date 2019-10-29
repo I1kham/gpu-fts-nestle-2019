@@ -113,13 +113,13 @@ void History::incCounterSelezioni()
 
     fclose(f);
 
-    utils::DEBUG_MSG("History::incCountSel => now=%d", nSelezioni);
+    //utils::DEBUG_MSG("History::incCountSel => now=%d", nSelezioni);
 }
 
 //******************************************************************************
 void History::DEBUG_toScreen()
 {
-    sTheFile fileInMem;
+    /*sTheFile fileInMem;
     readAllInMemory (&fileInMem);
 
     utils::DEBUG_MSG("History:");
@@ -138,7 +138,7 @@ void History::DEBUG_toScreen()
                           fileInMem.recordList[i].filename
                   );
     }
-
+*/
 }
 
 //******************************************************************************

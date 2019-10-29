@@ -7,7 +7,6 @@
 
 namespace utils
 {
-    void                DEBUG_MSG (const char* format, ...);
     void                hideMouse();
     void                getRightFontForLanguage (QFont &out, int pointSize, const char *iso2LettersLanguageCode);
 
