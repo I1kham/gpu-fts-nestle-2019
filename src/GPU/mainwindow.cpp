@@ -73,6 +73,21 @@ void MainWindow::priv_scheduleFormChange(eForm w)
 }
 
 //*****************************************************
+void MainWindow::priv_loadURL (const char *url)
+{
+    ui->labInfo->setVisible(false);
+    this->show();
+
+    //carico la GUI nel browser
+    retCode = 0;
+    ui->webView->setVisible(true);
+    ui->webView->load(QUrl(url));
+    utils::hideMouse();
+    ui->webView->raise();
+    ui->webView->setFocus();
+}
+
+//*****************************************************
 void MainWindow::priv_showForm (eForm w)
 {
     this->hide();
@@ -107,11 +122,6 @@ void MainWindow::priv_showForm (eForm w)
 
     case eForm_main_showBrowser:
         {
-            ui->labInfo->setVisible(false);
-            this->show();
-
-            //carico la GUI nel browser
-            retCode = 0;
             char s[1024];
             sprintf_s (s, sizeof(s), "%s/web/startup.html", glob->current_GUI);
             if (rhea::fs::fileExists(s))
@@ -119,18 +129,22 @@ void MainWindow::priv_showForm (eForm w)
             else
                 sprintf_s (s, sizeof(s), "file://%s/varie/no-gui-installed.html", rhea::getPhysicalPathToAppFolder());
 
-            ui->webView->setVisible(true);
-            ui->webView->load(QUrl(s));
-            utils::hideMouse();
-            ui->webView->raise();
-            ui->webView->setFocus();
+            priv_loadURL(s);
         }
         break;
 
-    case eForm_prog:
+    case eForm_oldprog_legacy:
         frmProg = new FormProg(this, glob);
         frmProg->showMe();
         utils::hideMouse();
+        break;
+
+    case eForm_newprog:
+        {
+            char s[256];
+            sprintf_s (s, sizeof(s), "file://%s/varie/prog/index.html", rhea::getPhysicalPathToAppFolder());
+            priv_loadURL(s);
+        }
         break;
     }
 }
@@ -167,13 +181,26 @@ void MainWindow::timerInterrupt()
         break;
 
     case eForm_main_showBrowser:
-        if (priv_showBrowser_onTick() != 0)
-            priv_scheduleFormChange(eForm_prog);
+        switch (priv_showBrowser_onTick())
+        {
+            case 1: priv_scheduleFormChange(eForm_oldprog_legacy); break;
+            case 2: priv_scheduleFormChange(eForm_newprog); break;
+            default: break;
+        }
         break;
 
-    case eForm_prog:
+    case eForm_oldprog_legacy:
         if (frmProg->onTick() != 0)
             priv_scheduleFormChange(eForm_main_syncWithCPU);
+        break;
+
+    case eForm_newprog:
+        switch (priv_showNewProgrammazione_onTick())
+        {
+            case 1: priv_scheduleFormChange(eForm_main_showBrowser); break;
+            case 2: priv_scheduleFormChange(eForm_oldprog_legacy); break;
+            default: break;
+        }
         break;
     }
 
@@ -416,8 +443,60 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
         break;
 
     case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
-        //l'utente ha premuto il btn PROG, devo andare in programmazione
+        //l'utente ha premuto il btn PROG
+#ifdef BTN_PROG_VA_IN_VECCHIO_MENU_PROGRAMMAZIONE
+        //devo andare nel vecchio menu prog
+        retCode = 1;
+#else
+        retCode = 2;
+#endif
+        break;
+    }
+}
+
+//********************************************************************************
+int MainWindow::priv_showNewProgrammazione_onTick()
+{
+    if (retCode != 0)
+        return retCode;
+
+    //vediamo se CPUBridge ha qualcosa da dirmi
+    rhea::thread::sMsg msg;
+    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    {
+        priv_showNewProgrammazione_onCPUBridgeNotification(msg);
+        rhea::thread::deleteMsg(msg);
+    }
+
+    return 0;
+}
+
+//********************************************************************************
+void MainWindow::priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg)
+{
+    const u16 handlerID = (msg.paramU32 & 0x0000FFFF);
+    assert (handlerID == 0);
+
+    const u16 notifyID = (u16)msg.what;
+    switch (notifyID)
+    {
+    case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
+        //l'utente ha premuto il btn PROG
         retCode = 1;
         break;
+    }
+}
+
+//********************************************************************************
+void MainWindow::on_webView_urlChanged(const QUrl &arg1)
+{
+    if (currentForm != eForm_newprog)
+        return;
+
+    QString url = arg1.toString();
+    if (url.indexOf("gotoLegacyMenu.html") > 0)
+    {
+        //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
+        retCode = 2;
     }
 }

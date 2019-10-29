@@ -16,6 +16,9 @@
 #endif
 
 
+//se questa è definita, premento il bottone prog (quello fisico), si va direttamente nel vecchio menu prog
+#undef BTN_PROG_VA_IN_VECCHIO_MENU_PROGRAMMAZIONE
+
 
 #include "../rheaCommonLib/rhea.h"
 #include "../CPUBridge/CPUBridge.h"

@@ -28,6 +28,7 @@ public:
 
 private slots:
     void                    timerInterrupt();
+    void                    on_webView_urlChanged(const QUrl &arg1);
 
 private:
     enum eForm
@@ -35,7 +36,8 @@ private:
         eForm_main_syncWithCPU = 0,
         eForm_boot,
         eForm_main_showBrowser,
-        eForm_prog
+        eForm_oldprog_legacy,
+        eForm_newprog
     };
 
     enum eStato
@@ -52,6 +54,7 @@ private:
     };
 
 private:
+    void                    priv_loadURL (const char *url);
     void                    priv_showForm (eForm w);
     void                    priv_start();
     void                    priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &msg);
@@ -60,6 +63,8 @@ private:
     void                    priv_scheduleFormChange(eForm w);
     int                     priv_showBrowser_onTick();
     void                    priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    int                     priv_showNewProgrammazione_onTick();
+    void                    priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg);
 
 private:
     sGlobal                 *glob;
