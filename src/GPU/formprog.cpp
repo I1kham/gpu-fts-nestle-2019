@@ -118,14 +118,25 @@ void FormProg::priv_updateLabelVersion()
 }
 
 //************************************************************
-void FormProg::on_buttonB1_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 1); }
-void FormProg::on_buttonB2_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 2); }
-void FormProg::on_buttonB3_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 3); }
-void FormProg::on_buttonB4_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 4); }
-void FormProg::on_buttonB5_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 5); }
-void FormProg::on_buttonB6_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 6); }
-void FormProg::on_buttonB7_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 7); }
-void FormProg::on_buttonB8_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 8); }
-void FormProg::on_buttonB9_pressed()        { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 9); }
-void FormProg::on_buttonB10_pressed()       { cpubridge::ask_CPU_SEND_BUTTON (glob->subscriber, 10); }
+void FormProg::on_buttonB1_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 1); }
+void FormProg::on_buttonB2_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 2); }
+void FormProg::on_buttonB3_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 3); }
+void FormProg::on_buttonB4_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 4); }
+void FormProg::on_buttonB5_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 5); }
+void FormProg::on_buttonB6_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 6); }
+void FormProg::on_buttonB7_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 7); }
+void FormProg::on_buttonB8_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 8); }
+void FormProg::on_buttonB9_pressed()        { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 9); }
+void FormProg::on_buttonB10_pressed()       { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 10); }
 
+
+void FormProg::on_buttonB1_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB2_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB3_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB4_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB5_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB6_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB7_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB8_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB9_released()   { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }
+void FormProg::on_buttonB10_released()  { cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM (glob->subscriber, 0); }

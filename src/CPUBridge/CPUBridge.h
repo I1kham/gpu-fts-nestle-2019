@@ -122,6 +122,10 @@ namespace cpubridge
                 //alla ricezione di questo msg, CPUBridge NON risponderà alcunchè
     void		translate_CPU_SEND_BUTTON(const rhea::thread::sMsg &msg, u8 *out_buttonNum);
 
+    void		ask_CPU_KEEP_SENDING_BUTTON_NUM(const sSubscriber &from, u8 buttonNum);
+                //alla ricezione di questo msg, CPUBridge NON risponderà alcunchè
+    void		translate_CPU_KEEP_SENDING_BUTTON_NUM(const rhea::thread::sMsg &msg, u8 *out_buttonNum);
+
     void		ask_CPU_QUERY_RUNNING_SEL_STATUS(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con notify_CPU_RUNNING_SEL_STATUS
 
