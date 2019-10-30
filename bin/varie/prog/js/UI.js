@@ -136,6 +136,13 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 		this.childList[childNum] =  new UIOption(this.id, childNum, nodeList[i]);
 		childNum++;
 	}
+	
+	nodeList = elemContent.querySelectorAll(":scope div.UINumber");
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		this.childList[childNum] =  new UINumber(this.id, childNum, nodeList[i]);
+		childNum++;
+	}
 
 
 
@@ -255,7 +262,7 @@ function UIButton (parentID, childNum, node)
 	this.id = node.getAttribute("id");
 	if (this.id==null || this.id=="")
 	{
-		this.id = parentID +"_btn" +childNum;
+		this.id = parentID +"_child" +childNum;
 		node.setAttribute("id", this.id);
 	}
 	
@@ -327,7 +334,7 @@ function UIOption (parentID, childNum, node)
 	this.id = node.getAttribute("id");
 	if (this.id==null || this.id=="")
 	{
-		this.id = parentID +"_btn" +childNum;
+		this.id = parentID +"_child" +childNum;
 		node.setAttribute("id", this.id);
 	}
 
@@ -368,7 +375,6 @@ function UIOption (parentID, childNum, node)
 	}
 	html += "</tr></table>";
 	node.innerHTML = html;
-	
 }
 
 UIOption.prototype.bindEvents = function()
@@ -435,4 +441,60 @@ UIOption.prototype.selectOption = function(i)
 	this.selectedOption = i;
 	var btnID = this.id +"_opt" +this.selectedOption;
 	document.getElementById(btnID).classList.add("UIlit"); 
+}
+
+
+
+
+/***************************************************************
+ * UINumber
+ 
+ *	attributi consentiti:
+ *
+ *		data-numfigures="2"			=> numero totale di cifre da visualizzare
+ *		opzionale data-value="7"	=> valore da visualizzare (0 se non indicato)
+ */
+function UINumber (parentID, childNum, node)
+{
+	this.id = node.getAttribute("id");
+	if (this.id==null || this.id=="")
+	{
+		this.id = parentID +"_child" +childNum;
+		node.setAttribute("id", this.id);
+	}
+
+	this.numCifre = parseInt(node.getAttribute("data-numfigures"));
+	if (this.numCifre < 1) this.numCifre = 1;
+	else if (this.numCifre > 12) this.numCifre = 12;
+	
+	
+	this.value = node.getAttribute("data-value");
+	if (null == this.value || opt == this.value)
+		this.value = 0;
+	else
+		this.value = parseInt(this.value);
+
+	//genero l'HTML
+	var html = "";
+	for (var i=0; i<this.numCifre; i++)
+		html += this.priv_getHTMLForAFigure();
+	//node.innerHTML = html;
+	
+	this.setValue(this.value);
+}
+
+UINumber.prototype.priv_getHTMLForAFigure = function ()
+{
+	
+}
+
+UINumber.prototype.bindEvents = function()
+{
+}
+
+UINumber.prototype.getValue = function()			{ return this.value; } 
+
+UINumber.prototype.setValue = function(v)
+{
+	this.value = parseInt(v);
 }

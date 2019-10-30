@@ -61,7 +61,7 @@ a:hover	{ text-decoration:none; outline: 0; }
 
 
 .UIButton.UIdisabled:active {background-color:#222; color:#181818; }
-.UIButton:active { background-color:#cc5f29; color:#fff; }
+.UIButton:active { background-color:#858585; color:#000; }
 
 
 table.elenco { border:0; border-collapse:collapse; font-size:1.1em; width:100%; font-family: "MyFont"; color:#999999; }
@@ -75,10 +75,11 @@ table.UIOption td { margin:0; padding:0; text-align:center; }
 table.UIOption td div.UIButton { width:98%; border-radius:10px; font-size:1.3em;  }
 table.UIOption td div.UIButton p { padding:20px 0 20px 0; }
 
-.numberSwipeContainer { display:inline-block; border:solid 1px #f00; color:#fff; width:60px; height:65px; position:relative; overflow:hidden; }
-.numberSwipeMask{ width:100%; height:100%; position:absolute; top:0; left:0; background-image:url(img/fader.png); background-repeat: repeat-x; }
-.numberSwipeStrip { position: absolute; top:-125px; left:0; width:100%; text-align:center; }
-.numberSwipeStrip p { margin:0;  line-height:35px; padding:0; max-height:35px; overflow:hidden; height:35px; font-size:1.5em;}
+.UINumberContainer 	{ display:inline-block; width:60px; height:65px; position:relative; overflow:hidden; }
+.UINumberStrip 		{ position: absolute; top:-125px; left:0; width:100%; text-align:center; }
+.UINumberStrip p 	{ margin:0;  line-height:35px; padding:0; max-height:35px; overflow:hidden; height:35px; font-size:1.5em; color:#fff }
+.UINumberMask		{ width:100%; height:100%; position:absolute; top:0; left:0; background-image:url(img/fader.png); background-repeat:repeat-x; z-index:20; }
+.UINumberBorder		{ width:56px; height:61px; position:absolute; top:0; left:0; border:solid 2px #999999; border-radius:10px; z-index:21; }
 
 .colorGrey 		{ color:#999999; }
 .UIlit 			{ background-color:#cc5f29; color:#fff; }
