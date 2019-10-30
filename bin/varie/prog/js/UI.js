@@ -78,6 +78,7 @@ function UIWindow(elem)
 	this.contentID = 
 	this.firstTimeShow = 1;
 	this.visible = 0;
+	this.allowScroll = 1;
 	this.childList = [];
 	
 	//il div di contenuti deve avere un id. Glielo assegno io se non lo ha
@@ -115,6 +116,7 @@ UIWindow.prototype.hide = function()
 	}	
 }
 
+UIWindow.prototype.enablePageScroll = function (b) { this.allowScroll=b; }
 
 UIWindow.prototype.priv_setupAtFirstShow = function()
 {
@@ -140,7 +142,7 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	nodeList = elemContent.querySelectorAll(":scope div.UINumber");
 	for (var i = 0; i < nodeList.length; i++)
 	{
-		this.childList[childNum] =  new UINumber(this.id, childNum, nodeList[i]);
+		this.childList[childNum] =  new UINumber(this.id, childNum, nodeList[i], this);
 		childNum++;
 	}
 
@@ -152,6 +154,8 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 
 	if (contentH > wrapperH)
 	{
+		var me = this;
+		
 		//è necessario impostare lo scrolling
 		var divIDArrowUp = this.id +"_arrowUp";
 		var divIDArrowDown = this.id +"_arrowDown";
@@ -168,6 +172,7 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 		var info = new UIWindowScrollable(elemContent, contentH, wrapperH);
 		elemContent.addEventListener('mousedown', function (ev)
 		{
+			//console.log ("UIWindow::mousedown");
 			info.mouse_pressed = 1;
 			info.mouse_y = ev.clientY;
 		}, true);
@@ -175,12 +180,14 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 
 		elemContent.addEventListener('mouseup', function (ev) 
 		{
+			//console.log ("UIWindow::mouseup");
 			info.mouse_pressed = 0;
 		}, true);
 
 		elemContent.addEventListener('mousemove', function (ev) 
 		{
-			if (!info.mouse_pressed)
+			//console.log ("UIWindow::mousemove");
+			if (!info.mouse_pressed || me.allowScroll==0)
 				return;
 				
 			var y = ev.clientY;
@@ -424,7 +431,7 @@ UIOption.prototype.getSelectedOption = function()		{ return this.selectOption; }
 UIOption.prototype.selectOption = function(i)
 {
 	i = parseInt(i);
-	console.log ("selectOption[" +i +"], currentSelected[" +this.selectedOption +"]");
+	//console.log ("selectOption[" +i +"], currentSelected[" +this.selectedOption +"]");
 	
 	if (i<1) i=0;
 	else if (i>this.options.length) i= this.options.length;
@@ -454,8 +461,12 @@ UIOption.prototype.selectOption = function(i)
  *		data-numfigures="2"			=> numero totale di cifre da visualizzare
  *		opzionale data-value="7"	=> valore da visualizzare (0 se non indicato)
  */
-function UINumber (parentID, childNum, node)
+var UINUMBER_TOP_OFFSET = 15-400;
+var UINUMBER_NUM_HEIGHT = 56;
+function UINumber (parentID, childNum, node, parentObj)
 {
+	this.parentObj = parentObj;
+	
 	this.id = node.getAttribute("id");
 	if (this.id==null || this.id=="")
 	{
@@ -467,34 +478,149 @@ function UINumber (parentID, childNum, node)
 	if (this.numCifre < 1) this.numCifre = 1;
 	else if (this.numCifre > 12) this.numCifre = 12;
 	
-	
 	this.value = node.getAttribute("data-value");
-	if (null == this.value || opt == this.value)
+	if (null == this.value || this.value == "")
 		this.value = 0;
 	else
 		this.value = parseInt(this.value);
 
+	this.mouseYStart=[];
+	this.stripStartY=[];
+
 	//genero l'HTML
 	var html = "";
 	for (var i=0; i<this.numCifre; i++)
-		html += this.priv_getHTMLForAFigure();
-	//node.innerHTML = html;
+	{
+		this.mouseYStart[i] = 0;
+		this.stripStartY[i] = 0;
+		html += this.priv_getHTMLForAFigure(i);
+	}
+	node.innerHTML = html;
 	
 	this.setValue(this.value);
 }
 
-UINumber.prototype.priv_getHTMLForAFigure = function ()
+UINumber.prototype.priv_getHTMLForAFigure = function(i)
 {
-	
+	var idStrip = this.id +"_fig" +i;
+	var idContainer = idStrip+"_cnt";
+	var idBorder = idStrip+"_brd";	
+	var html = "<div class='UINumberContainer' id='" +idContainer +"'><div class='UINumberStrip' id='" +idStrip +"'><p>0</p><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p></div><div class='UINumberMask'>&nbsp;</div><div class='UINumberBorder' id='" +idBorder +"'>&nbsp;</div></div>";
+	return html;
 }
 
 UINumber.prototype.bindEvents = function()
 {
+	for (var i=0; i<this.numCifre; i++)
+		this.priv_bindEvents(i);
+}
+
+UINumber.prototype.priv_bindEvents = function(iCifra)
+{
+	var me = this;
+	var idStrip = this.id +"_fig" +iCifra;
+	var idBorder = idStrip+"_brd";	
+	var idContainer = idStrip+"_cnt";
+
+	var node = document.getElementById(idBorder);
+	node.addEventListener("mousedown", function (ev)
+	{
+		var dParent = document.getElementById(me.parentObj.id);
+		dParent.zindex=98;
+		dParent.style.overflow="visible";
+		
+		var dContainer = document.getElementById(idContainer);
+		dContainer.style.zIndex = 99;
+		
+		var dStrip = document.getElementById(idStrip);
+		dStrip.style.zIndex = 100;
+		me.stripStartY[iCifra] = parseInt(dStrip.offsetTop);
+		dContainer.style.overflow="visible";
+		me.mouseYStart[iCifra] = ev.clientY;
+		
+		me.parentObj.enablePageScroll(0);
+		//console.log("down => y[" +me.mouseYStart[iCifra] +"], stripStartY[" +me.stripStartY[iCifra] +"]");
+	}, 
+	true);
+	
+	node = document.getElementById(idStrip);
+	node.addEventListener("mousemove", function (ev)
+	{
+		var my = ev.clientY;
+		var offsetY = my - me.mouseYStart[iCifra];
+		
+		var dStrip = document.getElementById(idStrip);
+		var newY = (me.stripStartY[iCifra] + offsetY);
+		
+		if (newY>UINUMBER_TOP_OFFSET) newY=UINUMBER_TOP_OFFSET;
+		else 
+		{
+			var limit = UINUMBER_TOP_OFFSET - UINUMBER_NUM_HEIGHT*9;
+			if (newY<limit) newY=limit;
+		}
+		dStrip.style.top = newY +"px";
+		
+		me.parentObj.enablePageScroll(0);
+		//console.log("strip move => my[" +offsetY +"]");
+	}, 
+	true);		
+
+	node.addEventListener("mouseleave", function (ev)
+	{
+		//console.log("strip leave");
+		//me.priv_onMouseUp(ev, iCifra);
+	}, 
+	true);
+	
+	node.addEventListener("mouseup", function (ev)
+	{
+		me.priv_onMouseUp(ev, iCifra);
+	}, 
+	true);	
+}
+
+UINumber.prototype.priv_onMouseUp = function(ev, iCifra)
+{
+	var idStrip = this.id +"_fig" +iCifra;
+	var idContainer = idStrip+"_cnt";	
+	var dContainer = document.getElementById(idContainer);
+	dContainer.style.zIndex = 1;
+	
+	var dStrip = document.getElementById(idStrip);
+	dStrip.style.zIndex = 10;
+	dContainer.style.overflow="hidden";
+
+	var curY = parseInt(dStrip.offsetTop);
+	var whichNum = -parseInt(Math.round((curY - UINUMBER_TOP_OFFSET) / UINUMBER_NUM_HEIGHT));
+	dStrip.style.top = (UINUMBER_TOP_OFFSET - UINUMBER_NUM_HEIGHT*whichNum) +"px";
+	
+	var dParent = document.getElementById(this.parentObj.id);
+	dParent.zindex=1;
+	dParent.style.overflow="hidden";
+	this.parentObj.enablePageScroll(1);
+	//console.log("strip up, y[" +curY +"], whichNum[" +whichNum +"]");
 }
 
 UINumber.prototype.getValue = function()			{ return this.value; } 
 
 UINumber.prototype.setValue = function(v)
 {
+	//console.log("setValue[" +v +"]");
 	this.value = parseInt(v);
+	if (this.value==null || this.value=="")
+		this.value = 0;
+	
+	var s = this.value.toString();
+	while (s.length < this.numCifre)
+		s ="0" + s;
+	if (s.length>this.numCifre)
+		s = s.substr(0,this.numCifre);
+	
+	for (var i=0; i<this.numCifre; i++)
+	{
+		var num = parseInt(s.substr(i,1));
+		var idStrip = this.id +"_fig" +i;
+		var dStrip = document.getElementById(idStrip);
+		dStrip.style.top = (UINUMBER_TOP_OFFSET - UINUMBER_NUM_HEIGHT*num) +"px";		
+	}
 }
