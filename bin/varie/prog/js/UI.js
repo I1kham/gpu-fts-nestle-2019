@@ -463,7 +463,6 @@ UIOption.prototype.selectOption = function(i)
  */
 var UINUMBER_TOP_OFFSET = 15-400;
 var UINUMBER_NUM_HEIGHT = 56;
-var UINUMBER_SCROLL_MULTIPLIER = 4;
 function UINumber (parentID, childNum, node, parentObj)
 {
 	this.parentObj = parentObj;
@@ -548,7 +547,11 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 	node.addEventListener("mousemove", function (ev)
 	{
 		var my = ev.clientY;
-		var offsetY = (my - me.mouseYStart[iCifra]) * UINUMBER_SCROLL_MULTIPLIER;
+		var offsetY = (my - me.mouseYStart[iCifra]);
+		if (offsetY > 100)
+			offsetY*=4;
+		else if (offsetY > 50)
+			offsetY*=2;
 		
 		var dStrip = document.getElementById(idStrip);
 		var newY = (me.stripStartY[iCifra] + offsetY);
