@@ -154,18 +154,13 @@ namespace rhea
 			//decode_	=> non esiste
 		}
 
-		namespace ExecuteSimpleProgramCmd
+		namespace ExecuteProgramCmd
 		{
-			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd);
+			void		ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd, u8 param1, u8 param2, u8 param3, u8 param4);
 				//ask_		=> chiede a SocketBridge di inviare uno specifico comando di programmazione alla CPU
-				//decode_	=> non esiste
-		}
+				//decode_	=> non esiste, una appa non riceve mai una notifica di questo tipo
 
-		namespace ExecuteCleaning
-		{
-			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType);
-			//ask_		=> chiede a SocketBridge di iniziare uno specifico tipo di cleaning
-			//decode_	=> non esiste
+			inline void	askCleaning(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType)				{ ExecuteProgramCmd::ask(ch, proto, cpubridge::eCPUProgrammingCommand_cleaning, (u8)cleanType, 0, 0, 0); }
 		}
 
 		/******************************************************************************

@@ -12,6 +12,7 @@
 #include "UserCommand_upload.h"
 #include "UserCommand_startsel.h"
 #include "UserCommand_startcleaning.h"
+#include "UserCommand_cpuprogcmd.h"
 
 //**********************************************************
 void UserCommandFactory::setup (rhea::Allocator *allocatorIN)
@@ -75,13 +76,16 @@ void UserCommandFactory::utils_addAllKnownCommands()
 	this->addCommand<UserCommand_list>();
 	this->addCommand < UserCommand_cpumsg>();
 	this->addCommand < UserCommand_cpustatus>();
-	this->addCommand < UserCommand_selavail>();
-	this->addCommand < UserCommand_readDataAudit>();
 	this->addCommand < UserCommand_cpuiniparam>();
+	this->addCommand < UserCommand_cpuprogcmd>();
+
+	this->addCommand < UserCommand_readDataAudit>();
 	this->addCommand < UserCommand_readDA3>();
+
 	this->addCommand < UserCommand_da3ts>();
 	this->addCommand < UserCommand_download>();
 	this->addCommand < UserCommand_upload>();
+	this->addCommand < UserCommand_selavail>();
 	this->addCommand < UserCommand_startsel>();
 	this->addCommand < UserCommand_startcleaning>();
 }

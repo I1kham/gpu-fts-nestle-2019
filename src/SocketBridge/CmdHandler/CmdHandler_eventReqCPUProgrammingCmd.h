@@ -1,5 +1,5 @@
-#ifndef _CmdHandler_eventReqStartCleaning_h_
-#define _CmdHandler_eventReqStartCleaning_h_
+#ifndef _CmdHandler_eventReqCPUProgrammingCmd_h_
+#define _CmdHandler_eventReqCPUProgrammingCmd_h_
 #include "../CmdHandler_eventReq.h"
 
 
@@ -7,18 +7,18 @@
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_eventReqStartCleaning
+     * CmdHandler_eventReqCPUProgrammingCmd
      *
      *
      *
      */
-    class CmdHandler_eventReqStartCleaning : public CmdHandler_eventReq
+    class CmdHandler_eventReqCPUProgrammingCmd : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_cleaning;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_cpuProgrammingCmd;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_MAX_ALLOWED;		//vuol dire che questa classe non risponde ad alcuna notifica di CPUBridge
 
-					CmdHandler_eventReqStartCleaning(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :
+		CmdHandler_eventReqCPUProgrammingCmd(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :
                         CmdHandler_eventReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec)
                     {  }
 
@@ -28,4 +28,4 @@ namespace socketbridge
     };
 } // namespace socketbridge
 
-#endif // _CmdHandler_eventReqStartCleaning_h_
+#endif // _CmdHandler_eventReqCPUProgrammingCmd_h_

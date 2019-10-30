@@ -640,26 +640,21 @@ void app::ExecuteSelection::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *pr
 
 
 /*****************************************************************
- * namespace ExecuteSimpleProgramCmd
+ * namespace ExecuteProgramCmd
  */
-void app::ExecuteSimpleProgramCmd::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd)
+void app::ExecuteProgramCmd::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd, u8 param1, u8 param2, u8 param3, u8 param4)
 {
-	u8 optionalData[4];
-	optionalData[0] = (u8)cmd;
-	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+	u8 optionalData[8];
+	optionalData[0] = (u8)socketbridge::eEventType_cpuProgrammingCmd;
+	optionalData[1] = (u8)cmd;
+	optionalData[2] = param1;
+	optionalData[3] = param2;
+	optionalData[4] = param3;
+	optionalData[5] = param4;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 6);
 }
 
 
-/*****************************************************************
- * namespace ExecuteCleaning
- */
-void app::ExecuteCleaning::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType)
-{
-	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_cleaning;
-	optionalData[1] = cleanType;
-	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
-}
 
 
 /*****************************************************************

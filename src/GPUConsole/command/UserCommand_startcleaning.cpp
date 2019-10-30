@@ -26,7 +26,7 @@ void UserCommand_startcleaning::handle(const char *command, rhea::IProtocolChann
 		return;
 	}
 
-	rhea::app::ExecuteCleaning::ask(ch, proto, (cpubridge::eCPUProgrammingCommand_cleaningType)cleantType);
+	rhea::app::ExecuteProgramCmd::askCleaning (ch, proto, (cpubridge::eCPUProgrammingCommand_cleaningType)cleantType);
 	log->log("request sent\n");
 
 }

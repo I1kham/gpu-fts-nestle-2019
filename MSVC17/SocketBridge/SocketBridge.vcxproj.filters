@@ -80,10 +80,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartCleaning.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSimpleProgramCmd.cpp">
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUProgrammingCmd.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
   </ItemGroup>
@@ -160,10 +157,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartCleaning.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSimpleProgramCmd.h">
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUProgrammingCmd.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
   </ItemGroup>

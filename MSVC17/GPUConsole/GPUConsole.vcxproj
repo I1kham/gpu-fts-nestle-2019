@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommandFactory.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_cpuprogcmd.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_download.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startsel.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuiniparam.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpumsg.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuprogcmd.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpustatus.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_da3ts.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_download.h" />

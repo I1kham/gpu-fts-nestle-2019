@@ -9,16 +9,22 @@
 
 <body onLoad="rheaBootstrap()">
 <div class="wrapper1024x600">
-	<div id="pagePleaseWait" style="display:none">
-		<br><br><br><br>
-		<center><img src="img/animationRound.gif"></center>
+	<div id="pagePleaseWait">
+		<div id="pagePleaseWait_header_left"></div>
+		<div id="pagePleaseWait_header_right"></div>
+		<div class="clear"></div>
+		<br><br><br><br><br><br>
+		<center><img draggable='false' src="img/animationRound.gif"></center>
 	</div>
 			
 	<!-- page Main menu -->
 	<div class="header">
-		<div id="divCPUStatus" class="header_L">&nbsp;</div>
-		<div class="header_C"><center><img src="img/iconHome.png"> Programming Menu</center></div>
-		<div class="header_R colorGrey">02/10/2019 10:42</div>
+		<div id="divHeaderC" class="header_C"></div>
+		<div class="header_R colorGrey">
+			<div id="divHeaderR_data" style="float:left; margin-right:10px"></div>
+			<div id="divHeaderR_ora" style="float:left;"></div>
+			<div class="clear"></div>
+		</div>
 		<div class="clear"></div>
 	</div>		
 
@@ -28,8 +34,8 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="MAINTENANCE" data-onclick="showPage('pageMaintenance')"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING" data-onclick="showPage('pageCleaning')"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 " data-caption="MAINTENANCE" data-onclick="pageMaintenance_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING" data-onclick="pageCleaning_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DATA AUDIT" data-onclick=""></div></td>
 					</tr>
 					<tr valign="middle">
@@ -39,11 +45,11 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="TEMPERATURE"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PRODUCT<br>QUANTITY" data-onclick="showPage('pageCleaning')"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PRODUCT<br>QUANTITY"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PAYMENT<br>SYSTEMS"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="showPage('pageMiscellaneous')"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CLOCK"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CAPPUCCINATORE"></div></td>
 					</tr>
@@ -59,9 +65,36 @@
 		<!-- page Maintenance -->
 		<div id="pageMaintenance" class="UIWindow">
 			<div class="UIWindowContent">
-				PAGE MAINTENANCE<br>
-				<br>
-				<a href="javascript:showPage('pageMainMenu')">MAIN MENU</a><br>
+				<table border='0' class='elenco'>
+					<tr>
+						<td class='description'>PROGRAMMING</td>
+						<td>bottoni</td>
+					</tr>
+					<tr>
+						<td>Active H<sub>20</sub> filter</td>
+						<td><div class="UIOption" data-option1="YES" data-option2="NO" ></div></td>
+					</tr>
+					<tr>
+						<td>PROGRAMMING<br>aaa<br>bbb<br>ccc<br>ccc<br>ccc<br>ccc</td>
+						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-option3="BOH?" data-selected="2"></div></td>
+					</tr>
+					<tr>
+						<td>Active H<sub>20</sub> filter</td>
+						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
+					</tr>
+					<tr>
+						<td>Active H<sub>20</sub> filter</td>
+						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
+					</tr>
+					<tr>
+						<td>Active H<sub>20</sub> filter</td>
+						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
+					</tr>
+					<tr>
+						<td>Active H<sub>20</sub> filter</td>
+						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
+					</tr>
+				</table>
 			</div>
 		</div>
 		
@@ -70,23 +103,23 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>(MIXER + BREWER)" data-onclick="pageCleaning(160)"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 1" data-onclick="pageCleaning(1)"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START CLEANING HC" data-onclick="pageCleaning(8)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>(MIXER + BREWER)" data-onclick="pageCleaning_action(160)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 1" data-onclick="pageCleaning_action(1)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START CLEANING HC" data-onclick="pageCleaning_action(8)"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 2" data-onclick="pageCleaning(2)"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning(5)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 2" data-onclick="pageCleaning_action(2)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 3" data-onclick="pageCleaning(3)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 3" data-onclick="pageCleaning_action(3)"></div></td>
 						</td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 4" data-onclick="pageCleaning(4)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 4" data-onclick="pageCleaning_action(4)"></div></td>
 						</td>
 					</tr>					
 				</table>
@@ -96,8 +129,6 @@
 		<!-- page pageMiscellaneous -->
 		<div id="pageMiscellaneous" class="UIWindow">
 			<div class="UIWindowContent">
-				PAGE MISCELLANEOUS<br>
-				<br>
 				<div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div>
 			</div>
 		</div>	
@@ -105,7 +136,7 @@
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
-		<div id="bntBack" class="UIButton" data-caption="BACK" data-onclick="showPage('pageMainMenu')"></div>
+		<div id="bntBack" class="UIButton" data-caption="&nbsp;BACK&nbsp;" data-onclick="pageMainMenu_show()"></div>
 	</div>
 		
 			
@@ -114,38 +145,180 @@
 
 
 <script src="js/UI.js"></script>
+<script src="js/Task.js"></script>
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
 var ui = null;
+var voidTask = new TaskVoid();
+var currentTask = voidTask;
+var timeNowMSec = 0;
 
 function onRheaBootstrapFinished()
 {
-	rhea.onEvent_cpuStatus = function(statusID, statusStr)
-	{
-		var d = rheaGetElemByID ("divCPUStatus");
-		rheaSetElemHTML(d, statusStr +" [" +statusID +"]");
-		rheaShowElem(d);
-	}
+	rhea.onEvent_cpuStatus = function(statusID, statusStr) 	{ currentTask.onEvent_cpuStatus(statusID, statusStr); }
+	
+	
+	dataOra_setup();
 	
 	ui = new UI ("divPage");
 	ui.setupStandaloneButton("bntBack");
-	showPage ("pageMainMenu");
+	pageMainMenu_show();
+	
+	pleaseWait_show(1);
+	pleaseWait_setTextLeft("loading da3");
+	da3_load();
+	
+	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
 }
 
-function showPage(pageID)
+function showPage(pageID)				{ ui.hideAllExcept (pageID); }
+function pleaseWait_show(bClearText)	{ if(bClearText) { pleaseWait_setTextLeft(""); pleaseWait_setTextRight(""); } rheaShowElem(rheaGetElemByID("pagePleaseWait")); }
+function pleaseWait_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait")); }
+function pleaseWait_setTextLeft(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_left", s) }
+function pleaseWait_setTextRight(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_right", s) }
+
+function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
+
+function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); }
+function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); }
+
+
+
+/***************************************************************************
+ *
+ * data & ora
+ *
+ */
+var dataora_hh = 0;
+var dataora_min = 0;
+var dataora_sec = 0;
+function dataOra_setup ()
 {
-	ui.hideAllExcept (pageID);
+	var d = new Date();
+	var dataora_sec = parseInt(d.getSeconds());
+	var dataora_min = parseInt(d.getMinutes());
+	var dataora_hh = parseInt(d.getHours());
+  
+	var mm = (d.getUTCMonth() + 1).toString(); if (mm.length<2) mm="0"+mm;
+	var gg = d.getUTCDate().toString(); if (gg.length<2) gg="0"+gg;
+	var aaaa = d.getUTCFullYear();  
+	rheaSetDivHTMLByName("divHeaderR_data", aaaa +"/" +mm +"/" +gg);
+	
+
+	setInterval (function() 
+					{ 
+						dataora_sec++;
+						if (dataora_sec >= 60)
+						{
+							dataora_sec = 0;
+							dataora_min++;
+							if (dataora_min >= 60)
+							{
+								dataora_min = 0;
+								dataora_hh++;
+							}
+						}
+						
+						var hh = dataora_hh.toString();		if (hh.length<2) hh = "0"+hh;
+						var mm = dataora_min.toString();	if (mm.length<2) mm = "0"+mm;
+						var sep = ":";
+						if (dataora_sec % 2 == 0)
+							sep = "&nbsp;"
+						rheaSetDivHTMLByName("divHeaderR_ora", hh +sep +mm);
+					}, 
+					1000);
 }
+
+/***************************************************************************
+ *
+ * DA3
+ *
+ */
+var da3_original = null;
+var da3_current = null;
+function da3_load()
+{
+	rhea.filetransfer_startDownload ("da3", 11, da3_load_onStart, da3_load_onProgress, da3_load_onEnd);
+}
+
+function da3_load_onStart(userValue)
+{
+	console.log ("da3_load_onStart: ");
+}
+
+function da3_load_onProgress()
+{
+	console.log ("da3_load_onProgress: ");
+}
+
+function da3_load_onEnd(userValue, reasonRefused, obj)
+{
+	console.log ("da3_load_onEnd: ");
+	if (reasonRefused != 0)
+	{
+		alert ("error downloading da3");
+		pleaseWait_hide();
+		return;
+	}
+	
+	var da3_original = new Uint8Array(obj.fileSize);
+	var da3_current = new Uint8Array(obj.fileSize);
+	for (var i=0; i<obj.fileSize; i++)
+		da3_original[i] = da3_current[i] = obj.fileBuffer[i];
+		
+	pleaseWait_hide();
+}
+
+/***************************************************************************
+ *
+ * pageMainMenu
+ *
+ */
+function pageMainMenu_show()
+{
+	showPage("pageMainMenu");
+	header_setText("<div style='margin-left:140px'><center><img draggable='false' src='img/iconHome.png'> Programming Menu</center></div>");
+	btnBack_hide();
+}
+
+
+/***************************************************************************
+ *
+ * pageMaintenance
+ *
+ */
+function pageMaintenance_show()
+{
+	showPage('pageMaintenance');
+	header_setText("MAINTENANCE");
+	btnBack_show();
+}
+
+
 
 /***************************************************************************
  *
  * pageCleaning
  *
  */
-function pageCleaning(what)
+function pageCleaning_show()
 {
-console.log ("pageCleaning(" +what +")");
+	showPage("pageCleaning");
+	header_setText("CLEANING");
+	btnBack_show();
+}
+
+function pageCleaning_action (what)
+{
+	pleaseWait_show(1);
+	currentTask = new TaskCleaning();
 	rhea.requestGPUCleaning(parseInt(what));
+}
+
+function pageCleaning_onFinished()
+{
+	pleaseWait_hide();
+	currentTask = voidTask;
 }
 
 
@@ -154,6 +327,13 @@ console.log ("pageCleaning(" +what +")");
  * pageMiscellaneous
  *
  */
+ function pageMiscellaneous_show()
+{
+	showPage("pageMiscellaneous");
+	header_setText("MISCELLANEOUS");
+	btnBack_show();
+}
+
 function pageMiscellaneous_oldProgMenu()
 {
 	window.location = "gotoLegacyMenu.html";

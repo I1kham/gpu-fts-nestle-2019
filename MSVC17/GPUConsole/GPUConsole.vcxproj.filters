@@ -27,6 +27,9 @@
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.cpp">
       <Filter>command</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_cpuprogcmd.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h">
@@ -74,6 +77,9 @@
       <Filter>command</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuprogcmd.h">
       <Filter>command</Filter>
     </ClInclude>
   </ItemGroup>

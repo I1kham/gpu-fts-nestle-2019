@@ -353,12 +353,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
             break;
 
         case CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD:
-            {
-                eCPUProgrammingCommand c;
-				const u8 *optionalData;
-                cpubridge::translate_CPU_PROGRAMMING_CMD (msg, &c, &optionalData);
-				priv_handleProgrammingMessage(sub, c, optionalData);
-            }
+			priv_handleProgrammingMessage(msg);
             break;
 
 		}
@@ -368,8 +363,13 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 
 //**********************************************
-void Server::priv_handleProgrammingMessage(sSubscription *sub, eCPUProgrammingCommand cmd, const u8 *optionalData)
+void Server::priv_handleProgrammingMessage(const rhea::thread::sMsg &msg)
 {
+	eCPUProgrammingCommand cmd;
+	const u8 *optionalData;
+	cpubridge::translate_CPU_PROGRAMMING_CMD (msg, &cmd, &optionalData);
+
+
 	u8 bufferW[32];
 	u8 nBytesToSend = 0;
 	
@@ -380,7 +380,7 @@ void Server::priv_handleProgrammingMessage(sSubscription *sub, eCPUProgrammingCo
 		break;
 
 	case eCPUProgrammingCommand_enterProg:
-		nBytesToSend = cpubridge::buildMsg_Programming(cmd, NULL, 0, bufferW, sizeof(bufferW));
+		nBytesToSend = cpubridge::buildMsg_Programming (cmd, NULL, 0, bufferW, sizeof(bufferW));
 		break;
 
 	case eCPUProgrammingCommand_cleaning:

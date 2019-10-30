@@ -630,20 +630,21 @@ Rhea.prototype.requestGPUEvent = function (eventTypeID)
  */
 Rhea.prototype.requestGPUCleaning = function (cleanType)
 {
-	var buffer = new Uint8Array(2);
-	buffer[0] = 113; //'q';
-	buffer[1] = parseInt(cleanType);
-	this.sendGPUCommand ("E", buffer, 0, 0);
+	this.sendCPUProgrammingCmd(2,cleanType,0,0,0);
 }
 
 /*******************************************************************
- * richiede di fare un lavaggio
+ * richiede un comando di programmazione con i suoi parametri 
  */
-Rhea.prototype.sendCPUSimpleProgCommand = function (what)
+Rhea.prototype.sendCPUProgrammingCmd = function (cmd, param1, param2, param3, param4)
 {
-	var buffer = new Uint8Array(2);
-	buffer[0] = 114; //'r';
-	buffer[1] = parseInt(what);
+	var buffer = new Uint8Array(6);
+	buffer[0] = 113; //'q';
+	buffer[1] = parseInt(cmd);
+	buffer[2] = parseInt(param1);
+	buffer[3] = parseInt(param2);
+	buffer[4] = parseInt(param3);
+	buffer[5] = parseInt(param4);
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
