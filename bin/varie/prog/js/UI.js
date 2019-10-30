@@ -548,13 +548,14 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 	{
 		var my = ev.clientY;
 		var offsetY = (my - me.mouseYStart[iCifra]);
-		if (offsetY > 100)
-			offsetY*=4;
-		else if (offsetY > 50)
-			offsetY*=2;
+		
 		
 		var dStrip = document.getElementById(idStrip);
 		var newY = (me.stripStartY[iCifra] + offsetY);
+		var relY = Math.abs(newY - parseInt(dStrip.style.top));
+		
+		if (relY>2) newY+=offsetY;
+		if (relY>3)  newY+=offsetY;
 		
 		if (newY>UINUMBER_TOP_OFFSET) newY=UINUMBER_TOP_OFFSET;
 		else 
@@ -565,7 +566,7 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 		dStrip.style.top = newY +"px";
 		
 		me.parentObj.enablePageScroll(0);
-		//console.log("strip move => my[" +offsetY +"]");
+		console.log("strip move => my[" +offsetY +"], relY[" +relY +"]");
 	}, 
 	true);		
 
