@@ -33,7 +33,7 @@ namespace cpubridge
 
 	private:
 		bool					priv_handleMsg_send(const u8 *buffer, u16 nBytesToSend, rhea::ISimpleLogger *logger);
-		bool					priv_handleMsg_rcv(u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
+		bool					priv_handleMsg_rcv(u8 commandChar, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
 
 	private:
 		OSSerialPort			comPort;

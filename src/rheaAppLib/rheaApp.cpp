@@ -654,8 +654,34 @@ void app::ExecuteProgramCmd::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *p
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 6);
 }
 
+/*****************************************************************
+ * namespace ExecuteProgramCmd
+ */
+void app::SanWashingStatus::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_cpuSanWashingStatus;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
 
+void app::SanWashingStatus::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2)
+{
+	assert(msg.eventType == socketbridge::eEventType_cpuSanWashingStatus);
+	*out_b0 = msg.payload[0];
+	*out_b1 = msg.payload[1];
+	*out_b2 = msg.payload[2];
+}
 
+/*****************************************************************
+ * namespace SendButton
+ */
+void app::SendButton::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 btnNum)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_cpuBtnPressed;
+	optionalData[1] = btnNum;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
+}
 
 /*****************************************************************
  * RawFileTrans

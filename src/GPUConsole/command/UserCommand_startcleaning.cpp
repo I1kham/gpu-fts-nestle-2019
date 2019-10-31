@@ -3,7 +3,7 @@
 //**********************************************************
 const char*	UserCommand_startcleaning::getExplain() const
 { 
-	return "startcleaning [type] => type 1..4 = mixer 1..4; 5=milker; 8=sanitario; 160=rinsing";
+	return "startcleaning [type]\ntype 1..4 = mixer 1..4; 5=milker; 8=sanitario; 160=rinsing";
 }
 
 //**********************************************************

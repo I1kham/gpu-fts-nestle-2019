@@ -288,9 +288,15 @@ bool fs_do_open_and_copy_fileCopy (const char *srcFullFileNameAndPath, const cha
 	fclose(fSRC);
 
     fflush(fDST);
-    fsync (fileno(fDST));
+#ifdef LINUX
+	fsync (fileno(fDST));
+#endif
+	
 	fclose(fDST);
+
+#ifdef LINUX
     sync();
+#endif
 	return true;
 }
 

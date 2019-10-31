@@ -30,6 +30,6 @@ void CmdHandler_ajaxReqSelAvailability::onCPUBridgeNotification (socketbridge::S
 
 
     char resp[256];
-    sprintf (resp, "{\"n\":%d,\"s\":\"%s\"}", NUM_MAX_SELECTIONS, avail);
+	sprintf_s(resp, sizeof(resp), "{\"n\":%d,\"s\":\"%s\"}", NUM_MAX_SELECTIONS, avail);
     server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
 }

@@ -486,7 +486,7 @@ void cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS(const rhea::thread::s
 }
 
 //***************************************************
-void cpubridge::notify_WRITE_CPUFW_PROGRESS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, enum eWriteCPUFWFileStatus status, u16 param)
+void cpubridge::notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, enum eWriteCPUFWFileStatus status, u16 param)
 {
 	logger->log("notify_WRITE_CPUFW_PROGRESS\n");
 
@@ -533,6 +533,27 @@ void cpubridge::translateNotify_CPU_VMCDATAFILE_TIMESTAMP(const rhea::thread::sM
 
 	out->readFromBuffer(msg.buffer);
 }
+
+
+//***************************************************
+void cpubridge::notify_SAN_WASHING_STATUS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2)
+{
+	logger->log("notify_SAN_WASHING_STATUS\n");
+	u8 buffer[4] = { b0, b1, b2, 0 };
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS, handlerID, buffer, 3);
+}
+
+//***************************************************
+void cpubridge::translateNotify_SAN_WASHING_STATUS(const rhea::thread::sMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_b0 = p[0];
+	*out_b1 = p[1];
+	*out_b2 = p[2];
+}
+
 
 
 

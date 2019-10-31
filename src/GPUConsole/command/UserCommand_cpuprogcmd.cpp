@@ -3,7 +3,9 @@
 //**********************************************************
 const char*	UserCommand_cpuprogcmd::getExplain() const
 { 
-	return "cpuprogcmd [cmd] | [param1] | [param1] | [param1] | [param1] => [cmd]:1=enterprog, 2=cleaning...  [param1..4]=optional, depending on [cmd]\n";
+	return	"cpuprogcmd [cmd] | [p1] | [p2] | [p3] | [p4]\n"
+			"[cmd]:1=enterprog, 2=cleaning...\n"
+			"[p1..4]=optional, depending on [cmd]\n";
 }
 
 //**********************************************************

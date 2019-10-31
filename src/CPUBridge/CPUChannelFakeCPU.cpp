@@ -229,33 +229,93 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		return true;
 
 	case eCPUCommand_programming:
-		//# P len sub_command optional_params ... ck
-		switch ((eCPUProgrammingCommand)bufferToSend[3])
 		{
-		default:
-			return false;
+			// [#] [P] [len] [subcommand] [optional_data] [ck]
+			const eCPUProgrammingCommand subcommand = (eCPUProgrammingCommand)bufferToSend[3];
+			switch (subcommand)
+			{
+			default:
+				return false;
 
-		case eCPUProgrammingCommand_cleaning:
-			//fino un cleaning
-			cleaning.isRunning = 1;
-			cleaning.timeToEnd = rhea::getTimeNowMSec() + 4000;
-			cleaning.prevState = this->VMCState;
-			this->VMCState = eVMCState_LAVAGGIO_MANUALE;
-			return true;
+			case eCPUProgrammingCommand_cleaning:
+				//fingo un cleaning
+				memset(&cleaning, 0, sizeof(cleaning));
+				cleaning.cleaningType = (eCPUProgrammingCommand_cleaningType)bufferToSend[4];
+				cleaning.fase = 1;
+				cleaning.timeToEnd = rhea::getTimeNowMSec() + 4000;
+				cleaning.prevState = this->VMCState;
+
+				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
+					this->VMCState = eVMCState_LAVAGGIO_SANITARIO;
+				else
+					this->VMCState = eVMCState_LAVAGGIO_MANUALE;
+
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+			case eCPUProgrammingCommand_querySanWashingStatus:
+				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
+				{
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = cleaning.fase; //fase
+					out_answer[ct++] = cleaning.btn1;
+					out_answer[ct++] = cleaning.btn2;
+
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+					return true;
+				}
+				break;
+			}
 		}
-		return false;
+		break;
 	}
+	return false;
 }
 
 //*****************************************************************
 void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {
-	if (cleaning.isRunning)
+	if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
 	{
-		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+		if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
 		{
-			cleaning.isRunning = 0;
-			this->VMCState = cleaning.prevState;
+			if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+			{
+				cleaning.timeToEnd += 3000;
+				cleaning.btn1 = cleaning.btn2 = 0;
+				++cleaning.fase;
+
+				if (cleaning.fase == 3)
+				{
+					cleaning.btn1 = 10;
+					cleaning.timeToEnd += 7000;
+				}
+
+				if (cleaning.fase >= 6)
+				{
+					cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
+					this->VMCState = cleaning.prevState;
+				}
+			}
+		}
+		else
+		{
+			if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+			{
+				cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
+				this->VMCState = cleaning.prevState;
+			}
 		}
 	}
 

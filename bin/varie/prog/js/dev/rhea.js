@@ -12,7 +12,7 @@ var	RHEA_EVENT_START_SELECTION = 102;					//'f'
 var	RHEA_EVENT_STOP_SELECTION = 103;					//'g'
 var	RHEA_EVENT_CPU_STATUS = 104;						//'h'
 var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
-
+var	RHEA_EVENT_SEND_BUTTON = 115;						//'s'
 
 
 //info sulla versione attuale del codice (viene comunicata a GPU in fase di registrazione)
@@ -318,9 +318,10 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						case 7: statusStr ="MAN WASHING"; break;
 						case 8: statusStr ="AUTO WASHING"; break;
 						case 10: statusStr ="WAIT TEMP"; break;
-						case 17: statusStr ="SAN WASHING"
+						case 20: statusStr ="SAN WASHING"; break;
 						case 101: statusStr ="COM_ERROR"; break;
 					}
+					//console.log ("rhea.js => RHEA_EVENT_CPU_STATUS [" +statusID +"] [" +statusStr +"]");
 					me.onEvent_cpuStatus(statusID, statusStr);
 					break;
 				}
@@ -645,6 +646,14 @@ Rhea.prototype.sendCPUProgrammingCmd = function (cmd, param1, param2, param3, pa
 	buffer[3] = parseInt(param2);
 	buffer[4] = parseInt(param3);
 	buffer[5] = parseInt(param4);
+	this.sendGPUCommand ("E", buffer, 0, 0);
+}
+
+Rhea.prototype.sendButtonPress = function(iBtnNumber)
+{
+	var buffer = new Uint8Array(2);
+	buffer[0] = RHEA_EVENT_SEND_BUTTON;
+	buffer[1] = parseInt(iBtnNumber);
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 

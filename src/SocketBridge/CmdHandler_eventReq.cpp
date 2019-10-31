@@ -16,6 +16,8 @@
 #include "CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.h"
 #include "CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.h"
 #include "CmdHandler/CmdHandler_eventReqCPUProgrammingCmd.h"
+#include "CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.h"
+#include "CmdHandler/CmdHandler_eventReqBtnPressed.h"
 
 using namespace socketbridge;
 
@@ -46,6 +48,8 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
 	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
 	CHECK(CmdHandler_eventReqCPUProgrammingCmd);
+	CHECK(CmdHandler_eventReqCPUSanWashingStatus);
+	CHECK(CmdHandler_eventReqBtnPressed);
 
 #undef CHECK
 
@@ -75,6 +79,8 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
 	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
 	CHECK(CmdHandler_eventReqCPUProgrammingCmd);
+	CHECK(CmdHandler_eventReqCPUSanWashingStatus);
+	CHECK(CmdHandler_eventReqBtnPressed);
 
 #undef CHECK
 

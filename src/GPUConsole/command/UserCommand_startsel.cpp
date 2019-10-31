@@ -3,7 +3,7 @@
 //**********************************************************
 const char*	UserCommand_startsel::getExplain() const
 { 
-	return "startsel [selnum] => selum >= 1 && selnnum <=48";
+	return "startsel [selnum]\nselum >= 1 && selnnum <=48";
 }
 
 //**********************************************************

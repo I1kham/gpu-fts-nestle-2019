@@ -3,7 +3,7 @@
 //**********************************************************
 const char*	UserCommand_upload::getExplain() const
 { 
-	return "upload [filename] => upload [filename] to the SMU. The SMU will store the file in the temp folder";
+	return "upload [filename]\nupload the [filename] to the SMU.\nThe SMU will store the file in the temp folder";
 }
 
 //**********************************************************

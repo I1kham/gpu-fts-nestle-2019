@@ -6,6 +6,8 @@
 #include "../../rheaAppLib/rheaAppFileTransfer.h"
 #include "../winTerminal.h"
 
+#define USERCOMMAND_A_CAPO "\n                    ";
+
 /***************************************************
  * UserCommand
  *
@@ -20,7 +22,8 @@ public:
 	virtual void			handle (const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const = 0;
 
 	const char*				getCommandName() const					{ return command; }
-	virtual const char*		getExplain() const						{ return command; }
+	virtual const char*		getExplain() const						{ return NULL; }
+
 
 private:
 	char					command[32];

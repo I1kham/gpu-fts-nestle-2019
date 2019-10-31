@@ -156,11 +156,28 @@ namespace rhea
 
 		namespace ExecuteProgramCmd
 		{
-			void		ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd, u8 param1, u8 param2, u8 param3, u8 param4);
-				//ask_		=> chiede a SocketBridge di inviare uno specifico comando di programmazione alla CPU
-				//decode_	=> non esiste, una appa non riceve mai una notifica di questo tipo
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd, u8 param1, u8 param2, u8 param3, u8 param4);
+			//ask_		=> chiede a SocketBridge di inviare uno specifico comando di programmazione alla CPU
+			//decode_	=> non esiste, una appa non riceve mai una notifica di questo tipo
 
-			inline void	askCleaning(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType)				{ ExecuteProgramCmd::ask(ch, proto, cpubridge::eCPUProgrammingCommand_cleaning, (u8)cleanType, 0, 0, 0); }
+			inline void	askCleaning(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType) { ExecuteProgramCmd::ask(ch, proto, cpubridge::eCPUProgrammingCommand_cleaning, (u8)cleanType, 0, 0, 0); }
+			//decode_	=> non esiste, una appa non riceve mai una notifica di questo tipo
+		}
+
+		namespace SanWashingStatus
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
+			void		decodeAnswer (const sDecodedEventMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2);
+			//ask_		=> chiede a SocketBridge lo stato del lavaggio sanitario in corso
+			//decode_	=> b0=fase del lavaggio; b1/b2 se !=0, significa che la CPU è in attessa della pressione del pulsante b1 e/o b2
+
+		}
+
+		namespace SendButton
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 btnNum);
+			//ask_		=> chiede a SocketBridge di di dire alla CPU che un btn specifico è stato premuto.
+			//decode_	=> non esiste
 		}
 
 		/******************************************************************************

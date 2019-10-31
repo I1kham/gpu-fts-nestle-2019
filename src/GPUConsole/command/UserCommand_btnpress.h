@@ -1,22 +1,23 @@
-#ifndef _UserCommand_cpuprogcmd_h_
-#define _UserCommand_cpuprogcmd_h_
+#ifndef _UserCommand_btnpress_h_
+#define _UserCommand_btnpress_h_
 #include "UserCommand.h"
 
 /***************************************************
- * UserCommand_cpuprogcmd
+ * UserCommand_startsel
  *
  */
-class UserCommand_cpuprogcmd : public UserCommand
+class UserCommand_btnpress : public UserCommand
 {
 public:
-					UserCommand_cpuprogcmd() : UserCommand ("cpuprogcmd") { }
+					UserCommand_btnpress() : UserCommand ("btnpress") { }
 
 	const char*		getExplain() const;
 
 	void			handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const;
+
 };
 
 
 
 
-#endif // _UserCommand_cpuprogcmd_h_
+#endif // _UserCommand_btnpress_h_

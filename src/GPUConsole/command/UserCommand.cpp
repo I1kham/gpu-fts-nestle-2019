@@ -2,7 +2,6 @@
 #include "UserCommand_list.h"
 
 
-
 //**********************************************************
 UserCommand::UserCommand (const char *commandName)
 {

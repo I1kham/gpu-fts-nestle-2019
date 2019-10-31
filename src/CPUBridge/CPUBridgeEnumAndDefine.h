@@ -38,6 +38,7 @@
 #define		CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS 0x010C
 #define		CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP		0x010D
 #define		CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS		0x010E
+#define		CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS			0x010F
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
 
@@ -158,11 +159,13 @@ namespace cpubridge
     enum eCPUProgrammingCommand
     {
         eCPUProgrammingCommand_enterProg = 0x01,
-        eCPUProgrammingCommand_cleaning = 0x02
+        eCPUProgrammingCommand_cleaning = 0x02,
+		eCPUProgrammingCommand_querySanWashingStatus = 0x03
     };
 
 	enum eCPUProgrammingCommand_cleaningType
 	{
+		eCPUProgrammingCommand_cleaningType_invalid = 0x00,
 		eCPUProgrammingCommand_cleaningType_mixer1 = 0x01,
 		eCPUProgrammingCommand_cleaningType_mixer2 = 0x02,
 		eCPUProgrammingCommand_cleaningType_mixer3 = 0x03,

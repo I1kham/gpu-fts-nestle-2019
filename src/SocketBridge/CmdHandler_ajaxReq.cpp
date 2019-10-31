@@ -4,6 +4,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqDBC.h"
 #include "CmdHandler/CmdHandler_ajaxReqDBQ.h"
 #include "CmdHandler/CmdHandler_ajaxReqDBE.h"
+#include "CmdHandler/CmdHandler_ajaxReqSanWashStatus.h"
 using namespace socketbridge;
 
 
@@ -39,6 +40,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqDBC);
 	CHECK(CmdHandler_ajaxReqDBQ);
 	CHECK(CmdHandler_ajaxReqDBE);
+	CHECK(CmdHandler_ajaxReqSanWashStatus);
 #undef CHECK
     return NULL;
 }

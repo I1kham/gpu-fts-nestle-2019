@@ -13,6 +13,8 @@
 #include "UserCommand_startsel.h"
 #include "UserCommand_startcleaning.h"
 #include "UserCommand_cpuprogcmd.h"
+#include "UserCommand_sanwashstatus.h"
+#include "UserCommand_btnpress.h"
 
 //**********************************************************
 void UserCommandFactory::setup (rhea::Allocator *allocatorIN)
@@ -65,26 +67,45 @@ void UserCommandFactory::help_commandLlist(WinTerminal *logger) const
 	u32 n = cmdList.getNElem();
 	for (u32 i = 0; i < n; i++)
 	{
-		const char *s = cmdList(i)->getExplain();
-		logger->log("%s\n", s);
+		const char *cmdName = cmdList(i)->getCommandName();
+		const char *explain = cmdList(i)->getExplain();
+		if (NULL == explain)		
+			logger->log("%s\n", cmdName);
+		else
+		{
+			char temp[1024];
+			strcpy_s(temp, sizeof(temp), explain);
+			
+			char *pContext;
+			char *s = strtok_s(temp, "\n", &pContext);
+			if (NULL == s)
+				logger->log("%s\n", cmdName);
+			else
+			{
+				logger->log("%-20s%s\n", cmdName, s);
+				while ( (s = strtok_s(NULL, "\n", &pContext)) )
+					logger->log("                    %s\n", s);
+			}
+		}
 	}
 }
 
 //**********************************************************
 void UserCommandFactory::utils_addAllKnownCommands()
 {
-	this->addCommand<UserCommand_list>();
+	this->addCommand < UserCommand_btnpress>();
 	this->addCommand < UserCommand_cpumsg>();
 	this->addCommand < UserCommand_cpustatus>();
 	this->addCommand < UserCommand_cpuiniparam>();
 	this->addCommand < UserCommand_cpuprogcmd>();
-
+	this->addCommand < UserCommand_list>();
 	this->addCommand < UserCommand_readDataAudit>();
 	this->addCommand < UserCommand_readDA3>();
 
 	this->addCommand < UserCommand_da3ts>();
 	this->addCommand < UserCommand_download>();
 	this->addCommand < UserCommand_upload>();
+	this->addCommand < UserCommand_sanwashstatus>();
 	this->addCommand < UserCommand_selavail>();
 	this->addCommand < UserCommand_startsel>();
 	this->addCommand < UserCommand_startcleaning>();

@@ -40,9 +40,12 @@ namespace cpubridge
 
 		struct sCleaning
 		{
-			u8 isRunning;
-			eVMCState prevState;
-			u64 timeToEnd;
+			eCPUProgrammingCommand_cleaningType cleaningType;
+			u8									fase;
+			u8									btn1;
+			u8									btn2;
+			eVMCState							prevState;
+			u64									timeToEnd;
 		};
 
 	private:

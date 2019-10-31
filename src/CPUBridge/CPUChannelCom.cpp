@@ -91,7 +91,8 @@ bool CPUChannelCom::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, 
 	if (!priv_handleMsg_send(bufferToSend, nBytesToSend, logger))
 		return false;
 
-	if (!priv_handleMsg_rcv(out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec))
+	const u8 commandChar = bufferToSend[1];
+	if (!priv_handleMsg_rcv(commandChar, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec))
 		return false;
 
 	return true;
@@ -125,7 +126,7 @@ bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhe
 }
 
 //***************************************************
-bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
+bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
 {
 	DUMPMSG("RCV: ");
 	const u16 sizeOfBuffer = *in_out_sizeOfAnswer;
@@ -159,6 +160,14 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 			nBytesRcv++;
 
 			DUMP(&commandChar, 1);
+
+			if (commandCharIN != commandChar)
+			{
+				//non è la risposta che mi aspettavo
+				commandChar = 0x00;
+				nBytesRcv = 0;
+				continue;
+			}
 		}
 
 		//aspetto di riceve la lunghezza totale del messaggio
@@ -203,12 +212,13 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 *out_answer, u16 *in_out_sizeOfAnswer
 					return true;
 
 
-				//HACK: le versioni non beta della CPU calcolano male il CK del msg C
+				/*HACK: le versioni non beta della CPU calcolano male il CK del msg C
 				if (out_answer[1] == 'C')
 				{
 					logger->log("CPUChannelCom::priv_handleMsg_rcv() => HACK. messaggio C con ck invalida, lo accetto lo stesso\n");
 					return true;
 				}
+				*/
 
 
 				logger->log("CPUChannelCom::priv_handleMsg_rcv() => ERR, invalid checksum\n", msgLen, sizeOfBuffer);

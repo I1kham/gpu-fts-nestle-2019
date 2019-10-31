@@ -3,7 +3,7 @@
 //**********************************************************
 const char*	UserCommand_download::getExplain() const
 { 
-	return "download [what] => [what] = audit[n] | da3[n] | test"; 
+	return "download [what]\n[what] = audit[n] | da3[n] | test"; 
 }
 
 //**********************************************************

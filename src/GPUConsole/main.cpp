@@ -280,6 +280,14 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			log->outText(true, true, true, "WriteLocalVMCDataFile: status[%s] totKbSoFar[%d]\n", rhea::app::utils::verbose_writeDataFileStatus(status), toKbSoFar);
 		}
 		break;
+
+	case socketbridge::eEventType_cpuSanWashingStatus:
+		{
+			u8 b0, b1, b2;
+			rhea::app::SanWashingStatus::decodeAnswer (decoded, &b0, &b1, &b2);
+			log->outText(true, true, true, "SanWashingStatus: fase[%d] btn1[%d] btn2[%d]\n", b0, b1, b2);
+		}
+		break;
 	}
 }
 

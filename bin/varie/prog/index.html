@@ -13,8 +13,18 @@
 		<div id="pagePleaseWait_header_left"></div>
 		<div id="pagePleaseWait_header_right"></div>
 		<div class="clear"></div>
-		<br><br><br><br><br><br>
-		<center><img draggable='false' src="img/animationRound.gif"></center>
+		
+		<div class="page">
+			<div id="pagePleaseWait_wait" style="position:absolute; top:150px; left:462px"><img draggable='false' src="img/animationRound.gif"></div>
+			
+			<div id="pagePleaseWait_freeText" style="position:absolute; top:40px; left:10px; width:1004px; height:300px; background-color:rgba(0,0,0,0.6); color:#fff; display:none;">aa</div>
+			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:400px; left:20px; display:none">
+				<div id="bntFree1" class="UIButton bigButton3x4"><p id="bntFree1Text">testo bottone 1</p></div>
+			</div>
+			<div id="pagePleaseWait_freeBtn2" style="position:absolute; top:400px; left:680px; display:none">
+				<div id="bntFree2" class="UIButton bigButton3x4"><p id="bntFree2Text">testo bottone 2 bottone 2</p></div>
+			</div>
+		</div>
 	</div>
 			
 	<!-- page Main menu -->
@@ -55,7 +65,7 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div></td>
-						<td width="33%" align="center"></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEST DA3 COMPARE" data-onclick="da3.compare()"></td>
 						<td></td>
 					</tr>					
 				</table>
@@ -84,28 +94,20 @@
 						<td><div class="UINumber" data-numfigures="4" data-value="654"></div></td>
 					</tr>					
 					<tr>
-						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option1="YES" data-option2="NO" ></div></td>
-					</tr>
-					<tr>
 						<td>PROGRAMMING<br>aaa<br>bbb<br>ccc<br>ccc<br>ccc<br>ccc</td>
-						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-option3="BOH?" data-selected="2"></div></td>
+						<td><div class="UIOption" data-option="1|YES|2|NO|3|BOH?" data-selected="3"></div></td>
 					</tr>
 					<tr>
 						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
+						<td><div class="UIOption" data-option="Y|YES|N|NO" data-selected="N"></div></td>
 					</tr>
 					<tr>
 						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
+						<td><div class="UIOption" data-option="Y|YES|N|NO" data-selected="Y"></div></td>
 					</tr>
 					<tr>
 						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
-					</tr>
-					<tr>
-						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option1="YES" data-option2="NO" data-selected="1"></div></td>
+						<td><div class="UIOption" data-option="Y|YES|N|NO"></div></td>
 					</tr>
 				</table>
 			</div>
@@ -157,10 +159,12 @@
 </div> <!-- wrapper -->
 
 
+<script src="js/DA3.js"></script>
 <script src="js/UI.js"></script>
 <script src="js/Task.js"></script>
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
+var da3 = null;
 var ui = null;
 var voidTask = new TaskVoid();
 var currentTask = voidTask;
@@ -168,33 +172,69 @@ var timeNowMSec = 0;
 
 function onRheaBootstrapFinished()
 {
-	rhea.onEvent_cpuStatus = function(statusID, statusStr) 	{ currentTask.onEvent_cpuStatus(statusID, statusStr); }
+	document.getElementById("pagePleaseWait_freeBtn1").addEventListener("mousedown", function(ev) { currentTask.onFreeBtn1Clicked(ev); } , true);
+	document.getElementById("pagePleaseWait_freeBtn2").addEventListener("mousedown", function(ev) { currentTask.onFreeBtn2Clicked(ev); } , true);
+		
 	
-	
+	rhea.onEvent_cpuStatus = function(statusID, statusStr) 			{ currentTask.onEvent_cpuStatus(statusID, statusStr); }
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
 	dataOra_setup();
 	
 	ui = new UI ("divPage");
 	ui.setupStandaloneButton("bntBack");
 	pageMainMenu_show();
 	
-	pleaseWait_show(1);
+	pleaseWait_show();
 	pleaseWait_setTextLeft("loading da3");
-	da3_load();
+	da3 = new DA3();
+	da3.load();
 	
 	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
 }
 
-function showPage(pageID)				{ ui.hideAllExcept (pageID); }
-function pleaseWait_show(bClearText)	{ if(bClearText) { pleaseWait_setTextLeft(""); pleaseWait_setTextRight(""); } rheaShowElem(rheaGetElemByID("pagePleaseWait")); }
-function pleaseWait_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait")); }
-function pleaseWait_setTextLeft(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_left", s) }
-function pleaseWait_setTextRight(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_right", s) }
-
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
-
+function showPage(pageID)				{ ui.hideAllExcept (pageID); }
 function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); }
 function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); }
 
+
+/***************************************************************************
+ *
+ * please wait
+ *
+ */
+function pleaseWait_show()				
+{ 
+	pleaseWait_setTextLeft(""); 
+	pleaseWait_setTextRight(""); 
+	pleaseWait_freeText_setText("");
+	
+	pleaseWait_btn1_hide();
+	pleaseWait_btn2_hide();
+	pleaseWait_freeText_hide();
+	
+	pleaseWait_wait_show();
+	rheaShowElem(rheaGetElemByID("pagePleaseWait")); 
+}
+function pleaseWait_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait")); }
+function pleaseWait_setTextLeft(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_left", s); }
+function pleaseWait_setTextRight(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_right", s); }
+
+function pleaseWait_wait_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_wait")); }
+function pleaseWait_wait_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_wait")); }
+
+function pleaseWait_freeText_show()		{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeText")); }
+function pleaseWait_freeText_hide()		{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeText")); }
+function pleaseWait_freeText_setText(s)	{ rheaSetDivHTMLByName("pagePleaseWait_freeText", s); }
+
+function pleaseWait_btn1_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }
+function pleaseWait_btn1_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }
+function pleaseWait_btn1_setText(s)		{ rheaSetDivHTMLByName("bntFree1Text", s); }
+
+
+function pleaseWait_btn2_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
+function pleaseWait_btn2_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
+function pleaseWait_btn2_setText(s)		{ rheaSetDivHTMLByName("bntFree2Text", s); }
 
 
 /***************************************************************************
@@ -242,45 +282,6 @@ function dataOra_setup ()
 					1000);
 }
 
-/***************************************************************************
- *
- * DA3
- *
- */
-var da3_original = null;
-var da3_current = null;
-function da3_load()
-{
-	rhea.filetransfer_startDownload ("da3", 11, da3_load_onStart, da3_load_onProgress, da3_load_onEnd);
-}
-
-function da3_load_onStart(userValue)
-{
-	console.log ("da3_load_onStart: ");
-}
-
-function da3_load_onProgress()
-{
-	console.log ("da3_load_onProgress: ");
-}
-
-function da3_load_onEnd(userValue, reasonRefused, obj)
-{
-	console.log ("da3_load_onEnd: ");
-	if (reasonRefused != 0)
-	{
-		alert ("error downloading da3");
-		pleaseWait_hide();
-		return;
-	}
-	
-	var da3_original = new Uint8Array(obj.fileSize);
-	var da3_current = new Uint8Array(obj.fileSize);
-	for (var i=0; i<obj.fileSize; i++)
-		da3_original[i] = da3_current[i] = obj.fileBuffer[i];
-		
-	pleaseWait_hide();
-}
 
 /***************************************************************************
  *
@@ -323,8 +324,12 @@ function pageCleaning_show()
 
 function pageCleaning_action (what)
 {
-	pleaseWait_show(1);
-	currentTask = new TaskCleaning();
+	pleaseWait_show();
+	
+	var bIsSanWashing = 0;
+	if (what == 8)
+		bIsSanWashing=1;
+	currentTask = new TaskCleaning(bIsSanWashing);
 	rhea.requestGPUCleaning(parseInt(what));
 }
 

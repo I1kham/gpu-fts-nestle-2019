@@ -22,6 +22,6 @@ void CmdHandler_ajaxReqSelPrices::onCPUBridgeNotification (socketbridge::Server 
 
 	
 	char resp[512];
-    sprintf (resp, "{\"n\":%d,\"s\":\"%s\"}", NUM_MAX_SELECTIONS, strPriceList);
+	sprintf_s(resp, sizeof(resp), "{\"n\":%d,\"s\":\"%s\"}", NUM_MAX_SELECTIONS, strPriceList);
     server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
 }

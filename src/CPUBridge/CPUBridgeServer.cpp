@@ -353,7 +353,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
             break;
 
         case CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD:
-			priv_handleProgrammingMessage(msg);
+			priv_handleProgrammingMessage(sub, handlerID, msg);
             break;
 
 		}
@@ -363,7 +363,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 
 //**********************************************
-void Server::priv_handleProgrammingMessage(const rhea::thread::sMsg &msg)
+void Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg)
 {
 	eCPUProgrammingCommand cmd;
 	const u8 *optionalData;
@@ -380,6 +380,7 @@ void Server::priv_handleProgrammingMessage(const rhea::thread::sMsg &msg)
 		break;
 
 	case eCPUProgrammingCommand_enterProg:
+	case eCPUProgrammingCommand_querySanWashingStatus:
 		nBytesToSend = cpubridge::buildMsg_Programming (cmd, NULL, 0, bufferW, sizeof(bufferW));
 		break;
 
@@ -396,6 +397,24 @@ void Server::priv_handleProgrammingMessage(const rhea::thread::sMsg &msg)
 		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
 		{
 			logger->log("ERR sending P[%d] command to CPU\n", cmd);
+		}
+		else
+		{
+			//in generale, non mi interessa la risposta della CPU ai comandi prog, a parte per alcune eccezioni.
+			//La cpu risponde sempre con:
+			// [#] [P] [len] [subcommand] [optional_data] [ck]
+			switch (answerBuffer[3])
+			{
+			case eCPUProgrammingCommand_querySanWashingStatus:
+				//la CPU risponde con 3 bytes che indicano:
+				//	b0 => fase del lavaggio
+				//	b1 => se != da 0 allora vuol dire che la CPU è in attesa della pressione del tasto b-esimo
+				//	b2 => come sopra (in pratica la CPU può essere in attesa della pressione del tasto b1 oppure del tasto b2
+				//In ogni caso, io ignoro queste cose, mi limito a notificare i miei client
+				if (NULL != sub && answerBuffer[2] >= 8)
+					notify_SAN_WASHING_STATUS(sub->q, handlerID, logger, answerBuffer[4], answerBuffer[5], answerBuffer[6]);
+				break;
+			}
 		}
 	}
 }

@@ -49,6 +49,7 @@ UI.prototype.hideAllExcept = function(windowID)
 	}
 }
 
+//crea un UIButton anche se questo non è all'interno di un UIPanel
 UI.prototype.setupStandaloneButton = function(elemID)
 {
 	var o = new UIButton ("", 0, document.getElementById(elemID));
@@ -150,7 +151,7 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 
 	var wrapperH = theWrapper.offsetHeight;
 	var contentH = elemContent.offsetHeight;
-	//console.log ("winID[" +this.id +"], wrapperH[" +wrapperH +"], contentH[" +contentH +"]");
+	//console.log ("UIWindow => winID[" +this.id +"], wrapperH[" +wrapperH +"], contentH[" +contentH +"]");
 
 	if (contentH > wrapperH)
 	{
@@ -301,7 +302,7 @@ UIButton.prototype.bindEvents = function()
 			me.clickPosX = ev.clientX;
 			me.clickPosY = ev.clientY;
 			me.clickStartTimeMSec = ev.timeStamp;
-			//console.log ("mdown => id[" +me.id +"], mx[" +me.clickPosX +"], my[" +me.clickPosY +"]");
+			//console.log ("UIButton::mdown => id[" +me.id +"], mx[" +me.clickPosX +"], my[" +me.clickPosY +"]");
 		}, 
 		true);
 		
@@ -313,7 +314,7 @@ UIButton.prototype.bindEvents = function()
 				return;
 			}
 
-			//console.log ("mup => id[" +me.id +"], elapsed_msec[" +timeElapsedMSec +"], xdiff[" +xdiff +"], ydiff[" +ydiff +"]");
+			//console.log ("UIButton::mup => id[" +me.id +"], elapsed_msec[" +timeElapsedMSec +"], xdiff[" +xdiff +"], ydiff[" +ydiff +"]");
 			var timeElapsedMSec = parseInt(ev.timeStamp - me.clickStartTimeMSec);
 			var xdiff = parseInt(Math.abs(me.clickPosX - ev.clientX));
 			var ydiff = parseInt(Math.abs(me.clickPosY - ev.clientY));
@@ -333,8 +334,8 @@ UIButton.prototype.bindEvents = function()
  
  *	attributi consentiti:
  *
- *		data-option1="MAINTENANCE" data-option2=".." .. data-optionN="..."
- *		data-selected="1"	=> indica l'opzione da 1 a N selezionata di default (0 == nessuna selezione)
+ *		data-option="value|caption|value|caption|....value|caption"
+ *		data-selected="value"	=> indica l'opzione selezionata. Default "" == nessuna selezione
  */
 function UIOption (parentID, childNum, node)
 {
@@ -346,39 +347,36 @@ function UIOption (parentID, childNum, node)
 	}
 
 	//elenco opzioni
-	this.options = [];
+	this.optionValue = [];
+	this.optionCaption = [];
 	this.clickPosX = [];
 	this.clickPosY = [];
 	this.clickStartTimeMSec = [];
 	
-	var i=1;
-	while(1)
+	var e = node.getAttribute("data-option").split("|");
+	var nOptions = 0;
+	for (var i=0; i<e.length;)
 	{
-		var opt = node.getAttribute("data-option" +i);
-		if (null == opt || opt == "")
-			break;
-		this.options.push(opt.toString());
-		i++;
+		this.optionValue[nOptions] = e[i++];
+		this.optionCaption[nOptions] = e[i++];
+		nOptions++;
 	}
 	
-	//opzione selezionata (0==nessuna)
-	this.selectedOption = 0;
-	var s = node.getAttribute("data-selected");
-	if (null != s && s != "")
-		this.selectedOption = parseInt(s);
-
+	
+	//opzione selezionata
+	this.selectedOption = -1;
+	this.selectOptionByValue (node.getAttribute("data-selected"));
 
 	//inietto l'html
-	var nOptions = this.options.length;
 	var cellSize = parseInt (100 / nOptions);
 	var html = "<table class='UIOption'><tr>";
 	for (var i=0; i<nOptions; i++)
 	{
-		var btnID = this.id +"_opt" +(i+1);
+		var btnID = this.id +"_opt" +i;
 		var css = "UIButton";
-		if (this.selectedOption == (i+1))
+		if (this.selectedOption == i)
 			css += " UIlit";
-		html += "<td width='" +cellSize +"%'><div id='" +btnID +"' class='" +css +"' data-optnum='" +(i+1) +"'><p>" +this.options[i] +"</p></div></td>";
+		html += "<td width='" +cellSize +"%'><div id='" +btnID +"' class='" +css +"' data-optnum='" +i +"'><p>" +this.optionCaption[i] +"</p></div></td>";
 	}
 	html += "</tr></table>";
 	node.innerHTML = html;
@@ -387,10 +385,10 @@ function UIOption (parentID, childNum, node)
 UIOption.prototype.bindEvents = function()
 {
 	var me = this;
-	var nOptions = me.options.length;
+	var nOptions = me.optionValue.length;
 	for (var i=0; i<nOptions; i++)
 	{
-		var btnID = this.id +"_opt" +(i+1);
+		var btnID = this.id +"_opt" +i;
 		var node = document.getElementById(btnID);
 		
 		node.addEventListener("mousedown", function (ev)
@@ -420,26 +418,25 @@ UIOption.prototype.bindEvents = function()
 			
 			me.clickStartTimeMSec[i] = -1;
 			if (timeElapsedMSec <650 && xdiff <60 &&ydiff<40)
-				me.selectOption(this.getAttribute("data-optnum"));
+				me.selectOptionByIndex(this.getAttribute("data-optnum"));
 		}, 
 		true);		
 	}	
 }
 
-UIOption.prototype.getSelectedOption = function()		{ return this.selectOption; }
-
-UIOption.prototype.selectOption = function(i)
+UIOption.prototype.getSelectedOptionIndex = function()		{ return this.selectedOption; }
+UIOption.prototype.selectOptionByIndex = function(i)
 {
 	i = parseInt(i);
-	//console.log ("selectOption[" +i +"], currentSelected[" +this.selectedOption +"]");
+	//console.log ("UIOption => selectOptionByIndex[" +i +"], currentSelected[" +this.selectedOption +"]");
 	
-	if (i<1) i=0;
-	else if (i>this.options.length) i= this.options.length;
+	if (i<0) i=0;
+	else if (i>=this.optionValue.length) i= this.optionValue.length-1;
 	
 	if (i == this.selectedOption)
 		return;
 	
-	if (this.selectedOption > 0)
+	if (this.selectedOption >= 0)
 	{
 		var btnID = this.id +"_opt" +this.selectedOption;
 		document.getElementById(btnID).classList.remove("UIlit"); 
@@ -448,10 +445,30 @@ UIOption.prototype.selectOption = function(i)
 	this.selectedOption = i;
 	var btnID = this.id +"_opt" +this.selectedOption;
 	document.getElementById(btnID).classList.add("UIlit"); 
+	
+	//console.log ("UIOption => current value[" +this.getSelectedOptionValue() +"]");
 }
 
-
-
+UIOption.prototype.getSelectedOptionValue = function()
+{
+	if (this.selectedOption<0) return "";
+	return this.optionValue[this.selectedOption];
+}
+UIOption.prototype.selectOptionByValue = function (v)
+{
+	this.selectedOption = -1;
+	if (v != null && v!="")
+	{
+		for (var i=0; i<this.optionValue.length; i++)
+		{
+			if (v == this.optionValue[i])
+			{
+				this.selectedOption = i;
+				return;
+			}
+		}
+	}
+}
 
 /***************************************************************
  * UINumber
@@ -539,7 +556,7 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 		me.mouseYStart[iCifra] = ev.clientY;
 		
 		me.parentObj.enablePageScroll(0);
-		//console.log("down => y[" +me.mouseYStart[iCifra] +"], stripStartY[" +me.stripStartY[iCifra] +"]");
+		//console.log("UINumber::down => y[" +me.mouseYStart[iCifra] +"], stripStartY[" +me.stripStartY[iCifra] +"]");
 	}, 
 	true);
 	
@@ -566,13 +583,13 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 		dStrip.style.top = newY +"px";
 		
 		me.parentObj.enablePageScroll(0);
-		//console.log("strip move => my[" +offsetY +"], relY[" +relY +"]");
+		//console.log("UINumber::strip move => my[" +offsetY +"], relY[" +relY +"]");
 	}, 
 	true);		
 
 	node.addEventListener("mouseleave", function (ev)
 	{
-		//console.log("strip leave");
+		//console.log("UINumber::strip leave");
 		//me.priv_onMouseUp(ev, iCifra);
 	}, 
 	true);
@@ -603,7 +620,7 @@ UINumber.prototype.priv_onMouseUp = function(ev, iCifra)
 	dParent.zindex=1;
 	dParent.style.overflow="hidden";
 	this.parentObj.enablePageScroll(1);
-	//console.log("strip up, y[" +curY +"], whichNum[" +whichNum +"]");
+	//console.log("UINumber::strip up, y[" +curY +"], whichNum[" +whichNum +"]");
 }
 
 UINumber.prototype.getValue = function()			{ return this.value; } 
