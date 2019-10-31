@@ -86,7 +86,11 @@ void FormProg::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::eVMCState vmcState;
             u8 vmcErrorCode, vmcErrorType;
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
-            if (vmcState != cpubridge::eVMCState_PROGRAMMAZIONE)
+
+            //if (vmcState != cpubridge::eVMCState_PROGRAMMAZIONE)
+            //    retCode = 1;
+
+            if (vmcState == cpubridge::eVMCState_DISPONIBILE || vmcState==cpubridge::eVMCState_INITIAL_CHECK)
                 retCode = 1;
         }
         break;

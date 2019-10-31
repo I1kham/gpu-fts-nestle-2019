@@ -12,7 +12,8 @@
 #ifdef PLATFORM_UBUNTU_DESKTOP
     #define CPU_COMPORT  "/dev/ttyUSB0"
 #else
-    #define CPU_COMPORT  "/dev/ttymxc3"
+    #define CPU_COMPORT     "/dev/ttymxc3"
+    #define USB_MOUNTPOINT  "/run/media/sda1"
 #endif
 
 

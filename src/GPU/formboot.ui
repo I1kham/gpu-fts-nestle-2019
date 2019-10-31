@@ -12,15 +12,15 @@
   </property>
   <property name="font">
    <font>
-    <family>RotisSemiSans</family>
-    <pointsize>16</pointsize>
+    <family>Roboto</family>
+    <pointsize>13</pointsize>
    </font>
   </property>
   <property name="windowTitle">
    <string/>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:#293339; color:#ccc;</string>
+   <string notr="true">background-color:#000; color:#999;</string>
   </property>
   <widget class="QPushButton" name="buttonStart">
    <property name="geometry">
@@ -33,11 +33,14 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>18</pointsize>
+     <family>Roboto</family>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#f27333; color:#fff</string>
+    <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
    </property>
    <property name="text">
     <string>START
@@ -55,12 +58,12 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#444; color:#fff</string>
+    <string notr="true">background-color:#000; color:#fff</string>
    </property>
    <property name="text">
     <string>labCPUMessage</string>
@@ -75,7 +78,7 @@ VMC</string>
      <x>10</x>
      <y>40</y>
      <width>361</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -86,14 +89,14 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>16</pointsize>
-     <weight>50</weight>
-     <bold>false</bold>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color:#f27333</string>
+    <string notr="true">color:#fff</string>
    </property>
    <property name="text">
     <string>CURRENTLY INSTALLED FILES</string>
@@ -102,10 +105,10 @@ VMC</string>
   <widget class="QLabel" name="labSoftwareVer">
    <property name="geometry">
     <rect>
-     <x>800</x>
+     <x>770</x>
      <y>40</y>
-     <width>221</width>
-     <height>21</height>
+     <width>241</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -116,36 +119,39 @@ VMC</string>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>16</pointsize>
-     <weight>50</weight>
-     <bold>false</bold>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color:#f27333</string>
+    <string notr="true">color:#fff</string>
    </property>
    <property name="text">
     <string>SOFTWARE VERSION</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="labInstalled_CPU">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>70</y>
+     <y>80</y>
      <width>601</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#353535</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
     <string>CPU: CPU_LRV+_TS60E_PRO_2G_IH13_x_x_x_x_HE-GB_V190_190418_fb7a0a7.mhx</string>
@@ -155,19 +161,19 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>640</x>
-     <y>70</y>
+     <y>80</y>
      <width>371</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#353535</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
     <string>CPU: Beta V2 Induzione EE xx</string>
@@ -180,19 +186,19 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>640</x>
-     <y>100</y>
+     <y>110</y>
      <width>371</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#353535</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
     <string>GPU: v3.0.0</string>
@@ -205,19 +211,19 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>100</y>
+     <y>110</y>
      <width>601</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#353535</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
     <string>VMC settings: Luce Zero Avia_Read0.da2</string>
@@ -227,19 +233,19 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>130</y>
+     <y>140</y>
      <width>601</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#353535</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
     <string>GUI: GUI_larhea_7inch_EE5_RVPL_GB_3_17_130218</string>
@@ -249,13 +255,13 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>200</y>
+     <y>237</y>
      <width>1051</width>
-     <height>131</height>
+     <height>120</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#495156</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -266,20 +272,22 @@ VMC</string>
    <widget class="QPushButton" name="btnInstall_CPU">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>44</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000; background-color:#fff</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -289,20 +297,22 @@ CPU FW</string>
    <widget class="QPushButton" name="btnInstall_DA3">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>288</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000; background-color:#fff</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -312,20 +322,22 @@ VMC settings</string>
    <widget class="QPushButton" name="btnInstall_GUI">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>532</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000; background-color:#fff</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -335,20 +347,22 @@ GUI</string>
    <widget class="QPushButton" name="btnInstall_manual">
     <property name="geometry">
      <rect>
-      <x>774</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>776</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000; background-color:#fff</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -377,13 +391,13 @@ Languages</string>
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>350</y>
+     <y>361</y>
      <width>1051</width>
-     <height>131</height>
+     <height>110</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#495156</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -394,20 +408,22 @@ Languages</string>
    <widget class="QPushButton" name="btnDownload_audit">
     <property name="geometry">
      <rect>
-      <x>774</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>776</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff; background-color:#34a0d6</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
@@ -417,20 +433,22 @@ Data Audit</string>
    <widget class="QPushButton" name="btnDownload_diagnostic">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>44</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000; background-color:#f1f152</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
@@ -440,20 +458,22 @@ Service zip file</string>
    <widget class="QPushButton" name="btnDownload_GUI">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>532</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff; background-color:#34a0d6</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
@@ -463,20 +483,22 @@ GUI</string>
    <widget class="QPushButton" name="btnDownload_DA3">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>30</y>
-      <width>150</width>
-      <height>71</height>
+      <x>288</x>
+      <y>10</y>
+      <width>200</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#fff; background-color:#34a0d6</string>
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
@@ -488,19 +510,19 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>640</x>
-     <y>130</y>
+     <y>140</y>
      <width>371</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#353535</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
     <string>Protocol ver: 4</string>
@@ -514,18 +536,18 @@ VMC settings</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>191</width>
+     <width>201</width>
      <height>30</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#444; color:#fff</string>
+    <string notr="true">background-color:#000; color:#fff</string>
    </property>
    <property name="text">
     <string>labCPUStatus</string>
@@ -543,6 +565,12 @@ VMC settings</string>
      <height>91</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Roboto</family>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
     <string notr="true">background-color:#9b9; color:#fff</string>
    </property>
@@ -550,7 +578,7 @@ VMC settings</string>
     <string>ciao, sono un emssaggio molto lungo e devo capire se sto coso va a capo da solo oppure se devo fare qualche barbatrucco. Certo che ne devo scrivere di roba prima di andare a capo</string>
    </property>
    <property name="textFormat">
-    <enum>Qt::PlainText</enum>
+    <enum>Qt::RichText</enum>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -581,15 +609,15 @@ VMC settings</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>4</y>
+      <y>10</y>
       <width>241</width>
       <height>21</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>14</pointsize>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
      </font>
     </property>
     <property name="styleSheet">
@@ -602,16 +630,18 @@ VMC settings</string>
    <widget class="QPushButton" name="btnOK">
     <property name="geometry">
      <rect>
-      <x>894</x>
-      <y>460</y>
-      <width>99</width>
-      <height>41</height>
+      <x>802</x>
+      <y>440</y>
+      <width>191</width>
+      <height>61</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
+      <family>Roboto</family>
       <pointsize>16</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -625,15 +655,17 @@ VMC settings</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>460</y>
-      <width>99</width>
-      <height>41</height>
+      <y>440</y>
+      <width>191</width>
+      <height>61</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
+      <family>Roboto</family>
       <pointsize>16</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -647,15 +679,15 @@ VMC settings</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>40</y>
       <width>984</width>
-      <height>421</height>
+      <height>391</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>16</pointsize>
+      <family>Roboto</family>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="styleSheet">
@@ -667,19 +699,19 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>160</y>
+     <y>170</y>
      <width>601</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>RotisSemiSans</family>
+     <family>Roboto</family>
      <pointsize>13</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#353535</string>
+    <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
     <string>Manual: xxxxxxxxxxxxxxxxxxxx</string>
@@ -688,14 +720,14 @@ VMC settings</string>
   <widget class="QFrame" name="framePleaseWait">
    <property name="geometry">
     <rect>
-     <x>960</x>
-     <y>160</y>
+     <x>970</x>
+     <y>180</y>
      <width>1051</width>
      <height>131</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#495156</string>
+    <string notr="true">background-color:#111; color:#fff</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -707,18 +739,107 @@ VMC settings</string>
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>50</y>
+      <y>40</y>
       <width>1024</width>
-      <height>17</height>
+      <height>51</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>24</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
     <property name="text">
-     <string>PLEASE WAIT...</string>
+     <string>P L E A S E     W A I T ...</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>30</y>
+     <width>1024</width>
+     <height>2</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_2">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>0</y>
+     <width>2</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#fff</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Vertical</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_3">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>236</y>
+     <width>1024</width>
+     <height>1</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#999</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_4">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>360</y>
+     <width>1024</width>
+     <height>1</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#999</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="Line" name="line_5">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>490</y>
+     <width>1024</width>
+     <height>1</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#999</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
   </widget>
   <zorder>buttonStart</zorder>
   <zorder>labCPUMessage</zorder>
@@ -735,8 +856,13 @@ VMC settings</string>
   <zorder>labCPUStatus</zorder>
   <zorder>labWait</zorder>
   <zorder>labInstalled_Manual</zorder>
-  <zorder>frameFileList</zorder>
   <zorder>framePleaseWait</zorder>
+  <zorder>line</zorder>
+  <zorder>line_2</zorder>
+  <zorder>line_3</zorder>
+  <zorder>line_4</zorder>
+  <zorder>line_5</zorder>
+  <zorder>frameFileList</zorder>
  </widget>
  <resources/>
  <connections/>

@@ -43,62 +43,23 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-    qApp->setStyleSheet("QPushButton { border-radius:5px }");
-
-    utils::getRightFontForLanguage (fntButton, 16, "GB");
-    utils::getRightFontForLanguage (fnt12, 12, "GB");
 
     ui->frameFileList->setVisible(false);
 
     ui->labWait->setVisible(false);
-    ui->labWait->setFont(fnt12);
 
     //CPU message/status
     ui->labCPUMessage->setText("");
-    ui->labCPUMessage->setFont(fnt12);
-
     ui->labCPUStatus->setText ("");
-    ui->labCPUStatus->setFont(fnt12);
 
     //Software version
-    ui->labSoftwareVer->setFont(fntButton);
     ui->labVersion_CPU->setText("");
-    ui->labVersion_CPU->setFont(fnt12);
     ui->labVersion_GPU->setText("");
-    ui->labVersion_GPU->setFont(fnt12);
     ui->labVersion_protocol->setText("");
-    ui->labVersion_protocol->setFont(fnt12);
-
-
-    //installed version
-    ui->labInstalledFiles->setFont(fntButton);
-    ui->labInstalled_CPU->setFont(fnt12);
-    ui->labInstalled_DA3->setFont(fnt12);
-    ui->labInstalled_GUI->setFont(fnt12);
-    ui->labInstalled_Manual->setFont(fnt12);
-
-
-    //list box con elenco file
-    ui->lbFileList->setFont(fntButton);
-    ui->btnOK->setFont(fntButton);
-    ui->btnCancel->setFont(fntButton);
 
 
     //Bottoni
-    ui->btnInstall_CPU->setFont(fntButton);
-    ui->btnInstall_DA3->setFont(fntButton);
-    ui->btnInstall_GUI->setFont(fntButton);
-    ui->btnInstall_manual->setFont(fntButton);
-    ui->btnInstall_languages->setFont(fntButton);
     ui->btnInstall_languages->setVisible(false);
-
-    ui->btnDownload_audit->setFont(fntButton);
-    ui->btnDownload_DA3->setFont(fntButton);
-    ui->btnDownload_diagnostic->setFont(fntButton);
-    ui->btnDownload_GUI->setFont(fntButton);
-
-    ui->buttonStart->setFont(fntButton);
-
 
     ui->framePleaseWait->setVisible(false);
     ui->framePleaseWait->move (0, 250);
@@ -141,14 +102,6 @@ int FormBoot::onTick()
     return 0;
 }
 
-//*******************************************
-void FormBoot::priv_setButtonStyle (QPushButton *obj, const char *style)
-{
-    QString s;
-    s = QString ("{ border-radius:5px;") + style +QString ("}");
-    obj->setStyleSheet (s);
-    obj->setFont(fntButton);
-}
 
 //*******************************************
 void FormBoot::priv_updateLabelInfo()
@@ -157,7 +110,7 @@ void FormBoot::priv_updateLabelInfo()
     OSFileFind ff;
 
     //GPU Version
-    sprintf_s (s, sizeof(s), "<b>GPU</b>: %d.%d.%d", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
+    sprintf_s (s, sizeof(s), "<b>GPU</b>: <span style='color:#fff'>%d.%d.%d</span>", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
     ui->labVersion_GPU->setText(s);
 
     //CPU version + protocol version sono aggiornate on the fly mano mano che si ricevono i messaggi da CPU
@@ -170,7 +123,7 @@ void FormBoot::priv_updateLabelInfo()
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                sprintf_s (s, sizeof(s), "<b>CPU</b>: %s", rhea::fs::findGetFileName(ff));
+                sprintf_s (s, sizeof(s), "<b>CPU</b>: <span style='color:#fff'>%s</span>", rhea::fs::findGetFileName(ff));
                 ui->labInstalled_CPU->setText(s);
                 break;
             }
@@ -179,14 +132,14 @@ void FormBoot::priv_updateLabelInfo()
     }
 
     //Installed files: DA3
-    ui->labInstalled_DA3->setText("VMC Settings:");
+    ui->labInstalled_DA3->setText("VMC SETTINGS:");
     if (rhea::fs::findFirst (&ff, glob->last_installed_da3, "*.da3"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                sprintf_s (s, sizeof(s), "<b>VMC Settings</b>: %s", rhea::fs::findGetFileName(ff));
+                sprintf_s (s, sizeof(s), "<b>VMC SETTINGS</b>: <span style='color:#fff'>%s</span>", rhea::fs::findGetFileName(ff));
                 ui->labInstalled_DA3->setText(s);
                 break;
             }
@@ -204,7 +157,7 @@ void FormBoot::priv_updateLabelInfo()
             {
                 char onlyFileName[256];
                 rhea::fs::extractFileNameWithoutExt (rhea::fs::findGetFileName(ff), onlyFileName, sizeof(onlyFileName));
-                sprintf_s (s, sizeof(s), "<b>GUI</b>: %s", onlyFileName);
+                sprintf_s (s, sizeof(s), "<b>GUI</b>: <span style='color:#fff'>%s</span>", onlyFileName);
                 ui->labInstalled_GUI->setText(s);
                 break;
             }
@@ -214,20 +167,70 @@ void FormBoot::priv_updateLabelInfo()
 
 
     //Installed files: Manual
-    ui->labInstalled_Manual->setText("Manual:");
+    ui->labInstalled_Manual->setText("MANUAL:");
     if (rhea::fs::findFirst (&ff, glob->last_installed_manual, "*.pdf"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                sprintf_s (s, sizeof(s), "<b>Manual</b>: %s", rhea::fs::findGetFileName(ff));
+                sprintf_s (s, sizeof(s), "<b>MANUAL</b>: <span style='color:#fff'>%s</span>", rhea::fs::findGetFileName(ff));
                 ui->labInstalled_Manual->setText(s);
                 break;
             }
         } while (rhea::fs::findNext(ff));
         rhea::fs::findClose(ff);
     }
+}
+
+//*******************************************
+void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
+{
+    sync();
+
+    char s[512];
+    sprintf_s (s, sizeof(s), "sync -d %s", glob->usbFolder);
+    system(s);
+
+    sprintf_s (s, sizeof(s), "sync -f %s", glob->usbFolder);
+    system(s);
+
+    sprintf_s (s, sizeof(s), "%s/waitUSBSync.dat", glob->usbFolder);
+    rhea::fs::fileDelete(s);
+
+    FILE *f = fopen (s, "wb");
+    fwrite (s, 1, sizeof(s), f);
+    fwrite (s, 1, sizeof(s), f);
+    fwrite (s, 1, sizeof(s), f);
+    fflush(f);
+    fclose (f);
+
+    utils::waitAndProcessEvent(minTimeMSecToWaitMSec);
+
+    sync();
+
+    sprintf_s (s, sizeof(s), "sync -d %s", glob->usbFolder);
+    system(s);
+
+    sprintf_s (s, sizeof(s), "sync -f %s", glob->usbFolder);
+    system(s);
+
+    sprintf_s (s, sizeof(s), "%s/waitUSBSync.dat", glob->usbFolder);
+    for (u8 i=0; i<10; i++)
+    {
+        FILE *f = fopen (s, "rb");
+        const u64 fsize = rhea::fs::filesize(f);
+        fclose(f);
+        if (fsize < 1500)
+        {
+            sync();
+            utils::waitAndProcessEvent(500);
+        }
+        else
+            break;
+    }
+
+    rhea::fs::fileDelete(s);
 }
 
 /**************************************************************************
@@ -249,10 +252,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::sCPUParamIniziali iniParam;
             cpubridge::translateNotify_CPU_INI_PARAM (msg, &iniParam);
 
-            sprintf_s (s, sizeof(s), "<b>CPU</b>: %s", iniParam.CPU_version);
+            sprintf_s (s, sizeof(s), "<b>CPU</b>: <span style='color:#fff'>%s</span>", iniParam.CPU_version);
             ui->labVersion_CPU->setText (s);
 
-            sprintf_s (s, sizeof(s), "<b>Protocol ver</b>: %d", iniParam.protocol_version);
+            sprintf_s (s, sizeof(s), "<b>Protocol ver</b>: <span style='color:#fff'>%d</span>", iniParam.protocol_version);
             ui->labVersion_protocol->setText(s);
 
             strcpy (glob->cpuVersion, iniParam.CPU_version);
@@ -324,9 +327,9 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
                 else
                 {
                     sprintf_s (s, sizeof(s), "Finalizing copy...");
-                    utils::waitAndProcessEvent(2000);
+                    priv_syncUSBFileSystem(2000);
 
-                    sprintf_s (s, sizeof(s), "SUCCESS.\nThe file [%s] has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
+                    sprintf_s (s, sizeof(s), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
                     priv_pleaseWaitSetOK (s);
                 }
 
@@ -439,6 +442,12 @@ void FormBoot::on_buttonStart_clicked()
     }
 
     priv_pleaseWaitShow("Starting VMC...");
+
+#ifdef PLATFORM_YOCTO_EMBEDDED
+    sprintf_s (s, sizeof(s), "umount -f %s", USB_MOUNTPOINT);
+    system(s);
+#endif
+
     retCode = 1;
 }
 
@@ -446,6 +455,8 @@ void FormBoot::on_buttonStart_clicked()
 //**********************************************************************
 void FormBoot::priv_pleaseWaitShow(const char *message)
 {
+    ui->line_3->setVisible(false);
+    ui->line_4->setVisible(false);
     ui->frameInstallBtn->setVisible(false);
     ui->frameDownloadBtn->setVisible(false);
     ui->buttonStart->setVisible(false);
@@ -457,6 +468,8 @@ void FormBoot::priv_pleaseWaitShow(const char *message)
 //**********************************************************************
 void FormBoot::priv_pleaseWaitHide ()
 {
+    ui->line_3->setVisible(true);
+    ui->line_4->setVisible(true);
     ui->framePleaseWait->setVisible(false);
     ui->frameInstallBtn->setVisible(true);
     ui->frameDownloadBtn->setVisible(true);
@@ -640,7 +653,7 @@ void FormBoot::priv_uploadManual (const char *srcFullFilePathAndName)
     if (!rhea::fs::fileCopy (srcFullFilePathAndName, dstFilePathAndName))
         priv_pleaseWaitSetError("ERROR copying files");
     else
-        priv_pleaseWaitSetOK("SUCCESS.\nManual installed");
+        priv_pleaseWaitSetOK("SUCCESS.<br>Manual installed");
 
     priv_pleaseWaitHide();
     priv_updateLabelInfo();
@@ -717,12 +730,13 @@ void FormBoot::priv_uploadGUI (const char *srcFullFolderPath)
         FILE *f = fopen (s, "wt");
         {
             rhea::DateTime dt;
+            dt.setNow();
             dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), ' ', '/', ':');
             fprintf (f, "%s", s);
         }
         fclose(f);
 
-        priv_pleaseWaitSetOK("SUCCESS.\nGUI installed");
+        priv_pleaseWaitSetOK("SUCCESS.<br>GUI installed");
     }
 
 
@@ -758,9 +772,6 @@ void FormBoot::on_btnDownload_DA3_clicked()
 {
     priv_pleaseWaitShow("Downloading VMC Settings...");
 
-    char src[512];
-    sprintf_s (src, sizeof(src), "%s/vmcDataFile.da3", glob->current_da3);
-
 
     //recupero il nome del file del last_installed da3
     char lastInstalledDa3FileName[256];
@@ -784,18 +795,35 @@ void FormBoot::on_btnDownload_DA3_clicked()
 
     char dst[512];
     rhea::fs::folderCreate(glob->usbFolder_VMCSettings);
+
+    //se il file dst esiste già , aggiungo data e ora al nome file
     sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_VMCSettings, lastInstalledDa3FileName);
-
     if (rhea::fs::fileExists(dst))
-        rhea::fs::fileDelete(dst);
+    {
+        rhea::DateTime dt;
+        char data[64];
+        dt.setNow();
+        dt.formatAs_YYYYMMDDHHMMSS (data, sizeof(data), '-', 0x00, 0x00);
+        sprintf_s (dst, sizeof(dst), "%s/%s-%s", glob->usbFolder_VMCSettings, data, lastInstalledDa3FileName);
+    }
 
+
+    //il file sorgente è l'attuale da3 effettivamente utilizzato dalla macchina
+    char src[512];
+    sprintf_s (src, sizeof(src), "%s/vmcDataFile.da3", glob->current_da3);
+
+    //copio
     if (!rhea::fs::fileCopy(src, dst))
     {
         priv_pleaseWaitSetError("Error copying file to USB");
     }
     else
     {
-        sprintf_s (dst, sizeof(dst), "SUCCESS.\nThe file [%s] has been copied to your USB pendrive on the folder rhea/rheaData", lastInstalledDa3FileName);
+        priv_pleaseWaitSetText("Finalizing copy...");
+        priv_syncUSBFileSystem(2000);
+
+        rhea::fs::extractFileNameWithExt(dst, src, sizeof(src));
+        sprintf_s (dst, sizeof(dst), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive in the folder rhea/rheaData", src);
         priv_pleaseWaitSetOK (dst);
     }
 
@@ -837,7 +865,15 @@ void FormBoot::on_btnDownload_GUI_clicked()
 
     char dst[512];
     sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_GUI, lastInstalledGUIName);
-    rhea::fs::folderCreate(dst);
+    if (rhea::fs::folderExists(dst))
+    {
+        rhea::DateTime dt;
+        char data[64];
+        dt.setNow();
+        dt.formatAs_YYYYMMDDHHMMSS (data, sizeof(data), '-', 0x00, 0x00);
+        sprintf_s (dst, sizeof(dst), "%s/%s-%s", glob->usbFolder_GUI, data, lastInstalledGUIName);
+        rhea::fs::folderCreate(dst);
+    }
 
 
     char s[512];
@@ -849,10 +885,11 @@ void FormBoot::on_btnDownload_GUI_clicked()
     else
     {
         priv_pleaseWaitSetText("Finalizing copy...");
-        utils::waitAndProcessEvent(5000);
+        priv_syncUSBFileSystem(10000);
 
-        sprintf_s (s, sizeof(s), "SUCCESS.\nFiles has been copied to yourt USB pendrive in the folder [%s]", dst);
-        priv_pleaseWaitSetOK(s);
+        rhea::fs::extractFileNameWithoutExt(dst, s, sizeof(s));
+        sprintf_s (dst, sizeof(dst), "SUCCESS.<br>GUI <b>%s</b> have been copied to your USB pendrive in folder rhea/rheaGUI", s);
+        priv_pleaseWaitSetOK(dst);
     }
 
 
@@ -866,7 +903,7 @@ void FormBoot::on_btnDownload_GUI_clicked()
 void FormBoot::on_btnDownload_diagnostic_clicked()
 {
     char s[512];
-    priv_pleaseWaitShow("Preparing diagnostic zip file (it may takes up 2 minutes)...");
+    priv_pleaseWaitShow("Preparing service zip file (it may takes up to 2 minutes)...");
 
     sprintf_s (s, sizeof(s), "%s/RHEA_ServicePack.tar.gz", rhea::getPhysicalPathToAppFolder());
     rhea::fs::fileDelete(s);
@@ -892,9 +929,10 @@ void FormBoot::on_btnDownload_diagnostic_clicked()
     else
     {
         priv_pleaseWaitSetText("Finalizing copy...");
-        utils::waitAndProcessEvent(5000);
+        priv_syncUSBFileSystem(5000);
 
-        sprintf_s (s, sizeof(s),"SUCCESS.\nA file named [%s] has been put on your USB pendrive in the folder /rhea.", dstFileName);
+
+        sprintf_s (s, sizeof(s),"SUCCESS.<br>A file named [<b>%s</b>] has been put on your USB pendrive in the folder /rhea.", dstFileName);
         priv_pleaseWaitSetOK(s);
     }
     priv_pleaseWaitHide();

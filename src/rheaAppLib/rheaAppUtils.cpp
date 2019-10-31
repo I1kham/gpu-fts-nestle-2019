@@ -10,24 +10,25 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 //***************************************************************
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
-	static const char v[18][16] = {
+    static const char v[19][16] = {
         {"READY"},      //DISPONIBILE
         {"DISPENSING"}, //PREP BEVANDA
 		{"PROG"},
 		{"INI_CHECK"},
 		{"ERROR"},
-        {"WASHING_MAN"},
+        {"WASHING_MAN"},    //5
         {"WASHING_AUTO"},
         {"WATER_RECHARGE"},
         {"WAIT_TEMP"},
 		{"CARICA_MASTER"},
-        {"INSTALL"},
+        {"INSTALL"},        //10
         {"DISINSTALL"},
 		{"FINE_INSTALL"},
 		{"FINE_DISINST"},
 		{"ENERGY_SAVING"},
-        {"WASHING_SAN"},
+        {"TEST_DB"},        //15
 		{"DATA_AUDIT"},
+        {"WASHING_SAN"},    //17
 		{"COM_ERROR"},
 	};
 
@@ -50,11 +51,11 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 	case cpubridge::eVMCState_FINE_INSTALLAZIONE:		return v[12];
 	case cpubridge::eVMCState_FINE_DISINSTALLAZIONE:	return v[13];
 	case cpubridge::eVMCState_ENERGY_SAVING:			return v[14];
-	case cpubridge::eVMCState_LAVAGGIO_SANITARIO:		return v[15];
+    case cpubridge::eVMCState_TEST_DB:                  return v[15];
 	case cpubridge::eVMCState_DATA_AUDIT:				return v[16];
+    case cpubridge::eVMCState_LAVAGGIO_SANITARIO:		return v[17];
 
-
-	case cpubridge::eVMCState_COM_ERROR:				return v[17];
+    case cpubridge::eVMCState_COM_ERROR:				return v[18];
 	}
 }
 

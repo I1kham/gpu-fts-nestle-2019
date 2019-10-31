@@ -116,8 +116,9 @@ namespace cpubridge
 		eVMCState_FINE_INSTALLAZIONE = 14,
 		eVMCState_FINE_DISINSTALLAZIONE = 15,
 		eVMCState_ENERGY_SAVING = 16,
-		eVMCState_LAVAGGIO_SANITARIO = 17,
+        eVMCState_TEST_DB = 17,
 		eVMCState_DATA_AUDIT = 18,
+        eVMCState_LAVAGGIO_SANITARIO = 20,
 		eVMCState_COM_ERROR     = 101
 	};
 

@@ -286,7 +286,11 @@ bool fs_do_open_and_copy_fileCopy (const char *srcFullFileNameAndPath, const cha
 		fwrite(buffer, (size_t)fLen, 1, fDST);
 	}
 	fclose(fSRC);
+
+    fflush(fDST);
+    fsync (fileno(fDST));
 	fclose(fDST);
+    sync();
 	return true;
 }
 

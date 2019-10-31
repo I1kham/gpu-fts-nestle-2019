@@ -12,7 +12,7 @@
   </property>
   <property name="font">
    <font>
-    <family>RotisSemiSans</family>
+    <family>Roboto</family>
     <pointsize>12</pointsize>
    </font>
   </property>
@@ -20,7 +20,7 @@
    <string>rheavendors</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:#293339; color:#ccc;</string>
+   <string notr="true">background-color:#000; color:#ccc;</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QLabel" name="labInfo">
@@ -34,9 +34,12 @@
     </property>
     <property name="font">
      <font>
-      <family>RotisSemiSans</family>
-      <pointsize>14</pointsize>
+      <family>Roboto</family>
+      <pointsize>12</pointsize>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#000; color:#fff</string>
     </property>
     <property name="text">
      <string>TextLabel</string>

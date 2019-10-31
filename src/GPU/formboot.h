@@ -54,7 +54,6 @@ private:
     };
 
 private:
-    void                    priv_setButtonStyle (QPushButton *obj, const char *style);
     void                    priv_pleaseWaitShow (const char *message);
     void                    priv_pleaseWaitHide();
     void                    priv_pleaseSetTextWithColor (const char *message, const char *bgColor, const char *textColor);
@@ -74,7 +73,7 @@ private:
     void                    priv_uploadManual (const char *srcFullFilePathAndName);
     void                    priv_uploadGUI (const char *srcFullFolderPath);
     void                    priv_uploadCPUFW (const char *fullFilePathAndName);
-
+    void                    priv_syncUSBFileSystem(u64 minTimeMSecToWaitMSec);
 
 private:
     sGlobal                 *glob;
@@ -83,8 +82,8 @@ private:
     QChar                   msgCPU[128];
     eFileListMode           fileListShowMode;
     int                     retCode;
-    QFont                   fntButton;
-    QFont                   fnt12;
+    //QFont                   fntButton;
+    //QFont                   fnt12;
 
 };
 

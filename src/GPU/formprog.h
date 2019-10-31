@@ -53,7 +53,8 @@ private:
 private:
     Ui::FormProg                *ui;
     const sGlobal               *glob;
-    QFont                       theFont,theFontSmall;
+    QFont                       theFont;
+    QFont                       theFontSmall;
     int                         retCode;
     QChar                       msgCPU[128];
 };
