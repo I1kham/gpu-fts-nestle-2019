@@ -26,6 +26,16 @@
 #include "Utils.h"
 
 
+enum eRetCode
+{
+    eRetCode_none = 0,
+    eRetCode_gotoFormBrowser = 1,
+    eRetCode_gotoFormOldMenuProg = 2,
+    eRetCode_gotoFormBoot = 3,
+    eRetCode_gotoNewMenuProgrammazione = 4,
+    eRetCode_gotoNewMenuProg_LavaggioSanitario = 5
+};
+
 /****************************************************+
  *
  */

@@ -37,7 +37,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     QDialog(parent), ui(new Ui::FormBoot)
 {
     this->glob = glob;
-    retCode = 0;
+    retCode = eRetCode_none;
     bBtnStartVMCEnabled = true;
 
     ui->setupUi(this);
@@ -76,7 +76,7 @@ FormBoot::~FormBoot()
 //*******************************************
 void FormBoot::showMe()
 {
-    retCode = 0;
+    retCode = eRetCode_none;
     cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
     cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
 
@@ -86,9 +86,9 @@ void FormBoot::showMe()
 }
 
 //*******************************************
-int FormBoot::onTick()
+eRetCode FormBoot::onTick()
 {
-    if (retCode != 0)
+    if (retCode != eRetCode_none)
         return retCode;
 
     //vediamo se CPUBridge ha qualcosa da dirmi
@@ -99,7 +99,7 @@ int FormBoot::onTick()
         rhea::thread::deleteMsg(msg);
     }
 
-    return 0;
+    return eRetCode_none;
 }
 
 
@@ -268,6 +268,14 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             u8 vmcErrorCode, vmcErrorType;
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
             ui->labCPUStatus->setText (rhea::app::utils::verbose_eVMCState (vmcState));
+
+            //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
+            if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
+                retCode = eRetCode_gotoFormOldMenuProg;
+            //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO. Spegnendo e riaccendendo la macchina, la
+            //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
+            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
+                retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
         }
         break;
 
@@ -448,7 +456,7 @@ void FormBoot::on_buttonStart_clicked()
     system(s);
 #endif
 
-    retCode = 1;
+    retCode = eRetCode_gotoFormBrowser;
 }
 
 

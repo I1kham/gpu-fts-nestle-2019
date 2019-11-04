@@ -22,7 +22,7 @@ public:
                         ~FormBoot();
 
     void                showMe();
-    int                 onTick();
+    eRetCode            onTick();
 
 private slots:
     void                on_buttonStart_clicked();
@@ -33,16 +33,11 @@ private slots:
     void                on_btnOK_clicked();
     void                on_btnCancel_clicked();
     void                on_lbFileList_doubleClicked(const QModelIndex &index);
-
-    void on_btnDownload_DA3_clicked();
-
-    void on_btnInstall_GUI_clicked();
-
-    void on_btnDownload_GUI_clicked();
-
-    void on_btnDownload_diagnostic_clicked();
-
-    void on_btnInstall_CPU_clicked();
+    void                on_btnDownload_DA3_clicked();
+    void                on_btnInstall_GUI_clicked();
+    void                on_btnDownload_GUI_clicked();
+    void                on_btnDownload_diagnostic_clicked();
+    void                on_btnInstall_CPU_clicked();
 
 private:
     enum eFileListMode
@@ -81,7 +76,7 @@ private:
     bool                    bBtnStartVMCEnabled;
     QChar                   msgCPU[128];
     eFileListMode           fileListShowMode;
-    int                     retCode;
+    eRetCode                retCode;
     //QFont                   fntButton;
     //QFont                   fnt12;
 

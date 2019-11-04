@@ -22,7 +22,7 @@ public:
                                 ~FormProg();
 
     void                        showMe();
-    int                         onTick();
+    eRetCode                    onTick();
 
 private slots:
     void                        on_buttonB1_pressed();
@@ -55,7 +55,7 @@ private:
     const sGlobal               *glob;
     QFont                       theFont;
     QFont                       theFontSmall;
-    int                         retCode;
+    eRetCode                    retCode;
     QChar                       msgCPU[128];
 };
 

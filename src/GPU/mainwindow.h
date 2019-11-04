@@ -37,7 +37,8 @@ private:
         eForm_boot,
         eForm_main_showBrowser,
         eForm_oldprog_legacy,
-        eForm_newprog
+        eForm_newprog,
+        eForm_newprog_lavaggioSanitario,
     };
 
     enum eStato
@@ -61,9 +62,9 @@ private:
     void                    priv_addText (const char *s);
     void                    priv_syncWithCPU_onTick();
     void                    priv_scheduleFormChange(eForm w);
-    int                     priv_showBrowser_onTick();
+    eRetCode                priv_showBrowser_onTick();
     void                    priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &msg);
-    int                     priv_showNewProgrammazione_onTick();
+    eRetCode                priv_showNewProgrammazione_onTick();
     void                    priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg);
 
 private:
@@ -77,7 +78,7 @@ private:
     eForm                   currentForm, nextForm;
     FormBoot                *frmBoot;
     FormProg                *frmProg;
-    int                     retCode;
+    eRetCode                retCode;
 };
 
 #endif // MAINWINDOW_H

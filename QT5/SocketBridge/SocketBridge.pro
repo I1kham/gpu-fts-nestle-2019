@@ -99,7 +99,10 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFile.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUProgrammingCmd.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUProgrammingCmd.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSanWashStatus.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqBtnPressed.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -134,7 +137,10 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFile.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUProgrammingCmd.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUProgrammingCmd.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSanWashStatus.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqBtnPressed.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

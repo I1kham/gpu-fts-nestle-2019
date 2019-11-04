@@ -182,7 +182,16 @@ function onRheaBootstrapFinished()
 	
 	ui = new UI ("divPage");
 	ui.setupStandaloneButton("bntBack");
-	pageMainMenu_show();
+	
+	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
+	switch (rheaGetURLParamOrDefault("page", "pageMainMenu"))
+	{
+		case "pageMainMenu": pageMainMenu_show(); break;
+		case "pageCleaning": pageCleaning_show(); break;
+		case "pageCleaningSanitario": pageCleaning_show(); pageCleaning_startLavSanitario(0); break;
+		case "pageMaintenance": pageMaintenance_show(); break;
+		case "pageMiscellaneous": pageMiscellaneous_show(); break;
+	}
 	
 	pleaseWait_show();
 	pleaseWait_setTextLeft("loading da3");
@@ -320,17 +329,28 @@ function pageCleaning_show()
 	showPage("pageCleaning");
 	header_setText("CLEANING");
 	btnBack_show();
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
 }
 
 function pageCleaning_action (what)
 {
 	pleaseWait_show();
 	
-	var bIsSanWashing = 0;
 	if (what == 8)
-		bIsSanWashing=1;
-	currentTask = new TaskCleaning(bIsSanWashing);
-	rhea.requestGPUCleaning(parseInt(what));
+		pageCleaning_startLavSanitario(1);
+	else
+	{
+		currentTask = new TaskCleaning(0);
+		rhea.requestGPUCleaning(parseInt(what));
+	}
+}
+	
+function pageCleaning_startLavSanitario (bSendRequestToGPU)
+{
+	pleaseWait_show();
+	currentTask = new TaskCleaning(1);
+	if (bSendRequestToGPU)
+		rhea.requestGPUCleaning(parseInt(8));
 }
 
 function pageCleaning_onFinished()
@@ -339,7 +359,8 @@ function pageCleaning_onFinished()
 	currentTask = voidTask;
 }
 
-
+	
+	
 /***************************************************************************
  *
  * pageMiscellaneous

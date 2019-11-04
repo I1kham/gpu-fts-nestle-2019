@@ -18,7 +18,7 @@ FormProg::FormProg(QWidget *parent, const sGlobal *globIN) :
         ui(new Ui::FormProg)
 {
     glob = globIN;
-    retCode = 0;
+    retCode = eRetCode_none;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
@@ -47,14 +47,14 @@ void FormProg::showMe()
 {
     cpubridge::ask_CPU_PROGRAMMING_CMD (glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_enterProg, NULL, 0);
 
-    retCode = 0;
+    retCode = eRetCode_none;
     this->show();
 }
 
 //*******************************************
-int FormProg::onTick()
+eRetCode FormProg::onTick()
 {
-    if (retCode != 0)
+    if (retCode != eRetCode_none)
         return retCode;
 
     //vediamo se CPUBridge ha qualcosa da dirmi
@@ -65,7 +65,7 @@ int FormProg::onTick()
         rhea::thread::deleteMsg(msg);
     }
 
-    return 0;
+    return eRetCode_none;
 }
 
 /**************************************************************************
@@ -87,11 +87,9 @@ void FormProg::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             u8 vmcErrorCode, vmcErrorType;
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
 
-            //if (vmcState != cpubridge::eVMCState_PROGRAMMAZIONE)
-            //    retCode = 1;
-
+            //quando la CPU cambia di stato e diventa DISP o INI_CHECK, io torno al browser
             if (vmcState == cpubridge::eVMCState_DISPONIBILE || vmcState==cpubridge::eVMCState_INITIAL_CHECK)
-                retCode = 1;
+                retCode = eRetCode_gotoFormBrowser;
         }
         break;
 

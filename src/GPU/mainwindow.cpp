@@ -13,7 +13,7 @@ MainWindow::MainWindow (sGlobal *globIN) :
         ui(new Ui::MainWindow)
 {
     glob = globIN;
-    retCode = 0;
+    retCode = eRetCode_none;
 
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
@@ -79,7 +79,7 @@ void MainWindow::priv_loadURL (const char *url)
     this->show();
 
     //carico la GUI nel browser
-    retCode = 0;
+    retCode = eRetCode_none;
     ui->webView->setVisible(true);
     ui->webView->load(QUrl(url));
     utils::hideMouse();
@@ -146,6 +146,14 @@ void MainWindow::priv_showForm (eForm w)
             priv_loadURL(s);
         }
         break;
+
+    case eForm_newprog_lavaggioSanitario:
+        {
+            char s[256];
+            sprintf_s (s, sizeof(s), "file://%s/varie/prog/index.html?page=pageCleaningSanitario", rhea::getPhysicalPathToAppFolder());
+            priv_loadURL(s);
+        }
+        break;
     }
 }
 
@@ -176,30 +184,37 @@ void MainWindow::timerInterrupt()
         break;
 
     case eForm_boot:
-        if (frmBoot->onTick() != 0)
-            priv_scheduleFormChange(eForm_main_showBrowser);
+        switch (frmBoot->onTick())
+        {
+            default: break;
+            case eRetCode_gotoFormBrowser: priv_scheduleFormChange(eForm_main_showBrowser); break;
+            case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
+            case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
+        }
         break;
 
     case eForm_main_showBrowser:
         switch (priv_showBrowser_onTick())
         {
-            case 1: priv_scheduleFormChange(eForm_oldprog_legacy); break;
-            case 2: priv_scheduleFormChange(eForm_newprog); break;
             default: break;
+            case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
+            case eRetCode_gotoNewMenuProgrammazione: priv_scheduleFormChange(eForm_newprog); break;
+            case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
         }
         break;
 
     case eForm_oldprog_legacy:
-        if (frmProg->onTick() != 0)
+        if (frmProg->onTick() != eRetCode_none)
             priv_scheduleFormChange(eForm_main_syncWithCPU);
         break;
 
     case eForm_newprog:
+    case eForm_newprog_lavaggioSanitario:
         switch (priv_showNewProgrammazione_onTick())
         {
-            case 1: priv_scheduleFormChange(eForm_main_showBrowser); break;
-            case 2: priv_scheduleFormChange(eForm_oldprog_legacy); break;
             default: break;
+            case eRetCode_gotoFormBrowser: priv_scheduleFormChange(eForm_main_showBrowser); break;
+            case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
         }
         break;
     }
@@ -400,9 +415,9 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
 
 
 //********************************************************************************
-int MainWindow::priv_showBrowser_onTick()
+eRetCode MainWindow::priv_showBrowser_onTick()
 {
-    if (retCode != 0)
+    if (retCode != eRetCode_none)
         return retCode;
 
     //vediamo se CPUBridge ha qualcosa da dirmi
@@ -413,7 +428,7 @@ int MainWindow::priv_showBrowser_onTick()
         rhea::thread::deleteMsg(msg);
     }
 
-    return 0;
+    return eRetCode_none;
 }
 
 //********************************************************************************
@@ -442,22 +457,38 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
         }
         break;
 
+    case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
+        {
+            cpubridge::eVMCState vmcState;
+            u8 vmcErrorCode, vmcErrorType;
+            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
+
+            //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
+            if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
+                retCode = eRetCode_gotoFormOldMenuProg;
+            //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO. Spegnendo e riaccendendo la macchina, la
+            //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
+            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
+                retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
+        }
+        break;
+
     case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
         //l'utente ha premuto il btn PROG
 #ifdef BTN_PROG_VA_IN_VECCHIO_MENU_PROGRAMMAZIONE
         //devo andare nel vecchio menu prog
-        retCode = 1;
+        retCode = eRetCode_gotoFormProg;
 #else
-        retCode = 2;
+        retCode = eRetCode_gotoNewMenuProgrammazione;
 #endif
         break;
     }
 }
 
 //********************************************************************************
-int MainWindow::priv_showNewProgrammazione_onTick()
+eRetCode MainWindow::priv_showNewProgrammazione_onTick()
 {
-    if (retCode != 0)
+    if (retCode != eRetCode_none)
         return retCode;
 
     //vediamo se CPUBridge ha qualcosa da dirmi
@@ -468,7 +499,7 @@ int MainWindow::priv_showNewProgrammazione_onTick()
         rhea::thread::deleteMsg(msg);
     }
 
-    return 0;
+    return eRetCode_none;
 }
 
 //********************************************************************************
@@ -482,7 +513,7 @@ void MainWindow::priv_showNewProgrammazione_onCPUBridgeNotification (rhea::threa
     {
     case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
         //l'utente ha premuto il btn PROG
-        retCode = 1;
+        retCode = eRetCode_gotoFormBrowser;
         break;
     }
 }
@@ -497,6 +528,6 @@ void MainWindow::on_webView_urlChanged(const QUrl &arg1)
     if (url.indexOf("gotoLegacyMenu.html") > 0)
     {
         //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
-        retCode = 2;
+        retCode = eRetCode_gotoFormOldMenuProg;
     }
 }
