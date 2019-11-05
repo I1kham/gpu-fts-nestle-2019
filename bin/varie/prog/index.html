@@ -207,7 +207,7 @@ function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
 function showPage(pageID)				{ currentPageID=pageID; ui.getWindowByID(currentPageID).loadFromDA3(da3); ui.hideAllExcept(currentPageID); }
 function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); }
 function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); }
-async function btnBack_onClick()				
+function btnBack_onClick()				
 { 
 	ui.getWindowByID(currentPageID).saveToDA3(da3); 
 	var blockList = da3.compare();
@@ -217,27 +217,39 @@ async function btnBack_onClick()
 	{
 		//ci sono dei blocchi da3 che sono stati modificati
 		pleaseWait_show();
-		
-		var msgToUser = "Saving datafile, please wait...<br>";
-		pleaseWait_btn1_setText(msgToUser);
+		pleaseWait_freeText_setText("Saving datafile, please wait...<br>");
 		pleaseWait_freeText_show();
-		for (var i=0; i<nBlocchi; i++)
-		{
-			var blockNum = blockList[i];
-			var uno_di = i+1;
-			msgToUser += uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ";
+		storeDA3Block_step (1, nBlocchi, blockList);
+	}
+	else
+	{
+		pageMainMenu_show();
+	}
+}
+
+
+function storeDA3Block_step (uno_di, nBlocchi, blockList)
+{
+	var blockNum = blockList[uno_di-1];
+	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
 			
-			pleaseWait_freeText_setText(msgToUser);
-			let result = await da3.storeBlock(uno_di, nBlocchi, blockNum);
-			msgToUser += result +"<br>";
-			pleaseWait_freeText_setText(msgToUser);
+	da3.storeBlock (uno_di, nBlocchi, blockNum).then (function(result)
+	{
+		//console.log ("storeDA3Block_step => " +result);
+		pleaseWait_freeText_appendText (result +"<br>");
+		
+		if (uno_di >= nBlocchi)
+		{
+			pleaseWait_hide();
+			pageMainMenu_show();
+			return;
 		}
 		
-		pleaseWait_hide();
-	}
-	
-	pageMainMenu_show(); 
+		uno_di++;
+		setTimeout (storeDA3Block_step (uno_di, nBlocchi, blockList), 300);
+	});
 }
+
 
 /***************************************************************************
  *
@@ -264,9 +276,10 @@ function pleaseWait_setTextRight(s)		{ rheaSetDivHTMLByName("pagePleaseWait_head
 function pleaseWait_wait_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_wait")); }
 function pleaseWait_wait_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_wait")); }
 
-function pleaseWait_freeText_show()		{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeText")); }
-function pleaseWait_freeText_hide()		{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeText")); }
-function pleaseWait_freeText_setText(s)	{ rheaSetDivHTMLByName("pagePleaseWait_freeText", s); }
+function pleaseWait_freeText_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeText")); }
+function pleaseWait_freeText_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeText")); }
+function pleaseWait_freeText_setText(s)		{ rheaSetDivHTMLByName("pagePleaseWait_freeText", s); }
+function pleaseWait_freeText_appendText(s)	{ var d=rheaGetElemByID("pagePleaseWait_freeText"); d.innerHTML += s; }
 
 function pleaseWait_btn1_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }
 function pleaseWait_btn1_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }

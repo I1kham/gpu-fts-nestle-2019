@@ -113,7 +113,7 @@ void handleCommandSyntax_help (WinTerminal *logger)
 }
 
 //*****************************************************
-void handleCommandHello(WinTerminal *logger)
+void handleCommandHello (WinTerminal *logger)
 {
 	OSSocket sokUDP;
 	OSSocket_init(&sokUDP);
@@ -130,11 +130,12 @@ void handleCommandHello(WinTerminal *logger)
 	buffer[ct++] = 'l';
 	buffer[ct++] = 'l';
 	buffer[ct++] = 'O';
-	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER);
 
 	logger->incIndent();
-
-	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 5000;
+	
+	logger->log("broadcasting to subnet mask 255.255.255.0\n");
+	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER, "255.255.255.0");
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + 3000;
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		OSNetAddr from;
@@ -158,6 +159,34 @@ void handleCommandHello(WinTerminal *logger)
 		}
 		
 	}
+
+	logger->log("broadcasting to subnet mask 255.255.0.0\n");
+	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER, "255.255.0.0");
+	timeToExitMSec = rhea::getTimeNowMSec() + 3000;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	{
+		OSNetAddr from;
+		u8 buffer[32];
+
+		logger->log("Waiting for an answer...\n");
+		rhea::thread::sleepMSec(500);
+
+		u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
+		if (nBytesRead == 9)
+		{
+			if (memcmp(buffer, "rheaHelLO", 9) == 0)
+			{
+				char ip[32];
+
+				rhea::netaddr::getIPv4(from, ip);
+				//int port = rhea::netaddr::getPort(from);
+				logger->log("rcv answer from %s", ip);
+				break;
+			}
+		}
+
+	}
+
 	logger->decIndent();
 
 	OSSocket_close(sokUDP);
