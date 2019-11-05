@@ -55,7 +55,7 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="TEMPERATURE"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PRODUCT<br>QUANTITY"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUCT<br>QUANTITY" data-onclick="pageProductQty_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PAYMENT<br>SYSTEMS"></div></td>
 					</tr>
 					<tr valign="middle">
@@ -88,16 +88,16 @@
 					
 					<tr>
 						<td>Water filter decounter</td>
-						<td><div class="UINumber" data-numfigures="5" data-da3="7334" data-max="60000"></div></td>
+						<td><div class="UINumber" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
 					</tr>
 					<tr>
 						<td>Decounter coffee brewer</td>
-						<td><div class="UINumber" data-numfigures="4" data-da3="7336" data-max="1000"></div></td>
+						<td><div class="UINumber" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
 					</tr>
 					
 					<tr>
 						<td>Decounter coffee ground</td>
-						<td><div class="UINumber" data-numfigures="4" data-da3="7338" data-max="1000"></div></td>
+						<td><div class="UINumber" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
 					</tr>
 					
 					<tr>
@@ -113,24 +113,24 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>(MIXER + BREWER)" data-onclick="pageCleaning_action(160)"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 1" data-onclick="pageCleaning_action(1)"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START CLEANING HC" data-onclick="pageCleaning_action(8)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING" data-onclick="pageCleaning_action(160)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton3x4" data-caption="START CLEANING<br>BREWER" data-onclick="pageCleaning_action(1)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton3x4" data-caption="START CLEANING HC" data-onclick="pageCleaning_action(8)"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 2" data-onclick="pageCleaning_action(2)"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MIXER 1" data-onclick="pageCleaning_action(2)"></div></td>
+						<td></td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 3" data-onclick="pageCleaning_action(3)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MIXER 2" data-onclick="pageCleaning_action(3)"></div></td>
 						</td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER / BREWER 4" data-onclick="pageCleaning_action(4)"></div></td>
-						</td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MIXER 3" data-onclick="pageCleaning_action(4)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
 					</tr>					
 				</table>
 			</div>
@@ -143,6 +143,12 @@
 			</div>
 		</div>	
 		
+		<!-- page productQty -->
+		<div id="pageProductQty" class="UIWindow">
+			<div class="UIWindowContent" id="pageProductQty_content">
+				<!-- il contenuto di questa pagina lo credo dinamicamente perchè dipende da INSTANT o ESPRESSO (vedi pageProductQty_build) -->
+			</div>
+		</div>		
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
@@ -193,6 +199,7 @@ function onRheaBootstrapFinished()
 		case "pageCleaningSanitario": pageCleaning_show(); pageCleaning_startLavSanitario(0); break;
 		case "pageMaintenance": pageMaintenance_show(); break;
 		case "pageMiscellaneous": pageMiscellaneous_show(); break;
+		case "pageProductQty": pageProductQty_show(); break;
 	}
 	
 	pleaseWait_show();
@@ -203,8 +210,16 @@ function onRheaBootstrapFinished()
 	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
 }
 
+//***************** chiamata al termine del caricamento del da3
+function onDA3Loaded()
+{
+	pageProductQty_build();
+	pleaseWait_hide();
+}
+
+
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
-function showPage(pageID)				{ currentPageID=pageID; ui.getWindowByID(currentPageID).loadFromDA3(da3); ui.hideAllExcept(currentPageID); }
+function showPage(pageID)				{ currentPageID=pageID; var win=ui.getWindowByID(currentPageID); var ret=win.firstTimeShow; ui.hideAllExcept(currentPageID); win.loadFromDA3(da3); rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS); return ret;}
 function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); }
 function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); }
 function btnBack_onClick()				
@@ -237,6 +252,7 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 	{
 		//console.log ("storeDA3Block_step => " +result);
 		pleaseWait_freeText_appendText (result +"<br>");
+		da3.copyBlockToOriginal(blockNum);
 		
 		if (uno_di >= nBlocchi)
 		{
@@ -249,6 +265,8 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 		setTimeout (storeDA3Block_step (uno_di, nBlocchi, blockList), 300);
 	});
 }
+
+
 
 
 /***************************************************************************
@@ -371,10 +389,22 @@ function pageMaintenance_show()
  */
 function pageCleaning_show()
 {
-	showPage("pageCleaning");
+	if (showPage("pageCleaning"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			var w = ui.getWindowByID("pageCleaning");
+			w.getChildByID("pageCleaning_btnClean1").setCaption ("START CLEANING<br>MIXER 1");
+			w.getChildByID("pageCleaning_btnClean2").setCaption ("START CLEANING<br>MIXER 2");
+			w.getChildByID("pageCleaning_btnClean3").setCaption ("START CLEANING<br>MIXER 3");
+			w.getChildByID("pageCleaning_btnClean4").hide();
+			w.getChildByID("pageCleaning_btnCleanHC").hide();
+		}
+	}
 	header_setText("CLEANING");
+
 	btnBack_show();
-	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
 }
 
 function pageCleaning_action (what)
@@ -415,14 +445,67 @@ function pageCleaning_onFinished()
 {
 	showPage("pageMiscellaneous");
 	header_setText("MISCELLANEOUS");
-	
-	loadFromDA3
 	btnBack_show();
 }
 
 function pageMiscellaneous_oldProgMenu()
 {
 	window.location = "gotoLegacyMenu.html";
+}
+
+
+
+
+/***************************************************************************
+ *
+ * pageProductQty
+ *
+ */
+function pageProductQty_show()
+{
+	if (showPage("pageProductQty"))
+	{
+		/*è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			var w = ui.getWindowByID("pageCleaning");
+			w.getChildByID("pageCleaning_btnClean1").setCaption ("START CLEANING<br>MIXER 1");
+			w.getChildByID("pageCleaning_btnClean2").setCaption ("START CLEANING<br>MIXER 2");
+			w.getChildByID("pageCleaning_btnClean3").setCaption ("START CLEANING<br>MIXER 3");
+			w.getChildByID("pageCleaning_btnClean4").hide();
+			w.getChildByID("pageCleaning_btnCleanHC").hide();
+		}
+		*/
+	}
+	header_setText("PRODUCT QUANTITY");
+
+	btnBack_show();
+}
+
+function pageProductQty_build()
+{
+	var nProdotti = da3.getNumProdotti();
+	var da3Loc_decounter = 7334;
+	var da3Loc_warning = da3Loc_decounter +2*nProdotti;
+	var da3Loc_enable = da3Loc_warning +2*nProdotti;
+	var html = "<table border='0' class='elenco'>";
+	for (var i=0; i<nProdotti; i++)
+	{
+		var num = (i+1);
+		if (i<9) num = "0" +num;
+		num = "#" +num;
+		
+		html += "<tr><td>" +num +" DECOUNTER</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
+				+ "<tr><td>" +num +" DECOUNTER WARNING</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999'></div></td></tr>"
+				+ "<tr><td>" +num +" ENABLE STOP</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
+				+ "<tr><td colspan='2'>&nbsp;</td></tr>";
+		da3Loc_decounter+=2;
+		da3Loc_warning+=2;
+		da3Loc_enable+=2;
+	}
+	html += "</table>";
+	
+	rheaSetDivHTMLByName("pageProductQty_content", html);
 }
 
 </script>

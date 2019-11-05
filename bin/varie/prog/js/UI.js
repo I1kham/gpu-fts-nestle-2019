@@ -145,6 +145,26 @@ UIWindow.prototype.saveToDA3 = function(da3)
 		this.childList[i].saveToDA3(da3);	
 }
 
+UIWindow.prototype.priv_findByID = function(childID)
+{
+	var n = this.childList.length;
+	for (var i=0; i<n; i++)
+	{
+		console.log (this.childList[i].id +" == " +childID);
+		if (this.childList[i].id == childID)
+			return i;
+	}
+	return -1;
+}
+
+UIWindow.prototype.getChildByID = function(childID)
+{
+	var i = this.priv_findByID(childID);
+	if (i >= 0)
+		return this.childList[i];
+	return null;
+}
+
 
 UIWindow.prototype.enablePageScroll = function (b) { this.allowScroll=b; }
 
@@ -307,15 +327,20 @@ function UIButton (parentID, childNum, node)
 	this.clickPosX = -1;
 	this.clickPosY = -1;
 	this.clickStartTimeMSec = 0;
+	this.visible = 1;
 
 	var caption = node.getAttribute("data-caption");
-	node.innerHTML = "<p>" +caption +"</p>";
+	var captionID = this.id +"_caption";
+	node.innerHTML = "<p id='" +captionID +"'>" +caption +"</p>";
 	if (status != "" && status != "enabled")
 		node.classList.add(status); 
 }
 
 UIButton.prototype.loadFromDA3 = function(da3)	{}
 UIButton.prototype.saveToDA3 = function(da3)	{}
+UIButton.prototype.setCaption = function (s)	{ rheaSetDivHTMLByName(this.id +"_caption", s); }	
+UIButton.prototype.show = function()			{ if (this.visible == 0) { this.visible = 1; document.getElementById(this.id).style.display = "block"; } }
+UIButton.prototype.hide = function()			{ if (this.visible == 1) { this.visible = 0; document.getElementById(this.id).style.display = "none"; }	}
 
 UIButton.prototype.bindEvents = function()
 {
@@ -518,6 +543,8 @@ UIOption.prototype.selectOptionByValue = function (v)
  *			opzionale data-da3="xxx"	=> locazione in memoria dalla quale leggere/scrivere il numero
  *			opzionale data-min			=> default = 0
  *			opzionale data-max			=> default = 999999999
+ *			opzionale data-decimal		=> numero di cifre decimali dopo il "." 
+											ATTENZIONE che UINumber ritorna sempre e cmq un numero intero, il decimale è solo un fatto estetico
  */
 var UINUMBER_TOP_OFFSET = 15-400;
 var UINUMBER_NUM_HEIGHT = 56;
@@ -550,6 +577,8 @@ function UINumber (parentID, childNum, node, parentObj)
 	this.mouseYStart=[];
 	this.stripStartY=[];
 
+	var numDecimalAfterPoint = parseInt(UIUtils_getAttributeOrDefault(node, "data-decimal", "0"));
+	
 	//genero l'HTML
 	var html = "";
 	for (var i=0; i<this.numCifre; i++)
@@ -557,6 +586,10 @@ function UINumber (parentID, childNum, node, parentObj)
 		this.mouseYStart[i] = 0;
 		this.stripStartY[i] = 0;
 		html += this.priv_getHTMLForAFigure(i);
+		
+		if (numDecimalAfterPoint>0 && i == this.numCifre - numDecimalAfterPoint -1)
+			//html += "<div style='display:inline-block; font-size:3.0em'>.</div>";
+		html += "<div class='UINumberContainer' style='width:20px; font-size:3.0em; line-height:120px'>.</div>";
 	}
 	node.innerHTML = html;
 	
