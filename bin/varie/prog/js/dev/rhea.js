@@ -13,6 +13,7 @@ var	RHEA_EVENT_STOP_SELECTION = 103;					//'g'
 var	RHEA_EVENT_CPU_STATUS = 104;						//'h'
 var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
 var	RHEA_EVENT_SEND_BUTTON = 115;						//'s'
+var	RHEA_EVENT_SEND_PARTIAL_DA3 = 116;					//'t'
 
 
 //info sulla versione attuale del codice (viene comunicata a GPU in fase di registrazione)
@@ -105,6 +106,8 @@ function Rhea()
 	//file transfer
 	this.nFileTransfer = 0;
 	this.fileTransfer = [];
+	
+	this.partialDA3AckRcvd = -1;
 }
 
 
@@ -323,6 +326,12 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 					}
 					//console.log ("rhea.js => RHEA_EVENT_CPU_STATUS [" +statusID +"] [" +statusStr +"]");
 					me.onEvent_cpuStatus(statusID, statusStr);
+					break;
+					
+				case RHEA_EVENT_SEND_PARTIAL_DA3:
+					//notifica da parte della SMU che ci dice che un blocco di DA3 è stato scritto
+					me.partialDA3AckRcvd = parseInt(data[8]);	
+					//console.log ("RHEA_EVENT_SEND_PARTIAL_DA3 [" +me.partialDA3AckRcvd +"]");
 					break;
 				}
 				
@@ -656,6 +665,42 @@ Rhea.prototype.sendButtonPress = function(iBtnNumber)
 	buffer[1] = parseInt(iBtnNumber);
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
+
+
+Rhea.prototype.sendPartialDA3AndReturnAPromise = function(uno_di, num_tot, blockOffset, uint8array, startAt)
+{
+	var buffer = new Uint8Array(64+4);
+	buffer[0] = RHEA_EVENT_SEND_PARTIAL_DA3;
+	for (var i=0;i<64;i++)
+		buffer[i+1] = uint8array[startAt+i];
+	
+	buffer[65] = parseInt(uno_di);
+	buffer[66] = parseInt(num_tot);
+	buffer[67] = parseInt(blockOffset);
+	this.sendGPUCommand ("E", buffer, 0, 0);
+	
+	this.partialDA3AckRcvd = -1;
+	var me = this;
+	return new Promise( function(resolve, reject) 
+					{
+						var timeoutMs = 2000;
+						var check = function()	{
+												if (me.partialDA3AckRcvd == blockOffset)
+												{
+													resolve ("OK");
+												}
+												else if ((timeoutMs -= 250) < 0)
+												{
+													resolve ("KO");
+												}
+												else
+													setTimeout(check, 250);
+											}
+
+						setTimeout(check, 250);
+					});				
+}
+
 
 
 /*********************************************************

@@ -90,6 +90,22 @@ namespace rhea
 
 	}
 
+	//network address stuff
+	namespace netaddr
+	{
+		//=============================== NETWORK ADDRESS
+		void				setFromSockAddr (OSNetAddr &me, const sockaddr_in &addrIN);
+		void				setFromAddr (OSNetAddr &me, const OSNetAddr &addrIN);
+		void				setIPv4(OSNetAddr &me, const char *ip);
+		void				setPort(OSNetAddr &me, int port);
+		bool				compare(const OSNetAddr &a, const OSNetAddr &b);
+		void				getIPv4(const OSNetAddr &me, char *out);
+		int					getPort(const OSNetAddr &me);
+		sockaddr*			getSockAddr(const OSNetAddr &me);
+		int					getSockAddrLen(const OSNetAddr &me);
+	}
+
+
 
 } //namespace rhea
 

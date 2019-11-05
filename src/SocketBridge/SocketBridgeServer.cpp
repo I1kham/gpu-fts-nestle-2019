@@ -48,7 +48,8 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW)
     server = RHEANEW(localAllocator, rhea::ProtocolSocketServer)(8, localAllocator);
     server->useLogger(logger);
 
-	logger->log("opening socket...");
+	//apro la socket TCP
+	logger->log("opening TCP socket...");
     eSocketError err = server->start (SERVER_PORT);
     if (err != eSocketError_none)
     {

@@ -14,6 +14,7 @@ ProtocolSocketServer::ProtocolSocketServer(u8 maxClientAllowed, rhea::Allocator 
     logger = &nullLogger;
     allocator = allocatorIN;
     OSSocket_init (&sok);
+	OSSocket_init(&sokUDP);
     clientList.setup (allocator, maxClientAllowed);
 }
 
@@ -61,6 +62,15 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
     u32 nMaxClient = clientList.getNAllocatedElem();
     handleArray.setup (allocator, nMaxClient);
 
+
+	//apro la socket UDP per il broadcastr hello
+	err = OSSocket_openAsUDP(&sokUDP);
+	err = OSSocket_UDPbind (sokUDP, portNumber + 1);
+
+	//aggiungo la socket al gruppo di oggetti in osservazione
+	waitableGrp.addSocket(sokUDP, u32MAX-1);
+
+
     logger->log ("Done!\n");
     logger->decIndent();
     return eSocketError_none;
@@ -82,9 +92,11 @@ void ProtocolSocketServer::close()
     clientList.reset();
 
     waitableGrp.removeSocket(sok);
+	waitableGrp.removeSocket(sokUDP);
 
     logger->log ("closing socket\n");
     OSSocket_close(sok);
+	OSSocket_close(sokUDP);
 
     logger->log ("handleArray.unsetup");
     handleArray.unsetup();
@@ -132,7 +144,33 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
                     eventList[nEvents++].data.if_socket.clientHandleAsU32 = clientHandle.asU32();
                 }
             }
-            else
+			else if (waitableGrp.getEventUserParamAsU32(i) == u32MAX - 1)
+			{
+				//evento generato dalla socket UDP
+				const u8 BUFFER_SIZE = 64;
+				u8 buffer[BUFFER_SIZE];
+				OSNetAddr from;
+				u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, BUFFER_SIZE, &from);
+				if (nBytesRead >= 9)
+				{
+					if (memcmp(buffer, "RHEAHEllO", 9) == 0)
+					{
+						//rispondo
+						u8 ct = 0;
+						buffer[ct++] = 'r';
+						buffer[ct++] = 'h';
+						buffer[ct++] = 'e';
+						buffer[ct++] = 'a';
+						buffer[ct++] = 'H';
+						buffer[ct++] = 'e';
+						buffer[ct++] = 'l';
+						buffer[ct++] = 'L';
+						buffer[ct++] = 'O';
+						OSSocket_UDPSendTo(sokUDP, buffer, ct, from);
+					}
+				}
+			}
+			else
             {
                 //altimenti la socket che si è svegliata deve essere una dei miei client già connessi, segnalo
                 //e ritorno l'evento

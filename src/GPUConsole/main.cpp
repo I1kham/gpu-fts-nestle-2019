@@ -9,6 +9,7 @@
 #include "command/UserCommand.h"
 
 #define DEFAULT_PORT_NUMBER			2280
+#define BROADCAST_PORTNUMBER		2281
 
 socketbridge::SokBridgeClientVer	version;
 socketbridge::SokBridgeIDCode		idCode;
@@ -42,7 +43,7 @@ void update_console_header(WinTerminal *wt)
  *	se ip no è specificato, assume di default IP=127.0.0.1 e PORT=DEFAULT_PORT_NUMBER
  *	se ip è specificato e port non lo è, assume PORT=DEFAULT_PORT_NUMBER
  */
-void handleCommandSyntax_connect (const char *s, char *out_ip, u32 sizeofIP, u16 *out_port)
+bool handleCommandSyntax_connect (WinTerminal *logger, const char *s, char *out_ip, u32 sizeofIP, u16 *out_port)
 {
 	sprintf_s (out_ip, sizeofIP, "127.0.0.1");
 	*out_port = DEFAULT_PORT_NUMBER;
@@ -59,6 +60,29 @@ void handleCommandSyntax_connect (const char *s, char *out_ip, u32 sizeofIP, u16
 	{
 		iter2.copyCurStr(out_ip, sizeofIP);
 
+		//ci devono essere 3 . e il resto solo numeri
+		u8 nPunti = 0;
+		u8 n = (u8)strlen(out_ip);
+		for (u8 i = 0; i < n; i++)
+		{
+			if (out_ip[i] == '.')
+			{
+				nPunti++;
+				continue;
+			}
+			if (out_ip[i]<'0' || out_ip[i]>'9')
+			{
+				logger->log("invalid parameter. Valid parameter is ip-addres blank port-number. Port-number is optional\n");
+				return false;
+			}
+		}
+		if (nPunti != 3)
+		{
+			logger->log("invalid parameter. Valid parameter is ip-addres blank port-number. Port-number is optional\n");
+			return false;
+		}
+
+
 		rhea::string::parser::toNextValidChar(iter);
 
 		i32 port;
@@ -67,7 +91,11 @@ void handleCommandSyntax_connect (const char *s, char *out_ip, u32 sizeofIP, u16
 			if (port > 0 && port < 65536)
 				*out_port = (u16)port;
 		}
+		return true;
 	}
+
+
+	return true;
 
 }
 
@@ -82,6 +110,57 @@ void handleCommandSyntax_help (WinTerminal *logger)
 		logger->log("exit\n");
 		userCommandFactory.help_commandLlist(logger);
 	logger->decIndent();
+}
+
+//*****************************************************
+void handleCommandHello(WinTerminal *logger)
+{
+	OSSocket sokUDP;
+	OSSocket_init(&sokUDP);
+	OSSocket_openAsUDP(&sokUDP);
+
+	u8 buffer[32];
+	u8 ct = 0;
+	buffer[ct++] = 'R';
+	buffer[ct++] = 'H';
+	buffer[ct++] = 'E';
+	buffer[ct++] = 'A';
+	buffer[ct++] = 'H';
+	buffer[ct++] = 'E';
+	buffer[ct++] = 'l';
+	buffer[ct++] = 'l';
+	buffer[ct++] = 'O';
+	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER);
+
+	logger->incIndent();
+
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 5000;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	{
+		OSNetAddr from;
+		u8 buffer[32];
+
+		logger->log("Waiting for an answer...\n");
+		rhea::thread::sleepMSec(500);
+		
+		u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
+		if (nBytesRead == 9)
+		{
+			if (memcmp(buffer, "rheaHelLO", 9) == 0)
+			{
+				char ip[32];
+
+				rhea::netaddr::getIPv4(from, ip);
+				//int port = rhea::netaddr::getPort(from);
+				logger->log("rcv answer from %s", ip);
+				break;
+			}
+		}
+		
+	}
+	logger->decIndent();
+
+	OSSocket_close(sokUDP);
 }
 
 //*****************************************************
@@ -288,6 +367,14 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			log->outText(true, true, true, "SanWashingStatus: fase[%d] btn1[%d] btn2[%d]\n", b0, b1, b2);
 		}
 		break;
+
+	case socketbridge::eEventType_cpuWritePartialVMCDataFile:
+		{
+			u8 blockWritten = 0;
+			rhea::app::WritePartialVMCDataFile::decodeAnswer(decoded, &blockWritten);
+			log->outText(true, true, true, "PArtial DA3 written: block[%d]\n", blockWritten);
+		}
+		break;
 	}
 }
 
@@ -345,6 +432,12 @@ u8 handleUserInput (const char *s, rhea::IProtocolChannell *ch, rhea::IProtocol 
 	if (strncmp(s, "help", 4) == 0)
 	{
 		handleCommandSyntax_help(log);
+		return 0;
+	}
+
+	if (strncmp(s, "hello", 5) == 0)
+	{
+		handleCommandHello(log);
 		return 0;
 	}
 
@@ -571,10 +664,10 @@ bool run (const sThreadInitParam *init)
 								
 								char ip[64];
 								u16 port;
-								handleCommandSyntax_connect((const char*)msg.buffer, ip, sizeof(ip), &port);
-								if (connect(&ch, &proto, bufferR, ip, port, logger))
+								if (handleCommandSyntax_connect(logger, (const char*)msg.buffer, ip, sizeof(ip), &port))
 								{
-									waitGrp.addSocket(ch.getSocket(), u32MAX);
+									if (connect(&ch, &proto, bufferR, ip, port, logger))
+										waitGrp.addSocket(ch.getSocket(), u32MAX);
 								}
 							}
 							break;

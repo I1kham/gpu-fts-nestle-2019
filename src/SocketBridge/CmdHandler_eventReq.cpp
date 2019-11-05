@@ -18,6 +18,7 @@
 #include "CmdHandler/CmdHandler_eventReqCPUProgrammingCmd.h"
 #include "CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.h"
 #include "CmdHandler/CmdHandler_eventReqBtnPressed.h"
+#include "CmdHandler/CmdHandler_eventReqPartialVMCDataFile.h"
 
 using namespace socketbridge;
 
@@ -50,6 +51,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReqCPUProgrammingCmd);
 	CHECK(CmdHandler_eventReqCPUSanWashingStatus);
 	CHECK(CmdHandler_eventReqBtnPressed);
+	CHECK(CmdHandler_eventReqPartialVMCDataFile);
 
 #undef CHECK
 
@@ -81,7 +83,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqCPUProgrammingCmd);
 	CHECK(CmdHandler_eventReqCPUSanWashingStatus);
 	CHECK(CmdHandler_eventReqBtnPressed);
-
+	CHECK(CmdHandler_eventReqPartialVMCDataFile);
 #undef CHECK
 
 	return NULL;

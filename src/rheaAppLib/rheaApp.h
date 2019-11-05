@@ -118,7 +118,6 @@ namespace rhea
 			//ask_		=> chiede a SocketBridge il file di audit
 			//decode_	=> il recupero del dataAudit avviene in step. Ad ogni step si riceve un messaggio la cui decodifica ci dice come siamo messi con il download
 			//				Quando [status] == eReadDataFileStatus_finishedOK, vuol dire che è download è terminato con successo
-						    
 		}
 			   
 		namespace ReadVMCDataFile
@@ -178,6 +177,12 @@ namespace rhea
 			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 btnNum);
 			//ask_		=> chiede a SocketBridge di di dire alla CPU che un btn specifico è stato premuto.
 			//decode_	=> non esiste
+		}
+
+		namespace WritePartialVMCDataFile
+		{
+			//void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
+			void		decodeAnswer (const sDecodedEventMsg &msg, u8 *out_blockWritten);
 		}
 
 		/******************************************************************************

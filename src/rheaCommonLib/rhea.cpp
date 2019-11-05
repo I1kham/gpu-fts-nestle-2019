@@ -134,3 +134,32 @@ f32 rhea::random01()											{ return rheaGlobals.rnd.get01(); }
 u32 rhea::randomU32(u32 iMax)									{ return rheaGlobals.rnd.getU32(iMax); }
 
 
+//***************************************************
+void rhea::netaddr::setFromSockAddr(OSNetAddr &me, const sockaddr_in &addrIN)			{ memcpy(&me.addr, &addrIN, sizeof(sockaddr_in)); }
+void rhea::netaddr::setFromAddr(OSNetAddr &me, const OSNetAddr &addrIN)					{ memcpy(&me.addr, &addrIN.addr, sizeof(sockaddr_in)); }
+void rhea::netaddr::setIPv4(OSNetAddr &me, const char *ip)								{ me.addr.sin_family = AF_INET; me.addr.sin_addr.s_addr = inet_addr(ip); }
+void rhea::netaddr::setPort(OSNetAddr &me, int port)									{ me.addr.sin_family = AF_INET; me.addr.sin_port = htons(port); }
+int rhea::netaddr::getPort (const OSNetAddr &me)										{ return ntohs(me.addr.sin_port); }
+sockaddr* rhea::netaddr::getSockAddr(const OSNetAddr &me)								{ return (sockaddr*)&me.addr; }
+int rhea::netaddr::getSockAddrLen(const OSNetAddr &me)									{ return sizeof(me.addr); }
+
+void rhea::netaddr::getIPv4 (const OSNetAddr &me, char *out)
+{
+	//todo
+	out[0] = 0x00;
+	const char *ip = inet_ntoa(me.addr.sin_addr);
+	if (NULL != ip && ip[0] != 0x00)
+		strncpy(out, ip, 16);
+}
+
+bool rhea::netaddr::compare(const OSNetAddr &a, const OSNetAddr &b)
+{
+	if (rhea::netaddr::getPort(a) != netaddr::getPort(b))
+		return false;
+	char ipA[32], ipB[32];
+	netaddr::getIPv4(a, ipA);
+	netaddr::getIPv4(b, ipB);
+	if (strcasecmp(ipA, ipB) != 0)
+		return false;
+	return true;
+}

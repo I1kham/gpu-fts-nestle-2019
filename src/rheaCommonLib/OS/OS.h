@@ -127,6 +127,13 @@ inline bool            OSCriticalSection_tryEnter (OSCriticalSection &cs)							
  */
 #include "OSSocket.h"
 
+typedef struct sOSNetAddr
+{
+	sockaddr_in		addr;
+
+	sOSNetAddr&		operator= (const sOSNetAddr& b)							{ memcpy(&addr, &b.addr, sizeof(addr)); return *this; }
+} OSNetAddr;
+
 
 /********************************************************************
  * OSWaitableGrp

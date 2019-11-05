@@ -17,7 +17,7 @@
 		<div class="page">
 			<div id="pagePleaseWait_wait" style="position:absolute; top:150px; left:462px"><img draggable='false' src="img/animationRound.gif"></div>
 			
-			<div id="pagePleaseWait_freeText" style="position:absolute; top:40px; left:10px; width:1004px; height:300px; background-color:rgba(0,0,0,0.6); color:#fff; display:none;">aa</div>
+			<div id="pagePleaseWait_freeText" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">aa</div>
 			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:400px; left:20px; display:none">
 				<div id="bntFree1" class="UIButton bigButton3x4"><p id="bntFree1Text">testo bottone 1</p></div>
 			</div>
@@ -77,38 +77,33 @@
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
 					<tr>
-						<td class='description'>UN NUMERO a 1 cifra</td>
-						<td><div class="UINumber" data-numfigures="1" data-value="4"></div></td>
-					</tr>
-					<tr>
-						<td>UN NUMERO a 2 cifre</td>
-						<td><div class="UINumber" data-numfigures="2" data-value="7"></div></td>
-					</tr>
-					<tr>
-						<td>UN NUMERO a 3 cifre</td>
-						<td><div class="UINumber" data-numfigures="3" data-value="987"></div></td>
+						<td class='description'>Machine Voltage</td>
+						<td>todo...</td>
 					</tr>
 					
 					<tr>
-						<td>UN NUMERO a 4 cifre</td>
-						<td><div class="UINumber" data-numfigures="4" data-value="654"></div></td>
-					</tr>					
+						<td>Activate H20 Filer Reset</td>
+						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
+					</tr>
+					
 					<tr>
-						<td>PROGRAMMING<br>aaa<br>bbb<br>ccc<br>ccc<br>ccc<br>ccc</td>
-						<td><div class="UIOption" data-option="1|YES|2|NO|3|BOH?" data-selected="3"></div></td>
+						<td>Water filter decounter</td>
+						<td><div class="UINumber" data-numfigures="5" data-da3="7334" data-max="60000"></div></td>
 					</tr>
 					<tr>
-						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option="Y|YES|N|NO" data-selected="N"></div></td>
+						<td>Decounter coffee brewer</td>
+						<td><div class="UINumber" data-numfigures="4" data-da3="7336" data-max="1000"></div></td>
 					</tr>
+					
 					<tr>
-						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option="Y|YES|N|NO" data-selected="Y"></div></td>
+						<td>Decounter coffee ground</td>
+						<td><div class="UINumber" data-numfigures="4" data-da3="7338" data-max="1000"></div></td>
 					</tr>
+					
 					<tr>
-						<td>Active H<sub>20</sub> filter</td>
-						<td><div class="UIOption" data-option="Y|YES|N|NO"></div></td>
-					</tr>
+						<td>OUT of service (last 20 OFF)</td>
+						<td>todo...</td>
+					</tr>						
 				</table>
 			</div>
 		</div>
@@ -151,7 +146,13 @@
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
-		<div id="bntBack" class="UIButton" data-caption="&nbsp;BACK&nbsp;" data-onclick="pageMainMenu_show()"></div>
+		<div id="footer_L">
+			<div id="bntBack" class="UIButton" data-caption="&nbsp;BACK&nbsp;" data-onclick="btnBack_onClick()"></div>
+		</div>
+		<div id="footer_C">
+		</div>
+		<div id="footer_R"></div>
+		<div class="clear"></div>
 	</div>
 		
 			
@@ -168,6 +169,7 @@ var da3 = null;
 var ui = null;
 var voidTask = new TaskVoid();
 var currentTask = voidTask;
+var currentPageID="";
 var timeNowMSec = 0;
 
 function onRheaBootstrapFinished()
@@ -202,10 +204,40 @@ function onRheaBootstrapFinished()
 }
 
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
-function showPage(pageID)				{ ui.hideAllExcept (pageID); }
+function showPage(pageID)				{ currentPageID=pageID; ui.getWindowByID(currentPageID).loadFromDA3(da3); ui.hideAllExcept(currentPageID); }
 function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); }
 function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); }
-
+async function btnBack_onClick()				
+{ 
+	ui.getWindowByID(currentPageID).saveToDA3(da3); 
+	var blockList = da3.compare();
+	
+	var nBlocchi = blockList.length;
+	if (nBlocchi > 0)
+	{
+		//ci sono dei blocchi da3 che sono stati modificati
+		pleaseWait_show();
+		
+		var msgToUser = "Saving datafile, please wait...<br>";
+		pleaseWait_btn1_setText(msgToUser);
+		pleaseWait_freeText_show();
+		for (var i=0; i<nBlocchi; i++)
+		{
+			var blockNum = blockList[i];
+			var uno_di = i+1;
+			msgToUser += uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ";
+			
+			pleaseWait_freeText_setText(msgToUser);
+			let result = await da3.storeBlock(uno_di, nBlocchi, blockNum);
+			msgToUser += result +"<br>";
+			pleaseWait_freeText_setText(msgToUser);
+		}
+		
+		pleaseWait_hide();
+	}
+	
+	pageMainMenu_show(); 
+}
 
 /***************************************************************************
  *
@@ -370,6 +402,8 @@ function pageCleaning_onFinished()
 {
 	showPage("pageMiscellaneous");
 	header_setText("MISCELLANEOUS");
+	
+	loadFromDA3
 	btnBack_show();
 }
 

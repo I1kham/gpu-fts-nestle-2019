@@ -39,6 +39,7 @@
 #define		CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP		0x010D
 #define		CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS		0x010E
 #define		CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS			0x010F
+#define		CPUBRIDGE_NOTIFY_WRITE_PARTIAL_VMCDATAFILE_PROGRESS  0x0110
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
 
@@ -65,6 +66,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW					0x080F
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD    		0x0810
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_KEEP_SENDING_BUTTON_NUM	0x0811
+#define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE		0x0812
 
 namespace cpubridge
 {
@@ -81,6 +83,7 @@ namespace cpubridge
         //eCPUCommand_readHexFile= 'h',
         eCPUCommand_getVMCDataFileTimeStamp = 'T',
         eCPUCommand_programming = 'P',
+		eCPUCommand_writePartialVMCDataFile = 'X'
 	};
 
 	enum eRunningSelStatus

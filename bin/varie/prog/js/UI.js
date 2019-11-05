@@ -1,3 +1,10 @@
+function UIUtils_getAttributeOrDefault(node, attributeName, defValue)
+{
+	var r = node.getAttribute(attributeName);
+	if (r==null || r=="") return defValue;
+	return r;	
+}
+
 /********************************************************
  * UI
  *
@@ -22,6 +29,15 @@ UI.prototype.priv_findByID = function(windowID)
 	}
 	return -1;
 }
+
+UI.prototype.getWindowByID = function(windowID)
+{
+	var i = this.priv_findByID(windowID);
+	if (i >= 0)
+		return this.winList[i];
+	return null;
+}
+
 
 UI.prototype.show = function(windowID)
 {
@@ -116,6 +132,19 @@ UIWindow.prototype.hide = function()
 		elem.style.display = "none";
 	}	
 }
+
+UIWindow.prototype.loadFromDA3 = function(da3)
+{
+	for (var i = 0; i < this.childList.length; i++)
+		this.childList[i].loadFromDA3(da3);	
+}
+
+UIWindow.prototype.saveToDA3 = function(da3)
+{
+	for (var i = 0; i < this.childList.length; i++)
+		this.childList[i].saveToDA3(da3);	
+}
+
 
 UIWindow.prototype.enablePageScroll = function (b) { this.allowScroll=b; }
 
@@ -285,6 +314,9 @@ function UIButton (parentID, childNum, node)
 		node.classList.add(status); 
 }
 
+UIButton.prototype.loadFromDA3 = function(da3)	{}
+UIButton.prototype.saveToDA3 = function(da3)	{}
+
 UIButton.prototype.bindEvents = function()
 {
 	if (this.jsOnClick!="" && this.jsOnClick!=null)
@@ -329,13 +361,15 @@ UIButton.prototype.bindEvents = function()
 
 
 
+
 /***************************************************************
  * UIOption
  
  *	attributi consentiti:
  *
  *		data-option="value|caption|value|caption|....value|caption"
- *		data-selected="value"	=> indica l'opzione selezionata. Default "" == nessuna selezione
+ *			opzionale data-selected="value"	=> indica l'opzione selezionata. Default "" == nessuna selezione
+ *			opzionale data-da3="xxx"		=> locazione in memoria dalla quale leggere/scrivere il [data-selected]
  */
 function UIOption (parentID, childNum, node)
 {
@@ -362,11 +396,9 @@ function UIOption (parentID, childNum, node)
 		nOptions++;
 	}
 	
+	//binding a da3
+	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
 	
-	//opzione selezionata
-	this.selectedOption = -1;
-	this.selectOptionByValue (node.getAttribute("data-selected"));
-
 	//inietto l'html
 	var cellSize = parseInt (100 / nOptions);
 	var html = "<table class='UIOption'><tr>";
@@ -374,13 +406,21 @@ function UIOption (parentID, childNum, node)
 	{
 		var btnID = this.id +"_opt" +i;
 		var css = "UIButton";
-		if (this.selectedOption == i)
-			css += " UIlit";
 		html += "<td width='" +cellSize +"%'><div id='" +btnID +"' class='" +css +"' data-optnum='" +i +"'><p>" +this.optionCaption[i] +"</p></div></td>";
 	}
 	html += "</tr></table>";
 	node.innerHTML = html;
+
+	//opzione selezionata
+	this.selectedOption = -1;
+	if (this.da3Pos >= 0)
+		this.selectOptionByValue (da3.read16(this.da3Pos));
+	else
+		this.selectOptionByValue (UIUtils_getAttributeOrDefault(node, "data-selected", "-1"));
 }
+
+UIOption.prototype.loadFromDA3 = function(da3)		{ if (this.da3Pos >= 0) this.selectOptionByValue (da3.read16(this.da3Pos)); }
+UIOption.prototype.saveToDA3 = function(da3)		{ if (this.da3Pos >= 0) da3.write16(this.da3Pos, this.getSelectedOptionValue()); }
 
 UIOption.prototype.bindEvents = function()
 {
@@ -456,18 +496,16 @@ UIOption.prototype.getSelectedOptionValue = function()
 }
 UIOption.prototype.selectOptionByValue = function (v)
 {
-	this.selectedOption = -1;
-	if (v != null && v!="")
+	//console.log ("UIOption => selectOptionByValue[" +v +"]");
+	for (var i=0; i<this.optionValue.length; i++)
 	{
-		for (var i=0; i<this.optionValue.length; i++)
+		if (v == this.optionValue[i])
 		{
-			if (v == this.optionValue[i])
-			{
-				this.selectedOption = i;
-				return;
-			}
+			this.selectOptionByIndex(i);
+			return;
 		}
 	}
+	this.selectOptionByIndex(-1);
 }
 
 /***************************************************************
@@ -476,13 +514,18 @@ UIOption.prototype.selectOptionByValue = function (v)
  *	attributi consentiti:
  *
  *		data-numfigures="2"			=> numero totale di cifre da visualizzare
- *		opzionale data-value="7"	=> valore da visualizzare (0 se non indicato)
+ *			opzionale data-value="7"	=> valore da visualizzare (0 se non indicato)
+ *			opzionale data-da3="xxx"	=> locazione in memoria dalla quale leggere/scrivere il numero
+ *			opzionale data-min			=> default = 0
+ *			opzionale data-max			=> default = 999999999
  */
 var UINUMBER_TOP_OFFSET = 15-400;
 var UINUMBER_NUM_HEIGHT = 56;
 function UINumber (parentID, childNum, node, parentObj)
 {
 	this.parentObj = parentObj;
+	this.valueMin = parseInt(UIUtils_getAttributeOrDefault(node, "data-min", "0"));
+	this.valueMax = parseInt(UIUtils_getAttributeOrDefault(node, "data-max", "999999999;"));
 	
 	this.id = node.getAttribute("id");
 	if (this.id==null || this.id=="")
@@ -495,11 +538,14 @@ function UINumber (parentID, childNum, node, parentObj)
 	if (this.numCifre < 1) this.numCifre = 1;
 	else if (this.numCifre > 12) this.numCifre = 12;
 	
-	this.value = node.getAttribute("data-value");
-	if (null == this.value || this.value == "")
-		this.value = 0;
+	//binding a da3
+	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
+	
+	var value = 0;
+	if (this.da3Pos >= 0)
+		value = parseInt(da3.read16(this.da3Pos));
 	else
-		this.value = parseInt(this.value);
+		value = parseInt(UIUtils_getAttributeOrDefault(node, "data-value", "0"));
 
 	this.mouseYStart=[];
 	this.stripStartY=[];
@@ -514,7 +560,7 @@ function UINumber (parentID, childNum, node, parentObj)
 	}
 	node.innerHTML = html;
 	
-	this.setValue(this.value);
+	this.setValue(value);
 }
 
 UINumber.prototype.priv_getHTMLForAFigure = function(i)
@@ -525,6 +571,10 @@ UINumber.prototype.priv_getHTMLForAFigure = function(i)
 	var html = "<div class='UINumberContainer' id='" +idContainer +"'><div class='UINumberStrip' id='" +idStrip +"'><p>0</p><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p></div><div class='UINumberMask'>&nbsp;</div><div class='UINumberBorder' id='" +idBorder +"'>&nbsp;</div></div>";
 	return html;
 }
+
+UINumber.prototype.loadFromDA3 = function(da3)		{ if (this.da3Pos >= 0) this.setValue (da3.read16(this.da3Pos)); }
+UINumber.prototype.saveToDA3 = function(da3)		{ if (this.da3Pos >= 0) da3.write16(this.da3Pos, this.getValue()); }
+
 
 UINumber.prototype.bindEvents = function()
 {
@@ -581,7 +631,6 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 			if (newY<limit) newY=limit;
 		}
 		dStrip.style.top = newY +"px";
-		
 		me.parentObj.enablePageScroll(0);
 		//console.log("UINumber::strip move => my[" +offsetY +"], relY[" +relY +"]");
 	}, 
@@ -615,24 +664,48 @@ UINumber.prototype.priv_onMouseUp = function(ev, iCifra)
 	var curY = parseInt(dStrip.offsetTop);
 	var whichNum = -parseInt(Math.round((curY - UINUMBER_TOP_OFFSET) / UINUMBER_NUM_HEIGHT));
 	dStrip.style.top = (UINUMBER_TOP_OFFSET - UINUMBER_NUM_HEIGHT*whichNum) +"px";
+	dStrip.setAttribute("data-value", whichNum);
 	
 	var dParent = document.getElementById(this.parentObj.id);
 	dParent.zindex=1;
 	dParent.style.overflow="hidden";
 	this.parentObj.enablePageScroll(1);
-	//console.log("UINumber::strip up, y[" +curY +"], whichNum[" +whichNum +"]");
+	//console.log("UINumber::priv_onMouseUp, y[" +curY +"], whichNum[" +whichNum +"]");
+	
+	//per assicurarmi di stare all'interno di valueMin/valueMax...
+	this.setValue(this.getValue());
+		
+	console.log("UINumber::priv_onMouseUp => value=[" +this.getValue() +"]");
+	
 }
 
-UINumber.prototype.getValue = function()			{ return this.value; } 
+UINumber.prototype.getValue = function()			
+{
+	var ret = "";
+	for (var i=0; i<this.numCifre; i++)
+	{
+		var idStrip = this.id +"_fig" +i;
+		var dStrip = document.getElementById(idStrip);
+		ret = ret + dStrip.getAttribute("data-value");
+	}
+	return parseInt(ret);
+} 
+
+UINumber.prototype.priv_clampToLimit = function(v)
+{
+	var value = parseInt(v);
+	if (value==null || value=="")
+		value = 0;
+	if (value < this.valueMin) value = this.valueMin;
+	if (value > this.valueMax) value = this.valueMax;
+	return value;
+}
 
 UINumber.prototype.setValue = function(v)
 {
-	//console.log("setValue[" +v +"]");
-	this.value = parseInt(v);
-	if (this.value==null || this.value=="")
-		this.value = 0;
+	var value = this.priv_clampToLimit(v);
 	
-	var s = this.value.toString();
+	var s = value.toString();
 	while (s.length < this.numCifre)
 		s ="0" + s;
 	if (s.length>this.numCifre)
@@ -644,5 +717,6 @@ UINumber.prototype.setValue = function(v)
 		var idStrip = this.id +"_fig" +i;
 		var dStrip = document.getElementById(idStrip);
 		dStrip.style.top = (UINUMBER_TOP_OFFSET - UINUMBER_NUM_HEIGHT*num) +"px";		
+		dStrip.setAttribute("data-value", num);
 	}
 }

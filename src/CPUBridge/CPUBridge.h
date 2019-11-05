@@ -41,9 +41,18 @@ namespace cpubridge
 	u8			buildMsg_restart_U (u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_readDataAudit (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_writeVMCDataFile (const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_writePartialVMCDataFile (const u8 *buffer64byte,  u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset, u8 *out_buffer, u8 sizeOfOutBuffer);
+					/* se voglio inviare i blocchi 3, 6, 10, 12 alla cpu, invio 4 messaggi:
+						blocco 1 di 4, offset=3
+						blocco 2 di 4, offset=6
+						blocco 3 di 4, offset=10
+						blocco 4 di 4, offset=12
+
+						[blockNumOffset] parte da 0, [blocco_n_di] parte da 1
+					*/
 
 
 
@@ -108,6 +117,8 @@ namespace cpubridge
 	void		notify_SAN_WASHING_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2);
 	void		translateNotify_SAN_WASHING_STATUS (const rhea::thread::sMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2);
 
+	void		notify_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 blockNumOffset);
+	void		translateNotify_WRITE_PARTIAL_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_blockNumOffset);
 
 	/***********************************************
 		ask_xxxx
@@ -184,6 +195,12 @@ namespace cpubridge
 
 	inline void ask_CPU_PROGRAMMING_CMD_QUERY_SANWASH_STATUS (const sSubscriber &from, u16 handlerID)												{ ask_CPU_PROGRAMMING_CMD(from, handlerID, eCPUProgrammingCommand_querySanWashingStatus, NULL, 0); }
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SAN_WASHING_STATUS
+
+
+	void        ask_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8 *buffer64byte, u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_WRITE_PARTIAL_VMCDATAFILE
+					//Per la spiegazione dei parametri, vedi cpubridge::buildMsg_writePartialVMCDataFile
+	void		translate_PARTIAL_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_buffer64byte, u8 *out_blocco_n_di, u8 *out_tot_num_blocchi, u8 *out_blockNumOffset);
 
 } // namespace cpubridge
 

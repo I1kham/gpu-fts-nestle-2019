@@ -19,6 +19,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	sprintf_s(cpuMessage1, sizeof(cpuMessage1), "CPU message example 1");
 	sprintf_s(cpuMessage2, sizeof(cpuMessage2), "CPU message example 2");
 	curCPUMessage = cpuMessage2;
+	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;
 }
 
@@ -54,9 +55,15 @@ void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
 		return;
 	timeToSwapCPUMsgMesc = timeNowMSec + 20000;
 	if (curCPUMessage == cpuMessage1)
+	{
+		curCPUMessageImportanceLevel = 0;
 		curCPUMessage = cpuMessage2;
+	}
 	else
+	{
+		curCPUMessageImportanceLevel = 1;
 		curCPUMessage = cpuMessage1;
+	}
 }
 
 /*****************************************************************
@@ -75,6 +82,24 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		logger->log("CPUChannelFakeCPU::sendAndWaitAnswer() => ERR, cpuCommand not supported [%d]\n", (u8)cpuCommand);
 		*in_out_sizeOfAnswer = 0;
 		return false;
+		break;
+
+	case eCPUCommand_writePartialVMCDataFile:
+		{
+			const u8 packet_uno_di = bufferToSend[3];
+			const u8 packet_num_toto = bufferToSend[4];
+			const u8 packet_offset = bufferToSend[5];
+
+			out_answer[ct++] = '#';
+			out_answer[ct++] = 'X';
+			out_answer[ct++] = 0; //lunghezza
+			out_answer[ct++] = packet_offset;
+
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+			return true;
+		}
 		break;
 
 	case eCPUCommand_getVMCDataFileTimeStamp:
@@ -428,7 +453,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	out_answer[ct++] = 'B';
 
 	//86		1 byte per indicare importanza del msg di CPU (0=poco importante, 1=importante)
-	out_answer[ct++] = 1;
+	out_answer[ct++] = curCPUMessageImportanceLevel;
 
 	//87-94		8 byte stringa con l'attuale credito
 	out_answer[ct++] = '0';

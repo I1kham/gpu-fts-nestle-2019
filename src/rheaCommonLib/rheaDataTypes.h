@@ -58,7 +58,10 @@ namespace rhea
     #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 	inline f32		endianConvertF32(f32 f)								{ u32 w = ((u32*)&f)[0]; u32 t = ((w >> 24) & 0x000000FF) | ((w >> 8) & 0x0000FF00) | ((w << 8) & 0x00FF0000) | ((w << 24) & 0xFF000000);  f32 ret; memcpy(&ret, &t, 4); return ret; }
+
 }; //namespace rhea
+
+
 
 #endif // _rheaDataTypes_h_
 

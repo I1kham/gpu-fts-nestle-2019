@@ -684,6 +684,17 @@ void app::SendButton::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u
 }
 
 /*****************************************************************
+ * namespace WritePartialVMCDataFile
+ */
+void app::WritePartialVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_blockWritten)
+{
+	assert(msg.eventType == socketbridge::eEventType_cpuWritePartialVMCDataFile);
+	*out_blockWritten = msg.payload[0];
+}
+
+
+
+/*****************************************************************
  * RawFileTrans
  */
  //*****************************************************************

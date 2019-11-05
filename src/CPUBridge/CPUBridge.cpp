@@ -213,6 +213,17 @@ u8 cpubridge::buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 bl
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_writePartialVMCDataFile(const u8 *buffer64byte, u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[VMCDATAFILE_BLOCK_SIZE_IN_BYTE + 3];
+	optionalData[0] = blocco_n_di;
+	optionalData[1] = tot_num_blocchi;
+	optionalData[2] = blockNumOffset;
+	memcpy(&optionalData[3], buffer64byte, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand_writePartialVMCDataFile, optionalData, sizeof(optionalData), out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
 u8 cpubridge::buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	return cpubridge_buildMsg(cpubridge::eCPUCommand_getVMCDataFileTimeStamp, NULL, 0, out_buffer, sizeOfOutBuffer);
@@ -555,6 +566,26 @@ void cpubridge::translateNotify_SAN_WASHING_STATUS(const rhea::thread::sMsg &msg
 }
 
 
+//***************************************************
+void cpubridge::notify_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 blockNumOffset)
+{
+	logger->log("notify_WRITE_PARTIAL_VMCDATAFILE [%d]\n", blockNumOffset);
+	u8 buffer[4] = { blockNumOffset, 0, 0, 0 };
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_WRITE_PARTIAL_VMCDATAFILE_PROGRESS, handlerID, buffer, 1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_WRITE_PARTIAL_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_blockNumOffset)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_WRITE_PARTIAL_VMCDATAFILE_PROGRESS);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_blockNumOffset = p[0];
+}
+
+
+
+
 
 
 
@@ -681,6 +712,30 @@ void cpubridge::translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, char 
 	}
 
 	memcpy(out_srcFullFileNameAndPath, msg.buffer, n);
+}
+
+
+//***************************************************
+void cpubridge::ask_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8 *buffer64byte, u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset)
+{
+	u8 buffer[64 + 3];
+	memcpy(buffer, buffer64byte, 64);
+	buffer[64] = blocco_n_di;
+	buffer[65] = tot_num_blocchi;
+	buffer[66] = blockNumOffset;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE, handlerID, buffer, sizeof(buffer));
+}
+
+//***************************************************
+void cpubridge::translate_PARTIAL_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_buffer64byte, u8 *out_blocco_n_di, u8 *out_tot_num_blocchi, u8 *out_blockNumOffset)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE);
+
+	const u8 *p = (const u8*)msg.buffer;
+	memcpy (out_buffer64byte, msg.buffer, 64);
+	*out_blocco_n_di = p[64];
+	*out_tot_num_blocchi = p[65];
+	*out_blockNumOffset = p[66];	
 }
 
 //***************************************************

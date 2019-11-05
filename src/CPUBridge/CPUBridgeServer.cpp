@@ -356,8 +356,24 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			priv_handleProgrammingMessage(sub, handlerID, msg);
             break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE:
+			{
+				u8 block[64];
+				u8 blocco_n_di = 0;
+				u8 tot_num_blocchi = 0;
+				u8 blockNumOffset = 0;
+				translate_PARTIAL_WRITE_VMCDATAFILE(msg, block, &blocco_n_di, &tot_num_blocchi, &blockNumOffset);
+
+				u8 bufferW[80];
+				const u16 nBytesToSend = cpubridge::buildMsg_writePartialVMCDataFile(block, blocco_n_di, tot_num_blocchi, blockNumOffset, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+					notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, blockNumOffset);
+				else
+					notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, 0xff);
+			}
+			break;
 		}
-		rhea::thread::deleteMsg(msg);
 	}
 }
 
