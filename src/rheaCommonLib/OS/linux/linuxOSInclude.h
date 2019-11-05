@@ -1,12 +1,14 @@
 #ifdef LINUX
 #ifndef _linuxosinclude_h_
 #define _linuxosinclude_h_
+#include <arpa/inet.h>
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
 #include "../../rheaDataTypes.h"
 #include "../../rheaEnumAndDefine.h"
+#include <netinet/in.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdint.h>

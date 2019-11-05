@@ -6,6 +6,8 @@
 
 
 inline void					OSSocket_init (OSSocket *sok)															{ platform::socket_init (sok); }
+
+                            //=============================================== TCP
 inline eSocketError         OSSocket_openAsTCPServer (OSSocket *out_sok, int portNumber)                            { return platform::socket_openAsTCPServer(out_sok, portNumber); }
 inline eSocketError         OSSocket_openAsTCPClient (OSSocket *out_sok, const char *connectToIP, u32 portNumber)   { return platform::socket_openAsTCPClient(out_sok, connectToIP, portNumber); }
 
@@ -53,10 +55,10 @@ inline i32                  OSSocket_write(OSSocket &sok, const void *buffer, u1
 							 *	l'ha evitata
 							 */
 
-
+                            //=============================================== UDP
 inline eSocketError			OSSocket_openAsUDP(OSSocket *out_sok)																{ return platform::socket_openAsUDP(out_sok); }
 inline eSocketError			OSSocket_UDPbind(OSSocket &sok, int portNumber)														{ return platform::socket_UDPbind(sok, portNumber); }
-inline void					OSSocket_UDPSendBroadcast(OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int portNumber)		{ platform::socket_UDPSendBroadcast(sok, buffer, nBytesToSend, portNumber); }
+inline void					OSSocket_UDPSendBroadcast(OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int portNumber, const char *subnetMask)		{ platform::socket_UDPSendBroadcast(sok, buffer, nBytesToSend, portNumber, subnetMask); }
 inline u32					OSSocket_UDPSendTo(OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const OSNetAddr &addrTo)		{ return platform::socket_UDPSendTo(sok, buffer, nBytesToSend, addrTo); }
 inline u32					OSSocket_UDPReceiveFrom(OSSocket &sok, u8 *buffer, u32 nMaxBytesToRead, OSNetAddr *out_from)		{ return platform::socket_UDPReceiveFrom(sok, buffer, nMaxBytesToRead, out_from); }
 #endif //_OSSocket_h_

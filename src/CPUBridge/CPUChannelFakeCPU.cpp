@@ -86,8 +86,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 	case eCPUCommand_writePartialVMCDataFile:
 		{
-			const u8 packet_uno_di = bufferToSend[3];
-			const u8 packet_num_toto = bufferToSend[4];
+            //const u8 packet_uno_di = bufferToSend[3];
+            //const u8 packet_num_toto = bufferToSend[4];
 			const u8 packet_offset = bufferToSend[5];
 
 			out_answer[ct++] = '#';

@@ -386,7 +386,7 @@ eSocketError platform::socket_UDPbind (OSSocket &sok, int portNumber)
 }
 
 //*************************************************** 
-void platform::socket_UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int porta)
+void platform::socket_UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int porta, const char *subnetMask)
 {
 	// Abilita il broadcast
 	int i = 1;
@@ -409,7 +409,7 @@ void platform::socket_UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBy
 
 	// Broadcasta il messaggio
 	unsigned long	host_addr = inet_addr(myIP);		// local IP addr
-	unsigned long	net_mask = inet_addr("255.255.255.0");			// LAN netmask
+    unsigned long	net_mask = inet_addr(subnetMask);           // LAN netmask 255.255.255.0
 	unsigned long	net_addr = host_addr & net_mask;				
 	unsigned long	dir_bcast_addr = net_addr | (~net_mask);		
 

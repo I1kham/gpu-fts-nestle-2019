@@ -2,13 +2,14 @@
 #include "linuxOSSocket.h"
 #include <errno.h>
 #include <netinet/ip.h>
+#include <netinet/in.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
-
+#include "../../rhea.h"
 
 
 //*************************************************
@@ -302,4 +303,123 @@ i32  platform::socket_write(OSSocket &sok, const void *buffer, u16 nBytesToSend)
 }
 
 
+//*************************************************
+eSocketError platform::socket_openAsUDP(OSSocket *sok)
+{
+    platform::socket_init(sok);
+
+    //creo la socket
+    sok->socketID = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sok->socketID == -1)
+    {
+        switch (errno)
+        {
+        case EACCES:            return eSocketError_denied;
+
+        case EPROTONOSUPPORT:
+        case EINVAL:
+        case EAFNOSUPPORT:      return eSocketError_unsupported;
+
+        case EMFILE:
+        case ENFILE:            return eSocketError_tooMany;
+
+        case ENOBUFS:
+        case ENOMEM:            return eSocketError_noMem;
+
+        default:                return eSocketError_unknown;
+        }
+    }
+
+    //abilito delle opzioni di socket
+    int enable = 1;
+    setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+    setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
+
+    return eSocketError_none;
+}
+
+//*************************************************
+eSocketError platform::socket_UDPbind (OSSocket &sok, int portNumber)
+{
+    sockaddr_in		saAddress;
+    saAddress.sin_family = AF_INET;
+    saAddress.sin_port = htons(portNumber);
+    saAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (0 == bind(sok.socketID, (struct sockaddr *)&saAddress, sizeof(saAddress)))
+    {
+        ::close(sok.socketID);
+        sok.socketID = -1;
+        switch (errno)
+        {
+        case EACCES:        return eSocketError_addressProtected;
+        case EADDRINUSE:    return eSocketError_addressInUse;
+        case EINVAL:        return eSocketError_alreadyBound;
+        case ENOTSOCK:      return eSocketError_invalidDescriptor;
+        case ENOMEM:        return eSocketError_noMem;
+        default:            return eSocketError_unknown;
+        }
+    }
+
+    return eSocketError_none;
+}
+
+//***************************************************
+void platform::socket_UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int porta, const char *subnetMask)
+{
+    // Abilita il broadcast
+    int i = 1;
+    setsockopt(sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
+
+    // Recupero info sul nome host, ip e porta di bind
+    char hostName[128];
+    char myIP[32];
+    if (gethostname(hostName, sizeof(hostName)) != -1)
+    {
+        struct	hostent *clientHost;
+        clientHost = gethostbyname(hostName);
+        if (clientHost != 0)
+        {
+            struct	in_addr clientIP;
+            memcpy(&clientIP, clientHost->h_addr_list[0], sizeof(struct in_addr));
+            strcpy_s(myIP, 32, inet_ntoa(clientIP));
+        }
+    }
+
+    // Broadcasta il messaggio
+    unsigned long	host_addr = inet_addr(myIP);                // local IP addr
+    unsigned long	net_mask = inet_addr(subnetMask);           // LAN netmask 255.255.255.0
+    unsigned long	net_addr = host_addr & net_mask;
+    unsigned long	dir_bcast_addr = net_addr | (~net_mask);
+
+    sockaddr_in		saAddress;
+    saAddress.sin_family = AF_INET;
+    saAddress.sin_port = htons(porta);
+    saAddress.sin_addr.s_addr = dir_bcast_addr;
+
+    sendto (sok.socketID, (const char*)buffer, nBytesToSend, 0, (sockaddr*)&saAddress, sizeof(saAddress));
+
+    // Disbilita il broadcast
+    i = 0;
+    setsockopt(sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
+}
+
+
+//***************************************************
+u32 platform::socket_UDPSendTo (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const OSNetAddr &addrTo)
+{
+    int ret = sendto (sok.socketID, (const char*)buffer, nBytesToSend, 0, rhea::netaddr::getSockAddr(addrTo), rhea::netaddr::getSockAddrLen(addrTo));
+    if (-1 == ret)
+        return 0;
+    return (u32)ret;
+}
+
+//***************************************************
+u32 platform::socket_UDPReceiveFrom (OSSocket &sok, u8 *buffer, u32 nMaxBytesToRead, OSNetAddr *out_addrFrom)
+{
+    int	addrLen = rhea::netaddr::getSockAddrLen(*out_addrFrom);
+    int ret = recvfrom(sok.socketID, buffer, nMaxBytesToRead, 0, rhea::netaddr::getSockAddr(*out_addrFrom), (socklen_t*)&addrLen);
+    if (-1 == ret)
+        return 0;
+    return (u32)ret;
+}
 #endif

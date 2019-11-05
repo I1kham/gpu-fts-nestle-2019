@@ -116,16 +116,10 @@ namespace rhea
 			u32             clientHandleAsU32;
 		};
 
-		struct sDataForEvent_socketUDP
-		{
-			OSNetAddr	from;
-		};
-
         union uEventData
         {
 			sDataForEvent_event		if_event;
 			sDataForEvent_socket	if_socket;
-			sDataForEvent_socketUDP	if_socketUDP;
         };
 
         struct sEvent
