@@ -242,8 +242,28 @@ function btnBack_onClick()
 	}
 }
 
+function askDA3Ts()
+{
+	return rhea.ajax ("da3ts", "");
+	/*console.log ("askDA3Ts");
+	rhea.ajax ("da3ts", "")
+		.then( function(result) 
+		{
+			console.log ("askDA3Ts => [" +result +"]");
+		})
+		*/
+}
 
 function storeDA3Block_step (uno_di, nBlocchi, blockList)
+{
+	askDA3Ts().then ( function(result)
+	{
+		pleaseWait_freeText_appendText ("da3ts=" +result +"<br>");	
+		storeDA3Block_step2 (uno_di, nBlocchi, blockList);
+	});
+}
+
+function storeDA3Block_step2 (uno_di, nBlocchi, blockList)
 {
 	var blockNum = blockList[uno_di-1];
 	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
@@ -256,8 +276,7 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 		
 		if (uno_di >= nBlocchi)
 		{
-			pleaseWait_hide();
-			pageMainMenu_show();
+			setTimeout (storeDA3Block_step3(), 300);
 			return;
 		}
 		
@@ -266,8 +285,15 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 	});
 }
 
-
-
+function storeDA3Block_step3()
+{
+	askDA3Ts().then ( function(result)
+	{
+		pleaseWait_freeText_appendText ("da3ts=" +result +"<br>");	
+			//pleaseWait_hide();
+			//pageMainMenu_show();
+	});
+}
 
 /***************************************************************************
  *

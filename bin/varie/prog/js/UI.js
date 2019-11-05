@@ -654,8 +654,8 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 		var newY = (me.stripStartY[iCifra] + offsetY);
 		var relY = Math.abs(newY - parseInt(dStrip.style.top));
 		
-		if (relY>4) newY+=offsetY;
-		if (relY>8)  newY+=offsetY;
+		//if (relY>4) newY+=offsetY;
+		//if (relY>8)  newY+=offsetY;
 		
 		if (newY>UINUMBER_TOP_OFFSET) newY=UINUMBER_TOP_OFFSET;
 		else 
