@@ -126,8 +126,8 @@ Rhea.prototype.webSocket_connect = function()
 	return new Promise( function(resolve, reject) 
 	{
 		rheaLog("Rhea:: trying to connect...");
-		//me.websocket = new WebSocket("ws://127.0.0.1:2280/", "binary");
-		me.websocket = new WebSocket("ws://10.8.2.40:2280/", "binary");
+		me.websocket = new WebSocket("ws://127.0.0.1:2280/", "binary");
+		//me.websocket = new WebSocket("ws://10.8.2.40:2280/", "binary");
 		me.websocket.onopen = 		function(evt) 
 		{ 
 			rheaLog("Rhea::webSocket connected...");

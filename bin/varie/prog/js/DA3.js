@@ -29,7 +29,7 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 		console.log ("da3_load_onEnd: error, reason[" +reasonRefused +"]");
 
 		alert ("error downloading da3");
-		pleaseWait_hide();
+		onDA3Loaded();
 		return;
 	}
 	
@@ -40,8 +40,14 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	for (var i=0; i<obj.fileSize; i++)
 		theDa3.da3_original[i] = theDa3.da3_current[i] = obj.fileBuffer[i];
 		
-	pleaseWait_hide();
+	onDA3Loaded();
 }
+
+DA3.prototype.isInstant = function ()			{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
+DA3.prototype.isEpresso = function ()			{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
+DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
+DA3.prototype.getNumProdotti = function ()		{ if (this.isEpresso()) return 6; else return 10; }
+
 
 
 /********************************************************
@@ -80,6 +86,16 @@ DA3.prototype.storeBlock = function (uno_di_n, num_tot_block, blockNum)
 {
 	//console.log ("DA3::sendUpdatedBlock() => sending block [" +uno_di_n +"]/[" +num_tot_block +"] [" +blockNum +"]");
 	return rhea.sendPartialDA3AndReturnAPromise (uno_di_n, num_tot_block, blockNum, this.da3_current, blockNum * DA3_BLOCK_SIZE);
+}
+
+DA3.prototype.copyBlockToOriginal = function (blockNum)
+{
+	var ct = blockNum * DA3_BLOCK_SIZE;
+	for (var i=0; i<DA3_BLOCK_SIZE; i++)
+	{
+		this.da3_original[ct] = this.da3_current[ct];
+		ct++;
+	}
 }
 
 DA3.prototype.read16  = function (posIN)
