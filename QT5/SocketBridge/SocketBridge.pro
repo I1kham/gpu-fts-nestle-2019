@@ -103,7 +103,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSanWashStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqBtnPressed.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -142,7 +143,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSanWashStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqBtnPressed.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
