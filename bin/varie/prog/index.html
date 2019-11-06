@@ -87,16 +87,16 @@
 					</tr>
 					
 					<tr>
-						<td>Water filter decounter</td>
+						<td>Water filter decounter<br><span class="tip">max value = 60000</span></td>
 						<td><div class="UINumber" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
 					</tr>
 					<tr>
-						<td>Decounter coffee brewer</td>
+						<td>Decounter coffee brewer<br><span class="tip">max value = 1000</span></td>
 						<td><div class="UINumber" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
 					</tr>
 					
 					<tr>
-						<td>Decounter coffee ground</td>
+						<td>Decounter coffee ground<br><span class="tip">max value = 1000</span></td>
 						<td><div class="UINumber" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
 					</tr>
 					
@@ -168,6 +168,7 @@
 
 <script src="js/DA3.js"></script>
 <script src="js/UI.js"></script>
+<script src="js/UINumberArrow.js"></script>
 <script src="js/Task.js"></script>
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
@@ -242,17 +243,7 @@ function btnBack_onClick()
 	}
 }
 
-function askDA3Ts()
-{
-	return rhea.ajax ("da3ts", "");
-	/*console.log ("askDA3Ts");
-	rhea.ajax ("da3ts", "")
-		.then( function(result) 
-		{
-			console.log ("askDA3Ts => [" +result +"]");
-		})
-		*/
-}
+function askDA3Ts()		{ return rhea.ajax ("da3ts", ""); }
 
 function storeDA3Block_step (uno_di, nBlocchi, blockList)
 {
@@ -265,13 +256,11 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 
 function storeDA3Block_step2 (uno_di, nBlocchi, blockList)
 {
-console.log("storeDA3Block_step2[" +uno_di +"]");
 	var blockNum = blockList[uno_di-1];
 	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
 			
 	da3.storeBlock (uno_di, nBlocchi, blockNum).then (function(result)
 	{
-		//console.log ("storeDA3Block_step => " +result);
 		pleaseWait_freeText_appendText (result +"<br>");
 		da3.copyBlockToOriginal(blockNum);
 		
@@ -282,7 +271,6 @@ console.log("storeDA3Block_step2[" +uno_di +"]");
 		}
 		
 		uno_di++;
-		console.log("storeDA3Block_step2 => fine");
 		setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 100);
 	});
 }
@@ -499,6 +487,7 @@ function pageProductQty_show()
 {
 	if (showPage("pageProductQty"))
 	{
+		pageProductQty_showDecounter();
 		/*è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
 		{
@@ -522,26 +511,56 @@ function pageProductQty_build()
 	var da3Loc_decounter = 7334;
 	var da3Loc_warning = da3Loc_decounter +2*nProdotti;
 	var da3Loc_enable = da3Loc_warning +2*nProdotti;
-	var html = "<table border='0' class='elenco'>";
+	var html = "";
+	
+	var dataOption = "1|1";
+	for (var i=2; i<=nProdotti; i++)
+		dataOption += "|" +i +"|" +i;
+		
+	html = 	"<table border='0' width='100%'><tr valign='middle'>"
+			+"	<td style='width:160px'><b>SELECT A<br>DECOUNTER</b></td>"
+			+"	<td><div class='UIOption buttonCorto' id='pageProductQty_decSelector' data-option='" +dataOption +"' data-onclick='pageProductQty_showDecounter()'></div></td>"
+			+"</tr></table><br>";
+	
 	for (var i=0; i<nProdotti; i++)
 	{
 		var num = (i+1);
 		if (i<9) num = "0" +num;
 		num = "#" +num;
 		
-		html += "<tr><td>" +num +" DECOUNTER</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
-				+ "<tr><td>" +num +" DECOUNTER WARNING</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999'></div></td></tr>"
-				+ "<tr><td>" +num +" ENABLE STOP</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
-				+ "<tr><td colspan='2'>&nbsp;</td></tr>";
+		var pageID = "pageProductQty_page_" +(i+1);
+		var currentDecountValue = "12345.6";
+		
+		html +=  "<div id='" +pageID +"' style='display:none'>"
+				+"<table border='0' class='elenco'>"
+				+"	<tr style='height:70px'><td>DECOUNTER #" +(i+1) +"<br>CURRENT VALUE</td><td><span style='color:#fff; font-size:2.5em'>" +currentDecountValue +"</span></td></tr>"
+				+"	<tr><td>LIMIT</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
+				+"	<tr><td>WARNING AT</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999'></div></td></tr>"
+				+"	<tr style='border:0'><td>ENABLE STOP</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
+				+"</table></div>";
 		da3Loc_decounter+=2;
 		da3Loc_warning+=2;
 		da3Loc_enable+=2;
 	}
-	html += "</table>";
 	
 	rheaSetDivHTMLByName("pageProductQty_content", html);
 }
 
+function pageProductQty_showDecounter()
+{
+	var opt = ui.getWindowByID("pageProductQty").getChildByID("pageProductQty_decSelector");
+	var decSelected = opt.getSelectedOptionValue();
+	
+	var nProdotti = da3.getNumProdotti();
+	for (var i=1; i<=nProdotti; i++)
+	{
+		var pageID = "pageProductQty_page_" +i;
+		if (i == decSelected)
+			rheaShowElem(rheaGetElemByID(pageID));
+		else
+			rheaHideElem(rheaGetElemByID(pageID));
+	}
+}
 </script>
 
 </html>

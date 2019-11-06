@@ -77,8 +77,8 @@ DA3.prototype.compare = function ()
 		}
 	}
 	
-	//console.log ("DA3::compare() => end");
-	//console.log (retList);
+	console.log ("DA3::compare() => end");
+	console.log (retList);
 	return retList;
 }
 
@@ -103,12 +103,12 @@ DA3.prototype.read16  = function (posIN)
 	var pos = parseInt(posIN);
 	var ret = this.da3_current[pos]; 
 	ret += 256 * this.da3_current[pos+1]; 
-	//console.log("DA3 read@" +pos +"=" + ret);
+	console.log("DA3 read@" +pos +"=" + ret);
 	return ret; 
 }
 DA3.prototype.write16 = function (pos, value)
 { 
-	//console.log("DA3 write@" +pos +"=" + value);
+	console.log("DA3 write@" +pos +"=" + value);
 	var v = parseInt(value); 
 	this.da3_current[pos++] = (value & 0x00FF); 
 	this.da3_current[pos]   = ((value & 0xFF00) >>8); 
