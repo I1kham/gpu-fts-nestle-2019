@@ -259,12 +259,13 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 	askDA3Ts().then ( function(result)
 	{
 		pleaseWait_freeText_appendText ("da3ts=" +result +"<br>");	
-		storeDA3Block_step2 (uno_di, nBlocchi, blockList);
+		setTimeout ( function() { storeDA3Block_step2 (uno_di, nBlocchi, blockList); }, 100);
 	});
 }
 
 function storeDA3Block_step2 (uno_di, nBlocchi, blockList)
 {
+console.log("storeDA3Block_step2[" +uno_di +"]");
 	var blockNum = blockList[uno_di-1];
 	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
 			
@@ -276,12 +277,13 @@ function storeDA3Block_step2 (uno_di, nBlocchi, blockList)
 		
 		if (uno_di >= nBlocchi)
 		{
-			setTimeout (storeDA3Block_step3(), 300);
+			setTimeout ( function() { storeDA3Block_step3(); }, 100);
 			return;
 		}
 		
 		uno_di++;
-		setTimeout (storeDA3Block_step (uno_di, nBlocchi, blockList), 300);
+		console.log("storeDA3Block_step2 => fine");
+		setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 100);
 	});
 }
 
@@ -290,11 +292,17 @@ function storeDA3Block_step3()
 	askDA3Ts().then ( function(result)
 	{
 		pleaseWait_freeText_appendText ("da3ts=" +result +"<br>");	
-			//pleaseWait_hide();
-			//pageMainMenu_show();
+		
+		pleaseWait_freeText_appendText ("<br><br>Done!  closing in 5 sec");
+		setTimeout ( function() { storeDA3Block_step4(); }, 5000);
 	});
 }
 
+function storeDA3Block_step4()
+{
+	pleaseWait_hide();
+	pageMainMenu_show();
+}
 /***************************************************************************
  *
  * please wait
