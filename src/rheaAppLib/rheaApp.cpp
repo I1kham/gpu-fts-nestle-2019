@@ -735,11 +735,11 @@ void app::SetDecounter::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCP
 	NetStaticBufferViewR nbr;
 	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
 
-	u8 u;
+    u8 u = 0;
 	nbr.readU8(u);	
 	*out_which  = (cpubridge::eCPUProgrammingCommand_decounter)u;
 	
-	u16 uu;
+    u16 uu = 0;
 	nbr.readU16(uu);
 	*out_value = uu;
 }

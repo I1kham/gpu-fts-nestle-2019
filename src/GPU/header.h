@@ -2,8 +2,8 @@
 #define RHEA_HEADER_H
 
 
-//Versione GPU (Fusioe Beta v2)
-#define GPU_VERSION_MAJOR   3
+//Versione GPU
+#define GPU_VERSION_MAJOR   2
 #define GPU_VERSION_MINOR   0
 #define GPU_VERSION_BUILD   0
 

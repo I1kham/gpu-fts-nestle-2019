@@ -104,7 +104,12 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqBtnPressed.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetAllDecounterValues.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDecounter.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetAllDecounters.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -144,7 +149,12 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqBtnPressed.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetAllDecounterValues.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDecounter.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetAllDecounters.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
