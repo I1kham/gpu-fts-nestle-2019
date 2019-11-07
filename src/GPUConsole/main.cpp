@@ -335,7 +335,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			u16 fileID;
 			rhea::app::ReadDataAudit::decodeAnswer(decoded, &status, &toKbSoFar, &fileID);
 
-			log->outText(true, true, true, "readDataAudit: status[%s] totKbSoFar[%d] fileID[%d]\n", rhea::app::utils::verbose_readDataFileStatus(status), toKbSoFar, fileID);
+			log->outText(true, true, false, "readDataAudit: status[%s] totKbSoFar[%d] fileID[%d]\n", rhea::app::utils::verbose_readDataFileStatus(status), toKbSoFar, fileID);
 		}
 		break;
 
@@ -343,7 +343,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		{
 			cpubridge::sCPUParamIniziali iniParam;
 			rhea::app::CurrentCPUInitParam::decodeAnswer(decoded, &iniParam);
-			log->outText(true, true, true, "RCV [iniParam]: CPU_ver[%s] protocol_ver[%d]\n", iniParam.CPU_version, iniParam.protocol_version);
+			log->outText(true, true, false, "RCV [iniParam]: CPU_ver[%s] protocol_ver[%d]\n", iniParam.CPU_version, iniParam.protocol_version);
 		}
 		break;
 
@@ -353,7 +353,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			u16 toKbSoFar;
 			u16 fileID;
 			rhea::app::ReadVMCDataFile::decodeAnswer(decoded, &status, &toKbSoFar, &fileID);
-			log->outText(true, true, true, "readVMCDataFile: status[%s] totKbSoFar[%d] fileID[%d]\n", rhea::app::utils::verbose_readDataFileStatus(status), toKbSoFar, fileID);
+			log->outText(true, true, false, "readVMCDataFile: status[%s] totKbSoFar[%d] fileID[%d]\n", rhea::app::utils::verbose_readDataFileStatus(status), toKbSoFar, fileID);
 		}
 		break;
 
@@ -376,7 +376,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 				strcat_s(text, sizeof(text), ss);
 			}
 			strcat_s(text, sizeof(text), "\n");
-			log->outText(true, true, true, text);
+			log->outText(true, true, false, text);
 		}
 		break;
 
@@ -385,7 +385,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			cpubridge::eWriteDataFileStatus status;
 			u16 toKbSoFar;
 			rhea::app::WriteLocalVMCDataFile::decodeAnswer(decoded, &status, &toKbSoFar);
-			log->outText(true, true, true, "WriteLocalVMCDataFile: status[%s] totKbSoFar[%d]\n", rhea::app::utils::verbose_writeDataFileStatus(status), toKbSoFar);
+			log->outText(true, true, false, "WriteLocalVMCDataFile: status[%s] totKbSoFar[%d]\n", rhea::app::utils::verbose_writeDataFileStatus(status), toKbSoFar);
 		}
 		break;
 
@@ -393,7 +393,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		{
 			u8 b0, b1, b2;
 			rhea::app::SanWashingStatus::decodeAnswer (decoded, &b0, &b1, &b2);
-			log->outText(true, true, true, "SanWashingStatus: fase[%d] btn1[%d] btn2[%d]\n", b0, b1, b2);
+			log->outText(true, true, false, "SanWashingStatus: fase[%d] btn1[%d] btn2[%d]\n", b0, b1, b2);
 		}
 		break;
 
@@ -401,9 +401,43 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		{
 			u8 blockWritten = 0;
 			rhea::app::WritePartialVMCDataFile::decodeAnswer(decoded, &blockWritten);
-			log->outText(true, true, true, "PArtial DA3 written: block[%d]\n", blockWritten);
+			log->outText(true, true, false, "PArtial DA3 written: block[%d]\n", blockWritten);
 		}
 		break;
+
+	case socketbridge::eEventType_cpuExtendedConfigInfo:
+		{
+			cpubridge::sExtendedCPUInfo info;			
+			rhea::app::ExtendedConfigInfo::decodeAnswer(decoded, &info);
+			log->outText(true, true, false, "cpuExtendedConfigInfo: ver[%d] type[%s] model[%d]\n", info.msgVersion, rhea::app::utils::verbose_CPUMachineType(info.machineType), info.machineModel);
+		}
+		break;
+
+	case socketbridge::eEventType_getAllDecounters:
+		{
+			u16 valori[32];
+			rhea::app::GetAllDecounters::decodeAnswer(decoded, valori);
+
+			char s[256];
+			sprintf_s(s, sizeof(s), "eEventType_getAllDecounters: %d", valori[0]);
+			for (u8 i = 1; i < 13; i++)
+			{
+				char ss[16];
+				sprintf_s(ss, sizeof(ss), " %d", valori[i]);
+				strcat_s(s, sizeof(s), ss);
+			}
+			log->outText(true, true, false, s);
+		}
+		break;		
+
+	case socketbridge::eEventType_setDecounter:
+		{
+			cpubridge::eCPUProgrammingCommand_decounter which;
+			u16 value = 0;
+			rhea::app::SetDecounter::decodeAnswer(decoded, &which, &value);
+			log->outText(true, true, false, "setDecounter: which[%d] value[%d]\n", (u8)which, value);
+		}
+		break;		
 	}
 }
 

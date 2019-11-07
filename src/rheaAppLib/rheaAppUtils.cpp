@@ -226,3 +226,19 @@ const char* utils::verbose_WriteCPUFWFileStatus (cpubridge::eWriteCPUFWFileStatu
 	case cpubridge::eWriteCPUFWFileStatus_finishedKO_generalError: 				return v[9];
 	}
 }
+
+//***************************************************************
+const char* utils::verbose_CPUMachineType(cpubridge::eCPUMachineType type)
+{
+	static const char v[2][12] = {
+		{"ESPRESSO"},
+		{"INSTANT"}
+	};
+
+	switch (type)
+	{
+	default:												return UNKNOWN;
+	case cpubridge::eCPUMachineType_espresso:				return v[0];
+	case cpubridge::eCPUMachineType_instant: 				return v[1];
+	}
+}

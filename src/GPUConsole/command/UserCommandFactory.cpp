@@ -2,6 +2,7 @@
 #include "UserCommand_list.h"
 #include "UserCommand_list.h"
 #include "UserCommand_cpumsg.h"
+#include "UserCommand_cpuextendedinfo.h"
 #include "UserCommand_cpustatus.h"
 #include "UserCommand_selavail.h"
 #include "UserCommand_readDataAudit.h"
@@ -15,6 +16,8 @@
 #include "UserCommand_cpuprogcmd.h"
 #include "UserCommand_sanwashstatus.h"
 #include "UserCommand_btnpress.h"
+#include "UserCommand_getalldec.h"
+#include "UserCommand_setdec.h"
 
 //**********************************************************
 void UserCommandFactory::setup (rhea::Allocator *allocatorIN)
@@ -94,10 +97,12 @@ void UserCommandFactory::help_commandLlist(WinTerminal *logger) const
 void UserCommandFactory::utils_addAllKnownCommands()
 {
 	this->addCommand < UserCommand_btnpress>();
+	this->addCommand < UserCommand_cpuextendedinfo>();
 	this->addCommand < UserCommand_cpumsg>();
 	this->addCommand < UserCommand_cpustatus>();
 	this->addCommand < UserCommand_cpuiniparam>();
 	this->addCommand < UserCommand_cpuprogcmd>();
+	this->addCommand < UserCommand_getalldec>();
 	this->addCommand < UserCommand_list>();
 	this->addCommand < UserCommand_readDataAudit>();
 	this->addCommand < UserCommand_readDA3>();
@@ -107,6 +112,7 @@ void UserCommandFactory::utils_addAllKnownCommands()
 	this->addCommand < UserCommand_upload>();
 	this->addCommand < UserCommand_sanwashstatus>();
 	this->addCommand < UserCommand_selavail>();
+	this->addCommand < UserCommand_setdec>();
 	this->addCommand < UserCommand_startsel>();
 	this->addCommand < UserCommand_startcleaning>();
 }

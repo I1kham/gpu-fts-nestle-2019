@@ -33,6 +33,9 @@
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_btnpress.cpp">
       <Filter>command</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setdec.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h">
@@ -89,6 +92,15 @@
       <Filter>command</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_btnpress.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuextendedinfo.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setdec.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getalldec.h">
       <Filter>command</Filter>
     </ClInclude>
   </ItemGroup>

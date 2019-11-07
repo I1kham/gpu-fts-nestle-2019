@@ -170,6 +170,31 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_b
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_setDecounter (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[3];
+	optionalData[0] = (u8)which;
+	optionalData[1] = (u8)(valore & 0x00FF);			//LSB
+	optionalData[2] = (u8)((valore & 0xFF00) >> 8);		//MSB
+	
+	return buildMsg_Programming(eCPUProgrammingCommand_setDecounter, optionalData, 3, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_getAllDecounterValues(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getAllDecounterValues, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
+u8 cpubridge::buildMsg_getExtendedConfigInfo(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return cpubridge_buildMsg(cpubridge::eCPUCommand_getExtendedConfigInfo, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 u8 cpubridge::buildMsg_initialParam_C(u8 gpuVersionMajor, u8 gpuVersionMinor, u8 gpuVersionBuild, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[4];
@@ -583,9 +608,57 @@ void cpubridge::translateNotify_WRITE_PARTIAL_VMCDATAFILE(const rhea::thread::sM
 	*out_blockNumOffset = p[0];
 }
 
+//***************************************************
+void cpubridge::notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_decounter which, u16 valore)
+{
+	logger->log("notify_CPU_DECOUNTER_SET [%d] [%d]\n", (u8)which, valore);
+	u8 buffer[4];
+	buffer[0] = (u8)which;
+	buffer[1] = (u8)((valore & 0xFF00) >> 8);
+	buffer[2] = (u8)(valore & 0x00FF);
+	rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET, handlerID, buffer, 3);
+}
 
+//***************************************************
+void cpubridge::translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET);
 
+	const u8 *p = (const u8*)msg.buffer;
+	*out_which = (eCPUProgrammingCommand_decounter)p[0];
+	*out_valore = ((u16)p[1] << 8) | p[2];
+}
 
+//***************************************************
+void cpubridge::notify_CPU_ALL_DECOUNTER_VALUES(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *arrayDiAlmeno13Elementi)
+{
+	logger->log("notify_CPU_ALL_DECOUNTER_VALUES\n");
+
+	u16 buffer[13];
+	memcpy(buffer, arrayDiAlmeno13Elementi, sizeof(u16) * 13);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES, handlerID, buffer, 13 * sizeof(u16));
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u16 *out_arrayDiAlmeno13Elementi)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES);
+	memcpy(out_arrayDiAlmeno13Elementi, msg.buffer, sizeof(u16) * 13);
+}
+
+//***************************************************
+void cpubridge::notify_EXTENDED_CONFIG_INFO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sExtendedCPUInfo *info)
+{
+	logger->log("notify_EXTENDED_CONFIG_INFO\n");
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO, handlerID, info, sizeof(sExtendedCPUInfo));
+}
+
+//***************************************************
+void cpubridge::translateNotify_EXTENDED_CONFIG_INFO(const rhea::thread::sMsg &msg, sExtendedCPUInfo *out_info)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO);
+	memcpy (out_info, msg.buffer, sizeof(sExtendedCPUInfo));
+}
 
 
 
@@ -718,11 +791,11 @@ void cpubridge::translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, char 
 //***************************************************
 void cpubridge::ask_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8 *buffer64byte, u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset)
 {
-	u8 buffer[64 + 3];
-	memcpy(buffer, buffer64byte, 64);
-	buffer[64] = blocco_n_di;
-	buffer[65] = tot_num_blocchi;
-	buffer[66] = blockNumOffset;
+	u8 buffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE + 3];
+	memcpy(buffer, buffer64byte, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
+	buffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE] = blocco_n_di;
+	buffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE+1] = tot_num_blocchi;
+	buffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE+2] = blockNumOffset;
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE, handlerID, buffer, sizeof(buffer));
 }
 
@@ -732,10 +805,10 @@ void cpubridge::translate_PARTIAL_WRITE_VMCDATAFILE(const rhea::thread::sMsg &ms
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE);
 
 	const u8 *p = (const u8*)msg.buffer;
-	memcpy (out_buffer64byte, msg.buffer, 64);
-	*out_blocco_n_di = p[64];
-	*out_tot_num_blocchi = p[65];
-	*out_blockNumOffset = p[66];	
+	memcpy (out_buffer64byte, msg.buffer, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
+	*out_blocco_n_di = p[VMCDATAFILE_BLOCK_SIZE_IN_BYTE];
+	*out_tot_num_blocchi = p[VMCDATAFILE_BLOCK_SIZE_IN_BYTE+1];
+	*out_blockNumOffset = p[VMCDATAFILE_BLOCK_SIZE_IN_BYTE+2];
 }
 
 //***************************************************
@@ -784,4 +857,36 @@ void cpubridge::translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCP
     const u8 *p = (const u8*)msg.buffer;
     *out = (eCPUProgrammingCommand)p[0];
 	*out_optionalData = &p[1];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_decounter which, u16 valore)
+{
+	u8 otherData[3];
+	otherData[0] = (u8)which;
+	otherData[1] = (u8)((valore & 0xFF00) >> 8);
+	otherData[2] = (u8)(valore & 0x00FF);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER, handlerID, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SET_DECOUNTER (const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_which = (eCPUProgrammingCommand_decounter)p[0];
+	*out_valore = ((u16)p[1] << 8) | p[2];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_ALL_DECOUNTER_VALUES(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES, handlerID);
+}
+
+
+//***************************************************
+void cpubridge::ask_CPU_GET_EXTENDED_CONFIG_INFO(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO, handlerID);
 }

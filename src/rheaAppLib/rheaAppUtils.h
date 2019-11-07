@@ -21,6 +21,8 @@ namespace rhea
 			const char*		verbose_readDataFileStatus(cpubridge::eReadDataFileStatus status);
 			const char*		verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus status);
 			const char*		verbose_WriteCPUFWFileStatus(cpubridge::eWriteCPUFWFileStatus status);
+
+			const char*		verbose_CPUMachineType(cpubridge::eCPUMachineType type);
 		} //namespace utils
 	} // namespace app
 

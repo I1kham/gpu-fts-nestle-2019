@@ -249,6 +249,18 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		break;
 
+	case eCPUCommand_getExtendedConfigInfo:
+		out_answer[ct++] = '#';
+		out_answer[ct++] = cpuCommand;
+		out_answer[ct++] = 0; //lunghezza
+		out_answer[ct++] = 0x01;	//versione
+		out_answer[ct++] = (u8)cpubridge::eCPUMachineType_espresso;		//Istant o Espresso
+		out_answer[ct++] = 0x82;	//modello macchina
+		out_answer[2] = (u8)ct + 1;
+		out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+		*in_out_sizeOfAnswer = out_answer[2];
+		return true;
+
 	case eCPUCommand_restart:
 		*in_out_sizeOfAnswer = 0;
 		return true;
@@ -301,6 +313,43 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					return true;
 				}
 				break;
+
+			case eCPUProgrammingCommand_setDecounter:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = bufferToSend[4]; //which one
+				out_answer[ct++] = bufferToSend[5];	//value LSB
+				out_answer[ct++] = bufferToSend[6]; //value MSB
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+			case eCPUProgrammingCommand_getAllDecounterValues:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1001); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1002); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1003); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1004); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1005); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1006); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1007); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1008); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1009); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1010); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1011); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1012); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1013); ct += 2;
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
 			}
 		}
 		break;
@@ -418,8 +467,8 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	80
 	*/
 	const u8 selAvailability[6][8] = { 
-		{ 1, 1, 0, 0, 0, 0,	0, 0 },	//01-08
-		{ 1, 1, 0, 0, 0, 0,	0, 0 },	//09-16
+		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//01-08
+		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//09-16
 		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//17-24
 		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//25-32
 		{ 0, 0, 0, 0, 0, 0,	0, 0 },	//33-40

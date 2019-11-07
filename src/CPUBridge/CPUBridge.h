@@ -44,6 +44,7 @@ namespace cpubridge
 	u8			buildMsg_writeVMCDataFile (const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getExtendedConfigInfo (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writePartialVMCDataFile (const u8 *buffer64byte,  u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset, u8 *out_buffer, u8 sizeOfOutBuffer);
 					/* se voglio inviare i blocchi 3, 6, 10, 12 alla cpu, invio 4 messaggi:
 						blocco 1 di 4, offset=3
@@ -53,7 +54,9 @@ namespace cpubridge
 
 						[blockNumOffset] parte da 0, [blocco_n_di] parte da 1
 					*/
-
+	u8			buildMsg_setDecounter  (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getAllDecounterValues (u8 *out_buffer, u8 sizeOfOutBuffer);
+	
 
 
 	/***********************************************
@@ -111,14 +114,24 @@ namespace cpubridge
 	void		notify_CPU_VMCDATAFILE_TIMESTAMP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUVMCDataFileTimeStamp &ts);
 	void		translateNotify_CPU_VMCDATAFILE_TIMESTAMP (const rhea::thread::sMsg &msg, sCPUVMCDataFileTimeStamp *out);
 
-	void		notify_WRITE_CPUFW_PROGRESS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eWriteCPUFWFileStatus status, u16 param);
+	void		notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, enum eWriteCPUFWFileStatus status, u16 param);
 	void		translateNotify_WRITE_CPUFW_PROGRESS(const rhea::thread::sMsg &msg, eWriteCPUFWFileStatus *out_status, u16 *out_param);
 
 	void		notify_SAN_WASHING_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2);
 	void		translateNotify_SAN_WASHING_STATUS (const rhea::thread::sMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2);
 
-	void		notify_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 blockNumOffset);
+	void		notify_WRITE_PARTIAL_VMCDATAFILE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 blockNumOffset);
 	void		translateNotify_WRITE_PARTIAL_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_blockNumOffset);
+
+	void		notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_decounter which, u16 valore);
+	void		translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore);
+
+	void		notify_CPU_ALL_DECOUNTER_VALUES (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *arrayDiAlmeno13Elementi);
+	void		translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u16 *out_arrayDiAlmeno13Elementi);
+
+	void		notify_EXTENDED_CONFIG_INFO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sExtendedCPUInfo *info);
+	void		translateNotify_EXTENDED_CONFIG_INFO(const rhea::thread::sMsg &msg, sExtendedCPUInfo *out_info);
+
 
 	/***********************************************
 		ask_xxxx
@@ -201,6 +214,16 @@ namespace cpubridge
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_WRITE_PARTIAL_VMCDATAFILE
 					//Per la spiegazione dei parametri, vedi cpubridge::buildMsg_writePartialVMCDataFile
 	void		translate_PARTIAL_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_buffer64byte, u8 *out_blocco_n_di, u8 *out_tot_num_blocchi, u8 *out_blockNumOffset);
+
+	void		ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_decounter which, u16 valore);
+	void		translate_CPU_SET_DECOUNTER(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_DECOUNTER_SET
+
+	void		ask_CPU_GET_ALL_DECOUNTER_VALUES (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_ALL_DECOUNTER_VALUES
+
+	void		ask_CPU_GET_EXTENDED_CONFIG_INFO (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_EXTENDED_CONFIG_INFO
 
 } // namespace cpubridge
 

@@ -425,11 +425,6 @@ void app::ClientList::decodeAnswer (const sDecodedEventMsg &msg, rhea::Allocator
 {
 	assert(msg.eventType == socketbridge::eEventType_reqClientList);
 
-	//static buffer che "punta" al buffer di msg
-	rhea::StaticBufferReadOnly sb;
-	sb.setup(msg.payload, msg.payloadLen);
-
-
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
 	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
@@ -692,6 +687,85 @@ void app::WritePartialVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, u8 
 	*out_blockWritten = msg.payload[0];
 }
 
+	
+/*****************************************************************
+ * namespace ExtendedConfigInfo
+ */
+void app::ExtendedConfigInfo::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)socketbridge::eEventType_cpuExtendedConfigInfo;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
+
+void app::ExtendedConfigInfo::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sExtendedCPUInfo *out)
+{
+	assert(msg.eventType == socketbridge::eEventType_cpuExtendedConfigInfo);
+
+	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
+	NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	u8 u;
+	nbr.readU8(out->msgVersion);
+	nbr.readU8(u);	out->machineType = (cpubridge::eCPUMachineType)u;
+	nbr.readU8(out->machineModel);
+}
+
+
+/*****************************************************************
+ * namespace SetDecounter
+ */
+void app::SetDecounter::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_decounter which, u16 value)
+{
+	u8 optionalData[4];
+	NetStaticBufferViewW nbw;
+	nbw.setup(optionalData, sizeof(optionalData), rhea::eBigEndian);
+	nbw.writeU8((u8)socketbridge::eEventType_setDecounter);
+	nbw.writeU8((u8)which);
+	nbw.writeU16(value);
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 4);
+}
+
+void app::SetDecounter::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCPUProgrammingCommand_decounter *out_which, u16 *out_value)
+{
+	assert(msg.eventType == socketbridge::eEventType_setDecounter);
+
+	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
+	NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	u8 u;
+	nbr.readU8(u);	
+	*out_which  = (cpubridge::eCPUProgrammingCommand_decounter)u;
+	
+	u16 uu;
+	nbr.readU16(uu);
+	*out_value = uu;
+}
+
+
+/*****************************************************************
+ * namespace GetAllDecounters
+ */
+void app::GetAllDecounters::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
+{
+	u8 optionalData[2];
+	optionalData[0] = socketbridge::eEventType_getAllDecounters;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
+}
+
+void app::GetAllDecounters::decodeAnswer (const sDecodedEventMsg &msg, u16 *out_arrayDi13valori)
+{
+	assert(msg.eventType == socketbridge::eEventType_getAllDecounters);
+
+	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
+	NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	for (u8 i = 0; i < 13; i++)
+		nbr.readU16(out_arrayDi13valori[i]);
+}
 
 
 /*****************************************************************

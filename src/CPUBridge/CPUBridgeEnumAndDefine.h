@@ -40,6 +40,9 @@
 #define		CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS		0x010E
 #define		CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS			0x010F
 #define		CPUBRIDGE_NOTIFY_WRITE_PARTIAL_VMCDATAFILE_PROGRESS  0x0110
+#define		CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET			0x0111
+#define		CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES		0x0112
+#define		CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO		0x0113
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
 
@@ -67,6 +70,9 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD    		0x0810
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_KEEP_SENDING_BUTTON_NUM	0x0811
 #define		CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE		0x0812
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER					0x0813
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES		0x0814
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO		0x0815
 
 namespace cpubridge
 {
@@ -83,7 +89,8 @@ namespace cpubridge
         //eCPUCommand_readHexFile= 'h',
         eCPUCommand_getVMCDataFileTimeStamp = 'T',
         eCPUCommand_programming = 'P',
-		eCPUCommand_writePartialVMCDataFile = 'X'
+		eCPUCommand_writePartialVMCDataFile = 'X',
+		eCPUCommand_getExtendedConfigInfo = 'c'
 	};
 
 	enum eRunningSelStatus
@@ -159,11 +166,21 @@ namespace cpubridge
 		eWriteCPUFWFileStatus_finishedKO_generalError
 	};
 
+	enum eCPUMachineType
+	{
+		eCPUMachineType_unknown = 0x00,
+		eCPUMachineType_espresso = 0x01,
+		eCPUMachineType_instant = 0x02
+	};
+
     enum eCPUProgrammingCommand
     {
         eCPUProgrammingCommand_enterProg = 0x01,
         eCPUProgrammingCommand_cleaning = 0x02,
-		eCPUProgrammingCommand_querySanWashingStatus = 0x03
+		eCPUProgrammingCommand_querySanWashingStatus = 0x03,
+		eCPUProgrammingCommand_setDecounter = 0x04,
+		//eCPUProgrammingCommand_resetCounter = 0x05,
+		eCPUProgrammingCommand_getAllDecounterValues = 0x06
     };
 
 	enum eCPUProgrammingCommand_cleaningType
@@ -176,6 +193,25 @@ namespace cpubridge
 		eCPUProgrammingCommand_cleaningType_milker = 0x05,
 		eCPUProgrammingCommand_cleaningType_sanitario = 0x08,
 		eCPUProgrammingCommand_cleaningType_rinsing = 0xa0
+	};
+
+	enum eCPUProgrammingCommand_decounter
+	{
+		eCPUProgrammingCommand_decounter_unknown = 0,
+		eCPUProgrammingCommand_decounter_prodotto1 = 1,
+		eCPUProgrammingCommand_decounter_prodotto2 = 2,
+		eCPUProgrammingCommand_decounter_prodotto3 = 3,
+		eCPUProgrammingCommand_decounter_prodotto4 = 4,
+		eCPUProgrammingCommand_decounter_prodotto5 = 5,
+		eCPUProgrammingCommand_decounter_prodotto6 = 6,
+		eCPUProgrammingCommand_decounter_prodotto7 = 7,
+		eCPUProgrammingCommand_decounter_prodotto8 = 8,
+		eCPUProgrammingCommand_decounter_prodotto9 = 9,
+		eCPUProgrammingCommand_decounter_prodotto10 = 10,
+		eCPUProgrammingCommand_decounter_waterFilter = 11,
+		eCPUProgrammingCommand_decounter_coffeeBrewer = 12,
+		eCPUProgrammingCommand_decounter_coffeeGround = 13,
+		eCPUProgrammingCommand_decounter_error = 0xff
 	};
 
 	struct sSubscriber
@@ -250,6 +286,14 @@ namespace cpubridge
 	private:
 		static const u8 SIZE_OF_BUFFER = 6;
 		u8	data[SIZE_OF_BUFFER];
+	};
+
+
+	struct sExtendedCPUInfo
+	{
+		u8				msgVersion;
+		eCPUMachineType	machineType;
+		u8				machineModel;
 	};
 } // namespace cpubridge
 

@@ -358,7 +358,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE:
 			{
-				u8 block[64];
+				u8 block[VMCDATAFILE_BLOCK_SIZE_IN_BYTE];
 				u8 blocco_n_di = 0;
 				u8 tot_num_blocchi = 0;
 				u8 blockNumOffset = 0;
@@ -368,15 +368,145 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				const u16 nBytesToSend = cpubridge::buildMsg_writePartialVMCDataFile(block, blocco_n_di, tot_num_blocchi, blockNumOffset, bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+				{
+					//ok, la CPU ha ricevuto il blocco. A questo punto aggiorno anche il mio da3 file locale
+					priv_updateLocalDA3(block, blockNumOffset);
+
+					if (blocco_n_di >= tot_num_blocchi)
+					{
+						//chiedo alla CPU il nuovo timestamp del file ricevuto e lo salvo localmente
+						sCPUVMCDataFileTimeStamp	vmcDataFileTimeStamp;
+						u8 nRetry = 20;
+						while (nRetry--)
+						{
+							if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp))
+							{
+								cpubridge::saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
+								break;
+							}
+						}
+					}
+
+					//notifico il client
 					notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, blockNumOffset);
+				}
 				else
+				{
+					//la CPU non ha validato il blocco
 					notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, 0xff);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER:
+			{
+				eCPUProgrammingCommand_decounter which = eCPUProgrammingCommand_decounter_unknown;
+				u16 valore = 0;
+				cpubridge::translate_CPU_SET_DECOUNTER(msg, &which, &valore);
+				
+
+				u8 bufferW[32];
+				const u16 nBytesToSend = cpubridge::buildMsg_setDecounter(which, valore, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 10500))
+				{
+					which = (eCPUProgrammingCommand_decounter)answerBuffer[4];
+					valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+					notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, which, valore);
+				}
+				else
+					notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, eCPUProgrammingCommand_decounter_error, 0);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				{
+					u16 decounters[13];
+					for (u8 i = 0; i < 13; i++)
+						decounters[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4 + i * 2]);
+					notify_CPU_ALL_DECOUNTER_VALUES (sub->q, handlerID, logger, decounters);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO:
+			{
+				sExtendedCPUInfo info;
+				if (priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(&info))
+					notify_EXTENDED_CONFIG_INFO(sub->q, handlerID, logger, &info);
 			}
 			break;
 		}
 	}
 }
 
+//**********************************************
+bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out)
+{
+	u8 bufferW[16];
+	const u16 nBytesToSend = cpubridge::buildMsg_getExtendedConfigInfo(bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+		return false;
+
+	//parsing della risposta
+	out->msgVersion = answerBuffer[3];
+	switch (answerBuffer[4])
+	{
+	default: 
+		out->machineType = eCPUMachineType_unknown; 
+		break;
+
+	case 0x00: 
+		out->machineType = eCPUMachineType_instant; 
+		break;
+
+	case 0x01:
+	case 0x02:
+		out->machineType = eCPUMachineType_espresso;
+		break;
+	}
+	out->machineModel = answerBuffer[5];
+	return true;
+}
+
+//**********************************************
+void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
+{
+	char s[256];
+	sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	
+	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	u32 fileSize = 0;
+	u8 *buffer = rhea::fs::fileCopyInMemory(s, allocator, &fileSize);
+	if (NULL == buffer)
+		return;
+
+	const u32 blockPosition = VMCDATAFILE_BLOCK_SIZE_IN_BYTE * blockNum;
+	if (fileSize >= blockPosition + VMCDATAFILE_BLOCK_SIZE_IN_BYTE)
+	{
+		memcpy(&buffer[blockPosition], blockOf64Bytes, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
+
+		const u32 SIZE = 1024;
+		FILE *f = fopen(s, "wb");
+		u32 ct = 0;
+		while (fileSize >= SIZE)
+		{
+			fwrite(&buffer[ct], SIZE, 1, f);
+			ct += SIZE;
+			fileSize -= SIZE;
+		}
+		if (fileSize)
+			fwrite(&buffer[ct], fileSize, 1, f);
+		fclose(f);
+	}
+	RHEAFREE(allocator, buffer);
+}
 
 //**********************************************
 void Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg)

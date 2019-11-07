@@ -53,6 +53,9 @@ namespace socketbridge
 		eEventType_cpuSanWashingStatus = 'r',				//114	0x72
 		eEventType_cpuBtnPressed = 's',						//115	0x73
 		eEventType_cpuWritePartialVMCDataFile = 't',		//116	0x74
+		eEventType_cpuExtendedConfigInfo = 'u',				//117	0x75
+		eEventType_setDecounter = 'v',						//118	0x76
+		eEventType_getAllDecounters = 'w',					//119	0x77
 		
         eEventType_unknown = 0xff
     };

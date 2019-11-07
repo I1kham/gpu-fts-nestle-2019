@@ -6,6 +6,9 @@
 #include "CmdHandler/CmdHandler_ajaxReqDBE.h"
 #include "CmdHandler/CmdHandler_ajaxReqSanWashStatus.h"
 #include "CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.h"
+#include "CmdHandler/CmdHandler_ajaxReqSetDecounter.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetAllDecounterValues.h"
+
 using namespace socketbridge;
 
 
@@ -43,6 +46,8 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqDBE);
 	CHECK(CmdHandler_ajaxReqSanWashStatus);
 	CHECK(CmdHandler_ajaxReqVMCDataFileTimestamp);
+	CHECK(CmdHandler_ajaxReqSetDecounter);
+	CHECK(CmdHandler_ajaxReqGetAllDecounterValues);
 #undef CHECK
     return NULL;
 }

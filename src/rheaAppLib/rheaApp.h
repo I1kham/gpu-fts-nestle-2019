@@ -185,6 +185,24 @@ namespace rhea
 			void		decodeAnswer (const sDecodedEventMsg &msg, u8 *out_blockWritten);
 		}
 
+		namespace ExtendedConfigInfo
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
+			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sExtendedCPUInfo *out);
+		}
+
+		namespace SetDecounter
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_decounter which, u16 value);
+			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCPUProgrammingCommand_decounter *out_which, u16 *out_value);
+		}
+
+		namespace GetAllDecounters
+		{
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
+			void		decodeAnswer(const sDecodedEventMsg &msg, u16 *out_arrayDi13valori);
+		}
+		
 		/******************************************************************************
 		 *
 		 *	file transfer

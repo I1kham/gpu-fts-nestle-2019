@@ -20,8 +20,8 @@ DA3.prototype.load = function ()
 	rhea.filetransfer_startDownload ("da3", this, DA3_load_onStart, DA3_load_onProgress, DA3_load_onEnd);
 }
 
-function DA3_load_onStart(userValue)			{ console.log ("da3_load_onStart: "); }
-function DA3_load_onProgress()					{ console.log ("da3_load_onProgress: "); }
+function DA3_load_onStart(userValue)			{ }
+function DA3_load_onProgress()					{ }
 function DA3_load_onEnd (theDa3, reasonRefused, obj)
 {
 	if (reasonRefused != 0)
@@ -33,7 +33,7 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 		return;
 	}
 	
-	console.log ("da3_load_onEnd: succes. File size[" +obj.fileSize +"]");
+	//console.log ("da3_load_onEnd: succes. File size[" +obj.fileSize +"]");
 	theDa3.da3_original = new Uint8Array(obj.fileSize);
 	theDa3.da3_current = new Uint8Array(obj.fileSize);
 	theDa3.da3_filesize = parseInt(obj.fileSize);
@@ -77,8 +77,8 @@ DA3.prototype.compare = function ()
 		}
 	}
 	
-	console.log ("DA3::compare() => end");
-	console.log (retList);
+	//console.log ("DA3::compare() => end");
+	//console.log (retList);
 	return retList;
 }
 
@@ -103,12 +103,12 @@ DA3.prototype.read16  = function (posIN)
 	var pos = parseInt(posIN);
 	var ret = this.da3_current[pos]; 
 	ret += 256 * this.da3_current[pos+1]; 
-	console.log("DA3 read@" +pos +"=" + ret);
+	//console.log("DA3 read@" +pos +"=" + ret);
 	return ret; 
 }
 DA3.prototype.write16 = function (pos, value)
 { 
-	console.log("DA3 write@" +pos +"=" + value);
+	//console.log("DA3 write@" +pos +"=" + value);
 	var v = parseInt(value); 
 	this.da3_current[pos++] = (value & 0x00FF); 
 	this.da3_current[pos]   = ((value & 0xFF00) >>8); 

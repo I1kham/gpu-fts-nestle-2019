@@ -98,6 +98,21 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqVMCDataFileTimestamp.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUExtendedConfigInfo.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDecounter.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetDecounter.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetAllDecounters.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -189,6 +204,21 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqVMCDataFileTimestamp.h">
       <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUExtendedConfigInfo.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDecounter.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetDecounter.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetAllDecounters.h">
+      <Filter>CmdHandler\event</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

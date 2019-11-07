@@ -65,7 +65,7 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEST DA3 COMPARE" data-onclick="da3.compare()"></td>
+						<td></td>
 						<td></td>
 					</tr>					
 				</table>
@@ -82,22 +82,39 @@
 					</tr>
 					
 					<tr>
-						<td>Activate H20 Filer Reset</td>
-						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
+						<td>ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
+						<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
 					</tr>
 					
 					<tr>
-						<td>Water filter decounter<br><span class="tip">max value = 60000</span></td>
-						<td><div class="UINumber" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
+						<td>
+							WATER FILTER DECOUNTER<br>
+							<div style="float:left; margin-right:10px">current value:</div>
+							<div id="pageMaintenance_11" style="float:left" class="bigCaption15">00000</div>
+							<div class="clear"></div>
+						</td>
+						<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></div></td>
 					</tr>
 					<tr>
-						<td>Decounter coffee brewer<br><span class="tip">max value = 1000</span></td>
-						<td><div class="UINumber" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
+						<td>
+							DECOUNTER COFFEE BREWER<br>
+							<div style="float:left; margin-right:10px">current value:</div>
+							<div id="pageMaintenance_12" style="float:left" class="bigCaption15">0000</div>
+							<div class="clear"></div>
+						</td>
+						<td><div class="UINumber" id="pageMaintenance_12_cap" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></div></td>
 					</tr>
-					
 					<tr>
-						<td>Decounter coffee ground<br><span class="tip">max value = 1000</span></td>
-						<td><div class="UINumber" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
+						<td>
+							DECOUNTER COFFEE GROUND<br>
+							<div style="float:left; margin-right:10px">current value:</div>
+							<div id="pageMaintenance_13" style="float:left" class="bigCaption15">0000</div>
+							<div class="clear"></div>
+						</td>
+						<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
 					</tr>
 					
 					<tr>
@@ -153,7 +170,9 @@
 
 	<div id="divFooter" class="footer">
 		<div id="footer_L">
-			<div id="bntBack" class="UIButton" data-caption="&nbsp;BACK&nbsp;" data-onclick="btnBack_onClick()"></div>
+			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="&nbsp;BACK&nbsp;" data-onclick="btnBack_onClick(0)"></div></div>
+			<div style="float:left"><div id="bntSave" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;S&nbsp&nbspA&nbsp&nbspV&nbsp&nbspE&nbsp;&nbsp&nbsp&nbsp" data-onclick="btnBack_onClick(1)"></div></div>
+			<div class="clear"></div>
 		</div>
 		<div id="footer_C">
 		</div>
@@ -191,6 +210,7 @@ function onRheaBootstrapFinished()
 	
 	ui = new UI ("divPage");
 	ui.setupStandaloneButton("bntBack");
+	ui.setupStandaloneButton("bntSave");
 	
 	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
 	switch (rheaGetURLParamOrDefault("page", "pageMainMenu"))
@@ -221,13 +241,29 @@ function onDA3Loaded()
 
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
 function showPage(pageID)				{ currentPageID=pageID; var win=ui.getWindowByID(currentPageID); var ret=win.firstTimeShow; ui.hideAllExcept(currentPageID); win.loadFromDA3(da3); rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS); return ret;}
-function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); }
-function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); }
-function btnBack_onClick()				
+function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); rheaSetDisplayMode(rheaGetElemByID("bntSave"), "table"); }
+function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("bntSave")); }
+function btnBack_onClick(bSave)				
 { 
+	if (bSave == 0)
+		backToMainMenu();
+	else
+		save( function() { backToMainMenu();} );
+}
+
+function backToMainMenu()
+{
+	pleaseWait_hide();
+	pageMainMenu_show();
+}
+
+var save_fnToCallWhenFinished = "";
+function save (fnToCallWhenFinished)
+{
+	save_fnToCallWhenFinished = fnToCallWhenFinished;
+	
 	ui.getWindowByID(currentPageID).saveToDA3(da3); 
 	var blockList = da3.compare();
-	
 	var nBlocchi = blockList.length;
 	if (nBlocchi > 0)
 	{
@@ -238,23 +274,12 @@ function btnBack_onClick()
 		storeDA3Block_step (1, nBlocchi, blockList);
 	}
 	else
-	{
-		pageMainMenu_show();
-	}
+		onSaveFinished();
 }
 
-function askDA3Ts()		{ return rhea.ajax ("da3ts", ""); }
+function onSaveFinished() { save_fnToCallWhenFinished.call(); }
 
 function storeDA3Block_step (uno_di, nBlocchi, blockList)
-{
-	askDA3Ts().then ( function(result)
-	{
-		pleaseWait_freeText_appendText ("da3ts=" +result +"<br>");	
-		setTimeout ( function() { storeDA3Block_step2 (uno_di, nBlocchi, blockList); }, 100);
-	});
-}
-
-function storeDA3Block_step2 (uno_di, nBlocchi, blockList)
 {
 	var blockNum = blockList[uno_di-1];
 	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
@@ -266,7 +291,7 @@ function storeDA3Block_step2 (uno_di, nBlocchi, blockList)
 		
 		if (uno_di >= nBlocchi)
 		{
-			setTimeout ( function() { storeDA3Block_step3(); }, 100);
+			setTimeout ( function() { onSaveFinished(); }, 100);
 			return;
 		}
 		
@@ -275,22 +300,7 @@ function storeDA3Block_step2 (uno_di, nBlocchi, blockList)
 	});
 }
 
-function storeDA3Block_step3()
-{
-	askDA3Ts().then ( function(result)
-	{
-		pleaseWait_freeText_appendText ("da3ts=" +result +"<br>");	
-		
-		pleaseWait_freeText_appendText ("<br><br>Done!  closing in 5 sec");
-		setTimeout ( function() { storeDA3Block_step4(); }, 5000);
-	});
-}
 
-function storeDA3Block_step4()
-{
-	pleaseWait_hide();
-	pageMainMenu_show();
-}
 /***************************************************************************
  *
  * please wait
@@ -397,12 +407,68 @@ function pageMainMenu_show()
  */
 function pageMaintenance_show()
 {
-	showPage('pageMaintenance');
+	if (showPage('pageMaintenance'))
+	{
+		//è la prima volta che visualizziamo la pagina
+		pageMaintenance_getDecountersValues();
+	}
+		
 	header_setText("MAINTENANCE");
 	btnBack_show();
 }
+function pageMaintenance_resetDec(iDecounter)
+{
+	//per prima cosa devo salvare eventuali modifiche
+	save( function(){ pageMaintenance_reset_afterSave(iDecounter); } );
+}
+function pageMaintenance_reset_afterSave(iDecounter)
+{
+	var currentCapacityID = "pageMaintenance_" +iDecounter +"_cap";
+	var decValue = parseInt(ui.getWindowByID("pageMaintenance").getChildByID(currentCapacityID).getValue());
+		
+	//invio il comando di set alla SMU
+	pleaseWait_show();
+	rhea.ajax ("setDecounter", { "d":iDecounter, "v":decValue}).then( function(result)
+	{
+		//chiedo i decontatori alla SMU
+		pageMaintenance_getDecountersValues();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
 
+function pageMaintenance_getDecountersValues()
+{
+	rhea.ajax ("getAllDecounters", "").then( function(result)
+	{
+		pageMaintenance_updateDecounterCurrentValueFromString(result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});		
+}
 
+function pageMaintenance_updateDecounterCurrentValueFromString(s)
+{
+	var e = s.split(",");
+	for (var i=10; i<13; i++)
+	{
+		var iDecounter = i+1;
+		var currentValueID = "pageMaintenance_" +iDecounter;
+		var v = e[i];
+		
+		var len = 4;
+		if (i == 10)
+			len = 5;
+		while (v.length < len)
+			v = "0" +v;
+		rheaSetDivHTMLByName(currentValueID, v);
+	}
+}
 
 /***************************************************************************
  *
@@ -487,22 +553,24 @@ function pageProductQty_show()
 {
 	if (showPage("pageProductQty"))
 	{
+		//è la prima volta che visualizziamo la pagina
+		pageProductQty_getDecounterValues();
 		pageProductQty_showDecounter();
-		/*è la prima volta che visualizziamo la pagina
-		if (da3.isInstant())
-		{
-			var w = ui.getWindowByID("pageCleaning");
-			w.getChildByID("pageCleaning_btnClean1").setCaption ("START CLEANING<br>MIXER 1");
-			w.getChildByID("pageCleaning_btnClean2").setCaption ("START CLEANING<br>MIXER 2");
-			w.getChildByID("pageCleaning_btnClean3").setCaption ("START CLEANING<br>MIXER 3");
-			w.getChildByID("pageCleaning_btnClean4").hide();
-			w.getChildByID("pageCleaning_btnCleanHC").hide();
-		}
-		*/
 	}
 	header_setText("PRODUCT QUANTITY");
-
 	btnBack_show();
+	
+	//chiedo il valore attuale dei decontatori alla SMU
+	pleaseWait_show();
+	rhea.ajax ("getAllDecounters", "").then( function(result)
+	{
+		pageProductQty_updateDecounterCurrentValueFromString(result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});	
 }
 
 function pageProductQty_build()
@@ -529,14 +597,21 @@ function pageProductQty_build()
 		num = "#" +num;
 		
 		var pageID = "pageProductQty_page_" +(i+1);
-		var currentDecountValue = "12345.6";
+		var currentValueID = "pageProductQty_decCurVal_" +(i+1);
+		var currentCapacityID = "pageProductQty_decCurCap_" +(i+1);
+		
+		var currentDecountValue = "00000";
 		
 		html +=  "<div id='" +pageID +"' style='display:none'>"
 				+"<table border='0' class='elenco'>"
-				+"	<tr style='height:70px'><td>DECOUNTER #" +(i+1) +"<br>CURRENT VALUE</td><td><span style='color:#fff; font-size:2.5em'>" +currentDecountValue +"</span></td></tr>"
-				+"	<tr><td>LIMIT</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
-				+"	<tr><td>WARNING AT</td><td><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999'></div></td></tr>"
-				+"	<tr style='border:0'><td>ENABLE STOP</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
+				+"	<tr style='height:70px'>"
+				+"		<td style='width:300px'>DECOUNTER #" +(i+1) +"<br>CURRENT VALUE</td>"
+				+"		<td style='width:400px'><span id='" +currentValueID +"' class='bigCaption25'>" +currentDecountValue +"</span></td>"
+				+"		<td align='center'><div class='UIButton bigButton60' data-caption='RESET' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
+				+"	</tr>"
+				+"	<tr><td>CANNISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
+				+"	<tr><td>WARNING AT</td><td colspan='2'><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999'></div></td></tr>"
+				+"	<tr style='border:0'><td>ENABLE STOP</td><td colspan='2'><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
 				+"</table></div>";
 		da3Loc_decounter+=2;
 		da3Loc_warning+=2;
@@ -560,6 +635,58 @@ function pageProductQty_showDecounter()
 		else
 			rheaHideElem(rheaGetElemByID(pageID));
 	}
+}
+
+function pageProductQty_updateDecounterCurrentValueFromString(s)
+{
+	var e = s.split(",");
+	for (var i=0; i<e.length; i++)
+	{
+		var iDecounter_1_10 = i+1;
+		var currentValueID = "pageProductQty_decCurVal_" +iDecounter_1_10;
+		var v = e[i];
+		while (v.length < 5)
+			v = "0" +v;
+		var s = v.substr(0,4) +"." +v.substr(4);
+		
+		rheaSetDivHTMLByName(currentValueID, s);
+	}
+}
+
+function pageProductQty_reset (iDecounter_1_10)
+{
+	//per prima cosa devo salvare eventuali modifiche
+	save( function(){ pageProductQty_reset_afterSave(iDecounter_1_10); } );
+}
+function pageProductQty_reset_afterSave(iDecounter_1_10)
+{
+	var currentCapacityID = "pageProductQty_decCurCap_" +iDecounter_1_10;
+	var decValue = parseInt(ui.getWindowByID("pageProductQty").getChildByID(currentCapacityID).getValue());
+		
+	//invio il comando di set alla SMU
+	pleaseWait_show();
+	rhea.ajax ("setDecounter", { "d":iDecounter_1_10, "v":decValue}).then( function(result)
+	{
+		//chiedo i decontatori alla SMU
+		pageProductQty_getDecounterValues();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
+
+function pageProductQty_getDecounterValues()
+{
+	rhea.ajax ("getAllDecounters", "").then( function(result)
+	{
+		pageProductQty_updateDecounterCurrentValueFromString(result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});		
 }
 </script>
 
