@@ -8,6 +8,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.h"
 #include "CmdHandler/CmdHandler_ajaxReqSetDecounter.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetAllDecounterValues.h"
+#include "CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.h"
 
 using namespace socketbridge;
 
@@ -48,6 +49,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqVMCDataFileTimestamp);
 	CHECK(CmdHandler_ajaxReqSetDecounter);
 	CHECK(CmdHandler_ajaxReqGetAllDecounterValues);
+	CHECK(CmdHandler_ajaxReqmachineTypeAndModel);
 #undef CHECK
     return NULL;
 }

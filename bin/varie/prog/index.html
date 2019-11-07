@@ -170,7 +170,7 @@
 
 	<div id="divFooter" class="footer">
 		<div id="footer_L">
-			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="&nbsp;BACK&nbsp;" data-onclick="btnBack_onClick(0)"></div></div>
+			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;BACK&nbsp;&nbsp&nbsp&nbsp" data-onclick="btnBack_onClick(0)"></div></div>
 			<div style="float:left"><div id="bntSave" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;S&nbsp&nbspA&nbsp&nbspV&nbsp&nbspE&nbsp;&nbsp&nbsp&nbsp" data-onclick="btnBack_onClick(1)"></div></div>
 			<div class="clear"></div>
 		</div>
@@ -225,10 +225,20 @@ function onRheaBootstrapFinished()
 	
 	pleaseWait_show();
 	pleaseWait_setTextLeft("loading da3");
-	da3 = new DA3();
-	da3.load();
-	
-	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
+
+	//richiedo machine type & model
+	rhea.ajax ("getMachineTypeAndModel", "").then( function(result)
+	{
+		var obj = JSON.parse(result);
+		
+		//carico il da3
+		da3 = new DA3(obj.mType, obj.mModel);
+		da3.load();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});	
 }
 
 //***************** chiamata al termine del caricamento del da3
@@ -236,6 +246,7 @@ function onDA3Loaded()
 {
 	pageProductQty_build();
 	pleaseWait_hide();
+	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
 }
 
 
@@ -535,6 +546,7 @@ function pageCleaning_onFinished()
 	showPage("pageMiscellaneous");
 	header_setText("MISCELLANEOUS");
 	btnBack_show();
+	rheaHideElem(rheaGetElemByID("bntSave"));
 }
 
 function pageMiscellaneous_oldProgMenu()

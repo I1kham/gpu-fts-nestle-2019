@@ -29,7 +29,7 @@ a:hover	{ text-decoration:none; outline: 0; }
 
 .clear 	{ float:none; clear:both; }
 
-#pagePleaseWait { display:none; position:absolute; top:0; left:0; background-color:rgb(255,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+#pagePleaseWait { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
 #pagePleaseWait_header_left  { float:left; height:50px; line-height:50px; width:250px; background-color:#000; text-align:center; }
 #pagePleaseWait_header_right { float:left; height:50px; line-height:50px; width:774px; background-color:#000; text-align:center;  }
 

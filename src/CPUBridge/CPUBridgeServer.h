@@ -3,6 +3,7 @@
 #include "CPUBridgeEnumAndDefine.h"
 #include "CPUChannel.h"
 #include "lang.h"
+#include "DA3.h"
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../rheaCommonLib/rheaFastArray.h"
@@ -69,7 +70,7 @@ namespace cpubridge
 
 	private:
 
-		void					priv_handleMsgQueues(u64 timeNowMSec, u32 timeOutMSec);
+		void					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
 		void					priv_handleMsgFromServiceMsgQ();
 		void					priv_handleMsgFromSingleSubscriber(sSubscription *sub);
 		void					priv_handleProgrammingMessage(sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg);
@@ -81,7 +82,7 @@ namespace cpubridge
 
 		void					priv_enterState_normal();
 		void					priv_handleState_normal();
-		void					priv_parseAnswer_checkStatus(const u8 *answer, u16 answerLen);
+		void					priv_parseAnswer_checkStatus(const u8 *answer, u16 answerLen UNUSED_PARAM);
 
         void					priv_enterState_programmazione();
         void                    priv_handleState_programmazione();
@@ -122,6 +123,7 @@ namespace cpubridge
 		u16						lastCPUMsgLen;
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;
+		DA3						da3;
     };
 
 } // namespace cpubridge

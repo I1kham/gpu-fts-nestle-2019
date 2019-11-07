@@ -4,11 +4,20 @@
  */
 var DA3_BLOCK_SIZE = 64;
 
-function DA3()
+
+/*
+	machineType indica se la macchina è ESPRESSO o INSTANT.
+	machineModel è un numero che indica il modello della macchina (BL, Fusion...)
+	In teoria queste informazioni sono nel DA3, in pratica non è detto che quello che trovi nel DA3 rappresenti l'attuale macchina.
+	E' necessario quindi chiedere alla CPU tipo e modello e fare finta che queste informazioni ricevute dalla CPU siano davvero nel DA3
+*/
+function DA3(machineType, machineModel)
 {
 	this.da3_original = null;
 	this.da3_current = null;
 	this.da3_filesize = 0;
+	this.machineType = machineType;
+	this.machineModel = machineModel;
 }
 
 
@@ -17,6 +26,7 @@ function DA3()
  */
 DA3.prototype.load = function ()
 {
+	console.log ("DA3::load() => mtype[" +this.machineType +"] mmodel[" +this.machineModel +"]");
 	rhea.filetransfer_startDownload ("da3", this, DA3_load_onStart, DA3_load_onProgress, DA3_load_onEnd);
 }
 
@@ -26,7 +36,7 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 {
 	if (reasonRefused != 0)
 	{
-		console.log ("da3_load_onEnd: error, reason[" +reasonRefused +"]");
+		console.log ("DA3_load_onEnd: error, reason[" +reasonRefused +"]");
 
 		alert ("error downloading da3");
 		onDA3Loaded();
@@ -40,6 +50,9 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	for (var i=0; i<obj.fileSize; i++)
 		theDa3.da3_original[i] = theDa3.da3_current[i] = obj.fileBuffer[i];
 		
+	//overload di machineType e modello
+	theDa3.da3_original[9465] = theDa3.da3_current[9465] = theDa3.machineType;
+	theDa3.da3_original[9466] = theDa3.da3_current[9466] = theDa3.machineModel;
 	onDA3Loaded();
 }
 

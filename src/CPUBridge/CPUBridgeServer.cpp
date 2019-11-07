@@ -69,6 +69,8 @@ void Server::close()
 {
 	logger->log("CPUBridgeServer::close\n");
 
+	da3.free();
+
 	if (NULL == localAllocator)
 		return;
 

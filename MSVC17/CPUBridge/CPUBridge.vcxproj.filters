@@ -10,6 +10,7 @@
       <Filter>channel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\CPUBridge\lang.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\DA3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
@@ -26,6 +27,7 @@
     </ClInclude>
     <ClInclude Include="..\..\src\CPUBridge\lang.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeVersion.h" />
+    <ClInclude Include="..\..\src\CPUBridge\DA3.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="channel">
