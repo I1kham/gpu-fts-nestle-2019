@@ -367,7 +367,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[80];
 				const u16 nBytesToSend = cpubridge::buildMsg_writePartialVMCDataFile(block, blocco_n_di, tot_num_blocchi, blockNumOffset, bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
 				{
 					//ok, la CPU ha ricevuto il blocco. A questo punto aggiorno anche il mio da3 file locale
 					priv_updateLocalDA3(block, blockNumOffset);
@@ -408,7 +408,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[32];
 				const u16 nBytesToSend = cpubridge::buildMsg_setDecounter(which, valore, bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 10500))
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 				{
 					which = (eCPUProgrammingCommand_decounter)answerBuffer[4];
 					valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
@@ -424,7 +424,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 				{
 					u16 decounters[13];
 					for (u8 i = 0; i < 13; i++)
