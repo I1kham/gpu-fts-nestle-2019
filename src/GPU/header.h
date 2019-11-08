@@ -24,7 +24,7 @@
 #include "../rheaCommonLib/rhea.h"
 #include "../CPUBridge/CPUBridge.h"
 #include "Utils.h"
-
+#include "../CPUBridge/DA3.h"
 
 enum eRetCode
 {
@@ -43,25 +43,27 @@ struct sGlobal
 {
     cpubridge::sSubscriber subscriber;
 
-    char  cpuVersion[128];
+    bool    bSyncWithCPUResult;
+    char    cpuVersion[128];
+    cpubridge::sExtendedCPUInfo extendedCPUInfo;
 
-    char *tempFolder;
+    char    *tempFolder;
 
-    char *current;
-    char *current_GUI;
-    char *current_lang;
-    char *current_da3;
-    char *last_installed_da3;
-    char *last_installed_cpu;
-    char *last_installed_manual;
-    char *last_installed_gui;
+    char    *current;
+    char    *current_GUI;
+    char    *current_lang;
+    char    *current_da3;
+    char    *last_installed_da3;
+    char    *last_installed_cpu;
+    char    *last_installed_manual;
+    char    *last_installed_gui;
 
-    char *usbFolder;                    //path di base verso il folder rhea su chiavetta USB (NULL se la chiavetta USB non esiste)
-    char *usbFolder_VMCSettings;        //folder su chiavetta USB per i da3
-    char *usbFolder_CPUFW;              //folder su chiavetta USB per il fw di CPU
-    char *usbFolder_GUI;                //folder su chiavetta USB per le GUI
-    char *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
-    char *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
+    char    *usbFolder;                    //path di base verso il folder rhea su chiavetta USB (NULL se la chiavetta USB non esiste)
+    char    *usbFolder_VMCSettings;        //folder su chiavetta USB per i da3
+    char    *usbFolder_CPUFW;              //folder su chiavetta USB per il fw di CPU
+    char    *usbFolder_GUI;                //folder su chiavetta USB per le GUI
+    char    *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
+    char    *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
 
     rhea::ISimpleLogger *logger;
 };

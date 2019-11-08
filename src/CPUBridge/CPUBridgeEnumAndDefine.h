@@ -168,9 +168,12 @@ namespace cpubridge
 
 	enum eCPUMachineType
 	{
-		eCPUMachineType_unknown = 0x00,
-		eCPUMachineType_espresso = 0x01,
-		eCPUMachineType_instant = 0x02
+		eCPUMachineType_instant = 0x00,
+        eCPUMachineType_espresso1 = 0x01,
+        eCPUMachineType_espresso2 = 0x02,
+        eCPUMachineType_unknown = 0xff
+		
+		
 	};
 
     enum eCPUProgrammingCommand

@@ -106,7 +106,8 @@ SOURCES += \
     ../../src/GPU/history.cpp \
     ../../src/GPU/main.cpp \
     ../../src/GPU/mainwindow.cpp \
-    ../../src/GPU/Utils.cpp
+    ../../src/GPU/Utils.cpp \
+    ../../src/GPU/formPreGui.cpp
 
 HEADERS  += \
     ../../src/GPU/formboot.h \
@@ -114,9 +115,11 @@ HEADERS  += \
     ../../src/GPU/header.h \
     ../../src/GPU/history.h \
     ../../src/GPU/mainwindow.h \
-    ../../src/GPU/Utils.h
+    ../../src/GPU/Utils.h \
+    ../../src/GPU/formPreGui.h
 
 FORMS    += \
     ../../src/GPU/formboot.ui \
     ../../src/GPU/formprog.ui \
-    ../../src/GPU/mainwindow.ui
+    ../../src/GPU/mainwindow.ui \
+    ../../src/GPU/formPreGui.ui

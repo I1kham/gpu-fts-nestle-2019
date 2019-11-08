@@ -73,15 +73,37 @@ FormBoot::~FormBoot()
     delete ui;
 }
 
+//************************************************************
+void FormBoot::priv_enableButton (QPushButton *btn, bool bEnabled)
+{
+    btn->setEnabled(bEnabled);
+    if (bEnabled)
+        btn->setStyleSheet ("background-color:#656565; color:#000; border-radius:10px;");
+    else
+        btn->setStyleSheet ("background-color:#151515; color:#333; border-radius:10px;");
+}
+
 //*******************************************
 void FormBoot::showMe()
 {
     retCode = eRetCode_none;
-    cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
-    cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
-
     priv_pleaseWaitSetText("");
     priv_pleaseWaitHide();
+
+    if (glob->bSyncWithCPUResult)
+    {
+        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+        cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
+    }
+    else
+    {
+        //ci sono stati dei problemi con la sincronizzazione con la CPU.
+        //In generale questo vuol dire che la CPU non è installata oppure è una versione non compatibile.
+        //Disbailito il pulsante di START VMC e chiedo di aggiornare il FW
+        foreverDisableBtnStartVMC();
+        priv_enableButton(ui->btnDownload_audit, false);
+        priv_pleaseWaitSetError("WARNING: There was an error during synchronization with the CPU.<br>Please upgrade the CPU FW to a compatible version.");
+    }
     this->show();
 }
 

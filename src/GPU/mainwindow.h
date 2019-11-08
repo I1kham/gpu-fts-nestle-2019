@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include "formboot.h"
 #include "formprog.h"
+#include "formPreGui.h"
 #include "../CPUBridge/CPUBridge.h"
 
 
@@ -35,6 +36,7 @@ private:
     {
         eForm_main_syncWithCPU = 0,
         eForm_boot,
+        eForm_specialActionBeforeGUI,
         eForm_main_showBrowser,
         eForm_oldprog_legacy,
         eForm_newprog,
@@ -46,16 +48,19 @@ private:
         eStato_running = 0,
         eStato_sync_1_queryIniParam,
         eStato_sync_1_wait,
-        eStato_sync_2_queryCpuStatus,
+        eStato_sync_2_queryExtendedConfigInfo,
         eStato_sync_2_wait,
-        eStato_sync_3_queryVMCSettingTS,
+        eStato_sync_3_queryCpuStatus,
         eStato_sync_3_wait,
-        eStato_sync_4_downloadVMCSetting,
-        eStato_sync_4_wait
+        eStato_sync_4_queryVMCSettingTS,
+        eStato_sync_4_wait,
+        eStato_sync_5_downloadVMCSetting,
+        eStato_sync_5_wait
     };
 
 private:
     void                    priv_loadURL (const char *url);
+    bool                    priv_shouldIShowFormPreGUI();
     void                    priv_showForm (eForm w);
     void                    priv_start();
     void                    priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &msg);
@@ -68,16 +73,26 @@ private:
     void                    priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg);
 
 private:
+    struct sSyncWithCPU
+    {
+        eStato          stato;
+        u64             timeoutMSec;
+        u8              nRetryLeft;
+
+        void            reset() { stato=eStato_sync_1_queryIniParam; nRetryLeft=3; timeoutMSec=0; }
+    };
+
+private:
     sGlobal                 *glob;
     Ui::MainWindow          *ui;
     QTimer                  *timer;
-    eStato                  stato;
-    u64                     statoTimeout;
     bool                    isInterruptActive;
+    sSyncWithCPU            syncWithCPU;
     cpubridge::sCPUVMCDataFileTimeStamp myTS;
     eForm                   currentForm, nextForm;
     FormBoot                *frmBoot;
     FormProg                *frmProg;
+    FormPreGui              *frmPreGUI;
     eRetCode                retCode;
 };
 

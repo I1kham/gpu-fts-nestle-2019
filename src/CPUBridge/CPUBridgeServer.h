@@ -3,7 +3,6 @@
 #include "CPUBridgeEnumAndDefine.h"
 #include "CPUChannel.h"
 #include "lang.h"
-#include "DA3.h"
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../rheaCommonLib/rheaFastArray.h"
@@ -123,7 +122,6 @@ namespace cpubridge
 		u16						lastCPUMsgLen;
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;
-		DA3						da3;
     };
 
 } // namespace cpubridge

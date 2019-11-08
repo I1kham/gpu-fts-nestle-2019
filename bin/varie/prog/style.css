@@ -92,12 +92,13 @@ table.UIOption td div.UIButton p { padding:20px 0 20px 0; }
 .UINumberBorder		{ width:56px; height:81px; position:absolute; top:0; left:0; border:solid 2px #999999; border-radius:10px; z-index:21; }
 */
 
-.UINumber2Container 	{ display:inline-block; width:60px; height:65px; position:relative; z-index:10; margin-right:5px; }
-.UINumber2Inner 		{ display:inline-block; width:60px; height:65px; position:relative; overflow:hidden; }
-.UINumber2Strip 		{ position: absolute; top:10px; left:0; width:60px; text-align:center; background-color:rgba(0,0,0,0.7); } /* top=20 - n*50 */
+.UINumber2Container 	{ display:inline-block; width:60px; height:85px; position:relative; z-index:10; margin-right:5px;}
+.UINumber2Inner 		{ display:inline-block; width:60px; height:75px; position:relative; top:6px; overflow:hidden; }
+.UINumber2Strip 		{ position: absolute; top:15px; left:0; width:60px; text-align:center; background-color:rgba(0,0,0,0.7); }
 .UINumber2Strip p 		{ margin:0;  line-height:56px; padding:0; max-height:56px; overflow:hidden; height:56px; font-size:2.7em; color:#fff }
-.UINumber2Border		{ width:56px; height:61px; position:absolute; top:0; left:0; border:solid 2px #555; border-radius:10px; z-index:21; }
-
+.UINumber2Mask			{ width:100%; height:100%; position:absolute; top:0; left:0; background-image:url(img/fader85.png); background-repeat:repeat-x; z-index:20; }
+.UINumber2Border		{ width:56px; height:71px; position:absolute; top:6px; left:0; border:solid 2px #555; border-radius:10px; z-index:21; }
+.UINumber2Clicker 		{ display:inline-block; position:absolute; top:0; left:0; width:100%; height:100%; z-index:30;}
 
 .colorGrey 		{ color:#999999; }
 .UIlit 			{ background-color:#cc5f29; color:#fff; }

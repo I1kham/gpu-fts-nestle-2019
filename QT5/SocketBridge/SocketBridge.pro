@@ -109,7 +109,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDecounter.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetAllDecounters.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -154,7 +155,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDecounter.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetAllDecounters.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

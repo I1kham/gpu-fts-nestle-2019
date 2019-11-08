@@ -27,10 +27,10 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
     bool b = chToCPU->open(CPU_COMPORT, logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 
     //apro un canale con la CPU fisica
-    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
 
 #endif
 
@@ -154,36 +154,33 @@ void setupFolderInformation (sGlobal *glob)
     sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
 #else
     sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
+    //sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/pippo", baseLocalFolder);
 #endif
+
+    sprintf_s (s, sizeof(s), "%s/rhea", baseUSBFolder);
+    glob->usbFolder = rhea::string::alloc(allocator, s);
+
+    sprintf_s (s, sizeof(s), "%s/rheaData", glob->usbFolder);
+    glob->usbFolder_VMCSettings = rhea::string::alloc(allocator, s);
+
+    sprintf_s (s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
+    glob->usbFolder_CPUFW = rhea::string::alloc(allocator, s);
+
+    sprintf_s (s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
+    glob->usbFolder_GUI = rhea::string::alloc(allocator, s);
+
+    sprintf_s (s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
+    glob->usbFolder_Audit = rhea::string::alloc(allocator, s);
+
+    sprintf_s (s, sizeof(s), "%s/lang", glob->usbFolder);
+    glob->usbFolder_Lang = rhea::string::alloc(allocator, s);
 
     //vediamo se il folder della USB esiste
     if (rhea::fs::folderExists(baseUSBFolder))
     {
         //se non esiste già, creo la cartella rhea su chiave USB
-        sprintf_s (s, sizeof(s), "%s/rhea", baseUSBFolder);
-        if (!rhea::fs::folderExists(s))
-            rhea::fs::folderCreate(s);
-        glob->usbFolder = rhea::string::alloc(allocator, s);
-
-        sprintf_s (s, sizeof(s), "%s/rheaData", glob->usbFolder);
-        glob->usbFolder_VMCSettings = rhea::string::alloc(allocator, s);
-
-        sprintf_s (s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
-        glob->usbFolder_CPUFW = rhea::string::alloc(allocator, s);
-
-        sprintf_s (s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
-        glob->usbFolder_GUI = rhea::string::alloc(allocator, s);
-
-        sprintf_s (s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
-        glob->usbFolder_Audit = rhea::string::alloc(allocator, s);
-
-        sprintf_s (s, sizeof(s), "%s/lang", glob->usbFolder);
-        glob->usbFolder_Lang = rhea::string::alloc(allocator, s);
-    }
-    else
-    {
-        glob->usbFolder = glob->usbFolder_VMCSettings = glob->usbFolder_CPUFW =
-        glob->usbFolder_GUI = glob->usbFolder_Audit = glob->usbFolder_Lang = NULL;
+        if (!rhea::fs::folderExists(glob->usbFolder))
+            rhea::fs::folderCreate(glob->usbFolder);
     }
 }
 

@@ -14,6 +14,8 @@ MainWindow::MainWindow (sGlobal *globIN) :
 {
     glob = globIN;
     retCode = eRetCode_none;
+    frmPreGUI = NULL;
+    syncWithCPU.reset();
 
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
@@ -36,7 +38,6 @@ MainWindow::MainWindow (sGlobal *globIN) :
 #ifdef _DEBUG
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 #endif
-
 
 
     //istanzio il form boot se necessario
@@ -87,6 +88,32 @@ void MainWindow::priv_loadURL (const char *url)
     ui->webView->setFocus();
 }
 
+
+//*****************************************************
+bool MainWindow::priv_shouldIShowFormPreGUI()
+{
+    char s[256];
+    sprintf_s (s, sizeof(s), "%s/vmcDataFile.da3", glob->current_da3);
+    DA3 *da3 = new DA3();
+    da3->loadInMemory (rhea::memory_getDefaultAllocator(), s, glob->extendedCPUInfo.machineType, glob->extendedCPUInfo.machineModel);
+
+    u16 groundCounterLimit = da3->getDecounterCoffeeGround();
+    bool bShowBtnResetGroundConter = (groundCounterLimit > 0);
+    bool bShowBtnCleanMilker = false;
+    if (!da3->isInstant() && da3->getMilker_RinseUserMsg() > 0)
+        bShowBtnCleanMilker = true;
+
+    delete da3;
+
+    if (!bShowBtnResetGroundConter && !bShowBtnCleanMilker)
+        return false;
+
+    if (NULL == frmPreGUI)
+        frmPreGUI = new FormPreGui(this, glob);
+    frmPreGUI->showMe(groundCounterLimit, bShowBtnCleanMilker);
+    return true;
+}
+
 //*****************************************************
 void MainWindow::priv_showForm (eForm w)
 {
@@ -102,22 +129,36 @@ void MainWindow::priv_showForm (eForm w)
     if (frmBoot)
         frmBoot->hide();
 
+    if (frmPreGUI)
+        frmPreGUI->hide();
+
     currentForm = w;
 
     switch (currentForm)
     {
     case eForm_main_syncWithCPU:
+        syncWithCPU.reset();
+        glob->bSyncWithCPUResult = false;
         ui->webView->setVisible(false);
         ui->labInfo->setVisible(true);
-        this->ui->labInfo->setText(QString("Current folder: ") +rhea::getPhysicalPathToAppFolder());
+        this->ui->labInfo->setText("");
+        //this->ui->labInfo->setText(QString("Current folder: ") +rhea::getPhysicalPathToAppFolder());
         this->show();
         utils::hideMouse();
-        stato = eStato_sync_1_queryIniParam;
+
         break;
 
     case eForm_boot:
         frmBoot->showMe();
         utils::hideMouse();
+        break;
+
+    case eForm_specialActionBeforeGUI:
+        if (!priv_shouldIShowFormPreGUI())
+        {
+            priv_scheduleFormChange(eForm_main_showBrowser);
+            priv_showForm(eForm_main_showBrowser);
+        }
         break;
 
     case eForm_main_showBrowser:
@@ -160,8 +201,8 @@ void MainWindow::priv_showForm (eForm w)
 //*****************************************************
 void MainWindow::priv_addText (const char *s)
 {
-    //ui->labInfo->setText(ui->labInfo->text() +"\n" +QString(s));
-    ui->labInfo->setText(s);
+    ui->labInfo->setText(ui->labInfo->text() +"\n" +QString(s));
+    //ui->labInfo->setText(s);
     utils::waitAndProcessEvent(300);
 }
 
@@ -185,6 +226,16 @@ void MainWindow::timerInterrupt()
 
     case eForm_boot:
         switch (frmBoot->onTick())
+        {
+            default: break;
+            case eRetCode_gotoFormBrowser: priv_scheduleFormChange(eForm_specialActionBeforeGUI); break;
+            case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
+            case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
+        }
+        break;
+
+    case eForm_specialActionBeforeGUI:
+        switch (frmPreGUI->onTick())
         {
             default: break;
             case eRetCode_gotoFormBrowser: priv_scheduleFormChange(eForm_main_showBrowser); break;
@@ -235,63 +286,109 @@ void MainWindow::priv_syncWithCPU_onTick()
     }
 
     //Aspetto di vedere la CPU viva e poi sincronizzo il mio DA3 con il suo
-    switch (stato)
+    switch (syncWithCPU.stato)
     {
     case eStato_sync_1_queryIniParam:
         priv_addText("Querying ini param...");
         cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
-        statoTimeout = rhea::getTimeNowMSec() + 10000;
-        stato = eStato_sync_1_wait;
+        syncWithCPU.timeoutMSec = rhea::getTimeNowMSec() + 2000;
+        syncWithCPU.stato = eStato_sync_1_wait;
         break;
 
     case eStato_sync_1_wait:
-        if (rhea::getTimeNowMSec() >= statoTimeout)
-            stato = eStato_sync_1_queryIniParam;
+        if (rhea::getTimeNowMSec() >= syncWithCPU.timeoutMSec)
+        {
+            syncWithCPU.nRetryLeft--;
+            if (syncWithCPU.nRetryLeft == 0)
+                syncWithCPU.stato = eStato_running;
+            else
+                syncWithCPU.stato = eStato_sync_1_queryIniParam;
+        }
         break;
 
-    case eStato_sync_2_queryCpuStatus:
-        priv_addText("Querying cpu status...");
-        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
-        statoTimeout = rhea::getTimeNowMSec() + 5000;
-        stato = eStato_sync_2_wait;
+    case eStato_sync_2_queryExtendedConfigInfo:
+        priv_addText("Querying extended cpu info...");
+        cpubridge::ask_CPU_GET_EXTENDED_CONFIG_INFO(glob->subscriber, 0);
+        syncWithCPU.timeoutMSec = rhea::getTimeNowMSec() + 2000;
+        syncWithCPU.stato = eStato_sync_2_wait;
         break;
 
     case eStato_sync_2_wait:
-        if (rhea::getTimeNowMSec() >= statoTimeout)
-            stato = eStato_sync_2_queryCpuStatus;
+        if (rhea::getTimeNowMSec() >= syncWithCPU.timeoutMSec)
+        {
+            syncWithCPU.nRetryLeft--;
+            if (syncWithCPU.nRetryLeft == 0)
+                syncWithCPU.stato = eStato_running;
+            else
+                syncWithCPU.stato = eStato_sync_2_queryExtendedConfigInfo;
+        }
         break;
 
-    case eStato_sync_3_queryVMCSettingTS:
-        priv_addText("Querying cpu vmc settings timestamp...");
-        cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(glob->subscriber, 0);
-        statoTimeout = rhea::getTimeNowMSec() + 10000;
-        stato = eStato_sync_3_wait;
+    case eStato_sync_3_queryCpuStatus:
+        priv_addText("Querying cpu status...");
+        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+        syncWithCPU.timeoutMSec = rhea::getTimeNowMSec() + 2000;
+        syncWithCPU.stato = eStato_sync_3_wait;
         break;
 
     case eStato_sync_3_wait:
-        if (rhea::getTimeNowMSec() >= statoTimeout)
-            stato = eStato_sync_2_queryCpuStatus;
+        if (rhea::getTimeNowMSec() >= syncWithCPU.timeoutMSec)
+        {
+            syncWithCPU.nRetryLeft--;
+            if (syncWithCPU.nRetryLeft == 0)
+                syncWithCPU.stato = eStato_running;
+            else
+                syncWithCPU.stato = eStato_sync_3_queryCpuStatus;
+        }
         break;
 
-    case eStato_sync_4_downloadVMCSetting:
-        priv_addText("Downloading VMC Settings from CPU...");
-        cpubridge::ask_READ_VMCDATAFILE(glob->subscriber, 0);
-        statoTimeout = rhea::getTimeNowMSec() + 60000;
-        stato = eStato_sync_4_wait;
+    case eStato_sync_4_queryVMCSettingTS:
+        priv_addText("Querying cpu vmc settings timestamp...");
+        cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(glob->subscriber, 0);
+        syncWithCPU.timeoutMSec = rhea::getTimeNowMSec() + 10000;
+        syncWithCPU.stato = eStato_sync_4_wait;
         break;
 
     case eStato_sync_4_wait:
-        if (rhea::getTimeNowMSec() >= statoTimeout)
-            stato = eStato_sync_2_queryCpuStatus;
+        if (rhea::getTimeNowMSec() >= syncWithCPU.timeoutMSec)
+        {
+            syncWithCPU.nRetryLeft--;
+            if (syncWithCPU.nRetryLeft == 0)
+                syncWithCPU.stato = eStato_running;
+            else
+                syncWithCPU.stato = eStato_sync_4_queryVMCSettingTS;
+        }
+        break;
+
+    case eStato_sync_5_downloadVMCSetting:
+        priv_addText("Downloading VMC Settings from CPU...");
+        cpubridge::ask_READ_VMCDATAFILE(glob->subscriber, 0);
+        syncWithCPU.timeoutMSec = rhea::getTimeNowMSec() + 25000;
+        syncWithCPU.stato = eStato_sync_5_wait;
+        break;
+
+    case eStato_sync_5_wait:
+        if (rhea::getTimeNowMSec() >= syncWithCPU.timeoutMSec)
+        {
+            syncWithCPU.nRetryLeft--;
+            if (syncWithCPU.nRetryLeft == 0)
+                syncWithCPU.stato = eStato_running;
+            else
+                syncWithCPU.stato = eStato_sync_3_queryCpuStatus;
+        }
         break;
 
     case eStato_running:
         //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
-        if (NULL != glob->usbFolder && rhea::fs::folderExists(glob->usbFolder))
+        if (false == glob->bSyncWithCPUResult)
             priv_scheduleFormChange (eForm_boot);
         else
-            priv_scheduleFormChange (eForm_main_showBrowser);
-
+        {
+            if (rhea::fs::folderExists(glob->usbFolder))
+                priv_scheduleFormChange (eForm_boot);
+            else
+                priv_scheduleFormChange (eForm_specialActionBeforeGUI);
+        }
     }
 }
 
@@ -313,7 +410,23 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
             cpubridge::sCPUParamIniziali iniParam;
             cpubridge::translateNotify_CPU_INI_PARAM (msg, &iniParam);
             strcpy (glob->cpuVersion, iniParam.CPU_version);
-            stato = eStato_sync_2_queryCpuStatus;
+
+            if (syncWithCPU.stato == eStato_sync_1_wait)
+            {
+                syncWithCPU.stato = eStato_sync_2_queryExtendedConfigInfo;
+                syncWithCPU.nRetryLeft = 3;
+            }
+        }
+        break;
+
+    case CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO:
+        {
+            if (syncWithCPU.stato == eStato_sync_2_wait)
+            {
+                cpubridge::translateNotify_EXTENDED_CONFIG_INFO(msg, &glob->extendedCPUInfo);
+                syncWithCPU.stato = eStato_sync_3_queryCpuStatus;
+                syncWithCPU.nRetryLeft = 3;
+            }
         }
         break;
 
@@ -322,35 +435,50 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
             cpubridge::eVMCState vmcState;
             u8 vmcErrorCode, vmcErrorType;
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
-            if (vmcState != cpubridge::eVMCState_COM_ERROR)
-                stato = eStato_sync_3_queryVMCSettingTS;
-            else
-                stato = eStato_running;
+            if (syncWithCPU.stato == eStato_sync_3_wait)
+            {
+                if (vmcState != cpubridge::eVMCState_COM_ERROR)
+                {
+                    syncWithCPU.stato = eStato_sync_4_queryVMCSettingTS;
+                    syncWithCPU.nRetryLeft = 3;
+                }
+                else
+                    syncWithCPU.stato = eStato_running;
+            }
         }
         break;
 
     case CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP:
         {
-            cpubridge::sCPUVMCDataFileTimeStamp cpuTS;
-            cpubridge::translateNotify_CPU_VMCDATAFILE_TIMESTAMP (msg, &cpuTS);
-
-            //nel caso in cui sono connesso alla finta CPU software...
-            if (strcasecmp(glob->cpuVersion, "FAKE CPU") == 0)
+            if (syncWithCPU.stato == eStato_sync_4_wait)
             {
-                stato = eStato_running;
-                break;
-            }
+                cpubridge::sCPUVMCDataFileTimeStamp cpuTS;
+                cpubridge::translateNotify_CPU_VMCDATAFILE_TIMESTAMP (msg, &cpuTS);
 
-            //vediamo se il TS della CPU è lo stesso mio
-            cpubridge::loadVMCDataFileTimeStamp(&myTS);
+                //nel caso in cui sono connesso alla finta CPU software...
+                if (strcasecmp(glob->cpuVersion, "FAKE CPU") == 0)
+                {
+                    this->glob->bSyncWithCPUResult = true;
+                    syncWithCPU.stato = eStato_running;
+                    syncWithCPU.nRetryLeft = 3;
+                    break;
+                }
 
-            if (myTS == cpuTS)
-                stato = eStato_running;
-            else
-            {
-                myTS = cpuTS;
-                rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_da3, false);
-                stato = eStato_sync_4_downloadVMCSetting;
+                //vediamo se il TS della CPU è lo stesso mio
+                cpubridge::loadVMCDataFileTimeStamp(&myTS);
+
+                if (myTS == cpuTS)
+                {
+                    this->glob->bSyncWithCPUResult = true;
+                    syncWithCPU.stato = eStato_running;
+                }
+                else
+                {
+                    myTS = cpuTS;
+                    rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_da3, false);
+                    syncWithCPU.stato = eStato_sync_5_downloadVMCSetting;
+                    syncWithCPU.nRetryLeft = 3;
+                }
             }
             break;
         }
@@ -395,13 +523,13 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
 
                 rhea::fs::fileCopy(src, dst);
 
-                stato = eStato_sync_3_queryVMCSettingTS;
+                syncWithCPU.stato = eStato_sync_4_queryVMCSettingTS;
             }
             else
             {
                 sprintf_s (s, sizeof(s), "Downloading VMC Settings... ERROR: %s", rhea::app::utils::verbose_readDataFileStatus(status));
                 priv_addText(s);
-                stato = eStato_sync_2_queryCpuStatus;
+                syncWithCPU.stato = eStato_sync_3_queryCpuStatus;
                 utils::waitAndProcessEvent(3000);
             }
 

@@ -57,9 +57,9 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 }
 
 DA3.prototype.isInstant = function ()			{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
-DA3.prototype.isEpresso = function ()			{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
+DA3.prototype.isEspresso = function ()			{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
 DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
-DA3.prototype.getNumProdotti = function ()		{ if (this.isEpresso()) return 6; else return 10; }
+DA3.prototype.getNumProdotti = function ()		{ if (this.isEspresso()) return 6; else return 10; }
 
 
 

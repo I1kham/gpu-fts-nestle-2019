@@ -45,7 +45,7 @@
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 " data-caption="MAINTENANCE" data-onclick="pageMaintenance_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING" data-onclick="pageCleaning_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING/<br>RINSING" data-onclick="pageCleaning_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DATA AUDIT" data-onclick=""></div></td>
 					</tr>
 					<tr valign="middle">
@@ -61,7 +61,7 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CLOCK"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CAPPUCCINATORE"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div></td>
@@ -70,7 +70,7 @@
 					</tr>					
 				</table>
 			</div>
-		</div>
+		</div><!--- page Main Menu -->
 		
 		<!-- page Maintenance -->
 		<div id="pageMaintenance" class="UIWindow">
@@ -123,7 +123,7 @@
 					</tr>						
 				</table>
 			</div>
-		</div>
+		</div><!-- page Maintenance -->
 		
 		<!-- page Cleaning -->
 		<div id="pageCleaning" class="UIWindow">
@@ -131,23 +131,23 @@
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="START RINSING" data-onclick="pageCleaning_action(160)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton3x4" data-caption="START CLEANING<br>BREWER" data-onclick="pageCleaning_action(1)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton3x4" data-caption="START CLEANING HC" data-onclick="pageCleaning_action(8)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton3x4" data-caption="START RINSING<br>BREWER" data-onclick="pageCleaning_action(1)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton3x4" data-caption="START RINSING HC" data-onclick="pageCleaning_action(8)"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MIXER 1" data-onclick="pageCleaning_action(2)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER 1" data-onclick="pageCleaning_action(2)"></div></td>
 						<td></td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MIXER 2" data-onclick="pageCleaning_action(3)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER 2" data-onclick="pageCleaning_action(3)"></div></td>
 						</td>
 					</tr>
 					<tr valign="middle">
 						<td></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MIXER 3" data-onclick="pageCleaning_action(4)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton3x4" data-caption="START CLEANING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton3x4" data-caption="START RINSING<br>MIXER 3" data-onclick="pageCleaning_action(4)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
 					</tr>					
 				</table>
 			</div>
@@ -158,14 +158,48 @@
 			<div class="UIWindowContent">
 				<div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div>
 			</div>
-		</div>	
+		</div>	<!-- page pageMiscellaneous -->
 		
 		<!-- page productQty -->
 		<div id="pageProductQty" class="UIWindow">
 			<div class="UIWindowContent" id="pageProductQty_content">
 				<!-- il contenuto di questa pagina lo credo dinamicamente perchè dipende da INSTANT o ESPRESSO (vedi pageProductQty_build) -->
 			</div>
-		</div>		
+		</div><!-- page productQty -->
+		
+		
+		<!-- page Milker -->
+		<div id="pageMilker" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>
+					<tr>
+						<td>STEAM TEMPERATURE<br><span class="tip">max 140</span></td>
+						<td><div class="UINumber" data-numfigures="3" data-da3="7618" data-max="140"></div></td>
+					</tr>
+					<tr>
+						<td>RINSING PERIOD<br><span class="tip">max 900</span></td></td>
+						<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-max="900" data-um="min."></div></td>
+					</tr>
+					<tr>
+						<td>ENABLE RINSING</td>
+						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7622"></div></td>
+					</tr>
+					<tr>
+						<td>RINSE DELAY<br><span class="tip">max 10.0</span></td></td>
+						<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624" data-max="100" data-um="sec."></div></td>
+					</tr>
+					<tr>
+						<td>ENABLE MILK SENSOR</td>
+						<td><div class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
+					</tr>
+					<tr>
+						<td>SHOW MILKER-RINSING<br>BUTTON AT STARTUP</td>
+						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7628"></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><!-- page Milker -->
+		
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
@@ -221,6 +255,7 @@ function onRheaBootstrapFinished()
 		case "pageMaintenance": pageMaintenance_show(); break;
 		case "pageMiscellaneous": pageMiscellaneous_show(); break;
 		case "pageProductQty": pageProductQty_show(); break;
+		case "pageMilker": pageMilker_show(); break;
 	}
 	
 	pleaseWait_show();
@@ -246,6 +281,14 @@ function onDA3Loaded()
 {
 	pageProductQty_build();
 	pleaseWait_hide();
+
+	//abilito il menu milker se macchine==espresso
+	if (da3.isEspresso())
+	{
+		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+		rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
+	}
+	
 	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
 }
 
@@ -701,6 +744,22 @@ function pageProductQty_getDecounterValues()
 		pleaseWait_hide();
 	});		
 }
-</script>
 
+
+
+/***************************************************************************
+ *
+ * pageMilker
+ *
+ */
+function pageMilker_show()
+{
+	if (showPage("pageMilker"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("MILKER");
+	btnBack_show();
+}
+</script>
 </html>

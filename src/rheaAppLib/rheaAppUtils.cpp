@@ -230,15 +230,17 @@ const char* utils::verbose_WriteCPUFWFileStatus (cpubridge::eWriteCPUFWFileStatu
 //***************************************************************
 const char* utils::verbose_CPUMachineType(cpubridge::eCPUMachineType type)
 {
-	static const char v[2][12] = {
-		{"ESPRESSO"},
-		{"INSTANT"}
+	static const char v[3][12] = {
+		{"INSTANT"},
+        {"ESPRESSO1"},
+        {"ESPRESSO2"}		
 	};
 
 	switch (type)
 	{
 	default:												return UNKNOWN;
-	case cpubridge::eCPUMachineType_espresso:				return v[0];
-	case cpubridge::eCPUMachineType_instant: 				return v[1];
+	case cpubridge::eCPUMachineType_instant: 				return v[0];
+    case cpubridge::eCPUMachineType_espresso1:				return v[1];
+    case cpubridge::eCPUMachineType_espresso2:				return v[2];
 	}
 }

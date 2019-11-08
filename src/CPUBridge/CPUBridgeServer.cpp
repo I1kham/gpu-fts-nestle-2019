@@ -69,8 +69,6 @@ void Server::close()
 {
 	logger->log("CPUBridgeServer::close\n");
 
-	da3.free();
-
 	if (NULL == localAllocator)
 		return;
 
@@ -469,8 +467,11 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 		break;
 
 	case 0x01:
+        out->machineType = eCPUMachineType_espresso1;
+        break;
+        
 	case 0x02:
-		out->machineType = eCPUMachineType_espresso;
+		out->machineType = eCPUMachineType_espresso2;
 		break;
 	}
 	out->machineModel = answerBuffer[5];
@@ -649,7 +650,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
 
 	//aspetto di leggere 'k' dal canale
-	if (!chToCPU->waitForASpecificChar('k', 5000))
+    if (!chToCPU->waitForASpecificChar('k', 10000))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_k_notReceived, 0);

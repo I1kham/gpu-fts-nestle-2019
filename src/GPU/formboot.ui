@@ -16,6 +16,9 @@
     <pointsize>13</pointsize>
    </font>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::ActionsContextMenu</enum>
+  </property>
   <property name="windowTitle">
    <string/>
   </property>
@@ -25,16 +28,16 @@
   <widget class="QPushButton" name="buttonStart">
    <property name="geometry">
     <rect>
-     <x>870</x>
+     <x>859</x>
      <y>500</y>
-     <width>150</width>
+     <width>161</width>
      <height>91</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Roboto</family>
-     <pointsize>20</pointsize>
+     <pointsize>18</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -561,7 +564,7 @@ VMC settings</string>
     <rect>
      <x>10</x>
      <y>500</y>
-     <width>851</width>
+     <width>841</width>
      <height>91</height>
     </rect>
    </property>

@@ -69,6 +69,7 @@ private:
     void                    priv_uploadGUI (const char *srcFullFolderPath);
     void                    priv_uploadCPUFW (const char *fullFilePathAndName);
     void                    priv_syncUSBFileSystem(u64 minTimeMSecToWaitMSec);
+    void                    priv_enableButton (QPushButton *btn, bool bEnabled);
 
 private:
     sGlobal                 *glob;
