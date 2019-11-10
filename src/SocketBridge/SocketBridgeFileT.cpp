@@ -522,6 +522,11 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 			sprintf_s(s, sizeof(s), "%s/temp/vmcDataFile%s.da3", rhea::getPhysicalPathToAppFolder(), &data.what[3]);
 		}
 	}
+	else if (strncasecmp(data.what, "guiinfo", 7) == 0)
+	{
+		//informazioni relative alla GUI utili al menuPROG
+		sprintf_s(s, sizeof(s), "%s/current/gui/web/config/lang/menuProg.txt", rhea::getPhysicalPathToAppFolder());
+	}
 	else
 	{
 		answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;

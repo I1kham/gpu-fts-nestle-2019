@@ -26,7 +26,7 @@ function DA3(machineType, machineModel)
  */
 DA3.prototype.load = function ()
 {
-	console.log ("DA3::load() => mtype[" +this.machineType +"] mmodel[" +this.machineModel +"]");
+	//console.log ("DA3::load() => mtype[" +this.machineType +"] mmodel[" +this.machineModel +"]");
 	rhea.filetransfer_startDownload ("da3", this, DA3_load_onStart, DA3_load_onProgress, DA3_load_onEnd);
 }
 
@@ -37,27 +37,27 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	if (reasonRefused != 0)
 	{
 		console.log ("DA3_load_onEnd: error, reason[" +reasonRefused +"]");
-
 		alert ("error downloading da3");
-		onDA3Loaded();
-		return;
+	}
+	else
+	{
+		//console.log ("da3_load_onEnd: succes. File size[" +obj.fileSize +"]");
+		theDa3.da3_original = new Uint8Array(obj.fileSize);
+		theDa3.da3_current = new Uint8Array(obj.fileSize);
+		theDa3.da3_filesize = parseInt(obj.fileSize);
+		for (var i=0; i<obj.fileSize; i++)
+			theDa3.da3_original[i] = theDa3.da3_current[i] = obj.fileBuffer[i];
+			
+		//overload di machineType e modello
+		theDa3.da3_original[9465] = theDa3.da3_current[9465] = theDa3.machineType;
+		theDa3.da3_original[9466] = theDa3.da3_current[9466] = theDa3.machineModel;
 	}
 	
-	//console.log ("da3_load_onEnd: succes. File size[" +obj.fileSize +"]");
-	theDa3.da3_original = new Uint8Array(obj.fileSize);
-	theDa3.da3_current = new Uint8Array(obj.fileSize);
-	theDa3.da3_filesize = parseInt(obj.fileSize);
-	for (var i=0; i<obj.fileSize; i++)
-		theDa3.da3_original[i] = theDa3.da3_current[i] = obj.fileBuffer[i];
-		
-	//overload di machineType e modello
-	theDa3.da3_original[9465] = theDa3.da3_current[9465] = theDa3.machineType;
-	theDa3.da3_original[9466] = theDa3.da3_current[9466] = theDa3.machineModel;
 	onDA3Loaded();
 }
 
-DA3.prototype.isInstant = function ()			{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
-DA3.prototype.isEspresso = function ()			{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
+DA3.prototype.isInstant = function ()			{ return 1; if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
+DA3.prototype.isEspresso = function ()			{ return 0; if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
 DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		{ if (this.isEspresso()) return 6; else return 10; }
 
@@ -83,6 +83,7 @@ DA3.prototype.compare = function ()
 		{
 			if (this.da3_current[ct] != this.da3_original[ct])
 			{
+				console.log ("da3:: diff @ pos[" +ct +"], old[" +this.da3_original[ct] +"], new[" +this.da3_current[ct] +"]");
 				retList.push(block);
 				break;				
 			}
@@ -90,8 +91,8 @@ DA3.prototype.compare = function ()
 		}
 	}
 	
-	//console.log ("DA3::compare() => end");
-	//console.log (retList);
+	console.log ("DA3::compare() => end");
+	console.log (retList);
 	return retList;
 }
 
@@ -111,6 +112,40 @@ DA3.prototype.copyBlockToOriginal = function (blockNum)
 	}
 }
 
+DA3.prototype.read4  = function (posIN)
+{ 
+	var pos = parseInt(posIN);
+	var ret = this.da3_current[pos]; 
+	//console.log("DA3 read4@" +pos +"=" + ret);
+	return (ret & 0x0F);
+}
+DA3.prototype.write4 = function (pos, value)
+{ 
+	var v = (parseInt(value) & 0x0F)
+	var c = this.da3_current[pos] & 0xF0;
+	c |= v;
+	//console.log("DA3 write4@" +pos +"=" + v);
+	if (pos == 146) console.log("DA3 write4@" +pos +"=[" + v +"], old[" +this.da3_current[pos] +"]");
+	this.da3_current[pos] = c;
+}
+
+DA3.prototype.read8  = function (posIN)
+{ 
+	var pos = parseInt(posIN);
+	var ret = this.da3_current[pos]; 
+	//console.log("DA3 read8@" +pos +"=" + ret);
+	return ret;
+}
+DA3.prototype.write8 = function (pos, value)
+{ 
+	var v = parseInt(value); 
+	if (v<0) v = 0;
+	if (v>255) v=255;
+	//console.log("DA3 write8@" +pos +"=" + v);
+	if (pos == 146) console.log("DA3 write8@" +pos +"=" + v);
+	this.da3_current[pos] = v;
+}
+
 DA3.prototype.read16  = function (posIN)
 { 
 	var pos = parseInt(posIN);
@@ -121,8 +156,18 @@ DA3.prototype.read16  = function (posIN)
 }
 DA3.prototype.write16 = function (pos, value)
 { 
-	//console.log("DA3 write@" +pos +"=" + value);
 	var v = parseInt(value); 
-	this.da3_current[pos++] = (value & 0x00FF); 
-	this.da3_current[pos]   = ((value & 0xFF00) >>8); 
+	this.da3_current[pos++] = (v & 0x00FF); 
+	this.da3_current[pos]   = ((v & 0xFF00) >>8); 
+	if (pos == 146) console.log("DA3 write16@" +pos +"=" + v);
+	//console.log("DA3 write16@" +pos +"=" + v);
 }
+
+DA3.prototype.getPriceLocation = function (list1_2, price1_48)
+{
+	var N = 64;
+	var LISTA1 = 6500;
+	return LISTA1 + N*2*(list1_2 -1) + 2*(price1_48-1);
+}
+DA3.prototype.getTeaBagLocation = function (iSel) 	{ return 176 +(iSel-1)*100; }
+DA3.prototype.getJugLocation = function (iSel) 		{ return 177 +(iSel-1)*100; }

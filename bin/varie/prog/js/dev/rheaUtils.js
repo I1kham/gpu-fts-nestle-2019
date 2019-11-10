@@ -418,3 +418,15 @@ function rheaSetDivAsScrollabelByGesture (divContentID, divWrapperID, contentH, 
 		rheaSmoothScrollElemTop(info.divContent, curY, 300);
 	}, true)		
 }
+
+/************************************************
+ * trasforma [i] in una stringa e la padda a sx con il carattere [c]
+ */
+function rheaLeftPad (i, totalLen, padChar)
+{
+	var s = i.toString();
+	while (s.length < totalLen)
+		s = padChar + s;
+	return s;
+	
+}

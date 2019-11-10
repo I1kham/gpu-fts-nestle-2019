@@ -49,25 +49,25 @@
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DATA AUDIT" data-onclick=""></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="SELECTIONS<br>(max 48)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS<br>(max 48)" data-onclick="pageSelections_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CALIBRATION"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DEVICES"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="TEMPERATURE"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUCT<br>QUANTITY" data-onclick="pageProductQty_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PAYMENT<br>SYSTEMS"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CLOCK"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLOCK" data-onclick="pageClock_show()"></div></td>
 						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div></td>
 						<td></td>
-						<td></td>
-					</tr>					
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
+					</tr>
 				</table>
 			</div>
 		</div><!--- page Main Menu -->
@@ -156,9 +156,81 @@
 		<!-- page pageMiscellaneous -->
 		<div id="pageMiscellaneous" class="UIWindow">
 			<div class="UIWindowContent">
-				<div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div>
+				<table border='0' class='elenco'>
+					<tr>
+						<td>MACHINE CODE A</td>
+						<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7052" data-da3bit="16"></div></td>
+					</tr>
+					<tr>
+						<td>MACHINE CODE B</td>
+						<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7054" data-da3bit="16"></div></td>
+					</tr>
+					<tr>
+						<td>MESSAGE NUMBER</td>
+						<td><div class="UINumber" data-numfigures="1" data-max="7" data-da3="7056" data-da3bit="8"></div></td>
+					</tr>					
+					<tr>
+						<td>FAN TIME</td>
+						<td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7062" data-da3bit="8" data-um="min"></div></td>
+					</tr>
+					<tr>
+						<td>BEEP TIME</td>
+						<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
+					</tr>
+				</table>
 			</div>
 		</div>	<!-- page pageMiscellaneous -->
+		
+		<!-- page pageClock -->
+		<div id="pageClock" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>
+					<tr style="border:0">
+						<td>SUMMER TIME</td>
+						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7080"></div></td>
+					</tr>
+				</table>
+					
+				<br>
+				<table border='0' class='elenco'>
+					<tr style="height:50px; vertical-align:bottom">
+						<th style="width:232px; text-align:left">HAPPY HOUR</th>
+						<th>START</th>
+						<th>END</th>
+					</tr>
+					<tr>
+						<td>HAPPY HOUR 1</td>
+						<td align="center"><div class="UITime24" data-da3="7424"></div></td>
+						<td align="center"><div class="UITime24" data-da3="7426"></div></td>
+					</tr>
+					<tr>
+						<td>HAPPY HOUR 2</td>
+						<td align="center"><div class="UITime24" data-da3="7428"></div></td>
+						<td align="center"><div class="UITime24" data-da3="7430"></div></td>
+					</tr>
+					<tr style="border:0">
+						<td>HAPPY HOUR 3</td>
+						<td align="center"><div class="UITime24" data-da3="7432"></div></td>
+						<td align="center"><div class="UITime24" data-da3="7434"></div></td>
+					</tr>
+				</table>
+				
+				<table border='0' class='elenco'>
+					<tr style="height:50px; vertical-align:bottom">
+						<th style="width:232px; text-align:left">ENERGY SAVING</th>
+						<th>SWITCH ON</th>
+						<th>SWITCH OFF</th>
+					</tr>				
+					<tr><td>MONDAY</td><td align="center"><div class="UITime24" 	data-da3="7436"></div></td><td align="center"><div class="UITime24" data-da3="7438"></div></td></tr>					
+					<tr><td>TUESDAY</td><td align="center"><div class="UITime24" 	data-da3="7440"></div></td><td align="center"><div class="UITime24" data-da3="7442"></div></td></tr>					
+					<tr><td>WEDNESDAY</td><td align="center"><div class="UITime24" 	data-da3="7444"></div></td><td align="center"><div class="UITime24" data-da3="7446"></div></td></tr>					
+					<tr><td>THURSDAY</td><td align="center"><div class="UITime24" 	data-da3="7448"></div></td><td align="center"><div class="UITime24" data-da3="7450"></div></td></tr>					
+					<tr><td>FRIDAY</td><td align="center"><div class="UITime24" 	data-da3="7452"></div></td><td align="center"><div class="UITime24" data-da3="7454"></div></td></tr>					
+					<tr><td>SATURDAY</td><td align="center"><div class="UITime24" 	data-da3="7456"></div></td><td align="center"><div class="UITime24" data-da3="7458"></div></td></tr>					
+					<tr><td>SUNDAY</td><td align="center"><div class="UITime24" 	data-da3="7460"></div></td><td align="center"><div class="UITime24" data-da3="7462"></div></td></tr>					
+				</table>
+			</div>
+		</div>	<!-- page pageClock -->
 		
 		<!-- page productQty -->
 		<div id="pageProductQty" class="UIWindow">
@@ -174,11 +246,11 @@
 				<table border='0' class='elenco'>
 					<tr>
 						<td>STEAM TEMPERATURE<br><span class="tip">max 140</span></td>
-						<td><div class="UINumber" data-numfigures="3" data-da3="7618" data-max="140"></div></td>
+						<td><div class="UINumber" data-numfigures="3" data-max="140" data-da3="7618" data-da3bit="8"></div></td>
 					</tr>
 					<tr>
 						<td>RINSING PERIOD<br><span class="tip">max 900</span></td></td>
-						<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-max="900" data-um="min."></div></td>
+						<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 					</tr>
 					<tr>
 						<td>ENABLE RINSING</td>
@@ -186,7 +258,7 @@
 					</tr>
 					<tr>
 						<td>RINSE DELAY<br><span class="tip">max 10.0</span></td></td>
-						<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624" data-max="100" data-um="sec."></div></td>
+						<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
 					</tr>
 					<tr>
 						<td>ENABLE MILK SENSOR</td>
@@ -199,6 +271,66 @@
 				</table>
 			</div>
 		</div><!-- page Milker -->
+		
+		
+		<!-- pageSelections -->
+		<div id="pageSelections" class="UIWindow">
+			<div class="UIWindowContent" id="pageSelections_content">
+				<!-- il contenuto di questa pagina lo credo dinamicamente (vedi pageSelections_build) -->
+			</div>
+		</div><!-- pageSelections -->
+		
+		<!-- pageSingleSelection -->
+		<div id="pageSingleSelection" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>
+					<tr>
+						<td>STATUS</td>
+						<td><div id='pageSingleSelection_status' class="UIOption" data-option="0|SELECTION|1|INHIBITED|2|PRESELECTION" data-da3="100" data-onclick='pageSingleSelection_onStatus()'></div></td>
+					</tr>
+				</table>
+				
+				<div id="pageSingleSelection_pageSel">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>PROGRAMMING</td>
+							<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
+						</tr>
+						<tr>
+							<td>PRICE 1</td></td>
+							<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
+						</tr>
+						<tr>
+							<td>PRICE 2<br><span class="tip">happy price</span></td></td>
+							<td><div id='pageSingleSelection_prc2' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
+						</tr>
+						
+						<tr>
+							<td>JUG<br><span class="tip">num repetitions</span></td></td>
+							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="177" data-da3bit='8'></div></td>
+						</tr>
+					</table>
+					
+					<div id="pageSingleSelection_c2">
+						<!-- il contenuto di questa pagina lo credo dinamicamente (vedi pageSingleSelection_build) -->
+					</div>
+				</div>
+			</div>
+		</div><!-- pageSingleSelection -->
+		
+		
+		
+		<!-- pageTemperature -->
+		<div id="pageTemperature" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>
+					<tr>
+						<td>BOILER</td>
+						<td><div class="UINumber" data-numfigures="2" data-decimal='0' data-max="92" data-da3="7032" data-da3bit='8'></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><!-- pageTemperature -->
 		
 	</div> <!-- divPage -->
 
@@ -220,17 +352,23 @@
 
 
 <script src="js/DA3.js"></script>
+<script src="js/GUIInfo.js"></script>
 <script src="js/UI.js"></script>
 <script src="js/UINumberArrow.js"></script>
+<script src="js/UIButtonSel.js"></script>
+<script src="js/UITime24.js"></script>
 <script src="js/Task.js"></script>
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
 var da3 = null;
+var guiInfo = null;
 var ui = null;
 var voidTask = new TaskVoid();
 var currentTask = voidTask;
 var currentPageID="";
 var timeNowMSec = 0;
+var NUM_PRODOTTI = 0; //da3.getNumProdotti();
+var NUM_ACQUE = 5;
 
 function onRheaBootstrapFinished()
 {
@@ -256,6 +394,7 @@ function onRheaBootstrapFinished()
 		case "pageMiscellaneous": pageMiscellaneous_show(); break;
 		case "pageProductQty": pageProductQty_show(); break;
 		case "pageMilker": pageMilker_show(); break;
+		case "pageSelections": pageSelections_show(); break;
 	}
 	
 	pleaseWait_show();
@@ -279,7 +418,18 @@ function onRheaBootstrapFinished()
 //***************** chiamata al termine del caricamento del da3
 function onDA3Loaded()
 {
+	NUM_PRODOTTI = da3.getNumProdotti();
+
+	guiInfo = new GUIInfo();
+	guiInfo.load();
+}
+
+//***************** chiamata al termine delle gui info
+function onGUIInfoLoaded()
+{
 	pageProductQty_build();
+	pageSelections_build();
+	pageSingleSelection_build();
 	pleaseWait_hide();
 
 	//abilito il menu milker se macchine==espresso
@@ -294,7 +444,18 @@ function onDA3Loaded()
 
 
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
-function showPage(pageID)				{ currentPageID=pageID; var win=ui.getWindowByID(currentPageID); var ret=win.firstTimeShow; ui.hideAllExcept(currentPageID); win.loadFromDA3(da3); rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS); return ret;}
+
+function showPage(pageID)				{ showPageEx(pageID,0); }
+function showPageEx(pageID, da3Offset)	
+{ 
+	currentPageID=pageID; 
+	var win=ui.getWindowByID(currentPageID); 
+	var ret=win.firstTimeShow; 
+	ui.hideAllExcept(currentPageID); 
+	win.loadFromDA3(da3, da3Offset);
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS); 
+	return ret;
+}
 function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); rheaSetDisplayMode(rheaGetElemByID("bntSave"), "table"); }
 function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("bntSave")); }
 function btnBack_onClick(bSave)				
@@ -305,10 +466,19 @@ function btnBack_onClick(bSave)
 		save( function() { backToMainMenu();} );
 }
 
+
+var backTo="";
 function backToMainMenu()
 {
 	pleaseWait_hide();
-	pageMainMenu_show();
+	
+	var where = backTo;
+	backTo="";
+	switch (where)
+	{
+	default:				pageMainMenu_show(); break;
+	case "pageSelections":	pageSelections_show(); break;
+	}
 }
 
 var save_fnToCallWhenFinished = "";
@@ -589,7 +759,6 @@ function pageCleaning_onFinished()
 	showPage("pageMiscellaneous");
 	header_setText("MISCELLANEOUS");
 	btnBack_show();
-	rheaHideElem(rheaGetElemByID("bntSave"));
 }
 
 function pageMiscellaneous_oldProgMenu()
@@ -611,8 +780,8 @@ function pageProductQty_show()
 	{
 		//è la prima volta che visualizziamo la pagina
 		pageProductQty_getDecounterValues();
-		pageProductQty_showDecounter();
 	}
+	pageProductQty_showDecounter();
 	header_setText("PRODUCT QUANTITY");
 	btnBack_show();
 	
@@ -665,7 +834,7 @@ function pageProductQty_build()
 				+"		<td style='width:400px'><span id='" +currentValueID +"' class='bigCaption25'>" +currentDecountValue +"</span></td>"
 				+"		<td align='center'><div class='UIButton bigButton60' data-caption='RESET' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
 				+"	</tr>"
-				+"	<tr><td>CANNISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
+				+"	<tr><td>CANISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
 				+"	<tr><td>WARNING AT</td><td colspan='2'><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999'></div></td></tr>"
 				+"	<tr style='border:0'><td>ENABLE STOP</td><td colspan='2'><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
 				+"</table></div>";
@@ -761,5 +930,305 @@ function pageMilker_show()
 	header_setText("MILKER");
 	btnBack_show();
 }
+
+
+
+/***************************************************************************
+ *
+ * pageSelections
+ *
+ */
+function pageSelections_show()
+{
+	if (showPage("pageSelections"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("SELECTIONS");
+	btnBack_show();
+}
+
+function pageSelections_build()
+{
+	var html = "<table border='0'>";
+	
+	var iSel = 1;
+	for (var r=0; r<16; r++)
+	{
+		html += "<tr>";
+		for (var c=0; c<3; c++)
+		{
+			var caption = "SELECTION " +rheaLeftPad(iSel,2,'0');
+			html += "<td width='33%' align='center'><div class='UIButtonSel' "
+					+"data-caption='" +caption +"' "
+					+"data-caption2='" +guiInfo.selInfo[iSel].name +"' "
+					+"data-caption3='" +guiInfo.selInfo[iSel].short +"' "
+					+"data-onclick='pageSingleSelection_show(" +iSel +")'></div></td>";
+			iSel++;
+		}
+		html += "</tr>";
+	}
+	html += "</table><div style='height:30px; min-height:30px; overflow:hidden;'>&nbsp;</div>";
+	
+	rheaSetDivHTMLByName("pageSelections_content", html);
+}
+
+
+
+/***************************************************************************
+ *
+ * pageSingleSelection
+ *
+ */
+function pageSingleSelection_show(iSel)
+{
+	if (showPageEx("pageSingleSelection", 100 * (iSel-1)))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	
+	//Setto i prezzi
+	var win = ui.getWindowByID("pageSingleSelection");
+	var obj = win.getChildByID("pageSingleSelection_prc1");
+	obj.da3offset = 0;
+	obj.da3Pos = da3.getPriceLocation(1,iSel);
+	obj.loadFromDA3(da3);
+	
+	obj = win.getChildByID("pageSingleSelection_prc2");
+	obj.da3offset = 0;
+	obj.da3Pos = da3.getPriceLocation(2,iSel);
+	obj.loadFromDA3(da3);	
+	
+	//titolo della finestra
+	var title = "SELECTION " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name;
+	header_setText(title);
+	
+	backTo = "pageSelections";
+	btnBack_show();
+	
+	rheaSetElemTop(rheaGetElemByID("pageSingleSelection_content"), 0);
+	rheaHideElem(rheaGetElemByID("pageSingleSelection_arrowUp"));
+	pageSingleSelection_onStatus();
+}
+
+function pageSingleSelection_build()
+{
+	var da3LocProd = 102;
+	var da3LocWater = da3LocProd +NUM_PRODOTTI*3;
+
+	var s = "";
+	if (da3.isInstant())
+		s="1|PRODUCTS|2|WATERS|3|MIXERS";
+	else
+		s="0|ESPRESSO|1|PRODUCTS|2|WATERS|3|MIXERS";
+	var htmlSelector = "<br><br>"
+					+"<table border='0' width='100%'>"
+					+"	<tr valign='middle'>"
+					+"		<td style='width:160px'><b>VIEW PARAMS<br>FOR</b></td>"
+					+"		<td><div class='UIOption buttonCorto' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div></td>"
+					+"	</tr>"
+					+"</table>";
+	
+	var htmlP = "<table border='0' class='elenco'>"
+				+"<tr>"
+				+"	<th style='width:184px; text-align:left;'>PRODUCT #</th>"
+				+"	<th style='width:290px; text-align:left;'>DOSAGE</th>"
+				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
+				+"	<th style='width:260px; text-align:center;'>NUM BREAKS</th>"
+				+"</tr>";
+	var htmlW = "<table border='0' class='elenco'>"
+				+"<tr>"
+				+"	<th style='width:184px; text-align:left;'>WATER #</th>"
+				+"	<th style='width:290px; text-align:left;'>TIME</th>"
+				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
+				+"	<th style='width:260px; text-align:center;'>FLOW</th>"
+				+"</tr>";
+				
+	var htmlM = "<table border='0' class='elenco'>"
+				+"<tr>"
+				+"	<th style='width:184px; text-align:left;'>MIXER #</th>"
+				+"	<th style='width:290px; text-align:left;'>TIME</th>"
+				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
+				+"	<th style='width:260px; text-align:center;'>SPEED</th>"
+				+"</tr>";				
+	for (var i=0; i<NUM_PRODOTTI; i++)
+	{
+		var prodNum;
+		if (i==9)
+			prodNum = "LM";
+		else 
+			prodNum = rheaLeftPad(i+1, 2, '0');
+			
+		var rowID = "pageSingleSelection_P_" +i;
+		var dosageID = "pageSingleSelection_P_d" +i;
+		htmlP +="<tr id='" +rowID +"'>"
+				+"<td>#" +prodNum +"</td>"
+				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
+				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"
+			+"</tr>";
+		da3LocProd+= 3;
+	}
+
+	for (var i=0; i<NUM_ACQUE; i++)
+	{
+		var prodNum;
+		if (i==4)
+			prodNum = "LM";
+		else 
+			prodNum = rheaLeftPad(i+1, 2, '0');
+	
+		var rowID = "pageSingleSelection_W_" +i;
+		var timeID = "pageSingleSelection_W_t" +i;
+		htmlW +="<tr id='" +rowID +"'>"
+				+"<td>#" +prodNum +"</td>"
+				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
+				+"<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
+			+"</tr>";
+		da3LocWater+= 3;	
+
+		rowID = "pageSingleSelection_M_" +i;
+		htmlM +="<tr id='" +rowID +"'>"
+				+"<td>#" +prodNum +"</td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
+				+"<td align='center'><div class='UIOption' data-option='1|LOW|2|MED|3|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
+			+"</tr>";		
+		da3LocWater+= 3;
+	}
+	htmlP += "</table>";
+	htmlW += "</table>";
+	htmlM += "</table>";
+	
+	html =  htmlSelector
+			+"<div id='pageSingleSelection_pageP'>" +htmlP +"</div>"
+			+"<div id='pageSingleSelection_pageW' style='display:none'>" +htmlW +"</div>"
+			+"<div id='pageSingleSelection_pageM' style='display:none'>" +htmlM +"</div>";
+	rheaSetDivHTMLByName("pageSingleSelection_c2", html);
+}
+
+function pageSingleSelection_onProgramming()
+{
+	var win = ui.getWindowByID("pageSingleSelection");
+	var partial = parseInt(win.getChildByID("pageSingleSelection_programming").getSelectedOptionValue());
+	if (partial == "1")
+	{
+		for (var i=0; i<NUM_PRODOTTI; i++)
+		{
+			var dosageID = "pageSingleSelection_P_d" +i;
+			if (parseInt(win.getChildByID(dosageID).getValue()) == 0)
+			{
+				var rowID = "pageSingleSelection_P_" +i;
+				rheaHideElem(rheaGetElemByID(rowID));
+			}
+		}
+		
+		for (var i=0; i<NUM_ACQUE; i++)
+		{
+			var timeID = "pageSingleSelection_W_t" +i;		
+			if (parseInt(win.getChildByID(timeID).getValue()) == 0)
+			{
+				var rowID = "pageSingleSelection_W_" +i;
+				rheaHideElem(rheaGetElemByID(rowID));
+				
+				rowID = "pageSingleSelection_M_" +i;
+				rheaHideElem(rheaGetElemByID(rowID));				
+			}
+		}
+	}
+	else
+	{
+		for (var i=0; i<NUM_PRODOTTI; i++)
+		{
+			var rowID = "pageSingleSelection_P_" +i;
+			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+		}
+		
+		for (var i=0; i<NUM_ACQUE; i++)
+		{
+			var rowID = "pageSingleSelection_W_" +i;
+			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+			
+			rowID = "pageSingleSelection_M_" +i;
+			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+		}		
+	}
+}
+
+function pageSingleSelection_onStatus()
+{
+	pageSingleSelection_onProgramming();
+	pageSingleSelection_onSelector();
+
+	var win = ui.getWindowByID("pageSingleSelection");
+	switch (parseInt(win.getChildByID("pageSingleSelection_status").getSelectedOptionValue()))
+	{
+		case 0: //selection
+			rheaShowElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			break;
+			
+		case 1: //inhibit
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			break;
+		
+		case 2: //presel
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			break;
+		
+	}
+}
+
+function pageSingleSelection_onSelector()
+{
+	var elemP = rheaGetElemByID("pageSingleSelection_pageP");
+	var elemW = rheaGetElemByID("pageSingleSelection_pageW");
+	var elemM = rheaGetElemByID("pageSingleSelection_pageM");
+	rheaHideElem(elemP);
+	rheaHideElem(elemW);
+	rheaHideElem(elemM);
+	
+	var win = ui.getWindowByID("pageSingleSelection");
+	switch (parseInt(win.getChildByID("pageSingleSelection_selector").getSelectedOptionValue()))
+	{
+		case 1: rheaShowElem(elemP); break;
+		case 2: rheaShowElem(elemW); break;
+		case 3: rheaShowElem(elemM); break;
+	}
+}
+
+
+/***************************************************************************
+ *
+ * pageTemperature
+ *
+ */
+function pageTemperature_show()
+{
+	if (showPage("pageTemperature"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("TEMPERATURE");
+	btnBack_show();
+}
+
+
+
+/***************************************************************************
+ *
+ * pageClock
+ *
+ */
+function pageClock_show()
+{
+	if (showPage("pageClock"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("CLOCK");
+	btnBack_show();
+}
+
 </script>
 </html>

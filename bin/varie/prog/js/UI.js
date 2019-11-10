@@ -79,7 +79,7 @@ function UIWindowScrollable (elem, contentH, wrapperH)
 	this.mouse_pressed =0; 
 	this.mouse_y = 0; 
 	this.scroll_miny = -(contentH - wrapperH);
-	this.scroll_howMuch = (wrapperH / 2);
+	this.scroll_howMuch = 466; //(wrapperH / 2);
 	this.scroll_tollerance_at_border = 5;
 }
 
@@ -133,10 +133,13 @@ UIWindow.prototype.hide = function()
 	}	
 }
 
-UIWindow.prototype.loadFromDA3 = function(da3)
+UIWindow.prototype.loadFromDA3 = function(da3, da3offset)
 {
 	for (var i = 0; i < this.childList.length; i++)
-		this.childList[i].loadFromDA3(da3);	
+	{
+		this.childList[i].setDA3Offset (da3offset);
+		this.childList[i].loadFromDA3(da3);
+	}
 }
 
 UIWindow.prototype.saveToDA3 = function(da3)
@@ -181,6 +184,13 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 		childNum++;
 	}
 	
+	var nodeList = elemContent.querySelectorAll(":scope div.UIButtonSel");
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		this.childList[childNum] =  new UIButtonSel(this.id, childNum, nodeList[i]);
+		childNum++;
+	}
+	
 	nodeList = elemContent.querySelectorAll(":scope div.UIOption");
 	for (var i = 0; i < nodeList.length; i++)
 	{
@@ -195,6 +205,12 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 		childNum++;
 	}
 
+	nodeList = elemContent.querySelectorAll(":scope div.UITime24");
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		this.childList[childNum] =  new UITime24(this.id, childNum, nodeList[i], this);
+		childNum++;
+	}
 
 
 	var wrapperH = theWrapper.offsetHeight;
@@ -335,6 +351,7 @@ function UIButton (parentID, childNum, node)
 		node.classList.add(status); 
 }
 
+UIButton.prototype.setDA3Offset = function(da3offset)	{}
 UIButton.prototype.loadFromDA3 = function(da3)	{}
 UIButton.prototype.saveToDA3 = function(da3)	{}
 UIButton.prototype.setCaption = function (s)	{ rheaSetDivHTMLByName(this.id +"_caption", s); }	
@@ -394,6 +411,7 @@ UIButton.prototype.bindEvents = function()
  *		data-option="value|caption|value|caption|....value|caption"
  *			opzionale data-selected="value"	=> indica l'opzione selezionata. Default "" == nessuna selezione
  *			opzionale data-da3="xxx"		=> locazione in memoria dalla quale leggere/scrivere il [data-selected]
+ *			opzionale data-da3bit="4|8|16"	=> legge 4 o 8 bit dal da3, default 8
  *			opzionale data-onclick ="showPage('pageMaintenance')"
  */
 function UIOption (parentID, childNum, node)
@@ -424,6 +442,8 @@ function UIOption (parentID, childNum, node)
 	}
 	
 	//binding a da3
+	this.da3offset = 0;
+	this.da3bit = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3bit", "8"));
 	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
 	
 	//inietto l'html
@@ -441,13 +461,38 @@ function UIOption (parentID, childNum, node)
 	//opzione selezionata
 	this.selectedOption = -1;
 	if (this.da3Pos >= 0)
-		this.selectOptionByValue (da3.read16(this.da3Pos));
+		this.loadFromDA3 (da3, this.da3Pos);
 	else
 		this.selectOptionByValue (UIUtils_getAttributeOrDefault(node, "data-selected", "-1"));
 }
 
-UIOption.prototype.loadFromDA3 = function(da3)		{ if (this.da3Pos >= 0) this.selectOptionByValue (da3.read16(this.da3Pos)); }
-UIOption.prototype.saveToDA3 = function(da3)		{ if (this.da3Pos >= 0) da3.write16(this.da3Pos, this.getSelectedOptionValue()); }
+UIOption.prototype.setDA3Offset = function(da3offset)			{ this.da3offset = da3offset;}
+UIOption.prototype.loadFromDA3 = function(da3)					
+{ 
+	var loc = this.da3Pos + this.da3offset; 
+	if (loc >= 0) 
+	{
+		switch (this.da3bit)
+		{
+		case 4:		this.selectOptionByValue (da3.read4(loc));  break;
+		default:	this.selectOptionByValue (da3.read8(loc));  break;
+		case 16:	this.selectOptionByValue (da3.read16(loc)); break;
+		}
+	}
+}	
+UIOption.prototype.saveToDA3 = function(da3)					
+{ 
+	var loc = this.da3Pos + this.da3offset; 
+	if (loc >= 0) 
+	{
+		switch (this.da3bit)
+		{
+		case 4:		da3.write4(loc, this.getSelectedOptionValue()); break;
+		default:	da3.write8(loc, this.getSelectedOptionValue()); break;
+		case 16:	da3.write16(loc, this.getSelectedOptionValue()); break;
+		}
+	}		
+}
 
 UIOption.prototype.bindEvents = function()
 {
