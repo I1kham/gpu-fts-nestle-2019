@@ -409,7 +409,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		{
 			cpubridge::sExtendedCPUInfo info;			
 			rhea::app::ExtendedConfigInfo::decodeAnswer(decoded, &info);
-			log->outText(true, true, false, "cpuExtendedConfigInfo: ver[%d] type[%s] model[%d]\n", info.msgVersion, rhea::app::utils::verbose_CPUMachineType(info.machineType), info.machineModel);
+			log->outText(true, true, false, "cpuExtendedConfigInfo: ver[%d] type[%s] model[%d] induzione?[%d]\n", info.msgVersion, rhea::app::utils::verbose_CPUMachineType(info.machineType), info.machineModel, info.isInduzione);
 		}
 		break;
 

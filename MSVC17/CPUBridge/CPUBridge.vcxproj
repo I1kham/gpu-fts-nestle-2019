@@ -24,6 +24,7 @@
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelCom.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelFakeCPU.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\DA3.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\EVADTSParser.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\lang.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="..\..\src\CPUBridge\CPUChannelCom.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUChannelFakeCPU.h" />
     <ClInclude Include="..\..\src\CPUBridge\DA3.h" />
+    <ClInclude Include="..\..\src\CPUBridge\EVADTSParser.h" />
     <ClInclude Include="..\..\src\CPUBridge\lang.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

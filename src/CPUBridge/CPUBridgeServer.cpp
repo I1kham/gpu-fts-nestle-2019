@@ -456,6 +456,11 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 
 	//parsing della risposta
 	out->msgVersion = answerBuffer[3];
+
+	//è necessario che la versione del msg sia la 2, altrimenti fingo che la CPU non mi abbia nemmeno risposto
+	if (out->msgVersion != 2)
+		return false;
+
 	switch (answerBuffer[4])
 	{
 	default: 
@@ -475,6 +480,7 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 		break;
 	}
 	out->machineModel = answerBuffer[5];
+	out->isInduzione = answerBuffer[6];
 	return true;
 }
 

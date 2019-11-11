@@ -18,6 +18,6 @@ void CmdHandler_ajaxReqmachineTypeAndModel::onCPUBridgeNotification (socketbridg
 	cpubridge::translateNotify_EXTENDED_CONFIG_INFO(msgFromCPUBridge, &info);
 	
 	char resp[64];
-	sprintf_s(resp, sizeof(resp), "{\"mType\":%d,\"mModel\":%d}", (u8)info.machineType, info.machineModel);
+	sprintf_s(resp, sizeof(resp), "{\"mType\":%d,\"mModel\":%d,\"isInduzione\":%d}", (u8)info.machineType, info.machineModel, info.isInduzione);
 	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
 }

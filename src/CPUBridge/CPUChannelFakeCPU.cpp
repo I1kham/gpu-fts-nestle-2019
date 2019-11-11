@@ -253,9 +253,14 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		out_answer[ct++] = '#';
 		out_answer[ct++] = cpuCommand;
 		out_answer[ct++] = 0; //lunghezza
-		out_answer[ct++] = 0x01;	//versione
-        out_answer[ct++] = (u8)cpubridge::eCPUMachineType_espresso1;		//Istant o Espresso
+		out_answer[ct++] = 0x02;	//versione
+        out_answer[ct++] = (u8)cpubridge::eCPUMachineType_espresso1;		//[4] Istant o Espresso
 		out_answer[ct++] = 0x82;	//modello macchina
+
+		if (out_answer[4] == (u8)cpubridge::eCPUMachineType_instant)
+			out_answer[ct++] = 0;		//is Induzione? le macchine instant a induzione non esistono
+		else
+			out_answer[ct++] = 0x01;	//is Induzione?
 		out_answer[2] = (u8)ct + 1;
 		out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 		*in_out_sizeOfAnswer = out_answer[2];

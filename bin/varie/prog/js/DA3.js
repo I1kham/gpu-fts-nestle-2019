@@ -11,13 +11,14 @@ var DA3_BLOCK_SIZE = 64;
 	In teoria queste informazioni sono nel DA3, in pratica non è detto che quello che trovi nel DA3 rappresenti l'attuale macchina.
 	E' necessario quindi chiedere alla CPU tipo e modello e fare finta che queste informazioni ricevute dalla CPU siano davvero nel DA3
 */
-function DA3(machineType, machineModel)
+function DA3(machineType, machineModel, isInduzione)
 {
 	this.da3_original = null;
 	this.da3_current = null;
 	this.da3_filesize = 0;
 	this.machineType = machineType;
 	this.machineModel = machineModel;
+	this.bInduzione = parseInt(isInduzione);
 }
 
 
@@ -56,8 +57,9 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	onDA3Loaded();
 }
 
-DA3.prototype.isInstant = function ()			{ return 1; if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
-DA3.prototype.isEspresso = function ()			{ return 0; if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
+DA3.prototype.isInduzione = function ()			{ return this.bInduzione; }
+DA3.prototype.isInstant = function ()			{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
+DA3.prototype.isEspresso = function ()			{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
 DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		{ if (this.isEspresso()) return 6; else return 10; }
 

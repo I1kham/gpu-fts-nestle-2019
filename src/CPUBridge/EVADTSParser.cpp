@@ -1,0 +1,238 @@
+#include "EVADTSParser.h"
+
+
+EVADTSParser::ContatoreValNumValNum	EVADTSParser::MatriceContatori::contatoreAZero;
+
+
+//*******************************************************
+EVADTSParser::EVADTSParser()
+{
+	allocator = rhea::memory_getDefaultAllocator();
+	selezioni.setup(allocator, 64);
+}
+
+//*******************************************************
+EVADTSParser::~EVADTSParser()
+{
+	priv_reset();
+	selezioni.unsetup();
+}
+
+//*******************************************************
+void EVADTSParser::priv_reset()
+{
+	VA1.reset();
+	VA2.reset();
+	VA3.reset();
+	CA2.reset();
+	matriceContatori.reset();
+	
+	for (u32 i = 0; i < selezioni.getNElem(); i++)
+		RHEADELETE(allocator, selezioni[i]);
+	selezioni.reset();
+}
+
+//*******************************************************
+bool EVADTSParser::loadAndParse(const char *fullFilePathAndName)
+{
+	FILE *f = fopen(fullFilePathAndName, "rb");
+	if (NULL == f)
+		return false;
+
+	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	u32 bufferSize = 0;
+	u8 *buffer = rhea::fs::fileCopyInMemory(f, allocator, &bufferSize);
+	fclose(f);
+	bool ret = parseFromMemory(buffer, 0, bufferSize);
+	RHEAFREE(allocator, buffer);
+	return ret;
+}
+
+//*******************************************************
+bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesToCheck)
+{
+	priv_reset();
+
+	rhea::string::parser::Iter iter1;
+	iter1.setup((const char*)buffer, firstByte, nBytesToCheck);
+
+	InfoSelezione *lastInfoSel = NULL;
+	TempStr128 par[8];
+	while (1)
+	{
+		rhea::string::parser::Iter iter2;
+		rhea::string::parser::extractLine (iter1, &iter2);
+		if (iter2.getNumByteLeft() == 0)
+			break;
+
+		char line[256];
+		iter2.copyCurStr(line, sizeof(line));
+
+		if (priv_checkTag(line, "VA1", 4, par))
+		{
+			VA1.valorizzaFromString_ValNumValNum(par);
+		}
+		else if (priv_checkTag(line, "VA2", 4, par))
+		{
+			VA2.valorizzaFromString_ValNumValNum(par);
+		}
+		else if (priv_checkTag(line, "VA3", 4, par))
+		{
+			VA3.valorizzaFromString_ValNumValNum(par);
+		}
+		else if (priv_checkTag(line, "CA2", 4, par))
+		{
+			CA2.valorizzaFromString_ValNumValNum(par);
+		}
+		else if (priv_checkTag(line, "PA1", 3, par))
+		{
+			//ho trovato il tag di inizio di una nuova selezione
+			lastInfoSel = RHEANEW(allocator, InfoSelezione)();
+			lastInfoSel->id = priv_toInt(par[0].s);
+			lastInfoSel->price = priv_toInt(par[1].s);
+			strcpy(lastInfoSel->name.s, par[2].s);
+			selezioni.append(lastInfoSel);
+		}
+		else if (priv_checkTag(line, "PA2", 4, par))
+		{
+			if (lastInfoSel)
+				lastInfoSel->aPagamento.valorizzaFromString_NumValNumVal(par);
+		}
+		else if (priv_checkTag(line, "PA3", 4, par))
+		{
+			if (lastInfoSel)
+				lastInfoSel->testvend.valorizzaFromString_NumValNumVal(par);
+		}
+		else if (priv_checkTag(line, "PA4", 4, par))
+		{
+			if (lastInfoSel)
+				lastInfoSel->freevend.valorizzaFromString_NumValNumVal(par);
+		}
+		else if (priv_checkTag(line, "PA7", 8, par))
+		{
+			if (lastInfoSel)
+			{
+				int prodID = priv_toInt(par[0].s);
+				//per come è strutturato il file evadts, si assume che questo prodID sia esattamente lo stesso indicato dal tag PA1 che sequenzialmente
+				//nel file è comparso poco prima di questo tag PA7 ( e che qui nel codice è memorizzato in selezioni[iSel].id ).
+				//Per fare le cose in maniera più corretta bisognerebbe prima parsare tutto il file skippando i PA7 e poi riparsare il file considerando
+				//solo i PA7 e, in base al prodID indicato dal PA7, andare a cercare la selezione con l'id corretto                        
+
+				const ePaymentDevice paymentDevice = priv_fromStringToPaymentDevice(par[1].s);
+				const int idxListaPrezzi = priv_toInt(par[2].s);
+				const int prezzoApplicato = priv_toInt(par[3].s);
+				const int num_tot = priv_toInt(par[4].s);
+				const int val_tot = priv_toInt(par[5].s);
+				const int num_par = priv_toInt(par[6].s);
+				const int val_par = priv_toInt(par[7].s);
+				lastInfoSel->matriceContatori.set(idxListaPrezzi, paymentDevice, num_tot, val_tot, num_par, val_par);
+			}
+		}
+	}
+
+	//ho finito di parsare il file, calcolo la [matriceContatori] considerando le singole matriceContatori delle selezioni
+	for (u8 i = 1; i <= NUM_LISTE_PREZZI; i++)
+	{
+		for (u8 t = 0; t < NUM_PAYMENT_DEVICE; t++)
+		{
+			for (u32 z = 0; z < selezioni.getNElem(); z++)
+			{
+				//int iListaPrezzo, ePaymentDevice paymentDevice, ContatoreValNumValNum c
+				const ContatoreValNumValNum *ct = selezioni.getElem(z)->matriceContatori.get(i, (ePaymentDevice)t);
+				matriceContatori.add(i, (ePaymentDevice)t, ct);
+			}
+		}
+	}
+
+	return true;
+}
+
+
+/* se la stringa [s] inizia con il [tagToFindAtStartOfTheLine], allora la fn ritorna true e filla out_params con le stringhe contenenti gli [numOfParamsToRead] parametri che
+* seguono il tag.
+* Ad esempio, data la riga:
+*      VA1*15*1804*15*1804*0*0*0*0*0*0*0*0
+*
+* checkTag (s, "VA1", 4) ritornera true e valorizzera i primi 4 elementi di out_params come segue: {"15", "1804", "15", "1804"}
+*
+* Se non trova il tag ad inizio riga, ritorna false
+*
+* E' responsabilità del chiamante assicurarsi che [out_params] sia un array in grado di contenere almeno [numOfParamsToRead] stringhe
+*/
+bool EVADTSParser::priv_checkTag (const char *s, const char *tagToFindAtStartOfTheLine, u16 numOfParamsToRead, TempStr128 *out) const
+{
+	if (NULL == s)
+		return false;
+	const u32 sLen = (u32)strlen(s);
+	const u32 tagLen = (u32)strlen(tagToFindAtStartOfTheLine);
+
+	//se non c'è il tag ad inizio stringa, ho finito
+	if (sLen < tagLen + 1)
+		return false;
+
+	if (strncasecmp(tagToFindAtStartOfTheLine, s, tagLen) != 0)
+		return false;
+
+	//deve anche esserci * dopo il TAG
+	if (s[tagLen] != '*')
+		return false;
+	if (numOfParamsToRead < 1)
+		return true;
+
+	if (sLen < tagLen + 2)
+		return false;
+
+	rhea::string::parser::Iter iter1;
+	iter1.setup(s, tagLen+1);
+
+	//ok, il tag c'è, recuperiamo i parametri
+	for (u16 i = 0; i < numOfParamsToRead; i++)
+		out[i].s[0] = 0x00;
+
+	u16 nFound = 0;
+	for (u16 i = 0; i < numOfParamsToRead; i++)
+	{
+		rhea::string::parser::Iter iter2;
+		if (!rhea::string::parser::extractValue(iter1, &iter2, "*", 1))
+			break;
+		iter2.copyCurStr(out[i].s, sizeof(out[i]));
+		nFound++;
+	}
+
+	return (nFound == numOfParamsToRead);
+}
+
+
+//*******************************************************
+int EVADTSParser::priv_toInt(const char *s) const
+{
+	if (NULL == s)
+		return 0;
+	if (s[0] == 0x00)
+		return 0;
+
+	u32 len = (u32)strlen(s);
+	for (u32 i = 0; i < len; i++)
+	{
+		if (s[i]<'0' || s[i]>'9')
+		{
+			DBGBREAK;
+			return 0;
+		}
+	}
+	return atoi(s);
+}
+
+//*******************************************************
+EVADTSParser::ePaymentDevice EVADTSParser::priv_fromStringToPaymentDevice(const char *s) const
+{
+	if (strncasecmp(s, "CA", 2) == 0)
+		return ePaymentDevice_cash;
+	if (strncasecmp(s, "DA", 2) == 0)
+		return ePaymentDevice_cashless1;
+	if (strncasecmp(s, "DB", 2) == 0)
+		return ePaymentDevice_cashless2;
+	if (strncasecmp(s, "TA", 2) == 0)
+		return ePaymentDevice_token;
+	return ePaymentDevice_unknown;
+}

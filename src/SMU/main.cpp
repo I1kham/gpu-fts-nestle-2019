@@ -3,6 +3,7 @@
 #include "../CPUBridge/CPUChannelFakeCPU.h"
 #include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
+#include "../CPUBridge/EVADTSParser.h"
 
 //nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
@@ -19,11 +20,18 @@ bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *lo
 	return socketbridge::startServer(logger, hCPUServiceChannelW, out_hThread);
 }
 
-
+void testEVA()
+{
+	EVADTSParser parser;
+	parser.loadAndParse("C:/Users/gbrunelli/Desktop/dataAudit_2019-11-10_12-15-10.txt");
+}
 
 //*****************************************************
 bool startCPUBridge()
 {
+	//testEVA(); return false;
+
+
 #ifdef _DEBUG
 	rhea::StdoutLogger loggerSTD; 
 	//rhea::NullLogger loggerSTD;

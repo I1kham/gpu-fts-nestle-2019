@@ -19,6 +19,7 @@ namespace socketbridge
 		{
 			mType: numero 1 se espresso, 2 se instant
 			mModel: numero intero 8bit
+			isInduzione: numero intero 8bit, vale 0 o 1
 		}
      */
 

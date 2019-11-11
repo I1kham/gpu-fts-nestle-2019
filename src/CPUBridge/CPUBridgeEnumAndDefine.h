@@ -297,6 +297,7 @@ namespace cpubridge
 		u8				msgVersion;
 		eCPUMachineType	machineType;
 		u8				machineModel;
+		u8				isInduzione;		//induzione o bollitore?
 	};
 } // namespace cpubridge
 

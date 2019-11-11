@@ -293,10 +293,6 @@
 				<div id="pageSingleSelection_pageSel">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>PROGRAMMING</td>
-							<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
-						</tr>
-						<tr>
 							<td>PRICE 1</td></td>
 							<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
 						</tr>
@@ -308,6 +304,14 @@
 						<tr>
 							<td>JUG<br><span class="tip">num repetitions</span></td></td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="177" data-da3bit='8'></div></td>
+						</tr>
+						<tr>
+							<td>SCALING FACTOR<br><span class="tip">num repetitions</span></td></td>
+							<td><div class='UINumber' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
+						</tr>						
+						<tr>
+							<td>PROGRAMMING</td>
+							<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
 						</tr>
 					</table>
 					
@@ -367,8 +371,6 @@ var voidTask = new TaskVoid();
 var currentTask = voidTask;
 var currentPageID="";
 var timeNowMSec = 0;
-var NUM_PRODOTTI = 0; //da3.getNumProdotti();
-var NUM_ACQUE = 5;
 
 function onRheaBootstrapFinished()
 {
@@ -406,7 +408,7 @@ function onRheaBootstrapFinished()
 		var obj = JSON.parse(result);
 		
 		//carico il da3
-		da3 = new DA3(obj.mType, obj.mModel);
+		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione);
 		da3.load();
 	})
 	.catch( function(result)
@@ -418,8 +420,6 @@ function onRheaBootstrapFinished()
 //***************** chiamata al termine del caricamento del da3
 function onDA3Loaded()
 {
-	NUM_PRODOTTI = da3.getNumProdotti();
-
 	guiInfo = new GUIInfo();
 	guiInfo.load();
 }
@@ -1011,16 +1011,49 @@ function pageSingleSelection_show(iSel)
 	pageSingleSelection_onStatus();
 }
 
+var SINGLESEL_NUM_PRODOTTI = 0;
+var SINGLESEL_NUM_ACQUE = 0;
 function pageSingleSelection_build()
 {
-	var da3LocProd = 102;
-	var da3LocWater = da3LocProd +NUM_PRODOTTI*3;
-
+	var da3LocProd;
+	var da3LocWater;
+	var da3LocEVTemperature = 0;
+	var WATER_COLONNA_FLOW_TYPE = 0;
+	var WATER_COLONNA_FLOW_TITLE = "";
+	
 	var s = "";
 	if (da3.isInstant())
+	{
 		s="1|PRODUCTS|2|WATERS|3|MIXERS";
+		SINGLESEL_NUM_PRODOTTI = 9;
+		SINGLESEL_NUM_ACQUE = 5;
+		da3LocProd = 102;
+		da3ProductLM = da3LocProd +3*SINGLESEL_NUM_PRODOTTI;
+		da3LocWater = da3ProductLM +3;
+		
+		WATER_COLONNA_FLOW_TYPE = 1;
+		WATER_COLONNA_FLOW_TITLE = "FLOW";
+	}
 	else
+	{
+		SINGLESEL_NUM_PRODOTTI = 7;
+		SINGLESEL_NUM_ACQUE = 5;
 		s="0|ESPRESSO|1|PRODUCTS|2|WATERS|3|MIXERS";
+		da3LocProd = 105;
+		da3ProductLM = 129;
+		da3LocWater = da3ProductLM +3;
+
+		if (da3.isInduzione())
+		{
+			WATER_COLONNA_FLOW_TYPE=2;
+			WATER_COLONNA_FLOW_TITLE = "EV<br>TEMPERATURE";
+			da3LocEVTemperature = 169;
+		}
+		else
+			WATER_COLONNA_FLOW_TITLE = "";
+
+
+	}
 	var htmlSelector = "<br><br>"
 					+"<table border='0' width='100%'>"
 					+"	<tr valign='middle'>"
@@ -1029,6 +1062,28 @@ function pageSingleSelection_build()
 					+"	</tr>"
 					+"</table>";
 	
+	var htmlE="";
+	if (da3.isEspresso())
+	{
+		htmlE = "<table border='0' class='elenco'>"
+				+"<tr><td>COFFEE SEQUENCE</td><td><div class='UIOption' data-option='0|AFTER|1|BEFORE' data-da3='103' data-da3bit='8'></div></td></tr>"
+				+"<tr><td>COFFEE WATER</td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
+				+"<tr><td>COFFEE GRINDER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec/gr'></div></td></tr>"
+				+"<tr><td>PREINFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='128' data-da3bit='4' data-max='15' data-um='sec'></div></td></tr>"
+				+"<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>"
+				+"<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>"
+				+"<tr><td>GRANULOMETRY</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DISABLED|1|FINE|2|REFERRING|3|ROUGHLY' data-da3='175' data-da3bit='8'></div></td></tr>"
+
+				+"<tr><td>LATTE MACCHIATO<br>START BREWER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>"
+				+"<tr><td>EV FRESH MILK<br>QTY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+				+"<tr><td>EV FRESH MILK<br>DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+				+"<tr><td>EV AIR FRESH MILK</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+				+"<tr><td>EV AIR FRESH MILK<br>DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+
+				+"<tr><td>SELECT GRINDER 2</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='179' data-da3bit='8'></div></td></tr>"
+				+"<tr><td>COFFEE REPEAT</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"
+				+"</table>";
+	}
 	var htmlP = "<table border='0' class='elenco'>"
 				+"<tr>"
 				+"	<th style='width:184px; text-align:left;'>PRODUCT #</th>"
@@ -1036,12 +1091,44 @@ function pageSingleSelection_build()
 				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
 				+"	<th style='width:260px; text-align:center;'>NUM BREAKS</th>"
 				+"</tr>";
+	
+	for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
+	{
+		var prodNum;
+		prodNum = rheaLeftPad(i+1, 2, '0');
+			
+		var rowID = "pageSingleSelection_P_" +i;
+		var dosageID = "pageSingleSelection_P_d" +i;
+		htmlP +="<tr id='" +rowID +"'>"
+				+"<td>#" +prodNum +"</td>"
+				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>";
+				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"
+			+"</tr>";
+		da3LocProd+= 3;
+	}
+	
+	//product LM
+	var rowID = "pageSingleSelection_P_LM";
+	var dosageID = "pageSingleSelection_P_dLM";
+	htmlP +="<tr id='" +rowID +"'>"
+			+"<td>#PRODUCT LM</td>"
+			+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3ProductLM +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
+			+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3ProductLM+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
+			+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3ProductLM+2) +"' data-da3bit='4'></div></td>"
+		+"</tr>";
+	
+	htmlP += "<tr><td>TEA BAG</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
+	htmlP += "</table>";
+
+
+	//waters & mixers
 	var htmlW = "<table border='0' class='elenco'>"
 				+"<tr>"
 				+"	<th style='width:184px; text-align:left;'>WATER #</th>"
 				+"	<th style='width:290px; text-align:left;'>TIME</th>"
 				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
-				+"	<th style='width:260px; text-align:center;'>FLOW</th>"
+				+"	<th style='width:260px; text-align:center;'>" +WATER_COLONNA_FLOW_TITLE +"</th>"
 				+"</tr>";
 				
 	var htmlM = "<table border='0' class='elenco'>"
@@ -1050,27 +1137,8 @@ function pageSingleSelection_build()
 				+"	<th style='width:290px; text-align:left;'>TIME</th>"
 				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
 				+"	<th style='width:260px; text-align:center;'>SPEED</th>"
-				+"</tr>";				
-	for (var i=0; i<NUM_PRODOTTI; i++)
-	{
-		var prodNum;
-		if (i==9)
-			prodNum = "LM";
-		else 
-			prodNum = rheaLeftPad(i+1, 2, '0');
-			
-		var rowID = "pageSingleSelection_P_" +i;
-		var dosageID = "pageSingleSelection_P_d" +i;
-		htmlP +="<tr id='" +rowID +"'>"
-				+"<td>#" +prodNum +"</td>"
-				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
-				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
-				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"
-			+"</tr>";
-		da3LocProd+= 3;
-	}
-
-	for (var i=0; i<NUM_ACQUE; i++)
+				+"</tr>";		
+		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
 	{
 		var prodNum;
 		if (i==4)
@@ -1082,11 +1150,23 @@ function pageSingleSelection_build()
 		var timeID = "pageSingleSelection_W_t" +i;
 		htmlW +="<tr id='" +rowID +"'>"
 				+"<td>#" +prodNum +"</td>"
-				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
-				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
-				+"<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
-			+"</tr>";
+				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>";
+
+				
+		//la colonna 3, può essere FLOW, EV-TEMP o vuota, seconda di induzione/bollitore e espresso/instant
+		switch (WATER_COLONNA_FLOW_TYPE)
+		{
+		default:	htmlW +="<td></td>"; break;
+		case 1:    	htmlW += "<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+		case 2:
+				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-max='98' data-um='&deg;C'></div></td></tr>";
+				da3LocEVTemperature++;
+				break;
+		}
+		htmlW += "</tr>";
 		da3LocWater+= 3;	
+
 
 		rowID = "pageSingleSelection_M_" +i;
 		htmlM +="<tr id='" +rowID +"'>"
@@ -1097,15 +1177,21 @@ function pageSingleSelection_build()
 			+"</tr>";		
 		da3LocWater+= 3;
 	}
-	htmlP += "</table>";
 	htmlW += "</table>";
 	htmlM += "</table>";
 	
 	html =  htmlSelector
+			+"<div id='pageSingleSelection_pageE'>" +htmlE +"</div>"
 			+"<div id='pageSingleSelection_pageP'>" +htmlP +"</div>"
 			+"<div id='pageSingleSelection_pageW' style='display:none'>" +htmlW +"</div>"
 			+"<div id='pageSingleSelection_pageM' style='display:none'>" +htmlM +"</div>";
 	rheaSetDivHTMLByName("pageSingleSelection_c2", html);
+}
+
+function pageSingleSelection_hideIfDosageIsZero (win, dosageID, rowID)
+{
+	if (parseInt(win.getChildByID(dosageID).getValue()) == 0)
+		rheaHideElem(rheaGetElemByID(rowID));
 }
 
 function pageSingleSelection_onProgramming()
@@ -1114,38 +1200,27 @@ function pageSingleSelection_onProgramming()
 	var partial = parseInt(win.getChildByID("pageSingleSelection_programming").getSelectedOptionValue());
 	if (partial == "1")
 	{
-		for (var i=0; i<NUM_PRODOTTI; i++)
-		{
-			var dosageID = "pageSingleSelection_P_d" +i;
-			if (parseInt(win.getChildByID(dosageID).getValue()) == 0)
-			{
-				var rowID = "pageSingleSelection_P_" +i;
-				rheaHideElem(rheaGetElemByID(rowID));
-			}
-		}
+		for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
+			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_P_d" +i, "pageSingleSelection_P_" +i);
+		pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_P_dLM", "pageSingleSelection_P_LM");
 		
-		for (var i=0; i<NUM_ACQUE; i++)
+		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
 		{
-			var timeID = "pageSingleSelection_W_t" +i;		
-			if (parseInt(win.getChildByID(timeID).getValue()) == 0)
-			{
-				var rowID = "pageSingleSelection_W_" +i;
-				rheaHideElem(rheaGetElemByID(rowID));
-				
-				rowID = "pageSingleSelection_M_" +i;
-				rheaHideElem(rheaGetElemByID(rowID));				
-			}
+			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_W_t" +i, "pageSingleSelection_W_" +i);
+			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_W_t" +i, "pageSingleSelection_M_" +i);
 		}
 	}
 	else
 	{
-		for (var i=0; i<NUM_PRODOTTI; i++)
+		for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
 		{
 			var rowID = "pageSingleSelection_P_" +i;
 			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
 		}
 		
-		for (var i=0; i<NUM_ACQUE; i++)
+		rheaSetDisplayMode(rheaGetElemByID("pageSingleSelection_P_LM"), "table-row");
+		
+		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
 		{
 			var rowID = "pageSingleSelection_W_" +i;
 			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
@@ -1181,9 +1256,11 @@ function pageSingleSelection_onStatus()
 
 function pageSingleSelection_onSelector()
 {
+	var elemE = rheaGetElemByID("pageSingleSelection_pageE");
 	var elemP = rheaGetElemByID("pageSingleSelection_pageP");
 	var elemW = rheaGetElemByID("pageSingleSelection_pageW");
 	var elemM = rheaGetElemByID("pageSingleSelection_pageM");
+	rheaHideElem(elemE);
 	rheaHideElem(elemP);
 	rheaHideElem(elemW);
 	rheaHideElem(elemM);
@@ -1191,6 +1268,7 @@ function pageSingleSelection_onSelector()
 	var win = ui.getWindowByID("pageSingleSelection");
 	switch (parseInt(win.getChildByID("pageSingleSelection_selector").getSelectedOptionValue()))
 	{
+		case 0: rheaShowElem(elemE); break;
 		case 1: rheaShowElem(elemP); break;
 		case 2: rheaShowElem(elemW); break;
 		case 3: rheaShowElem(elemM); break;
