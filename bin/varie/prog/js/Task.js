@@ -119,3 +119,291 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 		});	
 	
 }
+
+
+
+/**********************************************************
+ * TaskCalibMotor
+ */
+function TaskCalibMotor()
+{
+	this.timeStarted = 0;
+	this.what = 0;  //0==nulla, 1=calib motore prodott, 2=calib macina
+	this.fase = 0;
+	this.value = 0;
+}
+TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
+{
+	this.timeStarted = 0;
+	this.fase = 0;
+	this.motor = motorIN;
+	this.value = 0;
+	this.impulsi = 0;
+	
+	this.what = 0;
+	if (motorIN == 11 || motorIN == 12)
+		this.what = 2;
+	else
+		this.what = 1;
+	
+}
+
+TaskCalibMotor.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskCalibMotor.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskCalibMotor.prototype.onFreeBtn2Clicked	= function(ev)	{ }
+
+TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
+{
+	if (this.timeStarted == 0)
+		this.timeStarted = timeNowMsec;
+	var timeElapsedMSec = timeNowMsec - this.timeStarted;
+
+	switch (this.what)
+	{
+		case 1: this.priv_handleCalibProdotto(timeElapsedMSec); break;
+		case 2: this.priv_handleCalibMacina(timeElapsedMSec); break;
+	}
+}
+
+TaskCalibMotor.prototype.onFreeBtn1Clicked	= function(ev)
+{ 
+	switch (this.what)
+	{
+	case 1:
+		if (this.fase == 30)	{ pleaseWait_btn1_hide(); this.fase = 40; }
+		break;
+		
+	case 2:
+		if (this.fase == 1)		{ pleaseWait_btn1_hide(); this.fase = 2; }
+		else if (this.fase==21) { pleaseWait_btn1_hide();; this.fase=30; }
+		else if (this.fase==41) { pleaseWait_btn1_hide();; this.fase=50; }
+		break;		
+	}
+}
+
+TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
+{
+	var TIME_ATTIVAZIONE_dSEC = 30;
+	
+	var me = this;
+	console.log ("TaskCalibMotor::fase[" +me.fase +"]");
+	switch (this.fase)
+	{
+	case 0:
+		me.fase = 10;
+		pleaseWait_show();
+		pleaseWait_calibration_show();
+		pleaseWait_calibration_setText("Please wait while motor is running");
+		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
+		{
+			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
+		})
+		.catch( function(result)
+		{
+			me.fase = 200;
+		});					
+	break;
+		
+	case 10:
+		break;
+		
+	case 20:
+		me.fase = 30;
+		pleaseWait_calibration_setText("Please enter the quantity, then press CONTINUE");
+		pleaseWait_calibration_num_setValue(0);
+		pleaseWait_calibration_num_show();
+		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_show();
+		break;
+		
+	case 30:
+		break;
+		
+	case 40:
+		pleaseWait_calibration_setText("Storing value...");
+		me.value = pleaseWait_calibration_num_getValue();
+		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
+		pleaseWait_calibration_num_hide();
+		
+		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
+		{
+			me.fase = 199;
+		})
+		.catch( function(result)
+		{
+			me.fase = 200;
+		});		
+		break;
+
+		
+	case 199:
+		da3.setCalibFactorGSec(me.motor, me.gSec);
+		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(me.motor) );
+		rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
+		me.fase = 200;
+		break;
+		
+	case 200:
+		me.what = 0;
+		pleaseWait_btn1_hide();
+		pleaseWait_calibration_hide();
+		pleaseWait_hide();
+		break;
+	}
+}
+
+TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
+{
+	var TIME_ATTIVAZIONE_dSEC = 60;
+	
+	var me = this;
+	console.log ("TaskCalibMotor::fase[" +me.fase +"]");
+	switch (this.fase)
+	{
+	case 0:
+		me.fase = 1;
+		pleaseWait_show();
+		pleaseWait_calibration_show();
+		pleaseWait_calibration_setText("Please remove the group then press CONTINUE");
+		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_show();
+		break;
+		
+	case 1:	//attenndo btn CONTINUE
+		break;
+		
+	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			console.log ("TaskCalibMotor, grpState[" +result +"]");
+			if (result=="0")
+				me.fase = 10;
+			else
+				me.fase = 0;
+		})
+		.catch( function(result)
+		{
+			me.fase = 0;
+		});			
+		me.fase = 3;
+		break;
+		
+	case 3:	//attendo risposta CPU
+		break;
+		
+	case 10:  //attivo le macinate
+		me.fase = 11;
+		pleaseWait_calibration_setText("Please wait while motor is running");
+		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
+		{
+			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
+		})
+		.catch( function(result)
+		{
+			me.fase = 200;
+		});					
+	break;
+		
+	case 11: //attendo fine macinate
+		break;
+		
+	case 20:
+		me.fase = 21;
+		pleaseWait_calibration_setText("Please enter the quantity, then press CONTINUE");
+		pleaseWait_calibration_num_setValue(0);
+		pleaseWait_calibration_num_show();
+		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_show();
+		break;
+		
+	case 21: //attendo pressione di continue
+		break;
+		
+	case 30:
+		pleaseWait_calibration_setText("Storing value...");
+		me.value = pleaseWait_calibration_num_getValue();
+		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
+		pleaseWait_calibration_num_hide();
+		
+		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
+		{
+			me.fase = 40;
+		})
+		.catch( function(result)
+		{
+			me.fase = 200;
+		});		
+		break;
+		
+	case 40: //chiedo di rimettere a posto il gruppo
+		pleaseWait_calibration_setText("Re-place the group into position, then press CONTINUE");
+		pleaseWait_btn1_show();
+		me.fase = 41;
+		break;
+		
+	case 41:
+		break;
+		
+	case 50: //verifico che il gruppo sia collegato, altrimenti goto 40
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			console.log ("TaskCalibMotor, grpState[" +result +"]");
+			if (result=="1")
+				me.fase = 60;
+			else
+				me.fase = 40;
+		})
+		.catch( function(result)
+		{
+			me.fase = 40;
+		});			
+		me.fase = 51;
+		break;
+		
+	case 51://attendo risposta CPU
+		break;
+		
+	case 60: //gruppo è stato ricollegato, procedo con il calcolo impulsi
+		me.fase = 65;
+		pleaseWait_calibration_setText("Impulse calucation in progress, please wait");
+		rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
+		{
+			me.fase = 70;
+		})
+		.catch( function(result)
+		{
+			me.fase = 60;
+		});			
+		
+	case 65: //attendo risposta CPU
+		break;
+		
+	case 70: //cpu sta facendo i conti degli impulsi, mando query per sapere come sta
+		rhea.ajax ("queryImpulseCalcStatus", "").then( function(result)
+		{
+			console.log ("queryImpulseCalc::result[" +result +"]");
+			var obj = JSON.parse(result);
+			if (parseInt(obj.v) > 0)
+			{
+				me.impulsi= parseInt(obj.v);
+				me.fase = 199;
+			}
+		})
+		.catch( function(result)
+		{
+			me.fase = 70;
+		});			
+		
+	case 199: //devo memorizzare gli impulsi ricevuti nel da3??
+		console.log ("memorizza impulsi[" +me.impulsi +"]");
+		me.fase = 200;
+		break;
+		
+	case 200:
+		me.what = 0;
+		pleaseWait_btn1_hide();
+		pleaseWait_calibration_hide();
+		pleaseWait_hide();
+		break;
+	}
+}

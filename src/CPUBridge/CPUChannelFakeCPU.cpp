@@ -254,7 +254,10 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		out_answer[ct++] = cpuCommand;
 		out_answer[ct++] = 0; //lunghezza
 		out_answer[ct++] = 0x02;	//versione
-        out_answer[ct++] = (u8)cpubridge::eCPUMachineType_espresso1;		//[4] Istant o Espresso
+        
+		out_answer[ct++] = (u8)cpubridge::eCPUMachineType_espresso2;		//[4] Istant o Espresso
+		//out_answer[ct++] = (u8)cpubridge::eCPUMachineType_instant;
+		
 		out_answer[ct++] = 0x82;	//modello macchina
 
 		if (out_answer[4] == (u8)cpubridge::eCPUMachineType_instant)
@@ -278,6 +281,71 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			{
 			default:
 				return false;
+
+			case eCPUProgrammingCommand_setFattoreCalibrazioneMotore:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = bufferToSend[4]; //motore
+				out_answer[ct++] = bufferToSend[5];
+				out_answer[ct++] = bufferToSend[6];
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+				break;
+
+			case eCPUProgrammingCommand_getStatoGruppo:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = (rhea::random01() > 0.8f) ? 0 : 1;
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+				break;
+
+			case eCPUProgrammingCommand_calcolaImpulsiMacina:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = bufferToSend[4];
+				out_answer[ct++] = bufferToSend[5];
+				out_answer[ct++] = bufferToSend[6];
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+				break;
+
+			case eCPUProgrammingCommand_getStatoCalcoloImpulsi:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = 0;
+				if (rhea::random01() > 0.7)
+				{
+					out_answer[ct++] = 0;
+					out_answer[ct++] = 0;
+				}
+				else
+				{
+					out_answer[ct++] = 100;
+					out_answer[ct++] = 1;
+				}
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+				break;
 
 			case eCPUProgrammingCommand_cleaning:
 				//fingo un cleaning

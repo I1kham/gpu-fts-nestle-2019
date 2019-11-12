@@ -1,20 +1,20 @@
-#ifndef _CmdHandler_ajaxReqSetDecounter_h_
-#define _CmdHandler_ajaxReqSetDecounter_h_
+#ifndef _CmdHandler_ajaxReqStartImpulseCalc_h_
+#define _CmdHandler_ajaxReqStartImpulseCalc_h_
 #include "../CmdHandler_ajaxReq.h"
 
 
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_ajaxReqSetDecounter
+     * CmdHandler_ajaxReqStartImpulseCalc
      *
      * la GUI ha mandato una richiesta AJAX per settare uno dei decounter prodotti
      *
         Input:
-            command: setDecounter
+            command: startImpulseCalc
             params:
-				d: 1..13 vedi enum cpubridge::eCPUProgrammingCommand_decounter
-				v: valore a cui resettare (16bit)
+				m: macina (11=macina1, 12=macina2)
+				v: valore della pesata in dGrammi
 
 		Output
 			OK
@@ -22,10 +22,10 @@ namespace socketbridge
      */
 
 
-    class CmdHandler_ajaxReqSetDecounter : public CmdHandler_ajaxReq
+    class CmdHandler_ajaxReqStartImpulseCalc : public CmdHandler_ajaxReq
     {
     public:
-		CmdHandler_ajaxReqSetDecounter(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
+		CmdHandler_ajaxReqStartImpulseCalc(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
                                 CmdHandler_ajaxReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID)
                                 { }
 
@@ -33,9 +33,9 @@ namespace socketbridge
         void                passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params);
         void                onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge);
 
-        static const char*  getCommandName()                            { return "setDecounter"; }
+        static const char*  getCommandName()                            { return "startImpulseCalc"; }
     };
 
 } // namespace socketbridge
 
-#endif // _CmdHandler_ajaxReqSetDecounter_h_
+#endif // _CmdHandler_ajaxReqStartImpulseCalc_h_

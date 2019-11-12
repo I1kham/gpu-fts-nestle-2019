@@ -70,6 +70,15 @@ UI.prototype.setupStandaloneButton = function(elemID)
 {
 	var o = new UIButton ("", 0, document.getElementById(elemID));
 	o.bindEvents();
+	return o;
+}
+
+//crea un UINumber anche se questo non è all'interno di un UIPanel
+UI.prototype.setupStandaloneNumber = function(elemID)
+{
+	var o = new UINumber ("", 0, document.getElementById(elemID));
+	o.bindEvents();
+	return o;
 }
 
 //********************************************************
@@ -207,7 +216,7 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	nodeList = elemContent.querySelectorAll(":scope div.UINumber");
 	for (var i = 0; i < nodeList.length; i++)
 	{
-		this.childList[childNum] =  new UINumber(this.id, childNum, nodeList[i], this);
+		this.childList[childNum] =  new UINumber(this.id, childNum, nodeList[i]);
 		childNum++;
 	}
 
@@ -223,7 +232,7 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	var contentH = elemContent.offsetHeight;
 	//console.log ("UIWindow => winID[" +this.id +"], wrapperH[" +wrapperH +"], contentH[" +contentH +"]");
 
-	if (contentH > wrapperH)
+	if (contentH > wrapperH+10)
 	{
 		var me = this;
 		

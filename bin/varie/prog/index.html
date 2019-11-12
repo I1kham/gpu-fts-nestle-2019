@@ -24,6 +24,7 @@
 			<div id="pagePleaseWait_freeBtn2" style="position:absolute; top:400px; left:680px; display:none">
 				<div id="bntFree2" class="UIButton bigButton3x4"><p id="bntFree2Text">testo bottone 2 bottone 2</p></div>
 			</div>
+			
 		</div>
 	</div>
 			
@@ -50,7 +51,7 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS<br>(max 48)" data-onclick="pageSelections_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="CALIBRATION"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DEVICES"></div></td>
 					</tr>
 					<tr valign="middle">
@@ -76,10 +77,7 @@
 		<div id="pageMaintenance" class="UIWindow">
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
-					<tr>
-						<td class='description'>Machine Voltage</td>
-						<td>todo...</td>
-					</tr>
+					<!--<tr><td class='description'>Machine Voltage</td><td>todo...</td></tr>-->
 					
 					<tr>
 						<td>ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
@@ -117,10 +115,7 @@
 						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
 					</tr>
 					
-					<tr>
-						<td>OUT of service (last 20 OFF)</td>
-						<td>todo...</td>
-					</tr>						
+					<!--<tr><td>OUT of service (last 20 OFF)</td><td>todo...</td></tr>-->
 				</table>
 			</div>
 		</div><!-- page Maintenance -->
@@ -200,7 +195,7 @@
 				</table>
 
 				<br>
-				<div id="pageClock_happyHour">
+				<div id="pageClock_happyHour" style="display:none">
 					<table border='0' class='elenco'>
 						<tr style="height:50px; vertical-align:bottom">
 							<th style="width:232px; text-align:left">HAPPY HOUR</th>
@@ -287,50 +282,65 @@
 		
 		<!-- pageSelections -->
 		<div id="pageSelections" class="UIWindow">
-			<div class="UIWindowContent" id="pageSelections_content">
-				<!-- il contenuto di questa pagina lo credo dinamicamente (vedi pageSelections_build) -->
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td style="width:140px"><b>SELECTIONS:</b></td>
+						<td><div class='UIOptionSmall' id='pageSelections_selector' data-option='1|1-12|2|13-24|3|25-36|4|37-48' data-onclick='pageSelections_onSelector()'></div></td>
+					</tr>
+				</table>		
+			
+				<div id="pageSelections_c2">
+					<!-- il contenuto di questa pagina lo credo dinamicamente (vedi pageSelections_build) -->
+				</div>
 			</div>
 		</div><!-- pageSelections -->
 		
 		<!-- pageSingleSelection -->
 		<div id="pageSingleSelection" class="UIWindow">
 			<div class="UIWindowContent">
-				<table border='0' class='elenco'>
-					<tr>
-						<td>STATUS</td>
-						<td><div id='pageSingleSelection_status' class="UIOption" data-option="0|SELECTION|1|INHIBITED|2|PRESELECTION" data-da3="100" data-onclick='pageSingleSelection_onStatus()'></div></td>
-					</tr>
-				</table>
 				
-				<div id="pageSingleSelection_pageSel">
+				<div id="pageSingleSelection_selectorAtTop"></div>
+				
+				<br>
+				<div id="pageSingleSelection_pageG">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>PRICE 1</td></td>
-							<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
-						</tr>
-						<tr>
-							<td>PRICE 2<br><span class="tip">happy price</span></td></td>
-							<td><div id='pageSingleSelection_prc2' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
-						</tr>
-						
-						<tr>
-							<td>JUG<br><span class="tip">num repetitions</span></td></td>
-							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="177" data-da3bit='8'></div></td>
-						</tr>
-						<tr>
-							<td>SCALING FACTOR<br><span class="tip">num repetitions</span></td></td>
-							<td><div class='UINumber' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
-						</tr>						
-						<tr>
-							<td>PROGRAMMING</td>
-							<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
+							<td>STATUS</td>
+							<td><div id='pageSingleSelection_status' class="UIOption" data-option="0|SELECTION|1|INHIBITED|2|PRESELECTION" data-da3="100" data-onclick='pageSingleSelection_onStatus()'></div></td>
 						</tr>
 					</table>
-					
-					<div id="pageSingleSelection_c2">
-						<!-- il contenuto di questa pagina lo credo dinamicamente (vedi pageSingleSelection_build) -->
+					<div id="pageSingleSelection_pageSel">
+						<table border='0' class='elenco'>
+							<tr>
+								<td>PRICE 1</td></td>
+								<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
+							</tr>
+							<tr>
+								<td>PRICE 2<br><span class="tip">happy price</span></td></td>
+								<td><div id='pageSingleSelection_prc2' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
+							</tr>
+							<tr>
+								<td>PROGRAMMING</td>
+								<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
+							</tr>							
+							<tr>
+								<td>JUG<br><span class="tip">num repetitions</span></td></td>
+								<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="177" data-da3bit='8'></div></td>
+							</tr>
+							<tr>
+								<td>SCALING FACTOR<br><span class="tip">num repetitions</span></td></td>
+								<td><div class='UINumber' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
+							</tr>						
+						</table>
 					</div>
-				</div>
+				</div> <!--pageSingleSelection_pagegs-->
+				
+				<div id="pageSingleSelection_pageE"></div>
+				<div id="pageSingleSelection_pageP"></div>
+				<div id="pageSingleSelection_pageW"></div>
+				<div id="pageSingleSelection_pageM"></div>
+				
 			</div>
 		</div><!-- pageSingleSelection -->
 		
@@ -346,7 +356,72 @@
 					</tr>
 				</table>
 			</div>
-		</div><!-- pageTemperature -->
+		</div>
+		<!-- pageTemperature -->
+		
+		
+		<!-- pageCalibration -->
+		<div id="pageCalibration" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>
+					<tr id="pageCalibration_rowGrinder1">
+						<td>GRINDER 1</td>
+						<td><div id="pageCalibration_m11" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(11)"></div></div></td>
+						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(11)"></div></div></td>
+					</tr>
+					<tr id="pageCalibration_rowGrinder2">
+						<td>GRINDER 2</td>
+						<td><div id="pageCalibration_m12" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(12)"></div></div></td>
+						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(12)"></div></div></td>
+					</tr>
+					
+					<tr id="pageCalibration_rowMotor1">
+						<td style="width:150px">MOTOR 1</td>
+						<td style="width:274px"><div id="pageCalibration_m1" class="bigCaption15"></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(1)"></div></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(1)"></div></div></td>
+					</tr>
+					
+					<tr>
+						<td>MOTOR 2</td>
+						<td><div id="pageCalibration_m2" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(2)"></div></div></td>
+						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(2)"></div></div></td>
+					</tr>
+
+					<tr>
+						<td>MOTOR 3</td>
+						<td><div id="pageCalibration_m3" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(3)"></div></div></td>
+						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(3)"></div></div></td>
+					</tr>
+					
+					<tr>
+						<td>MOTOR 4</td>
+						<td><div id="pageCalibration_m4" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(4)"></div></div></td>
+						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(4)"></div></div></td>
+					</tr>
+
+					<tr>
+						<td>MOTOR 5</td>
+						<td><div id="pageCalibration_m5" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(5)"></div></div></td>
+						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(5)"></div></div></td>
+					</tr>
+
+					<tr>
+						<td>MOTOR 6</td>
+						<td><div id="pageCalibration_m6" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></div></td>
+						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(6)"></div></div></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- pageCalibration -->
 		
 	</div> <!-- divPage -->
 
@@ -380,9 +455,11 @@ var da3 = null;
 var guiInfo = null;
 var ui = null;
 var voidTask = new TaskVoid();
+var taskCalibMotor = new TaskCalibMotor();
 var currentTask = voidTask;
 var currentPageID="";
 var timeNowMSec = 0;
+var uiStandAloneNum = null;
 
 function onRheaBootstrapFinished()
 {
@@ -397,6 +474,7 @@ function onRheaBootstrapFinished()
 	ui = new UI ("divPage");
 	ui.setupStandaloneButton("bntBack");
 	ui.setupStandaloneButton("bntSave");
+	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
 	
 	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
 	switch (rheaGetURLParamOrDefault("page", "pageMainMenu"))
@@ -432,6 +510,7 @@ function onRheaBootstrapFinished()
 //***************** chiamata al termine del caricamento del da3
 function onDA3Loaded()
 {
+	console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
 	guiInfo = new GUIInfo();
 	guiInfo.load();
 }
@@ -457,7 +536,7 @@ function onGUIInfoLoaded()
 
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
 
-function showPage(pageID)				{ showPageEx(pageID,0); }
+function showPage(pageID)				{ return showPageEx(pageID,0); }
 function showPageEx(pageID, da3Offset)	
 { 
 	currentPageID=pageID; 
@@ -536,6 +615,20 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 	});
 }
 
+function helper_intToFixedOnePointDecimale(v)
+{
+	if (v > 0)
+	{
+		if (v<10)
+			v = "0." +v;
+		else
+		{
+			v = v.toString();
+			v = v.substr(0, v.length-1) +"." +v.substr(v.length-1);
+		}
+	}
+	return v;
+}
 
 /***************************************************************************
  *
@@ -576,6 +669,13 @@ function pleaseWait_btn2_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait
 function pleaseWait_btn2_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
 function pleaseWait_btn2_setText(s)		{ rheaSetDivHTMLByName("bntFree2Text", s); }
 
+function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_num_show()				{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
+function pleaseWait_calibration_num_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
+function pleaseWait_calibration_num_setValue (v)		{ uiStandAloneNum.setValue(parseInt(v)); }
+function pleaseWait_calibration_num_getValue()			{ return uiStandAloneNum.getValue(); }
+function pleaseWait_calibration_setText(s)				{ rheaSetDivHTMLByName("pagePleaseWait_calibration_text", s); }
 
 /***************************************************************************
  *
@@ -958,14 +1058,35 @@ function pageSelections_show()
 	}
 	header_setText("SELECTIONS");
 	btnBack_show();
+	pageSelections_onSelector();
 }
 
 function pageSelections_build()
 {
-	var html = "<table border='0'>";
+	var html = "";
 	
 	var iSel = 1;
-	for (var r=0; r<16; r++)
+	
+	for (var page=1; page<=4; page++)
+	{
+		html += "<div id='pageSelections_page" +page +"' style='display:none'><table border='0'><tr>";
+		for (var r=0; r<4; r++)
+		{
+			for (var c=0; c<3; c++)
+			{
+				var caption = "SELECTION " +rheaLeftPad(iSel,2,'0');
+				html += "<td width='33%' align='center'><div class='UIButtonSel' "
+						+"data-caption='" +caption +"' "
+						+"data-caption2='" +guiInfo.selInfo[iSel].name +"' "
+						+"data-caption3='" +guiInfo.selInfo[iSel].short +"' "
+						+"data-onclick='pageSingleSelection_show(" +iSel +")'></div></td>";
+				iSel++;
+			}
+			html += "</tr>";
+		}
+		html += "</table></div>";
+	}
+	/*for (var r=0; r<16; r++)
 	{
 		html += "<tr>";
 		for (var c=0; c<3; c++)
@@ -981,11 +1102,24 @@ function pageSelections_build()
 		html += "</tr>";
 	}
 	html += "</table><div style='height:30px; min-height:30px; overflow:hidden;'>&nbsp;</div>";
-	
-	rheaSetDivHTMLByName("pageSelections_content", html);
+	*/
+	rheaSetDivHTMLByName("pageSelections_c2", html);
 }
 
 
+function pageSelections_onSelector()
+{
+	var win = ui.getWindowByID("pageSelections");
+	var option = parseInt(win.getChildByID("pageSelections_selector").getSelectedOptionValue());
+	for (var page=1; page<=4; page++)
+	{
+		var elem = rheaGetElemByID("pageSelections_page" +page);
+		if (option == page)
+			rheaShowElem(elem);
+		else
+			rheaHideElem(elem);
+	}
+}
 
 /***************************************************************************
  *
@@ -1033,10 +1167,8 @@ function pageSingleSelection_build()
 	var WATER_COLONNA_FLOW_TYPE = 0;
 	var WATER_COLONNA_FLOW_TITLE = "";
 	
-	var s = "";
 	if (da3.isInstant())
 	{
-		s="1|PRODUCTS|2|WATERS|3|MIXERS";
 		SINGLESEL_NUM_PRODOTTI = 9;
 		SINGLESEL_NUM_ACQUE = 5;
 		da3LocProd = 102;
@@ -1050,7 +1182,6 @@ function pageSingleSelection_build()
 	{
 		SINGLESEL_NUM_PRODOTTI = 7;
 		SINGLESEL_NUM_ACQUE = 5;
-		s="0|ESPRESSO|1|PRODUCTS|2|WATERS|3|MIXERS";
 		da3LocProd = 105;
 		da3ProductLM = 129;
 		da3LocWater = da3ProductLM +3;
@@ -1063,16 +1194,15 @@ function pageSingleSelection_build()
 		}
 		else
 			WATER_COLONNA_FLOW_TITLE = "";
-
-
 	}
-	var htmlSelector = "<br><br>"
-					+"<table border='0' width='100%'>"
-					+"	<tr valign='middle'>"
-					+"		<td style='width:160px'><b>VIEW PARAMS<br>FOR</b></td>"
-					+"		<td><div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div></td>"
-					+"	</tr>"
-					+"</table>";
+
+	
+	var s = "";
+	if (da3.isInstant())
+		s = "0|GENERAL SETTINGS|2|PRODUCTS|3|WATERS|4|MIXERS";
+	else
+		s = "0|GENERAL SETTINGS|1|ESPRESSO|2|PRODUCTS|3|WATERS|4|MIXERS";
+	rheaSetDivHTMLByName("pageSingleSelection_selectorAtTop", "<div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div>");
 	
 	var htmlE="";
 	if (da3.isEspresso())
@@ -1196,12 +1326,11 @@ function pageSingleSelection_build()
 	htmlW += "</table>";
 	htmlM += "</table>";
 	
-	html =  htmlSelector
-			+"<div id='pageSingleSelection_pageE'>" +htmlE +"</div>"
-			+"<div id='pageSingleSelection_pageP'>" +htmlP +"</div>"
-			+"<div id='pageSingleSelection_pageW' style='display:none'>" +htmlW +"</div>"
-			+"<div id='pageSingleSelection_pageM' style='display:none'>" +htmlM +"</div>";
-	rheaSetDivHTMLByName("pageSingleSelection_c2", html);
+	
+	rheaSetDivHTMLByName("pageSingleSelection_pageE", htmlE);
+	rheaSetDivHTMLByName("pageSingleSelection_pageP", htmlP);
+	rheaSetDivHTMLByName("pageSingleSelection_pageW", htmlW);
+	rheaSetDivHTMLByName("pageSingleSelection_pageM", htmlM);
 }
 
 function pageSingleSelection_hideIfDosageIsZero (win, dosageID, rowID)
@@ -1256,15 +1385,18 @@ function pageSingleSelection_onStatus()
 	switch (parseInt(win.getChildByID("pageSingleSelection_status").getSelectedOptionValue()))
 	{
 		case 0: //selection
+			rheaShowElem(rheaGetElemByID("pageSingleSelection_selector"));
 			rheaShowElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
 			break;
 			
 		case 1: //inhibit
 			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_selector"));
 			break;
 		
 		case 2: //presel
 			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_selector"));
 			break;
 		
 	}
@@ -1272,10 +1404,12 @@ function pageSingleSelection_onStatus()
 
 function pageSingleSelection_onSelector()
 {
+	var elemG = rheaGetElemByID("pageSingleSelection_pageG");
 	var elemE = rheaGetElemByID("pageSingleSelection_pageE");
 	var elemP = rheaGetElemByID("pageSingleSelection_pageP");
 	var elemW = rheaGetElemByID("pageSingleSelection_pageW");
 	var elemM = rheaGetElemByID("pageSingleSelection_pageM");
+	rheaHideElem(elemG);
 	rheaHideElem(elemE);
 	rheaHideElem(elemP);
 	rheaHideElem(elemW);
@@ -1284,10 +1418,12 @@ function pageSingleSelection_onSelector()
 	var win = ui.getWindowByID("pageSingleSelection");
 	switch (parseInt(win.getChildByID("pageSingleSelection_selector").getSelectedOptionValue()))
 	{
-		case 0: rheaShowElem(elemE); break;
-		case 1: rheaShowElem(elemP); break;
-		case 2: rheaShowElem(elemW); break;
-		case 3: rheaShowElem(elemM); break;
+		case 0: rheaShowElem(elemG); break;
+		case 1: rheaShowElem(elemE); break;
+		case 2: rheaShowElem(elemP); break;
+		case 3: rheaShowElem(elemW); break;
+		case 4: rheaShowElem(elemM); break;
+		
 	}
 }
 
@@ -1319,9 +1455,9 @@ function pageClock_show()
 	if (showPage("pageClock"))
 	{
 		//è la prima volta che visualizziamo la pagina
-		pageClock_onSelector();
 	}
 	header_setText("CLOCK");
+	pageClock_onSelector();
 	btnBack_show();
 }
 
@@ -1336,5 +1472,81 @@ function pageClock_onSelector()
 		case 1:  rheaShowElem(elemES); rheaHideElem(elemHH); break;
 	}
 }
+
+
+/***************************************************************************
+ *
+ * pageCalibration
+ *
+ */
+function pageCalibration_show()
+{
+	if (showPage("pageCalibration"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder1"));
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
+		}
+		else
+		{
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor1"));
+			if (da3.getNumMacine() == 1)
+				rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
+		}
+	}
+
+	if (da3.isInstant())
+	{
+		for (var i=1; i<=6; i++)
+		{
+			var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
+			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
+		}
+	}
+	else
+	{
+		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(11) );
+		rheaSetDivHTMLByName("pageCalibration_m11", v +"&nbsp;gr/sec");
+		
+		for (var i=2; i<=6; i++)
+		{
+			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
+			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
+		}
+		
+		v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(12) );
+		rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
+	}	
+	
+	header_setText("CALIBRATION");
+	btnBack_show();
+	rheaHideElem(rheaGetElemByID("bntSave"));
+	currentTask = taskCalibMotor;
+}
+
+function pageCalibration_reset(motor)
+{
+	pleaseWait_show();
+	rhea.ajax ("setFattoreCalib", { "m":motor, "v":0}).then( function(result)
+	{
+		rheaSetDivHTMLByName("pageCalibration_m" +motor, "0&nbsp;gr/sec");
+		da3.setCalibFactorGSec(motor, 0);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
+
+
+function pageCalibration_start (motor)
+{
+	taskCalibMotor.startMotorCalib(motor);
+}
+
+
 </script>
 </html>
