@@ -9,6 +9,11 @@
 #include "CmdHandler/CmdHandler_ajaxReqSetDecounter.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetAllDecounterValues.h"
 #include "CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.h"
+#include "CmdHandler/CmdHandler_ajaxReqSetCalibFactor.h"
+#include "CmdHandler/CmdHandler_ajaxReqStatoGruppo.h"
+#include "CmdHandler/CmdHandler_ajaxReqAttivazioneMotore.h"
+#include "CmdHandler/CmdHandler_ajaxReqStartImpulseCalc.h"
+#include "CmdHandler/CmdHandler_ajaxReqQueryImpulseCalcStatus.h"
 
 using namespace socketbridge;
 
@@ -50,6 +55,12 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqSetDecounter);
 	CHECK(CmdHandler_ajaxReqGetAllDecounterValues);
 	CHECK(CmdHandler_ajaxReqmachineTypeAndModel);
+	CHECK(CmdHandler_ajaxReqSetCalibFactor);
+	CHECK(CmdHandler_ajaxReqStatoGruppo);
+	CHECK(CmdHandler_ajaxReqAttivazioneMotore);
+	CHECK(CmdHandler_ajaxReqStartImpulseCalc);
+	CHECK(CmdHandler_ajaxReqQueryImpulseCalcStatus);
+
 #undef CHECK
     return NULL;
 }

@@ -116,6 +116,21 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStatoGruppo.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqAttivazioneMotore.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStartImpulseCalc.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -224,6 +239,21 @@
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStatoGruppo.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqAttivazioneMotore.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStartImpulseCalc.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>

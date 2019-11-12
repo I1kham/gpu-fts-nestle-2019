@@ -43,6 +43,11 @@
 #define		CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET			0x0111
 #define		CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES		0x0112
 #define		CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO		0x0113
+#define		CPUBRIDGE_NOTIFY_ATTIVAZIONE_MOTORE			0x0114	
+#define		CPUBRIDGE_NOTIFY_CALCOLA_IMPULSI_GRUPPO_STARTED	0x0115
+#define		CPUBRIDGE_NOTIFY_STATO_CALCOLO_IMPULSI_GRUPPO	0x0116
+#define		CPUBRIDGE_NOTIFY_SET_FATTORE_CALIB_MOTORE		0x0117
+#define		CPUBRIDGE_NOTIFY_STATO_GRUPPO					0x0118
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
 
@@ -73,6 +78,11 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER					0x0813
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES		0x0814
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO		0x0815
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE			0x0816
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO			0x0817
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO	0x0818
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE		0x0819
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO				0x081A
 
 namespace cpubridge
 {
@@ -182,8 +192,18 @@ namespace cpubridge
         eCPUProgrammingCommand_cleaning = 0x02,
 		eCPUProgrammingCommand_querySanWashingStatus = 0x03,
 		eCPUProgrammingCommand_setDecounter = 0x04,
-		//eCPUProgrammingCommand_resetCounter = 0x05,
-		eCPUProgrammingCommand_getAllDecounterValues = 0x06
+		//ELIMINATO eCPUProgrammingCommand_resetCounter = 0x05,
+		eCPUProgrammingCommand_getAllDecounterValues = 0x06,
+		//eCPUProgrammingCommand_getTime = 0x07,
+		//eCPUProgrammingCommand_getDate = 0x08,
+		//eCPUProgrammingCommand_setTime = 0x09,
+		//eCPUProgrammingCommand_setDate = 0x0A,
+		eCPUProgrammingCommand_getStatoGruppo = 0x0B,
+		eCPUProgrammingCommand_attivazioneMotore = 0x0C,
+		eCPUProgrammingCommand_calcolaImpulsiMacina = 0x0D,
+		eCPUProgrammingCommand_getStatoCalcoloImpulsi = 0x0E,
+		eCPUProgrammingCommand_setFattoreCalibrazioneMotore = 0x0F,
+		eCPUProgrammingCommand_unknown = 0xff
     };
 
 	enum eCPUProgrammingCommand_cleaningType
@@ -215,6 +235,29 @@ namespace cpubridge
 		eCPUProgrammingCommand_decounter_coffeeBrewer = 12,
 		eCPUProgrammingCommand_decounter_coffeeGround = 13,
 		eCPUProgrammingCommand_decounter_error = 0xff
+	};
+
+	enum eCPUProgrammingCommand_statoGruppo
+	{
+		eCPUProgrammingCommand_statoGruppo_nonAttaccato = 0x00,
+		eCPUProgrammingCommand_statoGruppo_attaccato = 0x01
+	};
+
+	enum eCPUProgrammingCommand_motor
+	{
+		eCPUProgrammingCommand_motor_unknown = 0,
+		eCPUProgrammingCommand_motor_prod1 = 1,
+		eCPUProgrammingCommand_motor_prod2 = 2,
+		eCPUProgrammingCommand_motor_prod3 = 3,
+		eCPUProgrammingCommand_motor_prod4 = 4,
+		eCPUProgrammingCommand_motor_prod5 = 5,
+		eCPUProgrammingCommand_motor_prod6 = 6,
+		eCPUProgrammingCommand_motor_prod7 = 7,
+		eCPUProgrammingCommand_motor_prod8 = 8,
+		eCPUProgrammingCommand_motor_prod9 = 9,
+		eCPUProgrammingCommand_motor_prod10 = 10,
+		eCPUProgrammingCommand_motor_macina1 = 11,
+		eCPUProgrammingCommand_motor_macina2 = 12
 	};
 
 	struct sSubscriber

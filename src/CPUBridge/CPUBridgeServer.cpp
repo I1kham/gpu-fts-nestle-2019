@@ -441,6 +441,87 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 					notify_EXTENDED_CONFIG_INFO(sub->q, handlerID, logger, &info);
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE:
+			{
+				u8 motore_1_10, durata_dSec, numRipetizioni, pausaTraRipetizioni_dSec;
+				cpubridge::translate_CPU_ATTIVAZIONE_MOTORE(msg, &motore_1_10, &durata_dSec, &numRipetizioni, &pausaTraRipetizioni_dSec);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_attivazioneMotore(motore_1_10, durata_dSec, numRipetizioni, pausaTraRipetizioni_dSec, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+					notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, answerBuffer[4], answerBuffer[5], answerBuffer[6], answerBuffer[7]);
+				else
+					notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, 0xff, 0, 0, 0);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO:
+			{
+				u8 macina_1o2 = 0;
+				u16 totalePesata_dgram = 0;
+				cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(msg, &macina_1o2, &totalePesata_dgram);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo(macina_1o2, totalePesata_dgram, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+					notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, logger);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+				{
+					u8 stato = answerBuffer[4];
+					u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+					notify_STATO_CALCOLO_IMPULSI_GRUPPO(sub->q, handlerID, logger, stato, valore);
+				}
+				else
+					notify_STATO_CALCOLO_IMPULSI_GRUPPO(sub->q, handlerID, logger, 0, 0);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE:
+			{
+				eCPUProgrammingCommand_motor motore;
+				u16 valore;
+				cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(msg, &motore, &valore);
+				
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_setFattoreCalibMotore(motore, valore, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+				{
+					eCPUProgrammingCommand_motor motore = (eCPUProgrammingCommand_motor)answerBuffer[4];
+					u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+					notify_SET_FATTORE_CALIB_MOTORE(sub->q, handlerID, logger, motore, valore);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getStatoGruppo(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+				{
+					eCPUProgrammingCommand_statoGruppo stato;
+					switch (answerBuffer[4])
+					{
+					case 0:		stato = eCPUProgrammingCommand_statoGruppo_nonAttaccato; break;
+					default:	stato = eCPUProgrammingCommand_statoGruppo_attaccato; break;
+					}
+					notify_STATO_GRUPPO(sub->q, handlerID, logger, stato);
+				}
+			}
+			break;
 		}
 	}
 }

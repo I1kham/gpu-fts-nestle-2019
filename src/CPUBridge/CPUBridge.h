@@ -56,7 +56,12 @@ namespace cpubridge
 					*/
 	u8			buildMsg_setDecounter  (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getAllDecounterValues (u8 *out_buffer, u8 sizeOfOutBuffer);
-	
+	u8			buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getStatoCalcoloImpulsiGruppo (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_setFattoreCalibMotore (eCPUProgrammingCommand_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_calcolaImpulsiGruppo(u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
+
 
 
 	/***********************************************
@@ -132,6 +137,19 @@ namespace cpubridge
 	void		notify_EXTENDED_CONFIG_INFO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sExtendedCPUInfo *info);
 	void		translateNotify_EXTENDED_CONFIG_INFO(const rhea::thread::sMsg &msg, sExtendedCPUInfo *out_info);
 
+	void		notify_ATTIVAZIONE_MOTORE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec);
+	void		translateNotify_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec);
+
+	void		notify_CALCOLA_IMPULSI_GRUPPO_STARTED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
+	void		notify_STATO_CALCOLO_IMPULSI_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 stato, u16 valore);
+	void		translateNotify_STATO_CALCOLO_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_stato, u16 *out_valore);
+
+	void		notify_SET_FATTORE_CALIB_MOTORE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_motor motore, u16 valore);
+	void		translateNotify_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valore);
+
+	void		notify_STATO_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_statoGruppo stato);
+	void		translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_statoGruppo *out);
 
 	/***********************************************
 		ask_xxxx
@@ -224,6 +242,24 @@ namespace cpubridge
 
 	void		ask_CPU_GET_EXTENDED_CONFIG_INFO (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_EXTENDED_CONFIG_INFO
+
+	void		ask_CPU_ATTIVAZIONE_MOTORE(const sSubscriber &from, u16 handlerID, u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec);
+	void		translate_CPU_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_ATTIVAZIONE_MOTORE
+	
+	void		ask_CPU_CALCOLA_IMPULSI_GRUPPO (const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 totalePesata_dGrammi);
+	void		translate_CPU_CALCOLA_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_totalePesata_dGrammi);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CALCOLA_IMPULSI_GRUPPO_STARTED
+
+	void		ask_CPU_GET_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATO_CALCOLO_IMPULSI_GRUPPO
+
+	void		ask_CPU_SET_FATTORE_CALIB_MOTORE (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_motor motore, u16 valoreGr);
+	void		translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valoreGr);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SET_FATTORE_CALIB_MOTORE
+
+	void		ask_CPU_GET_STATO_GRUPPO(const sSubscriber &from, u16 handlerID);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATO_GRUPPO
 
 } // namespace cpubridge
 

@@ -20,15 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqAttivazioneMotore.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDecounter.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSanWashStatus.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStartImpulseCalc.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStatoGruppo.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqVMCDataFileTimestamp.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqBtnPressed.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.cpp" />
@@ -62,15 +67,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqAttivazioneMotore.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDecounter.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSanWashStatus.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelPrices.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStartImpulseCalc.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStatoGruppo.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqVMCDataFileTimestamp.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqBtnPressed.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqClientList.h" />

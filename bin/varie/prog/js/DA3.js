@@ -13,6 +13,7 @@ var DA3_BLOCK_SIZE = 64;
 */
 function DA3(machineType, machineModel, isInduzione)
 {
+	console.log ("DA3: machineType[" +machineType +"], isInduzione[" +isInduzione +"]");
 	this.da3_original = null;
 	this.da3_current = null;
 	this.da3_filesize = 0;
@@ -60,9 +61,32 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 DA3.prototype.isInduzione = function ()			{ return this.bInduzione; }
 DA3.prototype.isInstant = function ()			{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
 DA3.prototype.isEspresso = function ()			{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
+DA3.prototype.getNumMacine = function()		{ if (this.isInstant()) return 0;  return parseInt(this.da3_current[9465]); }
 DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		{ if (this.isEspresso()) return 6; else return 10; }
 
+
+DA3.prototype.priv_getLocationForCalibFactor = function (motor)
+{
+	if (this.isInstant())
+	{
+		if (motor>=1 && motor<=6)
+			return (9693 + (motor-1)*2);
+	}
+	else
+	{
+		if (motor>=2 && motor<=6)
+			return (9693 + (motor-1)*2);
+		else if (motor==11) //macina 1
+			return 9693;
+		else if (motor==12) //macina 2
+			return 9705;
+	}	
+	return 0;
+}
+
+DA3.prototype.setCalibFactorGSec = function (motor, v)		{ var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); if (loc>0) this.write16(loc, parseInt(v)); }
+DA3.prototype.getCalibFactorGSec = function (motor)			{ var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); if (loc>0) return this.read16(loc); return 0;}
 
 
 /********************************************************

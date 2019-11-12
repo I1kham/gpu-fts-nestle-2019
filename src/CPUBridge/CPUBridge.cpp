@@ -186,6 +186,45 @@ u8 cpubridge::buildMsg_getAllDecounterValues(u8 *out_buffer, u8 sizeOfOutBuffer)
 	return buildMsg_Programming(eCPUProgrammingCommand_getAllDecounterValues, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_calcolaImpulsiGruppo (u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[4];
+
+	if (macina_1o2 == 2)
+		optionalData[0] = 12;
+	else
+		optionalData[0] = 11;
+	rhea::utils::bufferWriteU16_LSB_MSB(&optionalData[1], totalePesata_dGrammi);
+	return buildMsg_Programming(eCPUProgrammingCommand_calcolaImpulsiMacina, optionalData, 3, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getStatoCalcoloImpulsi, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[4];
+	optionalData[0] = motore_1_10;
+	optionalData[1] = durata_dSec;
+	optionalData[2] = numRipetizioni;
+	optionalData[3] = pausaTraRipetizioni_dSec;
+
+	return buildMsg_Programming(eCPUProgrammingCommand_attivazioneMotore, optionalData, 4, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_setFattoreCalibMotore(eCPUProgrammingCommand_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)motore;
+	rhea::utils::bufferWriteU16_LSB_MSB(&optionalData[1], valoreInGr);
+	return buildMsg_Programming(eCPUProgrammingCommand_setFattoreCalibrazioneMotore, optionalData, 3, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 u8 cpubridge::buildMsg_getExtendedConfigInfo(u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -193,6 +232,11 @@ u8 cpubridge::buildMsg_getExtendedConfigInfo(u8 *out_buffer, u8 sizeOfOutBuffer)
 	return cpubridge_buildMsg(cpubridge::eCPUCommand_getExtendedConfigInfo, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getStatoGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 u8 cpubridge::buildMsg_initialParam_C(u8 gpuVersionMajor, u8 gpuVersionMinor, u8 gpuVersionBuild, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -264,6 +308,11 @@ u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *option
 		memcpy(&optionalData[1], optionalDataIN, sizeOfOptionalDataIN);
     return cpubridge_buildMsg (cpubridge::eCPUCommand_programming, optionalData, 1+ sizeOfOptionalDataIN, out_buffer, sizeOfOutBuffer);
 }
+
+
+
+
+
 
 //***************************************************
 void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
@@ -660,6 +709,105 @@ void cpubridge::translateNotify_EXTENDED_CONFIG_INFO(const rhea::thread::sMsg &m
 	memcpy (out_info, msg.buffer, sizeof(sExtendedCPUInfo));
 }
 
+//***************************************************
+void cpubridge::notify_ATTIVAZIONE_MOTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec)
+{
+	logger->log("notify_ATTIVAZIONE_MOTORE\n");
+
+	u16 buffer[4];
+	buffer[0] = motore_1_10;
+	buffer[1] = durata_dSec;
+	buffer[2] = numRipetizioni;
+	buffer[3] = pausaTraRipetizioni_dSec;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_ATTIVAZIONE_MOTORE, handlerID, buffer, 4);
+}
+
+//***************************************************
+void cpubridge::translateNotify_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_ATTIVAZIONE_MOTORE);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_motore_1_10 = p[0];
+	*out_durata_dSec = p[1];
+	*out_numRipetizioni = p[2];
+	*out_pausaTraRipetizioni_dSec = p[3];
+}
+
+//***************************************************
+void cpubridge::notify_CALCOLA_IMPULSI_GRUPPO_STARTED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_CALCOLA_IMPULSI_GRUPPO_STARTED\n");
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CALCOLA_IMPULSI_GRUPPO_STARTED, handlerID);
+}
+
+//***************************************************
+void cpubridge::notify_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 stato, u16 valore)
+{
+	logger->log("notify_STATO_CALCOLO_IMPULSI_GRUPPO\n");
+
+	u8 buffer[4];
+	rhea::utils::bufferWriteU16(buffer, valore);
+	buffer[2] = stato;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_STATO_CALCOLO_IMPULSI_GRUPPO, handlerID, buffer, 3);
+}
+
+//***************************************************
+void cpubridge::translateNotify_STATO_CALCOLO_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_stato, u16 *out_valore)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_STATO_CALCOLO_IMPULSI_GRUPPO);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_valore = rhea::utils::bufferReadU16(p);
+	*out_stato = p[2];
+}
+
+//***************************************************
+void cpubridge::notify_SET_FATTORE_CALIB_MOTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_motor motore, u16 valore)
+{
+	logger->log("notify_SET_FATTORE_CALIB_MOTORE\n");
+
+	u8 buffer[4];
+	rhea::utils::bufferWriteU16(buffer, valore);
+	buffer[2] = (u8)motore;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_FATTORE_CALIB_MOTORE, handlerID, buffer, 3);
+}
+
+//***************************************************
+void cpubridge::translateNotify_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valore)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SET_FATTORE_CALIB_MOTORE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_valore = rhea::utils::bufferReadU16(p);
+	*out_motore = (eCPUProgrammingCommand_motor)p[2];
+}
+
+//***************************************************
+void cpubridge::notify_STATO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_statoGruppo stato)
+{
+	logger->log("notify_STATO_GRUPPO\n");
+
+	u8 buffer[4];
+	buffer[0] = (u8)stato;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_STATO_GRUPPO, handlerID, buffer, 1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_statoGruppo *out)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_STATO_GRUPPO);
+	const u8 *p = (const u8*)msg.buffer;
+	*out = (eCPUProgrammingCommand_statoGruppo)p[0];
+}
+
+
+
+
+
+
+
+
+
 
 
 //***************************************************
@@ -884,9 +1032,81 @@ void cpubridge::ask_CPU_GET_ALL_DECOUNTER_VALUES(const sSubscriber &from, u16 ha
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES, handlerID);
 }
 
-
 //***************************************************
 void cpubridge::ask_CPU_GET_EXTENDED_CONFIG_INFO(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_ATTIVAZIONE_MOTORE(const sSubscriber &from, u16 handlerID, u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec)
+{
+	u8 otherData[4];
+	otherData[0] = motore_1_10;
+	otherData[1] = durata_dSec;
+	otherData[2] = numRipetizioni;
+	otherData[3] = pausaTraRipetizioni_dSec;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE, handlerID, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_motore_1_10 = p[0];
+	*out_durata_dSec = p[1];
+	*out_numRipetizioni = p[2];
+	*out_pausaTraRipetizioni_dSec = p[3];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_CALCOLA_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 totalePesata_dGrammi)
+{
+	u8 otherData[4];
+	otherData[0] = macina_1o2;
+	rhea::utils::bufferWriteU16(&otherData[1], totalePesata_dGrammi);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO, handlerID, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_totalePesata_dGrammi)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_macina_1o2 = p[0];
+	*out_totalePesata_dGrammi = rhea::utils::bufferReadU16(&p[1]);
+}
+
+
+
+
+//***************************************************
+void cpubridge::ask_CPU_GET_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_motor motore, u16 valoreGr)
+{
+	u8 otherData[4];
+	otherData[0] = (u8)motore;
+	rhea::utils::bufferWriteU16(&otherData[1], valoreGr);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE, handlerID, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valoreGr)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_motore = (eCPUProgrammingCommand_motor)p[0];
+	*out_valoreGr = rhea::utils::bufferReadU16(&p[1]);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_STATO_GRUPPO(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO, handlerID);
 }

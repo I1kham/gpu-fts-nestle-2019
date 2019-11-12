@@ -27,7 +27,7 @@ bool ajaxReqResetDecounter_jsonTrapFunction(const char *fieldName, const char *f
 	if (strcasecmp(fieldName, "v") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
-		if (h > 0 && h <= 0xffff)
+		if (h >= 0 && h <= 0xffff)
 			input->v = (u16)h;
 		else
 			input->v = 0xff;
