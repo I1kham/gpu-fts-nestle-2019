@@ -110,7 +110,12 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetAllDecounters.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqAttivazioneMotore.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqQueryImpulseCalcStatus.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetCalibFactor.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStartImpulseCalc.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStatoGruppo.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -156,7 +161,12 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetAllDecounters.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetDecounter.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqAttivazioneMotore.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqQueryImpulseCalcStatus.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetCalibFactor.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStartImpulseCalc.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStatoGruppo.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
