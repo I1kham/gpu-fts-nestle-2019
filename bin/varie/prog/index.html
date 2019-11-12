@@ -192,43 +192,55 @@
 				</table>
 					
 				<br>
-				<table border='0' class='elenco'>
-					<tr style="height:50px; vertical-align:bottom">
-						<th style="width:232px; text-align:left">HAPPY HOUR</th>
-						<th>START</th>
-						<th>END</th>
-					</tr>
-					<tr>
-						<td>HAPPY HOUR 1</td>
-						<td align="center"><div class="UITime24" data-da3="7424"></div></td>
-						<td align="center"><div class="UITime24" data-da3="7426"></div></td>
-					</tr>
-					<tr>
-						<td>HAPPY HOUR 2</td>
-						<td align="center"><div class="UITime24" data-da3="7428"></div></td>
-						<td align="center"><div class="UITime24" data-da3="7430"></div></td>
-					</tr>
-					<tr style="border:0">
-						<td>HAPPY HOUR 3</td>
-						<td align="center"><div class="UITime24" data-da3="7432"></div></td>
-						<td align="center"><div class="UITime24" data-da3="7434"></div></td>
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td style="width:210px"><b>VIEW SETTINGS FOR</b></td>
+						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|HAPPY HOUR|1|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
 					</tr>
 				</table>
+
+				<br>
+				<div id="pageClock_happyHour">
+					<table border='0' class='elenco'>
+						<tr style="height:50px; vertical-align:bottom">
+							<th style="width:232px; text-align:left">HAPPY HOUR</th>
+							<th>START</th>
+							<th>END</th>
+						</tr>
+						<tr>
+							<td>HAPPY HOUR 1</td>
+							<td align="center"><div class="UITime24" data-da3="7424"></div></td>
+							<td align="center"><div class="UITime24" data-da3="7426"></div></td>
+						</tr>
+						<tr>
+							<td>HAPPY HOUR 2</td>
+							<td align="center"><div class="UITime24" data-da3="7428"></div></td>
+							<td align="center"><div class="UITime24" data-da3="7430"></div></td>
+						</tr>
+						<tr style="border:0">
+							<td>HAPPY HOUR 3</td>
+							<td align="center"><div class="UITime24" data-da3="7432"></div></td>
+							<td align="center"><div class="UITime24" data-da3="7434"></div></td>
+						</tr>
+					</table>
+				</div>
 				
-				<table border='0' class='elenco'>
-					<tr style="height:50px; vertical-align:bottom">
-						<th style="width:232px; text-align:left">ENERGY SAVING</th>
-						<th>SWITCH ON</th>
-						<th>SWITCH OFF</th>
-					</tr>				
-					<tr><td>MONDAY</td><td align="center"><div class="UITime24" 	data-da3="7436"></div></td><td align="center"><div class="UITime24" data-da3="7438"></div></td></tr>					
-					<tr><td>TUESDAY</td><td align="center"><div class="UITime24" 	data-da3="7440"></div></td><td align="center"><div class="UITime24" data-da3="7442"></div></td></tr>					
-					<tr><td>WEDNESDAY</td><td align="center"><div class="UITime24" 	data-da3="7444"></div></td><td align="center"><div class="UITime24" data-da3="7446"></div></td></tr>					
-					<tr><td>THURSDAY</td><td align="center"><div class="UITime24" 	data-da3="7448"></div></td><td align="center"><div class="UITime24" data-da3="7450"></div></td></tr>					
-					<tr><td>FRIDAY</td><td align="center"><div class="UITime24" 	data-da3="7452"></div></td><td align="center"><div class="UITime24" data-da3="7454"></div></td></tr>					
-					<tr><td>SATURDAY</td><td align="center"><div class="UITime24" 	data-da3="7456"></div></td><td align="center"><div class="UITime24" data-da3="7458"></div></td></tr>					
-					<tr><td>SUNDAY</td><td align="center"><div class="UITime24" 	data-da3="7460"></div></td><td align="center"><div class="UITime24" data-da3="7462"></div></td></tr>					
-				</table>
+				<div id="pageClock_energySave">
+					<table border='0' class='elenco'>
+						<tr style="height:50px; vertical-align:bottom">
+							<th style="width:232px; text-align:left">ENERGY SAVING</th>
+							<th>SWITCH ON</th>
+							<th>SWITCH OFF</th>
+						</tr>				
+						<tr><td>MONDAY</td><td align="center"><div class="UITime24" 	data-da3="7436"></div></td><td align="center"><div class="UITime24" data-da3="7438"></div></td></tr>					
+						<tr><td>TUESDAY</td><td align="center"><div class="UITime24" 	data-da3="7440"></div></td><td align="center"><div class="UITime24" data-da3="7442"></div></td></tr>					
+						<tr><td>WEDNESDAY</td><td align="center"><div class="UITime24" 	data-da3="7444"></div></td><td align="center"><div class="UITime24" data-da3="7446"></div></td></tr>					
+						<tr><td>THURSDAY</td><td align="center"><div class="UITime24" 	data-da3="7448"></div></td><td align="center"><div class="UITime24" data-da3="7450"></div></td></tr>					
+						<tr><td>FRIDAY</td><td align="center"><div class="UITime24" 	data-da3="7452"></div></td><td align="center"><div class="UITime24" data-da3="7454"></div></td></tr>					
+						<tr><td>SATURDAY</td><td align="center"><div class="UITime24" 	data-da3="7456"></div></td><td align="center"><div class="UITime24" data-da3="7458"></div></td></tr>					
+						<tr><td>SUNDAY</td><td align="center"><div class="UITime24" 	data-da3="7460"></div></td><td align="center"><div class="UITime24" data-da3="7462"></div></td></tr>					
+					</table>
+				</div>
 			</div>
 		</div>	<!-- page pageClock -->
 		
@@ -812,7 +824,7 @@ function pageProductQty_build()
 		
 	html = 	"<table border='0' width='100%'><tr valign='middle'>"
 			+"	<td style='width:160px'><b>SELECT A<br>DECOUNTER</b></td>"
-			+"	<td><div class='UIOption buttonCorto' id='pageProductQty_decSelector' data-option='" +dataOption +"' data-onclick='pageProductQty_showDecounter()'></div></td>"
+			+"	<td><div class='UIOptionSmall' id='pageProductQty_decSelector' data-option='" +dataOption +"' data-onclick='pageProductQty_showDecounter()'></div></td>"
 			+"</tr></table><br>";
 	
 	for (var i=0; i<nProdotti; i++)
@@ -1058,7 +1070,7 @@ function pageSingleSelection_build()
 					+"<table border='0' width='100%'>"
 					+"	<tr valign='middle'>"
 					+"		<td style='width:160px'><b>VIEW PARAMS<br>FOR</b></td>"
-					+"		<td><div class='UIOption buttonCorto' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div></td>"
+					+"		<td><div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div></td>"
 					+"	</tr>"
 					+"</table>";
 	
@@ -1102,7 +1114,7 @@ function pageSingleSelection_build()
 		htmlP +="<tr id='" +rowID +"'>"
 				+"<td>#" +prodNum +"</td>"
 				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
-				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>";
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
 				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"
 			+"</tr>";
 		da3LocProd+= 3;
@@ -1157,8 +1169,12 @@ function pageSingleSelection_build()
 		//la colonna 3, può essere FLOW, EV-TEMP o vuota, seconda di induzione/bollitore e espresso/instant
 		switch (WATER_COLONNA_FLOW_TYPE)
 		{
-		default:	htmlW +="<td></td>"; break;
-		case 1:    	htmlW += "<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+		default:
+			htmlW +="<td></td>"; 
+			break;
+		case 1:
+			htmlW += "<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+			break;
 		case 2:
 				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-max='98' data-um='&deg;C'></div></td></tr>";
 				da3LocEVTemperature++;
@@ -1303,10 +1319,22 @@ function pageClock_show()
 	if (showPage("pageClock"))
 	{
 		//è la prima volta che visualizziamo la pagina
+		pageClock_onSelector();
 	}
 	header_setText("CLOCK");
 	btnBack_show();
 }
 
+function pageClock_onSelector()
+{
+	var elemHH = rheaGetElemByID("pageClock_happyHour");
+	var elemES = rheaGetElemByID("pageClock_energySave");
+	var win = ui.getWindowByID("pageClock");
+	switch (parseInt(win.getChildByID("pageClock_selector").getSelectedOptionValue()))
+	{
+		default: rheaShowElem(elemHH); rheaHideElem(elemES); break;
+		case 1:  rheaShowElem(elemES); rheaHideElem(elemHH); break;
+	}
+}
 </script>
 </html>

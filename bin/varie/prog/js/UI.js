@@ -175,7 +175,7 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	theWrapper = document.getElementById(this.id);
 	elemContent = document.getElementById(this.contentID);
 
-	//spawno i componenti UI contenuiti nel content
+	//spawno i componenti UI contenuti nel content
 	var childNum = 0;
 	var nodeList = elemContent.querySelectorAll(":scope div.UIButton");
 	for (var i = 0; i < nodeList.length; i++)
@@ -192,6 +192,12 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	}
 	
 	nodeList = elemContent.querySelectorAll(":scope div.UIOption");
+	for (var i = 0; i < nodeList.length; i++)
+	{
+		this.childList[childNum] =  new UIOption(this.id, childNum, nodeList[i]);
+		childNum++;
+	}
+	nodeList = elemContent.querySelectorAll(":scope div.UIOptionSmall");
 	for (var i = 0; i < nodeList.length; i++)
 	{
 		this.childList[childNum] =  new UIOption(this.id, childNum, nodeList[i]);
@@ -257,15 +263,19 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 				
 			var y = ev.clientY;
 			var offset = y - info.mouse_y;
+			if (Math.abs(offset) < 10)
+				return;
 			info.mouse_y = y;
 			
-			var top = rheaGetElemTop(info.elem);
+			var top = oldTop = rheaGetElemTop(info.elem);
 			top += offset;
 			if (top >= 0)
 				top = 0;
 			if (top < info.scroll_miny)
 				top = info.scroll_miny;
+			
 			rheaSetElemTop(info.elem, top);
+			//console.log ("move::rheaSetElemTop[" +top +"], offset[" +offset +"]");
 			
 			if (top < -info.scroll_tollerance_at_border)
 				rheaShowElem(rheaGetElemByID(divIDArrowUp));
@@ -292,7 +302,8 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 			}
 			
 			rheaShowElem(rheaGetElemByID(divIDArrowUp));
-			rheaSmoothScrollElemTop(info.elem, curY, 300);
+			//rheaSmoothScrollElemTop(info.elem, curY, 300);
+			rheaSetElemTop(info.elem, curY);
 		}, true);
 	
 		//bindo onclick della freccia su
@@ -308,7 +319,8 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 			}
 			
 			rheaShowElem(rheaGetElemByID(divIDArrowDown));
-			rheaSmoothScrollElemTop(info.elem, curY, 300);
+			//rheaSmoothScrollElemTop(info.elem, curY, 300);
+			rheaSetElemTop(info.elem, curY, curY);
 		}, true);	
 	}
 	
@@ -448,7 +460,7 @@ function UIOption (parentID, childNum, node)
 	
 	//inietto l'html
 	var cellSize = parseInt (100 / nOptions);
-	var html = "<table class='UIOption'><tr>";
+	var html = "<table class='" +node.getAttribute("class") +"'><tr>";
 	for (var i=0; i<nOptions; i++)
 	{
 		var btnID = this.id +"_opt" +i;
