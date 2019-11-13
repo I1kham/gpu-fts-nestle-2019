@@ -354,13 +354,8 @@
 		
 		<!-- pageTemperature -->
 		<div id="pageTemperature" class="UIWindow">
-			<div class="UIWindowContent">
-				<table border='0' class='elenco'>
-					<tr>
-						<td>BOILER</td>
-						<td><div class="UINumber" data-numfigures="2" data-decimal='0' data-max="92" data-da3="7032" data-da3bit='8'></div></td>
-					</tr>
-				</table>
+			<div class="UIWindowContent" id="pageTemperature_content">
+				<!-- creato dinamicamente, vedi pageTemperature_build -->
 			</div>
 		</div>
 		<!-- pageTemperature -->
@@ -1135,10 +1130,7 @@ function pageSingleSelection_show(iSel)
 	//lo scaling factor delle selezioni potrebbe valere 0 nel qual caso significa 100%
 	var da3Loc = 180 + 100 * (iSel-1);
 	if (da3.read8(da3Loc) == 0)
-	{
-		console.log ("fixed scaling factor");
 		win.getChildByID("pageSingleSelection_sfactor").setValue(100);
-	}
 	
 	//Setto i prezzi
 	var obj = win.getChildByID("pageSingleSelection_prc1");
