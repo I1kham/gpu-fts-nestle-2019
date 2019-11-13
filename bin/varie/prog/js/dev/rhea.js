@@ -294,8 +294,8 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 					{
 						var importanceLevel = data[8];
 						var lenInBytes = data[9] * 256 + data[10];
-						var msg = utf8ArrayToStr(data.subarray(11));
-						rheaLog ("RHEA_EVENT_CPU_MESSAGE: [" +importanceLevel +"] " +msg);
+						var msg = utf16ArrayToStr(data.subarray(11));
+						//rheaLog ("RHEA_EVENT_CPU_MESSAGE: [" +importanceLevel +"] " +msg);
 						if (msg != "")
 							me.onEvent_cpuMessage(msg, importanceLevel);
 					}

@@ -91,7 +91,7 @@ function rheaGetAbsolutePhysicalPath()
  *
  * converte un ArrayBuffer in una stringa
  */
-var OLD_utf8ArrayToStr = (function () 
+var utf8ArrayToStr = (function () 
 {
     var charCache = new Array(128);  // Preallocate the cache for the common single byte chars
     var charFromCodePt = String.fromCodePoint || String.fromCharCode;
@@ -126,7 +126,7 @@ var OLD_utf8ArrayToStr = (function ()
         return result.join('');
     };
 })();
-var utf8ArrayToStr = (function () 
+var utf16ArrayToStr = (function () 
 {
     var charCache = new Array(128);  // Preallocate the cache for the common single byte chars
     var charFromCodePt = String.fromCodePoint || String.fromCharCode;
