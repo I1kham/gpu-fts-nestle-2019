@@ -206,6 +206,40 @@ u8 cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(u8 *out_buffer, u8 sizeOfOut
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_getTime(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getTime, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_getDate(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getDate, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_setTime(u8 *out_buffer, u8 sizeOfOutBuffer, u8 hh, u8 mm, u8 ss)
+{
+	u8 optionalData[4];
+	optionalData[0] = hh;
+	optionalData[1] = mm;
+	optionalData[2] = ss;
+	return buildMsg_Programming(eCPUProgrammingCommand_setTime, optionalData, 3, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 month, u8 day)
+{
+	u8 optionalData[4];
+	optionalData[0] = (u8)(year-2000);
+	optionalData[1] = month;
+	optionalData[2] = day;
+	return buildMsg_Programming(eCPUProgrammingCommand_setDate, optionalData, 3, out_buffer, sizeOfOutBuffer);
+}
+
+
+
+//***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[4];
@@ -800,13 +834,94 @@ void cpubridge::translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPU
 	*out = (eCPUProgrammingCommand_statoGruppo)p[0];
 }
 
+//***************************************************
+void cpubridge::notify_GET_TIME(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm, u8 ss)
+{
+	logger->log("notify_GET_TIME\n");
 
+	u8 buffer[4];
+	buffer[0] = hh;
+	buffer[1] = mm;
+	buffer[2] = ss;
+	
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GET_TIME, handlerID, buffer, 3);
+}
 
+//***************************************************
+void cpubridge::translateNotify_GET_TIME(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm, u8 *out_ss)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_TIME);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_hh = p[0];
+	*out_mm = p[1];
+	*out_ss = p[2];
+}
 
+//***************************************************
+void cpubridge::notify_GET_DATE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 year, u8 month, u8 day)
+{
+	logger->log("notify_GET_DATE\n");
 
+	u8 buffer[4];
+	rhea::utils::bufferWriteU16(buffer, year);
+	buffer[2] = month;
+	buffer[3] = day;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GET_DATE, handlerID, buffer, 4);
+}
 
+//***************************************************
+void cpubridge::translateNotify_GET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_DATE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_year = rhea::utils::bufferReadU16(p);
+	*out_month = p[2];
+	*out_day = p[3];
+}
 
+//***************************************************
+void cpubridge::notify_SET_TIME(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm, u8 ss)
+{
+	logger->log("notify_SET_TIME\n");
 
+	u8 buffer[4];
+	buffer[0] = hh;
+	buffer[1] = mm;
+	buffer[2] = ss;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_TIME, handlerID, buffer, 3);
+}
+
+//***************************************************
+void cpubridge::translateNotify_SET_TIME(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm, u8 *out_ss)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SET_TIME);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_hh = p[0];
+	*out_mm = p[1];
+	*out_ss = p[2];
+}
+
+//***************************************************
+void cpubridge::notify_SET_DATE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 year, u8 month, u8 day)
+{
+	logger->log("notify_SET_DATE\n");
+
+	u8 buffer[4];
+	rhea::utils::bufferWriteU16(buffer, year);
+	buffer[2] = month;
+	buffer[3] = day;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_DATE, handlerID, buffer, 4);
+}
+
+//***************************************************
+void cpubridge::translateNotify_SET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SET_DATE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_year = rhea::utils::bufferReadU16(p);
+	*out_month = p[2];
+	*out_day = p[3];
+}
 
 
 
@@ -1109,4 +1224,57 @@ void cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg 
 void cpubridge::ask_CPU_GET_STATO_GRUPPO(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_TIME(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_TIME, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_DATE(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_DATE, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_SET_TIME(const sSubscriber &from, u16 handlerID, u8 hh, u8 mm, u8 ss)
+{
+	u8 otherData[4];
+	otherData[0] = hh;
+	otherData[1] = mm;
+	otherData[2] = ss;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME, handlerID, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SET_TIME(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm, u8 *out_ss)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_hh = p[0];
+	*out_mm = p[1];
+	*out_ss = p[2];
+}
+
+
+//***************************************************
+void cpubridge::ask_CPU_SET_DATE(const sSubscriber &from, u16 handlerID, u16 year, u8 month, u8 day)
+{
+	u8 otherData[4];
+	otherData[0] = (u8)(year - 2000);
+	otherData[1] = month;
+	otherData[2] = day;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE, handlerID, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_year = (u16)p[0] + 2000;
+	*out_month = p[1];
+	*out_day = p[2];
 }

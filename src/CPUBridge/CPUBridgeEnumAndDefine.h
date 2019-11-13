@@ -48,8 +48,12 @@
 #define		CPUBRIDGE_NOTIFY_STATO_CALCOLO_IMPULSI_GRUPPO	0x0116
 #define		CPUBRIDGE_NOTIFY_SET_FATTORE_CALIB_MOTORE		0x0117
 #define		CPUBRIDGE_NOTIFY_STATO_GRUPPO					0x0118
+#define		CPUBRIDGE_NOTIFY_GET_TIME						0x0119
+#define		CPUBRIDGE_NOTIFY_GET_DATE						0x011A
+#define		CPUBRIDGE_NOTIFY_SET_TIME						0x011B
+#define		CPUBRIDGE_NOTIFY_SET_DATE						0x011C
 
-#define		CPUBRIDGE_NOTIFY_MAX_ALLOWED                0x01FF
+#define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
 
  /**********************************************************************
@@ -83,6 +87,10 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO	0x0818
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE		0x0819
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO				0x081A
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_TIME						0x081B
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_DATE						0x081C
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME						0x081D
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE						0x081E
 
 namespace cpubridge
 {
@@ -194,10 +202,10 @@ namespace cpubridge
 		eCPUProgrammingCommand_setDecounter = 0x04,
 		//ELIMINATO eCPUProgrammingCommand_resetCounter = 0x05,
 		eCPUProgrammingCommand_getAllDecounterValues = 0x06,
-		//eCPUProgrammingCommand_getTime = 0x07,
-		//eCPUProgrammingCommand_getDate = 0x08,
-		//eCPUProgrammingCommand_setTime = 0x09,
-		//eCPUProgrammingCommand_setDate = 0x0A,
+		eCPUProgrammingCommand_getTime = 0x07,
+		eCPUProgrammingCommand_getDate = 0x08,
+		eCPUProgrammingCommand_setTime = 0x09,
+		eCPUProgrammingCommand_setDate = 0x0A,
 		eCPUProgrammingCommand_getStatoGruppo = 0x0B,
 		eCPUProgrammingCommand_attivazioneMotore = 0x0C,
 		eCPUProgrammingCommand_calcolaImpulsiMacina = 0x0D,

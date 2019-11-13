@@ -161,7 +161,19 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 
 			DUMP(&commandChar, 1);
 
-			if (commandCharIN != commandChar)
+			bool bFail = false;
+			if (commandCharIN == 'B')
+			{
+				if (commandChar!='B' && commandChar!='Z')
+					bFail = true;
+			}
+			else
+			{
+				if (commandCharIN != commandChar)
+					bFail = true;
+			}
+
+			if (bFail == true)
 			{
 				//non è la risposta che mi aspettavo
 				commandChar = 0x00;

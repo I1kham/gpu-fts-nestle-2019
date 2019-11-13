@@ -91,7 +91,15 @@ DA3.prototype.setCalibFactorGSec = function (motor, v)
 	var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); 
 	//console.log ("DA3::setCalibFactorGSec motor[" +motor +"] v[" +v +"] loc[" +loc +"]");
 	if (loc>0) 
-		this.write16(loc, parseInt(v)); 
+		this.write16(loc, parseInt(v));
+	
+	//macina 1 va salvata anche qui
+	if (motor==11)
+		this.write16(7534, parseInt(v));
+	
+	//macina 2 va salvata anche qui
+	if (motor==12)
+		this.write16(7546, parseInt(v));
 }
 DA3.prototype.getCalibFactorGSec = function (motor)			
 { 
@@ -102,8 +110,22 @@ DA3.prototype.getCalibFactorGSec = function (motor)
 }
 
 
-DA3.prototype.getImpulsi = function (v)		{ return this.read8(7560); }
-DA3.prototype.saveImpulsi = function (v)	{ this.write8(7560, parseInt(v)); this.write8(7561, parseInt(v)); }
+DA3.prototype.getImpulsi = function (motor)		
+{ 
+	if (motor==11)
+		return this.read16(7560); //macina 1
+	else if (motor==12)
+		return this.read16(7564); //macina 2
+	return 0;
+	
+}
+DA3.prototype.saveImpulsi = function (motor,v)	
+{ 
+	if (motor==11)
+		this.write16(7560, parseInt(v)); //macina 1
+	else if (motor==12)
+		this.write16(7564, parseInt(v)); //macina 2
+}
 
 
 /********************************************************

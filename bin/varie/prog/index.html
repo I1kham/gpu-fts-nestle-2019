@@ -185,22 +185,39 @@
 		<!-- page pageClock -->
 		<div id="pageClock" class="UIWindow">
 			<div class="UIWindowContent">
-				<table border='0' class='elenco'>
-					<tr style="border:0">
-						<td>SUMMER TIME</td>
-						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7080"></div></td>
-					</tr>
-				</table>
-					
-				<br>
 				<table border='0' width='100%'>
 					<tr valign='middle'>
 						<td style="width:210px"><b>VIEW SETTINGS FOR</b></td>
-						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|HAPPY HOUR|1|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|CLOCK|1|HAPPY HOUR|2|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
 					</tr>
 				</table>
-
 				<br>
+
+				<div id="pageClock_clock" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>TIME</td>
+							<td colspan="3"><div class="UITime24" id="pageClock_time"></div></td>
+							<td><div class='UIButton' data-caption='SET' data-onclick="pageClock_setTime()"></div></div></td>
+						</tr>
+						
+						<tr>
+							<td>DATE</td>
+							<td><div id="pageClock_dd" class="UINumber" data-numfigures="2" data-max="31" data-min="1" data-um='day'></div></td>
+							<td><div id="pageClock_mm" class="UINumber" data-numfigures="2" data-max="12" data-min="1" data-um='month'></div></td>
+							<td><div id="pageClock_yy" class="UINumber" data-numfigures="4" data-max="2099" data-min="2018" data-um='year'></div></td>
+							<td><div class='UIButton' data-caption='SET' data-onclick="pageClock_setDate()"></div></div></td>
+						</tr>
+						
+						
+						<tr style="border:0">
+							<td>SUMMER TIME</td>
+							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7080"></div></td>
+							<td colspan="2"></td>
+						</tr>
+					</table>
+				</div>
+
 				<div id="pageClock_happyHour" style="display:none">
 					<table border='0' class='elenco'>
 						<tr style="height:50px; vertical-align:bottom">
@@ -418,10 +435,14 @@
 						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></div></td>
 						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(6)"></div></div></td>
 					</tr>
-					<tr id="pageCalibration_rowEncoder">
-						<td>ENCODER</td>
-						<td colspan="3"><div id="pageCalibration_encoder" class="bigCaption15"></div></td>
-					</tr>					
+					<tr id="pageCalibration_rowEncoder1">
+						<td>ENCODER 1</td>
+						<td colspan="3"><div id="pageCalibration_encoder1" class="bigCaption15"></div></td>
+					</tr>
+					<tr id="pageCalibration_rowEncoder2">
+						<td>ENCODER 2</td>
+						<td colspan="3"><div id="pageCalibration_encoder2" class="bigCaption15"></div></td>
+					</tr>										
 				</table>
 			</div>
 		</div>
@@ -473,6 +494,7 @@ function onRheaBootstrapFinished()
 	
 	rhea.onEvent_cpuStatus = function(statusID, statusStr) 			{ currentTask.onEvent_cpuStatus(statusID, statusStr); }
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
+	
 	dataOra_setup();
 	
 	ui = new UI ("divPage");
@@ -641,21 +663,17 @@ function helper_intToFixedOnePointDecimale(v)
 	return v;
 }
 
-function helper_intToFixedTwoPointDecimale(v)
+function helper_decodeImpulsi(v)
 {
-	if (v > 0)
-	{
-		if (v<10)
-			v = "0.0" +v;
-		else if (v<100)
-			v = "0." +v;
-		else
-		{
-			v = v.toString();
-			v = v.substr(0, v.length-2) +"." +v.substr(v.length-2);
-		}
-	}
-	return v;
+	//prende i 3 digiti meno significativi e mette un punto dopo il primo digit
+	var s = v.toString();
+	while (s.length < 3) s = "0" +s;
+	
+	var n = s.length;
+	if (n > 3)
+		s = s.substr(n-3, 3);
+		
+	return s.substr(0,1) +"." +s.substr(1,2);
 }
 
 /***************************************************************************
@@ -710,23 +728,50 @@ function pleaseWait_calibration_setText(s)				{ rheaSetDivHTMLByName("pagePlease
  * data & ora
  *
  */
+var dataora_mm = 1;
+var dataora_dd = 1;
+var dataora_yy = 2018;
 var dataora_hh = 0;
 var dataora_min = 0;
 var dataora_sec = 0;
+var dataora_interval = null;
+
 function dataOra_setup ()
 {
-	var d = new Date();
-	var dataora_sec = parseInt(d.getSeconds());
-	var dataora_min = parseInt(d.getMinutes());
-	var dataora_hh = parseInt(d.getHours());
-  
-	var mm = (d.getUTCMonth() + 1).toString(); if (mm.length<2) mm="0"+mm;
-	var gg = d.getUTCDate().toString(); if (gg.length<2) gg="0"+gg;
-	var aaaa = d.getUTCFullYear();  
-	rheaSetDivHTMLByName("divHeaderR_data", aaaa +"/" +mm +"/" +gg);
-	
+	rhea.ajax ("getTime", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+		dataora_hh = data.h;
+		dataora_min = data.m;
+		dataora_sec = data.s;
+		
+		rhea.ajax ("getDate", "").then( function(result)
+		{
+			var data = JSON.parse(result);
+			dataora_dd = data.d;
+			dataora_mm = data.m;
+			dataora_yy = data.y;
+			dataOra_run();
+		})
+		.catch( function(result)
+		{
+		});	
+	})
+	.catch( function(result)
+	{
+	});
+}
 
-	setInterval (function() 
+function dataOra_run ()
+{
+	if (null != dataora_interval)
+		clearInterval(dataora_interval);
+
+	if (dataora_mm.length<2) dataora_mm="0"+dataora_mm;
+	if (dataora_dd.length<2) dataora_dd="0"+dataora_dd;
+	rheaSetDivHTMLByName("divHeaderR_data", dataora_yy +"/" +dataora_mm +"/" +dataora_dd);
+	
+	dataora_interval = setInterval (function() 
 					{ 
 						dataora_sec++;
 						if (dataora_sec >= 60)
@@ -1526,20 +1571,100 @@ function pageClock_show()
 	header_setText("CLOCK");
 	pageClock_onSelector();
 	btnBack_show();
+	
+	//sincronizzo data e ora
+	pageClock_syncTime();
+	pageClock_syncDate();
+}
+	
+function pageClock_syncTime()
+{	
+	rhea.ajax ("getTime", "").then( function(result)
+	{
+		var win = ui.getWindowByID("pageClock");
+		var obj = win.getChildByID("pageClock_time");
+		
+		var data = JSON.parse(result);
+		obj.setValueHH(data.h);
+		obj.setValueMM(data.m);
+		dataOra_setup();
+	})
+	.catch( function(result)
+	{
+	});
+}
+
+function pageClock_syncDate()
+{
+	rhea.ajax ("getDate", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+
+		var win = ui.getWindowByID("pageClock");
+		win.getChildByID("pageClock_dd").setValue(data.d);
+		win.getChildByID("pageClock_mm").setValue(data.m);
+		win.getChildByID("pageClock_yy").setValue(data.y);
+		dataOra_setup();
+	})
+	.catch( function(result)
+	{
+	});	
 }
 
 function pageClock_onSelector()
 {
+	var elemClock = rheaGetElemByID("pageClock_clock");
 	var elemHH = rheaGetElemByID("pageClock_happyHour");
 	var elemES = rheaGetElemByID("pageClock_energySave");
+	
+	rheaHideElem(elemClock);
+	rheaHideElem(elemHH);
+	rheaHideElem(elemES);
+	
 	var win = ui.getWindowByID("pageClock");
 	switch (parseInt(win.getChildByID("pageClock_selector").getSelectedOptionValue()))
 	{
-		default: rheaShowElem(elemHH); rheaHideElem(elemES); break;
-		case 1:  rheaShowElem(elemES); rheaHideElem(elemHH); break;
+		default: rheaShowElem(elemClock); break;
+		case 1:  rheaShowElem(elemHH); break;
+		case 2:  rheaShowElem(elemES); break;
 	}
 }
 
+function pageClock_setTime()
+{
+	var win = ui.getWindowByID("pageClock");
+	var obj = win.getChildByID("pageClock_time");
+	
+	pleaseWait_show();
+	rhea.ajax ("setTime", { "h":obj.getValueHH(), "m":obj.getValueMM(), "s":0}).then( function(result)
+	{
+		pleaseWait_hide();
+		pageClock_syncTime();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
+
+function pageClock_setDate()
+{
+	var win = ui.getWindowByID("pageClock");
+	var yy = win.getChildByID("pageClock_yy").getValue();
+	var mm = win.getChildByID("pageClock_mm").getValue();
+	var dd = win.getChildByID("pageClock_dd").getValue();
+	
+	pleaseWait_show();
+	rhea.ajax ("setDate", { "y":yy, "m":mm, "d":dd}).then( function(result)
+	{
+		pleaseWait_hide();
+		pageClock_syncDate();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
 
 /***************************************************************************
  *
@@ -1571,24 +1696,34 @@ function pageCalibration_show()
 			var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
 		}
-		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder"));
+		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
+		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
 	}
 	else
 	{
+		//macina 1
 		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(11) );
 		rheaSetDivHTMLByName("pageCalibration_m11", v +"&nbsp;gr/sec");
+		v = helper_decodeImpulsi(da3.getImpulsi(11));
+		rheaSetDivHTMLByName("pageCalibration_encoder1", v +"&nbsp;imp/grams");
 		
+		//motori
 		for (var i=2; i<=6; i++)
 		{
 			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
 		}
 		
-		v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(12) );
-		rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
-		
-		v = helper_intToFixedTwoPointDecimale(da3.getImpulsi());
-		rheaSetDivHTMLByName("pageCalibration_encoder", v +"&nbsp;imp/grams");
+		//macina 2
+		if (da3.getNumMacine() == 1)
+			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
+		else
+		{
+			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(12) );
+			rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
+			v = helper_decodeImpulsi(da3.getImpulsi(12));
+			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/grams");
+		}
 		
 	}	
 	
@@ -1615,37 +1750,7 @@ function pageCalibration_reset(motor)
 
 function pageCalibration_start (motor)
 {
-		/*rhea.ajax ("startImpulseCalc", { "m":11, "v":200}).then( function(result)
-		{
-			//alert (result);
-			setTimeout ( function() { aaa(); }, 3000);
-		})
-		.catch( function(result)
-		{
-			//alert (result);
-		});*/
-		
 	taskCalibMotor.startMotorCalib(motor);
-}
-
-function aaa()
-{
-		rhea.ajax ("queryImpulseCalcStatus", "").then( function(result)
-		{
-			console.log ("queryImpulseCalc::result[" +result +"]");
-			var obj = JSON.parse(result);
-			if (parseInt(obj.v) > 0)	
-			{
-				return; 
-				//alert (result);
-			}
-			else
-				setTimeout ( function() { aaa(); }, 1000);
-		})
-		.catch( function(result)
-		{
-			//alert (result);
-		});	
 }
 
 function pageCalibration_onExit ()

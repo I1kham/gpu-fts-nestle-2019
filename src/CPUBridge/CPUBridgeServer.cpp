@@ -542,6 +542,76 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				}
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_TIME:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getTime(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				{
+					const u8 hh = answerBuffer[4];
+					const u8 mm = answerBuffer[5];
+					const u8 ss = answerBuffer[6];
+					notify_GET_TIME(sub->q, handlerID, logger, hh, mm, ss);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_DATE:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getDate(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				{
+					const u16 y = 2000 +answerBuffer[4];
+					const u8 m = answerBuffer[5];
+					const u8 d = answerBuffer[6];
+					notify_GET_DATE(sub->q, handlerID, logger, y, m, d);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE:
+			{
+				u16 year = 0;
+				u8 month = 0;
+				u8 day = 0;
+				cpubridge::translate_CPU_SET_DATE(msg, &year, &month, &day);
+				
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_setDate(bufferW, sizeof(bufferW), year, month, day);
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				{
+					const u16 y = 2000 + answerBuffer[4];
+					const u8 m = answerBuffer[5];
+					const u8 d = answerBuffer[6];
+					notify_SET_DATE(sub->q, handlerID, logger, y, m, d);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME:
+		{
+			u8 hh = 0;
+			u8 mm = 0;
+			u8 ss = 0;
+			cpubridge::translate_CPU_SET_TIME(msg, &hh, &mm, &ss);
+
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_setTime(bufferW, sizeof(bufferW), hh, mm, ss);
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			{
+				const u8 hh = answerBuffer[4];
+				const u8 mm = answerBuffer[5];
+				const u8 ss = answerBuffer[6];
+				notify_SET_TIME(sub->q, handlerID, logger, hh, mm, ss);
+			}
+		}
+		break;
 		}
 	}
 }

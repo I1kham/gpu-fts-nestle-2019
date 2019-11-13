@@ -14,6 +14,10 @@
 #include "CmdHandler/CmdHandler_ajaxReqAttivazioneMotore.h"
 #include "CmdHandler/CmdHandler_ajaxReqStartImpulseCalc.h"
 #include "CmdHandler/CmdHandler_ajaxReqQueryImpulseCalcStatus.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetTime.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetDate.h"
+#include "CmdHandler/CmdHandler_ajaxReqSetTime.h"
+#include "CmdHandler/CmdHandler_ajaxReqSetDate.h"
 
 using namespace socketbridge;
 
@@ -60,6 +64,10 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqAttivazioneMotore);
 	CHECK(CmdHandler_ajaxReqStartImpulseCalc);
 	CHECK(CmdHandler_ajaxReqQueryImpulseCalcStatus);
+	CHECK(CmdHandler_ajaxReqGetTime);
+	CHECK(CmdHandler_ajaxReqGetDate);
+	CHECK(CmdHandler_ajaxReqSetTime);
+	CHECK(CmdHandler_ajaxReqSetDate);
 
 #undef CHECK
     return NULL;

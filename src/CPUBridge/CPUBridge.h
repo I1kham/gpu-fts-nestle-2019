@@ -60,7 +60,11 @@ namespace cpubridge
 	u8			buildMsg_getStatoCalcoloImpulsiGruppo (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_setFattoreCalibMotore (eCPUProgrammingCommand_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_calcolaImpulsiGruppo(u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_calcolaImpulsiGruppo (u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getTime (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getDate(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_setTime(u8 *out_buffer, u8 sizeOfOutBuffer, u8 hh, u8 mm, u8 ss);
+	u8			buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 month, u8 day);
 
 
 
@@ -150,6 +154,19 @@ namespace cpubridge
 
 	void		notify_STATO_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_statoGruppo stato);
 	void		translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_statoGruppo *out);
+
+	void		notify_GET_TIME (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm, u8 ss);
+	void		translateNotify_GET_TIME(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm, u8 *out_ss);
+
+	void		notify_GET_DATE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 year, u8 month, u8 day);
+	void		translateNotify_GET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day);
+
+	void		notify_SET_TIME(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm, u8 ss);
+	void		translateNotify_SET_TIME(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm, u8 *out_ss);
+
+	void		notify_SET_DATE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 year, u8 month, u8 day);
+	void		translateNotify_SET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day);
+
 
 	/***********************************************
 		ask_xxxx
@@ -259,7 +276,21 @@ namespace cpubridge
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SET_FATTORE_CALIB_MOTORE
 
 	void		ask_CPU_GET_STATO_GRUPPO(const sSubscriber &from, u16 handlerID);
-				//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATO_GRUPPO
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATO_GRUPPO
+
+	void		ask_CPU_GET_TIME(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_GET_TIME
+
+	void		ask_CPU_GET_DATE(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_GET_DATE
+
+	void		ask_CPU_SET_TIME(const sSubscriber &from, u16 handlerID, u8 hh, u8 mm, u8 ss);
+	void		translate_CPU_SET_TIME(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm, u8 *out_ss);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SET_TIME
+
+	void		ask_CPU_SET_DATE(const sSubscriber &from, u16 handlerID, u16 year, u8 month, u8 day);
+	void		translate_CPU_SET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SET_DATE
 
 } // namespace cpubridge
 
