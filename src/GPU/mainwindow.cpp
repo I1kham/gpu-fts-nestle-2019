@@ -171,6 +171,7 @@ void MainWindow::priv_showForm (eForm w)
                 sprintf_s (s, sizeof(s), "file://%s/varie/no-gui-installed.html", rhea::getPhysicalPathToAppFolder());
 
             priv_loadURL(s);
+            cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
         }
         break;
 

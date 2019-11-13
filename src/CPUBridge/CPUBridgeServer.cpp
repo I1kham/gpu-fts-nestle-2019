@@ -284,7 +284,17 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_INI_PARAM:
-			notify_CPU_INI_PARAM (sub->q, handlerID, logger, &cpuParamIniziali);
+            {
+                u8 bufferW[32];
+                const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
+
+                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+                {
+                    priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);
+                    notify_CPU_INI_PARAM (sub->q, handlerID, logger, &cpuParamIniziali);
+                }
+            }
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_AVAIL:
@@ -292,7 +302,17 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES:
-			notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, cpuParamIniziali.prices, sizeof(cpuParamIniziali.prices));
+            {
+                u8 bufferW[32];
+                const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
+
+                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+                {
+                    priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);
+                    notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, cpuParamIniziali.prices, sizeof(cpuParamIniziali.prices));
+                }
+            }
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_LCD_MESSAGE:
