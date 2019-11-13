@@ -1046,7 +1046,7 @@ void cpubridge::ask_CPU_ATTIVAZIONE_MOTORE(const sSubscriber &from, u16 handlerI
 	otherData[1] = durata_dSec;
 	otherData[2] = numRipetizioni;
 	otherData[3] = pausaTraRipetizioni_dSec;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE, handlerID, otherData, 3);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE, handlerID, otherData, 4);
 }
 
 //***************************************************

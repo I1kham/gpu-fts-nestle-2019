@@ -336,7 +336,7 @@
 							</tr>
 							<tr>
 								<td>SCALING FACTOR<br><span class="tip">num repetitions</span></td></td>
-								<td><div class='UINumber' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
+								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
 							</tr>						
 						</table>
 					</div>
@@ -354,13 +354,8 @@
 		
 		<!-- pageTemperature -->
 		<div id="pageTemperature" class="UIWindow">
-			<div class="UIWindowContent">
-				<table border='0' class='elenco'>
-					<tr>
-						<td>BOILER</td>
-						<td><div class="UINumber" data-numfigures="2" data-decimal='0' data-max="92" data-da3="7032" data-da3bit='8'></div></td>
-					</tr>
-				</table>
+			<div class="UIWindowContent" id="pageTemperature_content">
+				<!-- creato dinamicamente, vedi pageTemperature_build -->
 			</div>
 		</div>
 		<!-- pageTemperature -->
@@ -527,6 +522,7 @@ function onGUIInfoLoaded()
 	pageProductQty_build();
 	pageSelections_build();
 	pageSingleSelection_build();
+	pageTemperature_build();
 	pleaseWait_hide();
 
 	//abilito il menu milker se macchine==espresso
@@ -557,6 +553,12 @@ function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "ta
 function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("bntSave")); }
 function btnBack_onClick(bSave)				
 { 
+	if (currentTask == taskCalibMotor)
+	{
+		pageCalibration_onExit();
+		return;
+	}
+	
 	if (bSave == 0)
 		backToMainMenu();
 	else
@@ -752,12 +754,13 @@ function pageMaintenance_show()
 	if (showPage('pageMaintenance'))
 	{
 		//è la prima volta che visualizziamo la pagina
-		pageMaintenance_getDecountersValues();
 	}
-		
+
 	header_setText("MAINTENANCE");
 	btnBack_show();
+	pageMaintenance_getDecountersValues();		
 }
+
 function pageMaintenance_resetDec(iDecounter)
 {
 	//per prima cosa devo salvare eventuali modifiche
@@ -1092,23 +1095,6 @@ function pageSelections_build()
 		}
 		html += "</table></div>";
 	}
-	/*for (var r=0; r<16; r++)
-	{
-		html += "<tr>";
-		for (var c=0; c<3; c++)
-		{
-			var caption = "SELECTION " +rheaLeftPad(iSel,2,'0');
-			html += "<td width='33%' align='center'><div class='UIButtonSel' "
-					+"data-caption='" +caption +"' "
-					+"data-caption2='" +guiInfo.selInfo[iSel].name +"' "
-					+"data-caption3='" +guiInfo.selInfo[iSel].short +"' "
-					+"data-onclick='pageSingleSelection_show(" +iSel +")'></div></td>";
-			iSel++;
-		}
-		html += "</tr>";
-	}
-	html += "</table><div style='height:30px; min-height:30px; overflow:hidden;'>&nbsp;</div>";
-	*/
 	rheaSetDivHTMLByName("pageSelections_c2", html);
 }
 
@@ -1139,8 +1125,14 @@ function pageSingleSelection_show(iSel)
 		//è la prima volta che visualizziamo la pagina
 	}
 	
-	//Setto i prezzi
 	var win = ui.getWindowByID("pageSingleSelection");
+
+	//lo scaling factor delle selezioni potrebbe valere 0 nel qual caso significa 100%
+	var da3Loc = 180 + 100 * (iSel-1);
+	if (da3.read8(da3Loc) == 0)
+		win.getChildByID("pageSingleSelection_sfactor").setValue(100);
+	
+	//Setto i prezzi
 	var obj = win.getChildByID("pageSingleSelection_prc1");
 	obj.da3offset = 0;
 	obj.da3Pos = da3.getPriceLocation(1,iSel);
@@ -1447,9 +1439,41 @@ function pageTemperature_show()
 	}
 	header_setText("TEMPERATURE");
 	btnBack_show();
+	
 }
 
+function pageTemperature_build()
+{
+	var html = "<table border='0' class='elenco'>";
+	
+	if (da3.isInstant())
+	{
+		//boiler & delta
+		html += "<tr><td>BOILER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='92' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+			   +"<tr><td>DELTA</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='16' data-da3='7042' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+	}
+	else
+	{
+		if (da3.isInduzione())
+		{
+			//solo temp heater
+			html += "<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+		}
+		else
+		{
+		html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+			   +"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7042' data-da3bit='8' data-um=''></div></td></tr>";
 
+/*TEMPERATURE Espresso
+DEFINITION first coffee (da 00 a 30)
+Heating time sec: (da 0.0 a 10.0)
+TEMPERATURE heater  (40 max)
+	*/	
+		}
+	}	
+	html += "</table>";
+	rheaSetDivHTMLByName("pageTemperature_content", html);
+}
 
 /***************************************************************************
  *
@@ -1547,12 +1571,41 @@ function pageCalibration_reset(motor)
 	});
 }
 
-
 function pageCalibration_start (motor)
 {
+		/*rhea.ajax ("startImpulseCalc", { "m":11, "v":200}).then( function(result)
+		{
+			alert (result);
+			setTimeout ( function() { aaa(); }, 3000);
+		})
+		.catch( function(result)
+		{
+			alert (result);
+		});	*/
+		
 	taskCalibMotor.startMotorCalib(motor);
 }
 
+function aaa()
+{
+		rhea.ajax ("queryImpulseCalcStatus", "").then( function(result)
+		{
+			console.log ("queryImpulseCalc::result[" +result +"]");
+			var obj = JSON.parse(result);
+			//if (parseInt(obj.v) > 0)	alert (result);
+			setTimeout ( function() { aaa(); }, 1000);
+		})
+		.catch( function(result)
+		{
+			alert (result);
+		});	
+}
+
+function pageCalibration_onExit ()
+{
+	currentTask = voidTask;
+	save( function() { backToMainMenu();} );
+}
 
 </script>
 </html>

@@ -200,6 +200,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		})
 		.catch( function(result)
 		{
+			console.log ("TaskCalibMotor:: error fase 0 [" +result +"]");
 			me.fase = 200;
 		});					
 	break;
@@ -225,19 +226,23 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
+		console.log ("TaskCalibMotor::[40] motor[" +me.motor +"] value[" +me.value +"] g/sec[" +me.gsec +"]");
+		
 		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
 		{
 			me.fase = 199;
 		})
 		.catch( function(result)
 		{
+			console.log ("TaskCalibMotor:: error fase 40 [" +result +"]");
 			me.fase = 200;
 		});		
 		break;
 
 		
 	case 199:
-		da3.setCalibFactorGSec(me.motor, me.gSec);
+		console.log ("TaskCalibMotor::[199] motor[" +me.motor +"] value[" +me.value +"] g/sec[" +me.gsec +"]");
+		da3.setCalibFactorGSec(me.motor, me.gsec);
 		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(me.motor) );
 		rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
 		me.fase = 200;
@@ -264,12 +269,12 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Please remove the group then press CONTINUE");
+		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE");
 		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
 		break;
 		
-	case 1:	//attenndo btn CONTINUE
+	case 1:	//attendo btn CONTINUE
 		break;
 		
 	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
@@ -336,7 +341,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 		
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Re-place the group into position, then press CONTINUE");
+		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE");
 		pleaseWait_btn1_show();
 		me.fase = 41;
 		break;
@@ -365,10 +370,11 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 60: //gruppo è stato ricollegato, procedo con il calcolo impulsi
 		me.fase = 65;
-		pleaseWait_calibration_setText("Impulse calucation in progress, please wait");
+		pleaseWait_calibration_setText("Impulse calculation in progress, please wait");
 		rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
 		{
-			me.fase = 70;
+			//me.fase = 70;
+			setTimeout ( function() { me.fase = 70; }, 3000);
 		})
 		.catch( function(result)
 		{
@@ -379,6 +385,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 		
 	case 70: //cpu sta facendo i conti degli impulsi, mando query per sapere come sta
+		me.fase = 71;
 		rhea.ajax ("queryImpulseCalcStatus", "").then( function(result)
 		{
 			console.log ("queryImpulseCalc::result[" +result +"]");
@@ -393,9 +400,14 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		{
 			me.fase = 70;
 		});			
+		break;
+		
+	case 71:
+		break;
 		
 	case 199: //devo memorizzare gli impulsi ricevuti nel da3??
 		console.log ("memorizza impulsi[" +me.impulsi +"]");
+		da3.saveImpulsi(me.impulsi);
 		me.fase = 200;
 		break;
 		

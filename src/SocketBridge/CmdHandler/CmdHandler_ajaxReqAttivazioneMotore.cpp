@@ -42,7 +42,7 @@ bool ajaxReqAttivazioneMotore_jsonTrapFunction(const char *fieldName, const char
 		else
 			input->n = 1;
 	}
-	if (strcasecmp(fieldName, "m") == 0)
+	if (strcasecmp(fieldName, "p") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
 		if (h >= 0 && h <= 0xff)

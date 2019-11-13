@@ -250,23 +250,21 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		break;
 
 	case eCPUCommand_getExtendedConfigInfo:
-		out_answer[ct++] = '#';
-		out_answer[ct++] = cpuCommand;
-		out_answer[ct++] = 0; //lunghezza
-		out_answer[ct++] = 0x02;	//versione
-        
-		out_answer[ct++] = (u8)cpubridge::eCPUMachineType_espresso2;		//[4] Istant o Espresso
-		//out_answer[ct++] = (u8)cpubridge::eCPUMachineType_instant;
-		
-		out_answer[ct++] = 0x82;	//modello macchina
-
-		if (out_answer[4] == (u8)cpubridge::eCPUMachineType_instant)
-			out_answer[ct++] = 0;		//is Induzione? le macchine instant a induzione non esistono
-		else
-			out_answer[ct++] = 0x01;	//is Induzione?
-		out_answer[2] = (u8)ct + 1;
-		out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-		*in_out_sizeOfAnswer = out_answer[2];
+		{
+			const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;			const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
+			out_answer[ct++] = '#';
+			out_answer[ct++] = cpuCommand;
+			out_answer[ct++] = 0; //lunghezza
+			out_answer[ct++] = 0x02;	//versione
+			out_answer[ct++] = machine_type;
+			out_answer[ct++] = 0x82;	//modello macchina
+			out_answer[ct++] = isInduzione;
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+		}
 		return true;
 
 	case eCPUCommand_restart:

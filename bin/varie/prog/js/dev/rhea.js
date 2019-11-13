@@ -592,7 +592,7 @@ Rhea.prototype.sendGPUCommand = function (commandChar, bufferArrayIN, bReturnAPr
  */
 Rhea.prototype.ajax = function(commandString, plainJSObject)
 {
-	return this.ajaxWithCustomTimeout(commandString, plainJSObject, 2000);
+	return this.ajaxWithCustomTimeout(commandString, plainJSObject, 4000);
 };
 Rhea.prototype.ajaxWithCustomTimeout = function(commandString, plainJSObject, timeoutMSec)
 {
