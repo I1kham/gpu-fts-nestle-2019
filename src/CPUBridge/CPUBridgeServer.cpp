@@ -1705,6 +1705,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		else //answer[1] == 'Z'
 		{
 			msgLCD[msgLCDct] = (u16)answer[z] + (u16)answer[z + 1] * 256;
+			//msgLCD[msgLCDct] = (u16)answer[z+1] + (u16)answer[z] * 256;
 			z += 2;
 		}
 
