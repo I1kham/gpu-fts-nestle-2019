@@ -412,13 +412,16 @@
 						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(5)"></div></div></td>
 						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(5)"></div></div></td>
 					</tr>
-
 					<tr>
 						<td>MOTOR 6</td>
 						<td><div id="pageCalibration_m6" class="bigCaption15"></div></td>
 						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></div></td>
 						<td><div class='UIButton bigButton60' data-caption='CALIBRATE' data-onclick="pageCalibration_start(6)"></div></div></td>
 					</tr>
+					<tr id="pageCalibration_rowEncoder">
+						<td>ENCODER</td>
+						<td colspan="3"><div id="pageCalibration_encoder" class="bigCaption15"></div></td>
+					</tr>					
 				</table>
 			</div>
 		</div>
@@ -633,6 +636,23 @@ function helper_intToFixedOnePointDecimale(v)
 		{
 			v = v.toString();
 			v = v.substr(0, v.length-1) +"." +v.substr(v.length-1);
+		}
+	}
+	return v;
+}
+
+function helper_intToFixedTwoPointDecimale(v)
+{
+	if (v > 0)
+	{
+		if (v<10)
+			v = "0.0" +v;
+		else if (v<100)
+			v = "0." +v;
+		else
+		{
+			v = v.toString();
+			v = v.substr(0, v.length-2) +"." +v.substr(v.length-2);
 		}
 	}
 	return v;
@@ -1067,6 +1087,7 @@ function pageSelections_show()
 	}
 	header_setText("SELECTIONS");
 	btnBack_show();
+	rheaHideElem(rheaGetElemByID("bntSave"));
 	pageSelections_onSelector();
 }
 
@@ -1126,7 +1147,7 @@ function pageSingleSelection_show(iSel)
 	}
 	
 	var win = ui.getWindowByID("pageSingleSelection");
-
+	
 	//lo scaling factor delle selezioni potrebbe valere 0 nel qual caso significa 100%
 	var da3Loc = 180 + 100 * (iSel-1);
 	if (da3.read8(da3Loc) == 0)
@@ -1142,6 +1163,25 @@ function pageSingleSelection_show(iSel)
 	obj.da3offset = 0;
 	obj.da3Pos = da3.getPriceLocation(2,iSel);
 	obj.loadFromDA3(da3);	
+	
+	//unita misura
+	if (da3.isEspresso())
+	{
+		if (da3.isMotorCalibrated(11)) 
+			um = "gr"; 
+		else
+			um="sec";
+		win.getChildByID("pageSingleSelection_coffeeGrinder").changeUM(um);
+	}	
+	for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
+	{
+		if (da3.isMotorCalibrated(i+1)) 
+			um = "gr"; 
+		else
+			um = "sec";
+			console.log ("#"+i +" "+um);
+		win.getChildByID("pageSingleSelection_P_d"+i).changeUM(um);
+	}	
 	
 	//titolo della finestra
 	var title = "SELECTION " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name;
@@ -1202,13 +1242,14 @@ function pageSingleSelection_build()
 		s = "0|GENERAL SETTINGS|1|ESPRESSO|2|PRODUCTS|3|WATERS|4|MIXERS";
 	rheaSetDivHTMLByName("pageSingleSelection_selectorAtTop", "<div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div>");
 	
+	
 	var htmlE="";
 	if (da3.isEspresso())
 	{
 		htmlE = "<table border='0' class='elenco'>"
 				+"<tr><td>COFFEE SEQUENCE</td><td><div class='UIOption' data-option='0|AFTER|1|BEFORE' data-da3='103' data-da3bit='8'></div></td></tr>"
 				+"<tr><td>COFFEE WATER</td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
-				+"<tr><td>COFFEE GRINDER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec/gr'></div></td></tr>"
+				+"<tr><td>COFFEE GRINDER</td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
 				+"<tr><td>PREINFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='128' data-da3bit='4' data-max='15' data-um='sec'></div></td></tr>"
 				+"<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>"
 				+"<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>"
@@ -1241,8 +1282,8 @@ function pageSingleSelection_build()
 		var dosageID = "pageSingleSelection_P_d" +i;
 		htmlP +="<tr id='" +rowID +"'>"
 				+"<td>#" +prodNum +"</td>"
-				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
-				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
+				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
 				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"
 			+"</tr>";
 		da3LocProd+= 3;
@@ -1254,7 +1295,7 @@ function pageSingleSelection_build()
 	htmlP +="<tr id='" +rowID +"'>"
 			+"<td>#PRODUCT LM</td>"
 			+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3ProductLM +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
-			+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3ProductLM+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
+			+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3ProductLM+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
 			+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3ProductLM+2) +"' data-da3bit='4'></div></td>"
 		+"</tr>";
 	
@@ -1315,8 +1356,8 @@ function pageSingleSelection_build()
 		rowID = "pageSingleSelection_M_" +i;
 		htmlM +="<tr id='" +rowID +"'>"
 				+"<td>#" +prodNum +"</td>"
-				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
-				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
 				+"<td align='center'><div class='UIOption' data-option='1|LOW|2|MED|3|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
 			+"</tr>";		
 		da3LocWater+= 3;
@@ -1461,14 +1502,10 @@ function pageTemperature_build()
 		}
 		else
 		{
-		html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
-			   +"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7042' data-da3bit='8' data-um=''></div></td></tr>";
-
-/*TEMPERATURE Espresso
-DEFINITION first coffee (da 00 a 30)
-Heating time sec: (da 0.0 a 10.0)
-TEMPERATURE heater  (40 max)
-	*/	
+			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+				   +"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
+				   +"<tr><td>HEATING TIME</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>"
+				   +"<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 	}	
 	html += "</table>";
@@ -1534,6 +1571,7 @@ function pageCalibration_show()
 			var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
 		}
+		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder"));
 	}
 	else
 	{
@@ -1548,6 +1586,10 @@ function pageCalibration_show()
 		
 		v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(12) );
 		rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
+		
+		v = helper_intToFixedTwoPointDecimale(da3.getImpulsi());
+		rheaSetDivHTMLByName("pageCalibration_encoder", v +"&nbsp;imp/grams");
+		
 	}	
 	
 	header_setText("CALIBRATION");

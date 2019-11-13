@@ -65,6 +65,7 @@ DA3.prototype.getNumMacine = function()			{ if (this.isInstant()) return 0;  ret
 DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		{ if (this.isEspresso()) return 6; else return 10; }
 
+DA3.prototype.isMotorCalibrated = function (motor)	{ return (this.getCalibFactorGSec(motor) != 0); }
 
 DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 {
@@ -100,12 +101,9 @@ DA3.prototype.getCalibFactorGSec = function (motor)
 		return this.read16(loc); return 0;
 }
 
-DA3.prototype.saveImpulsi = function (v)
-{
-	this.write8(7560, parseInt(v));
-	this.write8(7561, parseInt(v));
-	
-}
+
+DA3.prototype.getImpulsi = function (v)		{ return this.read8(7560); }
+DA3.prototype.saveImpulsi = function (v)	{ this.write8(7560, parseInt(v)); this.write8(7561, parseInt(v)); }
 
 
 /********************************************************
@@ -128,7 +126,7 @@ DA3.prototype.compare = function ()
 		{
 			if (this.da3_current[ct] != this.da3_original[ct])
 			{
-				console.log ("da3:: diff @ pos[" +ct +"], old[" +this.da3_original[ct] +"], new[" +this.da3_current[ct] +"]");
+				//console.log ("da3:: diff @ pos[" +ct +"], old[" +this.da3_original[ct] +"], new[" +this.da3_current[ct] +"]");
 				retList.push(block);
 				break;				
 			}

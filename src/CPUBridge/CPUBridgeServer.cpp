@@ -1300,26 +1300,6 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 		116			ck
 	*/
 
-#ifdef PLATFORM_YOCTO_EMBEDDED
-		u16 date_year = answer[3] + 2000;
-		u16 date_month = answer[4];
-		u16 date_dayOfMonth = answer[5];
-		u16 date_hour = answer[6];
-		u16 date_min = answer[7];
-		u16 date_sec = answer[8];
-
-		if (date_year * date_month * date_dayOfMonth == 0)
-		{
-			date_year = 2015; date_month = 3; date_dayOfMonth = 15;
-			date_hour = 15; date_min = 1; date_sec = 0;
-		}
-
-		char s[256];
-		sprintf(s, "date -u %02d%02d%02d%02d%04d.%02d", date_month, date_dayOfMonth, date_hour, date_min, date_year, date_sec);
-		system(s);
-		system("hwclock -w");
-#endif
-
 	//CPU version (string)
 	memset (cpuParamIniziali.CPU_version, 0, sizeof (cpuParamIniziali.CPU_version));
 	memcpy (cpuParamIniziali.CPU_version, &answer[9], 8);
@@ -1339,6 +1319,26 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 	cpuParamIniziali.protocol_version = 0;
 	if (answerLen >= 117)
 		cpuParamIniziali.protocol_version = answer[115];
+
+#ifdef PLATFORM_YOCTO_EMBEDDED
+	u16 date_year = answer[3] + 2000;
+	u16 date_month = answer[4];
+	u16 date_dayOfMonth = answer[5];
+	u16 date_hour = answer[6];
+	u16 date_min = answer[7];
+	u16 date_sec = answer[8];
+
+	if (date_year * date_month * date_dayOfMonth == 0)
+	{
+		date_year = 2015; date_month = 3; date_dayOfMonth = 15;
+		date_hour = 15; date_min = 1; date_sec = 0;
+	}
+
+	char s[256];
+	sprintf(s, "date -u %02d%02d%02d%02d%04d.%02d", date_month, date_dayOfMonth, date_hour, date_min, date_year, date_sec);
+	system(s);
+	system("hwclock -w");
+#endif
 }
 
 
