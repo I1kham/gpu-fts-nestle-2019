@@ -115,7 +115,11 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqQueryImpulseCalcStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetCalibFactor.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStartImpulseCalc.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStatoGruppo.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStatoGruppo.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDate.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetTime.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDate.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -166,7 +170,11 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqQueryImpulseCalcStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetCalibFactor.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStartImpulseCalc.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStatoGruppo.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqStatoGruppo.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDate.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetTime.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDate.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
