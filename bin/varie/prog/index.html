@@ -1615,7 +1615,7 @@ function pageCalibration_reset(motor)
 
 function pageCalibration_start (motor)
 {
-		/*rhea.ajax ("startImpulseCalc", { "m":11, "v":200}).then( function(result)
+		rhea.ajax ("startImpulseCalc", { "m":11, "v":200}).then( function(result)
 		{
 			//alert (result);
 			setTimeout ( function() { aaa(); }, 3000);
@@ -1623,9 +1623,9 @@ function pageCalibration_start (motor)
 		.catch( function(result)
 		{
 			//alert (result);
-		});*/
+		});
 		
-	taskCalibMotor.startMotorCalib(motor);
+	//taskCalibMotor.startMotorCalib(motor);
 }
 
 function aaa()
