@@ -1617,13 +1617,13 @@ function pageCalibration_start (motor)
 {
 		/*rhea.ajax ("startImpulseCalc", { "m":11, "v":200}).then( function(result)
 		{
-			alert (result);
+			//alert (result);
 			setTimeout ( function() { aaa(); }, 3000);
 		})
 		.catch( function(result)
 		{
-			alert (result);
-		});	*/
+			//alert (result);
+		});*/
 		
 	taskCalibMotor.startMotorCalib(motor);
 }
@@ -1634,12 +1634,17 @@ function aaa()
 		{
 			console.log ("queryImpulseCalc::result[" +result +"]");
 			var obj = JSON.parse(result);
-			//if (parseInt(obj.v) > 0)	alert (result);
-			setTimeout ( function() { aaa(); }, 1000);
+			if (parseInt(obj.v) > 0)	
+			{
+				return; 
+				//alert (result);
+			}
+			else
+				setTimeout ( function() { aaa(); }, 1000);
 		})
 		.catch( function(result)
 		{
-			alert (result);
+			//alert (result);
 		});	
 }
 

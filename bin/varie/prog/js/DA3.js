@@ -89,14 +89,14 @@ DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 DA3.prototype.setCalibFactorGSec = function (motor, v)		
 { 
 	var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); 
-	console.log ("DA3::setCalibFactorGSec motor[" +motor +"] v[" +v +"] loc[" +loc +"]");
+	//console.log ("DA3::setCalibFactorGSec motor[" +motor +"] v[" +v +"] loc[" +loc +"]");
 	if (loc>0) 
 		this.write16(loc, parseInt(v)); 
 }
 DA3.prototype.getCalibFactorGSec = function (motor)			
 { 
 	var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); 
-	console.log ("DA3::getCalibFactorGSec motor[" +motor +"] loc[" +loc +"]");
+	//console.log ("DA3::getCalibFactorGSec motor[" +motor +"] loc[" +loc +"]");
 	if (loc>0) 
 		return this.read16(loc); return 0;
 }

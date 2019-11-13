@@ -70,7 +70,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 		.then( function(result) 
 		{
 			var obj = JSON.parse(result);
-			console.log ("SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
+			//console.log ("SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
 			me.fase = parseInt(obj.fase);
 			me.btn1 = parseInt(obj.btn1);
 			me.btn2 = parseInt(obj.btn2);
@@ -113,7 +113,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 		})
 		.catch( function(result)
 		{
-			console.log ("SANWASH: error[" +result +"]");
+			//console.log ("SANWASH: error[" +result +"]");
 			pleaseWait_btn1_hide();
 			pleaseWait_btn2_hide();
 		});	
@@ -186,7 +186,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 	var TIME_ATTIVAZIONE_dSEC = 30;
 	
 	var me = this;
-	console.log ("TaskCalibMotor::fase[" +me.fase +"]");
+	//console.log ("TaskCalibMotor::fase[" +me.fase +"]");
 	switch (this.fase)
 	{
 	case 0:
@@ -200,7 +200,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		})
 		.catch( function(result)
 		{
-			console.log ("TaskCalibMotor:: error fase 0 [" +result +"]");
+			//console.log ("TaskCalibMotor:: error fase 0 [" +result +"]");
 			me.fase = 200;
 		});					
 	break;
@@ -226,7 +226,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
-		console.log ("TaskCalibMotor::[40] motor[" +me.motor +"] value[" +me.value +"] g/sec[" +me.gsec +"]");
+		//console.log ("TaskCalibMotor::[40] motor[" +me.motor +"] value[" +me.value +"] g/sec[" +me.gsec +"]");
 		
 		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
 		{
@@ -234,14 +234,14 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		})
 		.catch( function(result)
 		{
-			console.log ("TaskCalibMotor:: error fase 40 [" +result +"]");
+			//console.log ("TaskCalibMotor:: error fase 40 [" +result +"]");
 			me.fase = 200;
 		});		
 		break;
 
 		
 	case 199:
-		console.log ("TaskCalibMotor::[199] motor[" +me.motor +"] value[" +me.value +"] g/sec[" +me.gsec +"]");
+		//console.log ("TaskCalibMotor::[199] motor[" +me.motor +"] value[" +me.value +"] g/sec[" +me.gsec +"]");
 		da3.setCalibFactorGSec(me.motor, me.gsec);
 		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(me.motor) );
 		rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
@@ -262,7 +262,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	var TIME_ATTIVAZIONE_dSEC = 60;
 	
 	var me = this;
-	console.log ("TaskCalibMotor::fase[" +me.fase +"]");
+	//console.log ("TaskCalibMotor::fase[" +me.fase +"]");
 	switch (this.fase)
 	{
 	case 0:
@@ -280,7 +280,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
 		rhea.ajax ("getGroupState", "").then( function(result)
 		{
-			console.log ("TaskCalibMotor, grpState[" +result +"]");
+			//console.log ("TaskCalibMotor, grpState[" +result +"]");
 			if (result=="0")
 				me.fase = 10;
 			else
@@ -352,7 +352,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 50: //verifico che il gruppo sia collegato, altrimenti goto 40
 		rhea.ajax ("getGroupState", "").then( function(result)
 		{
-			console.log ("TaskCalibMotor, grpState[" +result +"]");
+			//console.log ("TaskCalibMotor, grpState[" +result +"]");
 			if (result=="1")
 				me.fase = 60;
 			else
@@ -388,13 +388,15 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.fase = 71;
 		rhea.ajax ("queryImpulseCalcStatus", "").then( function(result)
 		{
-			console.log ("queryImpulseCalc::result[" +result +"]");
+			//console.log ("queryImpulseCalc::result[" +result +"]");
 			var obj = JSON.parse(result);
 			if (parseInt(obj.v) > 0)
 			{
 				me.impulsi= parseInt(obj.v);
-				me.fase = 199;
+				me.fase = 190;
 			}
+			else
+				me.fase = 70;
 		})
 		.catch( function(result)
 		{
@@ -405,11 +407,18 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 71:
 		break;
 		
-	case 199: //devo memorizzare gli impulsi ricevuti nel da3??
-		console.log ("memorizza impulsi[" +me.impulsi +"]");
+		
+	case 190: //devo memorizzare gli impulsi ricevuti nel da3??
+		pleaseWait_calibration_setText("Impulse: " +me.impulsi);
 		da3.saveImpulsi(me.impulsi);
-		me.fase = 200;
+		me.fase = 191;
 		break;
+		
+	case 191: me.fase++; break;
+	case 192: me.fase++; break;
+	case 193: me.fase++; break;
+	case 194: me.fase++; break;
+	case 195: me.fase=200; break;
 		
 	case 200:
 		me.what = 0;
