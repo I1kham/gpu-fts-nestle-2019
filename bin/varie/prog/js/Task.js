@@ -410,7 +410,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 190: //devo memorizzare gli impulsi ricevuti nel da3??
 		pleaseWait_calibration_setText("Impulse: " +me.impulsi);
-		da3.saveImpulsi(11, me.impulsi);
+		da3.setImpulsi(11, me.impulsi);
 		me.fase = 191;
 		break;
 		

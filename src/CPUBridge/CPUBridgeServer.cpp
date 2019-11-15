@@ -1825,7 +1825,6 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 					cpuStatus.LCDMsg.ct *= 2;
 				}
 			}
-
 		}
 
 		//noticico tutti

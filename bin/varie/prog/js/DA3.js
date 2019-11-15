@@ -119,7 +119,7 @@ DA3.prototype.getImpulsi = function (motor)
 	return 0;
 	
 }
-DA3.prototype.saveImpulsi = function (motor,v)	
+DA3.prototype.setImpulsi = function (motor,v)	
 { 
 	if (motor==11)
 		this.write16(7560, parseInt(v)); //macina 1
