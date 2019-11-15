@@ -66,7 +66,8 @@ SOURCES += \
     ../../src/CPUBridge/CPUChannelCom.cpp \
     ../../src/CPUBridge/CPUChannelFakeCPU.cpp \
     ../../src/CPUBridge/lang.cpp \
-    ../../src/CPUBridge/DA3.cpp
+    ../../src/CPUBridge/DA3.cpp \
+    ../../src/CPUBridge/EVADTSParser.cpp
 
 HEADERS += \
     ../../src/CPUBridge/CPUBridge.h \
@@ -77,7 +78,8 @@ HEADERS += \
     ../../src/CPUBridge/CPUChannelCom.h \
     ../../src/CPUBridge/CPUChannelFakeCPU.h \
     ../../src/CPUBridge/lang.h \
-    ../../src/CPUBridge/DA3.h
+    ../../src/CPUBridge/DA3.h \
+    ../../src/CPUBridge/EVADTSParser.h
 
 unix {
     target.path = /usr/lib
