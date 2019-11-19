@@ -74,7 +74,6 @@ void CmdHandler_ajaxReqAttivazioneMotore::passDownRequestToCPUBridge (cpubridge:
 //***********************************************************
 void CmdHandler_ajaxReqAttivazioneMotore::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
-	cpubridge::eCPUProgrammingCommand_motor motor = cpubridge::eCPUProgrammingCommand_motor_unknown;
 	u8 motore = 0;
 	u8 durata_dsec = 0;
 	u8 numRipetizioni = 0;

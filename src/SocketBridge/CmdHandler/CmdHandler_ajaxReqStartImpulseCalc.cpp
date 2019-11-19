@@ -47,7 +47,7 @@ void CmdHandler_ajaxReqStartImpulseCalc::passDownRequestToCPUBridge (cpubridge::
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqStartImpulseCalc::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_ajaxReqStartImpulseCalc::onCPUBridgeNotification (socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 	char text[4] = { 'O', 'K', 0, 0 };
     server->sendAjaxAnwer (hClient, ajaxRequestID, text, (u16)strlen(text));

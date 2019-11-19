@@ -21,6 +21,6 @@ void CmdHandler_eventReqSetPosizioneMacina::passDownRequestToCPUBridge (cpubridg
 }
 
 //***********************************************************
-void CmdHandler_eventReqSetPosizioneMacina::onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_eventReqSetPosizioneMacina::onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 }

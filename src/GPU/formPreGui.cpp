@@ -23,6 +23,9 @@ FormPreGui::~FormPreGui()
 //*******************************************
 void FormPreGui::showMe (u16 groundCounterLimit, bool bShowBtnCleaMilker)
 {
+    ui->labCPUMessage->setText("");
+    ui->labCPUStatus->setText("");
+
     retCode = eRetCode_none;
     cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
     timeToAutoCloseMSec = rhea::getTimeNowMSec() +10000;
