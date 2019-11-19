@@ -1115,9 +1115,8 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	//dopo qualche esperimento, ho notato che a seguito di un upload, la CPU cmq fa delle modifiche al DA3.
 	//Chiedo quindi quei blocchi che la CPU ha modificato
 	{
-		u8 *tempBuffer = NULL;
 		u32 sizeOfBuffer= 0;
-		rhea::fs::fileCopyInMemory(tempFilePathAndName, localAllocator, &sizeOfBuffer);
+		u8 *tempBuffer = rhea::fs::fileCopyInMemory(tempFilePathAndName, localAllocator, &sizeOfBuffer);
 
 		u16 block = 151;
 		if (!priv_prepareAndSendMsg_readVMCDataFile(block))
@@ -1132,6 +1131,8 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		f = fopen(tempFilePathAndName, "wb");
 		fwrite (tempBuffer, sizeOfBuffer, 1, f);
 		fclose(f);
+
+		RHEAFREE(localAllocator, tempBuffer);
 	}
 
 
@@ -1184,7 +1185,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 u16 Server::priv_prepareAndSendMsg_readVMCDataFile (u16 blockNum)
 {
 	u8 bufferW[32];
-	const u16 nBytesToSend = buildMsg_readVMCDataFile(blockNum, bufferW, sizeof(bufferW));
+	const u16 nBytesToSend = buildMsg_readVMCDataFile((u8)blockNum, bufferW, sizeof(bufferW));
 
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))

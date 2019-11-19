@@ -422,7 +422,7 @@ bool run (const sThreadInitParam *init)
 	stress.setup(msgQHandleR, &proto, &ch, &bufferR, &waitGrp, logger);
 
 
-	char da3_filename[] = { "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/current/da3/vmcDataFile.da3" };
+	const char da3_filename[] = { "C:/rhea/rheaSRC/gpu-fts-nestle-2019/src/stressTestUpDownDA3/esempio.da3" };
 	u32 da3_sizeOfBuffer = 0;
 	u8 *da3_buffer = rhea::fs::fileCopyInMemory(da3_filename, localAllocator, &da3_sizeOfBuffer);
 	
@@ -447,25 +447,34 @@ bool run (const sThreadInitParam *init)
 				char downloadedFilename[256];
 				sprintf_s(downloadedFilename, sizeof(downloadedFilename), "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/temp/vmcDataFile%d.da3", fileID);
 
-				//confronto i 2 file
-				u32 sizeOfBuffer = 0;
-				u8 *buffer = rhea::fs::fileCopyInMemory(downloadedFilename, localAllocator, &sizeOfBuffer);
+				char currentFilename[256];
+				sprintf_s(currentFilename, sizeof(currentFilename), "C:/rhea/rheaSRC/gpu-fts-nestle-2019/bin/current/da3/vmcDataFile.da3");
+
+				//confronto il file attuale in current/da3 con quello appena scaricato
+				u32 sizeOfBuffer1 = 0;
+				u8 *buffer1 = rhea::fs::fileCopyInMemory(currentFilename, localAllocator, &sizeOfBuffer1);
+
+				u32 sizeOfBuffer2 = 0;
+				u8 *buffer2 = rhea::fs::fileCopyInMemory(downloadedFilename, localAllocator, &sizeOfBuffer2);
 
 				bool bEqual = true;
-				if (sizeOfBuffer != da3_sizeOfBuffer)
+				if (sizeOfBuffer1 != sizeOfBuffer2)
 					bEqual = false;
 				else
 				{
-					buffer[9693] = da3_buffer[9693];
-					buffer[9705] = da3_buffer[9705];
-					if (memcmp(da3_buffer, buffer, 156*64) != 0)
+					//buffer[9693] = da3_buffer[9693];
+					//buffer[9705] = da3_buffer[9705];
+					if (memcmp(buffer1, buffer2, 156*64) != 0)
 						bEqual = false;
 				}
-				RHEAFREE(localAllocator, buffer);
+				RHEAFREE(localAllocator, buffer1);
+				RHEAFREE(localAllocator, buffer2);
 
 				if (!bEqual)
 				{
 					numFallimenti++;
+					printf("fallito\n");
+					break;
 				}
 
 
