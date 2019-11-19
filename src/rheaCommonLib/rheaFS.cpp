@@ -303,7 +303,7 @@ bool fs_do_open_and_copy_fileCopy (const char *srcFullFileNameAndPath, const cha
 //**************************************************************************
 bool fs::fileCopy (const char *srcFullFileNameAndPath, const char *dstFullFileNameAndPath)
 {
-	const u32 BUFFER_SIZE = 4096;
+    const u32 BUFFER_SIZE = 1024*1024;
 	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
 	void *buffer = RHEAALLOC(allocator, BUFFER_SIZE);
 	bool ret = fs_do_open_and_copy_fileCopy(srcFullFileNameAndPath, dstFullFileNameAndPath, buffer, BUFFER_SIZE);

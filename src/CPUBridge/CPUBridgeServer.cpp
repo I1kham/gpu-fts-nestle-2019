@@ -1112,6 +1112,29 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	fclose(f);
 	assert(bytesWrittenSoFar >= VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE);
 
+	//dopo qualche esperimento, ho notato che a seguito di un upload, la CPU cmq fa delle modifiche al DA3.
+	//Chiedo quindi quei blocchi che la CPU ha modificato
+	{
+		u8 *tempBuffer = NULL;
+		u32 sizeOfBuffer= 0;
+		rhea::fs::fileCopyInMemory(tempFilePathAndName, localAllocator, &sizeOfBuffer);
+
+		u16 block = 151;
+		if (!priv_prepareAndSendMsg_readVMCDataFile(block))
+		{
+			if (NULL != subscriber)
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2, kbWrittenSoFar);
+			return eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2;
+		}
+		memcpy (&tempBuffer[block*VMCDATAFILE_BLOCK_SIZE_IN_BYTE], &answerBuffer[5], VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
+
+		//sovrascrivo il file con le info
+		f = fopen(tempFilePathAndName, "wb");
+		fwrite (tempBuffer, sizeOfBuffer, 1, f);
+		fclose(f);
+	}
+
+
 
 	//a questo punto, copio il file temporaneo nella mia cartella last_installed e nella cartella current (qui gli cambio anche il nome con quello di default)
 	char s[512];
@@ -1157,6 +1180,18 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	return eWriteDataFileStatus_finishedOK;
 }
 
+//***************************************************
+u16 Server::priv_prepareAndSendMsg_readVMCDataFile (u16 blockNum)
+{
+	u8 bufferW[32];
+	const u16 nBytesToSend = buildMsg_readVMCDataFile(blockNum, bufferW, sizeof(bufferW));
+
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+		return 0;
+	return sizeOfAnswerBuffer;
+}
+
 /***************************************************
  * Chiede alla CPU il file di da3 e lo salva localmente in app/temp/vmcDataFile%d.da3
  * [%d] è un progressivo che viene comunicato alla fine del download nel messaggio di conferma.
@@ -1185,16 +1220,19 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 
 	//il meccanismo attuale prevedere che la CPU mandi pacchetti da 64b di dati fino al raggiungimento della
 	//dimensione totale del file. Il tutto è hard-codato...
-	u8 bufferW[32];
 	u32 nPacketSoFar = 0;
 	u32 bytesReadSoFar = 0;
 	u16 kbReadSoFar = 0;
 	u16 lastKbReadSent = u16MAX;
 	while (1)
 	{
-		u16 nBytesToSend = buildMsg_readVMCDataFile(nPacketSoFar++, bufferW, sizeof(bufferW));
+		/*u16 nBytesToSend = buildMsg_readVMCDataFile(nPacketSoFar++, bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+		*/
+
+		u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_readVMCDataFile(nPacketSoFar++);
+		if (0 == sizeOfAnswerBuffer)
 		{
 			//errore, la CPU non ha risposto, abortisco l'operazione
 			if (NULL != subscriber)

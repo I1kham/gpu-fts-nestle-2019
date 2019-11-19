@@ -175,6 +175,7 @@ namespace cpubridge
 		eWriteDataFileStatus_finishedKO_cpuDidNotAnswer = 3,
 		eWriteDataFileStatus_finishedKO_unableToCopyFile = 4,
 		eWriteDataFileStatus_finishedKO_unableToOpenLocalFile = 5,
+        eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2 = 6,
 	};
 
 	enum eWriteCPUFWFileStatus
