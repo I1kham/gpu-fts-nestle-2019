@@ -43,21 +43,6 @@ private:
         eForm_newprog_lavaggioSanitario,
     };
 
-    enum eStato
-    {
-        eStato_running = 0,
-        eStato_sync_1_queryIniParam,
-        eStato_sync_1_wait,
-        eStato_sync_2_queryExtendedConfigInfo,
-        eStato_sync_2_wait,
-        eStato_sync_3_queryCpuStatus,
-        eStato_sync_3_wait,
-        eStato_sync_4_queryVMCSettingTS,
-        eStato_sync_4_wait,
-        eStato_sync_5_downloadVMCSetting,
-        eStato_sync_5_wait
-    };
-
 private:
     void                    priv_loadURL (const char *url);
     bool                    priv_shouldIShowFormPreGUI();
@@ -75,11 +60,11 @@ private:
 private:
     struct sSyncWithCPU
     {
-        eStato          stato;
-        u64             timeoutMSec;
-        u8              nRetryLeft;
+        cpubridge::eVMCState vmcState;
+        u64             nextTimeoutAskCPUStateMSec;
+        u8              stato;
 
-        void            reset() { stato=eStato_sync_1_queryIniParam; nRetryLeft=3; timeoutMSec=0; }
+        void            reset() { stato=0; nextTimeoutAskCPUStateMSec=0; vmcState = cpubridge::eVMCState_COMPATIBILITY_CHECK; }
     };
 
 private:

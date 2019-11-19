@@ -1292,6 +1292,7 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 		if (kbReadSoFar != lastKbReadSent)
 		{
 			lastKbReadSent = kbReadSoFar;
+            priv_handleMsgQueues(rhea::getTimeNowMSec(), 1);
 
 			if (NULL == subscriber)
 			{
@@ -1541,6 +1542,7 @@ void Server::priv_handleState_compatibilityCheck()
 	}
 
 	//tutto ok, passo a da3Sync
+    priv_handleMsgQueues(rhea::getTimeNowMSec(), 1);
 	priv_enterState_DA3Sync();
 }
 
@@ -1599,6 +1601,7 @@ void Server::priv_enterState_DA3Sync()
 	logger->log("CPUBridgeServer::priv_enterState_DA3Sync()\n");
 
 	stato.set(sStato::eStato_DA3_sync);
+    priv_resetInternalState(cpubridge::eVMCState_DA3_SYNC);
 
 	cpuStatus.LCDMsg.buffer[0] = 'D';
 	cpuStatus.LCDMsg.buffer[1] = 'A';
@@ -1630,6 +1633,8 @@ void Server::priv_handleState_DA3Sync()
 	if (!rhea::fs::fileExists(s))
 		myTS.setInvalid();
 
+    priv_handleMsgQueues(rhea::getTimeNowMSec(), 1);
+
 	//chiedo il timestamp alla CPU
 	sCPUVMCDataFileTimeStamp cpuTS;
 	u8 nRetry = 5;
@@ -1658,6 +1663,7 @@ void Server::priv_handleState_DA3Sync()
 	
 
 	//se arrivo qui vuol dire che il mio da3 non è in sync con quello della CPU, procedo al download
+    priv_handleMsgQueues(rhea::getTimeNowMSec(), 1);
 	nRetry = 2;
 	while (nRetry--)
 	{
@@ -1967,7 +1973,8 @@ void Server::priv_handleState_programmazione()
 
                 if (this->cpuStatus.VMCstate != eVMCState_PROGRAMMAZIONE)
                 {
-                    priv_enterState_normal();
+                    //priv_enterState_normal();
+                    priv_enterState_DA3Sync();
                     return;
                 }
             }

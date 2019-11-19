@@ -92,8 +92,8 @@ void FormBoot::showMe()
 
     if (glob->bSyncWithCPUResult)
     {
-        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
+        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
     }
     else
     {
