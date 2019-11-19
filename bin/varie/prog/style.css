@@ -102,14 +102,6 @@ table.UIOptionSmall td { margin:0; padding:0; text-align:center; border-right:so
 table.UIOptionSmall td div.UIButton { width:100%; border-radius:0; font-size:1.0em;  }
 table.UIOptionSmall td div.UIButton p { padding:10px 0 10px 0; }
 
-/*
-.UINumberContainer 	{ display:inline-block; width:60px; height:85px; position:relative; overflow:hidden; z-index:10; margin-right:5px;}
-.UINumberStrip 		{ position: absolute; top:20px; left:-773px; width:1600px; text-align:center; background-color:rgba(0,0,0,0.7); padding:400px 0 400px 0; }
-.UINumberStrip p 	{ margin:0;  line-height:56px; padding:0; max-height:56px; overflow:hidden; height:56px; font-size:2.7em; color:#fff }
-.UINumberMask		{ width:100%; height:100%; position:absolute; top:0; left:0; background-image:url(img/fader85.png); background-repeat:repeat-x; z-index:20; }
-.UINumberBorder		{ width:56px; height:81px; position:absolute; top:0; left:0; border:solid 2px #999999; border-radius:10px; z-index:21; }
-*/
-
 .UINumber2Container 	{ display:inline-block; width:60px; height:85px; position:relative; z-index:10; margin-right:5px;}
 .UINumber2Inner 		{ display:inline-block; width:60px; height:75px; position:relative; top:6px; overflow:hidden; }
 .UINumber2Strip 		{ position: absolute; top:15px; left:0; width:60px; text-align:center; background-color:rgba(0,0,0,0.7); }
@@ -123,6 +115,10 @@ table.UIOptionSmall td div.UIButton p { padding:10px 0 10px 0; }
 table.tselect 		{ width:100%; border:solid 1px #656565; font-size:1.0em; color:#fff; }
 table.tselect tr 	{ height:50px; }
 table.tselect tr td { padding: 0 10px 0 10px; }
+
+#UISelectFullPage { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+#UISelectFullPage ul { list-style-type:none; margin:0; padding:0;}
+#UISelectFullPage ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }
 
 .colorGrey 		{ color:#999999; }
 .UIlit 			{ background-color:#cc5f29; color:#fff; }

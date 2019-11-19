@@ -33,6 +33,12 @@
 			
 		</div>
 	</div>
+	
+	<div id="UISelectFullPage">
+		<div id="UISelectFullPage_cnt" style="padding:10px"></div>
+		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="javascript:UISelect_hideFullPage()"></div>
+		
+	</div>
 			
 	<!-- page Main menu -->
 	<div class="header">
@@ -545,7 +551,7 @@
 						</tr>
 						<tr>
 							<td>DATA AUDIT</td>
-							<td><div class='UIOption' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
+							<td><div class='UISelect' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
 						</tr>						
 					</table>
 				</div>
@@ -930,7 +936,7 @@ function dataOra_run ()
 function pageMainMenu_show()
 {
 	showPage("pageMainMenu");
-	header_setText("<div style='margin-left:140px'><center><img draggable='false' src='img/iconHome.png'> Programming Menu</center></div>");
+	header_setText("<div style='margin-left:140px'><center><img  src='img/iconHome.png'> Programming Menu</center></div>");
 	btnBack_hide();
 }
 
