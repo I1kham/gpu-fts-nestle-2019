@@ -56,6 +56,9 @@ namespace socketbridge
 		eEventType_cpuExtendedConfigInfo = 'u',				//117	0x75
 		eEventType_setDecounter = 'v',						//118	0x76
 		eEventType_getAllDecounters = 'w',					//119	0x77
+		eEventType_setMotoreMacina = 'x',					//120	0x78
+		eEventType_getPosizioneMacina = 'y',				//121	0x79
+		eEventType_setPosizioneMacina = 'z',				//122	0x80
 		
         eEventType_unknown = 0xff
     };

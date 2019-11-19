@@ -63,7 +63,7 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUCT<br>QUANTITY" data-onclick="pageProductQty_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="PAYMENT<br>SYSTEMS"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PAYMENT<br>SYSTEMS" data-onclick="pagePayment_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
@@ -120,7 +120,10 @@
 						<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
 						<td><div class='UIButton bigButton60' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
 					</tr>
-					
+					<tr>
+						<td>FIRST INSTALLATION</td>
+						<td colspan="2"><div class="UIOption" data-option="0|YES|1|NO" data-da3="7074"></div></td>
+					</tr>					
 					<!--<tr><td>OUT of service (last 20 OFF)</td><td>todo...</td></tr>-->
 				</table>
 			</div>
@@ -448,6 +451,127 @@
 		</div>
 		<!-- pageCalibration -->
 		
+		<!-- page Payment -->
+		<div id="pagePayment" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pagePayment_selector' data-option='0|GENERAL<br>OPTIONS|1|MDB|2|MACHINE ID|3|RFID CARD' data-onclick='pagePayment_onSelector()'></div></td>
+					</tr>
+				</table>
+				<br>
+			
+				<div id="pagePayment_general" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>COIN MECH TYPE</td>
+							<td><div class='UISelect' data-option='0|PAR. SING. VEND|1|PAR. MULTI VEND|2|EXECUTIVE|3|PRICE HOLDING|4|MDB' data-da3='7058' data-da3bit='8'></div></td>
+						</tr>
+						<tr>
+							<td>DECIMAL NUMBER</td>
+							<td><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='7066' data-da3bit='8'></div></td>
+						</tr>
+					</table>				
+				</div>
+
+				<div id="pagePayment_mdb">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>ESCROW ENABLED</td>
+							<td><div class='UIOption' data-option='0|YES|1|NO' data-da3='7236' data-da3bit='8'></div></td>
+						</tr>
+						<tr><td>CREDIT MAX</td><td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7238" data-da3bit="16"></div></td></tr>
+						<tr><td>REST MAX</td><td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7240" data-da3bit="16"></div></td></tr>
+						<tr>
+							<td>SELL TYPE</td>
+							<td><div class='UIOption' data-option='0|SINGLE|1|MULTI' data-da3='7242' data-da3bit='8'></div></td>
+						</tr>
+						<tr><td>TOKEN VALUE</td><td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7244" data-da3bit="16"></div></td></tr>
+						<tr><td>BILL VALIDATOR</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='7310' data-da3bit='8'></div></td></tr>
+						
+						<tr><td>COIN REST A</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7246' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST B</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7248' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST C</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7250' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST D</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7252' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST E</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7254' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST F</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7256' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST G</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7258' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST H</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7260' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST I</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7262' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST J</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7264' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST K</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7266' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST L</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7268' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST M</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7270' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST N</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7272' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST O</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7274' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST P</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7276' data-da3bit='16'></div></td></tr>
+
+						<tr><td>COIN NO REST A</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7278' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST B</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7280' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST C</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7282' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST D</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7284' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST E</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7286' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST F</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7288' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST G</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7290' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST H</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7292' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST I</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7294' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST J</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7296' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST K</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7298' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST L</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7300' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST M</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7302' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST N</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7304' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST O</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7306' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST P</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7308' data-da3bit='16'></div></td></tr>
+					</table>				
+				</div>			
+				
+				<div id="pagePayment_mid" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>CODE ID 101</td>
+							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7314" data-da3bit="32"></div></td>
+						</tr>
+						<tr>
+							<td>CODE ID 104</td>
+							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7318" data-da3bit="32"></div></td>
+						</tr>
+						<tr>
+							<td>CODE ID 106</td>
+							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7322" data-da3bit="32"></div></td>
+						</tr>
+						<tr>
+							<td>ADDRESS VIDTIS</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7326" data-da3bit="16"></div></td>
+						</tr>
+						<tr>
+							<td>DATA AUDIT</td>
+							<td><div class='UIOption' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
+						</tr>						
+					</table>
+				</div>
+				
+				<div id="pagePayment_rfid">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>MAX CREDIT CARD</td>
+							<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7136" data-da3bit="16"></div></td>
+						</tr>
+						<tr><td>COIN A</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7144'></div></td></tr>
+						<tr><td>COIN B</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7146'></div></td></tr>
+						<tr><td>COIN C</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7148'></div></td></tr>
+						<tr><td>COIN D</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7150'></div></td></tr>
+						<tr><td>COIN E</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7152'></div></td></tr>
+						<tr><td>COIN F</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7154'></div></td></tr>
+						<tr><td>COIN G</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7156'></div></td></tr>
+						<tr><td>COIN H</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7158'></div></td></tr>
+						<tr><td>COIN I</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7160'></div></td></tr>
+						<tr><td>COIN J</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7162'></div></td></tr>
+					</table>
+				</div>				
+				
+			</div>
+		</div><!-- page Payment -->		
+		
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
@@ -470,9 +594,11 @@
 <script src="js/DA3.js"></script>
 <script src="js/GUIInfo.js"></script>
 <script src="js/UI.js"></script>
+<script src="js/UIOption.js"></script>
 <script src="js/UINumberArrow.js"></script>
 <script src="js/UIButtonSel.js"></script>
 <script src="js/UITime24.js"></script>
+<script src="js/UISelect.js"></script>
 <script src="js/Task.js"></script>
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
@@ -1779,5 +1905,43 @@ function pageCalibration_onExit ()
 	save( function() { backToMainMenu();} );
 }
 
+
+/***************************************************************************
+ *
+ * pagePayment
+ *
+ */
+function pagePayment_show()
+{
+	if (showPage("pagePayment"))
+	{
+	}
+
+	pagePayment_onSelector();
+	header_setText("PAYMENT SYSTEMS");
+	btnBack_show();
+}
+
+function pagePayment_onSelector()
+{
+	var elem0 = rheaGetElemByID("pagePayment_general");
+	var elem1 = rheaGetElemByID("pagePayment_mdb");
+	var elem2 = rheaGetElemByID("pagePayment_mid");
+	var elem3 = rheaGetElemByID("pagePayment_rfid");
+
+	rheaHideElem(elem0);
+	rheaHideElem(elem1);
+	rheaHideElem(elem2);
+	rheaHideElem(elem3);
+	
+	var win = ui.getWindowByID("pagePayment");
+	switch (parseInt(win.getChildByID("pagePayment_selector").getSelectedOptionValue()))
+	{
+		default: rheaShowElem(elem0); break;
+		case 1:  rheaShowElem(elem1); break;
+		case 2:  rheaShowElem(elem2); break;
+		case 3:  rheaShowElem(elem3); break;
+	}
+}
 </script>
 </html>

@@ -438,6 +438,24 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 			log->outText(true, true, false, "setDecounter: which[%d] value[%d]\n", (u8)which, value);
 		}
 		break;		
+
+	case socketbridge::eEventType_getPosizioneMacina:
+		{
+			u8 macina_1o2 = 0;
+			u16 value = 0;
+			rhea::app::GetPosizioneMacina::decodeAnswer(decoded, &macina_1o2, &value);
+			log->outText(true, true, false, "GetPosizioneMacina: macina[%d] value[%d]\n", macina_1o2, value);
+		}
+		break;
+
+	case socketbridge::eEventType_setMotoreMacina:
+		{
+			u8 macina_1o2 = 0;
+			cpubridge::eCPUProgrammingCommand_macinaMove m;
+			rhea::app::SetMotoreMacina::decodeAnswer(decoded, &macina_1o2, &m);
+			log->outText(true, true, false, "SetMotoreMacina: macina[%d] movimento[%d]\n", macina_1o2, (u8)m);
+		}
+		break;
 	}
 }
 

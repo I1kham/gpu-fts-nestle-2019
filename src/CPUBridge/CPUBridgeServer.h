@@ -33,7 +33,8 @@ namespace cpubridge
                 eStato_comError = 0,
                 eStato_normal = 1,
                 eStato_selection = 2,
-                eStato_programmazione = 3
+                eStato_programmazione = 3,
+				eStato_regolazioneAperturaMacina = 4
             };
 
             enum eWhatToDo
@@ -67,6 +68,12 @@ namespace cpubridge
 			eRunningSelStatus		status;
 		};
 
+		struct sRegolazioneAperturaMacina
+		{
+			u8 macina_1o2;
+			u16 target;
+		};
+
 	private:
 
 		void					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
@@ -86,7 +93,11 @@ namespace cpubridge
         void					priv_enterState_programmazione();
         void                    priv_handleState_programmazione();
 
-        bool					priv_enterState_selection (u8 selNumber, const sSubscription *sub);
+		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target);
+		void                    priv_handleState_regolazioneAperturaMacina();
+		bool					priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
+
+		bool					priv_enterState_selection (u8 selNumber, const sSubscription *sub);
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 
@@ -99,6 +110,7 @@ namespace cpubridge
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
 		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
 		bool                    priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out);
+
 		
 		u8						priv_2DigitHexToInt(const u8 *buffer, u32 index) const;
 		bool					priv_WriteByteMasterNext(u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT) const;
@@ -122,6 +134,7 @@ namespace cpubridge
 		u16						lastCPUMsgLen;
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;
+		sRegolazioneAperturaMacina regolazioneAperturaMacina;
     };
 
 } // namespace cpubridge

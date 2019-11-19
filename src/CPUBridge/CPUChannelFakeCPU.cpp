@@ -21,6 +21,8 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	curCPUMessage = cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;
+	macina.reset();
+	macina.posizioneMacina = 100 +(u16)rhea::randomU32(100);
 }
 
 //*****************************************************************
@@ -66,6 +68,8 @@ void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
 	}
 }
 
+
+
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
  */
@@ -74,6 +78,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 	const eCPUCommand cpuCommand = (eCPUCommand)bufferToSend[1];
     //u8 msgLen = bufferToSend[2];
 	u32 ct = 0;
+
+	macina.update(rhea::getTimeNowMSec());
 
 	switch (cpuCommand)
 	{
@@ -417,6 +423,32 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1012); ct += 2;
 				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1013); ct += 2;
 
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+			case eCPUProgrammingCommand_getPosizioneMacina:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = bufferToSend[4]; //macina
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], macina.posizioneMacina);
+				ct += 2;
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+			case eCPUProgrammingCommand_setMotoreMacina:
+				macina.tipoMovimentoMacina = bufferToSend[5];
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = bufferToSend[4]; //macina
+				out_answer[ct++] = macina.tipoMovimentoMacina; //tipo di movimento
 				out_answer[2] = (u8)ct + 1;
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];

@@ -47,6 +47,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testDB", "testDB\testDB.vcx
 		{2A91F944-9244-4367-8EB6-F4AECA5C808C} = {2A91F944-9244-4367-8EB6-F4AECA5C808C}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stressTestUpDownDA3", "stressTestUpDownDA3\stressTestUpDownDA3.vcxproj", "{414AAD19-35CE-49CF-8A7D-529135A71F98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -119,6 +121,14 @@ Global
 		{8D662D9F-BCAD-4284-A12D-7FFD604B3370}.Release|x64.Build.0 = Release|x64
 		{8D662D9F-BCAD-4284-A12D-7FFD604B3370}.Release|x86.ActiveCfg = Release|Win32
 		{8D662D9F-BCAD-4284-A12D-7FFD604B3370}.Release|x86.Build.0 = Release|Win32
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Debug|x64.ActiveCfg = Debug|x64
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Debug|x64.Build.0 = Debug|x64
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Debug|x86.ActiveCfg = Debug|Win32
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Debug|x86.Build.0 = Debug|Win32
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Release|x64.ActiveCfg = Release|x64
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Release|x64.Build.0 = Release|x64
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Release|x86.ActiveCfg = Release|Win32
+		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

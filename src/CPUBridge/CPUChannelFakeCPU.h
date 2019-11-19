@@ -48,6 +48,23 @@ namespace cpubridge
 			u64									timeToEnd;
 		};
 
+		struct sMovimentoMacina
+		{
+			u16			posizioneMacina;
+			u8			tipoMovimentoMacina;
+			u64			nextTimeUpdateMSec;
+
+			void		reset() { tipoMovimentoMacina = 0; posizioneMacina = 0; nextTimeUpdateMSec = 0; }
+			void		update(u64 timeNowMSec)
+			{
+				if (tipoMovimentoMacina == 0 || timeNowMSec < nextTimeUpdateMSec)
+					return;
+				nextTimeUpdateMSec = timeNowMSec + 200;
+				if (tipoMovimentoMacina == 1)  posizioneMacina++;
+				else if (posizioneMacina>0) posizioneMacina--;
+			}
+		};
+
 	private:
 		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
 		void					priv_updateCPUMessageToBeSent (u64 timeNowMSec);
@@ -64,6 +81,7 @@ namespace cpubridge
 		u8							curCPUMessageImportanceLevel;
 		u64							timeToSwapCPUMsgMesc;
 		sCleaning					cleaning;
+		sMovimentoMacina			macina;
     };
 
 } // namespace cpubridge

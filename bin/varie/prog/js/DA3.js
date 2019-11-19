@@ -228,6 +228,25 @@ DA3.prototype.write16 = function (pos, value)
 	//console.log("DA3 write16@" +pos +"=" + v);
 }
 
+DA3.prototype.read32  = function (posIN)
+{ 
+	var pos = parseInt(posIN);
+	var ret = this.da3_current[pos] | (this.da3_current[pos+1]<<8) | (this.da3_current[pos+2]<<16) | (this.da3_current[pos+3]<<24);
+	//console.log("DA3 read32" +pos +"=" + ret);
+	return ret; 
+}
+DA3.prototype.write32 = function (pos, value)
+{ 
+	var v = parseInt(value); 
+	this.da3_current[pos++] = (v & 0x000000FF); 
+	this.da3_current[pos++] = ((v & 0x0000FF00) >>8); 
+	this.da3_current[pos++] = ((v & 0x00FF0000) >>16); 
+	this.da3_current[pos++] = ((v & 0xFF000000) >>24); 
+	
+	if (pos == 146) console.log("DA3 write16@" +pos +"=" + v);
+	//console.log("DA3 write32@" +pos +"=" + v);
+}
+
 DA3.prototype.getPriceLocation = function (list1_2, price1_48)
 {
 	var N = 64;

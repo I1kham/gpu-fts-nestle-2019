@@ -10,7 +10,7 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 //***************************************************************
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
-    static const char v[19][16] = {
+    static const char v[20][16] = {
         {"READY"},      //DISPONIBILE
         {"DISPENSING"}, //PREP BEVANDA
 		{"PROG"},
@@ -30,6 +30,7 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 		{"DATA_AUDIT"},
         {"WASHING_SAN"},    //17
 		{"COM_ERROR"},
+		{"REG_BREWER_SIZE"}
 	};
 
 	switch (s)
@@ -56,6 +57,7 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
     case cpubridge::eVMCState_LAVAGGIO_SANITARIO:		return v[17];
 
     case cpubridge::eVMCState_COM_ERROR:				return v[18];
+	case cpubridge::eVMCState_REG_APERTURA_MACINA:		return v[19];
 	}
 }
 

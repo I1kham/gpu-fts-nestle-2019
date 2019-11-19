@@ -29,3 +29,4 @@ MSVC17/testDB/build/
 QT5/build/
 bin
 !/bin/varie/
+MSVC17/stressTestUpDownDA3/build/

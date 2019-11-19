@@ -18,6 +18,9 @@
 #include "UserCommand_btnpress.h"
 #include "UserCommand_getalldec.h"
 #include "UserCommand_setdec.h"
+#include "UserCommand_setmotoremacina.h"
+#include "UserCommand_getposmacina.h"
+#include "UserCommand_setposmacina.h"
 
 //**********************************************************
 void UserCommandFactory::setup (rhea::Allocator *allocatorIN)
@@ -103,6 +106,7 @@ void UserCommandFactory::utils_addAllKnownCommands()
 	this->addCommand < UserCommand_cpuiniparam>();
 	this->addCommand < UserCommand_cpuprogcmd>();
 	this->addCommand < UserCommand_getalldec>();
+	this->addCommand < UserCommand_getposmacina>();
 	this->addCommand < UserCommand_list>();
 	this->addCommand < UserCommand_readDataAudit>();
 	this->addCommand < UserCommand_readDA3>();
@@ -113,6 +117,8 @@ void UserCommandFactory::utils_addAllKnownCommands()
 	this->addCommand < UserCommand_sanwashstatus>();
 	this->addCommand < UserCommand_selavail>();
 	this->addCommand < UserCommand_setdec>();
+	this->addCommand < UserCommand_setmotoremacina>();
+	this->addCommand < UserCommand_setposmacina>();
 	this->addCommand < UserCommand_startsel>();
 	this->addCommand < UserCommand_startcleaning>();
 }

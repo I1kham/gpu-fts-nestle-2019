@@ -114,8 +114,12 @@ void Server::run()
 			break;
 
         case sStato::eStato_programmazione:
-            priv_handleState_programmazione();
+			priv_handleState_programmazione();
             break;
+
+		case sStato::eStato_regolazioneAperturaMacina:
+			priv_handleState_regolazioneAperturaMacina();
+			break;
 		}
 	}
 }
@@ -594,27 +598,74 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME:
-		{
-			u8 hh = 0;
-			u8 mm = 0;
-			u8 ss = 0;
-			cpubridge::translate_CPU_SET_TIME(msg, &hh, &mm, &ss);
-
-			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_setTime(bufferW, sizeof(bufferW), hh, mm, ss);
-			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				const u8 hh = answerBuffer[4];
-				const u8 mm = answerBuffer[5];
-				const u8 ss = answerBuffer[6];
-				notify_SET_TIME(sub->q, handlerID, logger, hh, mm, ss);
+				u8 hh = 0;
+				u8 mm = 0;
+				u8 ss = 0;
+				cpubridge::translate_CPU_SET_TIME(msg, &hh, &mm, &ss);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_setTime(bufferW, sizeof(bufferW), hh, mm, ss);
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				{
+					const u8 hh = answerBuffer[4];
+					const u8 mm = answerBuffer[5];
+					const u8 ss = answerBuffer[6];
+					notify_SET_TIME(sub->q, handlerID, logger, hh, mm, ss);
+				}
 			}
-		}
-		break;
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA:
+			{
+				u8 macina_1o2 = 0;
+				cpubridge::translate_CPU_GET_POSIZIONE_MACINA(msg, &macina_1o2);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				{
+					macina_1o2 = answerBuffer[4];
+					if (macina_1o2 == 11) macina_1o2 = 1;
+					else if (macina_1o2 == 12) macina_1o2 = 2;
+					u16 pos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+					notify_CPU_POSIZIONE_MACINA(sub->q, handlerID, logger, macina_1o2, pos);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA:
+			{
+				u8 macina_1o2 = 0;
+				eCPUProgrammingCommand_macinaMove m;
+				cpubridge::translate_CPU_SET_MOTORE_MACINA(msg, &macina_1o2, &m);
+
+				if (priv_sendAndHandleSetMotoreMacina(macina_1o2, m))
+				{
+					macina_1o2 = answerBuffer[4];
+					if (macina_1o2 == 11) macina_1o2 = 1;
+					else if (macina_1o2 == 12) macina_1o2 = 2;
+					notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1o2, (eCPUProgrammingCommand_macinaMove)answerBuffer[5]);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA:
+			{
+				u8 macina_1o2 = 0;
+				u16 target = 0;
+				cpubridge::translate_CPU_SET_POSIZIONE_MACINA(msg, &macina_1o2, &target);
+				//priv_setPosMacina(sub->q, handlerID, macina_1o2, target);
+				priv_enterState_regolazioneAperturaMacina (macina_1o2, target);
+			}
+			break;
+
 		}
 	}
 }
+
 
 //**********************************************
 bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out)
@@ -1549,6 +1600,7 @@ void Server::priv_handleState_programmazione()
         priv_handleMsgQueues (timeNowMSec, TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec);
     }
 }
+
 /***************************************************
  *	priv_parseAnswer_checkStatus
  *
@@ -2066,3 +2118,123 @@ void Server::priv_onSelezioneTerminataKO()
 	priv_enterState_normal();
 }
 
+/***************************************************
+ * priv_enterState_regolazioneAperturaMacina
+ *
+ *	ritorna true se ci sono le condizioni per iniziare una regolazione della macina. In questo caso, lo stato passa a stato = eStato_regolazioneAperturaMacina.
+ *	In caso contrario, ritorna false e non cambia l'attuale stato.
+ */
+bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target)
+{
+	logger->log("CPUBridgeServer::priv_enterState_regolazioneAperturaMacina() => [%d] [%d]\n", macina_1o2, target);
+
+	if (stato.get() != sStato::eStato_normal && (stato.get() != sStato::eStato_regolazioneAperturaMacina))
+	{
+		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
+		return false;
+	}
+
+	if (cpuStatus.VMCstate != eVMCState_DISPONIBILE)
+	{
+		logger->log("  invalid request, VMCState != eVMCState_DISPONIBILE, aborting.");
+		return false;
+	}
+
+
+	stato.set(sStato::eStato_regolazioneAperturaMacina, sStato::eWhatToDo_nothing);
+	regolazioneAperturaMacina.macina_1o2 = macina_1o2;
+	regolazioneAperturaMacina.target = target;
+	return true;
+}
+
+//***************************************************
+void Server::priv_handleState_regolazioneAperturaMacina()
+{
+	static const u8 NRETRY = 5;
+	u8 bufferW[16];
+	u8 nRetry = NRETRY;
+
+	eCPUProgrammingCommand_macinaMove move = eCPUProgrammingCommand_macinaMove_stop;
+	priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+
+
+	//dico a tutti che sono in uno stato speciale
+	cpuStatus.VMCstate = eVMCState_REG_APERTURA_MACINA;
+	cpuStatus.VMCerrorCode = 0;
+	cpuStatus.VMCerrorType = 0;
+	cpuStatus.selAvailability.reset();
+	for (u32 i = 0; i < subscriberList.getNElem(); i++)
+	{
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
+	}
+
+	while (stato.get() == sStato::eStato_regolazioneAperturaMacina)
+	{
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
+
+		//ci sono messaggi in ingresso?
+		priv_handleMsgQueues(timeNowMSec, 100);
+
+			   
+		//chiede la posizione della macina
+		const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), regolazioneAperturaMacina.macina_1o2);
+		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+		{
+			nRetry = NRETRY;
+			const u16 curpos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+
+			if (curpos == regolazioneAperturaMacina.target)
+			{
+				//fine
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_enterState_normal();
+				return;
+			}
+
+			if (regolazioneAperturaMacina.target > curpos)
+			{
+				if (move != eCPUProgrammingCommand_macinaMove_open)
+				{
+					if (move != eCPUProgrammingCommand_macinaMove_stop)
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+					move = eCPUProgrammingCommand_macinaMove_open;
+					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+				}
+			}
+			else
+			{
+				if (move != eCPUProgrammingCommand_macinaMove_close)
+				{
+					if (move != eCPUProgrammingCommand_macinaMove_stop)
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+					move = eCPUProgrammingCommand_macinaMove_close;
+					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+				}
+			}
+		}
+		else
+		{
+			nRetry--;
+			if (nRetry == 0)
+			{
+				//abortisco
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_enterState_normal();
+				return;
+			}
+		}
+	}
+}
+
+//**********************************************
+bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+{
+	u8 bufferW[16];
+	const u16 nBytesToSend = cpubridge::buildMsg_setMotoreMacina(bufferW, sizeof(bufferW), macina_1o2, m);
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+		return true;
+	return false;
+}

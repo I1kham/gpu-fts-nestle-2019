@@ -52,6 +52,8 @@
 #define		CPUBRIDGE_NOTIFY_GET_DATE						0x011A
 #define		CPUBRIDGE_NOTIFY_SET_TIME						0x011B
 #define		CPUBRIDGE_NOTIFY_SET_DATE						0x011C
+#define		CPUBRIDGE_NOTITFY_POSIZIONE_MACINA				0x011D
+#define		CPUBRIDGE_NOTITFY_MOTORE_MACINA					0x011E
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -91,6 +93,9 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_DATE						0x081C
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME						0x081D
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE						0x081E
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA			0x081F
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA				0x0820
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA			0x0821
 
 namespace cpubridge
 {
@@ -148,7 +153,9 @@ namespace cpubridge
         eVMCState_TEST_DB = 17,
 		eVMCState_DATA_AUDIT = 18,
         eVMCState_LAVAGGIO_SANITARIO = 20,
-		eVMCState_COM_ERROR     = 101
+		eVMCState_COM_ERROR     = 101,
+		eVMCState_REG_APERTURA_MACINA = 102
+
 	};
 
     enum eReadDataFileStatus
@@ -211,6 +218,8 @@ namespace cpubridge
 		eCPUProgrammingCommand_calcolaImpulsiMacina = 0x0D,
 		eCPUProgrammingCommand_getStatoCalcoloImpulsi = 0x0E,
 		eCPUProgrammingCommand_setFattoreCalibrazioneMotore = 0x0F,
+		eCPUProgrammingCommand_getPosizioneMacina = 0x10,
+		eCPUProgrammingCommand_setMotoreMacina = 0x11,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 
@@ -266,6 +275,13 @@ namespace cpubridge
 		eCPUProgrammingCommand_motor_prod10 = 10,
 		eCPUProgrammingCommand_motor_macina1 = 11,
 		eCPUProgrammingCommand_motor_macina2 = 12
+	};
+
+	enum eCPUProgrammingCommand_macinaMove
+	{
+		eCPUProgrammingCommand_macinaMove_stop = 0,
+		eCPUProgrammingCommand_macinaMove_open = 1,
+		eCPUProgrammingCommand_macinaMove_close = 2
 	};
 
 	struct sSubscriber

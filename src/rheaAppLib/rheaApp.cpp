@@ -69,7 +69,7 @@ bool priv_prepareCommandBuffer (char commandChar, u8 requestID, const void *opti
 //*****************************************************************
 void priv_event_sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, const void *optionalData, u8 sizeoOfOptionalData)
 {
-	u8	sendBuffer[64]; //64 bytes dovrebbero essere più che suff per il 99% delle richieste che le app inviano a socketbridge
+	u8	sendBuffer[128]; //128 bytes dovrebbero essere più che suff per il 99% delle richieste che le app inviano a socketbridge
 	u16 sizeOSendfBuffer = sizeof(sendBuffer);
 
 	if (priv_prepareCommandBuffer(socketbridge::eOpcode_event_E, 0xff, optionalData, sizeoOfOptionalData, sendBuffer, &sizeOSendfBuffer))
@@ -768,6 +768,62 @@ void app::GetAllDecounters::decodeAnswer (const sDecodedEventMsg &msg, u16 *out_
 		nbr.readU16(out_arrayDi13valori[i]);
 }
 
+
+/*****************************************************************
+ * namespace SetMotoreMacina
+ */
+void app::SetMotoreMacina::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, cpubridge::eCPUProgrammingCommand_macinaMove m)
+{
+	u8 optionalData[4];
+	optionalData[0] = socketbridge::eEventType_setMotoreMacina;
+	optionalData[1] = macina_1o2;
+	optionalData[2] = (u8)m;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 3);
+}
+void app::SetMotoreMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, cpubridge::eCPUProgrammingCommand_macinaMove *out_m)
+{
+	assert(msg.eventType == socketbridge::eEventType_setMotoreMacina);
+
+	*out_macina_1o2 = msg.payload[0];
+	*out_m = (cpubridge::eCPUProgrammingCommand_macinaMove)msg.payload[1];
+}
+
+/*****************************************************************
+ * namespace GetPosizioneMacina
+ */
+void app::GetPosizioneMacina::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2)
+{
+	u8 optionalData[4];
+	optionalData[0] = socketbridge::eEventType_getPosizioneMacina;
+	optionalData[1] = macina_1o2;
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
+}
+void app::GetPosizioneMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, u16 *out_pos)
+{
+	assert(msg.eventType == socketbridge::eEventType_getPosizioneMacina);
+
+	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
+	NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	nbr.readU16(*out_pos);
+	nbr.readU8(*out_macina_1o2);
+}
+
+
+/*****************************************************************
+ * namespace SetPosizioneMacina
+ */
+void app::SetPosizioneMacina::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, u16 target)
+{
+	u8 optionalData[4];
+	NetStaticBufferViewW nbw;
+	nbw.setup(optionalData, sizeof(optionalData), rhea::eBigEndian);
+	nbw.writeU8((u8)socketbridge::eEventType_setPosizioneMacina);
+	nbw.writeU8((u8)macina_1o2);
+	nbw.writeU16(target);
+	priv_event_sendToSocketBridge(ch, proto, optionalData, 4);
+}
 
 /*****************************************************************
  * RawFileTrans

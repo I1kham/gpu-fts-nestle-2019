@@ -237,7 +237,38 @@ u8 cpubridge::buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 
 	return buildMsg_Programming(eCPUProgrammingCommand_setDate, optionalData, 3, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_getPosizioneMacina(u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2)
+{
+	if (macina_1o2 != 2)
+		macina_1o2 = 1;
 
+	if (macina_1o2 == 1)
+		macina_1o2 = 11;
+	else
+		macina_1o2 = 12;
+
+	u8 optionalData[2];
+	optionalData[0] = macina_1o2;
+	return buildMsg_Programming(eCPUProgrammingCommand_getPosizioneMacina, optionalData, 1, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_setMotoreMacina(u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+{
+	if (macina_1o2 != 2)
+		macina_1o2 = 1;
+
+	if (macina_1o2 == 1)
+		macina_1o2 = 11;
+	else
+		macina_1o2 = 12;
+
+	u8 optionalData[2];
+	optionalData[0] = macina_1o2;
+	optionalData[1] = (u8)m;
+	return buildMsg_Programming(eCPUProgrammingCommand_setMotoreMacina, optionalData, 2, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -923,6 +954,45 @@ void cpubridge::translateNotify_SET_DATE(const rhea::thread::sMsg &msg, u16 *out
 	*out_day = p[3];
 }
 
+//***************************************************
+void cpubridge::notify_CPU_POSIZIONE_MACINA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, u16 posizione)
+{
+	logger->log("notify_CPU_POSIZIONE_MACINA\n");
+
+	u8 buffer[4];
+	rhea::utils::bufferWriteU16(buffer, posizione);
+	buffer[2] = macina_1o2;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_POSIZIONE_MACINA, handlerID, buffer, 3);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_posizione)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_POSIZIONE_MACINA);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_posizione = rhea::utils::bufferReadU16(p);
+	*out_macina_1o2 = p[2];
+}
+
+//***************************************************
+void cpubridge::notify_CPU_MOTORE_MACINA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+{
+	logger->log("notify_CPU_MOTORE_MACINA\n");
+
+	u8 buffer[4];
+	buffer[0] = macina_1o2;
+	buffer[1] = (u8)m;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_MOTORE_MACINA, handlerID, buffer, 2);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProgrammingCommand_macinaMove *out_m)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_MOTORE_MACINA);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_macina_1o2 = p[0];
+	*out_m = (eCPUProgrammingCommand_macinaMove)p[1];
+}
 
 
 //***************************************************
@@ -1277,4 +1347,66 @@ void cpubridge::translate_CPU_SET_DATE(const rhea::thread::sMsg &msg, u16 *out_y
 	*out_year = (u16)p[0] + 2000;
 	*out_month = p[1];
 	*out_day = p[2];
+}
+
+
+//***************************************************
+void cpubridge::ask_CPU_GET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2)
+{
+	if (macina_1o2 != 2)
+		macina_1o2 = 1;
+
+	u8 otherData[1];
+	otherData[0] = macina_1o2;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA, handlerID, otherData, 1);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_GET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_macina_1o2 = p[0];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+{
+	if (macina_1o2 != 2)
+		macina_1o2 = 1;
+
+	u8 otherData[2];
+	otherData[0] = macina_1o2;
+	otherData[1] = (u8)m;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA, handlerID, otherData, 2);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SET_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProgrammingCommand_macinaMove *out_m)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_macina_1o2 = p[0];
+	*out_m = (eCPUProgrammingCommand_macinaMove)p[1];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_SET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 target)
+{
+	if (macina_1o2 != 2)
+		macina_1o2 = 1;
+
+	u8 otherData[4];
+	rhea::utils::bufferWriteU16(otherData, target);
+	otherData[2] = macina_1o2;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA, handlerID, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_target)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_target = rhea::utils::bufferReadU16(p);
+	*out_macina_1o2 = p[2];
 }
