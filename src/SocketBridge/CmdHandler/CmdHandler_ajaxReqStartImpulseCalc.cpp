@@ -19,7 +19,7 @@ bool ajaxReqStartImpulseCalc_jsonTrapFunction(const char *fieldName, const char 
 	if (strcasecmp(fieldName, "m") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
-		if (h >= 0 && h <= 0xff)
+        if (h <= 0xff)
 			input->m = (u8)h;
 		else
 			input->m = 0;
@@ -27,7 +27,7 @@ bool ajaxReqStartImpulseCalc_jsonTrapFunction(const char *fieldName, const char 
 	if (strcasecmp(fieldName, "v") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
-		if (h >= 0 && h <= 0xffff)
+        if (h <= 0xffff)
 			input->v = (u16)h;
 		else
 			input->v = 0;

@@ -21,7 +21,7 @@ bool ajaxReqAttivazioneMotore_jsonTrapFunction(const char *fieldName, const char
 	if (strcasecmp(fieldName, "m") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
-		if (h >= 0 && h <= 0xff)
+        if (h <= 0xff)
 			input->m = (u8)h;
 		else
 			input->m = 0xff;
@@ -29,7 +29,7 @@ bool ajaxReqAttivazioneMotore_jsonTrapFunction(const char *fieldName, const char
 	if (strcasecmp(fieldName, "d") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
-		if (h >= 0 && h <= 0xff)
+        if (h <= 0xff)
 			input->d = (u8)h;
 		else
 			input->d = 0;
@@ -37,7 +37,7 @@ bool ajaxReqAttivazioneMotore_jsonTrapFunction(const char *fieldName, const char
 	if (strcasecmp(fieldName, "n") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
-		if (h >= 0 && h <= 0xff)
+        if (h <= 0xff)
 			input->n = (u8)h;
 		else
 			input->n = 1;
@@ -45,7 +45,7 @@ bool ajaxReqAttivazioneMotore_jsonTrapFunction(const char *fieldName, const char
 	if (strcasecmp(fieldName, "p") == 0)
 	{
 		const u32 h = rhea::string::convert::toU32(fieldValue);
-		if (h >= 0 && h <= 0xff)
+        if (h <= 0xff)
 			input->p = (u8)h;
 		else
 			input->p = 0;

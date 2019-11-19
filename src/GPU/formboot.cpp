@@ -104,6 +104,7 @@ void FormBoot::showMe()
         priv_enableButton(ui->btnDownload_audit, false);
         priv_pleaseWaitSetError("WARNING: There was an error during synchronization with the CPU.<br>Please upgrade the CPU FW to a compatible version.");
     }
+    priv_updateLabelInfo();
     this->show();
 }
 
@@ -155,6 +156,7 @@ void FormBoot::priv_updateLabelInfo()
 
     //Installed files: DA3
     ui->labInstalled_DA3->setText("VMC SETTINGS:");
+    ui->labInstalled_DA3_DataUM->setText("");
     if (rhea::fs::findFirst (&ff, glob->last_installed_da3, "*.da3"))
     {
         do
@@ -163,6 +165,21 @@ void FormBoot::priv_updateLabelInfo()
             {
                 sprintf_s (s, sizeof(s), "<b>VMC SETTINGS</b>: <span style='color:#fff'>%s</span>", rhea::fs::findGetFileName(ff));
                 ui->labInstalled_DA3->setText(s);
+
+                sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+                FILE *f = fopen(s,"rb");
+                if (NULL != f)
+                {
+                    u64 u;
+                    fread(&u,sizeof(u64),1,f);
+                    fclose(f);
+
+                    rhea::DateTime dt;
+                    dt.setFromInternalRappresentation(u);
+
+                    dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), ' ', '/', ':');
+                    ui->labInstalled_DA3_DataUM->setText (QString("last updated ") +s);
+                }
                 break;
             }
         } while (rhea::fs::findNext(ff));
@@ -567,6 +584,9 @@ void FormBoot::priv_fileListPopulate(const char *pathNoSlash, const char *jolly,
             ui->lbFileList->addItem(rhea::fs::findGetFileName(ff));
         } while (rhea::fs::findNext(ff));
         rhea::fs::findClose(ff);
+
+        if (ui->lbFileList->count())
+            ui->lbFileList->item(0)->setSelected(true);
     }
 }
 
@@ -736,6 +756,9 @@ void FormBoot::on_btnInstall_GUI_clicked()
 
         } while (rhea::fs::findNext(ff));
         rhea::fs::findClose(ff);
+
+        if (ui->lbFileList->count())
+            ui->lbFileList->item(0)->setSelected(true);
     }
 }
 

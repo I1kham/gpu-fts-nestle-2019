@@ -476,7 +476,6 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
                 else
                 {
                     myTS = cpuTS;
-                    rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_da3, false);
                     syncWithCPU.stato = eStato_sync_5_downloadVMCSetting;
                     syncWithCPU.nRetryLeft = 3;
                 }
@@ -503,7 +502,7 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
                 sprintf_s (s, sizeof(s), "Downloading VMC Settings... SUCCESS");
                 priv_addText (s);
 
-                //copio il file appena scricato dalla CPU nell mie cartelle locali
+                //copio il file appena scaricato dalla CPU nella mia cartelle locale current/da3
                 char src[256];
                 sprintf_s (src, sizeof(src), "%s/vmcDataFile%d.da3", glob->tempFolder, fileID);
 
@@ -516,13 +515,36 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
                 cpubridge::saveVMCDataFileTimeStamp(myTS);
 
 
+                //Se nella cartella last_installed non c'è nulla, allora il da3 scaricato dalla CPU
+                //lo chiamo "downloaded_from_cpu.da3", altrimenti mantengo il nome del file precedente
+                sprintf_s (dst, sizeof(dst), "download_from_cpu.da3");
+                OSFileFind ff;
+                if (rhea::fs::findFirst (&ff, glob->last_installed_da3, "*.da3"))
+                {
+                    do
+                    {
+                        if (!rhea::fs::findIsDirectory(ff))
+                        {
+                            sprintf_s(dst, sizeof(dst), "%s", rhea::fs::findGetFileName(ff));
+                            break;
+                        }
+                    } while (rhea::fs::findNext(ff));
+                    rhea::fs::findClose(ff);
+                }
+                rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_da3, false);
+
                 //copio anche in cartella last_installed
+                sprintf_s (s, sizeof(s), "%s/%s", glob->last_installed_da3, dst);
+                rhea::fs::fileCopy(src, s);
+
+                //aggiorno il file con data e ora di ultima modifica
                 rhea::DateTime dt;
                 dt.setNow();
-                dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), '-', '-', '_');
-                sprintf_s (dst, sizeof(dst), "%s/download_from_cpu_%s.da3", glob->last_installed_da3, s);
-
-                rhea::fs::fileCopy(src, dst);
+                sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+                FILE *f = fopen(s, "wb");
+                u64 u = dt.getInternalRappresentation();
+                fwrite (&u, sizeof(u64), 1, f);
+                fclose(f);
 
                 syncWithCPU.stato = eStato_sync_4_queryVMCSettingTS;
             }

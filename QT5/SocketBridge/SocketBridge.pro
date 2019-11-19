@@ -119,7 +119,10 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDate.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetTime.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDate.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetPosizioneMacina.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetMotoreMacina.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -174,7 +177,10 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDate.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetTime.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetDate.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetPosizioneMacina.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetMotoreMacina.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

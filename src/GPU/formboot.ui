@@ -223,20 +223,21 @@ VMC</string>
     <font>
      <family>Roboto</family>
      <pointsize>13</pointsize>
+     <italic>false</italic>
     </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
-    <string>VMC settings: Luce Zero Avia_Read0.da2</string>
+    <string>VMC SETTINGS: Luce Zero Avia_Read0.da2</string>
    </property>
   </widget>
   <widget class="QLabel" name="labInstalled_GUI">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>140</y>
+     <y>160</y>
      <width>601</width>
      <height>25</height>
     </rect>
@@ -600,7 +601,7 @@ VMC settings</string>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#668</string>
+    <string notr="true">background-color:#888</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::WinPanel</enum>
@@ -651,7 +652,7 @@ VMC settings</string>
      <string notr="true">color:#000; background-color:#fff</string>
     </property>
     <property name="text">
-     <string>SELECT</string>
+     <string>OK</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnCancel">
@@ -687,10 +688,47 @@ VMC settings</string>
       <height>391</height>
      </rect>
     </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>240</red>
+          <green>236</green>
+          <blue>70</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>240</red>
+          <green>236</green>
+          <blue>70</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Highlight">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>240</red>
+          <green>240</green>
+          <blue>240</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
     <property name="font">
      <font>
       <family>Roboto</family>
-      <pointsize>14</pointsize>
+      <pointsize>16</pointsize>
      </font>
     </property>
     <property name="styleSheet">
@@ -702,7 +740,7 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>170</y>
+     <y>190</y>
      <width>601</width>
      <height>25</height>
     </rect>
@@ -844,6 +882,29 @@ VMC settings</string>
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
+  <widget class="QLabel" name="labInstalled_DA3_DataUM">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>130</y>
+     <width>481</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Roboto</family>
+     <pointsize>12</pointsize>
+     <italic>true</italic>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#000</string>
+   </property>
+   <property name="text">
+    <string>last updated 2019-11-11 10:23:59</string>
+   </property>
+  </widget>
   <zorder>buttonStart</zorder>
   <zorder>labCPUMessage</zorder>
   <zorder>labInstalledFiles</zorder>
@@ -866,6 +927,7 @@ VMC settings</string>
   <zorder>line_4</zorder>
   <zorder>line_5</zorder>
   <zorder>frameFileList</zorder>
+  <zorder>labInstalled_DA3_DataUM</zorder>
  </widget>
  <resources/>
  <connections/>

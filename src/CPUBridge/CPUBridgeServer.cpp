@@ -737,6 +737,15 @@ void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
 		fclose(f);
 	}
 	RHEAFREE(allocator, buffer);
+
+    //salvo data e ora dell'ultima modifica
+    rhea::DateTime dt;
+    dt.setNow();
+    sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+    FILE *f = fopen(s, "wb");
+    u64 u = dt.getInternalRappresentation();
+    fwrite (&u, sizeof(u64), 1, f);
+    fclose(f);
 }
 
 //**********************************************
@@ -1129,6 +1138,16 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
             break;
         }
     }
+
+    //salvo data e ora dell'ultima modifica
+    rhea::DateTime dt;
+    dt.setNow();
+    sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+    f = fopen(s, "wb");
+    u64 u = dt.getInternalRappresentation();
+    fwrite (&u, sizeof(u64), 1, f);
+    fclose(f);
+
 
 
 	//notifico il client e finisco
