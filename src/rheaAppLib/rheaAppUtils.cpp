@@ -10,7 +10,7 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 //***************************************************************
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
-    static const char v[20][16] = {
+    static const char v[23][16] = {
         {"READY"},      //DISPONIBILE
         {"DISPENSING"}, //PREP BEVANDA
 		{"PROG"},
@@ -30,7 +30,10 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 		{"DATA_AUDIT"},
         {"WASHING_SAN"},    //17
 		{"COM_ERROR"},
-		{"REG_BREWER_SIZE"}
+		{"REG_BREWER_SIZE"},
+		{"COMPATIB_CHECK"}, //20
+		{"CPU_NOT_SUPP"},
+		{"DA3_SYNC"},
 	};
 
 	switch (s)
@@ -58,6 +61,10 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 
     case cpubridge::eVMCState_COM_ERROR:				return v[18];
 	case cpubridge::eVMCState_REG_APERTURA_MACINA:		return v[19];
+
+	case cpubridge::eVMCState_COMPATIBILITY_CHECK:		return v[20];
+	case cpubridge::eVMCState_CPU_NOT_SUPPORTED:		return v[21];
+	case cpubridge::eVMCState_DA3_SYNC:					return v[22];
 	}
 }
 
@@ -176,13 +183,14 @@ const char* utils::verbose_readDataFileStatus(cpubridge::eReadDataFileStatus sta
 //***************************************************************
 const char* utils::verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus status)
 {
-	static const char v[6][40] = {
+	static const char v[7][40] = {
 		{"IN_PROGRESS"},
 		{"FINISHED_OK"},
 		{"FINISHED_KO_CANT_START_INVALID_STATE"},
 		{"FINISHED_KO_CPU_NO_ANSWER"},
 		{"FINISHED_KO_CPU_CANT_COPY_LOCAL_FILE"},
 		{"FINISHED_KO_CPU_CANT_OPEN_LOCAL_FILE"},
+		{"FINISHED_KO_CPU_NO_ANSWER2"},
 	};
 
 	switch (status)
@@ -194,6 +202,7 @@ const char* utils::verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus s
 	case cpubridge::eWriteDataFileStatus_finishedKO_cpuDidNotAnswer:			return v[3];
 	case cpubridge::eWriteDataFileStatus_finishedKO_unableToCopyFile:			return v[4];
 	case cpubridge::eWriteDataFileStatus_finishedKO_unableToOpenLocalFile:		return v[5];
+	case cpubridge::eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2:			return v[6];
 	}
 }
 

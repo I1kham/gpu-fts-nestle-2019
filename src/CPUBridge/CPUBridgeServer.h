@@ -34,24 +34,20 @@ namespace cpubridge
                 eStato_normal = 1,
                 eStato_selection = 2,
                 eStato_programmazione = 3,
-				eStato_regolazioneAperturaMacina = 4
+				eStato_regolazioneAperturaMacina = 4,
+				eStato_compatibilityCheck = 5,
+				eStato_CPUNotSupported = 6,
+				eStato_DA3_sync = 7
             };
 
-            enum eWhatToDo
-            {
-                eWhatToDo_nothing = 0,
-                eWhatToDo_readDataAudit = 1,
-            };
 
         public:
-                        sStato()                        { set(eStato_comError, eWhatToDo_nothing); }
-            void        set (eStato s, eWhatToDo w)     { stato=s; what=w; }
+                        sStato()                        { set(eStato_comError); }
+            void        set (eStato s)					{ stato=s; }
             eStato      get() const                     { return stato; }
-            eWhatToDo   whatToDo() const                { return what; }
 
         private:
             eStato      stato;
-            eWhatToDo   what;
         };
 
 		struct sSubscription
@@ -75,13 +71,23 @@ namespace cpubridge
 		};
 
 	private:
-
+		void					priv_resetInternalState(cpubridge::eVMCState s);
 		void					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
 		void					priv_handleMsgFromServiceMsgQ();
 		void					priv_handleMsgFromSingleSubscriber(sSubscription *sub);
 		void					priv_handleProgrammingMessage(sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg);
 
 		void					priv_deleteSubscriber (sSubscription *sub, bool bAlsoRemoveFromSubsriberList);
+		
+		void					priv_enterState_compatibilityCheck();
+		void					priv_handleState_compatibilityCheck();
+
+		void					priv_enterState_CPUNotSupported();
+		void					priv_handleState_CPUNotSupported();
+
+		void					priv_enterState_DA3Sync();
+		void					priv_handleState_DA3Sync();
+
 		void					priv_enterState_comError();
 		void					priv_handleState_comError();
 		void					priv_parseAnswer_initialParam(const u8 *answer, u16 answerLen);
@@ -101,16 +107,16 @@ namespace cpubridge
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 
-		bool					priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out);
+		bool					priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out, u32 timeoutMSec);
 		void					priv_updateLocalDA3(const u8 *blockOf64Bytes, u8 blockNum) const;
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend);
         eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
-		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID);
+		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
 		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
 		bool                    priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out);
-        u16                     priv_prepareAndSendMsg_readVMCDataFile (u16 blockNum);
+        u16                     priv_prepareAndSendMsg_readVMCDataFileBlock (u16 blockNum);
 		
 		u8						priv_2DigitHexToInt(const u8 *buffer, u32 index) const;
 		bool					priv_WriteByteMasterNext(u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT) const;

@@ -94,12 +94,25 @@ void Server::close()
 void Server::run()
 {
 	bQuit = false;
-	priv_enterState_comError();
+	priv_enterState_compatibilityCheck();
+
 
 	while (bQuit == false)
 	{
         switch (stato.get())
 		{
+		case sStato::eStato_compatibilityCheck:
+			priv_handleState_compatibilityCheck();
+			break;
+
+		case sStato::eStato_CPUNotSupported:
+			priv_handleState_CPUNotSupported();
+			break;
+
+		case sStato::eStato_DA3_sync:
+			priv_handleState_DA3Sync();
+			break;
+
 		default:
         case sStato::eStato_comError:
 			priv_handleState_comError();
@@ -332,7 +345,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
         case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
-            if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
+            if (stato.get() == sStato::eStato_normal)
                 priv_downloadDataAudit(&sub->q, handlerID);
             else
                 //rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
@@ -340,7 +353,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
             break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE:
-			if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
+			if (stato.get() == sStato::eStato_normal)
 				priv_downloadVMCDataFile(&sub->q, handlerID);
 			else
 				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del file
@@ -351,7 +364,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			{
 				char srcFullFileNameAndPath[512];
 				translate_WRITE_VMCDATAFILE(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-				if (stato.get() == sStato::eStato_normal && stato.whatToDo() == sStato::eWhatToDo_nothing)
+				if (stato.get() == sStato::eStato_normal)
 					priv_uploadVMCDataFile(&sub->q, handlerID, srcFullFileNameAndPath);
 				else
 					//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
@@ -362,7 +375,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP:
 			{
 				sCPUVMCDataFileTimeStamp ts;
-				if (!priv_askVMCDataFileTimeStampAndWaitAnswer(&ts))
+				if (!priv_askVMCDataFileTimeStampAndWaitAnswer(&ts, 2000))
 					ts.setInvalid();
 				notify_CPU_VMCDATAFILE_TIMESTAMP(sub->q, handlerID, logger, ts);
 			}
@@ -403,7 +416,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						u8 nRetry = 20;
 						while (nRetry--)
 						{
-							if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp))
+							if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp, 2000))
 							{
 								cpubridge::saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
 								break;
@@ -1119,7 +1132,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		u8 *tempBuffer = rhea::fs::fileCopyInMemory(tempFilePathAndName, localAllocator, &sizeOfBuffer);
 
 		u16 block = 151;
-		if (!priv_prepareAndSendMsg_readVMCDataFile(block))
+		if (!priv_prepareAndSendMsg_readVMCDataFileBlock(block))
 		{
 			if (NULL != subscriber)
 				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2, kbWrittenSoFar);
@@ -1156,7 +1169,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
     u8 nRetry = 20;
     while (nRetry--)
     {
-        if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp))
+        if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp, 2000))
         {
             cpubridge::saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
             break;
@@ -1182,7 +1195,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 }
 
 //***************************************************
-u16 Server::priv_prepareAndSendMsg_readVMCDataFile (u16 blockNum)
+u16 Server::priv_prepareAndSendMsg_readVMCDataFileBlock (u16 blockNum)
 {
 	u8 bufferW[32];
 	const u16 nBytesToSend = buildMsg_readVMCDataFile((u8)blockNum, bufferW, sizeof(bufferW));
@@ -1195,11 +1208,11 @@ u16 Server::priv_prepareAndSendMsg_readVMCDataFile (u16 blockNum)
 
 /***************************************************
  * Chiede alla CPU il file di da3 e lo salva localmente in app/temp/vmcDataFile%d.da3
- * [%d] è un progressivo che viene comunicato alla fine del download nel messaggio di conferma.
+ * [%d] è un progressivo che viene comunicato alla fine del download nel messaggio di conferma (e messo anche in out_fileID in caso di successo)
  * Periodicamente notifica emettendo un messaggio notify_READ_VMCDATAFILE_PROGRESS() che contiene lo stato di avanzamento
  * del download
  */
-eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID)
+eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID)
 {
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
 	char fullFilePathAndName[256];
@@ -1232,12 +1245,18 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 		*/
 
-		u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_readVMCDataFile(nPacketSoFar++);
+		u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_readVMCDataFileBlock(nPacketSoFar++);
 		if (0 == sizeOfAnswerBuffer)
 		{
 			//errore, la CPU non ha risposto, abortisco l'operazione
-			if (NULL != subscriber)
+			if (NULL == subscriber)
+			{
+				for (u32 i = 0; i < subscriberList.getNElem(); i++)
+					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus_finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+			}
+			else
 				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+
 			fclose(f);
 			return eReadDataFileStatus_finishedKO_cpuDidNotAnswer;
 		}
@@ -1255,7 +1274,14 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 		if (bytesReadSoFar >= VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE)
 		{
 			//finito!
-			if (NULL != subscriber)
+			if (NULL != out_fileID )
+				*out_fileID = fileID;
+			if (NULL == subscriber)
+			{
+				for (u32 i = 0; i < subscriberList.getNElem(); i++)
+					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
+			}
+			else
 				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
 
 			fclose(f);
@@ -1267,7 +1293,12 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 		{
 			lastKbReadSent = kbReadSoFar;
 
-			if (NULL != subscriber)
+			if (NULL == subscriber)
+			{
+				for (u32 i = 0; i < subscriberList.getNElem(); i++)
+					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
+			}
+			else
 				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
 		}
 	}
@@ -1351,14 +1382,14 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 }
 
 //***************************************************
-bool Server::priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out)
+bool Server::priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out, u32 timeoutMSec)
 {
 	u8 bufferW[16];
 	const u8 nBytesToSend = buildMsg_getVMCDataFileTimeStamp(bufferW, sizeof(bufferW));
 
 	//invio richiesta a CPU
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, timeoutMSec))
 	{
 		//errore, la CPU non ha risposto, abortisco l'operazione
 		return false;
@@ -1394,21 +1425,311 @@ u16 Server::priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend)
 }
 
 //***************************************************
+void Server::priv_resetInternalState(cpubridge::eVMCState s)
+{
+	memset(&cpuParamIniziali, 0, sizeof(sCPUParamIniziali));
+	memset(&cpuStatus, 0, sizeof(sCPUStatus));
+	memset(lastCPUMsg, 0, sizeof(lastCPUMsg));
+	lastCPUMsgLen = 0;
+	lastBtnProgStatus = 0;
+	keepOnSendingThisButtonNum = 0;
+
+	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
+	cpuStatus.VMCstate = s;
+}
+
+/***************************************************
+ * priv_enterState_compatibilityCheck
+ *
+ *	Ci si entra all'inizio, quando la connessione con la CPU è stata stabilita.
+ *	Serve per verificare che il FW di CPU sia quello giusto
+ *	In caso di errore, va nello stato eVMCState_CPU_NOT_COMPATIBLE dal quale non si esce più
+ *  In caso di successo, si va nello stato DA3SYNC
+ */
+void Server::priv_enterState_compatibilityCheck()
+{
+	logger->log("CPUBridgeServer::priv_enterState_compatibilityCheck()\n");
+
+	stato.set(sStato::eStato_compatibilityCheck);
+	priv_resetInternalState(eVMCState_COMPATIBILITY_CHECK);
+	
+	cpuStatus.LCDMsg.buffer[0] = 'C';
+	cpuStatus.LCDMsg.buffer[1] = 'O';
+	cpuStatus.LCDMsg.buffer[2] = 'M';
+	cpuStatus.LCDMsg.buffer[3] = 'P';
+	cpuStatus.LCDMsg.buffer[4] = 'A';
+	cpuStatus.LCDMsg.buffer[5] = 'T';
+	cpuStatus.LCDMsg.buffer[6] = 'I';
+	cpuStatus.LCDMsg.buffer[7] = 'B';
+	cpuStatus.LCDMsg.buffer[8] = 'I';
+	cpuStatus.LCDMsg.buffer[9] = 'L';
+	cpuStatus.LCDMsg.buffer[10] = 'I';
+	cpuStatus.LCDMsg.buffer[11] = 'T';
+	cpuStatus.LCDMsg.buffer[12] = 'Y';
+	cpuStatus.LCDMsg.buffer[13] = ' ';
+	cpuStatus.LCDMsg.buffer[14] = ' ';
+	cpuStatus.LCDMsg.buffer[15] = ' ';
+	cpuStatus.LCDMsg.buffer[16] = ' ';
+	cpuStatus.LCDMsg.buffer[17] = 'C';
+	cpuStatus.LCDMsg.buffer[18] = 'H';
+	cpuStatus.LCDMsg.buffer[19] = 'E';
+	cpuStatus.LCDMsg.buffer[20] = 'C';
+	cpuStatus.LCDMsg.buffer[21] = 'K';
+	cpuStatus.LCDMsg.buffer[22] = 0x00;
+	cpuStatus.LCDMsg.ct = 23*2;
+	cpuStatus.LCDMsg.importanceLevel = 123;
+
+	//segnalo ai miei subscriber lo stato corrente
+	for (u32 i = 0; i < subscriberList.getNElem(); i++)
+	{
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
+		notify_CPU_NEW_LCD_MESSAGE(subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
+	}
+}
+
+//***************************************************
+void Server::priv_handleState_compatibilityCheck()
+{
+	//preparo il msg da mandare alla CPU
+	u8 bufferW[64];
+	
+
+	//mando il comando "C" ad oltranza
+	u8 nRetry = 10;
+	while (1)
+	{
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
+
+		//invio comando initalParam
+		const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
+		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 200))
+		{
+			priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
+			break;
+		}
+
+		nRetry--;
+		if (nRetry == 0)
+		{
+			priv_enterState_CPUNotSupported();
+			return;
+		}
+		priv_handleMsgQueues(timeNowMSec, 1000);
+	}
+
+	//la CPU ha risposto, a questo punto verifico che supporti il comando "c"
+	priv_handleMsgQueues(rhea::getTimeNowMSec(), 10);
+	nRetry = 2;
+	while (1)
+	{
+		sExtendedCPUInfo info;
+		if (priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(&info))
+		{
+			break;
+		}
+
+		nRetry--;
+		if (nRetry == 0)
+		{
+			priv_enterState_CPUNotSupported();
+			return;
+		}
+
+		priv_handleMsgQueues(rhea::getTimeNowMSec(), 1000);
+	}
+
+	//tutto ok, passo a da3Sync
+	priv_enterState_DA3Sync();
+}
+
+//***************************************************
+void Server::priv_enterState_CPUNotSupported()
+{
+	logger->log("CPUBridgeServer::priv_enterState_CPUNotSupported()\n");
+
+	stato.set(sStato::eStato_CPUNotSupported);
+	priv_resetInternalState(eVMCState_CPU_NOT_SUPPORTED);
+
+	cpuStatus.LCDMsg.buffer[0] = 'C';
+	cpuStatus.LCDMsg.buffer[1] = 'P';
+	cpuStatus.LCDMsg.buffer[2] = 'U';
+	cpuStatus.LCDMsg.buffer[3] = ' ';
+	cpuStatus.LCDMsg.buffer[4] = 'N';
+	cpuStatus.LCDMsg.buffer[5] = 'O';
+	cpuStatus.LCDMsg.buffer[6] = 'T';
+	cpuStatus.LCDMsg.buffer[7] = ' ';
+	cpuStatus.LCDMsg.buffer[8] = 'S';
+	cpuStatus.LCDMsg.buffer[9] = 'U';
+	cpuStatus.LCDMsg.buffer[10] = 'P';
+	cpuStatus.LCDMsg.buffer[11] = 'P';
+	cpuStatus.LCDMsg.buffer[12] = 'O';
+	cpuStatus.LCDMsg.buffer[13] = 'R';
+	cpuStatus.LCDMsg.buffer[14] = 'T';
+	cpuStatus.LCDMsg.buffer[15] = 'E';
+	cpuStatus.LCDMsg.buffer[16] = 'D';
+	cpuStatus.LCDMsg.buffer[17] = 0x00;
+	cpuStatus.LCDMsg.ct = 18 * 2;
+	cpuStatus.LCDMsg.importanceLevel = 123;
+
+	//segnalo ai miei subscriber lo stato corrente
+	for (u32 i = 0; i < subscriberList.getNElem(); i++)
+	{
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
+		notify_CPU_NEW_LCD_MESSAGE(subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
+	}
+}
+
+//***************************************************
+void Server::priv_handleState_CPUNotSupported()
+{
+	while (1)
+	{
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
+		priv_handleMsgQueues(timeNowMSec, 5000);
+	}
+}
+
+
+//***************************************************
+void Server::priv_enterState_DA3Sync()
+{
+	logger->log("CPUBridgeServer::priv_enterState_DA3Sync()\n");
+
+	stato.set(sStato::eStato_DA3_sync);
+
+	cpuStatus.LCDMsg.buffer[0] = 'D';
+	cpuStatus.LCDMsg.buffer[1] = 'A';
+	cpuStatus.LCDMsg.buffer[2] = '3';
+	cpuStatus.LCDMsg.buffer[3] = ' ';
+	cpuStatus.LCDMsg.buffer[4] = 'S';
+	cpuStatus.LCDMsg.buffer[5] = 'Y';
+	cpuStatus.LCDMsg.buffer[6] = 'N';
+	cpuStatus.LCDMsg.buffer[7] = 'C';
+	cpuStatus.LCDMsg.buffer[8] = 0x00;
+	cpuStatus.LCDMsg.ct = 9 * 2;
+	cpuStatus.LCDMsg.importanceLevel = 123;
+
+	//segnalo ai miei subscriber lo stato corrente
+	for (u32 i = 0; i < subscriberList.getNElem(); i++)
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+}
+
+//***************************************************
+void Server::priv_handleState_DA3Sync()
+{
+	//carico il mio TS
+	sCPUVMCDataFileTimeStamp myTS;
+	loadVMCDataFileTimeStamp(&myTS);
+
+	//se il file da3 non esiste, invalido il mio ts
+	char s[256];
+	sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	if (!rhea::fs::fileExists(s))
+		myTS.setInvalid();
+
+	//chiedo il timestamp alla CPU
+	sCPUVMCDataFileTimeStamp cpuTS;
+	u8 nRetry = 5;
+	while (1)
+	{
+		if (priv_askVMCDataFileTimeStampAndWaitAnswer(&cpuTS, 100))
+		{
+			//se il suo TS è == al mio, ho finito
+			if (myTS.isEqual(cpuTS))
+			{
+				priv_enterState_normal();
+				return;
+			}
+			break;
+		}
+
+		nRetry--;
+		if (nRetry == 0)
+		{
+			priv_enterState_compatibilityCheck();
+			return;
+		}
+
+		priv_handleMsgQueues(rhea::getTimeNowMSec(), 100);
+	}
+	
+
+	//se arrivo qui vuol dire che il mio da3 non è in sync con quello della CPU, procedo al download
+	nRetry = 2;
+	while (nRetry--)
+	{
+		u16 fileID = 0;
+		if (eReadDataFileStatus_finishedOK == priv_downloadVMCDataFile(NULL, 0, &fileID))
+		{
+			//tutto ok, il file è stato scaricato in temp/vmcDataFile%d.da3
+			//Lo copio in current/da3, aggiorno il timestamp, aggiorno la data di ultima modifica
+
+			char s1[256];
+			sprintf_s(s, sizeof(s), "%s/temp/vmcDataFile%d.da3", rhea::getPhysicalPathToAppFolder(), fileID);
+			sprintf_s(s1, sizeof(s1), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+			rhea::fs::fileDelete(s1);
+			rhea::fs::fileCopy(s, s1);
+
+			//aggiorno il ts
+			saveVMCDataFileTimeStamp(cpuTS);
+
+
+			//Se nella cartella last_installed non c'è nulla, allora il da3 scaricato dalla CPU
+			//lo chiamo "downloaded_from_cpu.da3", altrimenti mantengo il nome del file precedente
+			char dstFilename[128];
+			sprintf_s(dstFilename, sizeof(dstFilename), "download_from_cpu.da3");
+
+			sprintf_s(s1, sizeof(s1), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());
+			OSFileFind ff;
+			if (rhea::fs::findFirst(&ff, s1, "*.da3"))
+			{
+				do
+				{
+					if (!rhea::fs::findIsDirectory(ff))
+					{
+						sprintf_s(dstFilename, sizeof(dstFilename), "%s", rhea::fs::findGetFileName(ff));
+						break;
+					}
+				} while (rhea::fs::findNext(ff));
+				rhea::fs::findClose(ff);
+			}
+			rhea::fs::deleteAllFileInFolderRecursively(s1, false);
+
+			//copio anche in cartella last_installed
+			sprintf_s(s1, sizeof(s1), "%s/last_installed/da3/%s", rhea::getPhysicalPathToAppFolder(), dstFilename);
+			rhea::fs::fileCopy(s, s1);
+
+			//aggiorno il file con data e ora di ultima modifica
+			rhea::DateTime dt;
+			dt.setNow();
+			sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+			FILE *f = fopen(s, "wb");
+			u64 u = dt.getInternalRappresentation();
+			fwrite(&u, sizeof(u64), 1, f);
+			fclose(f);
+
+			//finito
+			priv_enterState_normal();
+			return;
+		}
+	}
+
+	priv_enterState_compatibilityCheck();
+}
+
+
+
+
+//***************************************************
 void Server::priv_enterState_comError()
 {
 	logger->log("CPUBridgeServer::priv_enterState_comError()\n");
 
-    stato.set (sStato::eStato_comError, sStato::eWhatToDo_nothing);
-
-    memset (&cpuParamIniziali, 0, sizeof(sCPUParamIniziali));
-    memset (&cpuStatus, 0, sizeof(sCPUStatus));
-    memset(lastCPUMsg, 0, sizeof(lastCPUMsg));
-    lastCPUMsgLen = 0;
-    lastBtnProgStatus = 0;
-    keepOnSendingThisButtonNum = 0;
-
-    cpuStatus.VMCstate = eVMCState_COM_ERROR;
-	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
+    stato.set (sStato::eStato_comError);
+	priv_resetInternalState(eVMCState_COM_ERROR);
 
     cpuStatus.LCDMsg.buffer[0] = 'C';
     cpuStatus.LCDMsg.buffer[1] = 'O';
@@ -1462,6 +1783,7 @@ void Server::priv_handleState_comError()
 		priv_handleMsgQueues (timeNowMSec, 3000);
 	}
 }
+
 
 //***************************************************
 void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
@@ -1545,7 +1867,7 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 void Server::priv_enterState_normal()
 {
 	logger->log("CPUBridgeServer::priv_enterState_normal()\n");
-    stato.set (sStato::eStato_normal, sStato::eWhatToDo_nothing);
+    stato.set (sStato::eStato_normal);
 }
 
 /***************************************************
@@ -1608,7 +1930,7 @@ void Server::priv_handleState_normal()
 void Server::priv_enterState_programmazione()
 {
     logger->log("CPUBridgeServer::priv_enterState_programmazione()\n");
-    stato.set (sStato::eStato_programmazione, sStato::eWhatToDo_nothing);
+    stato.set (sStato::eStato_programmazione);
 }
 
 //***************************************************
@@ -1978,7 +2300,7 @@ bool Server::priv_enterState_selection (u8 selNumber, const sSubscription *sub)
 	}
 
 
-    stato.set (sStato::eStato_selection, sStato::eWhatToDo_nothing);
+    stato.set (sStato::eStato_selection);
 	runningSel.selNum = selNumber;
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.sub = sub;
@@ -2199,7 +2521,7 @@ bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 targe
 	}
 
 
-	stato.set(sStato::eStato_regolazioneAperturaMacina, sStato::eWhatToDo_nothing);
+	stato.set(sStato::eStato_regolazioneAperturaMacina);
 	regolazioneAperturaMacina.macina_1o2 = macina_1o2;
 	regolazioneAperturaMacina.target = target;
 	return true;

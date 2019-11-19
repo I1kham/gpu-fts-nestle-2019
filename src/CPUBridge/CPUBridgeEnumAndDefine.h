@@ -154,7 +154,10 @@ namespace cpubridge
 		eVMCState_DATA_AUDIT = 18,
         eVMCState_LAVAGGIO_SANITARIO = 20,
 		eVMCState_COM_ERROR     = 101,
-		eVMCState_REG_APERTURA_MACINA = 102
+		eVMCState_REG_APERTURA_MACINA = 102,
+		eVMCState_COMPATIBILITY_CHECK = 103,
+		eVMCState_CPU_NOT_SUPPORTED = 104,
+		eVMCState_DA3_SYNC = 105
 
 	};
 
@@ -341,7 +344,7 @@ namespace cpubridge
                 sCPUVMCDataFileTimeStamp()                                              { setInvalid(); }
 				
         void	setInvalid()                                                            { memset(data, 0xFF, SIZE_OF_BUFFER); data[1] = 0xfe; data[3] = 0xfc; }
-        bool    isInvaid()                                                              { return (data[0]==0xff && data[1]==0xfe &&  data[2]==0xff && data[3]==0xfc && data[4]==0xff && data[5]==0xff); }
+        bool    isInvalid()                                                              { return (data[0]==0xff && data[1]==0xfe &&  data[2]==0xff && data[3]==0xfc && data[4]==0xff && data[5]==0xff); }
         u8		readFromBuffer(const void *buffer)                                      { memcpy(data, buffer, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
         u8		writeToBuffer(void *buffer) const                                       { memcpy(buffer, data, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
         u8		readFromFile (FILE *f)                                                  { fread(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }
