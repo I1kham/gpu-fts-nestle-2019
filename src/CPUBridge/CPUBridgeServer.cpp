@@ -675,6 +675,25 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE:
+			{
+				u8 selNum = 0;
+				eCPUProgrammingCommand_testSelectionDevice m;
+				cpubridge::translate_CPU_TEST_SELECTION(msg, &selNum, &m);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_testSelection(bufferW, sizeof(bufferW), selNum, m);
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				{
+					selNum = answerBuffer[4];
+					m = (eCPUProgrammingCommand_testSelectionDevice)answerBuffer[5];
+					notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, selNum, m);
+				}
+				else
+					notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, 0xff, eCPUProgrammingCommand_testSelectionDevice_unknown);
+			}
+			break;
 		}
 	}
 }
@@ -1508,6 +1527,12 @@ void Server::priv_handleState_compatibilityCheck()
 		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 200))
 		{
 			priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
+			if (strcmp(cpuParamIniziali.CPU_version, "FAKE CPU") == 0)
+			{
+				priv_enterState_normal();
+				return;
+			}
+			
 			break;
 		}
 

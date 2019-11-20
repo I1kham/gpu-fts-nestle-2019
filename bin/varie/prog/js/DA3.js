@@ -156,8 +156,8 @@ DA3.prototype.compare = function ()
 		}
 	}
 	
-	console.log ("DA3::compare() => end");
-	console.log (retList);
+	//console.log ("DA3::compare() => end");
+	//console.log (retList);
 	return retList;
 }
 
@@ -207,7 +207,6 @@ DA3.prototype.write8 = function (pos, value)
 	if (v<0) v = 0;
 	if (v>255) v=255;
 	//console.log("DA3 write8@" +pos +"=" + v);
-	if (pos == 146) console.log("DA3 write8@" +pos +"=" + v);
 	this.da3_current[pos] = v;
 }
 

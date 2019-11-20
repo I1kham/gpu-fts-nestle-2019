@@ -54,6 +54,7 @@
 #define		CPUBRIDGE_NOTIFY_SET_DATE						0x011C
 #define		CPUBRIDGE_NOTITFY_POSIZIONE_MACINA				0x011D
 #define		CPUBRIDGE_NOTITFY_MOTORE_MACINA					0x011E
+#define		CPUBRIDGE_NOTITFY_TEST_SELECTION				0x011F
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -96,6 +97,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA			0x081F
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA				0x0820
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA			0x0821
+#define		CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE					0x0822
 
 namespace cpubridge
 {
@@ -153,6 +155,8 @@ namespace cpubridge
         eVMCState_TEST_DB = 17,
 		eVMCState_DATA_AUDIT = 18,
         eVMCState_LAVAGGIO_SANITARIO = 20,
+		eVMCState_TEST_ATTUATORE_SELEZIONE = 21,
+		
 		eVMCState_COM_ERROR     = 101,
 		eVMCState_REG_APERTURA_MACINA = 102,
 		eVMCState_COMPATIBILITY_CHECK = 103,
@@ -224,6 +228,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_setFattoreCalibrazioneMotore = 0x0F,
 		eCPUProgrammingCommand_getPosizioneMacina = 0x10,
 		eCPUProgrammingCommand_setMotoreMacina = 0x11,
+		eCPUProgrammingCommand_testSelezione = 0x12,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 
@@ -279,6 +284,47 @@ namespace cpubridge
 		eCPUProgrammingCommand_motor_prod10 = 10,
 		eCPUProgrammingCommand_motor_macina1 = 11,
 		eCPUProgrammingCommand_motor_macina2 = 12
+	};
+
+	enum eCPUProgrammingCommand_testSelectionDevice
+	{
+		eCPUProgrammingCommand_testSelectionDevice_wholeSelection = 0,
+		eCPUProgrammingCommand_testSelectionDevice_prod1 = 1,
+		eCPUProgrammingCommand_testSelectionDevice_prod2 = 2,
+		eCPUProgrammingCommand_testSelectionDevice_prod3 = 3,
+		eCPUProgrammingCommand_testSelectionDevice_prod4 = 4,
+		eCPUProgrammingCommand_testSelectionDevice_prod5 = 5,
+		eCPUProgrammingCommand_testSelectionDevice_prod6 = 6,
+		eCPUProgrammingCommand_testSelectionDevice_prod7 = 7,
+		eCPUProgrammingCommand_testSelectionDevice_prod8 = 8,
+		eCPUProgrammingCommand_testSelectionDevice_prod9 = 9,
+		eCPUProgrammingCommand_testSelectionDevice_prod10 = 10,
+		
+		eCPUProgrammingCommand_testSelectionDevice_macina = 11,
+
+		eCPUProgrammingCommand_testSelectionDevice_water1 = 21,
+		eCPUProgrammingCommand_testSelectionDevice_water2 = 22,
+		eCPUProgrammingCommand_testSelectionDevice_water3 = 23,
+		eCPUProgrammingCommand_testSelectionDevice_water4 = 24,
+		eCPUProgrammingCommand_testSelectionDevice_water5 = 25,
+		eCPUProgrammingCommand_testSelectionDevice_water6 = 26,
+		eCPUProgrammingCommand_testSelectionDevice_water7 = 27,
+		eCPUProgrammingCommand_testSelectionDevice_water8 = 28,
+		eCPUProgrammingCommand_testSelectionDevice_water9 = 29,
+		eCPUProgrammingCommand_testSelectionDevice_water10 = 30,
+
+		eCPUProgrammingCommand_testSelectionDevice_mixer1 = 31,
+		eCPUProgrammingCommand_testSelectionDevice_mixer2 = 32,
+		eCPUProgrammingCommand_testSelectionDevice_mixer3 = 33,
+		eCPUProgrammingCommand_testSelectionDevice_mixer4 = 34,
+		eCPUProgrammingCommand_testSelectionDevice_mixer5 = 35,
+		eCPUProgrammingCommand_testSelectionDevice_mixer6 = 36,
+		eCPUProgrammingCommand_testSelectionDevice_mixer7 = 37,
+		eCPUProgrammingCommand_testSelectionDevice_mixer8 = 38,
+		eCPUProgrammingCommand_testSelectionDevice_mixer9 = 39,
+		eCPUProgrammingCommand_testSelectionDevice_mixer10 = 40,
+
+		eCPUProgrammingCommand_testSelectionDevice_unknown = 0xff
 	};
 
 	enum eCPUProgrammingCommand_macinaMove

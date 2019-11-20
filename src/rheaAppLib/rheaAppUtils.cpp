@@ -10,7 +10,7 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 //***************************************************************
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
-    static const char v[23][16] = {
+    static const char v[24][16] = {
         {"READY"},      //DISPONIBILE
         {"DISPENSING"}, //PREP BEVANDA
 		{"PROG"},
@@ -34,6 +34,7 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 		{"COMPATIB_CHECK"}, //20
 		{"CPU_NOT_SUPP"},
 		{"DA3_SYNC"},
+		{"TEST_SEL"},
 	};
 
 	switch (s)
@@ -65,6 +66,7 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 	case cpubridge::eVMCState_COMPATIBILITY_CHECK:		return v[20];
 	case cpubridge::eVMCState_CPU_NOT_SUPPORTED:		return v[21];
 	case cpubridge::eVMCState_DA3_SYNC:					return v[22];
+	case cpubridge::eVMCState_TEST_ATTUATORE_SELEZIONE:	return v[23];
 	}
 }
 

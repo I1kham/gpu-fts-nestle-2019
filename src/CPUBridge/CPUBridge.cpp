@@ -271,6 +271,17 @@ u8 cpubridge::buildMsg_setMotoreMacina(u8 *out_buffer, u8 sizeOfOutBuffer, u8 ma
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d)
+{
+	u8 optionalData[4];
+	optionalData[0] = selNum;
+	optionalData[1] = (u8)d;
+
+	return buildMsg_Programming(eCPUProgrammingCommand_testSelezione, optionalData, 2, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[4];
@@ -994,6 +1005,30 @@ void cpubridge::translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg,
 	*out_m = (eCPUProgrammingCommand_macinaMove)p[1];
 }
 
+//***************************************************
+void cpubridge::notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d)
+{
+	logger->log("notify_CPU_TEST_SELECTION\n");
+
+	u8 buffer[4];
+	buffer[0] = selNum;
+	buffer[1] = (u8)d;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_TEST_SELECTION, handlerID, buffer, 2);
+}
+//***************************************************
+void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_TEST_SELECTION);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_selNum = p[0];
+	*out_d = (eCPUProgrammingCommand_testSelectionDevice)p[1];
+}
+
+
+
+
+
+
 
 //***************************************************
 void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
@@ -1409,4 +1444,22 @@ void cpubridge::translate_CPU_SET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg
 	const u8 *p = (const u8*)msg.buffer;
 	*out_target = rhea::utils::bufferReadU16(p);
 	*out_macina_1o2 = p[2];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d)
+{
+	u8 otherData[4];
+	otherData[0] = selNum;
+	otherData[2] = (u8)d;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE, handlerID, otherData, 2);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_selNum = p[0];
+	*out_d = (eCPUProgrammingCommand_testSelectionDevice)p[1];
 }

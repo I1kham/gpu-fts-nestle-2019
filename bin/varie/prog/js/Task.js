@@ -428,3 +428,36 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 	}
 }
+
+
+
+/**********************************************************
+ * TaskTestSelezione
+ */
+function TaskTestSelezione(iAttuatore)
+{
+	this.timeStarted = 0;
+	this.cpuStatus = 0;
+	this.iAttuatore = iAttuatore;
+	this.fase = 0;
+	this.btn1 = 0;
+	this.btn2 = 0;
+	this.nextTimeSanWashStatusCheckMSec = 0;
+}
+TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
+{
+	if (this.timeStarted == 0)
+		this.timeStarted = timeNowMsec;
+	var timeElapsedMSec = timeNowMsec - this.timeStarted;
+	
+	if (timeElapsedMSec < 2000)
+		return;
+	if (this.cpuStatus != 21) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
+		pageSingleSelection_test_onFinish();
+}
+
+TaskTestSelezione.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
+TaskTestSelezione.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
+
+TaskTestSelezione.prototype.onFreeBtn1Clicked	= function(ev)						{}
+TaskTestSelezione.prototype.onFreeBtn2Clicked	= function(ev)						{}

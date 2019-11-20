@@ -18,6 +18,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqGetDate.h"
 #include "CmdHandler/CmdHandler_ajaxReqSetTime.h"
 #include "CmdHandler/CmdHandler_ajaxReqSetDate.h"
+#include "CmdHandler/CmdHandler_ajaxReqTestSelection.h"
 
 using namespace socketbridge;
 
@@ -68,6 +69,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqGetDate);
 	CHECK(CmdHandler_ajaxReqSetTime);
 	CHECK(CmdHandler_ajaxReqSetDate);
+	CHECK(CmdHandler_ajaxReqTestSelection);
 
 #undef CHECK
     return NULL;
