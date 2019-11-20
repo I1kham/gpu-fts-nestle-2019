@@ -122,7 +122,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetPosizioneMacina.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetMotoreMacina.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTestSelection.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -180,7 +181,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSetTime.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqGetPosizioneMacina.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetMotoreMacina.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTestSelection.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
