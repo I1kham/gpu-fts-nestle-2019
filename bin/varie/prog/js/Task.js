@@ -10,6 +10,7 @@ TaskVoid.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
 TaskVoid.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
 TaskVoid.prototype.onFreeBtn1Clicked	= function(ev)							{}
 TaskVoid.prototype.onFreeBtn2Clicked	= function(ev)							{}
+TaskVoid.prototype.onExit				= function(bSave)						{ return bSave; }
 
 
 
@@ -49,6 +50,7 @@ TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pl
 
 TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); }
 TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); }
+TaskCleaning.prototype.onExit				= function(bSave)					{ return bSave; }
 
 TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 {
@@ -151,7 +153,7 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
 TaskCalibMotor.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
 TaskCalibMotor.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
 TaskCalibMotor.prototype.onFreeBtn2Clicked	= function(ev)	{ }
-
+TaskCalibMotor.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
 {
 	if (this.timeStarted == 0)
@@ -252,7 +254,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.what = 0;
 		pleaseWait_btn1_hide();
 		pleaseWait_calibration_hide();
-		pleaseWait_hide();
+		pageCalibration_onFinish();
 		break;
 	}
 }
@@ -424,7 +426,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.what = 0;
 		pleaseWait_btn1_hide();
 		pleaseWait_calibration_hide();
-		pleaseWait_hide();
+		pageCalibration_onFinish();
 		break;
 	}
 }
@@ -437,12 +439,8 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 function TaskTestSelezione(iAttuatore)
 {
 	this.timeStarted = 0;
-	this.cpuStatus = 0;
 	this.iAttuatore = iAttuatore;
-	this.fase = 0;
-	this.btn1 = 0;
-	this.btn2 = 0;
-	this.nextTimeSanWashStatusCheckMSec = 0;
+	this.cpuStatus = 0;
 }
 TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
 {
@@ -452,8 +450,11 @@ TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
 	
 	if (timeElapsedMSec < 2000)
 		return;
-	if (this.cpuStatus != 21) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
+	if (this.cpuStatus != 21 && this.cpuStatus != 101) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
+	{
+		console.log (this.cpuStatus);
 		pageSingleSelection_test_onFinish();
+	}
 }
 
 TaskTestSelezione.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
@@ -461,3 +462,62 @@ TaskTestSelezione.prototype.onEvent_cpuMessage = function(msg, importanceLevel)	
 
 TaskTestSelezione.prototype.onFreeBtn1Clicked	= function(ev)						{}
 TaskTestSelezione.prototype.onFreeBtn2Clicked	= function(ev)						{}
+TaskTestSelezione.prototype.onExit				= function(bSave)					{ return bSave; }
+
+
+/**********************************************************
+ * TaskDevices
+ */
+function TaskDevices()
+{
+	this.fase = 0;
+	this.firstTimeMacina1 = 1;
+	this.firstTimeMacina2 = 1;
+}
+TaskDevices.prototype.onTimer = function (timeNowMsec)
+{
+	var me = this;
+	if (this.fase == 0)
+	{
+		this.fase = 1;
+		rhea.ajax ("getPosMacina", {"m":1}).then( function(result)
+		{
+			var obj = JSON.parse(result);
+			rheaSetDivHTMLByName("pageDevices_vg1", obj.v);
+			if (me.firstTimeMacina1 == 1)
+			{
+				me.firstTimeMacina1 = 0;
+				ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg1_target").setValue(obj.v)
+			}
+		})
+		.catch( function(result)
+		{
+		});			
+		return;
+	}
+	else
+	{
+		this.fase = 0;
+		rhea.ajax ("getPosMacina", {"m":2}).then( function(result)
+		{
+			var obj = JSON.parse(result);
+			rheaSetDivHTMLByName("pageDevices_vg2", obj.v);
+			if (me.firstTimeMacina2 == 1)
+			{
+				me.firstTimeMacina2 = 0;
+				ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg2_target").setValue(obj.v)
+			}
+		})
+		.catch( function(result)
+		{
+		});			
+		return;		
+	}
+
+}
+
+TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)	{ }
+TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)	{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)						{}
+TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)						{}
+TaskDevices.prototype.onExit			 = function(bSave)					{ return bSave; }

@@ -328,6 +328,44 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 				break;
 
+			case eCPUProgrammingCommand_getTime:
+			{
+				rhea::DateTime dt;
+				dt.setNow();
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = dt.time.getHour();
+				out_answer[ct++] = dt.time.getMin();
+				out_answer[ct++] = dt.time.getSec();
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+			}
+			break;
+
+			case eCPUProgrammingCommand_getDate:
+			{
+				rhea::DateTime dt;
+				dt.setNow();
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = (u8)(dt.date.getYear() -2000);
+				out_answer[ct++] = dt.date.getMonth();
+				out_answer[ct++] = dt.date.getDay();
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+			}
+			break;
+
 			case eCPUProgrammingCommand_getStatoCalcoloImpulsi:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';

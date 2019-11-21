@@ -1451,7 +1451,7 @@ void cpubridge::ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u
 {
 	u8 otherData[4];
 	otherData[0] = selNum;
-	otherData[2] = (u8)d;
+	otherData[1] = (u8)d;
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE, handlerID, otherData, 2);
 }
 

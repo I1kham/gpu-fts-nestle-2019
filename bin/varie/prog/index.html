@@ -64,7 +64,7 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS<br>(max 48)" data-onclick="pageSelections_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DEVICES"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DEVICES" data-onclick="pageDevices_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
@@ -578,6 +578,79 @@
 			</div>
 		</div><!-- page Payment -->		
 		
+		
+		<!-- page Devices -->
+		<div id="pageDevices" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageDevices_selector' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|OTHER' data-onclick='pageDevices_onSelector()'></div></td>
+					</tr>
+				</table>
+				<br>
+			
+				<div id="pageDevices_general" style="display:none">
+				</div>
+
+				<div id="pageDevices_vflex">
+					<table border='0' class='elenco'>
+						<tr><td>BREWER DIAMETER</td><td><div class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
+						<tr><td>STANDBY POSITION</td><td><div class='UIOption' data-option='0|CLOSE|1|OPEN' data-da3='7556' data-da3bit='8'></div></td></tr>
+						<tr><td>AUTOMATIC<br>ADJUSTMENT</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7558' data-da3bit='8'></div></td></tr>
+					</table>				
+				</div>			
+				
+				<div id="pageDevices_vgrind1">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>
+								POSITION<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageDevices_vg1" style="float:left" class="bigCaption15">000</div>
+								<div class="clear"></div>
+							</td>
+							<td>
+								<div style="float:left; margin-right:10px"><br>desired value</div>
+								<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="360"></div></dv>
+								<div class="clear"></div>
+							</td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div></td>
+						</tr>
+						<tr><td>REFERRING SEL. NUM</td><td colspan="2"><div class="UINumber" data-numfigures="2" data-max="12" data-da3="7588" data-da3bit="8"></div></td></tr>
+						<tr><td>HABIL. REG. GRAN.</td><td colspan="2"><div class='UIOption' data-option='0|NO|1|YES|2|TEST' data-da3='7590' data-da3bit='8'></div></td></tr>
+						<tr><td>REFERRING FLUX</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div></td></tr>
+						<tr><td>NUM OF SAMPLINGS</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="100" data-da3="7594" data-da3bit="16"></div></td></tr>
+						<tr><td>REFERRING POSITION</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7596" data-da3bit="16"></div></td></tr>
+					</table>				
+				</div>
+				
+				<div id="pageDevices_vgrind2" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>
+								POSITION<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageDevices_vg2" style="float:left" class="bigCaption15">000</div>
+								<div class="clear"></div>
+							</td>
+							<td>
+								<div style="float:left; margin-right:10px"><br>desired value</div>
+								<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="360"></div></dv>
+								<div class="clear"></div>
+							</td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div></td>
+						</tr>
+						<tr><td>REFERRING SEL. NUM</td><td colspan="2"><div class="UINumber" data-numfigures="2" data-max="12" data-da3="7684" data-da3bit="8"></div></td></tr>
+						<tr><td>HABIL. REG. GRAN.</td><td colspan="2"><div class='UIOption' data-option='0|NO|1|YES|2|TEST' data-da3='7686' data-da3bit='8'></div></td></tr>
+						<tr><td>REFERRING FLUX</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div></td></tr>
+						<tr><td>NUM OF SAMPLINGS</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="100" data-da3="7690" data-da3bit="16"></div></td></tr>
+						<tr><td>REFERRING POSITION</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7692" data-da3bit="16"></div></td></tr>
+					</table>								
+				</div>
+				
+			</div>
+		</div><!-- page Devices -->			
+		
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
@@ -588,7 +661,10 @@
 		</div>
 		<div id="footer_C">
 		</div>
-		<div id="footer_R"></div>
+		<div id="footer_R">
+			<div style="float:right"><div id="bntTestSelection" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;TEST SELECTION&nbsp&nbsp&nbsp&nbsp;" data-onclick="pageSingleSelection_test(0)"></div></div>
+			<div class="clear"></div>
+		</div>
 		<div class="clear"></div>
 	</div>
 		
@@ -632,6 +708,7 @@ function onRheaBootstrapFinished()
 	ui = new UI ("divPage");
 	ui.setupStandaloneButton("bntBack");
 	ui.setupStandaloneButton("bntSave");
+	ui.setupStandaloneButton("bntTestSelection");
 	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
 	
 	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
@@ -699,7 +776,7 @@ function onGUIInfoLoaded()
 }
 
 
-function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s) }
+function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s); }
 
 function showPage(pageID)				{ return showPageEx(pageID,0); }
 function showPageEx(pageID, da3Offset)	
@@ -713,13 +790,13 @@ function showPageEx(pageID, da3Offset)
 	return ret;
 }
 function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); rheaSetDisplayMode(rheaGetElemByID("bntSave"), "table"); }
-function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("bntSave")); }
-function btnBack_onClick(bSave)				
+function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("bntSave")); rheaHideElem(rheaGetElemByID("bntTestSelection")); }
+function btnBack_onClick (bSave)				
 { 
-	if (currentTask == taskCalibMotor)
+	if (currentTask != voidTask)
 	{
-		pageCalibration_onExit();
-		return;
+		bSave = currentTask.onExit(bSave);
+		currentTask = voidTask;
 	}
 	
 	if (bSave == 0)
@@ -918,7 +995,7 @@ function dataOra_setup ()
 	})
 	.catch( function(result)
 	{
-		console.log ("dataOra_setup::ajax::getTime::err");
+		console.log ("dataOra_setup::ajax::getTime::err[" +result +"]");
 		setTimeout ( function() {dataOra_setup();}, 200);
 	});
 }
@@ -1408,6 +1485,7 @@ function pageSingleSelection_show(iSel)
 	pageSingleSelection_onStatus();
 	
 	pleaseWait_hide();
+	rheaShowElem(rheaGetElemByID("bntTestSelection"));
 }
 
 var SINGLESEL_NUM_PRODOTTI = 0;
@@ -1463,8 +1541,8 @@ function pageSingleSelection_build()
 	{
 		htmlE = "<table border='0' class='elenco'>"
 				+"<tr><td>COFFEE SEQUENCE</td><td><div class='UIOption' data-option='0|AFTER|1|BEFORE' data-da3='103' data-da3bit='8'></div></td></tr>"
-				+"<tr><td>COFFEE WATER</td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
-				+"<tr><td>COFFEE GRINDER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
+				+"<tr><td>COFFEE WATER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
+				+"<tr><td>COFFEE GRINDER</td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
 				+"<tr><td>PREINFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='128' data-da3bit='4' data-max='15' data-um='sec'></div></td></tr>"
 				+"<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>"
 				+"<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>"
@@ -1971,7 +2049,7 @@ function pageCalibration_reset(motor)
 			rheaSetDivHTMLByName("pageCalibration_encoder2", "0");
 		}
 		
-		pleaseWait_hide();
+		save (function() { pleaseWait_hide();});
 	})
 	.catch( function(result)
 	{
@@ -1984,10 +2062,9 @@ function pageCalibration_start (motor)
 	taskCalibMotor.startMotorCalib(motor);
 }
 
-function pageCalibration_onExit ()
+function pageCalibration_onFinish ()
 {
-	currentTask = voidTask;
-	save( function() { backToMainMenu();} );
+	save (function() { pleaseWait_hide();});
 }
 
 
@@ -2027,6 +2104,60 @@ function pagePayment_onSelector()
 		case 2:  rheaShowElem(elem2); break;
 		case 3:  rheaShowElem(elem3); break;
 	}
+}
+
+
+/***************************************************************************
+ *
+ * pageDevices
+ *
+ */
+function pageDevices_show()
+{
+	if (showPage("pageDevices"))
+	{
+	}
+
+	pageDevices_onSelector();
+	header_setText("DEVICES");
+	btnBack_show();
+	currentTask = new TaskDevices();
+}
+
+function pageDevices_onSelector()
+{
+	var elem0 = rheaGetElemByID("pageDevices_general");
+	var elem1 = rheaGetElemByID("pageDevices_vflex");
+	var elem2 = rheaGetElemByID("pageDevices_vgrind1");
+	var elem3 = rheaGetElemByID("pageDevices_vgrind2");
+
+	rheaHideElem(elem0);
+	rheaHideElem(elem1);
+	rheaHideElem(elem2);
+	rheaHideElem(elem3);
+	
+	var win = ui.getWindowByID("pageDevices");
+	switch (parseInt(win.getChildByID("pageDevices_selector").getSelectedOptionValue()))
+	{
+		default: rheaShowElem(elem0); break;
+		case 1:  rheaShowElem(elem1); break;
+		case 2:  rheaShowElem(elem2); break;
+		case 3:  rheaShowElem(elem3); break;
+	}
+}
+
+function pageDevices_setVGrind (macina1o2)
+{
+	var win = ui.getWindowByID("pageDevices");
+	var target = 0;
+	
+	if (macina1o2 == 1)
+		target = parseInt(win.getChildByID("pageDevices_vg1_target").getValue());
+	else
+		target = parseInt(win.getChildByID("pageDevices_vg2_target").getValue());
+		
+		
+	console.log ("pageDevices_setVGrind:: macina[" +macina1o2 +"] target[" +target +"]");
 }
 </script>
 </html>
