@@ -313,7 +313,7 @@ namespace cpubridge
 
 	void		ask_CPU_SET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 target);
 	void		translate_CPU_SET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_target);
-					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_SET_POSIZIONE_MACINA
+					//alla ricezione di questo msg, CPUBridge non notificherà alcunchè. Lo stato di CPUBridge dovrebbe passare a eVMCState_REG_APERTURA_MACINA
 
 	void		ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
 	void		translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d);

@@ -16,6 +16,7 @@ var	RHEA_EVENT_SEND_BUTTON = 115;						//'s'
 var	RHEA_EVENT_SEND_PARTIAL_DA3 = 116;					//'t'
 
 
+
 //info sulla versione attuale del codice (viene comunicata a GPU in fase di registrazione)
 var RHEA_CLIENT_INFO__API_VERSION = 0x01;
 var RHEA_CLIENT_INFO__APP_TYPE = 0x01;
@@ -323,7 +324,9 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						case 8: statusStr ="AUTO WASHING"; break;
 						case 10: statusStr ="WAIT TEMP"; break;
 						case 20: statusStr ="SAN WASHING"; break;
+						case 21: statusStr ="TEST SEL"; break;
 						case 101: statusStr ="COM_ERROR"; break;
+						case 102: statusStr ="GRINDER OPENING"; break;
 					}
 					//console.log ("rhea.js => RHEA_EVENT_CPU_STATUS [" +statusID +"] [" +statusStr +"]");
 					me.onEvent_cpuStatus(statusID, statusStr);
@@ -667,6 +670,16 @@ Rhea.prototype.sendButtonPress = function(iBtnNumber)
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
+Rhea.prototype.sendStartPosizionamentoMacina = function(macina_1o2, targetValue)
+{
+	//var	RHEA_EVENT_SET_POSIZIONE_MACINA = 122;				//'z'
+	var buffer = new Uint8Array(4);
+	buffer[0] = 122;
+	buffer[1] = parseInt(macina_1o2);
+	buffer[2] = ((targetValue & 0xFF00) >> 8);
+	buffer[3] = (targetValue & 0x00FF);
+	this.sendGPUCommand ("E", buffer, 0, 0);
+}
 
 Rhea.prototype.sendPartialDA3AndReturnAPromise = function(uno_di, num_tot, blockOffset, uint8array, startAt)
 {

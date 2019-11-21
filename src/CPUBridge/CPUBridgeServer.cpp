@@ -2581,23 +2581,32 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
 	}
 
+
+	const u16 TOLLERANZA = 1;
 	while (stato.get() == sStato::eStato_regolazioneAperturaMacina)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
 		//ci sono messaggi in ingresso?
-		priv_handleMsgQueues(timeNowMSec, 100);
+		priv_handleMsgQueues(timeNowMSec, 1);
 
 			   
 		//chiede la posizione della macina
 		const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), regolazioneAperturaMacina.macina_1o2);
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
 		{
 			nRetry = NRETRY;
 			const u16 curpos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
 
-			if (curpos == regolazioneAperturaMacina.target)
+			printf("%d ", curpos);
+
+			u16 diff = 0;
+			if (curpos >= regolazioneAperturaMacina.target)
+				diff = curpos - regolazioneAperturaMacina.target;
+			else
+				diff = regolazioneAperturaMacina.target - curpos;
+			if (diff <= TOLLERANZA)
 			{
 				//fine
 				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
@@ -2646,7 +2655,17 @@ bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCom
 	u8 bufferW[16];
 	const u16 nBytesToSend = cpubridge::buildMsg_setMotoreMacina(bufferW, sizeof(bufferW), macina_1o2, m);
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-		return true;
+	
+	u8 nRetry = 8;
+	while (nRetry--)
+	{
+		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
+		{
+			printf("motore %d\n", (u8)m);
+			return true;
+		}
+	}
+
+	printf("ERRRRRRRRRRRRRR\n");
 	return false;
 }

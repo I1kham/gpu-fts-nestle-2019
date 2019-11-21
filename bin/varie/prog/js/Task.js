@@ -152,7 +152,6 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
 
 TaskCalibMotor.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
 TaskCalibMotor.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
-TaskCalibMotor.prototype.onFreeBtn2Clicked	= function(ev)	{ }
 TaskCalibMotor.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
 {
@@ -176,12 +175,26 @@ TaskCalibMotor.prototype.onFreeBtn1Clicked	= function(ev)
 		break;
 		
 	case 2:
-		if (this.fase == 1)		{ pleaseWait_btn1_hide(); this.fase = 2; }
-		else if (this.fase==21) { pleaseWait_btn1_hide();; this.fase=30; }
-		else if (this.fase==41) { pleaseWait_btn1_hide();; this.fase=50; }
+		if (this.fase == 1)		{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 2; }
+		else if (this.fase==21) { pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=30; }
+		else if (this.fase==41) { pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=50; }
 		break;		
 	}
 }
+
+TaskCalibMotor.prototype.onFreeBtn2Clicked	= function(ev)
+{ 
+	switch (this.what)
+	{
+	case 1:
+		break;
+		
+	case 2:
+		if (this.fase == 1)		{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 200; break; }
+		break;		
+	}
+}
+
 
 TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 {
@@ -274,6 +287,8 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE");
 		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
+		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_show();		
 		break;
 		
 	case 1:	//attendo btn CONTINUE
@@ -436,33 +451,188 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 /**********************************************************
  * TaskTestSelezione
  */
-function TaskTestSelezione(iAttuatore)
+function TaskTestSelezione(selNum, iAttuatore)
 {
 	this.timeStarted = 0;
+	this.selNum = selNum;
 	this.iAttuatore = iAttuatore;
 	this.cpuStatus = 0;
+	this.fase = 0;
 }
+
 TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
 {
 	if (this.timeStarted == 0)
 		this.timeStarted = timeNowMsec;
 	var timeElapsedMSec = timeNowMsec - this.timeStarted;
 	
-	if (timeElapsedMSec < 2000)
-		return;
-	if (this.cpuStatus != 21 && this.cpuStatus != 101) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
+	console.log ("TaskTestSelezione::onTimer => sel[" +this.selNum +"] attuatore[" +this.iAttuatore +"] fase[" +this.fase +"] cpu[" +this.cpuStatus +"]");
+	if (this.iAttuatore == 12)
 	{
-		console.log (this.cpuStatus);
-		pageSingleSelection_test_onFinish();
+		//questo è il caso del test "macinata" che prevede che prima si rimuova il gruppo, poi si macini, poi si rimetta il gruppo
+		this.priv_handleTestMacina(timeElapsedMSec);
+	}
+	else
+	{
+		//nei test attuatori "normali", lascio fare il lavoro alla CPU e quando questa esce dallo stato 21, finisco pure io
+		if (this.fase == 0)
+		{
+			this.fase = 1;
+			
+			//chiedo l'attivazione del motore
+			console.log ("TaskTestSelezione::ajax::testSelection");
+			rhea.ajax ("testSelection", {"s":this.selNum, "d":this.iAttuatore} ).then( function(result)
+			{
+				if (result != "OK")
+					pageSingleSelection_test_onFinish();
+			})
+			.catch( function(result)
+			{
+				pageSingleSelection_test_onFinish();
+			});			
+		}
+		else
+		{
+			//aspetto almeno un paio di secondi
+			if (timeElapsedMSec < 2000)
+				return;
+			//monitoro lo stato di cpu per capire quando esce da 21 e terminare
+			if (this.cpuStatus != 21 && this.cpuStatus != 101) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
+				pageSingleSelection_test_onFinish();
+		}
 	}
 }
 
 TaskTestSelezione.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
 TaskTestSelezione.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
+TaskTestSelezione.prototype.onFreeBtn1Clicked	= function(ev)
+{ 
+	if (this.iAttuatore != 12)
+		return;
+	
+	switch (this.fase)
+	{
+	case 1:		pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 2; break;
+	case 21: 	pleaseWait_btn1_hide(); this.fase=30; break;
+	case 41: 	pleaseWait_btn1_hide(); this.fase=50; break;
+	}
+}
+TaskTestSelezione.prototype.onFreeBtn2Clicked	= function(ev)
+{ 
+	if (this.iAttuatore != 12)
+		return;
+	
+	switch (this.fase)
+	{
+	case 1:		pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 200; break;
+	}
+}
 
-TaskTestSelezione.prototype.onFreeBtn1Clicked	= function(ev)						{}
-TaskTestSelezione.prototype.onFreeBtn2Clicked	= function(ev)						{}
 TaskTestSelezione.prototype.onExit				= function(bSave)					{ return bSave; }
+
+TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
+{
+	var me = this;
+	
+	switch (this.fase)
+	{
+	case 0:
+		me.fase = 1;
+		pleaseWait_show();
+		pleaseWait_calibration_show();
+		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE");
+		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_show();
+		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_show();
+		break;
+		
+	case 1:	//attendo btn CONTINUE / ABORT
+		break;
+		
+	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			//console.log ("TaskCalibMotor, grpState[" +result +"]");
+			if (result=="0")
+				me.fase = 10;
+			else
+				me.fase = 0;
+		})
+		.catch( function(result)
+		{
+			me.fase = 0;
+		});			
+		me.fase = 3;
+		break;
+		
+	case 3:	//attendo risposta CPU
+		break;
+		
+	case 10:  //ok, il gruppo è scollegato, chiedo a CPU di attivare la macina
+		me.fase = 11;
+		pleaseWait_calibration_setText ("Grinder is running");
+		rhea.ajax ("testSelection", {"s":me.selNum, "d":me.iAttuatore} ).then( function(result)
+		{
+			if (result == "OK")
+				me.fase = 20;
+			else
+				me.fase = 10;
+		})
+		.catch( function(result)
+		{
+			me.fase = 200;
+		});					
+	break;
+		
+	case 11: //attendo risposta di CPU
+		break;
+		
+	//attendo la fine della macinata (ovvero quando la CPU passa in stato != 21)
+	case 20:	me.fase = 21; break;
+	case 21:	me.fase = 22; break;
+	case 22:	me.fase = 23; break;
+	case 23:
+		if (me.cpuStatus != 21 && me.cpuStatus != 101) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
+			me.fase = 40;
+		break;
+	
+	case 40: //chiedo di rimettere a posto il gruppo
+		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE");
+		pleaseWait_btn1_show();
+		me.fase = 41;
+		break;
+		
+	case 41:
+		break;
+		
+	case 50: //verifico che il gruppo sia collegato, altrimenti goto 40
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			if (result=="1")
+				me.fase = 200;
+			else
+				me.fase = 40;
+		})
+		.catch( function(result)
+		{
+			me.fase = 40;
+		});			
+		me.fase = 51;
+		break;
+		
+	case 51://attendo risposta CPU
+		break;
+		
+	case 200:
+		me.fase = 201;
+		pleaseWait_btn1_hide();
+		pleaseWait_calibration_hide();
+		pageSingleSelection_test_onFinish();
+		break;
+	}
+	
+}
 
 
 /**********************************************************
@@ -470,15 +640,50 @@ TaskTestSelezione.prototype.onExit				= function(bSave)					{ return bSave; }
  */
 function TaskDevices()
 {
+	this.what = 0;
 	this.fase = 0;
 	this.firstTimeMacina1 = 1;
 	this.firstTimeMacina2 = 1;
+	this.cpuStatus = 0;
+	this.enterQueryMacinePos();
 }
+
+TaskDevices.prototype.enterQueryMacinePos = function()
+{	
+	this.what = 0;
+	this.fase = 0;
+}
+
+TaskDevices.prototype.enterSetMacinaPos = function(macina_1o2, targetValue)
+{	
+	this.what = 1;
+	this.fase = 0;
+	this.macina = macina_1o2;
+	pleaseWait_show();
+	rhea.sendStartPosizionamentoMacina(macina_1o2, targetValue);
+}
+
+TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
+TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
+TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)							{}
+TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)							{}
+TaskDevices.prototype.onExit			 = function(bSave)						{ return bSave; }
+
+
 TaskDevices.prototype.onTimer = function (timeNowMsec)
+{
+	if (this.what == 0)
+		this.priv_handleRichiestaPosizioneMacina();
+	else
+		this.priv_handleRegolazionePosizioneMacina();
+}
+
+TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 {
 	var me = this;
 	if (this.fase == 0)
 	{
+		//chiede la posizione della macina 1
 		this.fase = 1;
 		rhea.ajax ("getPosMacina", {"m":1}).then( function(result)
 		{
@@ -497,6 +702,7 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 	}
 	else
 	{
+		//chiede la posizione della macina 2
 		this.fase = 0;
 		rhea.ajax ("getPosMacina", {"m":2}).then( function(result)
 		{
@@ -516,8 +722,39 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 
 }
 
-TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)	{ }
-TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)	{ rheaSetDivHTMLByName("footer_C", msg); }
-TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)						{}
-TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)						{}
-TaskDevices.prototype.onExit			 = function(bSave)					{ return bSave; }
+TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
+{
+	switch (this.fase)
+	{
+		case 0: this.fase=1; break;
+		case 1: this.fase=2; break;
+		case 2: 
+			this.priv_queryMacina(this.macina);
+			this.fase=3; 
+			break;
+		
+		case 3: 
+			//a questo punto CPU dovrebbe essere in stato 102 e dovrebbe rimanerci fino a fine operazione
+			if (this.cpuStatus != 102 && this.cpuStatus != 101)
+			{
+				this.enterQueryMacinePos();
+				pleaseWait_hide();
+				return;
+			}
+			
+			this.fase = 2;
+			break;
+	}
+}
+
+TaskDevices.prototype.priv_queryMacina = function(macina_1o2)
+{
+	rhea.ajax ("getPosMacina", {"m":macina_1o2}).then( function(result)
+	{
+		var obj = JSON.parse(result);
+		rheaSetDivHTMLByName("pageDevices_vg" +macina_1o2, obj.v);
+	})
+	.catch( function(result)
+	{
+	});			
+}
