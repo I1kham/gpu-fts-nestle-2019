@@ -182,7 +182,7 @@ namespace cpubridge
 	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d);
 
 	void		notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *strLingua1UTF16, const u16 *strLingua2UTF16);
-	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16);
+	void		translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16);
 					/*
 						strLingua1UTF16 è codificato in UTF16 e termina con uno 0x0000
 						out_strLingua1UTF16 deve poter accorgliere fino a 32 caratteri UTF16 più il terminatore 0x0000

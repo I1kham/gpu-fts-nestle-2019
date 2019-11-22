@@ -1064,7 +1064,7 @@ void cpubridge::notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea
 	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU, handlerID, buffer, sizeof(buffer));
 }
 //***************************************************
-void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16)
+void cpubridge::translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16)
 {
 	assert(msg.what == CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU);
 	const u16 *p = (const u16*)msg.buffer;
