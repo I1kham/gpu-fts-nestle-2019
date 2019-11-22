@@ -55,6 +55,7 @@
 #define		CPUBRIDGE_NOTITFY_POSIZIONE_MACINA				0x011D
 #define		CPUBRIDGE_NOTITFY_MOTORE_MACINA					0x011E
 #define		CPUBRIDGE_NOTITFY_TEST_SELECTION				0x011F
+#define		CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU				0x0120
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -98,6 +99,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA				0x0820
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA			0x0821
 #define		CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE					0x0822
+#define		CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU				0x0823
 
 namespace cpubridge
 {
@@ -229,6 +231,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_getPosizioneMacina = 0x10,
 		eCPUProgrammingCommand_setMotoreMacina = 0x11,
 		eCPUProgrammingCommand_testSelezione = 0x12,
+		eCPUProgrammingCommand_getNomiLinguaCPU = 0x13,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

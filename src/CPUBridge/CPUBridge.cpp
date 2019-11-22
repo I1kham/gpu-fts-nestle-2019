@@ -280,6 +280,12 @@ u8 cpubridge::buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 sel
 	return buildMsg_Programming(eCPUProgrammingCommand_testSelezione, optionalData, 2, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_getNomiLingueCPU(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getNomiLinguaCPU, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -485,18 +491,27 @@ void cpubridge::translateNotify_CPU_SEL_AVAIL_CHANGED(const rhea::thread::sMsg &
 
 
 //***************************************************
-void cpubridge::notify_CPU_SEL_PRICES_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *prices, u32 sizeOfPricesArray)
+void cpubridge::notify_CPU_SEL_PRICES_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 numPrices, u8 numDecimals, const u16 *prices)
 {
 	logger->log("notify_CPU_SEL_PRICES_CHANGED\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED, handlerID, prices, sizeOfPricesArray);
+	u16 buffer[NUM_MAX_SELECTIONS + 1];
+	if (numPrices > NUM_MAX_SELECTIONS)
+		numPrices = NUM_MAX_SELECTIONS;
+	
+	buffer[0] = (u16)numPrices | ( (u16)numDecimals << 8);
+	memcpy(&buffer[1], prices, sizeof(u16)* numPrices);
+
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED, handlerID, buffer, sizeof(u16) * (numPrices+1) );
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg &msg, u16 *out_prices, u32 sizeOfPricesArray)
+void cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg &msg, u8 *out_numPrices, u8 *out_numDecimals, u16 *out_prices)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED);
-	assert(sizeOfPricesArray >= msg.bufferSize);
-	memcpy(out_prices, msg.buffer, msg.bufferSize);
+	const u16 *p = (const u16*)msg.buffer;
+	*out_numPrices = (u8)(p[0] & 0x00FF);
+	*out_numDecimals = (u8)((p[0] & 0xFF00)>>8);
+	memcpy(out_prices, &p[1], sizeof(u16)* (*out_numPrices));
 }
 
 //***************************************************
@@ -1024,10 +1039,52 @@ void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg
 	*out_d = (eCPUProgrammingCommand_testSelectionDevice)p[1];
 }
 
+//***************************************************
+void cpubridge::notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *strLingua1UTF16, const u16 *strLingua2UTF16)
+{
+	logger->log("notify_NOMI_LINGE_CPU\n");
 
+	const u8 NUM_ELEM = 33 * 2;
+	u16 buffer[NUM_ELEM];
+	memset(buffer, 0, sizeof(buffer));
 
+	for (u8 i = 0; i < 32; i++)
+	{
+		if (strLingua1UTF16[i] == 0x0000)
+			break;
+		buffer[i] = strLingua1UTF16[i];
+	}
 
+	for (u8 i = 0; i < 32; i++)
+	{
+		if (strLingua2UTF16[i] == 0x0000)
+			break;
+		buffer[33 + i] = strLingua2UTF16[i];
+	}
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU, handlerID, buffer, sizeof(buffer));
+}
+//***************************************************
+void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU);
+	const u16 *p = (const u16*)msg.buffer;
+	
+	out_strLingua1UTF16[0] = out_strLingua2UTF16[0] = 0x0000;
+	for (u8 i = 0; i < 32; i++)
+	{
+		if (p[i] == 0x0000)
+			break;
+		out_strLingua1UTF16[i] = p[i];
+	}
 
+	p += 33;
+	for (u8 i = 0; i < 32; i++)
+	{
+		if (p[i] == 0x0000)
+			break;
+		out_strLingua2UTF16[i] = p[i];
+	}
+}
 
 
 //***************************************************
@@ -1463,3 +1520,10 @@ void cpubridge::translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *
 	*out_selNum = p[0];
 	*out_d = (eCPUProgrammingCommand_testSelectionDevice)p[1];
 }
+
+//***************************************************
+void cpubridge::ask_CPU_GET_NOMI_LINGE_CPU(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU, handlerID, NULL, 0);
+}
+

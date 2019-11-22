@@ -90,7 +90,6 @@
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
 					<!--<tr><td class='description'>Machine Voltage</td><td>todo...</td></tr>-->
-					
 					<tr>
 						<td>ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
 						<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
@@ -140,25 +139,28 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 actionButton" data-caption="START RINSING" data-onclick="pageCleaning_action(160)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton3x4 actionButton" data-caption="START RINSING<br>BREWER" data-onclick="pageCleaning_action(1)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton3x4 actionButton" data-caption="START RINSING HC" data-onclick="pageCleaning_action(8)"></div></td>
+						<td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="START RINSING" data-onclick="pageCleaning_action(160)"></div></td>
+						<td width="50%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="START RINSING HC" data-onclick="pageCleaning_action(8)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
 					</tr>
+				</table>
+				
+				<br>
+				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton3x4 actionButton" data-caption="START RINSING<br>MIXER 1" data-onclick="pageCleaning_action(2)"></div></td>
-						<td></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="START RINSING<br>BREWER" data-onclick="pageCleaning_action(1)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton4x4 actionButton" data-caption="START RINSING<br>MIXER 1" data-onclick="pageCleaning_action(2)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton4x4 actionButton" data-caption="START RINSING<br>MIXER 2" data-onclick="pageCleaning_action(3)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton4x4 actionButton" data-caption="START RINSING<br>MIXER 3" data-onclick="pageCleaning_action(4)"></div></td>
 					</tr>
-					<tr valign="middle">
-						<td></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton3x4 actionButton" data-caption="START RINSING<br>MIXER 2" data-onclick="pageCleaning_action(3)"></div></td>
-						</td>
-					</tr>
-					<tr valign="middle">
-						<td></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton3x4 actionButton" data-caption="START RINSING<br>MIXER 3" data-onclick="pageCleaning_action(4)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton3x4 actionButton UIdisabled" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
-					</tr>					
+				</table>
+				
+				<br><br><br>
+				<table border='0' class='elenco'>
+					<tr style="border:0">
+						<td style="width:300px">AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
+						<td><div id="pageMilker_time1" class="UITime24" data-da3="7466"></div></td>
+					</tr>	
 				</table>
 			</div>
 		</div>
@@ -479,7 +481,7 @@
 							<td><div class='UISelect' data-option='0|PAR. SING. VEND|1|PAR. MULTI VEND|2|EXECUTIVE|3|PRICE HOLDING|4|MDB' data-da3='7058' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>DECIMAL NUMBER</td>
+							<td>CURRENCY (PRICES)<br>NUM OF DECIMALS</td>
 							<td><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='7066' data-da3bit='8'></div></td>
 						</tr>
 					</table>				
@@ -491,13 +493,13 @@
 							<td>ESCROW ENABLED</td>
 							<td><div class='UIOption' data-option='0|YES|1|NO' data-da3='7236' data-da3bit='8'></div></td>
 						</tr>
-						<tr><td>CREDIT MAX</td><td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7238" data-da3bit="16"></div></td></tr>
-						<tr><td>REST MAX</td><td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7240" data-da3bit="16"></div></td></tr>
+						<tr><td>CREDIT MAX</td><td><div id="pagePayment_creditMax" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7238" data-da3bit="16"></div></td></tr>
+						<tr><td>REST MAX</td><td><div  id="pagePayment_restMax"class="UINumber" data-numfigures="5" data-max="99999" data-da3="7240" data-da3bit="16"></div></td></tr>
 						<tr>
 							<td>SELL TYPE</td>
 							<td><div class='UIOption' data-option='0|SINGLE|1|MULTI' data-da3='7242' data-da3bit='8'></div></td>
 						</tr>
-						<tr><td>TOKEN VALUE</td><td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7244" data-da3bit="16"></div></td></tr>
+						<tr><td>TOKEN VALUE</td><td><div id="pagePayment_tokenV" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7244" data-da3bit="16"></div></td></tr>
 						<tr><td>BILL VALIDATOR</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='7310' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>COIN REST A</td><td><div class='UIOption' data-option='0|ACC|1|DISABLED' data-da3='7246' data-da3bit='16'></div></td></tr>						
@@ -565,7 +567,7 @@
 					<table border='0' class='elenco'>
 						<tr>
 							<td>MAX CREDIT CARD</td>
-							<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7136" data-da3bit="16"></div></td>
+							<td><div id="pagePayment_maxCC" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7136" data-da3bit="16"></div></td>
 						</tr>
 						<tr><td>COIN A</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7144'></div></td></tr>
 						<tr><td>COIN B</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7146'></div></td></tr>
@@ -1146,7 +1148,7 @@ function pageCleaning_show()
 	header_setText("CLEANING");
 
 	btnBack_show();
-	rheaHideElem(rheaGetElemByID("bntSave"));
+	//rheaHideElem(rheaGetElemByID("bntSave"));
 }
 
 function pageCleaning_action (what)
@@ -1451,11 +1453,13 @@ function pageSingleSelection_show(iSel)
 	
 	//Setto i prezzi
 	var obj = win.getChildByID("pageSingleSelection_prc1");
+	obj.setDecimals(da3.getDecimalsForPrices());
 	obj.da3offset = 0;
 	obj.da3Pos = da3.getPriceLocation(1,iSel);
 	obj.loadFromDA3(da3);
 	
 	obj = win.getChildByID("pageSingleSelection_prc2");
+	obj.setDecimals(da3.getDecimalsForPrices());
 	obj.da3offset = 0;
 	obj.da3Pos = da3.getPriceLocation(2,iSel);
 	obj.loadFromDA3(da3);	
@@ -2076,6 +2080,12 @@ function pagePayment_show()
 	}
 
 	pagePayment_onSelector();
+	
+	var win = ui.getWindowByID("pagePayment");
+	win.getChildByID("pagePayment_creditMax").setDecimals(da3.getDecimalsForPrices());
+	win.getChildByID("pagePayment_restMax").setDecimals(da3.getDecimalsForPrices());
+	win.getChildByID("pagePayment_tokenV").setDecimals(da3.getDecimalsForPrices());
+	win.getChildByID("pagePayment_maxCC").setDecimals(da3.getDecimalsForPrices());
 	header_setText("PAYMENT SYSTEMS");
 	btnBack_show();
 }

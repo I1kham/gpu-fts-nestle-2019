@@ -327,7 +327,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                 if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
                 {
                     priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);
-                    notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, cpuParamIniziali.prices, sizeof(cpuParamIniziali.prices));
+					const u8 numPrices = NUM_MAX_SELECTIONS;
+                    notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.prices);
                 }
             }
 			break;
@@ -423,6 +424,9 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 							}
 						}
 					}
+
+					//aggiorno alcuni dati che conservo anche localmente
+					priv_retreiveSomeDataFromLocalDA3();
 
 					//notifico il client
 					notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, blockNumOffset);
@@ -1204,7 +1208,8 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
     fwrite (&u, sizeof(u64), 1, f);
     fclose(f);
 
-
+	//aggiorno alcuni dati che conservo in memoria
+	priv_retreiveSomeDataFromLocalDA3();
 
 	//notifico il client e finisco
 	if (NULL != subscriber)
@@ -1670,6 +1675,7 @@ void Server::priv_handleState_DA3Sync()
 			//se il suo TS è == al mio, ho finito
 			if (myTS.isEqual(cpuTS))
 			{
+				priv_retreiveSomeDataFromLocalDA3();
 				priv_enterState_normal();
 				return;
 			}
@@ -1743,6 +1749,7 @@ void Server::priv_handleState_DA3Sync()
 			fclose(f);
 
 			//finito
+			priv_retreiveSomeDataFromLocalDA3();
 			priv_enterState_normal();
 			return;
 		}
@@ -2582,7 +2589,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	}
 
 
-	const u16 TOLLERANZA = 1;
+	const u16 TOLLERANZA = 0;
 	while (stato.get() == sStato::eStato_regolazioneAperturaMacina)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
@@ -2662,10 +2669,27 @@ bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCom
 		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
 		{
 			printf("motore %d\n", (u8)m);
+			rhea::thread::sleepMSec(100);
 			return true;
 		}
 	}
 
 	printf("ERRRRRRRRRRRRRR\n");
 	return false;
+}
+
+//**********************************************
+void Server::priv_retreiveSomeDataFromLocalDA3()
+{
+	char s[256];
+	sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	u32 sizeOfBuffer = 0;
+	u8 *da3 = rhea::fs::fileCopyInMemory(s, localAllocator, &sizeOfBuffer);
+	if (NULL == da3)
+		return;
+
+	//Numero di cifre decimali da utilizzare durante la formattazione dei prezzi. Tale numero lo trovo nel DA3 alla loc 7066
+	this->cpu_numDecimalsForPrices = da3[7066];
+
+	RHEAFREE(localAllocator, da3);
 }
