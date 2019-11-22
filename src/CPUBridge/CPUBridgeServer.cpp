@@ -1960,6 +1960,8 @@ void Server::priv_handleState_normal()
 {
 	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 250;
 	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 2;
+	//const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 50;
+	//const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 15;
 	u8 nRetry = 0;
 
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
