@@ -1473,6 +1473,7 @@ void Server::priv_resetInternalState(cpubridge::eVMCState s)
  */
 void Server::priv_enterState_compatibilityCheck()
 {
+//priv_enterState_comError(); return;
 	logger->log("CPUBridgeServer::priv_enterState_compatibilityCheck()\n");
 
 	stato.set(sStato::eStato_compatibilityCheck);
