@@ -698,6 +698,45 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 					notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, 0xff, eCPUProgrammingCommand_testSelectionDevice_unknown);
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getNomiLingueCPU(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				{
+					u16 strLingua1UTF16[17];
+					u16 strLingua2UTF16[17];
+					memset(strLingua1UTF16, 0, sizeof(strLingua1UTF16));
+					memset(strLingua2UTF16, 0, sizeof(strLingua2UTF16));
+
+					u8 z = 5;
+					if (answerBuffer[4] == 0x01)
+					{
+						//caso unicode
+						for (u8 i = 0; i < 16;i++)
+						{
+							strLingua1UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
+							z += 2;
+						}
+						for (u8 i = 0; i < 16;i++)
+						{
+							strLingua2UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
+							z += 2;
+						}
+					}
+					else
+					{
+						for (u8 i = 0; i < 16;i++)
+							strLingua1UTF16[i] = (u16)answerBuffer[z++];
+						for (u8 i = 0; i < 16;i++)
+							strLingua2UTF16[i] = (u16)answerBuffer[z++];
+					}
+					notify_NOMI_LINGE_CPU(sub->q, handlerID, logger, strLingua1UTF16, strLingua2UTF16);
+				}
+			}
+			break;
 		}
 	}
 }

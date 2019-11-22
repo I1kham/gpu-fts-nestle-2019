@@ -185,7 +185,7 @@ namespace cpubridge
 	void		translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16);
 					/*
 						strLingua1UTF16 è codificato in UTF16 e termina con uno 0x0000
-						out_strLingua1UTF16 deve poter accorgliere fino a 32 caratteri UTF16 più il terminatore 0x0000
+						out_strLingua1UTF16 deve poter accorgliere almeno 16 caratteri UTF16 più il terminatore 0x0000
 					*/
 	
 
