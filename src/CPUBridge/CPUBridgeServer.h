@@ -120,6 +120,7 @@ namespace cpubridge
 		
 		u8						priv_2DigitHexToInt(const u8 *buffer, u32 index) const;
 		bool					priv_WriteByteMasterNext(u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT) const;
+		void					priv_retreiveSomeDataFromLocalDA3();
 
 	private:
 		rhea::Allocator         *localAllocator;
@@ -134,6 +135,7 @@ namespace cpubridge
 		sCPUParamIniziali		cpuParamIniziali;
 		sCPUStatus				cpuStatus;
 		sRunningSelection		runningSel;
+		u8						cpu_numDecimalsForPrices;
 		rhea::FastArray<sSubscription*>	subscriberList;
 		sLanguage				language;
 		u16						lastCPUMsg[LCD_BUFFER_SIZE_IN_U16];

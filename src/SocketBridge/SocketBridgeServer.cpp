@@ -342,15 +342,14 @@ void Server::sendEvent (const HSokServerClient &h, eEventType eventType, const v
 }
 
 //***************************************************
-void Server::formatSinglePrice(u16 price, char *out, u16 sizeofOut) const
+void Server::formatSinglePrice(u16 price, u8 numDecimals, char *out, u16 sizeofOut) const
 {
 	const char DECIMAL_SEP = '.';
-	const u8 NUM_DECIMAL = 2;
-	rhea::string::format::currency (price, NUM_DECIMAL, DECIMAL_SEP, out, sizeofOut);
+	rhea::string::format::currency (price, numDecimals, DECIMAL_SEP, out, sizeofOut);
 }
 
 //***************************************************
-void Server::formatPriceList (const u16 *priceList, u16 nPricesInList, char *out, u16 sizeofOut) const
+void Server::formatPriceList (const u16 *priceList, u16 nPricesInList, u8 numDecimals, char *out, u16 sizeofOut) const
 {
 	out[0] = 0x00;
 	if (sizeofOut < 2)
@@ -360,7 +359,7 @@ void Server::formatPriceList (const u16 *priceList, u16 nPricesInList, char *out
 	for (u16 i = 0; i < nPricesInList; i++)
 	{
 		char s[32];
-		formatSinglePrice (priceList[i], s, sizeof(s));
+		formatSinglePrice (priceList[i], numDecimals, s, sizeof(s));
 
 		u8 len = 1 + (u8)strlen(s);
 		if (sizeofOut < len)

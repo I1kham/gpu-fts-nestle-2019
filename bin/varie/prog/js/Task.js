@@ -525,6 +525,7 @@ TaskTestSelezione.prototype.onFreeBtn2Clicked	= function(ev)
 	switch (this.fase)
 	{
 	case 1:		pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 200; break;
+	case 41:	pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 2; break;
 	}
 }
 
@@ -553,7 +554,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
 		rhea.ajax ("getGroupState", "").then( function(result)
 		{
-			//console.log ("TaskCalibMotor, grpState[" +result +"]");
+			console.log ("TaskCalibMotor, grpState[" +result +"]");
 			if (result=="0")
 				me.fase = 10;
 			else
@@ -598,8 +599,10 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		break;
 	
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE");
+		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE or press REPEAT to grind again");
 		pleaseWait_btn1_show();
+		pleaseWait_btn2_setText("REPEAT");
+		pleaseWait_btn2_show();		
 		me.fase = 41;
 		break;
 		

@@ -29,8 +29,8 @@ namespace socketbridge
 		void					sendEvent (const HSokServerClient &h, eEventType eventType, const void *optionalData, u16 lenOfOptionalData);
 		void					sendAjaxAnwer(const HSokServerClient &h, u8 requestID, const char *ajaxData, u16 lenOfAjaxData);
 		
-		void					formatSinglePrice (u16 price, char *out, u16 sizeofOut) const;
-		void					formatPriceList (const u16 *priceList, u16 nPricesInList, char *out, u16 sizeofOut) const;
+		void					formatSinglePrice (u16 price, u8 numDecimals, char *out, u16 sizeofOut) const;
+		void					formatPriceList (const u16 *priceList, u16 nPricesInList, u8 numDecimals, char *out, u16 sizeofOut) const;
 									//formatta i primi [] prezzi di [priceList] usando il corretto separatore decimale e numero di cifre dopo il separatore.
 									//Il risultato messo in [out] è una stringa coi prezzi separati dal carattere §
 

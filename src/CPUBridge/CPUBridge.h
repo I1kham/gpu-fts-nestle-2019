@@ -67,7 +67,8 @@ namespace cpubridge
 	u8			buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 month, u8 day);
 	u8			buildMsg_getPosizioneMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2);
 	u8			buildMsg_setMotoreMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
-	u8			buildMsg_testSelection(u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
+	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
+	u8			buildMsg_getNomiLingueCPU(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -93,8 +94,9 @@ namespace cpubridge
 	void		notify_CPU_SEL_AVAIL_CHANGED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUSelAvailability *s);
 	void		translateNotify_CPU_SEL_AVAIL_CHANGED (const rhea::thread::sMsg &msg, sCPUSelAvailability *out);
 
-	void		notify_CPU_SEL_PRICES_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *prices, u32 sizeOfPricesArray);
-	void		translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg &msg, u16 *out_prices, u32 sizeOfPricesArray);
+	void		notify_CPU_SEL_PRICES_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 numPrices, u8 numDecimals, const u16 *prices);
+	void		translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg &msg, u8 *out_numPrices, u8 *out_numDecimals, u16 *out_prices);
+					//out_prices deve essere di almeno NUM_MAX_SELECTIONS elementi
 
 	void		notify_CPU_RUNNING_SEL_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eRunningSelStatus s);
 	void		translateNotify_CPU_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg, eRunningSelStatus *out_s);
@@ -178,6 +180,14 @@ namespace cpubridge
 	
 	void		notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
 	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d);
+
+	void		notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *strLingua1UTF16, const u16 *strLingua2UTF16);
+	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16);
+					/*
+						strLingua1UTF16 è codificato in UTF16 e termina con uno 0x0000
+						out_strLingua1UTF16 deve poter accorgliere fino a 32 caratteri UTF16 più il terminatore 0x0000
+					*/
+	
 
 	/***********************************************
 		ask_xxxx
@@ -319,6 +329,8 @@ namespace cpubridge
 	void		translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_TEST_SELECTION
 
+	void		ask_CPU_GET_NOMI_LINGE_CPU(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_NOMI_LINGE_CPU
 
 } // namespace cpubridge
 

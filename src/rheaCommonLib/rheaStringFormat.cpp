@@ -232,6 +232,8 @@ void format::currency (u16 price, u8 numDecimal, char decimalPointCharacter, cha
     else
     {
 		u16 divisore;
+		if (numDecimal > 4)
+			numDecimal = 4;
 		switch (numDecimal)
 		{
 			case 1:	divisore = 10; break;
@@ -246,7 +248,23 @@ void format::currency (u16 price, u8 numDecimal, char decimalPointCharacter, cha
         u16 parteIntera = price / divisore;
         u16 parteDecimale = price - (parteIntera * divisore);
 
-        sprintf (s, "%d%c%02d", parteIntera, decimalPointCharacter, parteDecimale);
+		switch (numDecimal)
+		{
+		case 1:	
+		case 2:	
+			sprintf(s, "%d%c%02d", parteIntera, decimalPointCharacter, parteDecimale);
+			break;
+
+		case 3:	
+			sprintf(s, "%d%c%03d", parteIntera, decimalPointCharacter, parteDecimale); 
+			break;
+		
+		default:
+		case 4:
+			sprintf(s, "%d%c%04d", parteIntera, decimalPointCharacter, parteDecimale);
+			break;
+		}
+        
     }
 
     strncpy (out_s, s, sizeOfOut-1);
