@@ -905,8 +905,8 @@ TaskMisc.prototype.onExit				= function(bSave)
 		{
 			var data = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
 			data.setTime (data.getTime() + (h*60*60*1000));
-			da3.write8(8435, data.getHours());
-			da3.write8(8436, data.getMinutes());
+			da3.write8(8435, data.getMinutes());
+			da3.write8(8436, data.getHours());
 			da3.write8(8437, data.getDate());
 			da3.write8(8438, 1 +data.getMonth());
 			da3.write8(8439, data.getFullYear() -2000);

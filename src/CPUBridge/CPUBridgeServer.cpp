@@ -574,7 +574,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				const u8 hh = answerBuffer[4];
 				const u8 mm = answerBuffer[5];
 				const u8 ss = answerBuffer[6];
-				notify_GET_TIME(sub->q, handlerID, logger, hh, mm, ss);
+				if (hh<24 && mm<60 && ss<60)
+					notify_GET_TIME(sub->q, handlerID, logger, hh, mm, ss);
 			}
 		}
 		break;
@@ -586,10 +587,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				const u16 y = 2000 + answerBuffer[4];
-				const u8 m = answerBuffer[5];
-				const u8 d = answerBuffer[6];
-				notify_GET_DATE(sub->q, handlerID, logger, y, m, d);
+				const u16 yy = 2000 + answerBuffer[4];
+				const u8 mm = answerBuffer[5];
+				const u8 dd = answerBuffer[6];
+				if ((mm>=1 && mm<=12) && (dd>=1 && dd<=31) && (yy>=2017 && yy<=2050))
+					notify_GET_DATE(sub->q, handlerID, logger, yy, mm, dd);
 			}
 		}
 		break;

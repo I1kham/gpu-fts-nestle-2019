@@ -1298,8 +1298,8 @@ function pageMiscellaneous_show()
 	//il numero di ore di freevend va calcolato di volta in volta
 	var objFVH = win.getChildByID("pageMiscellaneous_fvH");
 	
-	var enddate_hh = da3.read8(8435);
-	var enddate_minute = da3.read8(8436);
+	var enddate_minute = da3.read8(8435);
+	var enddate_hh = da3.read8(8436);
 	var enddate_gg = da3.read8(8437);
 	var enddate_mm = da3.read8(8438);
 	var enddate_yy = 2000 + da3.read8(8439);
@@ -1316,8 +1316,6 @@ function pageMiscellaneous_show()
 	}
 	else
 	{
-		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND will ends on<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
-	
 		var dataNow = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
 		var dataScadenza = new Date(enddate_yy, enddate_mm-1, enddate_gg, enddate_hh, enddate_minute, 0, 0);
 		var hoursLeft = Math.floor ((dataScadenza - dataNow) / 3600000);
@@ -1327,6 +1325,12 @@ function pageMiscellaneous_show()
 		console.log ("#"+hoursLeft);
 		pageMiscellaneous_fvhBefore = hoursLeft;
 		objFVH.setValue (hoursLeft);
+
+		if (enddate_mm <10) enddate_mm = "0" +enddate_mm;
+		if (enddate_gg <10) enddate_gg = "0" +enddate_gg;
+		if (enddate_hh <10) enddate_hh = "0" +enddate_hh;
+		if (enddate_minute <10) enddate_minute = "0" +enddate_minute;
+		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND will ends on<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
 	}
 
 	
