@@ -14,27 +14,27 @@ void CmdHandler_ajaxReqNomiLingueCPU::passDownRequestToCPUBridge(cpubridge::sSub
 //***********************************************************
 void CmdHandler_ajaxReqNomiLingueCPU::onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
-	u16 strLingua1UTF16[20];
-	u16 strLingua2UTF16[20];
+	u16 strLingua1UTF16[33];
+	u16 strLingua2UTF16[33];
 	memset (strLingua1UTF16, 0, sizeof(strLingua1UTF16));
 	memset(strLingua2UTF16, 0, sizeof(strLingua2UTF16));
 	cpubridge::translateNotify_NOMI_LINGE_CPU(msgFromCPUBridge, strLingua1UTF16, strLingua2UTF16);
 
 
-	u8 buffer[32 * 2 + 4];
+	u8 buffer[(32+1) * 4];
 	u8 n = 0;
-	for (u8 i = 0;i < 20; i++)
+	for (u8 i = 0;i < 33; i++)
 	{
-		buffer[n++] = (u8)((strLingua1UTF16[i] & 0xFF00) >> 8);
 		buffer[n++] = (u8)(strLingua1UTF16[i] & 0x00FF);
+		buffer[n++] = (u8)((strLingua1UTF16[i] & 0xFF00) >> 8);
 		if (strLingua1UTF16[i] == 0x0000)
 			break;
 	}
 
-	for (u8 i = 0;i < 20; i++)
+	for (u8 i = 0;i < 33; i++)
 	{
-		buffer[n++] = (u8)((strLingua2UTF16[i] & 0xFF00) >> 8);
 		buffer[n++] = (u8)(strLingua2UTF16[i] & 0x00FF);
+		buffer[n++] = (u8)((strLingua2UTF16[i] & 0xFF00) >> 8);
 		if (strLingua2UTF16[i] == 0x0000)
 			break;
 	}

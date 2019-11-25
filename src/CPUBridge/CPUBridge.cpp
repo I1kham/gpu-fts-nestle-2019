@@ -1050,7 +1050,7 @@ void cpubridge::notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea
 {
 	logger->log("notify_NOMI_LINGE_CPU\n");
 
-	const u8 NUM_ELEM = 33 * 2;
+	const u8 NUM_ELEM = (32+1) *2;
 	u16 buffer[NUM_ELEM];
 	memset(buffer, 0, sizeof(buffer));
 

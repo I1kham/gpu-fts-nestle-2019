@@ -870,3 +870,48 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 	}
 }
 
+
+
+
+/********************************************************
+ * TaskMisc
+ */
+function TaskMisc()																{}
+TaskMisc.prototype.onTimer 				= function(timeNowMsec)					{}
+TaskMisc.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskMisc.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskMisc.prototype.onFreeBtn1Clicked	= function(ev)							{}
+TaskMisc.prototype.onFreeBtn2Clicked	= function(ev)							{}
+TaskMisc.prototype.onExit				= function(bSave)						
+{ 
+	if (bSave == 0)
+		return 0;
+	
+	//salvo la data di fine freevend
+	var win = ui.getWindowByID("pageMiscellaneous");
+	var objFVH = win.getChildByID("pageMiscellaneous_fvH");
+	var h = objFVH.getValue();
+	if (pageMiscellaneous_fvhBefore != h)
+	{
+		if (h == 0)
+		{
+			da3.write8(8435, 0);
+			da3.write8(8436, 0);
+			da3.write8(8437, 0);
+			da3.write8(8438, 0);
+			da3.write8(8439, 0);
+		}
+		else
+		{
+			var data = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
+			data.setTime (data.getTime() + (h*60*60*1000));
+			da3.write8(8435, data.getHours());
+			da3.write8(8436, data.getMinutes());
+			da3.write8(8437, data.getDate());
+			da3.write8(8438, 1 +data.getMonth());
+			da3.write8(8439, data.getFullYear() -2000);
+		}
+	}
+	
+	return 1;
+}

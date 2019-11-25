@@ -105,7 +105,7 @@ var utf8ArrayToStr = (function ()
 
         for (var i = 0; i < buffLen;) 
 		{
-            byte1 = array[i++];
+            var byte1 = array[i++];
 
             if (byte1 <= 0x7F) {
                 codePt = byte1;
@@ -140,11 +140,9 @@ var utf16ArrayToStr = (function ()
 
         for (var i = 0; i < buffLen;) 
 		{
-            byte1 = array[i++];
-			byte2 = array[i++];
-
-			codePt = (byte1) | (byte2 << 8);
-
+            var byte1 = array[i++];
+			var byte2 = array[i++];
+			var codePt = (byte1) | (byte2 << 8);
             result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
         }
 
@@ -166,8 +164,8 @@ function utf16StrToStr (strIN, iFirstByte)
 		if (b1 == 0 && b2 == 0)
 			return result.join('');
 
-		//var codePt = (b1) | (b2 << 8);
-		var codePt = (b2) | (b1 << 8);
+		var codePt = (b1) | (b2 << 8);
+		//var codePt = (b2) | (b1 << 8);
 		result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
 	}
 }

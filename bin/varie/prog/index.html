@@ -125,7 +125,7 @@
 						<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
 						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
 					</tr>
-					<tr>
+					<tr id="pageMaintenance_rowDis">
 						<td>DISINSTALLATION</td>
 						<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DISINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></div></td>
 					</tr>					
@@ -172,32 +172,81 @@
 		<!-- page pageMiscellaneous -->
 		<div id="pageMiscellaneous" class="UIWindow">
 			<div class="UIWindowContent">
-				<table border='0' class='elenco'>
-					<tr>
-						<td>MACHINE CODE A</td>
-						<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7052" data-da3bit="16"></div></td>
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageMiscellaneous_selector' data-option='0|GENERAL OPTIONS|1|MACHINE ID|2|MILK LM|3|FREEVEND' data-onclick='pageMiscellaneous_onSelector()'></div></td>
 					</tr>
-					<tr>
-						<td>MACHINE CODE B</td>
-						<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7054" data-da3bit="16"></div></td>
-					</tr>
-					<tr>
-						<td>MESSAGE NUMBER</td>
-						<td><div class="UINumber" data-numfigures="1" data-max="7" data-da3="7056" data-da3bit="8"></div></td>
-					</tr>					
-					<tr>
-						<td>FAN TIME</td>
-						<td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7062" data-da3bit="8" data-um="min"></div></td>
-					</tr>
-					<tr>
-						<td>BEEP TIME</td>
-						<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
-					</tr>
-					<tr>
-						<td>CPU LANGUAGE</td>
-						<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
-					</tr>					
 				</table>
+				<br>
+				
+				<div id="pageMiscellaneous_gs" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">MESSAGE NUMBER</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="7" data-da3="7056" data-da3bit="8"></div></td>
+						</tr>					
+						<tr>
+							<td>FAN TIME</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7062" data-da3bit="8" data-um="min"></div></td>
+						</tr>
+						<tr>
+							<td>BEEP TIME</td>
+							<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
+						</tr>
+						<tr>
+							<td>CPU LANGUAGE</td>
+							<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
+						</tr>
+						<tr id="pageMiscellaneous_r1">
+							<td>SIDE WATER PUMP</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="8370" data-da3bit="8"></div></td>
+						</tr>
+						<tr id="pageMiscellaneous_r2">
+							<td>SUGAR CANISTER</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7086" data-da3bit="8"></div></td>
+						</tr>						
+					</table>
+				</div>
+				
+				<div id="pageMiscellaneous_mid" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">MACHINE CODE A</td>
+							<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7052" data-da3bit="16"></div></td>
+						</tr>
+						<tr>
+							<td>MACHINE CODE B</td>
+							<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7054" data-da3bit="16"></div></td>
+						</tr>
+					</table>
+				</div>
+					
+				<div id="pageMiscellaneous_lm" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">PRODUCT MILK LM</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7082" data-da3bit="8"></div></td>
+						</tr>
+						<tr>
+							<td>MILK LM WATER NUMBER</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="3" data-da3="7084" data-da3bit="8"></div></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="pageMiscellaneous_fv" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">ENABLED</td>
+							<td colspan="2"><div class='UIOptionSmall' data-option='0|NO|1|YES|2|++' data-da3="7104" data-da3bit="8"></div></td>
+						</tr>
+						<tr>
+							<td>START FREEVEND NOW<br><span class="tip">It will last for the num. of hours indicated</span></td>
+							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="hours"></div></td>
+							<td align="center"><div id="pageMiscellaneous_fvDateEnd"></div></td>
+						</tr>
+					</table>
+				</div>				
 			</div>
 		</div>	<!-- page pageMiscellaneous -->
 		
@@ -1092,6 +1141,10 @@ function pageMaintenance_show()
 	if (showPage('pageMaintenance'))
 	{
 		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			rheaHideElem(rheaGetElemByID("pageMaintenance_rowDis"));
+		}
 	}
 
 	header_setText("MAINTENANCE");
@@ -1224,22 +1277,91 @@ function pageCleaning_onFinished()
  * pageMiscellaneous
  *
  */
+var pageMiscellaneous_fvhBefore = 0;
 function pageMiscellaneous_show()
 {
+	var win = ui.getWindowByID("pageMiscellaneous");
 	if (showPage("pageMiscellaneous"))
 	{
 		//è la prima volta che visualizziamo la pagina
-		var win = ui.getWindowByID("pageMiscellaneous");
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
 		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
+		
+		if (da3.isInstant() == 0)
+		{
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r1"));
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r2"));
+			win.showHideScrollBar();
+		}
 	}
+	
+	//il numero di ore di freevend va calcolato di volta in volta
+	var objFVH = win.getChildByID("pageMiscellaneous_fvH");
+	
+	var enddate_hh = da3.read8(8435);
+	var enddate_minute = da3.read8(8436);
+	var enddate_gg = da3.read8(8437);
+	var enddate_mm = da3.read8(8438);
+	var enddate_yy = 2000 + da3.read8(8439);
+	if (enddate_gg==0 && enddate_mm==0)
+	{
+		pageMiscellaneous_fvhBefore = 0;
+		objFVH.setValue (0);
+		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "");
+		da3.write8(8435, 0);
+		da3.write8(8436, 0);
+		da3.write8(8437, 0);
+		da3.write8(8438, 0);
+		da3.write8(8439, 0);
+	}
+	else
+	{
+		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND will ends on<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
+	
+		var dataNow = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
+		var dataScadenza = new Date(enddate_yy, enddate_mm-1, enddate_gg, enddate_hh, enddate_minute, 0, 0);
+		var hoursLeft = Math.floor ((dataScadenza - dataNow) / 3600000);
+		
+		console.log ("now=" +dataNow);
+		console.log ("dataScadenza=" +dataScadenza);
+		console.log ("#"+hoursLeft);
+		pageMiscellaneous_fvhBefore = hoursLeft;
+		objFVH.setValue (hoursLeft);
+	}
+
+	
+	currentTask = new TaskMisc();
 	header_setText("MISCELLANEOUS");
+	pageMiscellaneous_onSelector();
 	btnBack_show();
 }
 
 function pageMiscellaneous_oldProgMenu()
 {
 	window.location = "gotoLegacyMenu.html";
+}
+
+function  pageMiscellaneous_onSelector()
+{
+	var elemGS = rheaGetElemByID("pageMiscellaneous_gs");
+	var elemMID = rheaGetElemByID("pageMiscellaneous_mid");
+	var elemLM = rheaGetElemByID("pageMiscellaneous_lm");
+	var elemFV = rheaGetElemByID("pageMiscellaneous_fv");
+	
+	rheaHideElem(elemGS);
+	rheaHideElem(elemMID);
+	rheaHideElem(elemLM);
+	rheaHideElem(elemFV);
+	
+	var win = ui.getWindowByID("pageMiscellaneous");
+	switch (parseInt(win.getChildByID("pageMiscellaneous_selector").getSelectedOptionValue()))
+	{
+		case 0: rheaShowElem(elemGS); break;
+		case 1: rheaShowElem(elemMID); break;
+		case 2: rheaShowElem(elemLM); break;
+		case 3: rheaShowElem(elemFV); break;
+	}
+	win.showHideScrollBar();
 }
 
 
@@ -1769,6 +1891,8 @@ function pageSingleSelection_showPartialFull (win, bPartial)
 			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
 		}		
 	}
+	
+	win.showHideScrollBar();
 }
 
 function pageSingleSelection_onStatus()
@@ -1820,6 +1944,7 @@ function pageSingleSelection_onSelector()
 		case 4: rheaShowElem(elemM); break;
 		
 	}
+	win.showHideScrollBar();
 }
 
 
@@ -1967,6 +2092,8 @@ function pageClock_onSelector()
 		case 1:  rheaShowElem(elemHH); break;
 		case 2:  rheaShowElem(elemES); break;
 	}
+	
+	ui.getWindowByID("pageClock").showHideScrollBar();
 }
 
 function pageClock_setTime()
@@ -2155,6 +2282,8 @@ function pagePayment_onSelector()
 		case 2:  rheaShowElem(elem2); break;
 		case 3:  rheaShowElem(elem3); break;
 	}
+	
+	ui.getWindowByID("pagePayment").showHideScrollBar();
 }
 
 
@@ -2195,6 +2324,8 @@ function pageDevices_onSelector()
 		case 2:  rheaShowElem(elem2); break;
 		case 3:  rheaShowElem(elem3); break;
 	}
+	
+	ui.getWindowByID("pageDevices").showHideScrollBar();
 }
 
 function pageDevices_setVGrind (macina1o2)

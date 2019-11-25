@@ -706,8 +706,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
 			{
-				u16 strLingua1UTF16[17];
-				u16 strLingua2UTF16[17];
+				u16 strLingua1UTF16[33];
+				u16 strLingua2UTF16[33];
 				memset(strLingua1UTF16, 0, sizeof(strLingua1UTF16));
 				memset(strLingua2UTF16, 0, sizeof(strLingua2UTF16));
 
@@ -715,12 +715,12 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				if (answerBuffer[4] == 0x01)
 				{
 					//caso unicode
-					for (u8 i = 0; i < 16;i++)
+					for (u8 i = 0; i < 32;i++)
 					{
 						strLingua1UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
 						z += 2;
 					}
-					for (u8 i = 0; i < 16;i++)
+					for (u8 i = 0; i < 32;i++)
 					{
 						strLingua2UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
 						z += 2;
@@ -728,12 +728,13 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				}
 				else
 				{
-					for (u8 i = 0; i < 16;i++)
+					for (u8 i = 0; i < 32;i++)
 						strLingua1UTF16[i] = (u16)answerBuffer[z++];
-					for (u8 i = 0; i < 16;i++)
+					for (u8 i = 0; i < 32;i++)
 						strLingua2UTF16[i] = (u16)answerBuffer[z++];
 				}
 
+				/*
 				strLingua1UTF16[0] = 'l';
 				strLingua1UTF16[1] = 'a';
 				strLingua1UTF16[2] = 'n';
@@ -746,7 +747,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				strLingua2UTF16[2] = 'n';
 				strLingua2UTF16[3] = 'g';
 				strLingua2UTF16[4] = '2';
-				strLingua2UTF16[5] = 0;
+				strLingua2UTF16[5] = 0;*/
+				
 				notify_NOMI_LINGE_CPU(sub->q, handlerID, logger, strLingua1UTF16, strLingua2UTF16);
 			}
 		}

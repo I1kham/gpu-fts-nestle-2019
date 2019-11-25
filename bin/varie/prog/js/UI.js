@@ -177,12 +177,15 @@ UIWindow.prototype.getChildByID = function(childID)
 }
 
 
-UIWindow.prototype.enablePageScroll = function (b) { this.allowScroll=b; }
+UIWindow.prototype.enablePageScroll = function (b) 
+{ 
+	this.allowScroll=b; 
+}
 
 UIWindow.prototype.priv_setupAtFirstShow = function()
 {
-	theWrapper = document.getElementById(this.id);
-	elemContent = document.getElementById(this.contentID);
+	var theWrapper = document.getElementById(this.id);
+	var elemContent = document.getElementById(this.contentID);
 
 	//spawno i componenti UI contenuti nel content
 	var childNum = 0;
@@ -233,118 +236,139 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 		this.childList[childNum] =  new UISelect(this.id, childNum, nodeList[i]);
 		childNum++;
 	}
-
-
+	
+	//Setup dello scroll
+	var me = this;
+	
 	var wrapperH = theWrapper.offsetHeight;
 	var contentH = elemContent.offsetHeight;
-	//console.log ("UIWindow => winID[" +this.id +"], wrapperH[" +wrapperH +"], contentH[" +contentH +"]");
+	
+	//è necessario impostare lo scrolling
+	me.divIDArrowUp = this.id +"_arrowUp";
+	me.divIDArrowDown = this.id +"_arrowDown";
 
-	if (contentH > wrapperH+10)
+	//aggiungo freccia su/giu al wrapper
+	var arrowDownY = wrapperH - 40;
+	var html = "<div id='" +me.divIDArrowUp   +"' class='bigScrollArrowUp'    style='left:438px; top:0; display:none'><center><img draggable='false' src='img/big-arrow-up.png' height='30'></center></div>";
+		html += "<div id='" +me.divIDArrowDown +"' class='bigScrollArrowDown' style='left:438px; top:" +arrowDownY +"px; display:none'><center><img draggable='false' style='margin-top:11px' src='img/big-arrow-down.png' height='30'></center></div>";
+	
+	theWrapper.innerHTML += html;
+	theWrapper.querySelector("#" +me.divIDArrowDown).style.display = "block";
+
+	elemContent = document.getElementById(this.contentID);
+	me.info = new UIWindowScrollable(elemContent, contentH, wrapperH);
+	elemContent.addEventListener('mousedown', function (ev)
 	{
-		var me = this;
+		//console.log ("UIWindow::mousedown");
+		me.info.mouse_pressed = 1;
+		me.info.mouse_y = ev.clientY;
+	}, true);
+
+
+	elemContent.addEventListener('mouseup', function (ev) 
+	{
+		//console.log ("UIWindow::mouseup");
+		me.info.mouse_pressed = 0;
+	}, true);
+
+	elemContent.addEventListener('mousemove', function (ev) 
+	{
+		//console.log ("UIWindow::mousemove");
+		if (!me.info.mouse_pressed || me.allowScroll==0)
+			return;
+			
+		var y = ev.clientY;
+		var offset = y - me.info.mouse_y;
+		if (Math.abs(offset) < 10)
+			return;
+		me.info.mouse_y = y;
 		
-		//è necessario impostare lo scrolling
-		var divIDArrowUp = this.id +"_arrowUp";
-		var divIDArrowDown = this.id +"_arrowDown";
-	
-		//aggiungo freccia su/giu al wrapper
-		var arrowDownY = wrapperH - 40;
-		var html = "<div id='" +divIDArrowUp   +"' class='bigScrollArrowUp'    style='left:438px; top:0; display:none'><center><img draggable='false' src='img/big-arrow-up.png' height='30'></center></div>";
-		    html += "<div id='" +divIDArrowDown +"' class='bigScrollArrowDown' style='left:438px; top:" +arrowDownY +"px; display:none'><center><img draggable='false' style='margin-top:11px' src='img/big-arrow-down.png' height='30'></center></div>";
+		var top = oldTop = rheaGetElemTop(me.info.elem);
+		top += offset;
+		if (top >= 0)
+			top = 0;
+		if (top < me.info.scroll_miny)
+			top = me.info.scroll_miny;
 		
-		theWrapper.innerHTML += html;
-		theWrapper.querySelector("#" +divIDArrowDown).style.display = "block";
-	
-		elemContent = document.getElementById(this.contentID);
-		var info = new UIWindowScrollable(elemContent, contentH, wrapperH);
-		elemContent.addEventListener('mousedown', function (ev)
-		{
-			//console.log ("UIWindow::mousedown");
-			info.mouse_pressed = 1;
-			info.mouse_y = ev.clientY;
-		}, true);
+		rheaSetElemTop(me.info.elem, top);
+		//console.log ("move::rheaSetElemTop[" +top +"], offset[" +offset +"]");
+		
+		if (top < -me.info.scroll_tollerance_at_border)
+			rheaShowElem(rheaGetElemByID(me.divIDArrowUp));
+		else
+			rheaHideElem(rheaGetElemByID(me.divIDArrowUp));
 
+		if (top < (me.info.scroll_miny + me.info.scroll_tollerance_at_border))
+			rheaHideElem(rheaGetElemByID(me.divIDArrowDown));
+		else
+			rheaShowElem(rheaGetElemByID(me.divIDArrowDown));
+		
+	}, true);
 
-		elemContent.addEventListener('mouseup', function (ev) 
+	//bindo onclick della freccia giù
+	var theDiv = rheaGetElemByID(me.divIDArrowDown);
+	theDiv.addEventListener('click', function (ev) 
+	{
+		var curY = rheaGetElemTop (me.info.elem);
+		curY -= me.info.scroll_howMuch;
+		if (curY <= (me.info.scroll_miny + me.info.scroll_tollerance_at_border))
 		{
-			//console.log ("UIWindow::mouseup");
-			info.mouse_pressed = 0;
-		}, true);
+			curY = me.info.scroll_miny;
+			rheaHideElem(rheaGetElemByID(me.divIDArrowDown));
+		}
+		
+		rheaShowElem(rheaGetElemByID(me.divIDArrowUp));
+		rheaSetElemTop(me.info.elem, curY);
+	}, true);
 
-		elemContent.addEventListener('mousemove', function (ev) 
+	//bindo onclick della freccia su
+	theDiv = rheaGetElemByID(me.divIDArrowUp);
+	theDiv.addEventListener('click', function (ev) 
+	{
+		var curY = rheaGetElemTop (me.info.elem);
+		curY += me.info.scroll_howMuch;
+		if (curY >= -me.info.scroll_tollerance_at_border)
 		{
-			//console.log ("UIWindow::mousemove");
-			if (!info.mouse_pressed || me.allowScroll==0)
-				return;
-				
-			var y = ev.clientY;
-			var offset = y - info.mouse_y;
-			if (Math.abs(offset) < 10)
-				return;
-			info.mouse_y = y;
-			
-			var top = oldTop = rheaGetElemTop(info.elem);
-			top += offset;
-			if (top >= 0)
-				top = 0;
-			if (top < info.scroll_miny)
-				top = info.scroll_miny;
-			
-			rheaSetElemTop(info.elem, top);
-			//console.log ("move::rheaSetElemTop[" +top +"], offset[" +offset +"]");
-			
-			if (top < -info.scroll_tollerance_at_border)
-				rheaShowElem(rheaGetElemByID(divIDArrowUp));
-			else
-				rheaHideElem(rheaGetElemByID(divIDArrowUp));
-
-			if (top < (info.scroll_miny + info.scroll_tollerance_at_border))
-				rheaHideElem(rheaGetElemByID(divIDArrowDown));
-			else
-				rheaShowElem(rheaGetElemByID(divIDArrowDown));
-			
-		}, true);
-	
-		//bindo onclick della freccia giù
-		var theDiv = rheaGetElemByID(divIDArrowDown);
-		theDiv.addEventListener('click', function (ev) 
-		{
-			var curY = rheaGetElemTop (info.elem);
-			curY -= info.scroll_howMuch;
-			if (curY <= (info.scroll_miny + info.scroll_tollerance_at_border))
-			{
-				curY = info.scroll_miny;
-				rheaHideElem(rheaGetElemByID(divIDArrowDown));
-			}
-			
-			rheaShowElem(rheaGetElemByID(divIDArrowUp));
-			//rheaSmoothScrollElemTop(info.elem, curY, 300);
-			rheaSetElemTop(info.elem, curY);
-		}, true);
-	
-		//bindo onclick della freccia su
-		theDiv = rheaGetElemByID(divIDArrowUp);
-		theDiv.addEventListener('click', function (ev) 
-		{
-			var curY = rheaGetElemTop (info.elem);
-			curY += info.scroll_howMuch;
-			if (curY >= -info.scroll_tollerance_at_border)
-			{
-				rheaHideElem(rheaGetElemByID(divIDArrowUp));
-				curY = 0;
-			}
-			
-			rheaShowElem(rheaGetElemByID(divIDArrowDown));
-			//rheaSmoothScrollElemTop(info.elem, curY, 300);
-			rheaSetElemTop(info.elem, curY, curY);
-		}, true);	
-	}
-	
+			rheaHideElem(rheaGetElemByID(me.divIDArrowUp));
+			curY = 0;
+		}
+		
+		rheaShowElem(rheaGetElemByID(me.divIDArrowDown));
+		//rheaSmoothScrollElemTop(info.elem, curY, 300);
+		rheaSetElemTop(me.info.elem, curY, curY);
+	}, true);	
+		
 	//setup degli eventi dei figli
 	var n = this.childList.length;
 	for (var i=0; i<n; i++)
-		this.childList[i].bindEvents();
+		this.childList[i].bindEvents();	
+	
+	this.showHideScrollBar();
+}
 
+
+UIWindow.prototype.showHideScrollBar = function()
+{
+	rheaSetElemTop(this.info.elem, 0,0);
+	var theWrapper = document.getElementById(this.id);
+	var elemContent = document.getElementById(this.contentID);
+
+	var wrapperH = theWrapper.offsetHeight;
+	var contentH = elemContent.offsetHeight;
+
+	if (contentH > wrapperH+10)
+	{
+		this.allowScroll = 1;
+		rheaHideElem(rheaGetElemByID(this.divIDArrowUp));
+		rheaShowElem(rheaGetElemByID(this.divIDArrowDown));
+		this.info = new UIWindowScrollable(elemContent, contentH, wrapperH);
+	}
+	else
+	{
+		this.allowScroll = 0;
+		rheaHideElem(rheaGetElemByID(this.divIDArrowUp));
+		rheaHideElem(rheaGetElemByID(this.divIDArrowDown));
+	}
 }
 
 
