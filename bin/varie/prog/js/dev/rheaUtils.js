@@ -152,7 +152,25 @@ var utf16ArrayToStr = (function ()
     };
 })();
 
+function utf16StrToStr (strIN, iFirstByte)
+{
+    var charCache = new Array(128);
+    var charFromCodePt = String.fromCodePoint || String.fromCharCode;
+    var result = [];
 
+	var i=iFirstByte;
+	while (1)
+	{
+		var b1 = strIN.charCodeAt(i++);
+		var b2 = strIN.charCodeAt(i++);
+		if (b1 == 0 && b2 == 0)
+			return result.join('');
+
+		//var codePt = (b1) | (b2 << 8);
+		var codePt = (b2) | (b1 << 8);
+		result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
+	}
+}
 
 /****************************************************************
  * rheaLoadScript

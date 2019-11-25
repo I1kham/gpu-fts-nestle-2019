@@ -25,6 +25,7 @@
 #include "CmdHandler/CmdHandler_eventReqGetPosizioneMacina.h"
 #include "CmdHandler/CmdHandler_eventReqSetMotoreMacina.h"
 #include "CmdHandler/CmdHandler_eventReqSetPosizioneMacina.h"
+#include "CmdHandler/CmdHandler_eventReqStartDisintallation.h"
 using namespace socketbridge;
 
 /***************************************************
@@ -63,6 +64,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReqGetPosizioneMacina);
 	CHECK(CmdHandler_eventReqSetMotoreMacina);
 	CHECK(CmdHandler_eventReqSetPosizioneMacina);
+	CHECK(CmdHandler_eventReqStartDisintallation);
 #undef CHECK
 
     return NULL;
@@ -100,6 +102,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqGetPosizioneMacina);
 	CHECK(CmdHandler_eventReqSetMotoreMacina);
 	CHECK(CmdHandler_eventReqSetPosizioneMacina);
+	CHECK(CmdHandler_eventReqStartDisintallation);
 #undef CHECK
 
 	return NULL;

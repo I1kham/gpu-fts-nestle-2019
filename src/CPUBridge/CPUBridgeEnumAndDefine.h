@@ -100,6 +100,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA			0x0821
 #define		CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE					0x0822
 #define		CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU				0x0823
+#define		CPUBRIDGE_SUBSCRIBER_ASK_DISINSTALLAZIONE				0x0824
 
 namespace cpubridge
 {
@@ -232,6 +233,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_setMotoreMacina = 0x11,
 		eCPUProgrammingCommand_testSelezione = 0x12,
 		eCPUProgrammingCommand_getNomiLinguaCPU = 0x13,
+		eCPUProgrammingCommand_disinstallazione = 0x14,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

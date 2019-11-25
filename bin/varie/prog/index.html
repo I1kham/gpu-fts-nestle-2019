@@ -24,10 +24,10 @@
 				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="5" data-decimal="1" data-max="99999" data-um="gr"></div>
 			</div>
 			
-			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:400px; left:20px; display:none">
+			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:400px; left:680px; display:none">
 				<div id="bntFree1" class="UIButton bigButton3x4"><p id="bntFree1Text">testo bottone 1</p></div>
 			</div>
-			<div id="pagePleaseWait_freeBtn2" style="position:absolute; top:400px; left:680px; display:none">
+			<div id="pagePleaseWait_freeBtn2" style="position:absolute; top:400px; left:20px; display:none">
 				<div id="bntFree2" class="UIButton bigButton3x4"><p id="bntFree2Text">testo bottone 2 bottone 2</p></div>
 			</div>
 			
@@ -91,7 +91,7 @@
 				<table border='0' class='elenco'>
 					<!--<tr><td class='description'>Machine Voltage</td><td>todo...</td></tr>-->
 					<tr>
-						<td>ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
+						<td style="width:380px">ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
 						<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
 					</tr>
 					
@@ -103,28 +103,32 @@
 							<div class="clear"></div>
 						</td>
 						<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></div></td>
+						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></div></td>
 					</tr>
 					<tr>
 						<td>
-							DECOUNTER COFFEE BREWER<br>
+							 COFFEE BREWER DECOUNTER<br>
 							<div style="float:left; margin-right:10px">current value:</div>
 							<div id="pageMaintenance_12" style="float:left" class="bigCaption15">0000</div>
 							<div class="clear"></div>
 						</td>
 						<td><div class="UINumber" id="pageMaintenance_12_cap" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></div></td>
+						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></div></td>
 					</tr>
 					<tr>
 						<td>
-							DECOUNTER COFFEE GROUND<br>
+							COFFEE GROUND DECOUNTER<br>
 							<div style="float:left; margin-right:10px">current value:</div>
 							<div id="pageMaintenance_13" style="float:left" class="bigCaption15">0000</div>
 							<div class="clear"></div>
 						</td>
 						<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
+						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
 					</tr>
+					<tr>
+						<td>DISINSTALLATION</td>
+						<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DISINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></div></td>
+					</tr>					
 					<tr>
 						<td>FIRST INSTALLATION</td>
 						<td colspan="2"><div class="UIOption" data-option="0|YES|1|NO" data-da3="7074"></div></td>
@@ -189,6 +193,10 @@
 						<td>BEEP TIME</td>
 						<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
 					</tr>
+					<tr>
+						<td>CPU LANGUAGE</td>
+						<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
+					</tr>					
 				</table>
 			</div>
 		</div>	<!-- page pageMiscellaneous -->
@@ -734,11 +742,31 @@ function onRheaBootstrapFinished()
 	pleaseWait_show();
 	pleaseWait_setTextLeft("loading da3");
 
-	priv_askMachineTypeAndModel();
+	priv_askCPULangNames();
+	//priv_askMachineTypeAndModel();
+}
+
+var cpuLangName1 = "";
+var cpuLangName2 = "";
+function priv_askCPULangNames()
+{
+	//richiedo machine type & model
+	console.log ("ajax::getCPULangNames");
+	rhea.ajax ("getCPULangNames", "").then( function(result)
+	{
+		cpuLangName1 = utf16StrToStr(result, 0);
+		cpuLangName2 = utf16StrToStr(result, (1+cpuLangName1.length) * 2);
+		priv_askMachineTypeAndModel();
+	})
+	.catch( function(result)
+	{
+		console.log ("err[" +result +"]");
+		setTimeout(function() { priv_askCPULangNames(); }, 200);
+	});	
 }
 
 function priv_askMachineTypeAndModel()
-{	
+{
 	//richiedo machine type & model
 	console.log ("ajax::getMachineTypeAndModel");
 	rhea.ajax ("getMachineTypeAndModel", "").then( function(result)
@@ -1125,6 +1153,17 @@ function pageMaintenance_updateDecounterCurrentValueFromString(s)
 	}
 }
 
+function pageMaintenance_disinstall()
+{
+	pleaseWait_show();
+	currentTask = new TaskDisintall();
+}
+
+function pageMaintenance_disinstall_onAbort()
+{
+	currentTask = voidTask;
+}
+
 /***************************************************************************
  *
  * pageCleaning
@@ -1185,9 +1224,15 @@ function pageCleaning_onFinished()
  * pageMiscellaneous
  *
  */
- function pageMiscellaneous_show()
+function pageMiscellaneous_show()
 {
-	showPage("pageMiscellaneous");
+	if (showPage("pageMiscellaneous"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		var win = ui.getWindowByID("pageMiscellaneous");
+		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
+		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
+	}
 	header_setText("MISCELLANEOUS");
 	btnBack_show();
 }

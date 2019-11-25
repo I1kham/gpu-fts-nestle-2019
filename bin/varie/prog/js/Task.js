@@ -761,3 +761,112 @@ TaskDevices.prototype.priv_queryMacina = function(macina_1o2)
 	{
 	});			
 }
+
+/**********************************************************
+ * TaskDisintall
+ */
+function TaskDisintall()
+{
+	this.what = 0;
+	this.fase = 0;
+	this.cpuStatus = 0;
+}
+
+TaskDisintall.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
+TaskDisintall.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
+TaskDisintall.prototype.onExit			 = function(bSave)						{ return bSave; }
+
+TaskDisintall.prototype.onFreeBtn1Clicked	 = function(ev)						
+{
+	switch (this.fase)
+	{
+		case 1:  pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=10; break;
+		case 11: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=20; break;
+		case 21: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=30; break;
+		
+	}
+}
+TaskDisintall.prototype.onFreeBtn2Clicked	 = function(ev)						
+{
+	pleaseWait_btn1_hide(); 
+	pleaseWait_btn2_hide();
+	this.fase = 99;
+}
+
+
+TaskDisintall.prototype.onTimer = function (timeNowMsec)
+{
+	if (this.timeStarted == 0)
+		this.timeStarted = timeNowMsec;
+	var timeElapsedMSec = timeNowMsec - this.timeStarted;
+	
+	switch (this.fase)
+	{
+	case 0:
+		this.fase = 1;
+		pleaseWait_show();
+		pleaseWait_calibration_show();
+		pleaseWait_calibration_setText("DISINTALLATION<br><br>Is driptray empty?");
+		pleaseWait_btn1_setText("YES - CONTINUE");
+		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn1_show();
+		pleaseWait_btn2_show();
+		break;
+		
+	case 1:
+		break;
+		
+	case 10:
+		this.fase = 11;
+		pleaseWait_calibration_setText("DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE");
+		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn1_show();
+		pleaseWait_btn2_show();
+		break;
+		
+	case 11:
+		break;
+		
+	case 20:
+		this.fase = 21;
+		pleaseWait_calibration_setText("DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation");
+		pleaseWait_btn1_setText("START DISINSTALLATION");
+		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn1_show();
+		pleaseWait_btn2_show();
+		break;
+		
+	case 21:
+		break;
+		
+	case 30:
+		this.fase = 31;
+		pleaseWait_calibration_setText("DISINTALLATION is running, please wait...");
+		rhea.sendStartDisintallation();
+		
+	case 31: this.fase = 32; break;
+	case 32: this.fase = 33; break;
+	case 33: this.fase = 34; break;
+	case 34: 
+		//a questo punto CPU dovrebbe già essere in stato eVMCState_DISINSTALLAZIONE (13)
+		//quando ha finito, finisco pure io
+		if (this.cpuStatus != 13 && this.status != 101)
+			this.fase = 40;
+		break;
+		
+	case 40:
+		pleaseWait_calibration_setText("DISINTALLATION finished, please shut down then machine");
+		this.fase = 41;
+		break;
+		
+	case 41:
+		break;
+		
+	case 99:
+		pleaseWait_hide();
+		pageMaintenance_disinstall_onAbort();
+		break;
+	}
+}
+

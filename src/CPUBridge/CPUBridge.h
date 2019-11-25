@@ -68,7 +68,8 @@ namespace cpubridge
 	u8			buildMsg_getPosizioneMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2);
 	u8			buildMsg_setMotoreMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
 	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
-	u8			buildMsg_getNomiLingueCPU(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getNomiLingueCPU (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -331,6 +332,10 @@ namespace cpubridge
 
 	void		ask_CPU_GET_NOMI_LINGE_CPU(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_NOMI_LINGE_CPU
+
+	void		ask_CPU_DISINTALLAZIONE(const sSubscriber &from);
+					//alla ricezione di questo msg, CPUBridge non risponderà. Lo stato di CPU dovrebbe passare in breve tempo a eVMCState_DISINSTALLAZIONE.
+					//Al termine della procedura, lo stato CPU diventa eVMCState_FINE_DISINSTALLAZIONE
 
 } // namespace cpubridge
 

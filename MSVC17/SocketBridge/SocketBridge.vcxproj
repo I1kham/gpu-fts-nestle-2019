@@ -29,6 +29,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetPosizioneMacina.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetTime.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqNomiLingueCPU.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDate.cpp" />
@@ -61,6 +62,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetDecounter.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetMotoreMacina.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartDisintallation.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.cpp" />
@@ -85,6 +87,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetPosizioneMacina.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetTime.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqNomiLingueCPU.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDate.h" />
@@ -117,6 +120,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetDecounter.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetMotoreMacina.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartDisintallation.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.h" />

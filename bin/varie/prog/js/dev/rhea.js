@@ -670,6 +670,13 @@ Rhea.prototype.sendButtonPress = function(iBtnNumber)
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
+Rhea.prototype.sendStartDisintallation = function()
+{
+	var buffer = new Uint8Array(1);
+	buffer[0] = 65;
+	this.sendGPUCommand ("E", buffer, 0, 0);
+}
+
 Rhea.prototype.sendStartPosizionamentoMacina = function(macina_1o2, targetValue)
 {
 	//var	RHEA_EVENT_SET_POSIZIONE_MACINA = 122;				//'z'

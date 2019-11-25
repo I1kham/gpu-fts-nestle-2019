@@ -20,6 +20,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqSetDate.h"
 #include "CmdHandler/CmdHandler_ajaxReqTestSelection.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetPosizioneMacina.h"
+#include "CmdHandler/CmdHandler_ajaxReqNomiLingueCPU.h"
 
 using namespace socketbridge;
 
@@ -72,6 +73,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqSetDate);
 	CHECK(CmdHandler_ajaxReqTestSelection);
 	CHECK(CmdHandler_ajaxReqGetPosizioneMacina);
+	CHECK(CmdHandler_ajaxReqNomiLingueCPU);
 
 #undef CHECK
     return NULL;

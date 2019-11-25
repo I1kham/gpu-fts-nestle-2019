@@ -286,6 +286,12 @@ u8 cpubridge::buildMsg_getNomiLingueCPU(u8 *out_buffer, u8 sizeOfOutBuffer)
 	return buildMsg_Programming(eCPUProgrammingCommand_getNomiLinguaCPU, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_disinstallazione, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -1527,3 +1533,8 @@ void cpubridge::ask_CPU_GET_NOMI_LINGE_CPU(const sSubscriber &from, u16 handlerI
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU, handlerID, NULL, 0);
 }
 
+//***************************************************
+void cpubridge::ask_CPU_DISINTALLAZIONE(const sSubscriber &from)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_DISINSTALLAZIONE, 0, NULL, 0);
+}

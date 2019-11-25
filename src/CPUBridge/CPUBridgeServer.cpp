@@ -250,46 +250,46 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION:
-			{
-				u8 selNumber = 0x00;
-				translate_CPU_START_SELECTION (msg, &selNumber);
-				priv_enterState_selection (selNumber, sub);
-			}
-			break;
+		{
+			u8 selNumber = 0x00;
+			translate_CPU_START_SELECTION(msg, &selNumber);
+			priv_enterState_selection(selNumber, sub);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION:
-            if (stato.get() == sStato::eStato_selection)
+			if (stato.get() == sStato::eStato_selection)
 				runningSel.stopSelectionWasRequested = 1;
 			break;
 
-        case CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM:
-            {
-                //Ho optato per inviare subito il comando B invece che schedularlo al prossimo giro
-                keepOnSendingThisButtonNum=0;
-                u8 btnToSend = 0;
-                translate_CPU_SEND_BUTTON(msg, &btnToSend);
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM:
+		{
+			//Ho optato per inviare subito il comando B invece che schedularlo al prossimo giro
+			keepOnSendingThisButtonNum = 0;
+			u8 btnToSend = 0;
+			translate_CPU_SEND_BUTTON(msg, &btnToSend);
 
-                u8 bufferW[32];
-                const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
-                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
-                    priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
-            }
-            break;
+			u8 bufferW[32];
+			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(btnToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+		}
+		break;
 
-        case CPUBRIDGE_SUBSCRIBER_ASK_CPU_KEEP_SENDING_BUTTON_NUM:
-            {
-                //Da ora in poi, nel comando B invio sempre quest bntNum fino a che non
-                //ricevo un analogo msg con btnNum = 0
-                translate_CPU_KEEP_SENDING_BUTTON_NUM(msg, &keepOnSendingThisButtonNum);
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_KEEP_SENDING_BUTTON_NUM:
+		{
+			//Da ora in poi, nel comando B invio sempre quest bntNum fino a che non
+			//ricevo un analogo msg con btnNum = 0
+			translate_CPU_KEEP_SENDING_BUTTON_NUM(msg, &keepOnSendingThisButtonNum);
 
-                u8 bufferW[32];
-                const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (keepOnSendingThisButtonNum, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
-                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
-                    priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
-            }
-            break;
+			u8 bufferW[32];
+			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(keepOnSendingThisButtonNum, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+		}
+		break;
 
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_RUNNING_SEL_STATUS:
@@ -297,61 +297,61 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_FULLSTATE:
-			notify_CPU_FULLSTATE (sub->q, handlerID, logger, &cpuStatus);
+			notify_CPU_FULLSTATE(sub->q, handlerID, logger, &cpuStatus);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_INI_PARAM:
-            {
-                u8 bufferW[32];
-                const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
+		{
+			u8 bufferW[32];
+			const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 
-                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
-                {
-                    priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);
-                    notify_CPU_INI_PARAM (sub->q, handlerID, logger, &cpuParamIniziali);
-                }
-            }
-			break;
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+			{
+				priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
+				notify_CPU_INI_PARAM(sub->q, handlerID, logger, &cpuParamIniziali);
+			}
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_AVAIL:
 			notify_CPU_SEL_AVAIL_CHANGED(sub->q, handlerID, logger, &cpuStatus.selAvailability);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES:
-            {
-                u8 bufferW[32];
-                const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
+		{
+			u8 bufferW[32];
+			const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 
-                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
-                {
-                    priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);
-					const u8 numPrices = NUM_MAX_SELECTIONS;
-                    notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.prices);
-                }
-            }
-			break;
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+			{
+				priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
+				const u8 numPrices = NUM_MAX_SELECTIONS;
+				notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.prices);
+			}
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_LCD_MESSAGE:
-			notify_CPU_NEW_LCD_MESSAGE (sub->q, handlerID, logger, &cpuStatus.LCDMsg);
+			notify_CPU_NEW_LCD_MESSAGE(sub->q, handlerID, logger, &cpuStatus.LCDMsg);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_CURRENT_CREDIT:
-			notify_CPU_CREDIT_CHANGED (sub->q, handlerID, logger, cpuStatus.userCurrentCredit, sizeof(cpuStatus.userCurrentCredit));
+			notify_CPU_CREDIT_CHANGED(sub->q, handlerID, logger, cpuStatus.userCurrentCredit, sizeof(cpuStatus.userCurrentCredit));
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE:
-			notify_CPU_STATE_CHANGED (sub->q, handlerID, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+			notify_CPU_STATE_CHANGED(sub->q, handlerID, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
 			break;
 
-        case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
-            if (stato.get() == sStato::eStato_normal)
-                priv_downloadDataAudit(&sub->q, handlerID);
-            else
-                //rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
-                notify_READ_DATA_AUDIT_PROGRESS (sub->q, handlerID, logger, eReadDataFileStatus_finishedKO_cantStart_invalidState, 0, 0);
-            break;
+		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
+			if (stato.get() == sStato::eStato_normal)
+				priv_downloadDataAudit(&sub->q, handlerID);
+			else
+				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
+				notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus_finishedKO_cantStart_invalidState, 0, 0);
+			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE:
 			if (stato.get() == sStato::eStato_normal)
@@ -362,383 +362,406 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE:
-			{
-				char srcFullFileNameAndPath[512];
-				translate_WRITE_VMCDATAFILE(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-				if (stato.get() == sStato::eStato_normal)
-					priv_uploadVMCDataFile(&sub->q, handlerID, srcFullFileNameAndPath);
-				else
-					//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
-					notify_WRITE_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eWriteDataFileStatus_finishedKO_cantStart_invalidState, 0);
-			}
-			break;
+		{
+			char srcFullFileNameAndPath[512];
+			translate_WRITE_VMCDATAFILE(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+			if (stato.get() == sStato::eStato_normal)
+				priv_uploadVMCDataFile(&sub->q, handlerID, srcFullFileNameAndPath);
+			else
+				//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
+				notify_WRITE_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eWriteDataFileStatus_finishedKO_cantStart_invalidState, 0);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP:
-			{
-				sCPUVMCDataFileTimeStamp ts;
-				if (!priv_askVMCDataFileTimeStampAndWaitAnswer(&ts, 2000))
-					ts.setInvalid();
-				notify_CPU_VMCDATAFILE_TIMESTAMP(sub->q, handlerID, logger, ts);
-			}
-			break;
+		{
+			sCPUVMCDataFileTimeStamp ts;
+			if (!priv_askVMCDataFileTimeStampAndWaitAnswer(&ts, 2000))
+				ts.setInvalid();
+			notify_CPU_VMCDATAFILE_TIMESTAMP(sub->q, handlerID, logger, ts);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW:
-            {
-                char srcFullFileNameAndPath[512];
-                translate_WRITE_CPUFW(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-                priv_uploadCPUFW(&sub->q, handlerID, srcFullFileNameAndPath);
-            }
-            break;
+		{
+			char srcFullFileNameAndPath[512];
+			translate_WRITE_CPUFW(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+			priv_uploadCPUFW(&sub->q, handlerID, srcFullFileNameAndPath);
+		}
+		break;
 
-        case CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD:
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD:
 			priv_handleProgrammingMessage(sub, handlerID, msg);
-            break;
+			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE:
+		{
+			u8 block[VMCDATAFILE_BLOCK_SIZE_IN_BYTE];
+			u8 blocco_n_di = 0;
+			u8 tot_num_blocchi = 0;
+			u8 blockNumOffset = 0;
+			translate_PARTIAL_WRITE_VMCDATAFILE(msg, block, &blocco_n_di, &tot_num_blocchi, &blockNumOffset);
+
+			u8 bufferW[80];
+			const u16 nBytesToSend = cpubridge::buildMsg_writePartialVMCDataFile(block, blocco_n_di, tot_num_blocchi, blockNumOffset, bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
 			{
-				u8 block[VMCDATAFILE_BLOCK_SIZE_IN_BYTE];
-				u8 blocco_n_di = 0;
-				u8 tot_num_blocchi = 0;
-				u8 blockNumOffset = 0;
-				translate_PARTIAL_WRITE_VMCDATAFILE(msg, block, &blocco_n_di, &tot_num_blocchi, &blockNumOffset);
+				//ok, la CPU ha ricevuto il blocco. A questo punto aggiorno anche il mio da3 file locale
+				priv_updateLocalDA3(block, blockNumOffset);
 
-				u8 bufferW[80];
-				const u16 nBytesToSend = cpubridge::buildMsg_writePartialVMCDataFile(block, blocco_n_di, tot_num_blocchi, blockNumOffset, bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
+				if (blocco_n_di >= tot_num_blocchi)
 				{
-					//ok, la CPU ha ricevuto il blocco. A questo punto aggiorno anche il mio da3 file locale
-					priv_updateLocalDA3(block, blockNumOffset);
-
-					if (blocco_n_di >= tot_num_blocchi)
+					//chiedo alla CPU il nuovo timestamp del file ricevuto e lo salvo localmente
+					sCPUVMCDataFileTimeStamp	vmcDataFileTimeStamp;
+					u8 nRetry = 20;
+					while (nRetry--)
 					{
-						//chiedo alla CPU il nuovo timestamp del file ricevuto e lo salvo localmente
-						sCPUVMCDataFileTimeStamp	vmcDataFileTimeStamp;
-						u8 nRetry = 20;
-						while (nRetry--)
+						if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp, 2000))
 						{
-							if (priv_askVMCDataFileTimeStampAndWaitAnswer(&vmcDataFileTimeStamp, 2000))
-							{
-								cpubridge::saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
-								break;
-							}
+							cpubridge::saveVMCDataFileTimeStamp(vmcDataFileTimeStamp);
+							break;
 						}
 					}
-
-					//aggiorno alcuni dati che conservo anche localmente
-					priv_retreiveSomeDataFromLocalDA3();
-
-					//notifico il client
-					notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, blockNumOffset);
 				}
-				else
-				{
-					//la CPU non ha validato il blocco
-					notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, 0xff);
-				}
+
+				//aggiorno alcuni dati che conservo anche localmente
+				priv_retreiveSomeDataFromLocalDA3();
+
+				//notifico il client
+				notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, blockNumOffset);
 			}
-			break;
+			else
+			{
+				//la CPU non ha validato il blocco
+				notify_WRITE_PARTIAL_VMCDATAFILE(sub->q, handlerID, logger, 0xff);
+			}
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER:
-			{
-				eCPUProgrammingCommand_decounter which = eCPUProgrammingCommand_decounter_unknown;
-				u16 valore = 0;
-				cpubridge::translate_CPU_SET_DECOUNTER(msg, &which, &valore);
-				
+		{
+			eCPUProgrammingCommand_decounter which = eCPUProgrammingCommand_decounter_unknown;
+			u16 valore = 0;
+			cpubridge::translate_CPU_SET_DECOUNTER(msg, &which, &valore);
 
-				u8 bufferW[32];
-				const u16 nBytesToSend = cpubridge::buildMsg_setDecounter(which, valore, bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
-				{
-					which = (eCPUProgrammingCommand_decounter)answerBuffer[4];
-					valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
-					notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, which, valore);
-				}
-				else
-					notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, eCPUProgrammingCommand_decounter_error, 0);
+
+			u8 bufferW[32];
+			const u16 nBytesToSend = cpubridge::buildMsg_setDecounter(which, valore, bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+			{
+				which = (eCPUProgrammingCommand_decounter)answerBuffer[4];
+				valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+				notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, which, valore);
 			}
-			break;
+			else
+				notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, eCPUProgrammingCommand_decounter_error, 0);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 			{
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
-				{
-					u16 decounters[13];
-					for (u8 i = 0; i < 13; i++)
-						decounters[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4 + i * 2]);
-					notify_CPU_ALL_DECOUNTER_VALUES (sub->q, handlerID, logger, decounters);
-				}
+				u16 decounters[13];
+				for (u8 i = 0; i < 13; i++)
+					decounters[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4 + i * 2]);
+				notify_CPU_ALL_DECOUNTER_VALUES(sub->q, handlerID, logger, decounters);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO:
-			{
-				sExtendedCPUInfo info;
-				if (priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(&info))
-					notify_EXTENDED_CONFIG_INFO(sub->q, handlerID, logger, &info);
-			}
-			break;
+		{
+			sExtendedCPUInfo info;
+			if (priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(&info))
+				notify_EXTENDED_CONFIG_INFO(sub->q, handlerID, logger, &info);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE:
-			{
-				u8 motore_1_10, durata_dSec, numRipetizioni, pausaTraRipetizioni_dSec;
-				cpubridge::translate_CPU_ATTIVAZIONE_MOTORE(msg, &motore_1_10, &durata_dSec, &numRipetizioni, &pausaTraRipetizioni_dSec);
+		{
+			u8 motore_1_10, durata_dSec, numRipetizioni, pausaTraRipetizioni_dSec;
+			cpubridge::translate_CPU_ATTIVAZIONE_MOTORE(msg, &motore_1_10, &durata_dSec, &numRipetizioni, &pausaTraRipetizioni_dSec);
 
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_attivazioneMotore(motore_1_10, durata_dSec, numRipetizioni, pausaTraRipetizioni_dSec, bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-					notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, answerBuffer[4], answerBuffer[5], answerBuffer[6], answerBuffer[7]);
-				else
-					notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, 0xff, 0, 0, 0);
-			}
-			break;
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_attivazioneMotore(motore_1_10, durata_dSec, numRipetizioni, pausaTraRipetizioni_dSec, bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, answerBuffer[4], answerBuffer[5], answerBuffer[6], answerBuffer[7]);
+			else
+				notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, 0xff, 0, 0, 0);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO:
-			{
-				u8 macina_1o2 = 0;
-				u16 totalePesata_dgram = 0;
-				cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(msg, &macina_1o2, &totalePesata_dgram);
+		{
+			u8 macina_1o2 = 0;
+			u16 totalePesata_dgram = 0;
+			cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(msg, &macina_1o2, &totalePesata_dgram);
 
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo(macina_1o2, totalePesata_dgram, bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-					notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, logger);
-			}
-			break;
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo(macina_1o2, totalePesata_dgram, bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, logger);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-				{
-					u8 stato = answerBuffer[4];
-					u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
-					notify_STATO_CALCOLO_IMPULSI_GRUPPO(sub->q, handlerID, logger, stato, valore);
-				}
-				else
-					notify_STATO_CALCOLO_IMPULSI_GRUPPO(sub->q, handlerID, logger, 0, 0);
+				u8 stato = answerBuffer[4];
+				u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+				notify_STATO_CALCOLO_IMPULSI_GRUPPO(sub->q, handlerID, logger, stato, valore);
 			}
-			break;
+			else
+				notify_STATO_CALCOLO_IMPULSI_GRUPPO(sub->q, handlerID, logger, 0, 0);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE:
+		{
+			eCPUProgrammingCommand_motor motore;
+			u16 valore;
+			cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(msg, &motore, &valore);
+
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_setFattoreCalibMotore(motore, valore, bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				eCPUProgrammingCommand_motor motore;
-				u16 valore;
-				cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(msg, &motore, &valore);
-				
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_setFattoreCalibMotore(motore, valore, bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-				{
-					eCPUProgrammingCommand_motor motore = (eCPUProgrammingCommand_motor)answerBuffer[4];
-					u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
-					notify_SET_FATTORE_CALIB_MOTORE(sub->q, handlerID, logger, motore, valore);
-				}
+				eCPUProgrammingCommand_motor motore = (eCPUProgrammingCommand_motor)answerBuffer[4];
+				u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+				notify_SET_FATTORE_CALIB_MOTORE(sub->q, handlerID, logger, motore, valore);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getStatoGruppo(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getStatoGruppo(bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+				eCPUProgrammingCommand_statoGruppo stato;
+				switch (answerBuffer[4])
 				{
-					eCPUProgrammingCommand_statoGruppo stato;
-					switch (answerBuffer[4])
-					{
-					case 0:		stato = eCPUProgrammingCommand_statoGruppo_nonAttaccato; break;
-					default:	stato = eCPUProgrammingCommand_statoGruppo_attaccato; break;
-					}
-					notify_STATO_GRUPPO(sub->q, handlerID, logger, stato);
+				case 0:		stato = eCPUProgrammingCommand_statoGruppo_nonAttaccato; break;
+				default:	stato = eCPUProgrammingCommand_statoGruppo_attaccato; break;
 				}
+				notify_STATO_GRUPPO(sub->q, handlerID, logger, stato);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_TIME:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getTime(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getTime(bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-				{
-					const u8 hh = answerBuffer[4];
-					const u8 mm = answerBuffer[5];
-					const u8 ss = answerBuffer[6];
-					notify_GET_TIME(sub->q, handlerID, logger, hh, mm, ss);
-				}
+				const u8 hh = answerBuffer[4];
+				const u8 mm = answerBuffer[5];
+				const u8 ss = answerBuffer[6];
+				notify_GET_TIME(sub->q, handlerID, logger, hh, mm, ss);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_DATE:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getDate(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getDate(bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-				{
-					const u16 y = 2000 +answerBuffer[4];
-					const u8 m = answerBuffer[5];
-					const u8 d = answerBuffer[6];
-					notify_GET_DATE(sub->q, handlerID, logger, y, m, d);
-				}
+				const u16 y = 2000 + answerBuffer[4];
+				const u8 m = answerBuffer[5];
+				const u8 d = answerBuffer[6];
+				notify_GET_DATE(sub->q, handlerID, logger, y, m, d);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE:
+		{
+			u16 year = 0;
+			u8 month = 0;
+			u8 day = 0;
+			cpubridge::translate_CPU_SET_DATE(msg, &year, &month, &day);
+
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_setDate(bufferW, sizeof(bufferW), year, month, day);
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
 			{
-				u16 year = 0;
-				u8 month = 0;
-				u8 day = 0;
-				cpubridge::translate_CPU_SET_DATE(msg, &year, &month, &day);
-				
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_setDate(bufferW, sizeof(bufferW), year, month, day);
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-				{
-					const u16 y = 2000 + answerBuffer[4];
-					const u8 m = answerBuffer[5];
-					const u8 d = answerBuffer[6];
-					notify_SET_DATE(sub->q, handlerID, logger, y, m, d);
-				}
+				const u16 y = 2000 + answerBuffer[4];
+				const u8 m = answerBuffer[5];
+				const u8 d = answerBuffer[6];
+				notify_SET_DATE(sub->q, handlerID, logger, y, m, d);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME:
-			{
-				u8 hh = 0;
-				u8 mm = 0;
-				u8 ss = 0;
-				cpubridge::translate_CPU_SET_TIME(msg, &hh, &mm, &ss);
+		{
+			u8 hh = 0;
+			u8 mm = 0;
+			u8 ss = 0;
+			cpubridge::translate_CPU_SET_TIME(msg, &hh, &mm, &ss);
 
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_setTime(bufferW, sizeof(bufferW), hh, mm, ss);
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-				{
-					const u8 hh = answerBuffer[4];
-					const u8 mm = answerBuffer[5];
-					const u8 ss = answerBuffer[6];
-					notify_SET_TIME(sub->q, handlerID, logger, hh, mm, ss);
-				}
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_setTime(bufferW, sizeof(bufferW), hh, mm, ss);
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			{
+				const u8 hh = answerBuffer[4];
+				const u8 mm = answerBuffer[5];
+				const u8 ss = answerBuffer[6];
+				notify_SET_TIME(sub->q, handlerID, logger, hh, mm, ss);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA:
-			{
-				u8 macina_1o2 = 0;
-				cpubridge::translate_CPU_GET_POSIZIONE_MACINA(msg, &macina_1o2);
+		{
+			u8 macina_1o2 = 0;
+			cpubridge::translate_CPU_GET_POSIZIONE_MACINA(msg, &macina_1o2);
 
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
-				{
-					macina_1o2 = answerBuffer[4];
-					if (macina_1o2 == 11) macina_1o2 = 1;
-					else if (macina_1o2 == 12) macina_1o2 = 2;
-					u16 pos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
-					notify_CPU_POSIZIONE_MACINA(sub->q, handlerID, logger, macina_1o2, pos);
-				}
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			{
+				macina_1o2 = answerBuffer[4];
+				if (macina_1o2 == 11) macina_1o2 = 1;
+				else if (macina_1o2 == 12) macina_1o2 = 2;
+				u16 pos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+				notify_CPU_POSIZIONE_MACINA(sub->q, handlerID, logger, macina_1o2, pos);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA:
-			{
-				u8 macina_1o2 = 0;
-				eCPUProgrammingCommand_macinaMove m;
-				cpubridge::translate_CPU_SET_MOTORE_MACINA(msg, &macina_1o2, &m);
+		{
+			u8 macina_1o2 = 0;
+			eCPUProgrammingCommand_macinaMove m;
+			cpubridge::translate_CPU_SET_MOTORE_MACINA(msg, &macina_1o2, &m);
 
-				if (priv_sendAndHandleSetMotoreMacina(macina_1o2, m))
-				{
-					macina_1o2 = answerBuffer[4];
-					if (macina_1o2 == 11) macina_1o2 = 1;
-					else if (macina_1o2 == 12) macina_1o2 = 2;
-					notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1o2, (eCPUProgrammingCommand_macinaMove)answerBuffer[5]);
-				}
+			if (priv_sendAndHandleSetMotoreMacina(macina_1o2, m))
+			{
+				macina_1o2 = answerBuffer[4];
+				if (macina_1o2 == 11) macina_1o2 = 1;
+				else if (macina_1o2 == 12) macina_1o2 = 2;
+				notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1o2, (eCPUProgrammingCommand_macinaMove)answerBuffer[5]);
 			}
-			break;
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA:
-			{
-				u8 macina_1o2 = 0;
-				u16 target = 0;
-				cpubridge::translate_CPU_SET_POSIZIONE_MACINA(msg, &macina_1o2, &target);
-				//priv_setPosMacina(sub->q, handlerID, macina_1o2, target);
-				priv_enterState_regolazioneAperturaMacina (macina_1o2, target);
-			}
-			break;
+		{
+			u8 macina_1o2 = 0;
+			u16 target = 0;
+			cpubridge::translate_CPU_SET_POSIZIONE_MACINA(msg, &macina_1o2, &target);
+			//priv_setPosMacina(sub->q, handlerID, macina_1o2, target);
+			priv_enterState_regolazioneAperturaMacina(macina_1o2, target);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE:
-			{
-				u8 selNum = 0;
-				eCPUProgrammingCommand_testSelectionDevice m;
-				cpubridge::translate_CPU_TEST_SELECTION(msg, &selNum, &m);
+		{
+			u8 selNum = 0;
+			eCPUProgrammingCommand_testSelectionDevice m;
+			cpubridge::translate_CPU_TEST_SELECTION(msg, &selNum, &m);
 
-				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_testSelection(bufferW, sizeof(bufferW), selNum, m);
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
-				{
-					selNum = answerBuffer[4];
-					m = (eCPUProgrammingCommand_testSelectionDevice)answerBuffer[5];
-					notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, selNum, m);
-				}
-				else
-					notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, 0xff, eCPUProgrammingCommand_testSelectionDevice_unknown);
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_testSelection(bufferW, sizeof(bufferW), selNum, m);
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			{
+				selNum = answerBuffer[4];
+				m = (eCPUProgrammingCommand_testSelectionDevice)answerBuffer[5];
+				notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, selNum, m);
 			}
-			break;
+			else
+				notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, 0xff, eCPUProgrammingCommand_testSelectionDevice_unknown);
+		}
+		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getNomiLingueCPU(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			{
+				u16 strLingua1UTF16[17];
+				u16 strLingua2UTF16[17];
+				memset(strLingua1UTF16, 0, sizeof(strLingua1UTF16));
+				memset(strLingua2UTF16, 0, sizeof(strLingua2UTF16));
+
+				u8 z = 5;
+				if (answerBuffer[4] == 0x01)
+				{
+					//caso unicode
+					for (u8 i = 0; i < 16;i++)
+					{
+						strLingua1UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
+						z += 2;
+					}
+					for (u8 i = 0; i < 16;i++)
+					{
+						strLingua2UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
+						z += 2;
+					}
+				}
+				else
+				{
+					for (u8 i = 0; i < 16;i++)
+						strLingua1UTF16[i] = (u16)answerBuffer[z++];
+					for (u8 i = 0; i < 16;i++)
+						strLingua2UTF16[i] = (u16)answerBuffer[z++];
+				}
+
+				strLingua1UTF16[0] = 'l';
+				strLingua1UTF16[1] = 'a';
+				strLingua1UTF16[2] = 'n';
+				strLingua1UTF16[3] = 'g';
+				strLingua1UTF16[4] = '1';
+				strLingua1UTF16[5] = 0;
+
+				strLingua2UTF16[0] = 'l';
+				strLingua2UTF16[1] = 'a';
+				strLingua2UTF16[2] = 'n';
+				strLingua2UTF16[3] = 'g';
+				strLingua2UTF16[4] = '2';
+				strLingua2UTF16[5] = 0;
+				notify_NOMI_LINGE_CPU(sub->q, handlerID, logger, strLingua1UTF16, strLingua2UTF16);
+			}
+		}
+		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_DISINSTALLAZIONE:
 			{
 				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getNomiLingueCPU(bufferW, sizeof(bufferW));
+				const u16 nBytesToSend = cpubridge::buildMsg_disintallazione(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
-				{
-					u16 strLingua1UTF16[17];
-					u16 strLingua2UTF16[17];
-					memset(strLingua1UTF16, 0, sizeof(strLingua1UTF16));
-					memset(strLingua2UTF16, 0, sizeof(strLingua2UTF16));
-
-					u8 z = 5;
-					if (answerBuffer[4] == 0x01)
-					{
-						//caso unicode
-						for (u8 i = 0; i < 16;i++)
-						{
-							strLingua1UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
-							z += 2;
-						}
-						for (u8 i = 0; i < 16;i++)
-						{
-							strLingua2UTF16[i] = (u16)answerBuffer[z] + (u16)answerBuffer[z + 1] * 256;
-							z += 2;
-						}
-					}
-					else
-					{
-						for (u8 i = 0; i < 16;i++)
-							strLingua1UTF16[i] = (u16)answerBuffer[z++];
-						for (u8 i = 0; i < 16;i++)
-							strLingua2UTF16[i] = (u16)answerBuffer[z++];
-					}
-					notify_NOMI_LINGE_CPU(sub->q, handlerID, logger, strLingua1UTF16, strLingua2UTF16);
-				}
+				chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000);
 			}
 			break;
-		}
-	}
+		} //switch
+	} //while
 }
 
 
