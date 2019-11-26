@@ -366,6 +366,33 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			}
 			break;
 
+			case eCPUProgrammingCommand_getNomiLinguaCPU:
+			{
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = 0; //is unicode
+
+				u8 i2 = ct;
+				for (u8 i = 0; i<64; i++)
+					out_answer[ct++] = ' ';
+				out_answer[i2] = 'E';
+				out_answer[i2+1] = 'N';
+				out_answer[i2+2] = '1';
+
+				i2 += 32;
+				out_answer[i2] = 'E';
+				out_answer[i2 + 1] = 'N';
+				out_answer[i2 + 2] = '2';
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+			}
+			break;
+
 			case eCPUProgrammingCommand_getStatoCalcoloImpulsi:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
