@@ -101,6 +101,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE					0x0822
 #define		CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU				0x0823
 #define		CPUBRIDGE_SUBSCRIBER_ASK_DISINSTALLAZIONE				0x0824
+#define		CPUBRIDGE_SUBSCRIBER_ASK_RICARICA_FASCIA_ORARIA_FV		0x0825
 
 namespace cpubridge
 {
@@ -234,6 +235,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_testSelezione = 0x12,
 		eCPUProgrammingCommand_getNomiLinguaCPU = 0x13,
 		eCPUProgrammingCommand_disinstallazione = 0x14,
+		eCPUProgrammingCommand_ricaricaFasciaOrariaFV = 0x15,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

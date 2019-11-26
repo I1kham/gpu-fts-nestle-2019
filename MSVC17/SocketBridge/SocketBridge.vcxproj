@@ -55,6 +55,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetAllDecounters.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetPosizioneMacina.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqPartialVMCDataFile.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetAllDecounters.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetPosizioneMacina.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqPartialVMCDataFile.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelPrices.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelStatus.h" />

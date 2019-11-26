@@ -237,14 +237,21 @@
 				<div id="pageMiscellaneous_fv" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">ENABLED</td>
-							<td colspan="2"><div class='UIOptionSmall' data-option='0|NO|1|YES|2|++' data-da3="7104" data-da3bit="8"></div></td>
+							<td style="width:380px">FV HARDWARE KEY<br>MODE</td>
+							<td colspan="2"><div class='UIOption' data-option='0|DISABLED|1|ENABLED 1|2|ENABLED ++' data-da3="7104" data-da3bit="8"></div></td>
 						</tr>
-						<tr>
-							<td>START FREEVEND NOW<br><span class="tip">It will last for the num. of hours indicated</span></td>
+						<tr id="pageMiscellaneous_fv_r1">
+							<td>START FREEVEND NOW<br><span class="tip">It will last for the indicated<br>num. of hours</span></td>
 							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="hours"></div></td>
-							<td align="center"><div id="pageMiscellaneous_fvDateEnd"></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='START NOW' data-onclick="pageMiscellaneous_startFVNow()"></div></div></td>
 						</tr>
+						
+						<tr id="pageMiscellaneous_fv_r2">
+							<td>FREEVEND IS NOW <b style='color:#fff'>RUNNING</b></td>
+							<td align="center"><div id="pageMiscellaneous_fvDateEnd"></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='STOP IT NOW' data-onclick="pageMiscellaneous_stopFVNow()"></div></div></td>
+						</tr>
+						
 					</table>
 				</div>				
 			</div>
@@ -924,7 +931,7 @@ function save (fnToCallWhenFinished)
 		onSaveFinished();
 }
 
-function onSaveFinished() { save_fnToCallWhenFinished.call(); }
+function onSaveFinished() 	{  save_fnToCallWhenFinished.call(); }
 
 function storeDA3Block_step (uno_di, nBlocchi, blockList)
 {
@@ -1295,36 +1302,39 @@ function pageMiscellaneous_show()
 		}
 	}
 	
-	//il numero di ore di freevend va calcolato di volta in volta
-	var objFVH = win.getChildByID("pageMiscellaneous_fvH");
-	
+	pageMiscellaneous_fv_refresh();
+
+	header_setText("MISCELLANEOUS");
+	pageMiscellaneous_onSelector();
+	btnBack_show();
+}
+
+function pageMiscellaneous_fv_refresh()
+{
+	var win = ui.getWindowByID("pageMiscellaneous");
+
+	//data e ora di fine freevend
 	var enddate_minute = da3.read8(8435);
 	var enddate_hh = da3.read8(8436);
 	var enddate_gg = da3.read8(8437);
 	var enddate_mm = da3.read8(8438);
 	var enddate_yy = 2000 + da3.read8(8439);
-	if (enddate_gg==0 && enddate_mm==0)
+	var dataScadenza = new Date(enddate_yy, enddate_mm-1, enddate_gg, enddate_hh, enddate_minute, 0, 0);
+
+	var dataNow = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
+	var minuteLeft = Math.floor ((dataScadenza - dataNow) / 60000);
+	if (minuteLeft < 0 || minuteLeft >= 255*60)
 	{
-		pageMiscellaneous_fvhBefore = 0;
-		objFVH.setValue (0);
-		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "");
-		da3.write8(8435, 0);
-		da3.write8(8436, 0);
-		da3.write8(8437, 0);
-		da3.write8(8438, 0);
-		da3.write8(8439, 0);
+		//freevend non in corso
+		rheaSetDisplayMode(rheaGetElemByID("pageMiscellaneous_fv_r1"), "table-row");
+		rheaHideElem(rheaGetElemByID("pageMiscellaneous_fv_r2"));
+		da3.freevendFasciaOraria_stopItNow();
 	}
 	else
 	{
-		var dataNow = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
-		var dataScadenza = new Date(enddate_yy, enddate_mm-1, enddate_gg, enddate_hh, enddate_minute, 0, 0);
-		var hoursLeft = Math.floor ((dataScadenza - dataNow) / 3600000);
-		
-		console.log ("now=" +dataNow);
-		console.log ("dataScadenza=" +dataScadenza);
-		console.log ("#"+hoursLeft);
-		pageMiscellaneous_fvhBefore = hoursLeft;
-		objFVH.setValue (hoursLeft);
+		//freevend in corso
+		rheaHideElem(rheaGetElemByID("pageMiscellaneous_fv_r1"));
+		rheaSetDisplayMode(rheaGetElemByID("pageMiscellaneous_fv_r2"), "table-row");
 
 		if (enddate_mm <10) enddate_mm = "0" +enddate_mm;
 		if (enddate_gg <10) enddate_gg = "0" +enddate_gg;
@@ -1332,12 +1342,37 @@ function pageMiscellaneous_show()
 		if (enddate_minute <10) enddate_minute = "0" +enddate_minute;
 		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND will ends on<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
 	}
+}
 
+function pageMiscellaneous_startFVNow()
+{
+	var win = ui.getWindowByID("pageMiscellaneous");
+	var h = parseInt(win.getChildByID("pageMiscellaneous_fvH").getValue());
+	if (h < 1)
+		return;
 	
-	currentTask = new TaskMisc();
-	header_setText("MISCELLANEOUS");
-	pageMiscellaneous_onSelector();
-	btnBack_show();
+	pleaseWait_show();
+	var dataNow = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
+	da3.freevendFasciaOraria_startNowAndLastForNHours(dataNow, h);
+	save( function(){ pageMiscellaneous_stopFVNow_onFinish(); } );
+}
+
+
+function pageMiscellaneous_stopFVNow()
+{
+	pleaseWait_show();
+	da3.freevendFasciaOraria_stopItNow();
+	save( function(){ pageMiscellaneous_stopFVNow_onFinish(); } );
+}
+
+function pageMiscellaneous_stopFVNow_onFinish()
+{
+	//notifica la CPU di aggiornare il suo stato di freevend
+	var buffer = new Uint8Array(1);
+	buffer[0] = 66;
+	//rhea.sendGPUCommand ("E", buffer, 0, 0);		
+	pageMiscellaneous_fv_refresh();
+	pleaseWait_hide();
 }
 
 function pageMiscellaneous_oldProgMenu()

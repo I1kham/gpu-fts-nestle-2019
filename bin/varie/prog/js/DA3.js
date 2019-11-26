@@ -65,8 +65,30 @@ DA3.prototype.getNumMacine = function()			{ if (this.isInstant()) return 0;  ret
 DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		{ if (this.isEspresso()) return 6; else return 10; }
 DA3.prototype.getDecimalsForPrices = function ()		{ return this.read8(7066); }
-
 DA3.prototype.isMotorCalibrated = function (motor)	{ return (this.getCalibFactorGSec(motor) != 0); }
+
+DA3.prototype.freevendFasciaOraria_startNowAndLastForNHours = function (dataNow, nHours)
+{
+	var data = new Date();
+	data.setTime (dataNow.getTime() + (nHours*60*60*1000));
+
+	this.write8(7110, nHours); //num di ore	
+	this.write8(8435, data.getMinutes());
+	this.write8(8436, data.getHours());
+	this.write8(8437, data.getDate());
+	this.write8(8438, 1 +data.getMonth());
+	this.write8(8439, data.getFullYear() -2000);
+}
+DA3.prototype.freevendFasciaOraria_stopItNow = function ()
+{
+	this.write8(7110, 0); //num di ore
+	this.write8(8435, 0); //data scadenza min
+	this.write8(8436, 0); //data scadenza ore
+	this.write8(8437, 0); //data scadenza g
+	this.write8(8438, 0); //data scadenza mese
+	this.write8(8439, 0); //data scadenza anno
+}
+
 
 DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 {

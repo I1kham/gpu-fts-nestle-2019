@@ -70,6 +70,7 @@ namespace cpubridge
 	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
 	u8			buildMsg_getNomiLingueCPU (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_ricaricaFasciaOrariaFreevend(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -336,6 +337,9 @@ namespace cpubridge
 	void		ask_CPU_DISINTALLAZIONE(const sSubscriber &from);
 					//alla ricezione di questo msg, CPUBridge non risponderà. Lo stato di CPU dovrebbe passare in breve tempo a eVMCState_DISINSTALLAZIONE.
 					//Al termine della procedura, lo stato CPU diventa eVMCState_FINE_DISINSTALLAZIONE
+
+	void		ask_CPU_RICARICA_FASCIA_ORARIA_FREEVEND(const sSubscriber &from);
+					//alla ricezione di questo msg, CPUBridge non risponderà. La CPU dovrebbe controllare i dati nel DA3 e reimpostare la fine dell'orario di freevend
 
 } // namespace cpubridge
 

@@ -764,6 +764,16 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000);
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_RICARICA_FASCIA_ORARIA_FV:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_ricaricaFasciaOrariaFreevend(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000);
+			}
+			break;
+
 		} //switch
 	} //while
 }
@@ -1881,7 +1891,8 @@ void Server::priv_handleState_comError()
 		{
 			//la CPU ha risposto, elaboro la risposta e passo in stato "normal"
 			priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);
-			priv_enterState_normal();
+			//priv_enterState_normal();
+			priv_enterState_DA3Sync();
 			return;
 		}
 
