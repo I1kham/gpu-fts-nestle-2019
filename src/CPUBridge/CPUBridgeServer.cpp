@@ -997,6 +997,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	u8 bufferW[CPUFW_BLOCK_SIZE+16];
 	u8 nBytesToSend = cpubridge::buildMsg_restart_U(bufferW, 64);
 	chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
+	//chToCPU->closeAndReopen();
 
 	//aspetto di leggere 'k' dal canale
     if (!chToCPU->waitForASpecificChar('k', 10000))
@@ -1013,7 +1014,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
 
 	//aspetto di leggere 'M' dal canale
-	if (!chToCPU->waitForASpecificChar('M', 3000))
+	if (!chToCPU->waitForASpecificChar('M', 10000))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_M_notReceived, 0);

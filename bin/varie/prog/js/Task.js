@@ -17,11 +17,11 @@ TaskVoid.prototype.onExit				= function(bSave)						{ return bSave; }
 /**********************************************************
  * TaskCleaning
  */
-function TaskCleaning(bIsSanWashing)
+function TaskCleaning (whichWashIN)
 {
 	this.timeStarted = 0;
 	this.cpuStatus = 0;
-	this.bIsSanWashing = bIsSanWashing;
+	this.whichWash = whichWashIN;
 	this.fase = 0;
 	this.btn1 = 0;
 	this.btn2 = 0;
@@ -33,16 +33,17 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 		this.timeStarted = timeNowMsec;
 	var timeElapsedMSec = timeNowMsec - this.timeStarted;
 	
-	if (this.bIsSanWashing)
-	{
+	if (this.whichWash == 8)
 		this.priv_handleSanWashing(timeElapsedMSec);
-		return;
+	else if (this.whichWash == 5)
+		this.priv_handleMilkWashing(timeElapsedMSec);
+	else
+	{
+		if (timeElapsedMSec < 2000)
+			return;
+		if (this.cpuStatus != 7) //7==manual washing
+			pageCleaning_onFinished();
 	}
-	
-	if (timeElapsedMSec < 2000)
-		return;
-	if (this.cpuStatus != 7) //7==manual washing
-		pageCleaning_onFinished();
 }
 
 TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
@@ -93,6 +94,68 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				case 12: pleaseWait_freeText_setText("mixer 2 cleaning"); break;
 				case 13: pleaseWait_freeText_setText("mixer 3 cleaning"); break;
 				case 14: pleaseWait_freeText_setText("mixer 4 cleaning"); break;
+				default: pleaseWait_freeText_setText(""); break;
+			}
+			pleaseWait_freeText_show();
+			
+			if (me.btn1 == 0)
+				pleaseWait_btn1_hide();
+			else
+			{
+				pleaseWait_btn1_setText ("BUTTON " +me.btn1);
+				pleaseWait_btn1_show();	
+			}
+			
+			if (me.btn2 == 0)
+				pleaseWait_btn2_hide();
+			else
+			{
+				pleaseWait_btn2_setText ("BUTTON " +me.btn2);
+				pleaseWait_btn2_show();	
+			}			
+		})
+		.catch( function(result)
+		{
+			//console.log ("SANWASH: error[" +result +"]");
+			pleaseWait_btn1_hide();
+			pleaseWait_btn2_hide();
+		});	
+	
+}
+
+TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
+{
+	//termino quando lo stato della CPU diventa != da SAN_WASHING
+	if (timeElapsedMSec > 3000 && this.cpuStatus != 20) //20==sanitary washing
+	{
+		pageCleaning_onFinished();
+		return;
+	}
+
+	//ogni tot mando una richiesta per conoscere lo stato attuale del lavaggio
+	if (timeElapsedMSec < this.nextTimeSanWashStatusCheckMSec)
+		return;
+	this.nextTimeSanWashStatusCheckMSec += 2000;
+
+	//periodicamente richiedo lo stato del lavaggio
+	var me = this;
+	rhea.ajax ("sanWashStatus", "")
+		.then( function(result) 
+		{
+			var obj = JSON.parse(result);
+console.log ("SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
+			me.fase = parseInt(obj.fase);
+			me.btn1 = parseInt(obj.btn1);
+			me.btn2 = parseInt(obj.btn2);
+			switch (me.fase)
+			{
+				case 1: pleaseWait_freeText_setText("Milker Cleaning is started"); break;
+				case 2: pleaseWait_freeText_setText("Warning for cleaner"); break;
+				case 3: pleaseWait_freeText_setText("Wait for confirm"); break;
+				case 4: pleaseWait_freeText_setText("It is doing cleaner cycles (12)"); break;
+				case 5: pleaseWait_freeText_setText("Warning for water"); break;
+				case 6: pleaseWait_freeText_setText("Wait for second confirm"); break;
+				case 7: pleaseWait_freeText_setText("It is doing cleaner cycles (12)"); break;
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();

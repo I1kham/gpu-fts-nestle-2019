@@ -61,6 +61,8 @@ bool CPUChannelCom::open (const char *COMPORT, rhea::ISimpleLogger *logger)
 {
 	assert(logger != NULL);
 
+	strcpy_s(sCOMPORT, sizeof(sCOMPORT), COMPORT);
+
 	logger->log ("CPUChannelCom::open\n");
 	logger->incIndent();
 	bool ret = OSSerialPort_open(&comPort, COMPORT, OSSerialPortConfig::Baud115200, false, false, OSSerialPortConfig::Data8, OSSerialPortConfig::NoParity, OSSerialPortConfig::OneStop, OSSerialPortConfig::NoFlowControl);
@@ -81,9 +83,18 @@ void CPUChannelCom::close (rhea::ISimpleLogger *logger)
 {
 	logger->log("CPUChannelCom::close\n");
 	OSSerialPort_close(comPort);
-
+		
 	DUMP_CLOSE();
 }
+
+//*****************************************************************
+void CPUChannelCom::closeAndReopen()
+{
+	OSSerialPort_flushIO(comPort);
+	OSSerialPort_close(comPort);
+	OSSerialPort_open(&comPort, sCOMPORT, OSSerialPortConfig::Baud115200, false, false, OSSerialPortConfig::Data8, OSSerialPortConfig::NoParity, OSSerialPortConfig::OneStop, OSSerialPortConfig::NoFlowControl);
+}
+
 
 //*****************************************************************
 bool CPUChannelCom::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)

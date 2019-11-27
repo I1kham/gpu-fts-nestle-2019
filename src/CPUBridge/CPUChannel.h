@@ -19,6 +19,7 @@ namespace cpubridge
 
 		//bool                    open (const char *COMPORT, rhea::ISimpleLogger *logger);
 		virtual void            close(rhea::ISimpleLogger *logger) = 0;
+		virtual void            closeAndReopen() = 0;
 
 		virtual bool			sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec) = 0;
 								/*

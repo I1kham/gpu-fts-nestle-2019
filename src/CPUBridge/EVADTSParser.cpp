@@ -257,6 +257,27 @@ u8* EVADTSParser::createBufferWithFormattedData (rhea::Allocator *allocator, u32
 	nbw.writeU24(VA3.num_par);	
 
 
+	ContatoreValNumValNum c1;
+	for (u8 i = 0; i < 48; i++)
+	{
+		//num paid (price 1)
+		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(1, c1);
+
+		//num paid (price 2)
+		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(1, c1);
+
+		//num freevend
+		selezioni.getElem(i)->freevend;
+
+		//num test vend
+		selezioni.getElem(i)->freevend;
+
+		//totale 1
+
+		//totale dei $ lista prezzo 1
+	}
+
+
 	return ret;
 
 }

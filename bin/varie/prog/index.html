@@ -812,7 +812,7 @@ function onRheaBootstrapFinished()
 	{
 		case "pageMainMenu": pageMainMenu_show(); break;
 		case "pageCleaning": pageCleaning_show(); break;
-		case "pageCleaningSanitario": pageCleaning_show(); pageCleaning_startLavSanitario(0); break;
+		case "pageCleaningSanitario": pageCleaning_show(); pageCleaning_startLavSanitario(8,0); break;
 		case "pageMaintenance": pageMaintenance_show(); break;
 		case "pageMiscellaneous": pageMiscellaneous_show(); break;
 		case "pageProductQty": pageProductQty_show(); break;
@@ -1279,21 +1279,21 @@ function pageCleaning_action (what)
 {
 	pleaseWait_show();
 	
-	if (what == 8)
-		pageCleaning_startLavSanitario(1);
+	if (what == 8 || what==5)
+		pageCleaning_startLavSanitario(what,1);
 	else
 	{
-		currentTask = new TaskCleaning(0);
+		currentTask = new TaskCleaning(what);
 		rhea.requestGPUCleaning(parseInt(what));
 	}
 }
 	
-function pageCleaning_startLavSanitario (bSendRequestToGPU)
+function pageCleaning_startLavSanitario (what, bSendRequestToGPU)
 {
 	pleaseWait_show();
-	currentTask = new TaskCleaning(1);
+	currentTask = new TaskCleaning(what);
 	if (bSendRequestToGPU)
-		rhea.requestGPUCleaning(parseInt(8));
+		rhea.requestGPUCleaning(parseInt(what));
 }
 
 function pageCleaning_onFinished()

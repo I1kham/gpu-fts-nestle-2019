@@ -18,6 +18,7 @@ namespace cpubridge
 
 		bool                    open (rhea::ISimpleLogger *logger);
 		void                    close (rhea::ISimpleLogger *logger);
+		void					closeAndReopen()										{ }
 
 		bool					sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
 								/*

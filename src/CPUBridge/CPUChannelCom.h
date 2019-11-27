@@ -18,6 +18,7 @@ namespace cpubridge
 
 		bool                    open (const char *COMPORT, rhea::ISimpleLogger *logger);
 		void                    close (rhea::ISimpleLogger *logger);
+		void					closeAndReopen();
 
 		bool					sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
 								/*
@@ -37,6 +38,7 @@ namespace cpubridge
 
 	private:
 		OSSerialPort			comPort;
+		char					sCOMPORT[32];
     };
 
 } // namespace cpubridge
