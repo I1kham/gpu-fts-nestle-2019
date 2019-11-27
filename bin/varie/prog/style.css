@@ -117,6 +117,17 @@ table.tselect 		{ width:100%; border:solid 1px #656565; font-size:1.0em; color:#
 table.tselect tr 	{ height:50px; }
 table.tselect tr td { padding: 0 10px 0 10px; }
 
+table.dataAudit { border:solid 1px #666; border-collapse:collapse; }
+table.dataAudit tr:nth-child(odd) { background-color:#333; }
+table.dataAudit th,
+table.dataAudit td { border:solid 1px #666; padding: 5px 2px 5px 2px; color:#ddd; }
+
+table.dataAudit th { background-color:#fff; color:#000; font-size:0.9em;}
+table.dataAudit td { text-align:right; }
+
+table.dataAudit tr.rowTot {background-color:#cc5f29; }
+table.dataAudit tr.rowTot td { color:#000; }
+
 #UISelectFullPage { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
 #UISelectFullPage ul { list-style-type:none; margin:0; padding:0;}
 #UISelectFullPage ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }

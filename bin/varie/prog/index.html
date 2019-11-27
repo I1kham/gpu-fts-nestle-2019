@@ -59,7 +59,7 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 " data-caption="MAINTENANCE" data-onclick="pageMaintenance_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING/<br>RINSING" data-onclick="pageCleaning_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="DATA AUDIT" data-onclick=""></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DATA AUDIT" data-onclick="pageDataAudit_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS<br>(max 48)" data-onclick="pageSelections_show()"></div></td>
@@ -728,7 +728,24 @@
 				</div>
 				
 			</div>
-		</div><!-- page Devices -->			
+		</div><!-- page Devices -->	
+
+		<!-- page DataAudit -->
+		<div id="pageDataAudit" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS' data-onclick='pageDataAudit_onSelector()'></div></td>
+					</tr>
+				</table>
+				<br>
+				
+				<div id="pageDataAudit_o" style="display:none"></div>
+				<div id="pageDataAudit_p" style="display:none"></div>
+				<div id="pageDataAudit_t" style="display:none"></div>
+			</div>
+		</div> <!-- page DataAudit -->
+
 		
 	</div> <!-- divPage -->
 
@@ -2388,6 +2405,150 @@ function pageDevices_setVGrind (macina1o2)
 	console.log ("pageDevices_setVGrind:: macina[" +macina1o2 +"] target[" +target +"]");
 	
 	currentTask.enterSetMacinaPos(macina1o2, target);
+}
+
+
+/***************************************************************************
+ *
+ * pageDataAudit
+ *
+ */
+function pageDataAudit_show()
+{
+	if (showPage("pageDataAudit"))
+	{
+	}
+	
+	pageDataAudit_build_partial();
+	pageDataAudit_build_total();
+	pageDataAudit_onSelector();
+
+	header_setText("DATA AUDIT");
+	btnBack_show();
+	rheaHideElem(rheaGetElemByID("bntSave"));
+}
+
+function pageDataAudit_build_partial()
+{
+	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>SEL<br>NUM</th>"
+				+"<th>NUM PAID<br>PRICE1</th>"
+				+"<th>NUM PAID<br>HAPPY</th>"
+				+"<th>NUM<br>FREEVEND</th>"
+				+"<th>NUM<br>TESTVEND</th>"
+				+"<th>NUM TOTAL</th>"
+				+"<td style='width:100px'>&nbsp;</td>"
+				+"<th>CASH<br>PRICE1</th>"
+				+"<th>CASH<br>PRICE2</th>"
+				+"<th>CASH TOTAL</th>"
+				+"</tr>";
+				
+	for (var i=0; i<48; i++)
+	{
+		var selNum = i+1;
+		if (i<10) selNum = "0"+i;
+		html += "<tr>"
+					+"<td>#" +selNum +"</td>"
+					+"<td>12345</td>"
+					+"<td>67890</td>"
+					+"<td>34567</td>"
+					+"<td>98765</td>"
+					+"<td>18238</td>"
+					+"<td></td>"
+					+"<td>123456</td>"
+					+"<td>123456</td>"
+					+"<td>123456</td>"
+				+"</tr>";
+	}
+
+	//totali di riga
+	html += "<tr class='rowTot'>"
+				+"<td>TOTALS</td>"
+				+"<td>12345</td>"
+				+"<td>67890</td>"
+				+"<td>34567</td>"
+				+"<td>98765</td>"
+				+"<td>18238</td>"
+				+"<td></td>"
+				+"<td>123456</td>"
+				+"<td>123456</td>"
+				+"<td>123456</td>"
+			+"</tr>";
+				
+	html += "</table>";
+	
+	rheaSetDivHTMLByName("pageDataAudit_p", html);
+}
+
+function pageDataAudit_build_total()
+{
+	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>SEL<br>NUM</th>"
+				+"<th>NUM PAID<br>PRICE1</th>"
+				+"<th>NUM PAID<br>HAPPY</th>"
+				+"<th>NUM<br>FREEVEND</th>"
+				+"<th>NUM<br>TESTVEND</th>"
+				+"<th>NUM TOTAL</th>"
+				+"<td style='width:100px'>&nbsp;</td>"
+				+"<th>CASH<br>PRICE1</th>"
+				+"<th>CASH<br>PRICE2</th>"
+				+"<th>CASH TOTAL</th>"
+				+"</tr>";
+				
+	for (var i=0; i<48; i++)
+	{
+		var selNum = i+1;
+		if (i<10) selNum = "0"+i;
+		html += "<tr>"
+					+"<td>#" +selNum +"</td>"
+					+"<td>12345</td>"
+					+"<td>67890</td>"
+					+"<td>34567</td>"
+					+"<td>98765</td>"
+					+"<td>18238</td>"
+					+"<td></td>"
+					+"<td>123456</td>"
+					+"<td>123456</td>"
+					+"<td>123456</td>"
+				+"</tr>";
+	}
+
+	//totali di riga
+	html += "<tr class='rowTot'>"
+				+"<td>TOTALS</td>"
+				+"<td>12345</td>"
+				+"<td>67890</td>"
+				+"<td>34567</td>"
+				+"<td>98765</td>"
+				+"<td>18238</td>"
+				+"<td></td>"
+				+"<td>123456</td>"
+				+"<td>123456</td>"
+				+"<td>123456</td>"
+			+"</tr>";
+				
+	html += "</table>";
+	
+	rheaSetDivHTMLByName("pageDataAudit_t", html);
+}
+function  pageDataAudit_onSelector()
+{
+	var elemO = rheaGetElemByID("pageDataAudit_o");
+	var elemP = rheaGetElemByID("pageDataAudit_p");
+	var elemT = rheaGetElemByID("pageDataAudit_t");
+	
+	rheaHideElem(elemO);
+	rheaHideElem(elemP);
+	rheaHideElem(elemT);
+	
+	var win = ui.getWindowByID("pageDataAudit");
+	switch (parseInt(win.getChildByID("pageDataAudit_selector").getSelectedOptionValue()))
+	{
+		case 0: rheaShowElem(elemO); break;
+		case 1: rheaShowElem(elemP); break;
+		case 2: rheaShowElem(elemT); break;
+	}
+	win.showHideScrollBar();
 }
 </script>
 </html>

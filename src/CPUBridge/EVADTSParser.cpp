@@ -1,5 +1,5 @@
 #include "EVADTSParser.h"
-
+#include "../rheaCommonLib/rheaNetBufferView.h"
 
 EVADTSParser::ContatoreValNumValNum	EVADTSParser::MatriceContatori::contatoreAZero;
 
@@ -235,4 +235,28 @@ EVADTSParser::ePaymentDevice EVADTSParser::priv_fromStringToPaymentDevice(const 
 	if (strncasecmp(s, "TA", 2) == 0)
 		return ePaymentDevice_token;
 	return ePaymentDevice_unknown;
+}
+
+
+/*******************************************************
+ * recupera i dati utili da visualizzare, e li impacchetta in un buffer
+ */
+u8* EVADTSParser::createBufferWithFormattedData (rhea::Allocator *allocator, u32 *out_bufferLen) const
+{
+	*out_bufferLen = 10 * 1024;
+	u8 * ret = (u8*)RHEAALLOC(allocator, *out_bufferLen);
+
+	rhea::NetStaticBufferViewW nbw;
+	nbw.setup(ret, *out_bufferLen, rhea::eBigEndian);
+
+	nbw.writeU24(VA1.num_tot);	//tot num selezioni a pagamento
+	nbw.writeU24(VA2.num_tot);	//tot num selezioni "test vend"
+	nbw.writeU24(VA3.num_tot);	//tot num selezioni "free vend"
+	nbw.writeU24(VA1.num_par);	
+	nbw.writeU24(VA2.num_par);	
+	nbw.writeU24(VA3.num_par);	
+
+
+	return ret;
+
 }

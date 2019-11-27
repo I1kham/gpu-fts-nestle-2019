@@ -199,6 +199,8 @@ namespace rhea
 		bool				readI8 (i8 &out)													{ return readBlob (&out, sizeof(out)); }
 		bool				readU16 (u16 &out)													{ u16 temp; if (!readBlob(&temp, sizeof(temp))) return false; out=convertU16(temp); return true;}
 		bool				readI16 (i16 &out)													{ i16 temp; if (!readBlob(&temp, sizeof(temp))) return false; out=convertI16(temp); return true;}
+		bool				readU24 (u32 &out)													{ u32 temp; if (!readBlob(&temp, 3)) return false; out = convertU32(temp); return true; }
+		bool				readI24 (i32 &out)													{ i32 temp; if (!readBlob(&temp, 3)) return false; out = convertI32(temp); return true; }
 		bool				readU32 (u32 &out)													{ u32 temp; if (!readBlob(&temp, sizeof(temp))) return false; out=convertU32(temp); return true;}
 		bool				readI32 (i32 &out)													{ i32 temp; if (!readBlob(&temp, sizeof(temp))) return false; out=convertI32(temp); return true;}
 		bool				readU64 (u64 &out)													{ u64 temp; if (!readBlob(&temp, sizeof(temp))) return false; out=convertU64(temp); return true;}
@@ -221,6 +223,8 @@ namespace rhea
 		bool				writeI8 (i8 src)													{ return writeBlob (&src, sizeof(src)); }
 		bool				writeU16 (u16 src)													{ u16 temp=convertU16(src); return writeBlob(&temp, sizeof(temp)); }
 		bool				writeI16 (i16 src)													{ i16 temp=convertI16(src); return writeBlob(&temp, sizeof(temp)); }
+		bool				writeU24 (u32 src)													{ u32 temp = convertU32(src); return writeBlob(&temp, 3); }
+		bool				writeI24 (i32 src)													{ i32 temp = convertI32(src); return writeBlob(&temp, 3); }
 		bool				writeU32 (u32 src)													{ u32 temp=convertU32(src); return writeBlob(&temp, sizeof(temp)); }
 		bool				writeI32 (i32 src)													{ i32 temp=convertI32(src); return writeBlob(&temp, sizeof(temp)); }
 		bool				writeU64 (u64 src)													{ u64 temp=convertU64(src); return writeBlob(&temp, sizeof(temp)); }

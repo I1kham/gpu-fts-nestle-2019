@@ -2650,7 +2650,6 @@ bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 targe
 void Server::priv_handleState_regolazioneAperturaMacina()
 {
 	static const u8 NRETRY = 5;
-	u8 bufferW[16];
 	u8 nRetry = NRETRY;
 
 	eCPUProgrammingCommand_macinaMove move = eCPUProgrammingCommand_macinaMove_stop;
@@ -2679,14 +2678,10 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 
 			   
 		//chiede la posizione della macina
-		const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), regolazioneAperturaMacina.macina_1o2);
-		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
+		u16 curpos = 0;
+		if (priv_sendAndHandleGetPosizioneMacina (regolazioneAperturaMacina.macina_1o2, &curpos))
 		{
 			nRetry = NRETRY;
-			const u16 curpos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
-
-			printf("%d ", curpos);
 
 			u16 diff = 0;
 			if (curpos >= regolazioneAperturaMacina.target)
@@ -2697,8 +2692,8 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			{
 				//fine
 				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
-				priv_enterState_normal();
-				return;
+				//priv_enterState_normal();
+				break;
 			}
 
 			if (regolazioneAperturaMacina.target > curpos)
@@ -2734,6 +2729,75 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			}
 		}
 	}
+
+	//a questo punto, sono molto vicino al target, generalmente disto 1 o 2 punti dal valore desiderato, vado di fine tuning
+	nRetry = NRETRY;
+	while (1)
+	{
+		//chiede la posizione della macina
+		u16 curpos = 0;
+		u8 n = 0;
+		for (u8 i = 0; i < 3; i++)
+		{
+			priv_handleMsgQueues(rhea::getTimeNowMSec(), 100);
+			rhea::thread::sleepMSec(300);
+
+			u16 pos = 0;
+			if (priv_sendAndHandleGetPosizioneMacina(regolazioneAperturaMacina.macina_1o2, &pos))
+			{
+				curpos += pos;
+				n++;
+			}
+
+			priv_handleMsgQueues(rhea::getTimeNowMSec(), 100);
+		}
+
+		if (n > 0)
+		{
+			curpos /= n;
+			nRetry = NRETRY;
+
+			u16 diff = 0;
+			if (curpos == regolazioneAperturaMacina.target)
+			{
+				//fine
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_enterState_normal();
+				return;
+			}
+
+			if (curpos > regolazioneAperturaMacina.target)
+				priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_close);
+			else
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_open);
+
+			priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+		}
+		else
+		{
+			nRetry--;
+			if (nRetry == 0)
+			{
+				//abortisco
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_enterState_normal();
+				return;
+			}
+		}
+	}
+}
+
+//**********************************************
+bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1o2, u16 *out)
+{
+	u8 bufferW[16];
+	const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
+		return false;
+
+	*out = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
+	return true;
 }
 
 //**********************************************
@@ -2748,13 +2812,10 @@ bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCom
 	{
 		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
 		{
-			printf("motore %d\n", (u8)m);
 			rhea::thread::sleepMSec(100);
 			return true;
 		}
 	}
-
-	printf("ERRRRRRRRRRRRRR\n");
 	return false;
 }
 

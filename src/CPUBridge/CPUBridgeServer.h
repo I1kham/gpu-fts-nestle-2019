@@ -101,7 +101,8 @@ namespace cpubridge
 
 		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target);
 		void                    priv_handleState_regolazioneAperturaMacina();
-		bool					priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
+		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
+		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1o2, u16 *out);
 
 		bool					priv_enterState_selection (u8 selNumber, const sSubscription *sub);
 		void					priv_handleState_selection();

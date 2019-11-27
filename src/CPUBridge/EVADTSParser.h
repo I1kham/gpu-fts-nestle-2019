@@ -257,6 +257,7 @@ public:
 	bool				loadAndParse (const char *fullFilePathAndName);
 	bool				parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesToCheck);
 
+	u8*					createBufferWithFormattedData(rhea::Allocator *allocator, u32 *out_bufferLen) const;
 
 
 					/*	QUERY
