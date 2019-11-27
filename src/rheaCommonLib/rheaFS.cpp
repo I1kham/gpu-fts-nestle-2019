@@ -362,7 +362,7 @@ bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstF
 bool fs::folderCopy(const char *srcFullPathNoSlash, const char *dstFullPathNoSlash)
 {
 	//alloco un buffer per il file copy
-	const u32 BUFFER_SIZE = 4096;
+    const u32 BUFFER_SIZE = 1024*1024;
 	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
 	
 	void *buffer = RHEAALLOC(allocator, BUFFER_SIZE);
