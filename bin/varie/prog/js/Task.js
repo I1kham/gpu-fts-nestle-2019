@@ -26,6 +26,8 @@ function TaskCleaning (whichWashIN)
 	this.btn1 = 0;
 	this.btn2 = 0;
 	this.nextTimeSanWashStatusCheckMSec = 0;
+	
+	rhea.sendGetCPUStatus();
 }
 TaskCleaning.prototype.onTimer = function (timeNowMsec)
 {

@@ -694,6 +694,13 @@ Rhea.prototype.sendStartDownloadDA3 = function()
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
+Rhea.prototype.sendGetCPUStatus = function()
+{
+	var buffer = new Uint8Array(1);
+	buffer[0] = RHEA_EVENT_CPU_STATUS;
+	this.sendGPUCommand ("E", buffer, 0, 0);
+}
+
 Rhea.prototype.sendStartPosizionamentoMacina = function(macina_1o2, targetValue)
 {
 	//var	RHEA_EVENT_SET_POSIZIONE_MACINA = 122;				//'z'
