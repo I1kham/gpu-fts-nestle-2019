@@ -20,7 +20,7 @@
 			<div id="pagePleaseWait_freeText" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">aa</div>
 			
 			<div id="pagePleaseWait_calibration" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">
-				<div id="pagePleaseWait_calibration_text">prova microfono</div>
+				<div id="pagePleaseWait_calibration_text"></div>
 				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="5" data-decimal="1" data-max="99999" data-um="gr"></div>
 			</div>
 			
@@ -740,7 +740,60 @@
 				</table>
 				<br>
 				
-				<div id="pageDataAudit_o" style="display:none"></div>
+				<div id="pageDataAudit_o" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>
+								EVA-DTS last downloaded on 2019-11-26 11:42
+							</td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='REFRESH' data-onclick="pageDataAudit_downloadEVA()"></div></div></td>
+						</tr>
+					</table>
+							
+					<br>
+					<div id="pageDataAudit_o1">
+						<table class='dataAudit' align='center'><tr valign='bottom'>
+							<tr>
+								<td></td>
+								<th>NUM PAID<br>PRICE1</th>
+								<th>NUM PAID<br>HAPPY</th>
+								<th>NUM<br>FREEVEND</th>
+								<th>NUM<br>TESTVEND</th>
+								<th>NUM TOTAL</th>
+								<td style='width:100px'>&nbsp;</td>
+								<th>CASH<br>PRICE1</th>
+								<th>CASH<br>PRICE2</th>
+								<th>CASH TOTAL</th>
+							</tr>
+							
+							<tr>
+								<td><b>TOTAL</b></td>
+								<td>12345</td>
+								<td>67890</td>
+								<td>34567</td>
+								<td>98765</td>
+								<td>18238</td>
+								<td></td>
+								<td>123456</td>
+								<td>123456</td>
+								<td>123456</td>							
+							</tr>
+							
+							<tr>
+								<td><b>PARTIAL</b></td>
+								<td>12345</td>
+								<td>67890</td>
+								<td>34567</td>
+								<td>98765</td>
+								<td>18238</td>
+								<td></td>
+								<td>123456</td>
+								<td>123456</td>
+								<td>123456</td>							
+							</tr>						
+						</table>
+					</div>
+				</div>
 				<div id="pageDataAudit_p" style="display:none"></div>
 				<div id="pageDataAudit_t" style="display:none"></div>
 			</div>
@@ -2549,6 +2602,29 @@ function  pageDataAudit_onSelector()
 		case 2: rheaShowElem(elemT); break;
 	}
 	win.showHideScrollBar();
+}
+
+
+function pageDataAudit_downloadEVA()
+{
+	pleaseWait_show();
+	rheaSetDivHTMLByName("pageDataAudit_o1", "");
+	rheaSetDivHTMLByName("pageDataAudit_t", "");
+	rheaSetDivHTMLByName("pageDataAudit_p", "");
+
+	currentTask = new TaskDataAudit();
+}
+
+function pageDataAudit_downloadEVA_onFinish()
+{
+	if (currentTask.bufferSize != 0)
+	{
+		//download riuscito
+		console.log (currentTask.buffer);
+	}
+	
+	pleaseWait_hide();
+	currentTask = voidTask;
 }
 </script>
 </html>

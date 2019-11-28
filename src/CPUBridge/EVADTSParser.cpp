@@ -241,43 +241,61 @@ EVADTSParser::ePaymentDevice EVADTSParser::priv_fromStringToPaymentDevice(const 
 /*******************************************************
  * recupera i dati utili da visualizzare, e li impacchetta in un buffer
  */
-u8* EVADTSParser::createBufferWithFormattedData (rhea::Allocator *allocator, u32 *out_bufferLen) const
+u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *out_bufferLen, u8 numDecimali) const
 {
-	*out_bufferLen = 10 * 1024;
-	u8 * ret = (u8*)RHEAALLOC(allocator, *out_bufferLen);
+	const u16 SIZE = 10 * 1024;
+	u8 * ret = (u8*)RHEAALLOC(allocator, SIZE);
 
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(ret, *out_bufferLen, rhea::eBigEndian);
-
-	nbw.writeU24(VA1.num_tot);	//tot num selezioni a pagamento
-	nbw.writeU24(VA2.num_tot);	//tot num selezioni "test vend"
-	nbw.writeU24(VA3.num_tot);	//tot num selezioni "free vend"
-	nbw.writeU24(VA1.num_par);	
-	nbw.writeU24(VA2.num_par);	
-	nbw.writeU24(VA3.num_par);	
+	nbw.setup(ret, SIZE, rhea::eBigEndian);
 
 
-	ContatoreValNumValNum c1;
+	nbw.writeU8(1); //versione di questo layout
+	nbw.writeU8(48); //num selezioni
+	nbw.writeU8(numDecimali); //num decimali
+	nbw.writeU8(0);	//spare
+
+	nbw.writeU32(VA1.num_tot);	//tot num selezioni a pagamento
+	nbw.writeU32(VA1.num_par);
+	nbw.writeU32(VA1.val_tot);
+	nbw.writeU32(VA1.val_par);
+
+	nbw.writeU32(VA2.num_tot);	//tot num selezioni "test vend"
+	nbw.writeU32(VA2.num_par);
+	nbw.writeU32(VA2.val_tot);
+	nbw.writeU32(VA2.val_par);
+
+	nbw.writeU32(VA2.num_tot);	//tot num selezioni "free vend"
+	nbw.writeU32(VA2.num_par);
+	nbw.writeU32(VA2.val_tot);
+	nbw.writeU32(VA2.val_par);
+
+	//parziali per ogni selezione
 	for (u8 i = 0; i < 48; i++)
 	{
-		//num paid (price 1)
+		//paid (price 1)
+		ContatoreValNumValNum c1;
 		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(1, c1);
 
-		//num paid (price 2)
-		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(1, c1);
+		//paid (price 2)
+		ContatoreValNumValNum c2;
+		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(1, c2);
 
 		//num freevend
-		selezioni.getElem(i)->freevend;
+		ContatoreValNumValNum c3 = selezioni.getElem(i)->freevend;
 
 		//num test vend
-		selezioni.getElem(i)->freevend;
+		ContatoreValNumValNum c4 = selezioni.getElem(i)->testvend;
 
-		//totale 1
-
-		//totale dei $ lista prezzo 1
+		nbw.writeU32(c1.num_par);	//num paid (price1)
+		nbw.writeU32(c2.num_par);	//num paid (price2)
+		nbw.writeU32(c3.num_par);	//num freevend
+		nbw.writeU32(c4.num_par);	//num testvend
+		nbw.writeU32(c1.val_par);	//tot cash (price1)
+		nbw.writeU32(c2.val_par);	//tot cash (price2)
 	}
 
-
+	*out_bufferLen = nbw.length();
 	return ret;
 
 }

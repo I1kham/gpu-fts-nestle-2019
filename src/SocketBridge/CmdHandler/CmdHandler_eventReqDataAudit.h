@@ -18,9 +18,9 @@ namespace socketbridge
         static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_reqDataAudit;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS;
 
-		CmdHandler_eventReqDataAudit(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :
-                        CmdHandler_eventReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec)
-                    {  }
+		CmdHandler_eventReqDataAudit(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec UNUSED_PARAM) :
+                        CmdHandler_eventReq(identifiedClientHandle, handlerID, 120000) //override del tempo di morte perchè questo comando potrebbe impiegare un bel po' 
+                    {  }																//di tempo prima di terminare, visto che chiede alla CPU il dataAudit
 
 
 		bool		needToPassDownToCPUBridge() const																		{ return true; }

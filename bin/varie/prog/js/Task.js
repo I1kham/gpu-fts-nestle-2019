@@ -933,3 +933,132 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 	}
 }
 
+/**********************************************************
+ * TaskDataAudit
+ */
+function TaskDataAudit()
+{
+	this.what = 0;
+	this.fase = 0;
+	this.cpuStatus = 0;
+	this.fileID = 0;
+	this.buffer = null;
+	this.bufferSize = 0;
+}
+
+TaskDataAudit.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
+TaskDataAudit.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
+TaskDataAudit.prototype.onExit			   = function(bSave)					{ return bSave; }
+
+TaskDataAudit.prototype.onFreeBtn1Clicked	 = function(ev)						
+{
+	switch (this.fase)
+	{
+		case 202:	pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 210; break;
+	}
+}
+
+TaskDataAudit.prototype.onFreeBtn2Clicked	 = function(ev)						
+{
+}
+
+
+TaskDataAudit.prototype.onTimer = function (timeNowMsec)
+{
+	if (this.timeStarted == 0)
+		this.timeStarted = timeNowMsec;
+	var timeElapsedMSec = timeNowMsec - this.timeStarted;
+	
+	var me = this;
+	//console.log ("TaskDataAudit fase[" +this.fase +"]");
+	switch (this.fase)
+	{
+		case 0:
+			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) 
+										{ 
+											console.log("status[" +status +"], kbSoFar[" +kbSoFar +"], fileID[" +fileID +"]"); 
+											switch (status)
+											{
+											case 0://in progress
+												pleaseWait_freeText_appendText(".");
+												break;
+												
+											case 1: //finished ok
+												me.fase = 10;
+												me.fileID = fileID;
+												break;
+											
+											default:	//errore
+												me.status = 200;
+												break;
+											}
+										}
+			this.fase = 1;
+			pleaseWait_show();
+			pleaseWait_freeText_setText ("REQUESTING EVA-DTS, please wait");
+			pleaseWait_freeText_show();
+			rhea.sendStartDownloadDA3();			
+			break;
+			
+		case 1: //download eva-dts in corso
+			break;
+			
+		case 10: //eva dts scaricato
+			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
+			me.fase = 20;
+			pleaseWait_freeText_appendText ("<br>Done, processing data, please wait<br>");
+			break;
+			
+		case 20: //inizio il download della versione "packed" dell'eva-dts che la GPU ha generato durante la fase precedente
+			me.fase = 21;
+			rhea.filetransfer_startDownload ("packaudit" +me.fileID, me, TaskDataAudit_load_onStart, TaskDataAudit_load_onProgress, TaskDataAudit_load_onEnd);
+			break;
+			
+		case 21: //attende fine download file packed
+			break;
+			
+			
+			
+		case 200: //errore downloading eva-dts
+			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
+			pleaseWait_freeText_appendText("Error downloading EVA-DTS. Please try again later");
+			me.fase = 201;
+			break;
+			
+		case 201: //mostra btn close e ne aspetta la pressione
+			pleaseWait_btn1_setText("CLOSE");
+			pleaseWait_btn1_show();
+			me.fase = 202;
+			break;			
+		case 202: //attende pressione btn1
+			break;
+
+			
+		case 210: //fine
+			this.fase = 211;
+			pageDataAudit_downloadEVA_onFinish();
+			break;
+			
+		default:
+			break;
+	}
+}
+
+
+function TaskDataAudit_load_onStart(userValue)					{ }
+function TaskDataAudit_load_onProgress()						{ }
+function TaskDataAudit_load_onEnd (theTask, reasonRefused, obj)
+{
+	if (reasonRefused != 0)
+	{
+		pleaseWait_freeText_appendText ("Error, reason[" +reasonRefused +"]");
+		theTask.fase = 201;
+		return;
+	}
+
+	theTask.buffer = new Uint8Array(obj.fileSize);
+	theTask.bufferSize = parseInt(obj.fileSize);
+	for (var i=0; i<obj.fileSize; i++)
+		theTask.buffer[i] = obj.fileBuffer[i];
+	theTask.fase = 210;
+}

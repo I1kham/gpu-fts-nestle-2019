@@ -7,6 +7,7 @@
 #include "../rheaCommonLib/rheaMemory.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaLogTargetConsole.h"
+#include "EVADTSParser.h"
 
 using namespace cpubridge;
 
@@ -1428,7 +1429,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	FILE *f = fopen(fullFilePathAndName, "wb");
 	if (NULL == f)
 	{
-		notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_unableToCreateFile, 0, fileID);
+		if (NULL != subscriber)
+			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_unableToCreateFile, 0, fileID);
 		return eReadDataFileStatus_finishedKO_unableToCreateFile;
 	}
 
@@ -1464,10 +1466,32 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
         if (answerBuffer[3] != 0)
         {
             //finito!
-            if (NULL != subscriber)
+			fclose(f);
+	
+			//parso il file ricevuto e genero un secondo file di nome "packedDataAudit%d.dat" contenente le info in versione "packed"
+			EVADTSParser *parser = RHEANEW(localAllocator, EVADTSParser)();
+			if (parser->loadAndParse(fullFilePathAndName))
+			{
+				priv_retreiveSomeDataFromLocalDA3();
+
+				rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+				u32 bufferSize = 0;
+				u8 *buffer = parser->createBufferWithPackedData(allocator, &bufferSize, this->cpu_numDecimalsForPrices);
+				if (NULL != buffer)
+				{
+					sprintf_s(fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
+					FILE *f2 = fopen(fullFilePathAndName, "wb");
+					fwrite(buffer, bufferSize, 1, f2);
+					fclose(f2);
+					RHEAFREE(allocator, buffer);
+				}
+			}
+			RHEADELETE(localAllocator, parser);
+			
+			//notifico
+			if (NULL != subscriber)
                 notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
 
-            fclose(f);
             return eReadDataFileStatus_finishedOK;
         }
 

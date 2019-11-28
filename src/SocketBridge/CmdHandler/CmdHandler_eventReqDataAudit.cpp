@@ -17,8 +17,9 @@ void CmdHandler_eventReqDataAudit::onCPUBridgeNotification (socketbridge::Server
 	//NB: se modifichi questa, modifica anche rhea::app::ReadDataAudit::decodeAnswer()
 
 	//rispondo con:
-	//  2 byte per lo status
+	//  2 byte per il fileID
 	//  2 byte per il tot dei kb downloadati fino ad ora
+	//  1 byte per lo status
 
 	cpubridge::eReadDataFileStatus status;
 	u16 totKbSoFar;

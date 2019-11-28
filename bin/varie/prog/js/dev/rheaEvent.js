@@ -27,3 +27,5 @@ Rhea.prototype.onEvent_selectionReqStatus = function(status)	{}
 
 Rhea.prototype.onEvent_cpuStatus = function(statusID, statusStr)	{}
 
+Rhea.prototype.onEvent_readDataAudit = function(status, kbSoFar, fileID)	{}
+

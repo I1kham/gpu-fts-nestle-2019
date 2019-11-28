@@ -14,6 +14,7 @@ var	RHEA_EVENT_CPU_STATUS = 104;						//'h'
 var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
 var	RHEA_EVENT_SEND_BUTTON = 115;						//'s'
 var	RHEA_EVENT_SEND_PARTIAL_DA3 = 116;					//'t'
+var	RHEA_EVENT_READ_DATA_AUDIT = 108;					//'l'
 
 
 
@@ -338,6 +339,13 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 					//notifica da parte della SMU che ci dice che un blocco di DA3 è stato scritto
 					me.partialDA3AckRcvd = parseInt(data[8]);	
 					//console.log ("RHEA_EVENT_SEND_PARTIAL_DA3 [" +me.partialDA3AckRcvd +"]");
+					break;
+					
+				case RHEA_EVENT_READ_DATA_AUDIT:
+					fileID = data[8] * 256 + data[9];
+					kbSoFar = data[10] * 256 + data[11];
+					status = data[12];
+					me.onEvent_readDataAudit(status, kbSoFar, fileID)
 					break;
 				}
 				
@@ -676,6 +684,13 @@ Rhea.prototype.sendStartDisintallation = function()
 {
 	var buffer = new Uint8Array(1);
 	buffer[0] = 65;
+	this.sendGPUCommand ("E", buffer, 0, 0);
+}
+
+Rhea.prototype.sendStartDownloadDA3 = function()
+{
+	var buffer = new Uint8Array(1);
+	buffer[0] = RHEA_EVENT_READ_DATA_AUDIT;
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 

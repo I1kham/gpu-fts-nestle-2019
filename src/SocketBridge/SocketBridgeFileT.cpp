@@ -510,6 +510,12 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 		//si vuole scaricare il file app/temp/dataAudit%d.txt
 		sprintf_s(s, sizeof(s), "%s/temp/dataAudit%s.txt", rhea::getPhysicalPathToAppFolder(), &data.what[5]);
 	}
+	else if (strncasecmp(data.what, "packaudit", 9) == 0)
+	{
+		//si vuole scaricare il file app/temp/packedDataAudit%d.dat
+		//Questo file e' automaticamente generato durante il download del dataAudit dalla CPU, vedi CPUBridgeServer::priv_downloadDataAudit
+		sprintf_s(s, sizeof(s), "%s/temp/packedDataAudit%s.dat", rhea::getPhysicalPathToAppFolder(), &data.what[9]);
+	}
 	else if (strncasecmp(data.what, "da3", 3) == 0)
 	{
 		if (strlen(data.what) == 3)

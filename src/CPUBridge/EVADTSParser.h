@@ -44,8 +44,7 @@ public:
 			val_par = rhea::string::convert::toU32(s[3].s);
 		}
 
-		ContatoreValNumValNum&	
-operator += (const ContatoreValNumValNum &b)
+		ContatoreValNumValNum&	operator += (const ContatoreValNumValNum &b)
 		{
 			num_tot += b.num_tot;
 			num_par += b.num_par;
@@ -257,7 +256,7 @@ public:
 	bool				loadAndParse (const char *fullFilePathAndName);
 	bool				parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesToCheck);
 
-	u8*					createBufferWithFormattedData(rhea::Allocator *allocator, u32 *out_bufferLen) const;
+	u8*					createBufferWithPackedData(rhea::Allocator *allocator, u32 *out_bufferLen, u8 numDecimali) const;
 
 
 					/*	QUERY
