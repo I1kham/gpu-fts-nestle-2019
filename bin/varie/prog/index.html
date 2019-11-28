@@ -860,19 +860,6 @@ function onRheaBootstrapFinished()
 	ui.setupStandaloneButton("bntTestSelection");
 	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
 	
-	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
-	switch (rheaGetURLParamOrDefault("page", "pageMainMenu"))
-	{
-		case "pageMainMenu": pageMainMenu_show(); break;
-		case "pageCleaning": pageCleaning_show(); break;
-		case "pageCleaningSanitario": pageCleaning_show(); pageCleaning_startLavSanitario(8,0); break;
-		case "pageMaintenance": pageMaintenance_show(); break;
-		case "pageMiscellaneous": pageMiscellaneous_show(); break;
-		case "pageProductQty": pageProductQty_show(); break;
-		case "pageMilker": pageMilker_show(); break;
-		case "pageSelections": pageSelections_show(); break;
-	}
-	
 	pleaseWait_show();
 	pleaseWait_setTextLeft("loading da3");
 
@@ -942,6 +929,19 @@ function onGUIInfoLoaded()
 	}
 	
 	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
+	
+	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
+	switch (rheaGetURLParamOrDefault("page", "pageMainMenu"))
+	{
+		case "pageMainMenu": pageMainMenu_show(); break;
+		case "pageCleaning": pageCleaning_show(); break;
+		case "pageCleaningSanitario": pageCleaning_show(); pageCleaning_startLavSanitario(8,0); break;
+		case "pageMaintenance": pageMaintenance_show(); break;
+		case "pageMiscellaneous": pageMiscellaneous_show(); break;
+		case "pageProductQty": pageProductQty_show(); break;
+		case "pageMilker": pageMilker_show(); break;
+		case "pageSelections": pageSelections_show(); break;
+	}	
 }
 
 
