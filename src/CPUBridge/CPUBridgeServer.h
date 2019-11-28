@@ -113,6 +113,7 @@ namespace cpubridge
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend);
         eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
+		void					priv_downloadDataAudit_onFinishedOK(const char *fullFilePathAndName, u32 fileID);
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);
 		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath);

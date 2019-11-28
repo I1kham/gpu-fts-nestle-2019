@@ -879,6 +879,12 @@ void Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 		break;
 
 	case eCPUProgrammingCommand_enterProg:
+		//il comando "vai in modalità prog" lo mando solo se la CPU non è già in modalità PROG
+		if (cpuStatus.VMCstate != eVMCState_PROGRAMMAZIONE)
+			nBytesToSend = cpubridge::buildMsg_Programming(cmd, NULL, 0, bufferW, sizeof(bufferW));
+		break;
+
+
 	case eCPUProgrammingCommand_querySanWashingStatus:
 		nBytesToSend = cpubridge::buildMsg_Programming (cmd, NULL, 0, bufferW, sizeof(bufferW));
 		break;
@@ -1426,6 +1432,17 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 		fileID++;
 	}
 
+
+	//hack per velocizzare i test
+	{
+		rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_A_1.txt", fullFilePathAndName);
+		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
+		if (NULL != subscriber)
+			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, 15, fileID);
+
+		return eReadDataFileStatus_finishedOK;
+	}
+
 	FILE *f = fopen(fullFilePathAndName, "wb");
 	if (NULL == f)
 	{
@@ -1468,25 +1485,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
             //finito!
 			fclose(f);
 	
-			//parso il file ricevuto e genero un secondo file di nome "packedDataAudit%d.dat" contenente le info in versione "packed"
-			EVADTSParser *parser = RHEANEW(localAllocator, EVADTSParser)();
-			if (parser->loadAndParse(fullFilePathAndName))
-			{
-				priv_retreiveSomeDataFromLocalDA3();
-
-				rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
-				u32 bufferSize = 0;
-				u8 *buffer = parser->createBufferWithPackedData(allocator, &bufferSize, this->cpu_numDecimalsForPrices);
-				if (NULL != buffer)
-				{
-					sprintf_s(fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
-					FILE *f2 = fopen(fullFilePathAndName, "wb");
-					fwrite(buffer, bufferSize, 1, f2);
-					fclose(f2);
-					RHEAFREE(allocator, buffer);
-				}
-			}
-			RHEADELETE(localAllocator, parser);
+			priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 			
 			//notifico
 			if (NULL != subscriber)
@@ -1504,7 +1503,31 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
                 notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
         }
     }
+}
 
+//***************************************************
+void Server::priv_downloadDataAudit_onFinishedOK(const char *fullFilePathAndName, u32 fileID)
+{
+	//parso il file ricevuto e genero un secondo file di nome "packedDataAudit%d.dat" contenente le info in versione "packed"
+	EVADTSParser *parser = RHEANEW(localAllocator, EVADTSParser)();
+	if (parser->loadAndParse(fullFilePathAndName))
+	{
+		priv_retreiveSomeDataFromLocalDA3();
+
+		rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+		u32 bufferSize = 0;
+		u8 *buffer = parser->createBufferWithPackedData(allocator, &bufferSize, this->cpu_numDecimalsForPrices);
+		if (NULL != buffer)
+		{
+			char s[256];
+			sprintf_s(s, sizeof(s), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
+			FILE *f2 = fopen(s, "wb");
+			fwrite(buffer, bufferSize, 1, f2);
+			fclose(f2);
+			RHEAFREE(allocator, buffer);
+		}
+	}
+	RHEADELETE(localAllocator, parser);
 }
 
 //***************************************************

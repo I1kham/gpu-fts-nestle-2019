@@ -261,6 +261,19 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	nbw.writeU8(numDecimali); //num decimali
 	nbw.writeU8(0);	//spare
 
+	//qui ci metto l'indirizzo di inizio del blocco dati 1
+	const u32 seek1 = nbw.tell();
+	nbw.writeU32(0);
+
+	const u32 seek2 = nbw.tell();	//indirizzo del blocco DATI PARZIALI
+	nbw.writeU32(0);
+
+	const u32 seek3 = nbw.tell();	//indirizzo del blocco DATI PARZIALI
+	nbw.writeU32(0);
+
+
+	//BLOCCO DATI 1
+	nbw.writeU32At(seek1, nbw.tell());
 	nbw.writeU32(VA1.num_tot);	//tot num selezioni a pagamento
 	nbw.writeU32(VA1.num_par);
 	nbw.writeU32(VA1.val_tot);
@@ -276,7 +289,9 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	nbw.writeU32(VA2.val_tot);
 	nbw.writeU32(VA2.val_par);
 
+	//BLOCCO DATI PARZIALI
 	//parziali per ogni selezione
+	nbw.writeU32At(seek2, nbw.tell());
 	for (u8 i = 0; i < nSelezioni; i++)
 	{
 		//paid (price 1)
@@ -300,6 +315,11 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 		nbw.writeU32(c1.val_par);	//tot cash (price1)
 		nbw.writeU32(c2.val_par);	//tot cash (price2)
 	}
+
+	//BLOCCO DATI TOTALI
+	//parziali per ogni selezione
+	nbw.writeU32At(seek3, nbw.tell());
+
 
 	*out_bufferLen = nbw.length();
 	return ret;

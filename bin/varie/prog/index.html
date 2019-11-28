@@ -2483,7 +2483,10 @@ function pageDataAudit_show()
 function pageDataAudit_build_overview()
 {}
 
-function pageDataAudit_build_partial()
+function pageDataAudit_toCurrency (number, numDecimali)
+{}
+
+function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)
 {
 	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 				+"<th>SEL<br>NUM</th>"
@@ -2498,21 +2501,31 @@ function pageDataAudit_build_partial()
 				+"<th>CASH TOTAL</th>"
 				+"</tr>";
 				
-	for (var i=0; i<48; i++)
+	for (var i=0; i<numSelezioni; i++)
 	{
 		var selNum = i+1;
 		if (i<10) selNum = "0"+i;
+		
+		var col = [];
+		col[0] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[1] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[2] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[3] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[4] = col[0] +col[1] +col[2] +col[3];
+		col[5] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[6] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[7] = col[5] +col[6];
 		html += "<tr>"
 					+"<td>#" +selNum +"</td>"
-					+"<td>12345</td>"
-					+"<td>67890</td>"
-					+"<td>34567</td>"
-					+"<td>98765</td>"
-					+"<td>18238</td>"
+					+"<td>" +col[0] +"</td>"
+					+"<td>" +col[1] +"</td>"
+					+"<td>" +col[2] +"</td>"
+					+"<td>" +col[3] +"</td>"
+					+"<td>" +col[4] +"</td>"
 					+"<td></td>"
-					+"<td>123456</td>"
-					+"<td>123456</td>"
-					+"<td>123456</td>"
+					+"<td>" +col[5] +"</td>"
+					+"<td>" +col[6] +"</td>"
+					+"<td>" +col[7] +"</td>"
 				+"</tr>";
 	}
 
@@ -2624,8 +2637,16 @@ function pageDataAudit_downloadEVA_onFinish()
 		//download riuscito
 		console.log (currentTask.buffer);
 		rheaSetDivHTMLByName("pageDataAudit_lastDownload", "EVA-DTS, downloaded on " +dataora_yy +"-" +dataora_mm +"-" +dataora_dd +" " +dataora_hh +":" +dataora_min);
+		
+		var numSelezioni = parseInt(currentTask.buffer[1]);
+		var numDecimali  = parseInt(currentTask.buffer[2]);
+		var addrBloccoGeneral = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
+		var addrBloccoPartial = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
+		var addrBloccoTotal = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
+		
+		
 		pageDataAudit_build_overview();
-		pageDataAudit_build_partial();
+		pageDataAudit_build_partial (numSelezioni, numDecimali, currentTask.buffer, addrBloccoPartial);
 		pageDataAudit_build_total();
 	}
 	

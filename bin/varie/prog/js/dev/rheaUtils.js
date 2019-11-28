@@ -32,6 +32,13 @@ function rheaAddU32ToUint8Buffer (buffer, offset, u32Value)
 	buffer[offset+3]   =  (n & 0x000000FF);
 }
 
+//**************************************************
+function rheaReadU32FromUint8Buffer (buffer, offset)
+{
+	return (parseInt(buffer[offset]) << 24) | (parseInt(buffer[offset+1]) << 16) | (parseInt(buffer[offset+2]) << 8) | parseInt(buffer[offset+3]);
+}
+
+
 /**************************************************
  * Cookie
  */
