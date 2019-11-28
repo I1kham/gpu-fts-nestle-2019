@@ -23,7 +23,8 @@ bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *lo
 void testEVA()
 {
 	EVADTSParser parser;
-	parser.loadAndParse("C:/Users/gbrunelli/Desktop/Eva_A_1.txt");
+	//parser.loadAndParse("C:/Users/gbrunelli/Desktop/Eva_A_1.txt");
+	parser.loadAndParse("C:/Users/gbrunelli/Desktop/dataAudit0.txt");
 }
 
 //*****************************************************

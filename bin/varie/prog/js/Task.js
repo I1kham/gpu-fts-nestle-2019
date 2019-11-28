@@ -982,7 +982,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 											switch (status)
 											{
 											case 0://in progress
-												pleaseWait_freeText_appendText(".");
+												pleaseWait_freeText_setText ("DOWNLOADING EVA-DTS: " +kbSoFar +" Kb");
 												break;
 												
 											case 1: //finished ok

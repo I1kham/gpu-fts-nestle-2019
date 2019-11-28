@@ -84,14 +84,19 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 		{
 			CA2.valorizzaFromString_ValNumValNum(par);
 		}
-		else if (priv_checkTag(line, "PA1", 3, par))
+		else if (priv_checkTag(line, "PA1", 2, par)) //a volte il terzo parametro (nome selezione) non esiste
 		{
 			//ho trovato il tag di inizio di una nuova selezione
 			lastInfoSel = RHEANEW(allocator, InfoSelezione)();
 			lastInfoSel->id = priv_toInt(par[0].s);
 			lastInfoSel->price = priv_toInt(par[1].s);
-			strcpy(lastInfoSel->name.s, par[2].s);
+			
+			if (priv_checkTag(line, "PA1", 3, par))
+				strcpy(lastInfoSel->name.s, par[2].s);
+			else
+				lastInfoSel->name.s[0] = 0;
 			selezioni.append(lastInfoSel);
+
 		}
 		else if (priv_checkTag(line, "PA2", 4, par))
 		{
@@ -249,9 +254,10 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	rhea::NetStaticBufferViewW nbw;
 	nbw.setup(ret, SIZE, rhea::eBigEndian);
 
+	const u8 nSelezioni = (u8)selezioni.getNElem();
 
 	nbw.writeU8(1); //versione di questo layout
-	nbw.writeU8(48); //num selezioni
+	nbw.writeU8(nSelezioni); //num selezioni
 	nbw.writeU8(numDecimali); //num decimali
 	nbw.writeU8(0);	//spare
 
@@ -271,7 +277,7 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	nbw.writeU32(VA2.val_par);
 
 	//parziali per ogni selezione
-	for (u8 i = 0; i < 48; i++)
+	for (u8 i = 0; i < nSelezioni; i++)
 	{
 		//paid (price 1)
 		ContatoreValNumValNum c1;
