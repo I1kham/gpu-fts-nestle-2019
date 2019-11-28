@@ -17,7 +17,7 @@
 		<div class="page">
 			<div id="pagePleaseWait_wait" style="position:absolute; top:150px; left:462px"><img draggable='false' src="img/animationRound.gif"></div>
 			
-			<div id="pagePleaseWait_freeText" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">aa</div>
+			<div id="pagePleaseWait_freeText"></div>
 			
 			<div id="pagePleaseWait_calibration" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">
 				<div id="pagePleaseWait_calibration_text"></div>
@@ -744,7 +744,7 @@
 					<div>
 						<table border='0' width="100%">
 							<tr valign='middle'>
-								<td align="left">EVA-DTS, downloaded on 2019-11-26 11:42</td>
+								<td align="left"><div id="pageDataAudit_lastDownload">EVA-DTS, downloaded on 2019-11-26 11:42</div></td>
 								<td align="right"><div class='UIButton actionButton' data-caption='REFRESH' data-onclick="pageDataAudit_downloadEVA()"></div></td>
 							</tr>
 						</table>
@@ -2470,16 +2470,18 @@ function pageDataAudit_show()
 {
 	if (showPage("pageDataAudit"))
 	{
+	pageDataAudit_downloadEVA();
 	}
 	
-	pageDataAudit_build_partial();
-	pageDataAudit_build_total();
 	pageDataAudit_onSelector();
 
 	header_setText("DATA AUDIT");
 	btnBack_show();
 	rheaHideElem(rheaGetElemByID("bntSave"));
 }
+
+function pageDataAudit_build_overview()
+{}
 
 function pageDataAudit_build_partial()
 {
@@ -2621,6 +2623,10 @@ function pageDataAudit_downloadEVA_onFinish()
 	{
 		//download riuscito
 		console.log (currentTask.buffer);
+		rheaSetDivHTMLByName("pageDataAudit_lastDownload", "EVA-DTS, downloaded on " +dataora_yy +"-" +dataora_mm +"-" +dataora_dd +" " +dataora_hh +":" +dataora_min);
+		pageDataAudit_build_overview();
+		pageDataAudit_build_partial();
+		pageDataAudit_build_total();
 	}
 	
 	pleaseWait_hide();

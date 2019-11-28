@@ -1787,7 +1787,6 @@ void Server::priv_handleState_DA3Sync()
 		nRetry--;
 		if (nRetry == 0)
 		{
-			//priv_enterState_compatibilityCheck();
 			priv_enterState_comError();
 			return;
 		}
