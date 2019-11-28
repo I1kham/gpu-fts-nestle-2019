@@ -273,7 +273,7 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 
 
 	//BLOCCO DATI 1
-	nbw.writeU32At(seek1, nbw.tell());
+	nbw.writeU32At(nbw.tell(), seek1);
 	nbw.writeU32(VA1.num_tot);	//tot num selezioni a pagamento
 	nbw.writeU32(VA1.num_par);
 	nbw.writeU32(VA1.val_tot);
@@ -284,14 +284,14 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	nbw.writeU32(VA2.val_tot);
 	nbw.writeU32(VA2.val_par);
 
-	nbw.writeU32(VA2.num_tot);	//tot num selezioni "free vend"
-	nbw.writeU32(VA2.num_par);
-	nbw.writeU32(VA2.val_tot);
-	nbw.writeU32(VA2.val_par);
+	nbw.writeU32(VA3.num_tot);	//tot num selezioni "free vend"
+	nbw.writeU32(VA3.num_par);
+	nbw.writeU32(VA3.val_tot);
+	nbw.writeU32(VA3.val_par);
 
 	//BLOCCO DATI PARZIALI
 	//parziali per ogni selezione
-	nbw.writeU32At(seek2, nbw.tell());
+	nbw.writeU32At(nbw.tell(), seek2);
 	for (u8 i = 0; i < nSelezioni; i++)
 	{
 		//paid (price 1)
@@ -300,7 +300,7 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 
 		//paid (price 2)
 		ContatoreValNumValNum c2;
-		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(1, c2);
+		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(2, c2);
 
 		//num freevend
 		ContatoreValNumValNum c3 = selezioni.getElem(i)->freevend;
@@ -318,8 +318,30 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 
 	//BLOCCO DATI TOTALI
 	//parziali per ogni selezione
-	nbw.writeU32At(seek3, nbw.tell());
+	nbw.writeU32At(nbw.tell(), seek3);
+	for (u8 i = 0; i < nSelezioni; i++)
+	{
+		//paid (price 1)
+		ContatoreValNumValNum c1;
+		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(1, c1);
 
+		//paid (price 2)
+		ContatoreValNumValNum c2;
+		selezioni.getElem(i)->matriceContatori.getTotaliPerListaPrezzo_Tot_1_4(2, c2);
+
+		//num freevend
+		ContatoreValNumValNum c3 = selezioni.getElem(i)->freevend;
+
+		//num test vend
+		ContatoreValNumValNum c4 = selezioni.getElem(i)->testvend;
+
+		nbw.writeU32(c1.num_tot);	//num paid (price1)
+		nbw.writeU32(c2.num_tot);	//num paid (price2)
+		nbw.writeU32(c3.num_tot);	//num freevend
+		nbw.writeU32(c4.num_tot);	//num testvend
+		nbw.writeU32(c1.val_tot);	//tot cash (price1)
+		nbw.writeU32(c2.val_tot);	//tot cash (price2)
+	}
 
 	*out_bufferLen = nbw.length();
 	return ret;

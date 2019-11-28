@@ -921,7 +921,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		break;
 		
 	case 40:
-		pleaseWait_calibration_setText("DISINTALLATION finished, please shut down then machine");
+		pleaseWait_calibration_setText("DISINTALLATION finished, please shut down the machine");
 		this.fase = 41;
 		break;
 		

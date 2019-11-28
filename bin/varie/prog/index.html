@@ -2486,7 +2486,7 @@ function pageDataAudit_build_overview()
 function pageDataAudit_toCurrency (number, numDecimali)
 {}
 
-function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)
+function pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)
 {
 	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 				+"<th>SEL<br>NUM</th>"
@@ -2503,8 +2503,8 @@ function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)
 				
 	for (var i=0; i<numSelezioni; i++)
 	{
-		var selNum = i+1;
-		if (i<10) selNum = "0"+i;
+		var selNum = (i+1).toString();
+		if (selNum.length<2) selNum = "0"+selNum;
 		
 		var col = [];
 		col[0] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
@@ -2545,60 +2545,11 @@ function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)
 				
 	html += "</table>";
 	
-	rheaSetDivHTMLByName("pageDataAudit_p", html);
+	return html;
 }
 
-function pageDataAudit_build_total()
-{
-	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
-				+"<th>SEL<br>NUM</th>"
-				+"<th>NUM PAID<br>PRICE1</th>"
-				+"<th>NUM PAID<br>HAPPY</th>"
-				+"<th>NUM<br>FREEVEND</th>"
-				+"<th>NUM<br>TESTVEND</th>"
-				+"<th>NUM TOTAL</th>"
-				+"<td style='width:100px'>&nbsp;</td>"
-				+"<th>CASH<br>PRICE1</th>"
-				+"<th>CASH<br>PRICE2</th>"
-				+"<th>CASH TOTAL</th>"
-				+"</tr>";
-				
-	for (var i=0; i<48; i++)
-	{
-		var selNum = i+1;
-		if (i<10) selNum = "0"+i;
-		html += "<tr>"
-					+"<td>#" +selNum +"</td>"
-					+"<td>12345</td>"
-					+"<td>67890</td>"
-					+"<td>34567</td>"
-					+"<td>98765</td>"
-					+"<td>18238</td>"
-					+"<td></td>"
-					+"<td>123456</td>"
-					+"<td>123456</td>"
-					+"<td>123456</td>"
-				+"</tr>";
-	}
-
-	//totali di riga
-	html += "<tr class='rowTot'>"
-				+"<td>TOTALS</td>"
-				+"<td>12345</td>"
-				+"<td>67890</td>"
-				+"<td>34567</td>"
-				+"<td>98765</td>"
-				+"<td>18238</td>"
-				+"<td></td>"
-				+"<td>123456</td>"
-				+"<td>123456</td>"
-				+"<td>123456</td>"
-			+"</tr>";
-				
-	html += "</table>";
-	
-	rheaSetDivHTMLByName("pageDataAudit_t", html);
-}
+function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)		{ rheaSetDivHTMLByName("pageDataAudit_p", pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)); }
+function pageDataAudit_build_total(numSelezioni, numDecimali, buffer, offset)		{ rheaSetDivHTMLByName("pageDataAudit_t", pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)); }
 function  pageDataAudit_onSelector()
 {
 	var elemO = rheaGetElemByID("pageDataAudit_o");
@@ -2641,13 +2592,13 @@ function pageDataAudit_downloadEVA_onFinish()
 		var numSelezioni = parseInt(currentTask.buffer[1]);
 		var numDecimali  = parseInt(currentTask.buffer[2]);
 		var addrBloccoGeneral = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
-		var addrBloccoPartial = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
-		var addrBloccoTotal = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
+		var addrBloccoPartial = rheaReadU32FromUint8Buffer(currentTask.buffer, 8);
+		var addrBloccoTotal = rheaReadU32FromUint8Buffer(currentTask.buffer, 12);
 		
 		
 		pageDataAudit_build_overview();
 		pageDataAudit_build_partial (numSelezioni, numDecimali, currentTask.buffer, addrBloccoPartial);
-		pageDataAudit_build_total();
+		pageDataAudit_build_total (numSelezioni, numDecimali, currentTask.buffer, addrBloccoTotal);
 	}
 	
 	pleaseWait_hide();
