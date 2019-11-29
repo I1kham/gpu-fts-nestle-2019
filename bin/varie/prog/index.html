@@ -752,46 +752,6 @@
 							
 					<br>
 					<div id="pageDataAudit_o1">
-						<table class='dataAudit' align='center'><tr valign='bottom'>
-							<tr>
-								<td></td>
-								<th>NUM PAID<br>PRICE1</th>
-								<th>NUM PAID<br>HAPPY</th>
-								<th>NUM<br>FREEVEND</th>
-								<th>NUM<br>TESTVEND</th>
-								<th>NUM TOTAL</th>
-								<td style='width:100px'>&nbsp;</td>
-								<th>CASH<br>PRICE1</th>
-								<th>CASH<br>PRICE2</th>
-								<th>CASH TOTAL</th>
-							</tr>
-							
-							<tr>
-								<td><b>TOTAL</b></td>
-								<td>12345</td>
-								<td>67890</td>
-								<td>34567</td>
-								<td>98765</td>
-								<td>18238</td>
-								<td></td>
-								<td>123456</td>
-								<td>123456</td>
-								<td>123456</td>							
-							</tr>
-							
-							<tr>
-								<td><b>PARTIAL</b></td>
-								<td>12345</td>
-								<td>67890</td>
-								<td>34567</td>
-								<td>98765</td>
-								<td>18238</td>
-								<td></td>
-								<td>123456</td>
-								<td>123456</td>
-								<td>123456</td>							
-							</tr>						
-						</table>
 					</div>
 				</div>
 				<div id="pageDataAudit_p" style="display:none"></div>
@@ -913,6 +873,7 @@ function onDA3Loaded()
 }
 
 //***************** chiamata al termine delle gui info
+var bGotoHMIAfterLavaggio = 0;
 function onGUIInfoLoaded()
 {
 	pageProductQty_build();
@@ -935,18 +896,31 @@ function onGUIInfoLoaded()
 	{
 		case "pageMainMenu": pageMainMenu_show(); break;
 		case "pageCleaning": pageCleaning_show(); break;
-		case "pageCleaningSanitario": pageCleaning_show(); pageCleaning_startLavSanitario(8,0); break;
 		case "pageMaintenance": pageMaintenance_show(); break;
 		case "pageMiscellaneous": pageMiscellaneous_show(); break;
 		case "pageProductQty": pageProductQty_show(); break;
 		case "pageMilker": pageMilker_show(); break;
-		case "pageSelections": pageSelections_show(); break;
+		
+		case "pageCleaningSanitario": 
+			//start del lavaggio sanitario e, alla fine, goto back to HMI
+			pageCleaning_show(); 
+			pageCleaning_startLavSanitario(8,0); 
+			bGotoHMIAfterLavaggio = 1;
+			break;
+
+		case "pageCleaningMilker": 
+			//start del lavaggio milker e, alla fine, goto back to HMI
+			pageCleaning_show(); 
+			pageCleaning_startLavSanitario(5,0); 
+			bGotoHMIAfterLavaggio = 1;
+			break;
 	}	
 }
 
 
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s); }
 
+function gotoHMI()						{ window.location = "gotoHMI.html"; }
 function showPage(pageID)				{ return showPageEx(pageID,0); }
 function showPageEx(pageID, da3Offset)	
 { 
@@ -1351,8 +1325,15 @@ function pageCleaning_startLavSanitario (what, bSendRequestToGPU)
 
 function pageCleaning_onFinished()
 {
-	pleaseWait_hide();
 	currentTask = voidTask;
+	
+	if (bGotoHMIAfterLavaggio)
+	{
+		gotoHMI();
+		return;
+	}
+		
+	pleaseWait_hide();
 }
 
 	
@@ -1453,10 +1434,7 @@ function pageMiscellaneous_stopFVNow_onFinish()
 	pleaseWait_hide();
 }
 
-function pageMiscellaneous_oldProgMenu()
-{
-	window.location = "gotoLegacyMenu.html";
-}
+function pageMiscellaneous_oldProgMenu()		{ window.location = "gotoLegacyMenu.html"; }
 
 function  pageMiscellaneous_onSelector()
 {
@@ -2480,15 +2458,125 @@ function pageDataAudit_show()
 	rheaHideElem(rheaGetElemByID("bntSave"));
 }
 
-function pageDataAudit_build_overview()
-{}
 
-function pageDataAudit_toCurrency (number, numDecimali)
-{}
+
+function toCurrency (numberIN, numDecimali)
+{
+	var s = numberIN.toString();
+	if (numDecimali == 0)
+		return s;
+		
+	while (s.length < numDecimali)
+		s = "0" +s;
+
+	var n = s.length;
+	if (n == numDecimali)
+		return "0." +s;
+		
+	return s.substr(0, n-numDecimali) +"." +s.substr(n-numDecimali, numDecimali);
+}
+
+function formatInteger(x) { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+
+function pageDataAudit_build_overview(numSelezioni, numDecimali, buffer, offset)
+{
+var col = [];
+	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>&nbsp;</th>"
+				+"<th colspan='2' align='center'>NUM PAID (VA1)</th>"
+				+"<th colspan='2' align='center'>NUM FREEVEND (VA3)</th>"
+				+"<th colspan='2' align='center'>NUM TESTVEND (VA2)</th>"
+			+"</tr><tr valign='bottom'>"
+				+"<th style='width:100px'>&nbsp;</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+			+"</tr>";
+
+	//VA101/2/3
+	var va101 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va102 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va103 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va104 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+
+	var va201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va202 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va204 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	
+	var va301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va302 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va304 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+
+	html += "<tr>"
+				+"<td>TOTALS</td>"
+				+"<td>" +formatInteger(va102) +"</td>"
+				+"<td>" +formatInteger(va104) +"</td>"
+				+"<td>" +formatInteger(va302) +"</td>"
+				+"<td>" +formatInteger(va304) +"</td>"
+				+"<td>" +formatInteger(va202) +"</td>"
+				+"<td>" +formatInteger(va204) +"</td>"
+			+"</tr></table><br>";
+				
+				
+				
+	html += "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>&nbsp;</th>"
+				+"<th colspan='2' align='center'>NUM PAID (PA2)</th>"
+				+"<th colspan='2' align='center'>NUM FREEVEND (PA4)</th>"
+				+"<th colspan='2' align='center'>NUM TESTVEND (PA3)</th>"
+			+"</tr><tr valign='bottom'>"
+				+"<th style='width:100px'>SEL NUM</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+			+"</tr>";
+			
+	for (var i=0; i<numSelezioni; i++)
+	{
+		var selNum = (i+1).toString();
+		if (selNum.length<2) selNum = "0"+selNum;
+		
+		var pa201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa202 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa204 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
+		
+		var pa301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa302 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa304 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
+
+		var pa401 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa402 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa403 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa404 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
+		
+	html += "<tr>"
+				+"<td>#" +selNum +"</td>"
+				+"<td>" +formatInteger(pa202) +"</td>"
+				+"<td>" +formatInteger(pa204) +"</td>"
+				+"<td>" +formatInteger(pa402) +"</td>"
+				+"<td>" +formatInteger(pa404) +"</td>"
+				+"<td>" +formatInteger(pa302) +"</td>"
+				+"<td>" +formatInteger(pa304) +"</td>"
+			+"</tr>";
+	}
+	html += "</table>";
+	
+	rheaSetDivHTMLByName("pageDataAudit_o", html);
+}
 
 function pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)
 {
-	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 				+"<th>SEL<br>NUM</th>"
 				+"<th>NUM PAID<br>PRICE1</th>"
 				+"<th>NUM PAID<br>HAPPY</th>"
@@ -2496,11 +2584,12 @@ function pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offse
 				+"<th>NUM<br>TESTVEND</th>"
 				+"<th>NUM TOTAL</th>"
 				+"<td style='width:100px'>&nbsp;</td>"
-				+"<th>CASH<br>PRICE1</th>"
-				+"<th>CASH<br>PRICE2</th>"
-				+"<th>CASH TOTAL</th>"
+				+"<th>MONEY<br>PRICE1</th>"
+				+"<th>MONEY<br>PRICE2</th>"
+				+"<th>MONEY TOTAL</th>"
 				+"</tr>";
 				
+	var rowSum = [0,0,0,0,0,0,0,0,0,0,0,0];
 	for (var i=0; i<numSelezioni; i++)
 	{
 		var selNum = (i+1).toString();
@@ -2515,37 +2604,40 @@ function pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offse
 		col[5] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		col[6] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		col[7] = col[5] +col[6];
+		
+		for (var i2=0; i2<=7;i2++)
+			rowSum[i2] += col[i2];
 		html += "<tr>"
 					+"<td>#" +selNum +"</td>"
-					+"<td>" +col[0] +"</td>"
-					+"<td>" +col[1] +"</td>"
-					+"<td>" +col[2] +"</td>"
-					+"<td>" +col[3] +"</td>"
-					+"<td>" +col[4] +"</td>"
+					+"<td>" +formatInteger(col[0]) +"</td>"
+					+"<td>" +formatInteger(col[1]) +"</td>"
+					+"<td>" +formatInteger(col[2]) +"</td>"
+					+"<td>" +formatInteger(col[3]) +"</td>"
+					+"<td><b>" +formatInteger(col[4]) +"</b></td>"
 					+"<td></td>"
-					+"<td>" +col[5] +"</td>"
-					+"<td>" +col[6] +"</td>"
-					+"<td>" +col[7] +"</td>"
+					+"<td>" +toCurrency(col[5], numDecimali) +"</td>"
+					+"<td>" +toCurrency(col[6], numDecimali) +"</td>"
+					+"<td><b>" +toCurrency(col[7], numDecimali) +"</b></td>"
 				+"</tr>";
 	}
 
 	//totali di riga
 	html += "<tr class='rowTot'>"
 				+"<td>TOTALS</td>"
-				+"<td>12345</td>"
-				+"<td>67890</td>"
-				+"<td>34567</td>"
-				+"<td>98765</td>"
-				+"<td>18238</td>"
+				+"<td>" +formatInteger(rowSum[0]) +"</td>"
+				+"<td>" +formatInteger(rowSum[1]) +"</td>"
+				+"<td>" +formatInteger(rowSum[2]) +"</td>"
+				+"<td>" +formatInteger(rowSum[3]) +"</td>"
+				+"<td><b>" +formatInteger(rowSum[4]) +"</b></td>"
 				+"<td></td>"
-				+"<td>123456</td>"
-				+"<td>123456</td>"
-				+"<td>123456</td>"
+				+"<td>" +toCurrency(rowSum[5], numDecimali) +"</td>"
+				+"<td>" +toCurrency(rowSum[6], numDecimali) +"</td>"
+				+"<td><b>" +toCurrency(rowSum[7], numDecimali) +"</b></td>"
 			+"</tr>";
 				
 	html += "</table>";
 	
-	return html;
+	return html;	
 }
 
 function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)		{ rheaSetDivHTMLByName("pageDataAudit_p", pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)); }
@@ -2596,9 +2688,10 @@ function pageDataAudit_downloadEVA_onFinish()
 		var addrBloccoTotal = rheaReadU32FromUint8Buffer(currentTask.buffer, 12);
 		
 		
-		pageDataAudit_build_overview();
+		pageDataAudit_build_overview(numSelezioni, numDecimali, currentTask.buffer, addrBloccoGeneral);;
 		pageDataAudit_build_partial (numSelezioni, numDecimali, currentTask.buffer, addrBloccoPartial);
 		pageDataAudit_build_total (numSelezioni, numDecimali, currentTask.buffer, addrBloccoTotal);
+		pageDataAudit_onSelector();
 	}
 	
 	pleaseWait_hide();

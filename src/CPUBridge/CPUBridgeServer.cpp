@@ -1433,15 +1433,19 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	}
 
 
+#ifdef _DEBUG
 	//hack per velocizzare i test
 	{
 		rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_A_1.txt", fullFilePathAndName);
+		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/dataAudit0.txt", fullFilePathAndName);
+		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_B_1.txt", fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)
 			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, 15, fileID);
 
 		return eReadDataFileStatus_finishedOK;
 	}
+#endif
 
 	FILE *f = fopen(fullFilePathAndName, "wb");
 	if (NULL == f)

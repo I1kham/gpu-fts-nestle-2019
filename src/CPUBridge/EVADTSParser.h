@@ -242,10 +242,10 @@ public:
 		int id;
 		int price;
 		TempStr128 name;
-		ContatoreValNumValNum aPagamento;		//contatore num/val delle sel di questo tipo che sono state pagate, indipendentemente dal metodo di pagamento
-		ContatoreValNumValNum testvend;			//come sopra ma per il "test vend"
-		ContatoreValNumValNum freevend;			//come sopra ma per il "free vend"
-		MatriceContatori matriceContatori;      //relativa alla singola selezione
+		ContatoreValNumValNum aPagamento;		//PA2 contatore num/val delle sel di questo tipo che sono state pagate, indipendentemente dal metodo di pagamento
+		ContatoreValNumValNum testvend;			//PA3 come sopra ma per il "test vend"
+		ContatoreValNumValNum freevend;			//PA4 come sopra ma per il "free vend"
+		MatriceContatori matriceContatori;      //PA7 relativa alla singola selezione
 	};
 
 

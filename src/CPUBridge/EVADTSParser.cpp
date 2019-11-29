@@ -274,20 +274,47 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 
 	//BLOCCO DATI 1
 	nbw.writeU32At(nbw.tell(), seek1);
-	nbw.writeU32(VA1.num_tot);	//tot num selezioni a pagamento
-	nbw.writeU32(VA1.num_par);
 	nbw.writeU32(VA1.val_tot);
+	nbw.writeU32(VA1.num_tot);	//tot num selezioni a pagamento
 	nbw.writeU32(VA1.val_par);
+	nbw.writeU32(VA1.num_par);
+	
 
-	nbw.writeU32(VA2.num_tot);	//tot num selezioni "test vend"
-	nbw.writeU32(VA2.num_par);
 	nbw.writeU32(VA2.val_tot);
+	nbw.writeU32(VA2.num_tot);	//tot num selezioni "test vend"
 	nbw.writeU32(VA2.val_par);
+	nbw.writeU32(VA2.num_par);
 
-	nbw.writeU32(VA3.num_tot);	//tot num selezioni "free vend"
-	nbw.writeU32(VA3.num_par);
 	nbw.writeU32(VA3.val_tot);
+	nbw.writeU32(VA3.num_tot);	//tot num selezioni "free vend"
 	nbw.writeU32(VA3.val_par);
+	nbw.writeU32(VA3.num_par);
+	
+
+	for (u8 i = 0; i < nSelezioni; i++)
+	{
+		//num test vend
+		ContatoreValNumValNum pa2 = selezioni.getElem(i)->aPagamento;
+		nbw.writeU32(pa2.val_tot);
+		nbw.writeU32(pa2.num_tot);
+		nbw.writeU32(pa2.val_par);
+		nbw.writeU32(pa2.num_par);
+			
+
+		//num test vend
+		ContatoreValNumValNum pa3 = selezioni.getElem(i)->testvend;
+		nbw.writeU32(pa3.val_tot);
+		nbw.writeU32(pa3.num_tot);
+		nbw.writeU32(pa3.val_par);
+		nbw.writeU32(pa3.num_par);
+		
+		//num freevend
+		ContatoreValNumValNum pa4 = selezioni.getElem(i)->freevend;
+		nbw.writeU32(pa4.val_tot);
+		nbw.writeU32(pa4.num_tot);
+		nbw.writeU32(pa4.val_par);
+		nbw.writeU32(pa4.num_par);
+	}
 
 	//BLOCCO DATI PARZIALI
 	//parziali per ogni selezione
