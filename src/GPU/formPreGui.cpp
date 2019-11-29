@@ -214,8 +214,9 @@ void FormPreGui::on_btnMilkModuleRInse_clicked()
     priv_enableButtonClose (false);
     priv_showMsg ("Starting milker rinsing...");
 
-    cpubridge::ask_CPU_PROGRAMMING_CMD_CLEANING(glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_cleaningType_milker);
-    utils::waitAndProcessEvent(1500);
+    //cpubridge::ask_CPU_PROGRAMMING_CMD_CLEANING(glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_cleaningType_milker);
+    //utils::waitAndProcessEvent(1500);
 
     showMe (groundCounterLimit, false);
+    retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
 }

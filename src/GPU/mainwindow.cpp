@@ -197,6 +197,14 @@ void MainWindow::priv_showForm (eForm w)
             priv_loadURL(s);
         }
         break;
+
+    case eForm_newprog_lavaggioMilker:
+        {
+            char s[256];
+            sprintf_s (s, sizeof(s), "file://%s/varie/prog/index.html?page=pageCleaningMilker", rhea::getPhysicalPathToAppFolder());
+            priv_loadURL(s);
+        }
+        break;
     }
 }
 
@@ -233,6 +241,7 @@ void MainWindow::timerInterrupt()
             case eRetCode_gotoFormBrowser: priv_scheduleFormChange(eForm_specialActionBeforeGUI); break;
             case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
             case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
+            case eRetCode_gotoNewMenuProg_lavaggioMilker: priv_scheduleFormChange(eForm_newprog_lavaggioMilker); break;
         }
         break;
 
@@ -243,6 +252,7 @@ void MainWindow::timerInterrupt()
             case eRetCode_gotoFormBrowser: priv_scheduleFormChange(eForm_main_showBrowser); break;
             case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
             case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
+            case eRetCode_gotoNewMenuProg_lavaggioMilker: priv_scheduleFormChange(eForm_newprog_lavaggioMilker); break;
         }
         break;
 
@@ -253,6 +263,7 @@ void MainWindow::timerInterrupt()
             case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
             case eRetCode_gotoNewMenuProgrammazione: priv_scheduleFormChange(eForm_newprog); break;
             case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
+            case eRetCode_gotoNewMenuProg_lavaggioMilker: priv_scheduleFormChange(eForm_newprog_lavaggioMilker); break;
         }
         break;
 
@@ -262,6 +273,7 @@ void MainWindow::timerInterrupt()
         break;
 
     case eForm_newprog:
+    case eForm_newprog_lavaggioMilker:
     case eForm_newprog_lavaggioSanitario:
         switch (priv_showNewProgrammazione_onTick())
         {
@@ -529,7 +541,7 @@ void MainWindow::priv_showNewProgrammazione_onCPUBridgeNotification (rhea::threa
 //********************************************************************************
 void MainWindow::on_webView_urlChanged(const QUrl &arg1)
 {
-    if (currentForm != eForm_newprog)
+    if (currentForm < eForm_newprog)
         return;
 
     QString url = arg1.toString();
@@ -537,5 +549,10 @@ void MainWindow::on_webView_urlChanged(const QUrl &arg1)
     {
         //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
         retCode = eRetCode_gotoFormOldMenuProg;
+    }
+    else if (url.indexOf("gotoHMI.html") > 0)
+    {
+        //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
+        retCode = eRetCode_gotoFormBrowser;
     }
 }

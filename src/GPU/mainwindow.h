@@ -39,8 +39,10 @@ private:
         eForm_specialActionBeforeGUI,
         eForm_main_showBrowser,
         eForm_oldprog_legacy,
-        eForm_newprog,
-        eForm_newprog_lavaggioSanitario,
+
+        eForm_newprog = 100,
+        eForm_newprog_lavaggioSanitario = 101,
+        eForm_newprog_lavaggioMilker = 102
     };
 
 private:
