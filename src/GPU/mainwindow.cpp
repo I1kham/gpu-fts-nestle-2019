@@ -395,8 +395,9 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
 
     case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
         {
-            u8 vmcErrorCode, vmcErrorType;
-            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &syncWithCPU.vmcState, &vmcErrorCode, &vmcErrorType);
+            u8 vmcErrorCode=0, vmcErrorType=0;
+            u16 flag1=0;
+            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &syncWithCPU.vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
             priv_addText (rhea::app::utils::verbose_eVMCState(syncWithCPU.vmcState));
         }
         break;
@@ -480,8 +481,9 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
     case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
         {
             cpubridge::eVMCState vmcState;
-            u8 vmcErrorCode, vmcErrorType;
-            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
+            u8 vmcErrorCode=0, vmcErrorType=0;
+            u16 flag1=0;
+            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
             if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)

@@ -4,6 +4,7 @@
 #include "history.h"
 #include "../rheaAppLib/rheaAppUtils.h"
 
+
 #include <QWidget>
 #include <QDir>
 #include <QFile>
@@ -90,6 +91,7 @@ void FormBoot::showMe()
     priv_pleaseWaitSetText("");
     priv_pleaseWaitHide();
 
+    priv_enableButton(ui->btnDownload_audit, false);
     if (glob->bSyncWithCPUResult)
     {
         cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
@@ -101,7 +103,6 @@ void FormBoot::showMe()
         //In generale questo vuol dire che la CPU non è installata oppure è una versione non compatibile.
         //Disbailito il pulsante di START VMC e chiedo di aggiornare il FW
         foreverDisableBtnStartVMC();
-        priv_enableButton(ui->btnDownload_audit, false);
         priv_pleaseWaitSetError("WARNING: There was an error during synchronization with the CPU.<br>Please upgrade the CPU FW to a compatible version.");
     }
     priv_updateLabelInfo();
@@ -304,9 +305,15 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
         {
             cpubridge::eVMCState vmcState;
-            u8 vmcErrorCode, vmcErrorType;
-            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
+            u8 vmcErrorCode = 0, vmcErrorType = 0;
+            u16 flag1 = 0;
+            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
             ui->labCPUStatus->setText (rhea::app::utils::verbose_eVMCState (vmcState));
+
+            if (0 == (flag1 & cpubridge::sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT))
+                priv_enableButton (ui->btnDownload_audit, false);
+            else
+                priv_enableButton (ui->btnDownload_audit, true);
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
             if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)

@@ -2823,7 +2823,6 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			curpos /= n;
 			nRetry = NRETRY;
 
-			u16 diff = 0;
 			if (curpos == regolazioneAperturaMacina.target)
 			{
 				//fine

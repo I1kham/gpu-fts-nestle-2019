@@ -35,7 +35,6 @@ bool ajaxReqFileList_jsonTrapFunction(const char *fieldName, const char *fieldVa
 //***********************************************************
 void CmdHandler_ajaxReqFileList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
 {
-	u16 handle = 0;
 	sInput data;
 	if (!rhea::json::parse(params, ajaxReqFileList_jsonTrapFunction, &data))
 		return;
@@ -62,9 +61,17 @@ void CmdHandler_ajaxReqFileList::handleRequestFromSocketBridge(socketbridge::Ser
 		rhea::fs::findClose(h);
 
 		if (sizeForFolderStr)
+        {
+            sizeForFolderStr+=2;
 			folderList = (char*)RHEAALLOC(localAllocator, sizeForFolderStr);
+            memset(folderList,0,sizeForFolderStr);
+        }
 		if (sizeForFileStr)
+        {
+            sizeForFileStr+=2;
 			fileList = (char*)RHEAALLOC(localAllocator, sizeForFileStr);
+            memset(fileList,0,sizeForFileStr);
+        }
 
 		rhea::fs::findFirst(&h, data.path, data.jolly);
 		do
@@ -73,15 +80,41 @@ void CmdHandler_ajaxReqFileList::handleRequestFromSocketBridge(socketbridge::Ser
 			if (rhea::fs::findIsDirectory(h))
 			{
 				if (fname[0] != '.')
-					sizeForFolderStr += strlen(fname) + 1;
+                {
+                    if (folderList[0] != 0x00) strcat (folderList, "§");
+                    strcat (folderList, fname);
+                }
 			}
 			else
-				sizeForFileStr += strlen(fname) + 1;
-		} while (rhea::fs::findNext(h));
+            {
+                if (fileList[0] != 0x00) strcat (fileList, "§");
+                strcat (fileList, fname);
+            }
+        } while (rhea::fs::findNext(h));
 		rhea::fs::findClose(h);
 	}
 
-	char resp[64];
-	sprintf(resp, "{\"path\":\"%s\", \"folderList\":[],\"fileList\":[]}", data.path);
+    if (0 == sizeForFolderStr)
+    {
+        sizeForFolderStr=2;
+        folderList = (char*)RHEAALLOC(localAllocator, sizeForFolderStr);
+        folderList[0] = ' ';
+        folderList[1] = 0x00;
+    }
+
+    if (0 == sizeForFileStr)
+    {
+        sizeForFileStr=2;
+        fileList = (char*)RHEAALLOC(localAllocator, sizeForFileStr);
+        fileList[0] = ' ';
+        fileList[1] = 0x00;
+    }
+
+    char *resp = (char*)RHEAALLOC(localAllocator, 64+strlen(data.path) +sizeForFolderStr +sizeForFileStr);
+    sprintf(resp, "{\"path\":\"%s\",\"folderList\":\"%s\",\"fileList\":\"%s\"}", data.path, folderList, fileList);
 	server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
+
+    RHEAFREE(localAllocator, folderList);
+    RHEAFREE(localAllocator, fileList);
+    RHEAFREE(localAllocator, resp);
 }
