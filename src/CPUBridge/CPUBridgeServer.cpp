@@ -1655,7 +1655,6 @@ void Server::priv_handleState_compatibilityCheck()
 	
 
 	//mando il comando "C" ad oltranza
-	u8 nRetry = 10;
 	while (1)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
@@ -1671,22 +1670,14 @@ void Server::priv_handleState_compatibilityCheck()
 				priv_enterState_normal();
 				return;
 			}
-			
 			break;
-		}
-
-		nRetry--;
-		if (nRetry == 0)
-		{
-			priv_enterState_CPUNotSupported();
-			return;
 		}
 		priv_handleMsgQueues(timeNowMSec, 1000);
 	}
 
 	//la CPU ha risposto, a questo punto verifico che supporti il comando "c"
 	priv_handleMsgQueues(rhea::getTimeNowMSec(), 10);
-	nRetry = 2;
+	u8 nRetry = 4;
 	while (1)
 	{
 		sExtendedCPUInfo info;
@@ -1765,19 +1756,9 @@ void Server::priv_enterState_DA3Sync()
 	logger->log("CPUBridgeServer::priv_enterState_DA3Sync()\n");
 
 	stato.set(sStato::eStato_DA3_sync);
-    priv_resetInternalState(cpubridge::eVMCState_DA3_SYNC);
 
-	cpuStatus.LCDMsg.buffer[0] = 'D';
-	cpuStatus.LCDMsg.buffer[1] = 'A';
-	cpuStatus.LCDMsg.buffer[2] = '3';
-	cpuStatus.LCDMsg.buffer[3] = ' ';
-	cpuStatus.LCDMsg.buffer[4] = 'S';
-	cpuStatus.LCDMsg.buffer[5] = 'Y';
-	cpuStatus.LCDMsg.buffer[6] = 'N';
-	cpuStatus.LCDMsg.buffer[7] = 'C';
-	cpuStatus.LCDMsg.buffer[8] = 0x00;
-	cpuStatus.LCDMsg.ct = 9 * 2;
-	cpuStatus.LCDMsg.importanceLevel = 123;
+	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
+	cpuStatus.VMCstate = cpubridge::eVMCState_DA3_SYNC;
 
 	//segnalo ai miei subscriber lo stato corrente
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)

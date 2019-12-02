@@ -379,9 +379,10 @@ namespace cpubridge
 
 	struct sCPUStatus
 	{
-		static const u16 FLAG1_CUP_ABSENT					= 0x0001;
-		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0002;
-		static const u16 FLAG1_READY_TO_DELIVER_DATA_AUDIT	= 0x0004;
+		static const u16 FLAG1_READY_TO_DELIVER_DATA_AUDIT	= 0x0001;
+		
+		static const u16 FLAG1_CUP_ABSENT					= 0x0100;
+		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0200;
 
 		char							userCurrentCredit[16];
 		char							curLangISO[4];
