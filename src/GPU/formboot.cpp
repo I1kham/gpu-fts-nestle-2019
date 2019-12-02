@@ -17,22 +17,6 @@
 #include "Utils.h"
 
 
-//***********************************************************
-eHistoryType history_type = HISTORY_TYPE_UNK;
-QString history_lastFileName;
-void logToHistoryFile()
-{
-    if (history_type == HISTORY_TYPE_UNK)
-        return;
-    if (history_lastFileName.length() == 0)
-        return;
-
-    History::addEntry (history_type, history_lastFileName.toStdString().c_str());
-    history_lastFileName="";
-    history_type = HISTORY_TYPE_UNK;
-}
-
-
 //********************************************************
 FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     QDialog(parent), ui(new Ui::FormBoot)
