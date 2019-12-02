@@ -84,8 +84,9 @@ void FormProg::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
         {
             cpubridge::eVMCState vmcState;
-            u8 vmcErrorCode, vmcErrorType;
-            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
+            u8 vmcErrorCode = 0, vmcErrorType = 0;
+            u16 flag1 = 0;
+            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
 
             //quando la CPU cambia di stato e diventa DISP o INI_CHECK, io torno al browser
             if (vmcState == cpubridge::eVMCState_DISPONIBILE || vmcState==cpubridge::eVMCState_INITIAL_CHECK)

@@ -131,8 +131,9 @@ void FormPreGui::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     case CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED:
         {
             cpubridge::eVMCState vmcState;
-            u8 vmcErrorCode, vmcErrorType;
-            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType);
+            u8 vmcErrorCode=0, vmcErrorType=0;
+            u16 flag1=0;
+            cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
             ui->labCPUStatus->setText (rhea::app::utils::verbose_eVMCState (vmcState));
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG

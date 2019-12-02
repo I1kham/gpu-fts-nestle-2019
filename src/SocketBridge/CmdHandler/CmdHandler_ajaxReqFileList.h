@@ -19,8 +19,8 @@ namespace socketbridge
         json
         {
 			path:		absolutePathToFolder
-			folderList:	array con i folder
-			fileList: array con i file
+            folderList:	stringa con i folder name separati da §
+            fileList: stringa con i file name separati da §
         }
      */
     class CmdHandler_ajaxReqFileList : public CmdHandler_ajaxReq

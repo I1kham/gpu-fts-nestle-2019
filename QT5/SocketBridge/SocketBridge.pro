@@ -127,7 +127,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetPosizioneMacina.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqNomiLingueCPU.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartDisintallation.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRecalcFasciaOrariaFV.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRecalcFasciaOrariaFV.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFileList.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -190,7 +191,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetPosizioneMacina.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqNomiLingueCPU.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartDisintallation.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRecalcFasciaOrariaFV.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRecalcFasciaOrariaFV.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFileList.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
