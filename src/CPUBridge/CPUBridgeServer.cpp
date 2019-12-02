@@ -343,7 +343,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE:
-			notify_CPU_STATE_CHANGED(sub->q, handlerID, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+			notify_CPU_STATE_CHANGED(sub->q, handlerID, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
@@ -1436,9 +1436,14 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 #ifdef _DEBUG
 	//hack per velocizzare i test
 	{
-		rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_A_1.txt", fullFilePathAndName);
+		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_A_1.txt", fullFilePathAndName);
 		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/dataAudit0.txt", fullFilePathAndName);
 		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_B_1.txt", fullFilePathAndName);
+
+		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/VENDON-AuditFile_2019-12-02_082533.txt", fullFilePathAndName);
+		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/viaGPU-dataAudit_2019-12-02_08-31-52.txt", fullFilePathAndName);
+		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/viaGPU-dataAudit_2019-12-02_08-31-29.txt", fullFilePathAndName);
+		rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/dietroCPU-20191202T084622_EVADTS.log", fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)
 			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, 15, fileID);
@@ -1636,7 +1641,7 @@ void Server::priv_enterState_compatibilityCheck()
 	//segnalo ai miei subscriber lo stato corrente
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
 	{
-		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
 		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
 		notify_CPU_NEW_LCD_MESSAGE(subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
 	}
@@ -1737,7 +1742,7 @@ void Server::priv_enterState_CPUNotSupported()
 	//segnalo ai miei subscriber lo stato corrente
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
 	{
-		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
 		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
 		notify_CPU_NEW_LCD_MESSAGE(subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
 	}
@@ -1776,7 +1781,7 @@ void Server::priv_enterState_DA3Sync()
 
 	//segnalo ai miei subscriber lo stato corrente
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
-		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
 }
 
 //***************************************************
@@ -1914,7 +1919,7 @@ void Server::priv_enterState_comError()
     //segnalo ai miei subscriber che sono in com-error
     for (u32 i = 0; i < subscriberList.getNElem(); i++)
     {
-        notify_CPU_STATE_CHANGED (subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+        notify_CPU_STATE_CHANGED (subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
         notify_CPU_SEL_AVAIL_CHANGED (subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
         notify_CPU_NEW_LCD_MESSAGE (subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
     }
@@ -2169,6 +2174,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	u8 isMultilangage = 0;
 	const u8 prevMsgLcdCPUImportanceLevel = cpuStatus.LCDMsg.importanceLevel;
 	cpuStatus.LCDMsg.importanceLevel = 0xff;
+	u16 newCpuStatusFlag1 = cpuStatus.flag1;
 
 	if (answer[1] != eCPUCommand_checkStatus_B && answer[1] != eCPUCommand_checkStatus_B_Unicode)
 	{
@@ -2255,29 +2261,56 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 					else
 					{
 						lastBtnProgStatus = 0;
-					}
-					
-				}
+					}					
+
+					if (cpuParamIniziali.protocol_version >= 5)
+					{
+						//1 byte con 8 bit a mo di flag per usi futuri
+						const u8 flag = answer[z++];
+
+						//bit 0x01 == 1 quando la CPU è pronta per scaricare eva-dts
+						if ((flag & 0x01) != 0)
+							newCpuStatusFlag1 |= sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT;
+						else
+							newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT);
+					}//if (cpuParamIniziali.protocol_version >= 5)
+				}//if (cpuParamIniziali.protocol_version >= 4)
 			}//if (cpuParamIniziali.protocol_version >= 3)
 		} // if (cpuParamIniziali.protocol_version >= 2)
 	} //if (cpuParamIniziali.protocol_version >= 1)
 
 
 	
+	//cpuStatus.CupAbsentStatus_flag = answer[9] & 0x08;
+	if ((answer[9] & 0x08) != 0)
+		newCpuStatusFlag1 |= sCPUStatus::FLAG1_CUP_ABSENT;
+	else
+		newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_CUP_ABSENT);
+
+	//cpuStatus.bShowDialogStopSelezione = answer[9] & 0x10;
+	if ((answer[9] & 0x10) != 0)
+		newCpuStatusFlag1 |= sCPUStatus::FLAG1_SHOW_DLG_STOP_SELEZIONE;
+	else
+		newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_SHOW_DLG_STOP_SELEZIONE);
+
+
+
 	//stato della CPU
 	u8 bTriggerEvent = 0;
 	if (cpuStatus.VMCstate != (eVMCState)answer[3])		{ cpuStatus.VMCstate = (eVMCState)answer[3]; bTriggerEvent = 1; }
 	if (cpuStatus.VMCerrorCode != answer[4])			{ cpuStatus.VMCerrorCode = answer[4]; bTriggerEvent = 1; }
 	if (cpuStatus.VMCerrorType != answer[5])			{ cpuStatus.VMCerrorType = answer[5]; bTriggerEvent = 1; }
-	if (bTriggerEvent)
+	if (bTriggerEvent || newCpuStatusFlag1 != cpuStatus.flag1)
 	{
+		cpuStatus.flag1 = newCpuStatusFlag1;
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
-			notify_CPU_STATE_CHANGED (subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+			notify_CPU_STATE_CHANGED (subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
 	}
 
+	
+	
 
-	cpuStatus.CupAbsentStatus_flag = answer[9] & 0x08;
-	cpuStatus.bShowDialogStopSelezione = answer[9] & 0x10;
+	
 
 	/*  GIX 2018 05 04
 		Abbiamo deciso che la GPU deve avere un modo per sapere se la CPU sta preparando
@@ -2715,7 +2748,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	cpuStatus.selAvailability.reset();
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
 	{
-		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType);
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
 		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
 	}
 

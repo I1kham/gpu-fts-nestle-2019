@@ -24,6 +24,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFileList.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetDate.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetPosizioneMacina.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFileList.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetDate.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetPosizioneMacina.h" />

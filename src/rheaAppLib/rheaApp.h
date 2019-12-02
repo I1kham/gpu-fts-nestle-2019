@@ -57,7 +57,7 @@ namespace rhea
 		namespace CurrentCPUStatus
 		{
 			void		ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
-			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType);
+			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType, u16 *out_flag1);
 						//ask			=> chiede a SocketBridge di mandare l'attuale stato della CPU
 						//decodeAnswer	=> decodifica la risposta ricevuta
 		}

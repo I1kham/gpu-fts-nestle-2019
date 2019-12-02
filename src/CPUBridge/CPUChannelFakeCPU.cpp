@@ -243,7 +243,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 			//Da qui in poi sono dati nuovi, introdotti a dicembre 2018
 			//115			versione protocollo.Inizialmente = 1, potrebbe cambiare in futuro
-			out_answer[ct++] = 3;
+			out_answer[ct++] = 5;
 
 			//116 ck
 			out_answer[2] = (u8)ct+1;
@@ -681,6 +681,17 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	out_answer[ct++] = ' ';
 	out_answer[ct++] = ' ';
 	out_answer[ct++] = ' ';
+
+
+	//protocl version 4
+	//1 byte per indicare se btn prog è cliccato
+	out_answer[ct++] = 0;
+
+	//protocol version 5
+	//1 byte a mo' di 8 bit flag per usi futuri
+	out_answer[ct] = 0;
+	out_answer[ct] |= 0x01; //indica che CPU è pronta per fornire il data-audit
+	ct++;
 
 
 	//116 ck

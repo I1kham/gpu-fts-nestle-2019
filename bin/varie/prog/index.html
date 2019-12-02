@@ -865,8 +865,14 @@ function priv_askMachineTypeAndModel()
 }
 
 //***************** chiamata al termine del caricamento del da3
-function onDA3Loaded()
+function onDA3Loaded(bResult)
 {
+	if (bResult == 0)
+	{
+		setTimeout ( function() { window.location = "index.html"; }, 1000);
+		return;
+	}
+
 	console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
 	guiInfo = new GUIInfo();
 	guiInfo.load();

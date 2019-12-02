@@ -15,9 +15,19 @@ void CmdHandler_eventReqCPUStatus::onCPUBridgeNotification (socketbridge::Server
 {
 	//NB: se modifichi questo, modifica anche rhea::app::CurrentCPUStatus::decodeAnswer()
 	cpubridge::eVMCState vmcState;
-	u8 state[3];
-	cpubridge::translateNotify_CPU_STATE_CHANGED (msgFromCPUBridge, &vmcState, &state[1], &state[2]);
-	state[0] = (u8)vmcState;
+	u8 errorCode = 0;
+	u8 errorType = 0;
+	u16 flag = 0;
+	cpubridge::translateNotify_CPU_STATE_CHANGED (msgFromCPUBridge, &vmcState, &errorCode, &errorType, &flag);
 
-    server->sendEvent (hClient, EVENT_TYPE_FROM_SOCKETCLIENT, state, 3);
+	u8 buffer[8];
+	rhea::NetStaticBufferViewW nbw;
+	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+
+	nbw.writeU8((u8)vmcState);
+	nbw.writeU8(errorCode);
+	nbw.writeU8(errorType);
+	nbw.writeU16(flag);
+
+    server->sendEvent (hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, nbw.length());
 }

@@ -60,9 +60,10 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, rhea::ISimple
 		{
 			cpubridge::eVMCState vmcState;
 			u8 vmcErrorCode, vmcErrorType;
+			u16 flag1 = 0;
 
-			rhea::app::CurrentCPUStatus::decodeAnswer (decoded, &vmcState, &vmcErrorCode, &vmcErrorType);
-			log->log("RCV [cpuStatus] => state=[%d %s], err_code=[%d], err_type=[%d]\n", vmcState, rhea::app::utils::verbose_eVMCState(vmcState), vmcErrorCode, vmcErrorType);
+			rhea::app::CurrentCPUStatus::decodeAnswer (decoded, &vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
+			log->log("RCV [cpuStatus] => state=[%d %s], err_code=[%d], err_type=[%d] flag[%04X]\n", vmcState, rhea::app::utils::verbose_eVMCState(vmcState), vmcErrorCode, vmcErrorType, flag1);
 		}
 		break;
 

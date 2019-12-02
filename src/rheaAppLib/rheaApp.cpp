@@ -400,13 +400,21 @@ void app::CurrentCPUStatus::ask (rhea::IProtocolChannell *ch, rhea::IProtocol *p
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
-void app::CurrentCPUStatus::decodeAnswer (const sDecodedEventMsg &msg, cpubridge::eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType)
+void app::CurrentCPUStatus::decodeAnswer (const sDecodedEventMsg &msg, cpubridge::eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType, u16 *out_flag1)
 {
 	assert(msg.eventType == socketbridge::eEventType_cpuStatus);
-	assert(msg.payloadLen >= 3);
-	*out_VMCstate = (cpubridge::eVMCState)msg.payload[0];
-	*out_VMCerrorCode = msg.payload[1];
-	*out_VMCerrorType = msg.payload[2];
+	assert(msg.payloadLen >= 5);
+
+	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
+	NetStaticBufferViewR nbr;
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+
+	u8 u;
+	nbr.readU8(u);
+	*out_VMCstate = (cpubridge::eVMCState)u;
+	nbr.readU8(*out_VMCerrorCode);
+	nbr.readU8(*out_VMCerrorType);
+	nbr.readU16(*out_flag1);
 }
 
 

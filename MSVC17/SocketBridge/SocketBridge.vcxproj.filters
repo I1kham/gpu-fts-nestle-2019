@@ -167,6 +167,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFileList.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -327,6 +330,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.h">
       <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFileList.h">
+      <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

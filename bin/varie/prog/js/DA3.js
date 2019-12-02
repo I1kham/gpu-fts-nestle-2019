@@ -39,23 +39,23 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	if (reasonRefused != 0)
 	{
 		console.log ("DA3_load_onEnd: error, reason[" +reasonRefused +"]");
-		alert ("error downloading da3");
-	}
-	else
-	{
-		//console.log ("da3_load_onEnd: succes. File size[" +obj.fileSize +"]");
-		theDa3.da3_original = new Uint8Array(obj.fileSize);
-		theDa3.da3_current = new Uint8Array(obj.fileSize);
-		theDa3.da3_filesize = parseInt(obj.fileSize);
-		for (var i=0; i<obj.fileSize; i++)
-			theDa3.da3_original[i] = theDa3.da3_current[i] = obj.fileBuffer[i];
-			
-		//overload di machineType e modello
-		theDa3.da3_original[9465] = theDa3.da3_current[9465] = theDa3.machineType;
-		theDa3.da3_original[9466] = theDa3.da3_current[9466] = theDa3.machineModel;
+		onDA3Loaded(0);
+		return;
 	}
 	
-	onDA3Loaded();
+	//console.log ("da3_load_onEnd: succes. File size[" +obj.fileSize +"]");
+	theDa3.da3_original = new Uint8Array(obj.fileSize);
+	theDa3.da3_current = new Uint8Array(obj.fileSize);
+	theDa3.da3_filesize = parseInt(obj.fileSize);
+	for (var i=0; i<obj.fileSize; i++)
+		theDa3.da3_original[i] = theDa3.da3_current[i] = obj.fileBuffer[i];
+		
+	//overload di machineType e modello
+	theDa3.da3_original[9465] = theDa3.da3_current[9465] = theDa3.machineType;
+	theDa3.da3_original[9466] = theDa3.da3_current[9466] = theDa3.machineModel;
+	onDA3Loaded(1);
+	
+	
 }
 
 DA3.prototype.isInduzione = function ()			{ return this.bInduzione; }

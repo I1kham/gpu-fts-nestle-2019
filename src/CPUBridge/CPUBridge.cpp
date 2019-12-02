@@ -438,16 +438,20 @@ void cpubridge::notify_CPUBRIDGE_DYING (const sSubscriber &to)
 }
 
 //***************************************************
-void cpubridge::notify_CPU_STATE_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, cpubridge::eVMCState VMCstate, u8 VMCerrorCode, u8 VMCerrorType)
+void cpubridge::notify_CPU_STATE_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, cpubridge::eVMCState VMCstate, u8 VMCerrorCode, u8 VMCerrorType, u16 flag1)
 {
 	logger->log("notify_CPU_STATE_CHANGED\n");
 
-	u8 state[4] = { (u8)VMCstate , VMCerrorCode, VMCerrorType, 0 };
-	rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, state, 3);
+	u8 state[8];
+	state[0] = (u8)VMCstate;
+	state[1] = (u8)VMCerrorCode;
+	state[2] = (u8)VMCerrorType;
+	rhea::utils::bufferWriteU16(&state[3], flag1);
+	rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, state, 5);
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_STATE_CHANGED(const rhea::thread::sMsg &msg, cpubridge::eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType)
+void cpubridge::translateNotify_CPU_STATE_CHANGED(const rhea::thread::sMsg &msg, cpubridge::eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType, u16 *out_flag1)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED);
 	
@@ -455,6 +459,7 @@ void cpubridge::translateNotify_CPU_STATE_CHANGED(const rhea::thread::sMsg &msg,
 	*out_VMCstate = (cpubridge::eVMCState)state[0];
 	*out_VMCerrorCode = state[1];
 	*out_VMCerrorType = state[2];
+	*out_flag1 = rhea::utils::bufferReadU16(&state[3]);
 }
 
 //***************************************************
