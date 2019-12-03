@@ -117,7 +117,7 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 		{
 			if (lastInfoSel)
 			{
-				int prodID = priv_toInt(par[0].s);
+                //int prodID = priv_toInt(par[0].s);
 				//per come è strutturato il file evadts, si assume che questo prodID sia esattamente lo stesso indicato dal tag PA1 che sequenzialmente
 				//nel file è comparso poco prima di questo tag PA7 ( e che qui nel codice è memorizzato in selezioni[iSel].id ).
 				//Per fare le cose in maniera più corretta bisognerebbe prima parsare tutto il file skippando i PA7 e poi riparsare il file considerando
@@ -125,7 +125,7 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 
 				const ePaymentDevice paymentDevice = priv_fromStringToPaymentDevice(par[1].s);
 				const int idxListaPrezzi = priv_toInt(par[2].s);
-				const int prezzoApplicato = priv_toInt(par[3].s);
+                //const int prezzoApplicato = priv_toInt(par[3].s);
 				const int num_tot = priv_toInt(par[4].s);
 				const int val_tot = priv_toInt(par[5].s);
 				const int num_par = priv_toInt(par[6].s);

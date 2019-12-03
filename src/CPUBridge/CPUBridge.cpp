@@ -1593,7 +1593,7 @@ void cpubridge::ask_CPU_RICARICA_FASCIA_ORARIA_FREEVEND(const sSubscriber &from)
 }
 
 //***************************************************
-void cpubridge::ask_CPU_EVA_RESET_PARTIALDATA(const sSubscriber &from, u16 handlerID)
+void cpubridge::ask_CPU_EVA_RESET_PARTIALDATA(const sSubscriber &from, u16 handlerID UNUSED_PARAM)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA, 0, NULL, 0);
 }
