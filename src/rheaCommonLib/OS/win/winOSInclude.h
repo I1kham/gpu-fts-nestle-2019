@@ -93,6 +93,7 @@ typedef struct sOSFileFind
 {
 	HANDLE			h;
 	WIN32_FIND_DATA	findData;
+	char			strJolly[64];
 
 					sOSFileFind()					{h = INVALID_HANDLE_VALUE; }
 } OSFileFind;

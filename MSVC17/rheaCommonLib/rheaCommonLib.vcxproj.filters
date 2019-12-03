@@ -198,6 +198,9 @@
     <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSFS.cpp">
       <Filter>OS\windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSFS.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h">

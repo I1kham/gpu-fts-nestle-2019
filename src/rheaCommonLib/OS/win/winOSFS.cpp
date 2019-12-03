@@ -98,18 +98,37 @@ bool platform::FS_findFirst(OSFileFind *ff, const char *strPathNoSlash, const ch
 	assert(ff->h == INVALID_HANDLE_VALUE);
 
 	char filename[1024];
-	sprintf_s(filename, sizeof(filename), "%s/%s", strPathNoSlash, strJolly);
+	//sprintf_s(filename, sizeof(filename), "%s/%s", strPathNoSlash, strJolly);
+	sprintf_s(filename, sizeof(filename), "%s/*.*", strPathNoSlash);
 	ff->h = FindFirstFile(filename, &ff->findData);
 	if (ff->h == INVALID_HANDLE_VALUE)
 		return false;
-	return true;
+	
+	strcpy_s(ff->strJolly, sizeof(ff->strJolly), strJolly);
+	do
+	{
+		const char *fname = FS_findGetFileName(*ff);
+		if (FS_findIsDirectory(*ff) || rhea::fs::doesFileNameMatchJolly(fname, strJolly))
+			return true;
+	} while (FS_findNext(*ff));
+	
+	FS_findClose(*ff);
+	return false;
+
+	
 }
 
 //*****************************************************
 bool platform::FS_findNext(OSFileFind &ff)
 {
 	assert(ff.h != INVALID_HANDLE_VALUE);
-	return (FindNextFile(ff.h, &ff.findData) == TRUE);
+	while (FindNextFile(ff.h, &ff.findData))
+	{
+		const char *fname = FS_findGetFileName(ff);
+		if (FS_findIsDirectory(ff) || rhea::fs::doesFileNameMatchJolly(fname, ff.strJolly))
+			return true;
+	}
+	return false;
 }
 
 //*****************************************************

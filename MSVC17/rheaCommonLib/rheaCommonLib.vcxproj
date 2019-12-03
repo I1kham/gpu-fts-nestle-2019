@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\src\rheaCommonLib\mtrand.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSEvent.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSFS.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSerialPort.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSocket.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSThread.cpp" />
