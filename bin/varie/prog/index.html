@@ -2739,6 +2739,9 @@ function pageDataAudit_downloadEVA_onFinish()
 		pageDataAudit_build_overview(numSelezioni, numDecimali, currentTask.buffer, addrBloccoGeneral);;
 		pageDataAudit_build_partial (numSelezioni, numDecimali, currentTask.buffer, addrBloccoPartial);
 		pageDataAudit_build_total (numSelezioni, numDecimali, currentTask.buffer, addrBloccoTotal);
+
+		var win = ui.getWindowByID("pageDataAudit");
+		win.getChildByID("pageDataAudit_selector").selectOptionByValue(0);
 		pageDataAudit_onSelector();
 	}
 	
