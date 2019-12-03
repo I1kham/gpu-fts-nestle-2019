@@ -1064,3 +1064,29 @@ function TaskDataAudit_load_onEnd (theTask, reasonRefused, obj)
 		theTask.buffer[i] = obj.fileBuffer[i];
 	theTask.fase = 210;
 }
+
+
+
+/********************************************************
+ * Task
+ *
+ * Questo è il template delle classi "task".
+ * Tutte le classi "derivate", devono implementare i metodi "on"
+ */
+function TaskP15()																{ this.nextTimeSendP15 = 0;}
+TaskP15.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskP15.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskP15.prototype.onFreeBtn1Clicked	= function(ev)							{}
+TaskP15.prototype.onFreeBtn2Clicked	= function(ev)							{}
+TaskP15.prototype.onExit				= function(bSave)						{ return bSave; }
+TaskP15.prototype.onTimer 				= function(timeNowMsec)					
+{
+	if (timeNowMsec >= this.nextTimeSendP15)
+	{
+		this.nextTimeSendP15 = timeNowMsec + 5000;
+		var buffer = new Uint8Array(1);
+		buffer[0] = 66;
+		rhea.sendGPUCommand ("E", buffer, 0, 0);		
+		console.log ("p15");
+	}
+}
