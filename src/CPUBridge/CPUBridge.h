@@ -70,7 +70,8 @@ namespace cpubridge
 	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
 	u8			buildMsg_getNomiLingueCPU (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_ricaricaFasciaOrariaFreevend(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_ricaricaFasciaOrariaFreevend (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_EVAresetPartial(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -190,6 +191,8 @@ namespace cpubridge
 						out_strLingua1UTF16 deve poter accorgliere almeno 32 caratteri UTF16 più il terminatore 0x0000
 					*/
 	
+	void		notify_EVA_RESET_PARTIALDATA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
+	void		translateNotify_EVA_RESET_PARTIALDATA(const rhea::thread::sMsg &msg, bool *out_result);
 
 	/***********************************************
 		ask_xxxx
@@ -340,6 +343,9 @@ namespace cpubridge
 
 	void		ask_CPU_RICARICA_FASCIA_ORARIA_FREEVEND(const sSubscriber &from);
 					//alla ricezione di questo msg, CPUBridge non risponderà. La CPU dovrebbe controllare i dati nel DA3 e reimpostare la fine dell'orario di freevend
+
+	void		ask_CPU_EVA_RESET_PARTIALDATA(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_EVA_RESET_PARTIALDATA
 
 } // namespace cpubridge
 

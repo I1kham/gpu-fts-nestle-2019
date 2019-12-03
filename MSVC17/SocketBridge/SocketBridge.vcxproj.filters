@@ -167,7 +167,13 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFileList.cpp">
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileList.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileCopy.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqResetEVA.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
   </ItemGroup>
@@ -331,7 +337,13 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFileList.h">
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileList.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileCopy.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqResetEVA.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>

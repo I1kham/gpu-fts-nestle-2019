@@ -145,7 +145,7 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 		.then( function(result) 
 		{
 			var obj = JSON.parse(result);
-console.log ("SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
+			//console.log ("SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
 			me.fase = parseInt(obj.fase);
 			me.btn1 = parseInt(obj.btn1);
 			me.btn2 = parseInt(obj.btn2);
@@ -531,7 +531,7 @@ TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
 		this.timeStarted = timeNowMsec;
 	var timeElapsedMSec = timeNowMsec - this.timeStarted;
 	
-	console.log ("TaskTestSelezione::onTimer => sel[" +this.selNum +"] attuatore[" +this.iAttuatore +"] fase[" +this.fase +"] cpu[" +this.cpuStatus +"]");
+	//console.log ("TaskTestSelezione::onTimer => sel[" +this.selNum +"] attuatore[" +this.iAttuatore +"] fase[" +this.fase +"] cpu[" +this.cpuStatus +"]");
 	if (this.iAttuatore == 12)
 	{
 		//questo è il caso del test "macinata" che prevede che prima si rimuova il gruppo, poi si macini, poi si rimetta il gruppo
@@ -545,7 +545,7 @@ TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
 			this.fase = 1;
 			
 			//chiedo l'attivazione del motore
-			console.log ("TaskTestSelezione::ajax::testSelection");
+			//console.log ("TaskTestSelezione::ajax::testSelection");
 			rhea.ajax ("testSelection", {"s":this.selNum, "d":this.iAttuatore} ).then( function(result)
 			{
 				if (result != "OK")
@@ -619,7 +619,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
 		rhea.ajax ("getGroupState", "").then( function(result)
 		{
-			console.log ("TaskCalibMotor, grpState[" +result +"]");
+			//console.log ("TaskCalibMotor, grpState[" +result +"]");
 			if (result=="0")
 				me.fase = 10;
 			else
@@ -978,7 +978,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 		case 0:
 			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) 
 										{ 
-											console.log("status[" +status +"], kbSoFar[" +kbSoFar +"], fileID[" +fileID +"]"); 
+											//console.log("status[" +status +"], kbSoFar[" +kbSoFar +"], fileID[" +fileID +"]"); 
 											switch (status)
 											{
 											case 0://in progress
@@ -1066,12 +1066,61 @@ function TaskDataAudit_load_onEnd (theTask, reasonRefused, obj)
 }
 
 
+/********************************************************
+ * TaskResetEVA
+ */
+function TaskResetEVA()																{ this.fase = 0;}
+TaskResetEVA.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskResetEVA.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskResetEVA.prototype.onFreeBtn1Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 10; }
+TaskResetEVA.prototype.onFreeBtn2Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 99; }
+TaskResetEVA.prototype.onExit				= function(bSave)						{ return bSave; }
+TaskResetEVA.prototype.onTimer 				= function(timeNowMsec)					
+{
+	console.log ("TaskResetEVA::fase[" +this.fase +"]");
+	switch (this.fase)
+	{
+	case 10: //do reset
+		this.fase = 11;
+		var me = this;		
+		rhea.ajax ("EVArst", "")
+			.then( function(result) 
+			{
+				me.fase = 90;
+			})
+			.catch( function(result)
+			{
+				me.fase = 99;				
+			});
+		break;
+	
+	case 11:
+		break;
+		
+	case 90:
+		rheaSetDivHTMLByName("pageDataAudit_lastDownload", "");
+		rheaSetDivHTMLByName("pageDataAudit_o", "");
+		rheaSetDivHTMLByName("pageDataAudit_t", "");
+		rheaSetDivHTMLByName("pageDataAudit_p", "");
+		this.fase = 99;
+		break;
+
+		
+	case 99: //fine
+		pleaseWait_hide();
+		this.fase = 0;
+		
+		break;
+		
+	default:
+		break;
+		
+	}
+}
+
 
 /********************************************************
- * Task
- *
- * Questo è il template delle classi "task".
- * Tutte le classi "derivate", devono implementare i metodi "on"
+ * TaskP15
  */
 function TaskP15()																{ this.nextTimeSendP15 = 0;}
 TaskP15.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}

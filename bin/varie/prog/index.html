@@ -735,27 +735,24 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS' data-onclick='pageDataAudit_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS|3|RESET DATA' data-onclick='pageDataAudit_onSelector()'></div></td>
 					</tr>
 				</table>
 				
-				
-				<div id="pageDataAudit_o" style="display:none">
-					<div>
-						<table border='0' width="100%">
-							<tr valign='middle'>
-								<td align="left"><div id="pageDataAudit_lastDownload">EVA-DTS, downloaded on 2019-11-26 11:42</div></td>
-								<td align="right"><div class='UIButton actionButton' data-caption='REFRESH' data-onclick="pageDataAudit_downloadEVA()"></div></td>
-							</tr>
-						</table>
-					</div>
-							
-					<br>
-					<div id="pageDataAudit_o1">
-					</div>
-				</div>
+				<div id="pageDataAudit_o" style="display:none"></div>
 				<div id="pageDataAudit_p" style="display:none"></div>
 				<div id="pageDataAudit_t" style="display:none"></div>
+				<div id="pageDataAudit_r" style="display:none">
+					<div id="pageDataAudit_lastDownload">EVA-DTS, downloaded on 2019-11-26 11:42</div>
+					<br>
+					<table border='0' align="center">
+						<tr valign='middle'>
+							<td><div class='UIButton actionButton' data-caption='DOWNLOAD DATA AGAIN' data-onclick="pageDataAudit_downloadEVA()"></div></td>
+							<td style="width:100px">&nbsp;</td>
+							<td><div class='UIButton actionButton' data-caption='RESET PARTIAL DATA' data-onclick="pageDataAudit_resetPartialData()"></div></td>
+						</tr>
+					</table>
+				</div>
 			</div>
 		</div> <!-- page DataAudit -->
 
@@ -832,7 +829,7 @@ var cpuLangName2 = "";
 function priv_askCPULangNames()
 {
 	//richiedo machine type & model
-	console.log ("ajax::getCPULangNames");
+	//console.log ("ajax::getCPULangNames");
 	rhea.ajax ("getCPULangNames", "").then( function(result)
 	{
 		cpuLangName1 = utf16StrToStr(result, 0);
@@ -849,7 +846,7 @@ function priv_askCPULangNames()
 function priv_askMachineTypeAndModel()
 {
 	//richiedo machine type & model
-	console.log ("ajax::getMachineTypeAndModel");
+	//console.log ("ajax::getMachineTypeAndModel");
 	rhea.ajax ("getMachineTypeAndModel", "").then( function(result)
 	{
 		var obj = JSON.parse(result);
@@ -873,7 +870,7 @@ function onDA3Loaded(bResult)
 		return;
 	}
 
-	console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
+	//console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
 	guiInfo = new GUIInfo();
 	guiInfo.load();
 }
@@ -1119,7 +1116,7 @@ function dataOra_setup ()
 		dataora_interval = null;
 	}
 		
-	console.log ("dataOra_setup::ajax::getTime");
+	//console.log ("dataOra_setup::ajax::getTime");
 	rhea.ajax ("getTime", "").then( function(result)
 	{
 		var data = JSON.parse(result);
@@ -1127,7 +1124,7 @@ function dataOra_setup ()
 		dataora_min = data.m;
 		dataora_sec = data.s;
 	
-		console.log ("dataOra_setup::ajax::getDate");	
+		//console.log ("dataOra_setup::ajax::getDate");	
 		rhea.ajax ("getDate", "").then( function(result)
 		{
 			var data = JSON.parse(result);
@@ -1138,7 +1135,7 @@ function dataOra_setup ()
 		})
 		.catch( function(result)
 		{
-			console.log ("dataOra_setup::ajax::getDate::err");
+			//console.log ("dataOra_setup::ajax::getDate::err");
 			setTimeout ( function() {dataOra_setup();}, 200);
 		});	
 	})
@@ -1149,14 +1146,33 @@ function dataOra_setup ()
 	});
 }
 
+function dataOra_getYYYYMMDD()
+{
+	var mm = dataora_mm.toString();
+	if (mm.length<2) mm = "0"+mm;
+	
+	var gg = dataora_dd.toString();
+	if (gg.length<2) gg = "0"+gg;
+	return dataora_yy +"/" +mm +"/" +gg;
+}
+
+function dataOra_getHHMM(sep)
+{
+	var hh = dataora_hh.toString();
+	if (hh.length<2) hh = "0"+hh;
+	
+	var mm = dataora_min.toString();
+	if (mm.length<2) mm = "0"+mm;
+	return hh +sep +mm;
+}
+
 function dataOra_run ()
 {
 	if (null != dataora_interval)
 		clearInterval(dataora_interval);
 
-	if (dataora_mm.length<2) dataora_mm="0"+dataora_mm;
-	if (dataora_dd.length<2) dataora_dd="0"+dataora_dd;
-	rheaSetDivHTMLByName("divHeaderR_data", dataora_yy +"/" +dataora_mm +"/" +dataora_dd);
+
+	rheaSetDivHTMLByName("divHeaderR_data", dataOra_getYYYYMMDD());
 	
 	dataora_interval = setInterval (function() 
 					{ 
@@ -1172,12 +1188,12 @@ function dataOra_run ()
 							}
 						}
 						
-						var hh = dataora_hh.toString();		if (hh.length<2) hh = "0"+hh;
-						var mm = dataora_min.toString();	if (mm.length<2) mm = "0"+mm;
-						var sep = ":";
+						var hhmm = ""
 						if (dataora_sec % 2 == 0)
-							sep = "&nbsp;"
-						rheaSetDivHTMLByName("divHeaderR_ora", hh +sep +mm);
+							hhmm = dataOra_getHHMM("&nbsp;");
+						else
+						hhmm = dataOra_getHHMM(":");
+						rheaSetDivHTMLByName("divHeaderR_ora", hhmm);
 					}, 
 					1000);
 }
@@ -1373,7 +1389,7 @@ function pageMiscellaneous_show()
 	pageMiscellaneous_onSelector();
 	btnBack_show();
 	
-	currentTask = new TaskP15();
+	//currentTask = new TaskP15();
 }
 
 function pageMiscellaneous_fv_refresh()
@@ -1435,9 +1451,14 @@ function pageMiscellaneous_stopFVNow()
 function pageMiscellaneous_stopFVNow_onFinish()
 {
 	//notifica la CPU di aggiornare il suo stato di freevend
+	setTimeout ( function() { pageMiscellaneous_sendP15(); }, 1000);
+}
+
+function pageMiscellaneous_sendP15()
+{
 	var buffer = new Uint8Array(1);
 	buffer[0] = 66;
-	rhea.sendGPUCommand ("E", buffer, 0, 0);		
+	rhea.sendGPUCommand ("E", buffer, 0, 0);
 	pageMiscellaneous_fv_refresh();
 	pleaseWait_hide();
 }
@@ -2054,7 +2075,7 @@ function pageSingleSelection_onSelector()
 var ajax_testSelection_nRetry = 0;
 function pageSingleSelection_test (iAttuatore)
 {
-	console.log ("pageSingleSelection_test:: selnum[" +pageSingleSelection_curSel +"] attuatore[" +iAttuatore +"]");
+	//console.log ("pageSingleSelection_test:: selnum[" +pageSingleSelection_curSel +"] attuatore[" +iAttuatore +"]");
 	//prima di tutto salvo e spedisco la ricetta alla CPU
 	ajax_testSelection_nRetry = 3;
 	save( function(){ pageSingleSelection_test_afterSave(iAttuatore); } );
@@ -2069,7 +2090,7 @@ function pageSingleSelection_test_afterSave(iAttuatore)
 
 function pageSingleSelection_test_onFinish()
 {
-console.log ("pageSingleSelection_test_onFinish");
+	//console.log ("pageSingleSelection_test_onFinish");
 	currentTask = voidTask;
 	pleaseWait_hide();
 }
@@ -2142,7 +2163,7 @@ function pageClock_show()
 	
 function pageClock_syncTime()
 {	
-	console.log ("ajax::getTime");
+	//console.log ("ajax::getTime");
 	rhea.ajax ("getTime", "").then( function(result)
 	{
 		var win = ui.getWindowByID("pageClock");
@@ -2161,7 +2182,7 @@ function pageClock_syncTime()
 
 function pageClock_syncDate()
 {
-	console.log ("ajax::getDate");
+	//console.log ("ajax::getDate");
 	rhea.ajax ("getDate", "").then( function(result)
 	{
 		var data = JSON.parse(result);
@@ -2205,7 +2226,7 @@ function pageClock_setTime()
 	var obj = win.getChildByID("pageClock_time");
 	
 	pleaseWait_show();
-	console.log ("ajax::setTime");
+	//console.log ("ajax::setTime");
 	rhea.ajax ("setTime", { "h":obj.getValueHH(), "m":obj.getValueMM(), "s":0}).then( function(result)
 	{
 		pleaseWait_hide();
@@ -2225,7 +2246,7 @@ function pageClock_setDate()
 	var dd = win.getChildByID("pageClock_dd").getValue();
 	
 	pleaseWait_show();
-	console.log ("ajax::setDate");
+	//console.log ("ajax::setDate");
 	rhea.ajax ("setDate", { "y":yy, "m":mm, "d":dd}).then( function(result)
 	{
 		pleaseWait_hide();
@@ -2441,7 +2462,7 @@ function pageDevices_setVGrind (macina1o2)
 	else
 		target = parseInt(win.getChildByID("pageDevices_vg2_target").getValue());
 		
-	console.log ("pageDevices_setVGrind:: macina[" +macina1o2 +"] target[" +target +"]");
+	//console.log ("pageDevices_setVGrind:: macina[" +macina1o2 +"] target[" +target +"]");
 	
 	currentTask.enterSetMacinaPos(macina1o2, target);
 }
@@ -2452,11 +2473,12 @@ function pageDevices_setVGrind (macina1o2)
  * pageDataAudit
  *
  */
+var taskResetEVA = new TaskResetEVA();
 function pageDataAudit_show()
 {
 	if (showPage("pageDataAudit"))
 	{
-	pageDataAudit_downloadEVA();
+		pageDataAudit_downloadEVA();
 	}
 	
 	pageDataAudit_onSelector();
@@ -2655,10 +2677,12 @@ function  pageDataAudit_onSelector()
 	var elemO = rheaGetElemByID("pageDataAudit_o");
 	var elemP = rheaGetElemByID("pageDataAudit_p");
 	var elemT = rheaGetElemByID("pageDataAudit_t");
+	var elemR = rheaGetElemByID("pageDataAudit_r");
 	
 	rheaHideElem(elemO);
 	rheaHideElem(elemP);
 	rheaHideElem(elemT);
+	rheaHideElem(elemR);
 	
 	var win = ui.getWindowByID("pageDataAudit");
 	switch (parseInt(win.getChildByID("pageDataAudit_selector").getSelectedOptionValue()))
@@ -2666,15 +2690,30 @@ function  pageDataAudit_onSelector()
 		case 0: rheaShowElem(elemO); break;
 		case 1: rheaShowElem(elemP); break;
 		case 2: rheaShowElem(elemT); break;
+		case 3: rheaShowElem(elemR); break;
 	}
 	win.showHideScrollBar();
+}
+
+function pageDataAudit_resetPartialData()
+{
+	pleaseWait_show();
+	pleaseWait_btn1_setText("YES, do reset partial data");
+	pleaseWait_btn1_show();
+
+	pleaseWait_btn2_setText("NO, do NOT reset partial data");
+	pleaseWait_btn2_show();
+
+	pleaseWait_freeText_setText ("You're about to reset partial EVA-DTS data.<br><br>Do you confirm?");
+	pleaseWait_freeText_show();
+	currentTask = taskResetEVA;
 }
 
 
 function pageDataAudit_downloadEVA()
 {
 	pleaseWait_show();
-	rheaSetDivHTMLByName("pageDataAudit_o1", "");
+	rheaSetDivHTMLByName("pageDataAudit_o", "");
 	rheaSetDivHTMLByName("pageDataAudit_t", "");
 	rheaSetDivHTMLByName("pageDataAudit_p", "");
 
@@ -2686,8 +2725,9 @@ function pageDataAudit_downloadEVA_onFinish()
 	if (currentTask.bufferSize != 0)
 	{
 		//download riuscito
-		console.log (currentTask.buffer);
-		rheaSetDivHTMLByName("pageDataAudit_lastDownload", "EVA-DTS, downloaded on " +dataora_yy +"-" +dataora_mm +"-" +dataora_dd +" " +dataora_hh +":" +dataora_min);
+		//console.log (currentTask.buffer);
+		
+		rheaSetDivHTMLByName("pageDataAudit_lastDownload", "EVA-DTS, last downloaded on " +dataOra_getYYYYMMDD() +" " +dataOra_getHHMM(":"));
 		
 		var numSelezioni = parseInt(currentTask.buffer[1]);
 		var numDecimali  = parseInt(currentTask.buffer[2]);

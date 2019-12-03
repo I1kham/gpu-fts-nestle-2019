@@ -56,6 +56,7 @@
 #define		CPUBRIDGE_NOTITFY_MOTORE_MACINA					0x011E
 #define		CPUBRIDGE_NOTITFY_TEST_SELECTION				0x011F
 #define		CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU				0x0120
+#define		CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA			0x0121
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -102,6 +103,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU				0x0823
 #define		CPUBRIDGE_SUBSCRIBER_ASK_DISINSTALLAZIONE				0x0824
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RICARICA_FASCIA_ORARIA_FV		0x0825
+#define		CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA			0x0826
 
 namespace cpubridge
 {
@@ -236,6 +238,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_getNomiLinguaCPU = 0x13,
 		eCPUProgrammingCommand_disinstallazione = 0x14,
 		eCPUProgrammingCommand_ricaricaFasciaOrariaFV = 0x15,
+		eCPUProgrammingCommand_EVAresetPartial = 0x16,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

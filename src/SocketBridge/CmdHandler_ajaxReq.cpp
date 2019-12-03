@@ -21,7 +21,9 @@
 #include "CmdHandler/CmdHandler_ajaxReqTestSelection.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetPosizioneMacina.h"
 #include "CmdHandler/CmdHandler_ajaxReqNomiLingueCPU.h"
-#include "CmdHandler/CmdHandler_ajaxReqFileList.h"
+#include "CmdHandler/CmdHandler_ajaxReqFSFileList.h"
+#include "CmdHandler/CmdHandler_ajaxReqFSFileCopy.h"
+#include "CmdHandler/CmdHandler_ajaxReqResetEVA.h"
 
 using namespace socketbridge;
 
@@ -75,7 +77,9 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqTestSelection);
 	CHECK(CmdHandler_ajaxReqGetPosizioneMacina);
 	CHECK(CmdHandler_ajaxReqNomiLingueCPU);
-    CHECK(CmdHandler_ajaxReqFileList);
+    CHECK(CmdHandler_ajaxReqFSFileList);
+	CHECK(CmdHandler_ajaxReqFSFileCopy);
+	CHECK(CmdHandler_ajaxReqResetEVA);
 
 #undef CHECK
     return NULL;

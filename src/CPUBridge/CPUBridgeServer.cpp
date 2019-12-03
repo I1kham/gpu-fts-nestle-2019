@@ -775,6 +775,18 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_EVAresetPartial(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, true);
+			else
+				notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, false);
+
+		}
+		break;
 		} //switch
 	} //while
 }
@@ -1436,13 +1448,6 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 #ifdef _DEBUG
 	//hack per velocizzare i test
 	{
-		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_A_1.txt", fullFilePathAndName);
-		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/dataAudit0.txt", fullFilePathAndName);
-		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/Eva_B_1.txt", fullFilePathAndName);
-
-		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/VENDON-AuditFile_2019-12-02_082533.txt", fullFilePathAndName);
-		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/viaGPU-dataAudit_2019-12-02_08-31-52.txt", fullFilePathAndName);
-		//rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/viaGPU-dataAudit_2019-12-02_08-31-29.txt", fullFilePathAndName);
 		rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/dietroCPU-20191202T084622_EVADTS.log", fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)

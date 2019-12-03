@@ -1,12 +1,12 @@
-#ifndef _CmdHandler_ajaxReqFileList_
-#define _CmdHandler_ajaxReqFileList_
+#ifndef _CmdHandler_ajaxReqFSFileList_
+#define _CmdHandler_ajaxReqFSFileList_
 #include "../CmdHandler_ajaxReq.h"
 
 
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_ajaxReqFileList
+     * CmdHandler_ajaxReqFSFileList
      *
      * la GUI ha mandato una richiesta AJAX per conosce l'elenco dei file di un folder
      *
@@ -23,10 +23,10 @@ namespace socketbridge
             fileList: stringa con i file name separati da §
         }
      */
-    class CmdHandler_ajaxReqFileList : public CmdHandler_ajaxReq
+    class CmdHandler_ajaxReqFSFileList : public CmdHandler_ajaxReq
     {
     public:
-							CmdHandler_ajaxReqFileList(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
+							CmdHandler_ajaxReqFSFileList(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
                                 CmdHandler_ajaxReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID)
                                 { }
 
@@ -39,4 +39,4 @@ namespace socketbridge
         static const char*  getCommandName()                            { return "FSList"; }
     };
 } // namespace socketbridge
-#endif // _CmdHandler_ajaxReqFileList_
+#endif // _CmdHandler_ajaxReqFSFileList_

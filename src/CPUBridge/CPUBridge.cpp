@@ -298,6 +298,12 @@ u8 cpubridge::buildMsg_ricaricaFasciaOrariaFreevend(u8 *out_buffer, u8 sizeOfOut
 	return buildMsg_Programming(eCPUProgrammingCommand_ricaricaFasciaOrariaFV, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_EVAresetPartial(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_EVAresetPartial, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
 
 
 //***************************************************
@@ -1104,6 +1110,35 @@ void cpubridge::translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u1
 	}
 }
 
+//***************************************************
+void cpubridge::notify_EVA_RESET_PARTIALDATA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result)
+{
+	logger->log("notify_EVA_RESET_PARTIALDATA\n");
+
+	u8 buffer[4];
+	if (result)
+		buffer[0] = 0x01;
+	else
+		buffer[0] = 0x00;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA, handlerID, buffer, 1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_EVA_RESET_PARTIALDATA(const rhea::thread::sMsg &msg, bool *out_result)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA);
+	const u8 *p = (const u8*)msg.buffer;
+	if (p[0] == 0x01)
+		*out_result = true;
+	else
+		*out_result = false;	
+}
+
+
+
+
+
+
 
 //***************************************************
 void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
@@ -1555,4 +1590,10 @@ void cpubridge::ask_CPU_DISINTALLAZIONE(const sSubscriber &from)
 void cpubridge::ask_CPU_RICARICA_FASCIA_ORARIA_FREEVEND(const sSubscriber &from)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RICARICA_FASCIA_ORARIA_FV, 0, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_EVA_RESET_PARTIALDATA(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA, 0, NULL, 0);
 }

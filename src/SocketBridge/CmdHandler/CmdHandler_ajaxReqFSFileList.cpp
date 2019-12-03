@@ -1,4 +1,4 @@
-#include "CmdHandler_ajaxReqFileList.h"
+#include "CmdHandler_ajaxReqFSFileList.h"
 #include "../SocketBridge.h"
 #include "../../rheaCommonLib/rheaJSONParser.h"
 #include "../../rheaDB/SQLInterface.h"
@@ -14,7 +14,7 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqFileList_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqFSFileList_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
@@ -33,10 +33,10 @@ bool ajaxReqFileList_jsonTrapFunction(const char *fieldName, const char *fieldVa
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqFileList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
 {
 	sInput data;
-	if (!rhea::json::parse(params, ajaxReqFileList_jsonTrapFunction, &data))
+	if (!rhea::json::parse(params, ajaxReqFSFileList_jsonTrapFunction, &data))
 		return;
 
 	rhea::Allocator *localAllocator = rhea::memory_getScrapAllocator();
