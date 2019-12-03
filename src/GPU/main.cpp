@@ -175,6 +175,10 @@ void setupFolderInformation (sGlobal *glob)
     sprintf_s (s, sizeof(s), "%s/lang", glob->usbFolder);
     glob->usbFolder_Lang = rhea::string::alloc(allocator, s);
 
+    sprintf_s (s, sizeof(s), "%s/rheaManual", glob->usbFolder);
+    glob->usbFolder_Manual = rhea::string::alloc(allocator, s);
+
+
     //vediamo se il folder della USB esiste
     if (rhea::fs::folderExists(baseUSBFolder))
     {

@@ -595,7 +595,7 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
+     <y>580</y>
      <width>1004</width>
      <height>511</height>
     </rect>

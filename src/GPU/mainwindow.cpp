@@ -26,6 +26,7 @@ MainWindow::MainWindow (sGlobal *globIN) :
     QWebSettings::globalSettings()->setAttribute(QWebSettings::AutoLoadImages, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
 
+
     //espando la webView a tutto schermo
     ui->webView->setVisible(false);
     ui->webView->setMouseTracking(false);

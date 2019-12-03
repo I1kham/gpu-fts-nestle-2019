@@ -607,7 +607,7 @@ void FormBoot::on_btnOK_clicked()
         break;
 
     case eFileListMode_Manual:
-        sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder, srcFilename.toStdString().c_str());
+        sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_Manual, srcFilename.toStdString().c_str());
         priv_fileListHide();
         priv_uploadManual(src);
         break;
@@ -678,7 +678,7 @@ bool FormBoot::priv_langCopy (const char *srcFolder, const char *dstFolder, u32 
 void FormBoot::on_btnInstall_manual_clicked()
 {
     priv_fileListShow(eFileListMode_Manual);
-    priv_fileListPopulate(glob->usbFolder, "*.pdf", true);
+    priv_fileListPopulate(glob->usbFolder_Manual, "*.pdf", true);
 }
 
 void FormBoot::priv_uploadManual (const char *srcFullFilePathAndName)
