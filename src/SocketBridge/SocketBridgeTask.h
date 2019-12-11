@@ -97,7 +97,7 @@ namespace socketbridge
 		status->_localAllocator = localAllocator;
 		status->_task = RHEANEW(localAllocator, TTask)();
 		if (NULL != params)
-			status->params = rhea::string::alloc(params);
+            status->params = rhea::string::alloc(localAllocator, params);
 
 		rhea::HThread hThread;
 		eThreadError err = rhea::thread::create(&hThread, socketbridge::SocketBridgeTaskThreadFn, status, 1024);

@@ -2,24 +2,15 @@
 #include "SocketBridgeServer.h"
 #include "../rheaCommonLib/rheaUtils.h"
 
-
 struct sServerInitParam
 {
     rhea::ISimpleLogger *logger;
 	OSEvent				hEvThreadStarted;
 	HThreadMsgW			hCPUServiceChannelW;
-	u8					instanceNumber;
 };
 
-struct sServerInstance
-{
-	rhea::HThread		hThread;
-	socketbridge::Server *server;
-};
 
-#define N_MAX_SOCKET_BRIDGE_SERVER_INSTANCE	4
-sServerInstance socketBridgeServerInstances[N_MAX_SOCKET_BRIDGE_SERVER_INSTANCE];
-u8				socketBridgeServerInstances_ct = 0;
+static socketbridge::Server *serverInstance = NULL;
 
 
 i16     serverThreadFn (void *userParam);
@@ -33,9 +24,7 @@ i16     serverThreadFn (void *userParam);
 bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &hCPUServiceChannelW, rhea::HThread *out_hThread)
 {
     sServerInitParam    init;
-	init.instanceNumber = socketBridgeServerInstances_ct++;
 	
-
     //crea il thread del server
     init.logger = logger;
 	init.hCPUServiceChannelW = hCPUServiceChannelW;
@@ -46,38 +35,31 @@ bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &
 	bool bStarted = rhea::event::wait(init.hEvThreadStarted, 3000);
 	rhea::event::close(init.hEvThreadStarted);
 
-	socketBridgeServerInstances[init.instanceNumber].hThread = *out_hThread;
-
 	return bStarted;
 }
 
 //*****************************************************************
 i16 serverThreadFn (void *userParam)
 {
-	sServerInitParam *init = (sServerInitParam*)userParam;
+    //sServerInitParam *init = (sServerInitParam*)userParam;
+    sServerInitParam *init = static_cast<sServerInitParam*>(userParam);
 
-	socketbridge::Server server;
-	server.useLogger (init->logger);
-	if (server.open (2280, init->hCPUServiceChannelW))
+    serverInstance = RHEANEW(rhea::memory_getDefaultAllocator(), socketbridge::Server)();
+    serverInstance->useLogger (init->logger);
+    if (serverInstance->open (2280, init->hCPUServiceChannelW))
 	{
-		socketBridgeServerInstances[init->instanceNumber].server = &server;
-				
-		//segnalo che il thread è partito con successo
+        //segnalo che il thread e' partito con successo
 		rhea::event::fire(init->hEvThreadStarted);
-		server.run();
+        serverInstance->run();
 	}
-	server.close();
+    serverInstance->close();
+    RHEADELETE(rhea::memory_getDefaultAllocator(), serverInstance);
 	return 1;
 }
 
 
 //*****************************************************************
-socketbridge::Server* socketbridge::priv_getInstanceFromHThread(const rhea::HThread hThread)
+socketbridge::Server* socketbridge::priv_getInstanceFromHThread(const rhea::HThread hThread UNUSED_PARAM)
 {
-	for (u8 i = 0; i < socketBridgeServerInstances_ct; i++)
-	{
-		if (socketBridgeServerInstances[i].hThread == hThread)
-			return socketBridgeServerInstances[i].server;
-	}
-	return NULL;
+    return serverInstance;
 }

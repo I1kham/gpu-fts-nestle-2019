@@ -514,7 +514,7 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>640</x>
-     <y>140</y>
+     <y>160</y>
      <width>371</width>
      <height>25</height>
     </rect>
@@ -868,13 +868,38 @@ VMC settings</string>
     <string>last updated 2019-11-11 10:23:59</string>
    </property>
   </widget>
+  <widget class="QLabel" name="labGPU_buildDate">
+   <property name="geometry">
+    <rect>
+     <x>640</x>
+     <y>130</y>
+     <width>371</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Roboto</family>
+     <pointsize>12</pointsize>
+     <italic>true</italic>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#000</string>
+   </property>
+   <property name="text">
+    <string>Build date:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
   <zorder>buttonStart</zorder>
   <zorder>labCPUMessage</zorder>
   <zorder>labInstalledFiles</zorder>
   <zorder>labSoftwareVer</zorder>
   <zorder>labInstalled_CPU</zorder>
   <zorder>labVersion_CPU</zorder>
-  <zorder>labVersion_GPU</zorder>
   <zorder>labInstalled_DA3</zorder>
   <zorder>labInstalled_GUI</zorder>
   <zorder>frameInstallBtn</zorder>
@@ -891,6 +916,8 @@ VMC settings</string>
   <zorder>line_5</zorder>
   <zorder>frameFileList</zorder>
   <zorder>labInstalled_DA3_DataUM</zorder>
+  <zorder>labGPU_buildDate</zorder>
+  <zorder>labVersion_GPU</zorder>
  </widget>
  <resources/>
  <connections/>

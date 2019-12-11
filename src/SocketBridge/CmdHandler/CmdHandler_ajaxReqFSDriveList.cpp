@@ -18,7 +18,7 @@ char* CmdHandler_ajaxReqFSDriveList::reallocString(rhea::Allocator *allocator, c
 
 
 //***********************************************************
-void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params UNUSED_PARAM)
 {
 	rhea::Allocator *localAllocator = rhea::memory_getScrapAllocator();
 

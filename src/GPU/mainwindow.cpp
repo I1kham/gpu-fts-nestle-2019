@@ -18,8 +18,12 @@ MainWindow::MainWindow (sGlobal *globIN) :
     syncWithCPU.reset();
 
     ui->setupUi(this);
+#ifdef _DEBUG
+    setWindowFlags(Qt::Window);
+#else
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     utils::hideMouse();
+#endif
 
     //Settaggi del browser
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);

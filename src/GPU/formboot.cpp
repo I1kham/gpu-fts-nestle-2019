@@ -41,6 +41,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labVersion_CPU->setText("");
     ui->labVersion_GPU->setText("");
     ui->labVersion_protocol->setText("");
+    ui->labGPU_buildDate->setText ("Build date: " __DATE__ " " __TIME__);
 
 
     //Bottoni

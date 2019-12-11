@@ -130,7 +130,13 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRecalcFasciaOrariaFV.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileCopy.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileList.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqResetEVA.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqResetEVA.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSDriveList.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskSpawn.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.cpp \
+    ../../src/SocketBridge/SocketBridgeTask.cpp \
+    ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
+    ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -196,7 +202,12 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRecalcFasciaOrariaFV.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileCopy.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileList.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqResetEVA.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqResetEVA.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSDriveList.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskSpawn.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.h \
+    ../../src/SocketBridge/SocketBridgeTask.h \
+    ../../src/SocketBridge/SocketBridgeTaskFactory.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

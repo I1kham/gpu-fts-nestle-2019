@@ -102,5 +102,10 @@ typedef struct sOSFileFind
                     sOSFileFind()					{ dirp = NULL; }
 } OSFileFind;
 
+typedef struct sOSDriveEnumerator
+{
+    u32	unused;
+} OSDriveEnumerator;
+
 #endif //_linuxosinclude_h_
 #endif // LINUX

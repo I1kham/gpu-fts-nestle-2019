@@ -39,7 +39,6 @@ contains(DEFINES, PLATFORM_UBUNTU_DESKTOP) {
 }
 
 
-
 THIS_EXE_NAME="GPU"
 
 message ("$${THIS_EXE_NAME}: configuration is $${CONFIG_NAME}")

@@ -1,4 +1,7 @@
 #include "SocketBridgeTask.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 using namespace socketbridge;
 

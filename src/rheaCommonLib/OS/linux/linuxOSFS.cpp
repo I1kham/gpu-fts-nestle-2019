@@ -159,7 +159,7 @@ void platform::FS_findGetFileName(const OSFileFind &ff, char *out, u32 sizeofOut
 void platform::FS_findGetCreationTime(const OSFileFind &ff, rhea::DateTime *out_dt UNUSED_PARAM)
 {
     assert(ff.dirp != NULL);
-
+    //TODO
     DBGBREAK;
 }
 
@@ -167,21 +167,23 @@ void platform::FS_findGetCreationTime(const OSFileFind &ff, rhea::DateTime *out_
 void platform::FS_findGetLastTimeModified(const OSFileFind &ff, rhea::DateTime *out_dt UNUSED_PARAM)
 {
     assert(ff.dirp != NULL);
-
+    //TODO
     DBGBREAK;
 }
 
 
 //*****************************************************
-bool platform::FS_findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)
+bool platform::FS_findFirstHardDrive(OSDriveEnumerator *h UNUSED_PARAM, rheaFindHardDriveResult *out UNUSED_PARAM)
 {
+    //TODO
 	DBGBREAK;
 	return false;
 }
 
 //*****************************************************
-bool platform::FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)
+bool platform::FS_findNextHardDrive(OSDriveEnumerator &h UNUSED_PARAM, rheaFindHardDriveResult *out UNUSED_PARAM)
 {
+    //TODO
 	DBGBREAK;
 	return false;
 
