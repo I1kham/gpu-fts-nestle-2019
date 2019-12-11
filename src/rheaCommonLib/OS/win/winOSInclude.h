@@ -98,6 +98,13 @@ typedef struct sOSFileFind
 					sOSFileFind()					{h = INVALID_HANDLE_VALUE; }
 } OSFileFind;
 
+typedef struct sOSDriveEnumerator
+{
+	u32	logicalDrives;
+	u8	current;
+
+	sOSDriveEnumerator() { logicalDrives = 0; current = 0; }
+} OSDriveEnumerator;
 
 #endif //_winOSInclude_h_
 #endif //WIN32

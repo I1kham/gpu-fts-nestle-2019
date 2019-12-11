@@ -31,6 +31,12 @@ enum eSocketError
 };
 
 
+typedef struct sFindHardDriveResult
+{
+	char	drivePath[128];
+	char	driveLabel[256];
+} rheaFindHardDriveResult;
+
 
 #endif // _rheaEnumAndDefine_h_
 

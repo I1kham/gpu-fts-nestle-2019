@@ -107,6 +107,10 @@ bool platform::FS_findFirst(OSFileFind *ff, const char *strPathNoSlash, const ch
 	strcpy_s(ff->strJolly, sizeof(ff->strJolly), strJolly);
 	do
 	{
+		if ((ff->findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0) continue;
+		if ((ff->findData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) continue;
+		if ((ff->findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM) != 0) continue;
+
 		const char *fname = FS_findGetFileName(*ff);
 		if (FS_findIsDirectory(*ff) || rhea::fs::doesFileNameMatchJolly(fname, strJolly))
 			return true;
@@ -124,6 +128,11 @@ bool platform::FS_findNext(OSFileFind &ff)
 	assert(ff.h != INVALID_HANDLE_VALUE);
 	while (FindNextFile(ff.h, &ff.findData))
 	{
+		if ((ff.findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0) continue;
+		if ((ff.findData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) continue;
+		if ((ff.findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM) != 0) continue;
+
+
 		const char *fname = FS_findGetFileName(ff);
 		if (FS_findIsDirectory(ff) || rhea::fs::doesFileNameMatchJolly(fname, ff.strJolly))
 			return true;
@@ -186,6 +195,52 @@ void platform::FS_findClose(OSFileFind &ff)
 	ff.h = INVALID_HANDLE_VALUE;
 }
 
+
+//*****************************************************
+bool platform::FS_findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)
+{
+	h->logicalDrives = GetLogicalDrives();
+	h->current = 0;
+	return FS_findNextHardDrive(*h, out);
+}
+
+//*****************************************************
+bool platform::FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)
+{
+	while (h.current < 32)
+	{
+		if ((h.logicalDrives & (0x0001 << h.current)) == 0)
+		{
+			h.current++;
+			continue;
+		}
+
+		out->drivePath[0] = 'A' + h.current;
+		out->drivePath[1] = ':';
+		out->drivePath[2] = '\\';
+		out->drivePath[3] = 0x00;
+
+		char s2[256];
+		DWORD volumeSerialNumber, maximumComponentLength, fileSystemFlags;
+
+		GetVolumeInformation(out->drivePath, out->driveLabel, sizeof(out->driveLabel),
+			&volumeSerialNumber,
+			&maximumComponentLength,
+			&fileSystemFlags,
+			s2, sizeof(s2));
+
+		h.current++;
+		return true;
+	}
+	return false;
+}
+
+//*****************************************************
+void platform::FS_findCloseHardDrive(OSDriveEnumerator &h)
+{
+	h.logicalDrives = 0;
+	h.current = 0xff;
+}
 
 
 #endif //WIN32

@@ -136,9 +136,9 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, rhea::ISimple
 				while (i < numSel && i2)
 				{
 					if (selAvailability[i] == 0)
-						strcat(s, "0 ");
+						strcat_s(s, sizeof(s), "0 ");
 					else
-						strcat(s, "1 ");
+						strcat_s(s, sizeof(s) , "1 ");
 					--i2;
 					++i;
 				}

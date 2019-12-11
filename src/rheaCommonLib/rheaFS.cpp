@@ -478,3 +478,39 @@ u8* fs::fileCopyInMemory (FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAl
 	return buffer;
 
 }
+
+
+//******************************************** 
+void fs::filePath_GoBack (const char *pathSenzaSlashIN, char *out, u32 sizeofout)
+{
+	assert (NULL != out && sizeofout > 1);
+	out[0] = 0;
+	if (NULL == pathSenzaSlashIN || (NULL != pathSenzaSlashIN && pathSenzaSlashIN[0] == 0))
+		return;
+
+	const u32 MAXSIZE = 1024;
+	char pathSenzaSlash[MAXSIZE];
+	fs::sanitizePath(pathSenzaSlashIN, pathSenzaSlash, sizeof(pathSenzaSlash));
+
+	const u32 lenPath = (u32)strlen(pathSenzaSlash);
+	if (lenPath < sizeofout)
+		strcpy_s(out, sizeofout, pathSenzaSlash);
+	
+	rhea::string::parser::Iter src;
+	src.setup (pathSenzaSlash, 0, lenPath);
+	src.toLast();
+
+
+	assert(src.getCurChar() != '/');
+	const char cSlash = '/';
+	if (!rhea::string::parser::backUntil(src, &cSlash, 1))
+		return;
+
+	u32 n = src.cur();
+	if (n)
+	{
+		assert(sizeofout > n);
+		memcpy(out, pathSenzaSlash, n);
+		out[n] = 0;
+	}
+}

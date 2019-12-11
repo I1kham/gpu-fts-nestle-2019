@@ -63,6 +63,9 @@ inline bool			OS_FS_fileExists(const char *filename)																				{ return
 inline bool			OS_FS_fileDelete(const char *filename)																				{ return platform::FS_fileDelete(filename); }
 inline bool			OS_FS_fileRename(const char *oldFilename, const char *newFilename)													{ return platform::FS_fileRename(oldFilename, newFilename); }
 
+inline bool			OS_FS_findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)										{ return platform::FS_findFirstHardDrive(h, out); }
+inline bool			OS_FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)											{ return platform::FS_findNextHardDrive(h, out); }
+inline void			OS_FS_findCloseHardDrive(OSDriveEnumerator &h)																		{ return platform::FS_findCloseHardDrive(h); }
 
 
 

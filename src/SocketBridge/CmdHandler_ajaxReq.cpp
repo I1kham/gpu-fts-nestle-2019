@@ -24,6 +24,9 @@
 #include "CmdHandler/CmdHandler_ajaxReqFSFileList.h"
 #include "CmdHandler/CmdHandler_ajaxReqFSFileCopy.h"
 #include "CmdHandler/CmdHandler_ajaxReqResetEVA.h"
+#include "CmdHandler/CmdHandler_ajaxReqFSDriveList.h"
+#include "CmdHandler/CmdHandler_ajaxReqTaskSpawn.h"
+#include "CmdHandler/CmdHandler_ajaxReqTaskStatus.h"
 
 using namespace socketbridge;
 
@@ -80,6 +83,9 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
     CHECK(CmdHandler_ajaxReqFSFileList);
 	CHECK(CmdHandler_ajaxReqFSFileCopy);
 	CHECK(CmdHandler_ajaxReqResetEVA);
+	CHECK(CmdHandler_ajaxReqFSDriveList);
+	CHECK(CmdHandler_ajaxReqTaskSpawn);
+	CHECK(CmdHandler_ajaxReqTaskStatus);
 
 #undef CHECK
     return NULL;

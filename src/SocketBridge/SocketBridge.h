@@ -12,8 +12,16 @@ namespace socketbridge
 				/*	crea il thread che monitora e gestisce la socket.
 					Se hCPUServiceChannelW è valido, allora thread in questione si "subscribe()" al thread della CPU in modo da riceverne le notifiche
 				*/
-
 					
+	Server*		priv_getInstanceFromHThread (const rhea::HThread hThread);
+
+
+
+				template<class TTask>
+	void		addTask (const rhea::HThread hThread, const char *taskName) 
+				{ 
+					priv_getInstanceFromHThread(hThread)->taskAdd<TTask>(taskName);
+				}
 
 } // namespace socketbridge
 

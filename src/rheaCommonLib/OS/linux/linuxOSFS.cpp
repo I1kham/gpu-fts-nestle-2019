@@ -172,7 +172,25 @@ void platform::FS_findGetLastTimeModified(const OSFileFind &ff, rhea::DateTime *
 }
 
 
+//*****************************************************
+bool platform::FS_findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)
+{
+	DBGBREAK;
+	return false;
+}
 
+//*****************************************************
+bool platform::FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)
+{
+	DBGBREAK;
+	return false;
+
+}
+
+//*****************************************************
+void platform::FS_findCloseHardDrive(OSDriveEnumerator &h UNUSED_PARAM)
+{	
+}
 
 
 #endif //LINUX

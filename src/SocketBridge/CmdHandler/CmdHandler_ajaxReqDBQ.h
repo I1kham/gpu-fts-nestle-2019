@@ -34,6 +34,7 @@ namespace socketbridge
         void                onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM) {}
 
         static const char*  getCommandName()                            { return "DBQ"; }
+
     };
 } // namespace socketbridge
 #endif // _CmdHandler_ajaxReqDBQ_h_

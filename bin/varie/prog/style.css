@@ -126,8 +126,8 @@ table.dataAudit td { border:solid 1px #666; padding: 5px 2px 5px 2px; color:#ddd
 table.dataAudit th { background-color:#fff; color:#000; font-size:0.9em;}
 table.dataAudit td { text-align:right; }
 
-table.dataAudit tr.rowTot {background-color:#cc5f29; }
-table.dataAudit tr.rowTot td { color:#000; }
+table.dataAudit tr.rowTot {background-color:#005f00; }
+table.dataAudit tr.rowTot td { color:#fff; }
 
 #UISelectFullPage { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
 #UISelectFullPage ul { list-style-type:none; margin:0; padding:0;}

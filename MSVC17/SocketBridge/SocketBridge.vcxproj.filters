@@ -10,6 +10,9 @@
     <Filter Include="CmdHandler\event">
       <UniqueIdentifier>{81ee35b6-3e99-4a9a-9c8e-5953762f48a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Task">
+      <UniqueIdentifier>{e8862ee6-f58e-4de1-9e9b-959101cdd178}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
@@ -174,6 +177,24 @@
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqResetEVA.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSDriveList.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\SocketBridgeTask.cpp">
+      <Filter>Task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\SocketBridgeTaskStatus.cpp">
+      <Filter>Task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\SocketBridgeTaskFactory.cpp">
+      <Filter>Task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
   </ItemGroup>
@@ -344,6 +365,21 @@
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqResetEVA.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSDriveList.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridgeTask.h">
+      <Filter>Task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\SocketBridgeTaskFactory.h">
+      <Filter>Task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>

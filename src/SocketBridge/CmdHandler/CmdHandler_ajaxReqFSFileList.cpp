@@ -44,6 +44,7 @@ void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::S
 	u32 sizeForFileStr = 0;
 	char *fileList = NULL;
 	char *folderList = NULL;
+	char canGoUpOneFolder = '0';
 	OSFileFind h;
 	if (rhea::fs::findFirst(&h, data.path, data.jolly))
 	{
@@ -52,8 +53,13 @@ void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::S
 			const char *fname = rhea::fs::findGetFileName(h);
 			if (rhea::fs::findIsDirectory(h))
 			{
-				if (fname[0] != '.')
+				if (fname[0] != '.' && fname[0] != '$')
 					sizeForFolderStr += strlen(fname) + 2;
+				else
+				{
+					if (fname[1] == '.')
+						canGoUpOneFolder = '1';
+				}
 			}
 			else
 				sizeForFileStr += strlen(fname) + 2;
@@ -81,7 +87,7 @@ void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::S
 			const char *fname = rhea::fs::findGetFileName(h);
 			if (rhea::fs::findIsDirectory(h))
 			{
-				if (fname[0] != '.')
+				if (fname[0] != '.' && fname[0] != '$')
                 {
                     if (folderList[0] != 0x00) strcat (folderList, SEP);
                     strcat (folderList, fname);
@@ -112,8 +118,9 @@ void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::S
         fileList[1] = 0x00;
     }
 
+
     char *resp = (char*)RHEAALLOC(localAllocator, 64+strlen(data.path) +sizeForFolderStr +sizeForFileStr);
-    sprintf(resp, "{\"path\":\"%s\",\"folderList\":\"%s\",\"fileList\":\"%s\"}", data.path, folderList, fileList);
+    sprintf(resp, "{\"path\":\"%s\",\"up\":%c, \"folderList\":\"%s\",\"fileList\":\"%s\"}", data.path, canGoUpOneFolder, folderList, fileList);
 	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
 
     RHEAFREE(localAllocator, folderList);

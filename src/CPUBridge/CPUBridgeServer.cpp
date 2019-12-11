@@ -1659,7 +1659,8 @@ void Server::priv_handleState_compatibilityCheck()
 	u8 bufferW[64];
 	
 
-	//mando il comando "C" ad oltranza
+	//mando il comando "C" una decina di volte per vedere se la CPU esiste
+	u8 nRetry = 10;
 	while (1)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
@@ -1677,12 +1678,25 @@ void Server::priv_handleState_compatibilityCheck()
 			}
 			break;
 		}
+
+		nRetry--;
+		if (nRetry == 0)
+		{
+			//la CPU non ha mai risposto, ne deduco che non esiste oppure non è in gradi di rispondere.
+			//Essendo questa la procedera di "boot", vado nello stato NOT_SUPPORTED perchè non sono stato
+			//in grado di contattare la CPU nemmeno una volta
+			priv_enterState_CPUNotSupported();
+			return;
+		}
+
 		priv_handleMsgQueues(timeNowMSec, 1000);
 	}
 
+
+
 	//la CPU ha risposto, a questo punto verifico che supporti il comando "c"
 	priv_handleMsgQueues(rhea::getTimeNowMSec(), 10);
-	u8 nRetry = 4;
+	nRetry = 4;
 	while (1)
 	{
 		sExtendedCPUInfo info;
@@ -1694,6 +1708,7 @@ void Server::priv_handleState_compatibilityCheck()
 		nRetry--;
 		if (nRetry == 0)
 		{
+			//La CPU non ha risposto a "c", quindi ne deduco che è di una versione precedente alla 2.0... non va bene
 			priv_enterState_CPUNotSupported();
 			return;
 		}

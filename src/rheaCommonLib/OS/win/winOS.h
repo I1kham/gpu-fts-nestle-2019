@@ -59,6 +59,10 @@ namespace platform
 	void			FS_findGetLastTimeModified (const OSFileFind &h, rhea::DateTime *out);
 	void			FS_findClose(OSFileFind &h);
 
+	bool			FS_findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out);
+	bool			FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out);
+	void			FS_findCloseHardDrive(OSDriveEnumerator &h);
+
 
 }   //namespace platform
 

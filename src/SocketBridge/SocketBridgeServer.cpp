@@ -99,6 +99,10 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW)
 	nextTimePurgeDBList = 0;
 	dbList.setup(localAllocator);
 	rst.setup(localAllocator, 8);
+
+	//task factory
+	taskFactory = RHEANEW(localAllocator, TaskFactory)();
+	runningTask.setup(localAllocator, 32);
     return true;
 }
 
@@ -125,6 +129,12 @@ void Server::close()
 
 		RHEAFREE(localAllocator, sendBuffer);
 		sendBuffer = NULL;
+
+		RHEADELETE(localAllocator, taskFactory);
+		for (u32 i = 0; i < runningTask.getNElem(); i++)
+			TaskStatus::FREE(runningTask[i]);
+		runningTask.unsetup();
+
     }
 
     RHEADELETE(rhea::memory_getDefaultAllocator(), localAllocator);
@@ -399,7 +409,7 @@ void Server::run()
 			nextTimePurgeDBList = timeNowMSec + 60000;
 		}
 
-		//aggiornamento degli eventuali file trnasfer in corso
+		//aggiornamento degli eventuali file transfer in corso
 		fileTransfer.update(timeNowMSec);
 
         //analizzo gli eventi ricevuti
@@ -787,4 +797,39 @@ const rhea::SQLRst*	Server::DB_q(u16 dbHandle, const char *sql)
 bool Server::DB_exec (u16 dbHandle, const char *sql)
 {
 	return dbList.exec(dbHandle, rhea::getTimeNowMSec(), sql);
+}
+
+//**************************************************************************
+bool Server::taskSpawnAndRun (const char *taskName, const char *params, u32 *out_taskID)
+{
+	TaskStatus *s = taskFactory->spawnAndRunTask(localAllocator, taskName, params);
+	if (NULL == s)
+	{
+		*out_taskID = 0;
+		return false;
+	}
+
+	*out_taskID = s->getUID();
+	runningTask.append(s);
+	return true;
+}
+
+//**************************************************************************
+bool Server::taskGetStatusAndMesssage (u32 taskID, TaskStatus::eStatus *out_status, char *out_msg, u32 sizeofmsg)
+{
+	u32 n = runningTask.getNElem();
+	for (u32 i = 0; i < n; i++)
+	{
+		if (runningTask(i)->getUID() == taskID)
+		{
+			runningTask[i]->getStatusAndMesssage(out_status, out_msg, sizeofmsg);
+			if (*out_status == TaskStatus::eStatus_finished)
+			{
+				TaskStatus::FREE(runningTask[i]);
+				runningTask.removeAndSwapWithLast(i);
+			}
+			return true;
+		}
+	}
+	return false;
 }

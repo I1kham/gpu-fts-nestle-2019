@@ -9,6 +9,7 @@
 #include "IdentifiedClientList.h"
 #include "SocketBridgeFileT.h"
 #include "DBList.h"
+#include "SocketBridgeTaskFactory.h"
 
 namespace socketbridge
 {
@@ -45,6 +46,11 @@ namespace socketbridge
 
 		bool					DB_exec (u16 dbHandle, const char *sql);
 
+
+								template<class TTask>
+		void					taskAdd(const char *taskName) { taskFactory->add<TTask>(taskName);  }
+		bool					taskSpawnAndRun (const char *taskName, const char *params, u32 *out_taskID);
+		bool					taskGetStatusAndMesssage (u32 taskID, TaskStatus::eStatus *out_status, char *out_msg, u32 sizeofmsg);
 
     private:
         static const u16        RESERVED_HANDLE_RANGE = 1024;
@@ -95,6 +101,9 @@ namespace socketbridge
 		u8						cpuBridgeVersion;
 		DBList					dbList;
 		rhea::SQLRst			rst;
+
+		TaskFactory						*taskFactory;
+		rhea::FastArray<TaskStatus*>	runningTask;
     };
 
 } // namespace socketbridge

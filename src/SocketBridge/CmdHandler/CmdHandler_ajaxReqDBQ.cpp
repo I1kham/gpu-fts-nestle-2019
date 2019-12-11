@@ -42,7 +42,7 @@ void CmdHandler_ajaxReqDBQ::handleRequestFromSocketBridge(socketbridge::Server *
 	const rhea::SQLRst *rst = NULL;
 	sInput data;
 
-    if (rhea::json::parse(params, ajaxReqDBQ_jsonTrapFunction, &data))
+	if (rhea::json::parse(params, ajaxReqDBQ_jsonTrapFunction, &data))
 		rst = server->DB_q(data.dbHandle, data.sql);
 	
 
@@ -55,7 +55,6 @@ void CmdHandler_ajaxReqDBQ::handleRequestFromSocketBridge(socketbridge::Server *
 	else
 	{
 		rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
-
 
 		const u32 sizeOfBuffer = rst->blob_calcMemoryNeeded();
 		u8 *buffer = (u8*)RHEAALLOC(allocator, sizeOfBuffer);

@@ -49,6 +49,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testDB", "testDB\testDB.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stressTestUpDownDA3", "stressTestUpDownDA3\stressTestUpDownDA3.vcxproj", "{414AAD19-35CE-49CF-8A7D-529135A71F98}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rheaMedia2.0", "rheaMedia2.0\rheaMedia2.0.vcxproj", "{11644058-CD18-488D-9129-AB2F1206FFFA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CB34C216-01F2-4928-BD25-FAE1B18D7F20} = {CB34C216-01F2-4928-BD25-FAE1B18D7F20}
+		{E889F655-FA21-438E-8446-9B18BB78E2C9} = {E889F655-FA21-438E-8446-9B18BB78E2C9}
+		{ED7178EB-7B75-4481-9052-20109DBE548A} = {ED7178EB-7B75-4481-9052-20109DBE548A}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -129,6 +136,14 @@ Global
 		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Release|x64.Build.0 = Release|x64
 		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Release|x86.ActiveCfg = Release|Win32
 		{414AAD19-35CE-49CF-8A7D-529135A71F98}.Release|x86.Build.0 = Release|Win32
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Debug|x64.ActiveCfg = Debug|x64
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Debug|x64.Build.0 = Debug|x64
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Debug|x86.ActiveCfg = Debug|Win32
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Debug|x86.Build.0 = Debug|Win32
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Release|x64.ActiveCfg = Release|x64
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Release|x64.Build.0 = Release|x64
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Release|x86.ActiveCfg = Release|Win32
+		{11644058-CD18-488D-9129-AB2F1206FFFA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -52,12 +52,20 @@ namespace rhea
 		void				sanitizePathInPlace (char *path);
 								//sostituisce \\ con /   rimuove eventuali . e .. e doppi /
 
+		void				filePath_GoBack(const char *pathSenzaSlashIN, char *out, u32 sizeofout);
+								// esegue un ".." sul filePathIN ritornando il nuovo path
+
 		void				extractFileExt(const char *filename, char *ext, u32 sizeofext);
 		void				extractFileNameWithExt(const char *filename, char *out, u32 sizeofOut);
 		void				extractFileNameWithoutExt(const char *filename, char *out, u32 sizeofOut);
 		void				extractFilePathWithSlash(const char *filename, char *out, u32 sizeofOut);
 		void				extractFilePathWithOutSlash(const char *filename, char *out, u32 sizeofOut);
         bool                doesFileNameMatchJolly (const char *strFilename, const char *strJolly);
+
+		inline bool			findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)				{ return OS_FS_findFirstHardDrive(h, out); }
+		inline bool			findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)				{ return OS_FS_findNextHardDrive(h, out); }
+		inline void			findCloseHardDrive(OSDriveEnumerator &h)											{ OS_FS_findCloseHardDrive(h); }
+
 
 		inline bool			fileExists(const char *fullFileNameAndPath)											{ return OS_FS_fileExists(fullFileNameAndPath); }
 		inline bool         fileDelete(const char *fullFileNameAndPath)											{ return OS_FS_fileDelete(fullFileNameAndPath); }

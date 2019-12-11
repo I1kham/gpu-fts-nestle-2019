@@ -1,33 +1,29 @@
-#ifndef _CmdHandler_ajaxReqFSFileList_
-#define _CmdHandler_ajaxReqFSFileList_
+#ifndef _CmdHandler_ajaxReqFSDriveList_
+#define _CmdHandler_ajaxReqFSDriveList_
 #include "../CmdHandler_ajaxReq.h"
 
 
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_ajaxReqFSFileList
+     * CmdHandler_ajaxReqFSDriveList
      *
-     * la GUI ha mandato una richiesta AJAX per conosce l'elenco dei file di un folder
+     * la GUI ha mandato una richiesta AJAX per conosce l'elenco dei drive di sistema
      *
         Input:
-            command: FSList
-            path:	absolutePathToFolder
-			jolly:	filtro sui file
+            command: FSDrvList
 
         Output
         json
         {
-			path:		absolutePathToFolder
-			up:			0 | 1		1 se è possibile effettuare un ".." sul path attuale
-            folderList:	stringa con i folder name separati da §
-            fileList: stringa con i file name separati da §
+			drivePath: array di drivePath   (es: "c:","d:")
+			driveLabel  array di driveLabel (es: "OS","Backup"
         }
      */
-    class CmdHandler_ajaxReqFSFileList : public CmdHandler_ajaxReq
+    class CmdHandler_ajaxReqFSDriveList : public CmdHandler_ajaxReq
     {
     public:
-							CmdHandler_ajaxReqFSFileList(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
+							CmdHandler_ajaxReqFSDriveList(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
                                 CmdHandler_ajaxReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID)
                                 { }
 
@@ -37,7 +33,11 @@ namespace socketbridge
         void                passDownRequestToCPUBridge(cpubridge::sSubscriber &from UNUSED_PARAM, const char *params UNUSED_PARAM) {}
         void                onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM) {}
 
-        static const char*  getCommandName()                            { return "FSList"; }
+        static const char*  getCommandName()                            { return "FSDrvList"; }
+
+
+	private:
+		char*				reallocString(rhea::Allocator *allocator, char *cur, u32 curSize, u32 newSize) const;
     };
 } // namespace socketbridge
-#endif // _CmdHandler_ajaxReqFSFileList_
+#endif // _CmdHandler_ajaxReqFSDriveList_
