@@ -87,8 +87,28 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 		else if (priv_checkTag(line, "PA1", 2, par)) //a volte il terzo parametro (nome selezione) non esiste
 		{
 			//ho trovato il tag di inizio di una nuova selezione
+
+			const int currentNewSelID = priv_toInt(par[0].s);
+			if (selezioni.getNElem())
+			{
+				int lastSelID = selezioni(selezioni.getNElem() - 1)->id;
+				//devo riempire eventuali "gap" tra l'id della selezione precedente e l'id di quella nuova.
+				//Se per esempio saltiamo da selezione 3 a selezione 5, devo aggiungere d'ufficio la selezione 4
+				while (lastSelID < (currentNewSelID - 1))
+				{
+					++lastSelID;
+
+					InfoSelezione *p = RHEANEW(allocator, InfoSelezione)();
+					p->id = lastSelID;
+					p->price = 0;
+					p->name.s[0] = 0;
+					selezioni.append(p);
+				}
+			}
+
+
 			lastInfoSel = RHEANEW(allocator, InfoSelezione)();
-			lastInfoSel->id = priv_toInt(par[0].s);
+			lastInfoSel->id = currentNewSelID;
 			lastInfoSel->price = priv_toInt(par[1].s);
 			
 			if (priv_checkTag(line, "PA1", 3, par))

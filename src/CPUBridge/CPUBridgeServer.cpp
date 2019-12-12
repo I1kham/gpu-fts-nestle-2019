@@ -1448,7 +1448,9 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 #ifdef _DEBUG
 	//hack per velocizzare i test
 	{
-		rhea::fs::fileCopy("C:/Users/gbrunelli/Desktop/testVENDON/dietroCPU-20191202T084622_EVADTS.log", fullFilePathAndName);
+		char debug_src_eva[256];
+		sprintf_s(debug_src_eva, sizeof(debug_src_eva), "%s/last_installed/eva_test.log", rhea::getPhysicalPathToAppFolder());
+		rhea::fs::fileCopy(debug_src_eva, fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)
 			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, 15, fileID);
