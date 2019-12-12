@@ -136,7 +136,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.cpp \
     ../../src/SocketBridge/SocketBridgeTask.cpp \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
-    ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
+    ../../src/SocketBridge/SocketBridgeTaskStatus.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBCloseByPath.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -207,7 +208,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskSpawn.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.h \
     ../../src/SocketBridge/SocketBridgeTask.h \
-    ../../src/SocketBridge/SocketBridgeTaskFactory.h
+    ../../src/SocketBridge/SocketBridgeTaskFactory.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBCloseByPath.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

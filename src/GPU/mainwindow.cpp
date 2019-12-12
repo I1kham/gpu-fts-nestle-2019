@@ -103,7 +103,10 @@ bool MainWindow::priv_shouldIShowFormPreGUI()
     da3->loadInMemory (rhea::memory_getDefaultAllocator(), s, glob->extendedCPUInfo.machineType, glob->extendedCPUInfo.machineModel);
 
     u16 groundCounterLimit = da3->getDecounterCoffeeGround();
-    bool bShowBtnResetGroundConter = (groundCounterLimit > 0);
+    bool bShowBtnResetGroundConter = false;
+    if (!da3->isInstant())
+        bShowBtnResetGroundConter = (groundCounterLimit > 0);
+
     bool bShowBtnCleanMilker = false;
     if (!da3->isInstant() && da3->getMilker_RinseUserMsg() > 0)
         bShowBtnCleanMilker = true;
