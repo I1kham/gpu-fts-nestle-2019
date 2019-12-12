@@ -412,6 +412,10 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
+		da3.setCalibFactorGSec(me.motor, me.gsec);
+		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(me.motor) );
+		rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
+		
 		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
 		{
 			me.fase = 40;
@@ -492,7 +496,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 190: //devo memorizzare gli impulsi ricevuti nel da3??
 		pleaseWait_calibration_setText("Impulse: " +me.impulsi);
-		da3.setImpulsi(11, me.impulsi);
+		da3.setImpulsi(me.motor, me.impulsi);
 		me.fase = 191;
 		break;
 		

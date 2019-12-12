@@ -2285,6 +2285,16 @@ function pageCalibration_show()
 		}
 	}
 
+	pageCalibration_refreshCalibValueOnScreen();
+	
+	header_setText("CALIBRATION");
+	btnBack_show();
+	rheaHideElem(rheaGetElemByID("bntSave"));
+	currentTask = taskCalibMotor;
+}
+
+function pageCalibration_refreshCalibValueOnScreen()
+{
 	if (da3.isInstant())
 	{
 		for (var i=1; i<=6; i++)
@@ -2322,11 +2332,6 @@ function pageCalibration_show()
 		}
 		
 	}	
-	
-	header_setText("CALIBRATION");
-	btnBack_show();
-	rheaHideElem(rheaGetElemByID("bntSave"));
-	currentTask = taskCalibMotor;
 }
 
 function pageCalibration_reset(motor)
