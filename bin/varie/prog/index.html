@@ -620,11 +620,11 @@
 							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7322" data-da3bit="32"></div></td>
 						</tr>
 						<tr>
-							<td>ADDRESS VIDTIS</td>
+							<td>ADDRESS VIDTS</td>
 							<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7326" data-da3bit="16"></div></td>
 						</tr>
 						<tr>
-							<td>DATA AUDIT</td>
+							<td>PROTOCOL</td>
 							<td><div class='UISelect' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
 						</tr>						
 					</table>
@@ -636,16 +636,27 @@
 							<td>MAX CREDIT CARD</td>
 							<td><div id="pagePayment_maxCC" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7136" data-da3bit="16"></div></td>
 						</tr>
-						<tr><td>COIN A</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7144'></div></td></tr>
-						<tr><td>COIN B</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7146'></div></td></tr>
-						<tr><td>COIN C</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7148'></div></td></tr>
-						<tr><td>COIN D</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7150'></div></td></tr>
-						<tr><td>COIN E</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7152'></div></td></tr>
-						<tr><td>COIN F</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7154'></div></td></tr>
-						<tr><td>COIN G</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7156'></div></td></tr>
-						<tr><td>COIN H</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7158'></div></td></tr>
-						<tr><td>COIN I</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7160'></div></td></tr>
-						<tr><td>COIN J</td><td><div class='UIOption' data-option='1|CARD|0|ACC' data-da3='7162'></div></td></tr>
+						<tr><td>COIN A CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7144'></div></td></tr>
+						<tr><td>COIN B CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7146'></div></td></tr>
+						<tr><td>COIN C CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7148'></div></td></tr>
+						<tr><td>COIN D CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7150'></div></td></tr>
+						<tr><td>COIN E CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7152'></div></td></tr>
+						<tr><td>COIN F CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7154'></div></td></tr>
+						<tr><td>COIN G CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7156'></div></td></tr>
+						<tr><td>COIN H CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7158'></div></td></tr>
+						<tr><td>COIN I CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7160'></div></td></tr>
+						<tr><td>COIN J CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7162'></div></td></tr>
+						
+						<tr><td>COIN A NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7164'></div></td></tr>
+						<tr><td>COIN B NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7166'></div></td></tr>
+						<tr><td>COIN C NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7168'></div></td></tr>
+						<tr><td>COIN D NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7170'></div></td></tr>
+						<tr><td>COIN E NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7172'></div></td></tr>
+						<tr><td>COIN F NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7174'></div></td></tr>
+						<tr><td>COIN G NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7176'></div></td></tr>
+						<tr><td>COIN H NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7178'></div></td></tr>
+						<tr><td>COIN I NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7180'></div></td></tr>
+						<tr><td>COIN J NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7182'></div></td></tr>
 					</table>
 				</div>				
 				
@@ -1669,6 +1680,7 @@ function pageSelections_show()
 		//è la prima volta che visualizziamo la pagina
 	}
 	header_setText("SELECTIONS");
+	rheaHideElem(rheaGetElemByID("bntTestSelection"));
 	btnBack_show();
 	rheaHideElem(rheaGetElemByID("bntSave"));
 	pageSelections_onSelector();
