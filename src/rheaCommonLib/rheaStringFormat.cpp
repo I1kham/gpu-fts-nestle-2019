@@ -234,7 +234,7 @@ void format::currency (u16 price, u8 numDecimal, char decimalPointCharacter, cha
 		u16 divisore;
 		if (numDecimal > 4)
 			numDecimal = 4;
-		switch (numDecimal)
+		switch (numDecimal)	
 		{
 			case 1:	divisore = 10; break;
 			case 2:	divisore = 100; break;
@@ -251,7 +251,10 @@ void format::currency (u16 price, u8 numDecimal, char decimalPointCharacter, cha
 		switch (numDecimal)
 		{
 		case 1:	
-		case 2:	
+			sprintf(s, "%d%c%d", parteIntera, decimalPointCharacter, parteDecimale);
+			break;
+
+		case 2:
 			sprintf(s, "%d%c%02d", parteIntera, decimalPointCharacter, parteDecimale);
 			break;
 

@@ -2369,7 +2369,7 @@ function pageCalibration_start (motor)
 
 function pageCalibration_onFinish ()
 {
-	save (function() { pleaseWait_hide();});
+	save (function() { pageCalibration_refreshCalibValueOnScreen(); pleaseWait_hide();});
 }
 
 

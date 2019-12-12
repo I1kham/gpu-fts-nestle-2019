@@ -1673,7 +1673,7 @@ void Server::priv_handleState_compatibilityCheck()
 			priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 			if (strcmp(cpuParamIniziali.CPU_version, "FAKE CPU") == 0)
 			{
-				priv_enterState_normal();
+				priv_handleState_DA3Sync();
 				return;
 			}
 			break;
