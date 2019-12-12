@@ -27,11 +27,29 @@ void fs::sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSa
 
 void fs::sanitizePathInPlace(char *path)
 {
-	const u32 nBytesToCheck = (u32)strlen(path);
+	u32 nBytesToCheck = (u32)strlen(path);
 	for (u32 i = 0; i < nBytesToCheck; i++)
 	{
 		if (path[i] == '\\')
 			path[i] = '/';
+	}
+
+	//eventuali %20 li trasforma in blank
+	if (nBytesToCheck > 2)
+	{
+		for (u32 i = 0; i < nBytesToCheck - 2; i++)
+		{
+			if (path[i] == '%')
+			{
+				if (path[i + 1] == '2' && path[i + 2] == '0')
+				{
+					path[i] = ' ';
+					memcpy(&path[i + 1], &path[i + 3], nBytesToCheck - i - 3);
+					nBytesToCheck -= 2;
+					path[nBytesToCheck] = 0;
+				}
+			}
+		}
 	}
 
 	u32 i = 0, t = 0;

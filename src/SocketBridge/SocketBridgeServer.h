@@ -45,6 +45,8 @@ namespace socketbridge
 								//NULL in caso di errore
 
 		bool					DB_exec (u16 dbHandle, const char *sql);
+		void					DB_closeByPath (const char *fullFilePathAndName);
+		void					DB_closeByHandle(u16 dbHandle);
 
 
 								template<class TTask>

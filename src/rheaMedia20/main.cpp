@@ -4,8 +4,10 @@
 #include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 #include "../CPUBridge/EVADTSParser.h"
-#include "TaskCopyGUIToLocalTempFolder.h"
+#include "TaskCopyFolderToFolder.h"
 #include "TaskExportGUIToUserFolder.h"
+#include "TaskDeleteFolder.h"
+#include "TaskImportExistingGUI.h"
 
 char chromeFullPathAndName[256];
 char chromeHome[256];
@@ -47,8 +49,10 @@ bool startCPUBridge()
 	socketbridge::startServer (logger, hCPUServiceChannelW, &hSocketBridgeThread);
 
 	//Aggiungo i task
-	socketbridge::addTask<TaskCopyGUIToLocalTempFolder>(hSocketBridgeThread, "copyGUIToLocalTempFolder");
+	socketbridge::addTask<TaskCopyFolderToFolder>(hSocketBridgeThread, "copyFolderToFolder");
 	socketbridge::addTask<TaskExportGUIToUserFolder>(hSocketBridgeThread, "exportGUIToUserFolder");
+	socketbridge::addTask<TaskDeleteFolder>(hSocketBridgeThread, "deleteFolder");
+	socketbridge::addTask<TaskImportExistingGUI>(hSocketBridgeThread, "importExistingGUI");
 
 	//apro chrome
 	printf("opening chrome\n");

@@ -106,7 +106,7 @@ u32 DBList::priv_findByDBHandle(u16 dbHandle) const
 
 
 //*********************************************************
-bool DBList::q(u16 dbHandle, u64 timeNowMSec, const char *sql, rhea::SQLRst *out_result)
+bool DBList::q (u16 dbHandle, u64 timeNowMSec, const char *sql, rhea::SQLRst *out_result)
 {
 	u32 index = priv_findByDBHandle(dbHandle);
 	if (u32MAX == index)
@@ -125,4 +125,30 @@ bool DBList::exec(u16 dbHandle, u64 timeNowMSec, const char *sql)
 
 	list[index].lastTimeUsedMSec = timeNowMSec;
 	return list(index).db->exec(sql);
+}
+
+//*********************************************************
+void DBList::closeDBByPath(const char *fullFilePathAndName)
+{
+	u32 n = list.getNElem();
+	for (u32 i = 0; i < n; i++)
+	{
+		if (strcasecmp(fullFilePathAndName, list(i).fullFilePathAndName) == 0)
+		{
+			const u16 dbHandle = list(i).dbHandle;
+			closeDBByHandle(dbHandle);
+			return;
+		}
+	}
+}
+
+//*********************************************************
+void DBList::closeDBByHandle(u16 dbHandle)
+{
+	u32 index = priv_findByDBHandle(dbHandle);
+	if (u32MAX == index)
+		return;
+
+	priv_freeResouce(&list[index]);
+	list.removeAndSwapWithLast(index);
 }

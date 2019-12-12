@@ -85,9 +85,14 @@ void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::
 		}
 	}
 
+
+	char desktopPath[256];
+	if (!rhea::fs::getDestkopPath(desktopPath, sizeof(desktopPath)))
+		desktopPath[0] = 0;
+
 	
-    char *resp = (char*)RHEAALLOC(localAllocator, 64 + drivePathCurSize + driveLabelCurSize);
-    sprintf(resp, "{\"drivePath\":[%s],\"driveLabel\":[%s]}", drivePath, driveLabel);
+    char *resp = (char*)RHEAALLOC(localAllocator, 96 + drivePathCurSize + driveLabelCurSize +strlen(desktopPath));
+	sprintf(resp, "{\"drivePath\":[%s],\"driveLabel\":[%s],\"desktop\":\"%s\"}", drivePath, driveLabel, desktopPath);
 	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
 
     RHEAFREE(localAllocator, drivePath);

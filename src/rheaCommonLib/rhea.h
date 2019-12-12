@@ -55,6 +55,8 @@ namespace rhea
 		void				filePath_GoBack(const char *pathSenzaSlashIN, char *out, u32 sizeofout);
 								// esegue un ".." sul filePathIN ritornando il nuovo path
 
+		inline bool			getDestkopPath (char* outPathNoSlash, u32 sizeOfOutPathNoSlash)						{ return platform::FS_getDestkopPath(outPathNoSlash, sizeOfOutPathNoSlash); }
+
 		void				extractFileExt(const char *filename, char *ext, u32 sizeofext);
 		void				extractFileNameWithExt(const char *filename, char *out, u32 sizeofOut);
 		void				extractFileNameWithoutExt(const char *filename, char *out, u32 sizeofOut);

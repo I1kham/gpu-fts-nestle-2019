@@ -254,7 +254,7 @@ bool SQLRst::nextRow(Row &row) const
 //**********************************************************
 u32 SQLRst::blob_calcMemoryNeeded() const 
 { 
-	return ct + getColsCount() * (2+getRowCount());
+	return ct + getColsCount() * (3+getRowCount());
 }
 
 //**********************************************************

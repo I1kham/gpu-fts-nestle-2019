@@ -105,7 +105,7 @@
 						<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
 						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></div></td>
 					</tr>
-					<tr>
+					<tr id="pageMaintenance_decCofBrew">
 						<td>
 							 COFFEE BREWER DECOUNTER<br>
 							<div style="float:left; margin-right:10px">current value:</div>
@@ -115,7 +115,7 @@
 						<td><div class="UINumber" id="pageMaintenance_12_cap" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
 						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></div></td>
 					</tr>
-					<tr>
+					<tr id="pageMaintenance_decCofGround">
 						<td>
 							COFFEE GROUND DECOUNTER<br>
 							<div style="float:left; margin-right:10px">current value:</div>
@@ -656,7 +656,7 @@
 		<!-- page Devices -->
 		<div id="pageDevices" class="UIWindow">
 			<div class="UIWindowContent">
-				<table border='0' width='100%'>
+				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
 						<td><div class='UIOptionSmall' id='pageDevices_selector' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|OTHER' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
@@ -666,12 +666,12 @@
 				<div id="pageDevices_general" style="display:none">
 					<table border='0' class='elenco'>
 						<tr><td>DIPTRAY DETECTION</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7092' data-da3bit='8'></div></td></tr>
-						<tr><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ENABLED|0|DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_cofSensor"><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ENABLED|0|DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
 						<tr><td>CUP SENSOR THRESHOLD</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
 					</table>
 				</div>
 
-				<div id="pageDevices_vflex">
+				<div id="pageDevices_vflex" style="display:none">
 					<table border='0' class='elenco'>
 						<tr><td>BREWER DIAMETER</td><td><div class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
 						<tr><td>STANDBY POSITION</td><td><div class='UIOption' data-option='0|CLOSE|1|OPEN' data-da3='7556' data-da3bit='8'></div></td></tr>
@@ -679,7 +679,7 @@
 					</table>				
 				</div>			
 				
-				<div id="pageDevices_vgrind1">
+				<div id="pageDevices_vgrind1" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
 							<td>
@@ -1225,6 +1225,8 @@ function pageMaintenance_show()
 		if (da3.isInstant())
 		{
 			rheaHideElem(rheaGetElemByID("pageMaintenance_rowDis"));
+			rheaHideElem(rheaGetElemByID("pageMaintenance_decCofBrew"));
+			rheaHideElem(rheaGetElemByID("pageMaintenance_decCofGround"));
 		}
 	}
 
@@ -2422,6 +2424,15 @@ function pageDevices_show()
 {
 	if (showPage("pageDevices"))
 	{
+		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			var win = ui.getWindowByID("pageDevices");
+			win.getChildByID("pageDevices_selector").selectOptionByValue(0);
+			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
+			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
+		}
+	
 	}
 
 	pageDevices_onSelector();

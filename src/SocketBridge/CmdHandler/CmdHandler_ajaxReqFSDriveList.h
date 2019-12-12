@@ -16,8 +16,9 @@ namespace socketbridge
         Output
         json
         {
-			drivePath: array di drivePath   (es: "c:","d:")
-			driveLabel  array di driveLabel (es: "OS","Backup"
+			drivePath:	array di drivePath   (es: "c:","d:")
+			driveLabel: array di driveLabel (es: "OS","Backup")
+			desktop:	path alla cartella desktop, se applicabile, oppure ""
         }
      */
     class CmdHandler_ajaxReqFSDriveList : public CmdHandler_ajaxReq

@@ -134,12 +134,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaMedia20\main.cpp" />
-    <ClCompile Include="..\..\src\rheaMedia20\TaskCopyGUIToLocalTempFolder.cpp" />
+    <ClCompile Include="..\..\src\rheaMedia20\TaskCopyFolderToFolder.cpp" />
+    <ClCompile Include="..\..\src\rheaMedia20\TaskDeleteFolder.cpp" />
     <ClCompile Include="..\..\src\rheaMedia20\TaskExportGUIToUserFolder.cpp" />
+    <ClCompile Include="..\..\src\rheaMedia20\TaskImportExistingGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\rheaMedia20\TaskCopyGUIToLocalTempFolder.h" />
+    <ClInclude Include="..\..\src\rheaMedia20\TaskCopyFolderToFolder.h" />
+    <ClInclude Include="..\..\src\rheaMedia20\TaskDeleteFolder.h" />
     <ClInclude Include="..\..\src\rheaMedia20\TaskExportGUIToUserFolder.h" />
+    <ClInclude Include="..\..\src\rheaMedia20\TaskImportExistingGUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -27,6 +27,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqFSDriveList.h"
 #include "CmdHandler/CmdHandler_ajaxReqTaskSpawn.h"
 #include "CmdHandler/CmdHandler_ajaxReqTaskStatus.h"
+#include "CmdHandler/CmdHandler_ajaxReqDBCloseByPath.h"
 
 using namespace socketbridge;
 
@@ -86,6 +87,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqFSDriveList);
 	CHECK(CmdHandler_ajaxReqTaskSpawn);
 	CHECK(CmdHandler_ajaxReqTaskStatus);
+	CHECK(CmdHandler_ajaxReqDBCloseByPath);
 
 #undef CHECK
     return NULL;

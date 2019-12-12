@@ -1,5 +1,9 @@
 #ifdef WIN32
 #include "winOS.h"
+#include <mbstring.h>
+#include <string.h>
+#include <shlobj.h>
+#include <strsafe.h>
 #include "../../rhea.h"
 #include "../../rheaString.h"
 
@@ -242,5 +246,23 @@ void platform::FS_findCloseHardDrive(OSDriveEnumerator &h)
 	h.current = 0xff;
 }
 
+
+//********************************************* 
+bool platform::FS_getDestkopPath (char* outPathNoSlash, u32 sizeOfOutPathNoSlash)
+{
+	char	tempPathToUserFolded[MAX_PATH];
+	if (0 == SHGetSpecialFolderPath(NULL, tempPathToUserFolded, CSIDL_DESKTOP, FALSE))
+		return false;
+
+	_mbscpy_s((unsigned char*)outPathNoSlash, sizeOfOutPathNoSlash, (unsigned char*)tempPathToUserFolded);
+
+	size_t	n = _mbstrlen(outPathNoSlash) - 1;
+	for (size_t t = 0; t < n; t++)
+	{
+		if (outPathNoSlash[t] == '\\')
+			outPathNoSlash[t] = '/';
+	}
+	return true;
+}
 
 #endif //WIN32

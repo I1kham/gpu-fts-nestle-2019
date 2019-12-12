@@ -64,6 +64,7 @@ namespace platform
 	bool			FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out);
 	void			FS_findCloseHardDrive(OSDriveEnumerator &h);
 
+	bool			FS_getDestkopPath(char* outPathNoSlash, u32 sizeOfOutPathNoSlash);
 }   //namespace platform
 
 #include "linuxOSSocket.h"

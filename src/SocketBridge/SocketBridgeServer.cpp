@@ -800,6 +800,18 @@ bool Server::DB_exec (u16 dbHandle, const char *sql)
 }
 
 //**************************************************************************
+void Server::DB_closeByPath(const char *fullFilePathAndName)
+{
+	dbList.closeDBByPath(fullFilePathAndName);
+}
+
+//**************************************************************************
+void Server::DB_closeByHandle(u16 dbHandle)
+{
+	dbList.closeDBByHandle(dbHandle);
+}
+
+//**************************************************************************
 bool Server::taskSpawnAndRun (const char *taskName, const char *params, u32 *out_taskID)
 {
 	TaskStatus *s = taskFactory->spawnAndRunTask(localAllocator, taskName, params);

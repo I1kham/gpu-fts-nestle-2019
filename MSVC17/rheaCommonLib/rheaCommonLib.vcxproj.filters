@@ -58,6 +58,9 @@
     <Filter Include="SimpleLogger">
       <UniqueIdentifier>{b6177456-7dcb-4536-84bb-3875fbf5fb03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rhea\string\utf8">
+      <UniqueIdentifier>{884e277a-6945-4152-aee9-8c36f8d965c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp">
@@ -200,6 +203,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSFS.cpp">
       <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8.cpp">
+      <Filter>rhea\string\utf8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8Char.cpp">
+      <Filter>rhea\string\utf8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8Parser.cpp">
+      <Filter>rhea\string\utf8</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -391,6 +403,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\rheaCriticalSection.h">
       <Filter>rhea\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF8.h">
+      <Filter>rhea\string\utf8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF8Char.h">
+      <Filter>rhea\string\utf8</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

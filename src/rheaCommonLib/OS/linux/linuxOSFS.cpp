@@ -194,5 +194,11 @@ void platform::FS_findCloseHardDrive(OSDriveEnumerator &h UNUSED_PARAM)
 {	
 }
 
-
+//*****************************************************
+bool platform::FS_getDestkopPath(char* outPathNoSlash, u32 sizeOfOutPathNoSlash)
+{
+	//TODO
+	DBGBREAK;
+	return false;
+}
 #endif //LINUX
