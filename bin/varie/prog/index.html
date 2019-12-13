@@ -206,9 +206,9 @@
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7086" data-da3bit="8"></div></td>
 						</tr>			
 						<tr><td>FMILK TOPPING SWITCH</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7096' data-da3bit='8'></div></td></tr>
-						<tr><td>ENABLE DATA-AUDIT BEFORE</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7106' data-da3bit='8'></div></td></tr>
-
-					</table>
+						<tr id="pageMiscellaneous_gs_audit_instant"><td>ENABLE DATA-AUDIT BEFORE</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7106' data-da3bit='8'></div></td></tr>
+						<tr id="pageMiscellaneous_gs_audit_bollitore"><td>ENABLE DATA-AUDIT BEFORE</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7088' data-da3bit='8'></div></td></tr>
+ 					</table>
 				</div>
 				
 				<div id="pageMiscellaneous_mid" style="display:none">
@@ -1392,10 +1392,16 @@ function pageMiscellaneous_show()
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
 		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
 		
-		if (da3.isInstant() == 0)
+		if (da3.isInstant())
 		{
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_bollitore"));
+		}
+		else
+		{
+			//versione bollitore
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r1"));
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r2"));
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_instant"));
 			win.showHideScrollBar();
 		}
 	}
@@ -1868,10 +1874,12 @@ function pageSingleSelection_build()
 				+"<tr><td>COFFEE WATER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
 				+"<tr><td>COFFEE GRINDER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(12)'></div></td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
 				+"<tr><td>PREINFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='128' data-da3bit='4' data-max='15' data-um='sec'></div></td></tr>"
-				+"<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>"
-				+"<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>"
-				+"<tr><td>GRANULOMETRY</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DISABLED|1|FINE|2|REFERRING|3|ROUGHLY' data-da3='175' data-da3bit='8'></div></td></tr>"
-
+				+"<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>";
+		
+		if (da3.isInduzione())
+			htmlE += "<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>";
+			
+		htmlE  +="<tr><td>GRANULOMETRY</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DISABLED|1|FINE|2|REFERRING|3|ROUGHLY' data-da3='175' data-da3bit='8'></div></td></tr>"
 				+"<tr><td>LATTE MACCHIATO<br>START BREWER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>"
 				+"<tr><td>EV FRESH MILK<br>QTY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
 				+"<tr><td>EV FRESH MILK<br>DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"

@@ -5,6 +5,11 @@
 
 /***************************************************************
  *
+ * TaskExportGUIToUserFolder
+ *
+ *	params: srcTempFolderName § dstPath
+ *
+ *  copia la gui da [srcTempFolderName] in [dstPath]
  */
 class TaskExportGUIToUserFolder : public socketbridge::Task
 {

@@ -7,7 +7,7 @@
  *
  * TaskImportExistingGUI
  *
- *	params: templateName § templateSrcPath § userGUISrcPath § dstPath
+ *	params: templateName § templateVer § templateSrcPath § userGUISrcPath § dstPath
  *
  *  crea [dstPath]
  *	copia [templateSrcPath] in [dstPath]

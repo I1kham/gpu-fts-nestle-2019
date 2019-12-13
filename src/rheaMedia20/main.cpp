@@ -46,7 +46,11 @@ bool startCPUBridge()
 
 	//starto socketBridge che a sua volta si iscriverà a CPUBridge
 	rhea::HThread hSocketBridgeThread;
-	socketbridge::startServer (logger, hCPUServiceChannelW, &hSocketBridgeThread);
+	if (!socketbridge::startServer(logger, hCPUServiceChannelW, &hSocketBridgeThread))
+	{
+		printf("ERROR: can't open socket\n.");
+		return false;
+	}
 
 	//Aggiungo i task
 	socketbridge::addTask<TaskCopyFolderToFolder>(hSocketBridgeThread, "copyFolderToFolder");
@@ -57,9 +61,8 @@ bool startCPUBridge()
 	//apro chrome
 	printf("opening chrome\n");
 	rhea::thread::sleepMSec(100);
-	::ShowWindow (::GetConsoleWindow(), SW_MINIMIZE);
 	starChrome();
-
+	::ShowWindow(::GetConsoleWindow(), SW_MINIMIZE);
 
 
 	//attendo che il thread CPU termini

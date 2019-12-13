@@ -82,7 +82,7 @@ namespace rhea
 								//crea anche percorsi complessi. Es create("pippo/pluto/paperino), se necessario
 								//prima crea pippo, poi pippo/pluto e infine pippo/pluto/paperino
 		inline bool			folderDelete(const char *pathSenzaSlash)											{ return OS_FS_DirectoryDelete(pathSenzaSlash); }
-		bool				folderCopy (const char *srcFullPathNoSlash, const char *dstFullPathNoSlash);
+		bool				folderCopy (const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, const char* const *elencoPathDaEscludere=NULL);
 								//è ricorsiva, copia anche i sottofolder
 
 		void				deleteAllFileInFolderRecursively(const char *pathSenzaSlash, bool bAlsoRemoveFolder);

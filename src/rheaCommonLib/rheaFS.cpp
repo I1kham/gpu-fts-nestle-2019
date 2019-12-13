@@ -330,7 +330,7 @@ bool fs::fileCopy (const char *srcFullFileNameAndPath, const char *dstFullFileNa
 }
 
 //**************************************************************************
-bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, void *buffer, u32 BUFFER_SIZE)
+bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, void *buffer, u32 BUFFER_SIZE, const char* const*elencoPathDaEscludere)
 {
 	if (!fs::folderCreate(dstFullPathNoSlash))
 	{
@@ -354,9 +354,27 @@ bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstF
 				{
 					char src[1024], dst[1024];
 					sprintf_s(src, sizeof(src), "%s/%s", srcFullPathNoSlash, dirname);
-					sprintf_s(dst, sizeof(dst), "%s/%s", dstFullPathNoSlash, dirname);
-					if (!fs_folderCopy_with_buffer(src, dst, buffer, BUFFER_SIZE))
-						ret = false;
+
+					bool bSkipFolder = false;
+					const char* const *p = elencoPathDaEscludere;
+					while (p)
+					{
+						if (NULL == p[0])
+							break;
+						if (strcasecmp(p[0], src) == 0)
+						{
+							bSkipFolder = true;
+							break;
+						}
+						p++;
+					}
+
+					if (!bSkipFolder)
+					{
+						sprintf_s(dst, sizeof(dst), "%s/%s", dstFullPathNoSlash, dirname);
+						if (!fs_folderCopy_with_buffer(src, dst, buffer, BUFFER_SIZE, elencoPathDaEscludere))
+							ret = false;
+					}
 				}
 			}
 			else
@@ -377,7 +395,7 @@ bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstF
 
 
 //**************************************************************************
-bool fs::folderCopy(const char *srcFullPathNoSlash, const char *dstFullPathNoSlash)
+bool fs::folderCopy(const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, const char* const*elencoPathDaEscludere)
 {
 	//alloco un buffer per il file copy
     const u32 BUFFER_SIZE = 1024*1024;
@@ -385,7 +403,7 @@ bool fs::folderCopy(const char *srcFullPathNoSlash, const char *dstFullPathNoSla
 	
 	void *buffer = RHEAALLOC(allocator, BUFFER_SIZE);
 
-	bool ret = fs_folderCopy_with_buffer(srcFullPathNoSlash, dstFullPathNoSlash, buffer, BUFFER_SIZE);
+	bool ret = fs_folderCopy_with_buffer(srcFullPathNoSlash, dstFullPathNoSlash, buffer, BUFFER_SIZE, elencoPathDaEscludere);
 
 	RHEAFREE(allocator, buffer);
 	return ret;
