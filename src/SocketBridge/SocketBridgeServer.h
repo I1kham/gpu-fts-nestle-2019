@@ -21,7 +21,7 @@ namespace socketbridge
 
         void                    useLogger (rhea::ISimpleLogger *loggerIN);
 
-        bool                    open (u16 serverPort, const HThreadMsgW &hCPUServiceChannelW);
+        bool                    open (u16 serverPort, const HThreadMsgW &hCPUServiceChannelW, bool bDieWhenNoClientConnected);
         void                    close ();
         void                    run ();
 
@@ -99,6 +99,7 @@ namespace socketbridge
 		u64						nextTimePurgeDBList;
 		u16                     _nextHandlerID;
 		u8						eventSeqNumber;
+		u8						dieWhenNoClientConnected;
 		bool                    bQuit;
 		u8						cpuBridgeVersion;
 		DBList					dbList;

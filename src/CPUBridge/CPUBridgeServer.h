@@ -37,7 +37,9 @@ namespace cpubridge
 				eStato_regolazioneAperturaMacina = 4,
 				eStato_compatibilityCheck = 5,
 				eStato_CPUNotSupported = 6,
-				eStato_DA3_sync = 7
+				eStato_DA3_sync = 7,
+
+				eStato_quit = 0xff
             };
 
 
@@ -72,7 +74,7 @@ namespace cpubridge
 
 	private:
 		void					priv_resetInternalState(cpubridge::eVMCState s);
-		void					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
+		bool					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
 		void					priv_handleMsgFromServiceMsgQ();
 		void					priv_handleMsgFromSingleSubscriber(sSubscription *sub);
 		void					priv_handleProgrammingMessage(sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg);
@@ -131,7 +133,6 @@ namespace cpubridge
 		OSWaitableGrp			waitList;
 		rhea::NullLogger        nullLogger;
 		HThreadMsgR             hServiceChR;
-		bool					bQuit;
         sStato					stato;
 		u8						answerBuffer[256];
 		sCPUParamIniziali		cpuParamIniziali;

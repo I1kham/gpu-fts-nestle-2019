@@ -94,11 +94,9 @@ void Server::close()
 //***************************************************
 void Server::run()
 {
-	bQuit = false;
 	priv_enterState_compatibilityCheck();
 
-
-	while (bQuit == false)
+	while (stato.get() != sStato::eStato_quit)
 	{
         switch (stato.get())
 		{
@@ -136,6 +134,16 @@ void Server::run()
 			break;
 		}
 	}
+
+	logger->log("Quitting due to CPUBRIDGE_SUBSCRIBER_ASK_DIE...\n");
+	for (u8 i = 0; i < 10; i++)
+		priv_handleMsgQueues(rhea::getTimeNowMSec(), 50);
+
+	while (1)
+	{
+		if (!priv_handleMsgQueues(rhea::getTimeNowMSec(), 500))
+			break;
+	}
 }
 
 //***************************************************
@@ -152,10 +160,10 @@ void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsr
 /***************************************************
  * gestisce tutti i msg in ingresso provenienti dal canale di "servizio" o dai subsriber
  */
-void Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
+bool Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 {
 	//vediamo se ho dei messaggi in coda
-	u8 nEvent = waitList.wait (timeOutMSec);
+	const u8 nEvent = waitList.wait (timeOutMSec);
 
 	for (u8 i = 0; i < nEvent; i++)
 	{
@@ -186,6 +194,8 @@ void Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 			break;
 		}
 	}
+
+	return (nEvent > 0);
 }
 
 //***************************************************
@@ -244,6 +254,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		{
 		default:
 			logger->log("CPUBridgeServer::priv_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_DIE:
+			stato.set(sStato::eStato_quit);
 			break;
 
 		case CPUBRIDGE_SERVICECH_UNSUBSCRIPTION_REQUEST:

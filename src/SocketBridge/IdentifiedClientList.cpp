@@ -176,7 +176,7 @@ void IdentifiedClientList::purge(u64 timeNowMSec)
 	{
 		if (u32MAX == list(i).currentWebSocketHandleAsU32)
 		{
-			if (timeNowMSec - list(i).lastTimeRcvMSec > 60000)
+			if (timeNowMSec - list(i).lastTimeRcvMSec > 15000)
 			{
 				list.removeAndSwapWithLast(i);
 				i--;

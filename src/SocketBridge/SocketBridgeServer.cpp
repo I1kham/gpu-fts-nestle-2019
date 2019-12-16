@@ -38,10 +38,14 @@ void Server::useLogger (rhea::ISimpleLogger *loggerIN)
 }
 
 //***************************************************
-bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW)
+bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW, bool bDieWhenNoClientConnected)
 {
     logger->log ("SocketBridgeServer::open\n");
     logger->incIndent();
+
+	dieWhenNoClientConnected = 0;
+	if (bDieWhenNoClientConnected)
+		dieWhenNoClientConnected = 1;
 
     localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("socketBridgeSrv");
 
@@ -117,6 +121,12 @@ void Server::close()
 		rst.unsetup();
 		dbList.unsetup();
 		fileTransfer.unsetup();
+
+		if (dieWhenNoClientConnected == 2)
+		{
+			//chiedo a CPUBridge di morire
+			rhea::thread::pushMsg (subscriber.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_DIE, (u32)0, NULL, 0);
+		}
 
 		cpubridge::unsubscribe (subscriber);
 
@@ -401,6 +411,17 @@ void Server::run()
             cmdHandlerList.purge (localAllocator, timeNowMSec);
 			identifiedClientList.purge(timeNowMSec);
 			nextTimePurgeCmdHandlerList = timeNowMSec + 10000;
+
+
+			//se è stato indicato l'apposito flag durante la open(), allora quando non ho + client connessi, muoio
+			if (dieWhenNoClientConnected == 2)
+			{
+				if (identifiedClientList.getCount() == 0)
+				{
+					bQuit = true;
+					continue;
+				}
+			}
         }
 
 		if (timeNowMSec > nextTimePurgeDBList)
@@ -599,7 +620,11 @@ void Server::priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec)
 		//cerco il client che aveva questa socket e, se esiste, la unbindo.
 		//Il client rimane registrato nella lista degli identificati, ma non ha una socket associata
 		if (identifiedClient)
+		{
 			identifiedClientList.unbindSocket(identifiedClient->handle, rhea::getTimeNowMSec());
+			if (dieWhenNoClientConnected == 1)
+				dieWhenNoClientConnected = 2;
+		}
 		return;
 	}
 
