@@ -1675,7 +1675,10 @@ void Server::priv_handleState_compatibilityCheck()
 			priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 			if (strcmp(cpuParamIniziali.CPU_version, "FAKE CPU") == 0)
 			{
-				priv_handleState_DA3Sync();
+                sCPUVMCDataFileTimeStamp myTS;
+                myTS.setInvalid();
+                saveVMCDataFileTimeStamp(myTS);
+                priv_handleState_DA3Sync();
 				return;
 			}
 			break;

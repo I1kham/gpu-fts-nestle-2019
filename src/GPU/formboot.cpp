@@ -191,17 +191,21 @@ void FormBoot::priv_updateLabelInfo()
     }
 
 
-    //Installed files: Manual
+    //Installed files: Manual (mi interessa solo il nome del primo folder valido)
     ui->labInstalled_Manual->setText("MANUAL:");
-    if (rhea::fs::findFirst (&ff, glob->last_installed_manual, "*.pdf"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_manual, "*.*"))
     {
         do
         {
-            if (!rhea::fs::findIsDirectory(ff))
+            if (rhea::fs::findIsDirectory(ff))
             {
-                sprintf_s (s, sizeof(s), "<b>MANUAL</b>: <span style='color:#fff'>%s</span>", rhea::fs::findGetFileName(ff));
-                ui->labInstalled_Manual->setText(s);
-                break;
+                const char *folderName = rhea::fs::findGetFileName(ff);
+                if (folderName[0] != '.')
+                {
+                    sprintf_s (s, sizeof(s), "<b>MANUAL</b>: <span style='color:#fff'>%s</span>", folderName);
+                    ui->labInstalled_Manual->setText(s);
+                    break;
+                }
             }
         } while (rhea::fs::findNext(ff));
         rhea::fs::findClose(ff);
@@ -679,27 +683,62 @@ bool FormBoot::priv_langCopy (const char *srcFolder, const char *dstFolder, u32 
 void FormBoot::on_btnInstall_manual_clicked()
 {
     priv_fileListShow(eFileListMode_Manual);
-    priv_fileListPopulate(glob->usbFolder_Manual, "*.pdf", true);
+    //priv_fileListPopulate(glob->usbFolder_Manual, "*.pdf", true);
+
+    //popola la lista
+    ui->lbFileList->clear();
+    OSFileFind ff;
+    char s[512];
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_Manual, "*.*"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+                continue;
+            const char *dirName = rhea::fs::findGetFileName(ff);
+            if (dirName[0] == '.')
+                continue;
+
+            sprintf_s (s, sizeof(s), "%s/%s/index.html", glob->usbFolder_Manual, dirName);
+            if (rhea::fs::fileExists(s))
+            {
+                ui->lbFileList->addItem(dirName);
+            }
+
+
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+
+        if (ui->lbFileList->count())
+            ui->lbFileList->item(0)->setSelected(true);
+    }
 }
 
-void FormBoot::priv_uploadManual (const char *srcFullFilePathAndName)
+void FormBoot::priv_uploadManual (const char *srcFullFolderPath)
 {
-    //copio il pdf nella cartella locale
-    char srcFilename[256];
-    rhea::fs::extractFileNameWithExt (srcFullFilePathAndName, srcFilename, sizeof(srcFilename));
+    priv_pleaseWaitShow("Installing manual...");
 
-    char dstFilePathAndName[512];
-    sprintf_s (dstFilePathAndName, sizeof(dstFilePathAndName), "%s/%s", glob->last_installed_manual, srcFilename);
+    //elimino la roba attualmente installata
+    rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_manual, false);
 
-    priv_pleaseWaitShow("Copying manual to local folder...");
-    if (!rhea::fs::fileCopy (srcFullFilePathAndName, dstFilePathAndName))
+    char srcOnlyFolderName[256];
+    char s[256];
+    rhea::fs::extractFileNameWithoutExt (srcFullFolderPath, srcOnlyFolderName, sizeof(srcOnlyFolderName));
+
+    sprintf_s (s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
+    rhea::fs::folderCreate (s);
+
+    //copio tutto il folder src nel folder in macchina
+    if (!rhea::fs::folderCopy(srcFullFolderPath, s))
         priv_pleaseWaitSetError("ERROR copying files");
     else
         priv_pleaseWaitSetOK("SUCCESS.<br>Manual installed");
 
+
     priv_pleaseWaitHide();
     priv_updateLabelInfo();
 }
+
 
 
 /**********************************************************************

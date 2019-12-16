@@ -146,12 +146,12 @@ void MainWindow::priv_showForm (eForm w)
     {
     case eForm_main_syncWithCPU:
         syncWithCPU.reset();
+        syncWithCPU.nextTimeoutAskCPUStateMSec = rhea::getTimeNowMSec() + 10000;
         glob->bSyncWithCPUResult = false;
         ui->webView->setVisible(false);
         ui->labInfo->setVisible(true);
         this->ui->labInfo->setText("");
         cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
-        //this->ui->labInfo->setText(QString("Current folder: ") +rhea::getPhysicalPathToAppFolder());
         this->show();
         utils::hideMouse();
 
@@ -312,6 +312,15 @@ void MainWindow::priv_syncWithCPU_onTick()
         rhea::thread::deleteMsg(msg);
     }
 
+    //se è un po' che non ricevo lo stato della CPU, lo richiedo
+    const u64 timeNowMSec = rhea::getTimeNowMSec();
+    if (timeNowMSec > syncWithCPU.nextTimeoutAskCPUStateMSec)
+    {
+        syncWithCPU.nextTimeoutAskCPUStateMSec = timeNowMSec + 10000;
+        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+    }
+
+
     if (syncWithCPU.stato == 0)
     {
         if (syncWithCPU.vmcState != cpubridge::eVMCState_COMPATIBILITY_CHECK && syncWithCPU.vmcState != cpubridge::eVMCState_DA3_SYNC)
@@ -341,14 +350,6 @@ void MainWindow::priv_syncWithCPU_onTick()
             syncWithCPU.stato = 1;
             cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
         }
-
-        /*periodicamente chiedo lo stato della CPU per visualizzarlo a video
-        const u64 timeNowMSec = rhea::getTimeNowMSec();
-        if (timeNowMSec > syncWithCPU.nextTimeoutAskCPUStateMSec)
-        {
-            syncWithCPU.nextTimeoutAskCPUStateMSec = timeNowMSec + 1000;
-            cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
-        }*/
     }
     else
     {

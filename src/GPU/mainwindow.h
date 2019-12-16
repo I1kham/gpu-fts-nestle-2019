@@ -63,8 +63,8 @@ private:
     struct sSyncWithCPU
     {
         cpubridge::eVMCState vmcState;
-        u64             nextTimeoutAskCPUStateMSec;
-        u8              stato;
+        u64                 nextTimeoutAskCPUStateMSec;
+        u8                  stato;
 
         void            reset() { stato=0; nextTimeoutAskCPUStateMSec=0; vmcState = cpubridge::eVMCState_COMPATIBILITY_CHECK; }
     };

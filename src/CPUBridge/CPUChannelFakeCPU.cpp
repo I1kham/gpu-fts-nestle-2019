@@ -84,7 +84,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 	switch (cpuCommand)
 	{
 	default:
-		DBGBREAK;
+        DBGBREAK;
 		logger->log("CPUChannelFakeCPU::sendAndWaitAnswer() => ERR, cpuCommand not supported [%d]\n", (u8)cpuCommand);
 		*in_out_sizeOfAnswer = 0;
 		return false;
