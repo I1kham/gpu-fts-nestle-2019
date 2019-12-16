@@ -14,7 +14,7 @@ MainWindow *myMainWindow = NULL;
 //*****************************************************
 bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)
 {
-    return socketbridge::startServer(logger, hCPUServiceChannelW, out_hThread);
+    return socketbridge::startServer(logger, hCPUServiceChannelW, false, out_hThread);
 }
 
 
