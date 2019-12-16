@@ -2404,7 +2404,12 @@ function pageCalibration_reset(motor)
 			rheaSetDivHTMLByName("pageCalibration_encoder2", "0");
 		}
 		
-		save (function() { pleaseWait_hide();});
+		setTimeout (
+			function()
+			{
+				save (function() { pleaseWait_hide();});
+			},
+			1000);
 	})
 	.catch( function(result)
 	{
