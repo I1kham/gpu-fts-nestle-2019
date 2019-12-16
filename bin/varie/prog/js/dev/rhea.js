@@ -165,7 +165,7 @@ Rhea.prototype.webSocket_connect = function()
 		};
 		me.websocket.onclose = 		function(evt) { me.webSocket_onClose(evt); };
 		me.websocket.onmessage = 	function(evt) { me.webSocket_onRcv(evt) };
-		me.websocket.onerror = 		function(evt) { rheaLog("Rhea::onWebSocketErr => ERROR: " + evt.data); setTimeout( function() {window.location=window.location;}, 2000); };
+		me.websocket.onerror = 		function(evt) { rheaLog("Rhea::onWebSocketErr => ERROR: " + evt.data); setTimeout( function() {window.location="startup.html";}, 2000); };
 		
 		setTimeout( function() {reject(-1)}, 5000);
 	});

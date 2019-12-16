@@ -38,6 +38,7 @@ function rheaBootstrap_step2()
 		.catch ( function(result) 
 			{ 
 				console.log ("rheaBootstrap FAILED:" +result);
+				setTimeout (function() {window.location = "startup.html";}, 200);
 			});	
 
 }
