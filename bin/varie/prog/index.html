@@ -78,7 +78,7 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div></td>
-						<td></td>
+						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
 					</tr>
 				</table>
@@ -788,11 +788,13 @@
 		</div>
 		<div class="clear"></div>
 	</div>
-		
-			
-	
 </div> <!-- wrapper -->
 
+
+<div id="manualViewBox" style="position:absolute; top:0; left:0; background-color:rgba(80,80,80,0.9); width:100%; height:100%; text-align:center; display:none; z-index:100;">
+	<iframe id='manualViewBoxFrame' class='manualViewBox_frame' src='' border='0'></iframe>
+	<div class='manualViewBox_close' onclick='manualViewBox_close()'><img src='img/close32x32.png'></div>
+</div>
 
 <script src="js/DA3.js"></script>
 <script src="js/GUIInfo.js"></script>
@@ -814,6 +816,7 @@ var currentTask = voidTask;
 var currentPageID="";
 var timeNowMSec = 0;
 var uiStandAloneNum = null;
+var manualFolderName = "";
 
 function onRheaBootstrapFinished()
 {
@@ -899,7 +902,22 @@ function onGUIInfoLoaded()
 	pageSingleSelection_build();
 	pageTemperature_build();
 	pleaseWait_hide();
-
+	
+	//chiedo se il manuale e' installato, nel qual caso abilito il relativo bottone
+	rhea.ajax ("isManInstalled", "").then( function(result)
+	{
+	console.log ("isManual[" +result +"]");
+		if (result!="KO")
+		{
+			rheaShowElem(rheaGetElemByID("divBtnManual"));
+			manualFolderName = result;
+		}
+	})
+	.catch( function(result)
+	{
+	});
+	
+	
 	//abilito il menu milker se macchine==espresso
 	if (da3.isEspresso())
 	{
@@ -934,6 +952,14 @@ function onGUIInfoLoaded()
 			break;
 	}	
 }
+
+function manualViewBox_show()
+{
+	rheaShowElem(rheaGetElemByID("manualViewBox"));
+	var f = document.getElementById("manualViewBoxFrame");
+	f.src = "../../last_installed/manual/" +manualFolderName +"/index.html";
+}
+function manualViewBox_close()		{ rheaHideElem(rheaGetElemByID("manualViewBox")); }
 
 
 function header_setText(s)				{ rheaSetDivHTMLByName("divHeaderC", s); }
@@ -2552,7 +2578,7 @@ function formatInteger(x) { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,
 
 function pageDataAudit_build_overview(numSelezioni, numDecimali, buffer, offset)
 {
-var col = [];
+	var col = [];
 	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 				+"<th>&nbsp;</th>"
 				+"<th colspan='2' align='center'>NUM PAID (VA1)</th>"
@@ -2616,22 +2642,25 @@ var col = [];
 		var selNum = (i+1).toString();
 		if (selNum.length<2) selNum = "0"+selNum;
 		
-		var pa201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		//var pa201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa202 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
-		var pa203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		//var pa203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa204 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
 		
-		var pa301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		//var pa301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa302 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
-		var pa303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		//var pa303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa304 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
 
-		var pa401 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		//var pa401 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa402 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
-		var pa403 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		//var pa403 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa404 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
 		
-	html += "<tr>"
+		var rowCss="";
+		if (pa202+pa204+pa302+pa304+pa402+pa404==0)
+			rowCss = " class='rowAllZero'";		
+		html += "<tr" +rowCss +">"
 				+"<td>#" +selNum +"</td>"
 				+"<td>" +formatInteger(pa202) +"</td>"
 				+"<td>" +formatInteger(pa204) +"</td>"
@@ -2648,7 +2677,7 @@ var col = [];
 
 function pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)
 {
-var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+	var htmlTable = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 				+"<th>SEL<br>NUM</th>"
 				+"<th>NUM PAID<br>PRICE1</th>"
 				+"<th>NUM PAID<br>HAPPY</th>"
@@ -2660,7 +2689,8 @@ var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 				+"<th>MONEY<br>PRICE2</th>"
 				+"<th>MONEY TOTAL</th>"
 				+"</tr>";
-				
+	
+	var html = "";	
 	var rowSum = [0,0,0,0,0,0,0,0,0,0,0,0];
 	for (var i=0; i<numSelezioni; i++)
 	{
@@ -2679,7 +2709,11 @@ var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 		
 		for (var i2=0; i2<=7;i2++)
 			rowSum[i2] += col[i2];
-		html += "<tr>"
+			
+		var rowCss="";
+		if (parseFloat(col[4]) == 0 && parseFloat(col[7]) == 0)
+			rowCss = " class='rowAllZero'";
+		html += "<tr" +rowCss +">"
 					+"<td>#" +selNum +"</td>"
 					+"<td>" +formatInteger(col[0]) +"</td>"
 					+"<td>" +formatInteger(col[1]) +"</td>"
@@ -2694,7 +2728,7 @@ var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 	}
 
 	//totali di riga
-	html += "<tr class='rowTot'>"
+	var htmlTotali = "<tr class='rowTot'>"
 				+"<td>TOTALS</td>"
 				+"<td>" +formatInteger(rowSum[0]) +"</td>"
 				+"<td>" +formatInteger(rowSum[1]) +"</td>"
@@ -2706,10 +2740,8 @@ var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
 				+"<td>" +toCurrency(rowSum[6], numDecimali) +"</td>"
 				+"<td><b>" +toCurrency(rowSum[7], numDecimali) +"</b></td>"
 			+"</tr>";
-				
-	html += "</table>";
 	
-	return html;	
+	return htmlTable + htmlTotali +html +"</table>";
 }
 
 function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)		{ rheaSetDivHTMLByName("pageDataAudit_p", pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)); }

@@ -200,6 +200,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBCloseByPath.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqIsManualInstalled.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -386,6 +389,9 @@
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBCloseByPath.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqIsManualInstalled.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>

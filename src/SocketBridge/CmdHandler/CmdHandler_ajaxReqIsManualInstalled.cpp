@@ -1,0 +1,44 @@
+#include "CmdHandler_ajaxReqIsManualInstalled.h"
+#include "../SocketBridge.h"
+#include "../../rheaCommonLib/rheaJSONParser.h"
+#include "../../rheaDB/SQLInterface.h"
+
+
+using namespace socketbridge;
+
+
+//***********************************************************
+void CmdHandler_ajaxReqIsManualInstalled::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params UNUSED_PARAM)
+{
+	char pathToManualFolder[256];
+	sprintf_s(pathToManualFolder, sizeof(pathToManualFolder), "%s/last_installed/manual", rhea::getPhysicalPathToAppFolder());
+
+	char manualFolderName[128];
+	manualFolderName[0] = 0;
+
+	OSFileFind h;
+	if (rhea::fs::findFirst(&h, pathToManualFolder, "*.*"))
+	{
+		do
+		{
+			if (!rhea::fs::findIsDirectory(h))
+				continue;
+			const char *folderName = rhea::fs::findGetFileName(h);
+			if (folderName[0] == '.')
+				continue;
+			sprintf_s(manualFolderName, sizeof(manualFolderName), "%s", folderName);
+			break;
+
+		} while (rhea::fs::findNext(h));
+		rhea::fs::findClose(h);
+	}
+
+	if (manualFolderName[0] == 0x00)
+	{
+		manualFolderName[0] = 'K';
+		manualFolderName[1] = 'O';
+		manualFolderName[2] = 0x00;
+	}
+
+	server->sendAjaxAnwer(hClient, ajaxRequestID, manualFolderName, (u16)strlen(manualFolderName));
+}
