@@ -716,24 +716,33 @@ void FormBoot::on_btnInstall_manual_clicked()
 
 void FormBoot::priv_uploadManual (const char *srcFullFolderPath)
 {
-    priv_pleaseWaitShow("Installing manual...");
-
-    //elimino la roba attualmente installata
-    rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_manual, false);
-
     char srcOnlyFolderName[256];
     char s[256];
     rhea::fs::extractFileNameWithoutExt (srcFullFolderPath, srcOnlyFolderName, sizeof(srcOnlyFolderName));
-
-    sprintf_s (s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
-    rhea::fs::folderCreate (s);
-
-    //copio tutto il folder src nel folder in macchina
-    if (!rhea::fs::folderCopy(srcFullFolderPath, s))
-        priv_pleaseWaitSetError("ERROR copying files");
+    if (strcmp(srcOnlyFolderName,"REMOVE_MANUAL") == 0)
+    {
+        priv_pleaseWaitShow("Removing manual...");
+        //elimino la roba attualmente installata
+        rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_manual, false);
+        priv_pleaseWaitSetOK("SUCCESS.<br>Manual removed");
+    }
     else
-        priv_pleaseWaitSetOK("SUCCESS.<br>Manual installed");
+    {
+        priv_pleaseWaitShow("Installing manual...");
 
+        //elimino la roba attualmente installata
+        rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_manual, false);
+
+
+        sprintf_s (s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
+        rhea::fs::folderCreate (s);
+
+        //copio tutto il folder src nel folder in macchina
+        if (!rhea::fs::folderCopy(srcFullFolderPath, s))
+            priv_pleaseWaitSetError("ERROR copying files");
+        else
+            priv_pleaseWaitSetOK("SUCCESS.<br>Manual installed");
+    }
 
     priv_pleaseWaitHide();
     priv_updateLabelInfo();
