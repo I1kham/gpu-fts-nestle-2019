@@ -2655,32 +2655,32 @@ function pageDataAudit_build_overview(numSelezioni, numDecimali, buffer, offset)
 		var selNum = (i+1).toString();
 		if (selNum.length<2) selNum = "0"+selNum;
 		
-		//var pa201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa202 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
-		//var pa203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa204 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
 		
-		//var pa301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa302 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
-		//var pa303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa304 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
 
-		//var pa401 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa401 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa402 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
-		//var pa403 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa403 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
 		var pa404 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
 		
 		var rowCss="";
-		if (pa202+pa204+pa302+pa304+pa402+pa404==0)
+		if (pa201+pa203+ pa301+pa303 +pa401+pa403==0)
 			rowCss = " class='rowAllZero'";		
 		html += "<tr" +rowCss +">"
 				+"<td>#" +selNum +"</td>"
-				+"<td>" +formatInteger(pa202) +"</td>"
-				+"<td>" +formatInteger(pa204) +"</td>"
-				+"<td>" +formatInteger(pa402) +"</td>"
-				+"<td>" +formatInteger(pa404) +"</td>"
-				+"<td>" +formatInteger(pa302) +"</td>"
-				+"<td>" +formatInteger(pa304) +"</td>"
+				+"<td>" +formatInteger(pa201) +"</td>"
+				+"<td>" +formatInteger(pa203) +"</td>"
+				+"<td>" +formatInteger(pa401) +"</td>"
+				+"<td>" +formatInteger(pa403) +"</td>"
+				+"<td>" +formatInteger(pa301) +"</td>"
+				+"<td>" +formatInteger(pa303) +"</td>"
 			+"</tr>";
 	}
 	html += "</table>";
