@@ -115,9 +115,7 @@ void FormProg::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 //************************************************************
 void FormProg::priv_updateLabelVersion()
 {
-    char str[32];
-    sprintf (str, "%d.%d.%d", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
-    ui->labelVersion->setText("GPU version: " + QString(str) + "  -  CPU:" + glob->cpuVersion);
+    ui->labelVersion->setText("GPU version: " GPU_VERSION "  -  CPU:" + QString(glob->cpuVersion));
 }
 
 //************************************************************

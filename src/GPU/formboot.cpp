@@ -119,8 +119,8 @@ void FormBoot::priv_updateLabelInfo()
     OSFileFind ff;
 
     //GPU Version
-    sprintf_s (s, sizeof(s), "<b>GPU</b>: <span style='color:#fff'>%d.%d.%d</span>", GPU_VERSION_MAJOR, GPU_VERSION_MINOR, GPU_VERSION_BUILD);
-    ui->labVersion_GPU->setText(s);
+    //sprintf_s (s, sizeof(s), );
+    ui->labVersion_GPU->setText("<b>GPU</b>: <span style='color:#fff'>" GPU_VERSION "</span>");
 
     //CPU version + protocol version sono aggiornate on the fly mano mano che si ricevono i messaggi da CPU
 
