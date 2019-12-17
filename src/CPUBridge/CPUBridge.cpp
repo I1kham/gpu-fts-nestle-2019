@@ -1393,6 +1393,8 @@ void cpubridge::translate_CPU_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, 
 //***************************************************
 void cpubridge::ask_CPU_CALCOLA_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 totalePesata_dGrammi)
 {
+	assert(macina_1o2 == 1 || macina_1o2 == 2);
+
 	u8 otherData[4];
 	otherData[0] = macina_1o2;
 	rhea::utils::bufferWriteU16(&otherData[1], totalePesata_dGrammi);
