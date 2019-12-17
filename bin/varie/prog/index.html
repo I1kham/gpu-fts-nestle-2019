@@ -1224,6 +1224,11 @@ function dataOra_run ()
 							if (dataora_min >= 60)
 							{
 								dataora_min = 0;
+								if (dataora_hh==23)
+								{
+									dataOra_setup();
+									return;
+								}
 								dataora_hh++;
 							}
 						}
