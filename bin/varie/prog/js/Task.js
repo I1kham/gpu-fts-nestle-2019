@@ -235,11 +235,11 @@ TaskCalibMotor.prototype.onFreeBtn1Clicked	= function(ev)
 { 
 	switch (this.what)
 	{
-	case 1:
+	case 1: //priv_handleCalibProdotto
 		if (this.fase == 30)	{ pleaseWait_btn1_hide(); this.fase = 40; }
 		break;
 		
-	case 2:
+	case 2: //priv_handleCalibMacina
 		if (this.fase == 1)		{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 2; }
 		else if (this.fase==21) { pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=30; }
 		else if (this.fase==41) { pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=50; }
@@ -251,10 +251,10 @@ TaskCalibMotor.prototype.onFreeBtn2Clicked	= function(ev)
 { 
 	switch (this.what)
 	{
-	case 1:
+	case 1: //priv_handleCalibProdotto
 		break;
 		
-	case 2:
+	case 2: //priv_handleCalibMacina
 		if (this.fase == 1)		{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 200; break; }
 		break;		
 	}
@@ -301,6 +301,14 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		break;
 		
 	case 40:
+		me.value = pleaseWait_calibration_num_getValue();
+		if (parseFloat(me.value) == 0)
+		{
+			pleaseWait_calibration_setText("Invalid value");
+			me.fase = 20;
+			break;
+		}
+	
 		pleaseWait_calibration_setText("Storing value...");
 		me.value = pleaseWait_calibration_num_getValue();
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
@@ -407,8 +415,15 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 		
 	case 30:
-		pleaseWait_calibration_setText("Storing value...");
 		me.value = pleaseWait_calibration_num_getValue();
+		if (parseFloat(me.value) == 0)
+		{
+			pleaseWait_calibration_setText("Invalid value");
+			me.fase = 20;
+			break;
+		}
+		
+		pleaseWait_calibration_setText("Storing value...");
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		

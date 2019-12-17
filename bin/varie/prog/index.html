@@ -906,7 +906,6 @@ function onGUIInfoLoaded()
 	//chiedo se il manuale e' installato, nel qual caso abilito il relativo bottone
 	rhea.ajax ("isManInstalled", "").then( function(result)
 	{
-	console.log ("isManual[" +result +"]");
 		if (result!="KO")
 		{
 			rheaShowElem(rheaGetElemByID("divBtnManual"));
