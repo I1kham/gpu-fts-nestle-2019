@@ -913,7 +913,7 @@ void FormBoot::on_btnDownload_DA3_clicked()
     else
     {
         priv_pleaseWaitSetText("Finalizing copy...");
-        priv_syncUSBFileSystem(2000);
+        priv_syncUSBFileSystem(5000);
 
         rhea::fs::extractFileNameWithExt(dst, src, sizeof(src));
         sprintf_s (dst, sizeof(dst), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive in the folder rhea/rheaData", src);
