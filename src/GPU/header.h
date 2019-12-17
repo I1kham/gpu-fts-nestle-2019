@@ -48,6 +48,8 @@ struct sGlobal
     bool    bSyncWithCPUResult;
     char    cpuVersion[128];
     cpubridge::sExtendedCPUInfo extendedCPUInfo;
+    u8      bCPUEnteredInMainLoop;
+    u16     sendASAP_resetCoffeeGroundDecounter;        //se !=0, il relativo comando viene mandato alla CPU non appena questa è pronta a riceverlo
 
     char    *tempFolder;
 

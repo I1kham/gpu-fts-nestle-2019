@@ -13,7 +13,7 @@ extern QString CPU_version;
 
 
 //************************************************************
-FormProg::FormProg(QWidget *parent, const sGlobal *globIN) :
+FormProg::FormProg(QWidget *parent, sGlobal *globIN) :
         QDialog(parent),
         ui(new Ui::FormProg)
 {
@@ -87,6 +87,9 @@ void FormProg::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             u8 vmcErrorCode = 0, vmcErrorType = 0;
             u16 flag1 = 0;
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
+
+            if (0 != (flag1 & cpubridge::sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT))
+                glob->bCPUEnteredInMainLoop=1;
 
             //quando la CPU cambia di stato e diventa DISP o INI_CHECK, io torno al browser
             if (vmcState == cpubridge::eVMCState_DISPONIBILE || vmcState==cpubridge::eVMCState_INITIAL_CHECK)

@@ -41,7 +41,7 @@ private slots:
 
 private:
     Ui::FormPreGui              *ui;
-    const sGlobal               *glob;
+    sGlobal                     *glob;
     QChar                       msgCPU[128];
     u64                         timeToAutoCloseMSec;
     eRetCode                    retCode;

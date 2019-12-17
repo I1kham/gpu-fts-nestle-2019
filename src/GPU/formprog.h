@@ -18,7 +18,7 @@ class FormProg : public QDialog
     Q_OBJECT
 
 public:
-    explicit                    FormProg(QWidget *parent, const sGlobal *glob);
+    explicit                    FormProg(QWidget *parent, sGlobal *glob);
                                 ~FormProg();
 
     void                        showMe();
@@ -52,7 +52,7 @@ private:
 
 private:
     Ui::FormProg                *ui;
-    const sGlobal               *glob;
+    sGlobal                     *glob;
     QFont                       theFont;
     QFont                       theFontSmall;
     eRetCode                    retCode;

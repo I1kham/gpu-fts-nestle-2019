@@ -136,6 +136,9 @@ void FormPreGui::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::translateNotify_CPU_STATE_CHANGED (msg, &vmcState, &vmcErrorCode, &vmcErrorType, &flag1);
             ui->labCPUStatus->setText (rhea::app::utils::verbose_eVMCState (vmcState));
 
+            if (0 != (flag1 & cpubridge::sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT))
+                glob->bCPUEnteredInMainLoop=1;
+
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
             if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
                 retCode = eRetCode_gotoFormOldMenuProg;
@@ -197,7 +200,13 @@ void FormPreGui::on_btnResetGrndCounter_clicked()
     sprintf_s (s, sizeof(s), "Resetting ground counter to %d, please wait...", groundCounterLimit);
     priv_showMsg (s);
 
-    cpubridge::ask_CPU_SET_DECOUNTER (glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, groundCounterLimit);
+    //la CPU in questo momento probabilmente non è ancora pronta ad accettare il comando SET DECOUNTER.
+    //La CPU diventa pronta quanto glob->bCPUEnteredInMainLoop==1
+    //Se non è pronta, "schedulo" il comando che verrà inviato dal mainWindow appena possibile
+    if (glob->bCPUEnteredInMainLoop == 0)
+        glob->sendASAP_resetCoffeeGroundDecounter = groundCounterLimit;
+    else
+        cpubridge::ask_CPU_SET_DECOUNTER (glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, groundCounterLimit);
     utils::waitAndProcessEvent(1000);
 
     priv_showMsg ("Done!");
