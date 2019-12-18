@@ -1422,18 +1422,24 @@ function pageMiscellaneous_show()
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
 		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
 		
-		if (da3.isInduzione())
+		if (!da.isInstant())
 		{
-			//versione bollitore
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r1"));
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r2"));
-			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_induzione"));
-			win.showHideScrollBar();
+		}
+		
+		if (da3.isInduzione())
+		{
+			//versione induzione
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_bollitore"));
 		}
 		else
 		{
-			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_bollitore"));
+			//versione bollitore
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_induzione"));
 		}
+		
+		win.showHideScrollBar();
 	}
 	
 	pageMiscellaneous_fv_refresh();
