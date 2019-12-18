@@ -1,5 +1,5 @@
 #include "TaskImportExistingGUI.h"
-
+#include "../rheaDB/SQLite3/SQLInterface_SQLite.h"
 
 
 
@@ -90,18 +90,122 @@ void TaskImportExistingGUI::run (socketbridge::TaskStatus *status, const char *p
 			return;
 		}
 
-		sprintf_s(src, sizeof(src), "%s/web/backoffice/guidb.db3", userGUISrcPath);
-		sprintf_s(dst, sizeof(dst), "%s/web/backoffice/guidb.db3", dstPath);
-		if (!rhea::fs::fileCopy(src, dst))
+		//copio il DB a meno che non ci sia un disallineamento tra le versioni
+		if (rhea::string::convert::toI32(templateVer) == 0)
 		{
-			status->setMessage("Error copying files 2");
-			return;
+			//la versione 0 non ha alcuni campi nelle tabelle, devo aggiornare il DB
+			if (!priv_nestle20_template001_importVersion0(userGUISrcPath, dstPath))
+			{
+				status->setMessage("Error converting old DB version");
+				return;
+			}
 		}
-
+		else
+		{
+			sprintf_s(src, sizeof(src), "%s/web/backoffice/guidb.db3", userGUISrcPath);
+			sprintf_s(dst, sizeof(dst), "%s/web/backoffice/guidb.db3", dstPath);
+			if (!rhea::fs::fileCopy(src, dst))
+			{
+				status->setMessage("Error copying files 2");
+				return;
+			}
+		}
 		status->setMessage("OK");
 		return;
 	}
 
 	//se arriviamo qui, c'e' stato un errore coi parametri
 	status->setMessage("Invalid parameters");
+}
+
+
+//*********************************************************************
+bool TaskImportExistingGUI::priv_nestle20_template001_importVersion0(const char *userGUISrcPath, const char *dstPath)
+{
+	rhea::SQLInterface_SQLite dbUser;
+	rhea::SQLInterface_SQLite dbTemplate;
+
+	char s[2048];
+	sprintf_s (s, sizeof(s), "%s/web/backoffice/guidb.db3", userGUISrcPath);
+	if (!dbUser.openDB(s))
+		return false;
+
+	sprintf_s(s, sizeof(s), "%s/web/backoffice/guidb.db3", dstPath);
+	if (!dbTemplate.openDB(s))
+	{
+		dbUser.closeDB();
+		return false;
+	}
+	
+	bool ret = false;
+	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+	rhea::SQLRst rst;
+	rst.setup(allocator, 128);
+	
+	dbTemplate.exec("DELETE FROM pagemenu_mmi");
+	if (dbUser.q("SELECT * FROM pagemenu_mmi", &rst))
+	{
+		ret = true;
+
+		for (u16 r = 0; r < rst.getRowCount(); r++)
+		{
+			rhea::SQLRst::Row row;
+			rst.getRow(r, &row);
+			
+			sprintf_s(s, sizeof(s), "INSERT INTO pagemenu_mmi (UID,HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,optionAEnabled,optionBEnabled,allowedCupSize,linkedSelection,defaultSelectionOption,name) VALUES(%s, %s, %s, %s, '%s', '%s', %s, %s, '%s', '%s', '%s', '%s');",
+				rst.getValue(row, 0), rst.getValue(row, 1), rst.getValue(row, 2), rst.getValue(row, 3),
+				rst.getValue(row, 4), rst.getValue(row, 5), rst.getValue(row, 6), rst.getValue(row, 7),
+				rst.getValue(row, 8), rst.getValue(row, 9), rst.getValue(row, 10), rst.getValue(row, 11));
+
+			dbTemplate.exec(s);
+		}
+		
+		dbTemplate.exec("DELETE FROM lang WHERE UID='MMI_NAME'");
+		dbTemplate.exec("DELETE FROM lang WHERE UID='MMI_DESCR'");
+		dbTemplate.exec("DELETE FROM lang WHERE UID='CUP_OPTBR'");
+		dbTemplate.exec("DELETE FROM lang WHERE UID='CUP_OPTBL'");
+		dbTemplate.exec("DELETE FROM lang WHERE UID='CUP_OPTAR'");
+		dbTemplate.exec("DELETE FROM lang WHERE UID='CUP_OPTAL'");
+
+		if (dbUser.q("SELECT UID,ISO,What,Message FROM lang WHERE UID='MMI_NAME' or UID='MMI_DESCR' ", &rst))
+		{
+			for (u16 r = 0; r < rst.getRowCount(); r++)
+			{
+				rhea::SQLRst::Row row;
+				rst.getRow(r, &row);
+
+				sprintf_s(s, sizeof(s), "INSERT INTO lang (UID,ISO,What,Message) VALUES('%s','%s','%s','%s');",
+					rst.getValue(row, 0), rst.getValue(row, 1), rst.getValue(row, 2), rst.getValue(row, 3));
+				dbTemplate.exec(s);
+			}
+		}
+
+		if (dbUser.q("SELECT allowedLang,defaultLang FROM generalset WHERE HIS_ID=1", &rst))
+		{
+			rhea::SQLRst::Row row;
+			rst.getRow(0, &row);
+			sprintf_s(s, sizeof(s), "UPDATE generalset SET allowedLang='%s', defaultLang='%s' WHERE HIS_ID=1;",
+				rst.getValue(row, 0), rst.getValue(row, 1));
+			dbTemplate.exec(s);
+		}
+
+		if (dbUser.q("SELECT icon_numRow,icon_numIconPerRow,gotoPageStandbyAfterMSec FROM pagemenu WHERE HIS_ID=1", &rst))
+		{
+			rhea::SQLRst::Row row;
+			rst.getRow(0, &row);
+			sprintf_s(s, sizeof(s), "UPDATE pagemenu SET icon_numRow='%s', icon_numIconPerRow='%s',gotoPageStandbyAfterMSec='%s' WHERE HIS_ID=1;",
+				rst.getValue(row, 0), rst.getValue(row, 1), rst.getValue(row, 2));
+			dbTemplate.exec(s);
+		}
+
+		dbTemplate.exec("UPDATE history SET DataLastBuild='00000000000000' WHERE ID=1");
+	}
+
+
+	rst.unsetup();
+	dbUser.closeDB();
+	dbTemplate.closeDB();
+	return ret;
+
+	return false;
 }

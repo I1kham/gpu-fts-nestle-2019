@@ -22,6 +22,8 @@ public:
 	static socketbridge::Task*		spawn (rhea::Allocator *allocator) { return RHEANEW(allocator, TaskImportExistingGUI); }
 
 private:
+	bool							priv_nestle20_template001_importVersion0(const char *userGUISrcPath, const char *dstPath);
+private:
 	u32 ct;
 };
 
