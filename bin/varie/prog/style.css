@@ -15,7 +15,7 @@
     
 
 
-*		{ font-family: "MyFont"; }
+*		{ font-family: "MyFont", "Roboto-Light", "Noto Sans CJK SC", "DejaVu Sans"; }
 html	{ background-color:#bbb; }
 body 	{ font-size:15px; background-color:#bbb; color:#fff; margin:0; padding:0;}
 form, div, input, h1, h2, h3, h4, h5	{ margin:0; padding:0; }
