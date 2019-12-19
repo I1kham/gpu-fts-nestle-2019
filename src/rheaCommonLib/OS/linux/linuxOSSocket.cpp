@@ -334,6 +334,7 @@ eSocketError platform::socket_openAsUDP(OSSocket *sok)
     int enable = 1;
     setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
+	setsockopt (sok->socketID, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(int));
 
     return eSocketError_none;
 }

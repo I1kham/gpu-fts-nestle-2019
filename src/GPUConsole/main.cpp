@@ -135,7 +135,7 @@ void handleCommandHello (WinTerminal *logger)
 	
 	logger->log("broadcasting to subnet mask 255.255.255.0\n");
 	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER, "255.255.255.0");
-	u64 timeToExitMSec = rhea::getTimeNowMSec() + 3000;
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + 6000;
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		OSNetAddr from;
@@ -154,7 +154,7 @@ void handleCommandHello (WinTerminal *logger)
 				rhea::netaddr::getIPv4(from, ip);
 				//int port = rhea::netaddr::getPort(from);
 				logger->log("rcv answer from %s", ip);
-				break;
+				//break;
 			}
 		}
 		
@@ -162,7 +162,7 @@ void handleCommandHello (WinTerminal *logger)
 
 	logger->log("broadcasting to subnet mask 255.255.0.0\n");
 	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER, "255.255.0.0");
-	timeToExitMSec = rhea::getTimeNowMSec() + 3000;
+	timeToExitMSec = rhea::getTimeNowMSec() + 6000;
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		OSNetAddr from;
@@ -172,8 +172,9 @@ void handleCommandHello (WinTerminal *logger)
 		rhea::thread::sleepMSec(500);
 
 		u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
-		if (nBytesRead == 9)
+		if (nBytesRead >= 9)
 		{
+			assert(nBytesRead == 9);
 			if (memcmp(buffer, "rheaHelLO", 9) == 0)
 			{
 				char ip[32];
@@ -181,7 +182,7 @@ void handleCommandHello (WinTerminal *logger)
 				rhea::netaddr::getIPv4(from, ip);
 				//int port = rhea::netaddr::getPort(from);
 				logger->log("rcv answer from %s", ip);
-				break;
+				//break;
 			}
 		}
 
