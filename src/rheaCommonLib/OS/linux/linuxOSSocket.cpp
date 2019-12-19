@@ -334,7 +334,7 @@ eSocketError platform::socket_openAsUDP(OSSocket *sok)
     int enable = 1;
     setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt (sok->socketID, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
-	setsockopt (sok->socketID, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(int));
+    //setsockopt (sok->socketID, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(int));
 
     return eSocketError_none;
 }
@@ -343,10 +343,11 @@ eSocketError platform::socket_openAsUDP(OSSocket *sok)
 eSocketError platform::socket_UDPbind (OSSocket &sok, int portNumber)
 {
     sockaddr_in		saAddress;
+    memset((char *)&saAddress, 0, sizeof(saAddress));
     saAddress.sin_family = AF_INET;
     saAddress.sin_port = htons(portNumber);
     saAddress.sin_addr.s_addr = htonl(INADDR_ANY);
-    if (0 == bind(sok.socketID, (struct sockaddr *)&saAddress, sizeof(saAddress)))
+    if (-1 == bind(sok.socketID, (const struct sockaddr *)&saAddress, sizeof(saAddress)))
     {
         ::close(sok.socketID);
         sok.socketID = -1;
@@ -357,7 +358,18 @@ eSocketError platform::socket_UDPbind (OSSocket &sok, int portNumber)
         case EINVAL:        return eSocketError_alreadyBound;
         case ENOTSOCK:      return eSocketError_invalidDescriptor;
         case ENOMEM:        return eSocketError_noMem;
-        default:            return eSocketError_unknown;
+
+        case EBADF: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        case EADDRNOTAVAIL: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        case EFAULT: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        case ELOOP: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        case ENAMETOOLONG: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        case ENOENT: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        case ENOTDIR: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        case EROFS: printf ("socket_UDPbind error EBADF\n"); return eSocketError_unknown;
+        default:
+            printf ("socket_UDPbind error [%d]\n", errno);
+            return eSocketError_unknown;
         }
     }
 

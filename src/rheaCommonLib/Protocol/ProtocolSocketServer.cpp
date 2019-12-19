@@ -65,7 +65,7 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
 
 	//apro la socket UDP per il broadcastr hello
 	err = OSSocket_openAsUDP(&sokUDP);
-	err = OSSocket_UDPbind (sokUDP, portNumber + 1);
+    err = OSSocket_UDPbind (sokUDP, portNumber + 1);
 
 	//aggiungo la socket al gruppo di oggetti in osservazione
 	waitableGrp.addSocket(sokUDP, u32MAX-1);
@@ -172,7 +172,7 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
 			}
 			else
             {
-                //altimenti la socket che si è svegliata deve essere una dei miei client già connessi, segnalo
+                //altimenti la socket che si è svegliata deve essere una dei miei client gi�  connessi, segnalo
                 //e ritorno l'evento
                 const u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
                 eventList[nEvents].evtType = ProtocolSocketServer::evt_client_has_data_avail;
