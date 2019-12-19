@@ -222,7 +222,19 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 					if (me.ajaxReceivedAnswerQ[i].requestID == reqID)
 					{
 						//console.log ("AJAX rcv for reqID=" +reqID);
-						me.ajaxReceivedAnswerQ[i].rcv = utf8ArrayToStr(data.subarray(6));
+						if (data.length > 11)
+						{
+							//console.log ("[" +data[6] +"][" +data[7] +"][" +data[8] +"][" +data[9] +"][" +data[10] +"]");
+							if (data[6]==0x01 && data[7]==0x02 && data[8]==0x03 && data[9]==0x04 && data[10]==0x05)
+							{
+								//console.log ("utf16");
+								me.ajaxReceivedAnswerQ[i].rcv = utf16ArrayToStr(data.subarray(11));
+							}
+							else
+								me.ajaxReceivedAnswerQ[i].rcv = utf8ArrayToStr(data.subarray(6));
+						}
+						else
+							me.ajaxReceivedAnswerQ[i].rcv = utf8ArrayToStr(data.subarray(6));
 						return;
 					}
 				}

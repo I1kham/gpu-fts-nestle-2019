@@ -168,6 +168,9 @@ function utf16StrToStr (strIN, iFirstByte)
 	{
 		var b1 = strIN.charCodeAt(i++);
 		var b2 = strIN.charCodeAt(i++);
+		console.log("[" +b1 +"][" +b2 +"]");
+		if (i>60)
+			break;
 		if (b1 == 0 && b2 == 0)
 			return result.join('');
 

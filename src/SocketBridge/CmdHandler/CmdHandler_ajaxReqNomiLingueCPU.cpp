@@ -21,8 +21,17 @@ void CmdHandler_ajaxReqNomiLingueCPU::onCPUBridgeNotification(socketbridge::Serv
 	cpubridge::translateNotify_NOMI_LINGE_CPU(msgFromCPUBridge, strLingua1UTF16, strLingua2UTF16);
 
 
-	u8 buffer[(32+1) * 4];
+	u8 buffer[16+(32+1) * 4];
 	u8 n = 0;
+
+	//quest 5 byte indicano che la codifica a seguire e' UTF16 invece di UTf8 che e' il default
+	buffer[n++] = 0x01;
+	buffer[n++] = 0x02;
+	buffer[n++] = 0x03;
+	buffer[n++] = 0x04;
+	buffer[n++] = 0x05;
+
+
 	for (u8 i = 0;i < 33; i++)
 	{
 		buffer[n++] = (u8)(strLingua1UTF16[i] & 0x00FF);
@@ -30,6 +39,8 @@ void CmdHandler_ajaxReqNomiLingueCPU::onCPUBridgeNotification(socketbridge::Serv
 		if (strLingua1UTF16[i] == 0x0000)
 			break;
 	}
+	buffer[n++] = '#';
+	buffer[n++] = 0;
 
 	for (u8 i = 0;i < 33; i++)
 	{

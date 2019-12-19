@@ -852,14 +852,20 @@ function priv_askCPULangNames()
 	//console.log ("ajax::getCPULangNames");
 	rhea.ajax ("getCPULangNames", "").then( function(result)
 	{
-		cpuLangName1 = utf16StrToStr(result, 0);
-		cpuLangName2 = utf16StrToStr(result, (1+cpuLangName1.length) * 2);
+		//cpuLangName1 = utf16StrToStr(result, 0);
+		//cpuLangName2 = utf16StrToStr(result, (1+cpuLangName1.length) * 2);
+		var e = result.split("#");
+		cpuLangName1 = e[0];
+		cpuLangName2 = e[1];
 		priv_askMachineTypeAndModel();
 	})
 	.catch( function(result)
 	{
 		console.log ("err[" +result +"]");
-		setTimeout(function() { priv_askCPULangNames(); }, 200);
+		cpuLangName1 = "lang 1";
+		cpuLangName1 = "lang 2";
+		priv_askMachineTypeAndModel();
+		//setTimeout(function() { priv_askCPULangNames(); }, 200);
 	});	
 }
 
