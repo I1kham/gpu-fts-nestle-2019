@@ -864,8 +864,7 @@ function priv_askCPULangNames()
 		console.log ("err[" +result +"]");
 		cpuLangName1 = "lang 1";
 		cpuLangName1 = "lang 2";
-		priv_askMachineTypeAndModel();
-		//setTimeout(function() { priv_askCPULangNames(); }, 200);
+		setTimeout(function() { priv_askCPULangNames(); }, 200);
 	});	
 }
 
