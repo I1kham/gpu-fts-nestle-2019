@@ -103,7 +103,10 @@ SOURCES += \
     ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.cpp \
     ../../src/rheaCommonLib/OS/win/winOSFS.cpp \
     ../../src/rheaCommonLib/rheaFS.cpp \
-    ../../src/rheaCommonLib/OS/linux/linuxOSFS.cpp
+    ../../src/rheaCommonLib/OS/linux/linuxOSFS.cpp \
+    ../../src/rheaCommonLib/rheaUTF8.cpp \
+    ../../src/rheaCommonLib/rheaUTF8Char.cpp \
+    ../../src/rheaCommonLib/rheaUTF8Parser.cpp
 
 
 HEADERS += \
@@ -155,11 +158,6 @@ HEADERS += \
     ../../src/rheaCommonLib/OS/win/winOSSocket.h \
     ../../src/rheaCommonLib/OS/win/winOSWaitableGrp.h \
     ../../src/rheaCommonLib/OS/OS.h \
-    ../../src/rheaCommonLib/OS/OSEnum.h \
-    ../../src/rheaCommonLib/OS/OSInclude.h \
-    ../../src/rheaCommonLib/OS/OSSerialPort.h \
-    ../../src/rheaCommonLib/OS/OSSocket.h \
-    ../../src/rheaCommonLib/OS/OSWaitableGrp.h \
     ../../src/rheaCommonLib/Protocol/IProtocol.h \
     ../../src/rheaCommonLib/Protocol/IProtocolChannell.h \
     ../../src/rheaCommonLib/Protocol/Protocol.h \
@@ -169,7 +167,9 @@ HEADERS += \
     ../../src/rheaCommonLib/Protocol/ProtocolWebsocket.h \
     ../../src/rheaCommonLib/SimpleLogger/ISimpleLogger.h \
     ../../src/rheaCommonLib/SimpleLogger/NullLogger.h \
-    ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.h
+    ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.h \
+    ../../src/rheaCommonLib/rheaUTF8.h \
+    ../../src/rheaCommonLib/rheaUTF8Char.h
     
 unix {
     target.path = /usr/lib

@@ -77,7 +77,7 @@ void rhea::thread::waitEnd(const HThread hThread)
     ThreadInfo *th = thHandleToThreadInfo(hThread);
     if (NULL == th)
         return;
-	platform::waitThreadEnd(th->osThreadHandle);
+    platform::waitThreadEnd(th->osThreadHandle);
 }
 
 /************************************************************************

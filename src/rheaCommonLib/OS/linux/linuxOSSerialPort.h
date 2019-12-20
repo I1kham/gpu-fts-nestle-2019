@@ -2,7 +2,6 @@
 #ifndef _linuxOSSerialPort_h_
 #define linuxOSSerialPort_h_
 #include "linuxOSInclude.h"
-#include "../OSEnum.h"
 namespace platform
 {
     void			serialPort_setInvalid (OSSerialPort &sp);

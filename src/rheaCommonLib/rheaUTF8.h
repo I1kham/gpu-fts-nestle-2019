@@ -82,7 +82,7 @@ namespace rhea
 							{ 
 								if (isEOL()) return false;
 								bool ret;
-								if (bCaseSensitive) ret = (strncmp (&s[iNow], b, numByteToCheck) == 0); else ret = (_strnicmp (&s[iNow], b, numByteToCheck) == 0); 
+                                if (bCaseSensitive) ret = (strncmp (&s[iNow], b, numByteToCheck) == 0); else ret = (strncasecmp (&s[iNow], b, numByteToCheck) == 0);
 								if (ret && b[numByteToCheck]==0) return true;
 								return false;				
 							}

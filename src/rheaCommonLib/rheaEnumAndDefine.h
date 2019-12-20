@@ -33,42 +33,42 @@ enum eSocketError
 
 enum eRS232BaudRate
 {
-	Baud1200 = 1200,
-	Baud2400 = 2400,
-	Baud4800 = 4800,
-	Baud9600 = 9600,
-	Baud19200 = 19200,
-	Baud38400 = 38400,
-	Baud57600 = 57600,
-	Baud115200 = 115200,
-	Baud230400 = 230400
+    eRS232BaudRate_1200 = 1200,
+    eRS232BaudRate_2400 = 2400,
+    eRS232BaudRate_4800 = 4800,
+    eRS232BaudRate_9600 = 9600,
+    eRS232BaudRate_19200 = 19200,
+    eRS232BaudRate_38400 = 38400,
+    eRS232BaudRate_57600 = 57600,
+    eRS232BaudRate_115200 = 115200,
+    eRS232BaudRate_230400 = 230400
 };
 
 enum eRS232DataBits
 {
-	Data5 = 5,
-	Data6 = 6,
-	Data7 = 7,
-	Data8 = 8
+    eRS232DataBits_5 = 5,
+    eRS232DataBits_6 = 6,
+    eRS232DataBits_7 = 7,
+    eRS232DataBits_8 = 8
 };
 
 enum eRS232Parity
 {
-	NoParity = 0,
-	EvenParity = 2,
-	OddParity = 3
+    eRS232Parity_No = 0,
+    eRS232Parity_Even = 2,
+    eRS232Parity_Odd = 3
 };
 
 enum eRS232StopBits
 {
-	OneStop = 1,
-	TwoStop = 2
+    eRS232StopBits_One = 1,
+    eRS232StopBits_Two = 2
 };
 
 enum eRS232FlowControl
 {
-	NoFlowControl = 1,
-	HardwareControl = 2
+    eRS232FlowControl_No = 1,
+    eRS232FlowControl_HW = 2
 };
 
 
