@@ -47,7 +47,7 @@ using namespace cpubridge;
 //*****************************************************************
 CPUChannelCom::CPUChannelCom()
 {
-	OSSerialPort_setInvalid(comPort);
+	rhea::rs232::setInvalid(comPort);
 }
 
 //*****************************************************************
@@ -65,7 +65,7 @@ bool CPUChannelCom::open (const char *COMPORT, rhea::ISimpleLogger *logger)
 
 	logger->log ("CPUChannelCom::open\n");
 	logger->incIndent();
-	bool ret = OSSerialPort_open(&comPort, COMPORT, OSSerialPortConfig::Baud115200, false, false, OSSerialPortConfig::Data8, OSSerialPortConfig::NoParity, OSSerialPortConfig::OneStop, OSSerialPortConfig::NoFlowControl);
+	bool ret = rhea::rs232::open(&comPort, COMPORT, eRS232BaudRate::Baud115200, false, false, eRS232DataBits::Data8, eRS232Parity::NoParity, eRS232StopBits::OneStop, eRS232FlowControl::NoFlowControl);
 
 	if (ret)
 		logger->log("OK\n");
@@ -82,7 +82,7 @@ bool CPUChannelCom::open (const char *COMPORT, rhea::ISimpleLogger *logger)
 void CPUChannelCom::close (rhea::ISimpleLogger *logger)
 {
 	logger->log("CPUChannelCom::close\n");
-	OSSerialPort_close(comPort);
+	rhea::rs232::close(comPort);
 		
 	DUMP_CLOSE();
 }
@@ -90,9 +90,9 @@ void CPUChannelCom::close (rhea::ISimpleLogger *logger)
 //*****************************************************************
 void CPUChannelCom::closeAndReopen()
 {
-	OSSerialPort_flushIO(comPort);
-	OSSerialPort_close(comPort);
-	OSSerialPort_open(&comPort, sCOMPORT, OSSerialPortConfig::Baud115200, false, false, OSSerialPortConfig::Data8, OSSerialPortConfig::NoParity, OSSerialPortConfig::OneStop, OSSerialPortConfig::NoFlowControl);
+	rhea::rs232::flushIO(comPort);
+	rhea::rs232::close(comPort);
+	rhea::rs232::open(&comPort, sCOMPORT, eRS232BaudRate::Baud115200, false, false, eRS232DataBits::Data8, eRS232Parity::NoParity, eRS232StopBits::OneStop, eRS232FlowControl::NoFlowControl);
 }
 
 
@@ -125,7 +125,7 @@ bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhe
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		u32 nToWrite = (nBytesToSend - nBytesSent);
-		nBytesSent += OSSerialPort_writeBuffer(comPort, &buffer[nBytesSent], nToWrite);
+		nBytesSent += rhea::rs232::writeBuffer(comPort, &buffer[nBytesSent], nToWrite);
 		if (nBytesSent >= nBytesToSend)
 			return true;
 	}
@@ -153,7 +153,7 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 		if (nBytesRcv == 0)
 		{
 			u8 b = 0x00;
-			if (0 == OSSerialPort_readBuffer(comPort, &b, 1))
+			if (0 == rhea::rs232::readBuffer(comPort, &b, 1))
 				continue;
 
 			DUMP(&b, 1);
@@ -166,7 +166,7 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 		//aspetto di riceve un carattere qualunque subito dopo il #
 		if (nBytesRcv == 1)
 		{
-			if (0 == OSSerialPort_readBuffer(comPort, &commandChar, 1))
+			if (0 == rhea::rs232::readBuffer(comPort, &commandChar, 1))
 				continue;
 			nBytesRcv++;
 
@@ -196,7 +196,7 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 		//aspetto di riceve la lunghezza totale del messaggio
 		if (nBytesRcv == 2)
 		{
-			if (0 == OSSerialPort_readBuffer(comPort, &msgLen, 1))
+			if (0 == rhea::rs232::readBuffer(comPort, &msgLen, 1))
 				continue;
 			nBytesRcv++;
 
@@ -223,7 +223,7 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 		if (nBytesRcv >= 3)
 		{
 			const u16 nMissing = msgLen - nBytesRcv;
-			const u16 nLetti = (u16)OSSerialPort_readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
+			const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
 			DUMP(&out_answer[nBytesRcv], nLetti);
 
 			nBytesRcv += nLetti;
@@ -262,7 +262,7 @@ bool CPUChannelCom::waitChar(u64 timeoutMSec, u8 *out_char)
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
-		if (1 == OSSerialPort_readBuffer(comPort, out_char, 1))
+		if (1 == rhea::rs232::readBuffer(comPort, out_char, 1))
 			return true;
 	}
 
@@ -277,7 +277,7 @@ bool CPUChannelCom::waitForASpecificChar(u8 expectedChar, u64 timeoutMSec)
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		u8 c;
-		if (0 == OSSerialPort_readBuffer(comPort, &c, 1))
+		if (0 == rhea::rs232::readBuffer(comPort, &c, 1))
 			continue;
 
 		if (c == expectedChar)

@@ -34,13 +34,10 @@ WinTerminal::WinTerminal()
 	screenCols = screenRows = 0;
 	cursorX = 0;
 	cursorY = 0;
-	bodyY = bodyFirstVisibleRow = 0;
+	bodyY = bodyFirstVisibleRow = bodyX = 0;
 	cursorIsFull = 0;
 	timeToBlinkCursor = 1;
-	inputLineNumber = 1;
-
-	indent = isANewLine = 0;
-	priv_buildIndentStr();
+	indent = 0;
 }
 
 //**********************************************
@@ -61,74 +58,106 @@ void WinTerminal::priv_clearInputBuffer()
 }
 
 //**********************************************
-void WinTerminal::priv_appendStringToBody (const char *prefix, const char *sIN, WORD textAndBgAttribute)
+u32 WinTerminal::priv_doWriteIndent()
 {
-	rhea::criticalsection::enter(cs);
-
-	if (bodyY >= videoBufferForOutput.getNumRows())
-	{
-		//discardo un po' di linee dal buffer
-		const u16 DISCARD_DIVIDER = 4;
-		u16 numRowToDiscard = videoBufferForOutput.getNumRows() / DISCARD_DIVIDER;
-		if (numRowToDiscard == 0)
-			numRowToDiscard = 1;
-
-		u32 ct = numRowToDiscard * videoBufferForOutput.getNumCols();
-		const u16 numRowToCopy = videoBufferForOutput.getNumRows() - numRowToDiscard;
-		memcpy(videoBufferForOutput.buffer, &videoBufferForOutput.buffer[ct], numRowToCopy * videoBufferForOutput.getNumCols() * sizeof(CHAR_INFO));
-
-		ct = numRowToCopy * videoBufferForOutput.getNumCols();
-		for (u16 y = 0; y < numRowToDiscard; y++)
-		{
-			for (u16 x = 0; x < videoBufferForOutput.getNumCols(); x++)
-			{
-				videoBufferForOutput.buffer[ct].Attributes = VIDEO_BUFFER_ATTRIBUTE;
-				videoBufferForOutput.buffer[ct].Char.AsciiChar = ' ';
-				++ct;
-			}
-		}
-
-		bodyFirstVisibleRow = 0;
-		bodyY = numRowToCopy;
-	}
-
-
-
-	char s[256];
-	if (NULL == prefix)
-		sprintf_s(s, sizeof(s), "%s", sIN);
-	else
-		sprintf_s(s, sizeof(s), "%s%s", prefix, sIN);
-	inputLineNumber++;
-
-
 	u32 dstCT = videoBufferForOutput.getNumCols() * bodyY;
-	++bodyY;
 
-	u16 i;
-	for (i = 0; i < videoBufferForOutput.getNumCols(); i++)
-	{
-		videoBufferForOutput.buffer[dstCT].Attributes = textAndBgAttribute;
-		if (s[i] == 0x00)
-		{
-			videoBufferForOutput.buffer[dstCT++].Char.AsciiChar = ' ';
-			break;
-		}
-		videoBufferForOutput.buffer[dstCT++].Char.AsciiChar = s[i];
-	}
-
-	for (;i < videoBufferForInput.getNumCols(); i++)
+	u8 n;
+	if (indent > 16)
+		n = 32;
+	else
+		n = indent * 2;
+	for (u8 i2 = 0; i2 < n; i2++)
 	{
 		videoBufferForOutput.buffer[dstCT].Attributes = VIDEO_BUFFER_ATTRIBUTE;
 		videoBufferForOutput.buffer[dstCT].Char.AsciiChar = ' ';
 		dstCT++;
+		bodyX++;
 	}
 
+	return dstCT;
+}
 
+//**********************************************
+bool WinTerminal::priv_eliminaUnPoDiRigheSeNecessario()
+{
+	if (bodyY < videoBufferForOutput.getNumRows())
+		return false;
+
+	//discardo un po' di linee dal buffer
+	const u16 DISCARD_DIVIDER = 4;
+	u16 numRowToDiscard = videoBufferForOutput.getNumRows() / DISCARD_DIVIDER;
+	if (numRowToDiscard == 0)
+		numRowToDiscard = 1;
+
+	u32 ct = numRowToDiscard * videoBufferForOutput.getNumCols();
+	const u16 numRowToCopy = videoBufferForOutput.getNumRows() - numRowToDiscard;
+	memcpy(videoBufferForOutput.buffer, &videoBufferForOutput.buffer[ct], numRowToCopy * videoBufferForOutput.getNumCols() * sizeof(CHAR_INFO));
+
+	ct = numRowToCopy * videoBufferForOutput.getNumCols();
+	for (u16 y = 0; y < numRowToDiscard; y++)
+	{
+		for (u16 x = 0; x < videoBufferForOutput.getNumCols(); x++)
+		{
+			videoBufferForOutput.buffer[ct].Attributes = VIDEO_BUFFER_ATTRIBUTE;
+			videoBufferForOutput.buffer[ct].Char.AsciiChar = ' ';
+			++ct;
+		}
+	}
+
+	bodyFirstVisibleRow = 0;
+	bodyY = numRowToCopy;
+	return true;
+}
+
+//**********************************************
+void WinTerminal::priv_portaInVistaLUltimaRigaDiTestoDisponibile()
+{
 	//porto in vista la riga appena inserita
 	const u16 body_height = priv_getBodyH();
-	if (bodyY - bodyFirstVisibleRow > body_height)
+	if (bodyY - bodyFirstVisibleRow >= body_height)
 		bodyFirstVisibleRow = bodyY - body_height;
+}
+
+//**********************************************
+void WinTerminal::priv_doWriteOnScreen (const char *s, WORD textAndBgAttribute)
+{
+	rhea::criticalsection::enter(cs);
+
+	priv_eliminaUnPoDiRigheSeNecessario();
+	const u16 NUM_COL = videoBufferForOutput.getNumCols();
+	u32 dstCT = NUM_COL * bodyY + bodyX;
+
+	u16 i = 0;
+	while (s[i])
+	{
+		if (s[i] == '\n')
+		{
+			i++;
+			bodyX = 0;
+			bodyY++;
+			priv_eliminaUnPoDiRigheSeNecessario();
+			priv_portaInVistaLUltimaRigaDiTestoDisponibile();
+			dstCT = NUM_COL * bodyY;
+			continue;
+		}
+
+		if (bodyX == 0 && indent)
+			dstCT = priv_doWriteIndent();
+		videoBufferForOutput.buffer[dstCT].Attributes = textAndBgAttribute;
+		videoBufferForOutput.buffer[dstCT++].Char.AsciiChar = s[i];
+		i++;
+
+		bodyX++;
+		if (bodyX >= NUM_COL)
+		{
+			bodyX = 0;
+			bodyY++;
+			priv_eliminaUnPoDiRigheSeNecessario();
+			priv_portaInVistaLUltimaRigaDiTestoDisponibile();
+			dstCT = NUM_COL * bodyY;
+		}
+	}
 
 	rhea::criticalsection::leave(cs);
 }
@@ -171,9 +200,11 @@ void WinTerminal::priv_onKeyEvent(const KEY_EVENT_RECORD *ev)
 				if (s[i] == 0x00)
 					break;
 			}
+			s[i++] = '\n';
 			s[i] = 0x00;
-			priv_appendStringToBody(NULL, s, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+			priv_doWriteOnScreen(s, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 			priv_clearInputBuffer();
+			s[i-1] = 0x00;
 			virt_onUserCommand(s);
 		}
 		break;
@@ -439,24 +470,12 @@ void WinTerminal::cls()
 	rhea::criticalsection::leave(cs);
 }
 
-//*************************************************
-void WinTerminal::priv_buildIndentStr()
-{
-	u32 n = indent * 2;
-	if (n > MAX_INDENT_CHAR)
-		n = MAX_INDENT_CHAR;
-
-	memset(strIndent, ' ', n);
-	strIndent[n] = 0;
-}
-
 
 //*************************************************
 void WinTerminal::incIndent()
 {
 	rhea::criticalsection::enter(cs);
 	++indent;
-	priv_buildIndentStr();
 	rhea::criticalsection::leave(cs);
 }
 
@@ -466,34 +485,21 @@ void WinTerminal::decIndent()
 	rhea::criticalsection::enter(cs);
 	if (indent)
 		--indent;
-	priv_buildIndentStr();
 	rhea::criticalsection::leave(cs);
-}
-
-
-//*************************************************
-void WinTerminal::priv_out(const char *what, u16 colorAttribute)
-{
-	if (isANewLine)
-	{
-		priv_appendStringToBody(strIndent, what, colorAttribute);
-		isANewLine = 0;
-	}
-	else
-		priv_appendStringToBody(NULL, what, colorAttribute);
 }
 
 //*************************************************
 void WinTerminal::log(const char *format, ...)
 {
 	rhea::criticalsection::enter(cs);
+	char buffer[1024];
 
 	va_list argptr;
 	va_start(argptr, format);
-	vsnprintf(buffer, INTERNAL_BUFFER_SIZE, format, argptr);
+	vsnprintf(buffer, sizeof(buffer), format, argptr);
 	va_end(argptr);
 
-	priv_outTextCurrentBuffer (VIDEO_BUFFER_ATTRIBUTE);
+	priv_doWriteOnScreen(buffer, VIDEO_BUFFER_ATTRIBUTE);
 
 	rhea::criticalsection::leave(cs);
 }
@@ -508,10 +514,11 @@ void WinTerminal::outText(bool red, bool green, bool blue, const char *format, .
 
 
 	rhea::criticalsection::enter(cs);
-	
+	char buffer[1024];
+
 	va_list argptr;
 	va_start(argptr, format);
-	vsnprintf(buffer, INTERNAL_BUFFER_SIZE, format, argptr);
+	vsnprintf(buffer, sizeof(buffer), format, argptr);
 	va_end(argptr);
 
 	u16 colorAttribute = 0;
@@ -519,50 +526,8 @@ void WinTerminal::outText(bool red, bool green, bool blue, const char *format, .
 	if (green) colorAttribute |= FOREGROUND_GREEN;
 	if (blue) colorAttribute |= FOREGROUND_BLUE;
 	
-	priv_outTextCurrentBuffer(colorAttribute);
+	priv_doWriteOnScreen(buffer, colorAttribute);
 
 	rhea::criticalsection::leave(cs);
 }
 
-//*************************************************
-void WinTerminal::priv_outTextCurrentBuffer(u16 colorAttribute)
-{
-	u32 n = strlen(buffer);
-	if (n == 0)
-		return;
-
-
-	u32 i = 0;
-	if (buffer[0] == '\n')
-	{
-		//priv_appendStringToBody (NULL, "\n");
-		isANewLine = 1;
-		i++;
-	}
-
-	u32 iStart = i;
-	while (1)
-	{
-		if (buffer[i] == '\n')
-		{
-			buffer[i] = 0;
-			if (i - iStart)
-				priv_out(&buffer[iStart], colorAttribute);
-			//priv_appendStringToBody(NULL, "\n");
-
-			isANewLine = 1;
-			i++;
-			iStart = i;
-			continue;
-		}
-
-		if (buffer[i] == 0x00)
-		{
-			if (i - iStart)
-				priv_out(&buffer[iStart], colorAttribute);
-			break;
-		}
-
-		++i;
-	}
-}

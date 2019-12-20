@@ -14,15 +14,15 @@ namespace rhea
 
     extern Logger       *sysLogger;
 
-    inline const char*  getPhysicalPathToAppFolder()													{ return OS_getAppPathNoSlash();}
+    inline const char*  getPhysicalPathToAppFolder()													{ return platform::getAppPathNoSlash(); }
 						//ritorna il path assoluto dell'applicazione, senza slash finale
 	
-	inline const char*	getPhysicalPathToWritableFolder()												{ return OS_getPhysicalPathToWritableFolder(); }
+	inline const char*	getPhysicalPathToWritableFolder()												{ return platform::getPhysicalPathToWritableFolder(); }
 						//ritorna il path di una cartella nella quale è sicuramente possibile scrivere
 						//Sui sistemi windows per es, ritorna una cosa del tipo "C:\Users\NOME_UTENTE".
 						//Sui sistemi linux, ritorna generalmente lo stesso path dell'applicazione
 
-	inline u64			getTimeNowMSec()																{ return OS_getTimeNowMSec(); }
+	inline u64			getTimeNowMSec()																{ return platform::getTimeNowMSec(); }
 						//ritorna il numero di msec trascorsi dall'avvio dell'applicazione
 
 	const char*			getAppName();
@@ -38,14 +38,18 @@ namespace rhea
 
 
 
-    inline void         shell_runCommandNoWait(const char *cmd)											{ OS_runShellCommandNoWait(cmd); }
+    inline void         shell_runCommandNoWait(const char *cmd)											{ platform::runShellCommandNoWait(cmd); }
 						//esegue un comando di shall senza attenderne la terminazione
 
 	bool				isLittleEndian();
 	inline bool			isBigEndian()																	{ return !rhea::isLittleEndian(); }
 
 
-	//file system stuff
+	/************************************************************************************************************
+	 *
+	 * file system
+	 *
+	 */
 	namespace fs
 	{
 		void				sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSanitzed);
@@ -64,24 +68,24 @@ namespace rhea
 		void				extractFilePathWithOutSlash(const char *filename, char *out, u32 sizeofOut);
         bool                doesFileNameMatchJolly (const char *strFilename, const char *strJolly);
 
-		inline bool			findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)				{ return OS_FS_findFirstHardDrive(h, out); }
-		inline bool			findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)				{ return OS_FS_findNextHardDrive(h, out); }
-		inline void			findCloseHardDrive(OSDriveEnumerator &h)											{ OS_FS_findCloseHardDrive(h); }
+		inline bool			findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)				{ return platform::FS_findFirstHardDrive(h, out); }
+		inline bool			findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)				{ return platform::FS_findNextHardDrive(h, out); }
+		inline void			findCloseHardDrive(OSDriveEnumerator &h)											{ platform::FS_findCloseHardDrive(h); }
 
 
-		inline bool			fileExists(const char *fullFileNameAndPath)											{ return OS_FS_fileExists(fullFileNameAndPath); }
-		inline bool         fileDelete(const char *fullFileNameAndPath)											{ return OS_FS_fileDelete(fullFileNameAndPath); }
-		inline bool			fileRename(const char *oldFilename, const char *newFilename)						{ return OS_FS_fileRename(oldFilename, newFilename); }
+		inline bool			fileExists(const char *fullFileNameAndPath)											{ return platform::FS_fileExists(fullFileNameAndPath); }
+		inline bool         fileDelete(const char *fullFileNameAndPath)											{ return platform::FS_fileDelete(fullFileNameAndPath); }
+		inline bool			fileRename(const char *oldFilename, const char *newFilename)						{ return platform::FS_fileRename(oldFilename, newFilename); }
 		u64					filesize(FILE *fp);
 		bool				fileCopy(const char *srcFullFileNameAndPath, const char *dstFullFileNameAndPath);
 		u8*					fileCopyInMemory(const char *srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 		u8*					fileCopyInMemory(FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 
-		inline bool			folderExists(const char *pathSenzaSlash)											{ return OS_FS_DirectoryExists(pathSenzaSlash); }
-		inline bool			folderCreate(const char *pathSenzaSlash)											{ return OS_FS_DirectoryCreate(pathSenzaSlash); }
+		inline bool			folderExists(const char *pathSenzaSlash)											{ return platform::FS_DirectoryExists(pathSenzaSlash); }
+		inline bool			folderCreate(const char *pathSenzaSlash)											{ return platform::FS_DirectoryCreate(pathSenzaSlash); }
 								//crea anche percorsi complessi. Es create("pippo/pluto/paperino), se necessario
 								//prima crea pippo, poi pippo/pluto e infine pippo/pluto/paperino
-		inline bool			folderDelete(const char *pathSenzaSlash)											{ return OS_FS_DirectoryDelete(pathSenzaSlash); }
+		inline bool			folderDelete(const char *pathSenzaSlash)											{ return platform::FS_DirectoryDelete(pathSenzaSlash); }
 		bool				folderCopy (const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, const char* const *elencoPathDaEscludere=NULL);
 								//è ricorsiva, copia anche i sottofolder
 
@@ -97,15 +101,18 @@ namespace rhea
 		inline void			findGetCreationTime(const OSFileFind &h, rhea::DateTime *out)											{ platform::FS_findGetCreationTime(h, out); }
 		inline void			findGetLastTimeModified(const OSFileFind &h, rhea::DateTime *out)										{ platform::FS_findGetLastTimeModified(h, out); }
 		inline void			findClose(OSFileFind &h)																				{ platform::FS_findClose(h); }
+	} //namespace fs
 
-	}
-
-	//network address stuff
+	/************************************************************************************************************
+	 *
+	 * network & socket
+	 *
+	 */
 	namespace netaddr
 	{
 		//=============================== NETWORK ADDRESS
-		void				setFromSockAddr (OSNetAddr &me, const sockaddr_in &addrIN);
-		void				setFromAddr (OSNetAddr &me, const OSNetAddr &addrIN);
+		void				setFromSockAddr(OSNetAddr &me, const sockaddr_in &addrIN);
+		void				setFromAddr(OSNetAddr &me, const OSNetAddr &addrIN);
 		void				setIPv4(OSNetAddr &me, const char *ip);
 		void				setPort(OSNetAddr &me, int port);
 		bool				compare(const OSNetAddr &a, const OSNetAddr &b);
@@ -113,7 +120,121 @@ namespace rhea
 		int					getPort(const OSNetAddr &me);
 		sockaddr*			getSockAddr(const OSNetAddr &me);
 		int					getSockAddrLen(const OSNetAddr &me);
+	} //namespace netaddr
+
+	namespace socket
+	{
+		inline void					init (OSSocket *sok)																	{ platform::socket_init(sok); }
+
+		//=============================================== TCP
+		inline eSocketError         openAsTCPServer(OSSocket *out_sok, int portNumber)										{ return platform::socket_openAsTCPServer(out_sok, portNumber); }
+		inline eSocketError         openAsTCPClient(OSSocket *out_sok, const char *connectToIP, u32 portNumber)				{ return platform::socket_openAsTCPClient(out_sok, connectToIP, portNumber); }
+
+		inline void                 close(OSSocket &sok)																	{ platform::socket_close(sok); }
+
+		inline bool                 isOpen(const OSSocket &sok)																{ return platform::socket_isOpen(sok); }
+			/* false se la socket non è open.
+			 * False anche a seguito di una chiamata a close() (in quanto la sok viene chiusa)
+			 */
+
+		inline bool                 compare(const OSSocket &a, const OSSocket &b)											{ return platform::socket_compare(a, b); }
+			/* true se "puntano" alla stessa socket
+			*/
+
+
+		inline bool                 setReadTimeoutMSec(OSSocket &sok, u32 timeoutMSec)										{ return platform::socket_setReadTimeoutMSec(sok, timeoutMSec); }
+			/* Per specificare un tempo di wait "infinito" (ie: socket sempre bloccante), usare timeoutMSec=u32MAX
+			 * Per indicare il tempo di wait minimo possibile, usare timeoutMSec=0
+			 * Tutti gli altri valori sono comunque validi ma non assumono significati particolari
+			 */
+
+		inline bool                 setWriteTimeoutMSec(OSSocket &sok, u32 timeoutMSec)										{ return platform::socket_setWriteTimeoutMSec(sok, timeoutMSec); }
+			/* Per specificare un tempo di wait "infinito" (ie: socket sempre bloccante), usare timeoutMSec=u32MAX
+			 * Per indicare il tempo di wait minimo possibile, usare timeoutMSec=0
+			 * Tutti gli altri valori sono comunque validi ma non assumono significati particolari
+			 */
+
+
+		inline bool					listen(const OSSocket &sok, u16 maxIncomingConnectionQueueLength = u16MAX)				{ return platform::socket_listen(sok, maxIncomingConnectionQueueLength); }
+		inline bool					accept(const OSSocket &sok, OSSocket *out_clientSocket)									{ return platform::socket_accept(sok, out_clientSocket); }
+
+		inline i32					read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec)				{ return platform::socket_read(sok, buffer, bufferSizeInBytes, timeoutMSec); }
+			/* prova a leggere dalla socket. La chiamata è bloccante per un massimo di timeoutMSec.
+			 * Riguardo [timeoutMSec], valgono le stesse considerazioni indicate in setReadTimeoutMSec()
+			 *
+			 * Ritorna:
+			 *      0   se la socket si è disconnessa
+			 *      -1  se la chiamata avrebbe bloccato il processo (quindi devi ripetere la chiamata fra un po')
+			 *      >0  se ha letto qualcosa e ha quindi fillato [buffer] con il num di bytes ritornato
+			 */
+
+		inline i32                  write(OSSocket &sok, const void *buffer, u16 nBytesToSend)								{ return platform::socket_write(sok, buffer, nBytesToSend); }
+			/*	Ritorna il numero di btye scritti sulla socket.
+			 *	Se ritorna 0, vuol dire che la chiamata sarebbe stata bloccante e quindi
+			 *	l'ha evitata
+			 */
+
+		 //=============================================== UDP
+		inline	eSocketError		openAsUDP(OSSocket *out_sok)															{ return platform::socket_openAsUDP(out_sok); }
+		inline	eSocketError		UDPbind(OSSocket &sok, int portNumber)													{ return platform::socket_UDPbind(sok, portNumber); }
+		inline	u32					UDPSendTo(OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const OSNetAddr &addrTo)	{ return platform::socket_UDPSendTo(sok, buffer, nBytesToSend, addrTo); }
+		inline	u32					UDPReceiveFrom(OSSocket &sok, u8 *buffer, u32 nMaxBytesToRead, OSNetAddr *out_from)		{ return platform::socket_UDPReceiveFrom(sok, buffer, nMaxBytesToRead, out_from); }
+		void						UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const char *ip, int portNumber, const char *subnetMask);
 	}
+	
+
+	/************************************************************************************************************
+	 *
+	 * rsr232
+	 *
+	 */
+	namespace rs232
+	{
+		inline void     setInvalid(OSSerialPort &sp)													{ return platform::serialPort_setInvalid(sp); }
+		inline bool     isInvalid(const OSSerialPort &sp)												{ return platform::serialPort_isInvalid(sp); }
+		inline bool     isValid(const OSSerialPort &sp)													{ return !platform::serialPort_isInvalid(sp); }
+
+		inline bool     open(OSSerialPort *out_serialPort, const char *deviceName,
+			eRS232BaudRate baudRate,
+			bool RST_on,
+			bool DTR_on,
+			eRS232DataBits dataBits = eRS232DataBits::Data8,
+			eRS232Parity parity = eRS232Parity::NoParity,
+			eRS232StopBits stop = eRS232StopBits::OneStop,
+			eRS232FlowControl flowCtrl = eRS232FlowControl::NoFlowControl,
+			bool bBlocking = true)																		{ return platform::serialPort_open(out_serialPort, deviceName, baudRate, RST_on, DTR_on, dataBits, parity, stop, flowCtrl, bBlocking); }
+
+		inline void     close(OSSerialPort &sp)															{ return platform::serialPort_close(sp); }
+
+		inline void     setRTS(OSSerialPort &sp, bool bON_OFF)											{ platform::serialPort_setRTS(sp, bON_OFF); }
+		inline void     setDTR(OSSerialPort &sp, bool bON_OFF)											{ platform::serialPort_setDTR(sp, bON_OFF); }
+
+		inline void     flushIO(OSSerialPort &sp)														{ platform::serialPort_flushIO(sp); }
+		/* flusha i buffer di input e output discardando tutto quanto
+		 */
+
+		inline u32      readBuffer(OSSerialPort &sp, void *out_byteRead, u32 numMaxByteToRead)			{ return platform::serialPort_readBuffer(sp, out_byteRead, numMaxByteToRead); }
+		/* legge al massimo [numMaxByteToRead] bytes dalla seriale e li memorizza in [out_byteRead]
+		 * Ritorna il numero di byte letti e memorizzati in [out_byteRead]
+		 *
+		 * Se la seriale è in modalità bloccante, questa fn è a sua volta bloccante
+		 */
+
+		inline bool     readByte(OSSerialPort &sp, u8 *out_b)											{ return (platform::serialPort_readBuffer(sp, out_b, 1) == 1); }
+		/* true se ha letto un btye dalla seriale nel qual caso [out_b] contiene il byte letto
+		 * Valgono le stesse indicazioni valide per readBuffer()
+		 */
+
+
+		inline u32      writeBuffer(OSSerialPort &sp, const void *buffer, u32 nBytesToWrite)			{ return platform::serialPort_writeBuffer(sp, buffer, nBytesToWrite); }
+		/* prova a scrivere fino a [nBytesToWrite].
+		 * Ritorna il numero di bytes scritti con successo
+		 *
+		 * Ritorna 0 o <0 in caso di errore
+		 */
+
+		inline bool     writeByte(OSSerialPort &sp, u8 byteToWrite)										{ return (platform::serialPort_writeBuffer(sp, &byteToWrite, 1) == 1); }
+	} //namespace rs232
 
 
 

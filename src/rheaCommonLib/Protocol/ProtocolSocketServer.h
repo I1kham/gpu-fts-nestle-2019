@@ -1,6 +1,5 @@
 #ifndef _rheaProtocolServer_h_
 #define _rheaProtocolServer_h_
-#include "../OS/OSWaitableGrp.h"
 #include "../rhea.h"
 #include "../rheaHandleUID88.h"
 #include "../rheaHandleArray.h"

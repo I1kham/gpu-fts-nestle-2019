@@ -1,6 +1,6 @@
 #ifndef _rheaProtocol_h_
 #define _rheaProtocol_h_
-#include "../rheaDataTypes.h"
+#include "../rhea.h"
 
 
 namespace rhea

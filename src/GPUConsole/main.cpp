@@ -16,7 +16,8 @@ socketbridge::SokBridgeIDCode		idCode;
 UserCommandFactory					userCommandFactory;
 u32									SMUVersion = 0;
 bool								bQuitMainThread;
-
+sIPAddressAndSubnetMask				*ipList = NULL;
+u8									nIPList = 0;
 
 struct sThreadInitParam
 {
@@ -116,8 +117,8 @@ void handleCommandSyntax_help (WinTerminal *logger)
 void handleCommandHello (WinTerminal *logger)
 {
 	OSSocket sokUDP;
-	OSSocket_init(&sokUDP);
-	OSSocket_openAsUDP(&sokUDP);
+	rhea::socket::init(&sokUDP);
+	rhea::socket::openAsUDP(&sokUDP);
 
 	u8 buffer[32];
 	u8 ct = 0;
@@ -132,65 +133,48 @@ void handleCommandHello (WinTerminal *logger)
 	buffer[ct++] = 'O';
 
 	logger->incIndent();
-	
-	logger->log("broadcasting to subnet mask 255.255.255.0\n");
-	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER, "255.255.255.0");
-	u64 timeToExitMSec = rhea::getTimeNowMSec() + 6000;
-	while (rhea::getTimeNowMSec() < timeToExitMSec)
+
+	for (u8 i = 0; i < nIPList; i++)
 	{
-		OSNetAddr from;
-		u8 buffer[32];
+		if (strcmp(ipList[i].ip, "127.0.0.1") == 0)
+			continue;
 
-		logger->log("Waiting for an answer...\n");
-		rhea::thread::sleepMSec(500);
+		logger->log("broadcasting [%s] with subnet mask [%s] ", ipList[i].ip, ipList[i].subnetMask);
+		rhea::socket::UDPSendBroadcast(sokUDP, buffer, ct, ipList[i].ip, BROADCAST_PORTNUMBER, ipList[i].subnetMask);
 		
-		u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
-		if (nBytesRead == 9)
+		u64 timeToExitMSec = rhea::getTimeNowMSec() + 3000;
+		while (rhea::getTimeNowMSec() < timeToExitMSec)
 		{
-			if (memcmp(buffer, "rheaHelLO", 9) == 0)
-			{
-				char ip[32];
+			OSNetAddr from;
+			u8 buffer[32];
 
-				rhea::netaddr::getIPv4(from, ip);
-				//int port = rhea::netaddr::getPort(from);
-				logger->log("rcv answer from %s", ip);
-				//break;
+			logger->log(".");
+			rhea::thread::sleepMSec(100);
+
+			u32 nBytesRead = rhea::socket::UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
+			if (nBytesRead >= 9)
+			{
+				if (memcmp(buffer, "rheaHelLO", 9) == 0)
+				{
+					char ip[32];
+
+					rhea::netaddr::getIPv4(from, ip);
+					if (strcmp(ipList[i].ip, ip) != 0)
+					{
+						//int port = rhea::netaddr::getPort(from);
+						logger->incIndent();
+						logger->log("\nrcv answer from [%s] ", ip);
+						logger->decIndent();
+						timeToExitMSec = rhea::getTimeNowMSec() + 3000;
+					}
+				}
 			}
 		}
-		
+		logger->log("\n");
 	}
-
-	logger->log("broadcasting to subnet mask 255.255.0.0\n");
-	OSSocket_UDPSendBroadcast(sokUDP, buffer, ct, BROADCAST_PORTNUMBER, "255.255.0.0");
-	timeToExitMSec = rhea::getTimeNowMSec() + 6000;
-	while (rhea::getTimeNowMSec() < timeToExitMSec)
-	{
-		OSNetAddr from;
-		u8 buffer[32];
-
-		logger->log("Waiting for an answer...\n");
-		rhea::thread::sleepMSec(500);
-
-		u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
-		if (nBytesRead >= 9)
-		{
-			assert(nBytesRead == 9);
-			if (memcmp(buffer, "rheaHelLO", 9) == 0)
-			{
-				char ip[32];
-
-				rhea::netaddr::getIPv4(from, ip);
-				//int port = rhea::netaddr::getPort(from);
-				logger->log("rcv answer from %s", ip);
-				//break;
-			}
-		}
-
-	}
-
 	logger->decIndent();
-
-	OSSocket_close(sokUDP);
+	logger->log("Finished\n");
+	rhea::socket::close(sokUDP);
 }
 
 //*****************************************************
@@ -428,6 +412,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 				sprintf_s(ss, sizeof(ss), " %d", valori[i]);
 				strcat_s(s, sizeof(s), ss);
 			}
+			strcat_s(s, sizeof(s), "\n");
 			log->outText(true, true, false, s);
 		}
 		break;		
@@ -610,7 +595,7 @@ bool connect (rhea::ProtocolChSocketTCP *ch, rhea::IProtocol *proto, rhea::Linea
 
 	//apro una socket
 	OSSocket sok;
-	eSocketError err = OSSocket_openAsTCPClient (&sok, IP, PORT_NUMBER);
+	eSocketError err = rhea::socket::openAsTCPClient (&sok, IP, PORT_NUMBER);
 	if (eSocketError_none != err)
 	{
 		logger->log("FAILED with errCode=%d\n", (u32)err);
@@ -843,11 +828,100 @@ void go()
 	rhea::thread::deleteMsgQ(handleR, handleW);
 }
 
+#include "Iphlpapi.h"
+#include "ws2tcpip.h"
+#pragma comment(lib, "IPHLPAPI.lib")
+sIPAddressAndSubnetMask* scanNetworkAdaptersAndFindLocalIP (rhea::Allocator *allocator, u8 *out_nRecordFound)
+{
+	*out_nRecordFound = 0;
+
+	rhea::Allocator *tempAllocator = rhea::memory_getScrapAllocator();
+
+	// Before calling AddIPAddress we use GetIpAddrTable to get an adapter to which we can add the IP.
+	DWORD dwTableSize = sizeof(MIB_IPADDRTABLE);
+	PMIB_IPADDRTABLE pIPAddrTable = (MIB_IPADDRTABLE *)RHEAALLOC(tempAllocator,dwTableSize);
+	if (GetIpAddrTable(pIPAddrTable, &dwTableSize, 0) == ERROR_INSUFFICIENT_BUFFER)
+	{
+		RHEAFREE(tempAllocator, pIPAddrTable);
+		pIPAddrTable = (MIB_IPADDRTABLE *)RHEAALLOC(tempAllocator, dwTableSize);
+	}
+
+	// Make a second call to GetIpAddrTable to get the actual data we want
+	DWORD err = GetIpAddrTable(pIPAddrTable, &dwTableSize, 0);
+	if (err != NO_ERROR) 
+	{
+		/*
+		LPVOID lpMsgBuf;
+		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)& lpMsgBuf, 0, NULL))
+		{
+			printf("\tError: %s", (const char*)lpMsgBuf);
+			LocalFree(lpMsgBuf);
+		}
+		*/
+		return NULL;
+	}
+
+	if (pIPAddrTable->dwNumEntries == 0)
+		return NULL;
+	if (pIPAddrTable->dwNumEntries > 250)
+		*out_nRecordFound = 250;
+	else
+		*out_nRecordFound = (u8)pIPAddrTable->dwNumEntries;
+	
+	sIPAddressAndSubnetMask *ret = (sIPAddressAndSubnetMask*)RHEAALLOC(allocator, sizeof(sIPAddressAndSubnetMask) * (*out_nRecordFound));
+	memset(ret, 0, sizeof(sIPAddressAndSubnetMask) * (*out_nRecordFound));
+	for (u8 i = 0; i < (*out_nRecordFound); i++)
+	{
+		IN_ADDR IPAddr;
+
+		//printf("\n\tInterface Index[%d]:\t%ld\n", i, pIPAddrTable->table[i].dwIndex);
+		
+		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwAddr;
+		InetNtop(AF_INET, &IPAddr, ret[i].ip, sizeof(ret[i].ip));
+		printf("\tIP Address[%d]:     \t%s\n", i, ret[i].ip);
+		
+		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwMask;
+		InetNtop(AF_INET, &IPAddr, ret[i].subnetMask, sizeof(ret[i].subnetMask));
+		printf("\tSubnet Mask[%d]:    \t%s\n", i, ret[i].subnetMask);
+		
+		/*IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwBCastAddr;
+		printf("\tBroadCast[%d]:      \t%s (%ld)\n", i, InetNtop(AF_INET, &IPAddr, sAddr, sizeof(sAddr)), pIPAddrTable->table[i].dwBCastAddr);
+		
+		printf("\tReassembly size[%d]:\t%ld\n", i, pIPAddrTable->table[i].dwReasmSize);
+		
+		printf("\tType and State[%d]:", i);
+		if (pIPAddrTable->table[i].wType & MIB_IPADDR_PRIMARY)
+			printf("\tPrimary IP Address");
+		
+		if (pIPAddrTable->table[i].wType & MIB_IPADDR_DYNAMIC)
+			printf("\tDynamic IP Address");
+		
+		if (pIPAddrTable->table[i].wType & MIB_IPADDR_DISCONNECTED)
+			printf("\tAddress is on disconnected interface");
+		
+		if (pIPAddrTable->table[i].wType & MIB_IPADDR_DELETED)
+			printf("\tAddress is being deleted");
+		
+		if (pIPAddrTable->table[i].wType & MIB_IPADDR_TRANSIENT)
+			printf("\tTransient address");*/
+		//printf("\n");
+	}
+
+	if (pIPAddrTable) 
+		RHEAFREE(tempAllocator, pIPAddrTable);
+
+	return ret;
+}
+
 //*****************************************************
 int main()
 {
 	HINSTANCE hInst = NULL;
 	rhea::init("rheaConsole", &hInst);
+
+	//elenco delle schede di rete e relativi ip/subnet mask. Serve per il broadcasta su tutte le reti del comando hello
+	rhea::Allocator *localAllocator = rhea::memory_getDefaultAllocator();
+	ipList = scanNetworkAdaptersAndFindLocalIP(localAllocator, &nIPList);
 
 	//version info
 	version.apiVersion = 0x01;
@@ -860,7 +934,10 @@ int main()
 
 	go();
 	
-    rhea::deinit();
+	if (ipList)
+		RHEAFREE(localAllocator, ipList);
+	
+	rhea::deinit();
 	return 0;
 }
 

@@ -377,47 +377,6 @@ eSocketError platform::socket_UDPbind (OSSocket &sok, int portNumber)
 }
 
 //***************************************************
-void platform::socket_UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int porta, const char *subnetMask)
-{
-    // Abilita il broadcast
-    int i = 1;
-    setsockopt(sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
-
-    // Recupero info sul nome host, ip e porta di bind
-    char hostName[128];
-    char myIP[32];
-    if (gethostname(hostName, sizeof(hostName)) != -1)
-    {
-        struct	hostent *clientHost;
-        clientHost = gethostbyname(hostName);
-        if (clientHost != 0)
-        {
-            struct	in_addr clientIP;
-            memcpy(&clientIP, clientHost->h_addr_list[0], sizeof(struct in_addr));
-            strcpy_s(myIP, 32, inet_ntoa(clientIP));
-        }
-    }
-
-    // Broadcasta il messaggio
-    unsigned long	host_addr = inet_addr(myIP);                // local IP addr
-    unsigned long	net_mask = inet_addr(subnetMask);           // LAN netmask 255.255.255.0
-    unsigned long	net_addr = host_addr & net_mask;
-    unsigned long	dir_bcast_addr = net_addr | (~net_mask);
-
-    sockaddr_in		saAddress;
-    saAddress.sin_family = AF_INET;
-    saAddress.sin_port = htons(porta);
-    saAddress.sin_addr.s_addr = dir_bcast_addr;
-
-    sendto (sok.socketID, (const char*)buffer, nBytesToSend, 0, (sockaddr*)&saAddress, sizeof(saAddress));
-
-    // Disbilita il broadcast
-    i = 0;
-    setsockopt(sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
-}
-
-
-//***************************************************
 u32 platform::socket_UDPSendTo (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const OSNetAddr &addrTo)
 {
     int ret = sendto (sok.socketID, (const char*)buffer, nBytesToSend, 0, rhea::netaddr::getSockAddr(addrTo), rhea::netaddr::getSockAddrLen(addrTo));

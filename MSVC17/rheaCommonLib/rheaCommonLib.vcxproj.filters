@@ -218,21 +218,6 @@
     <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h">
       <Filter>OS</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSEnum.h">
-      <Filter>OS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSInclude.h">
-      <Filter>OS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSSerialPort.h">
-      <Filter>OS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSSocket.h">
-      <Filter>OS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSWaitableGrp.h">
-      <Filter>OS</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.h">
       <Filter>OS\linux</Filter>
     </ClInclude>

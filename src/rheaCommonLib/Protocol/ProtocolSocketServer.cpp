@@ -13,8 +13,8 @@ ProtocolSocketServer::ProtocolSocketServer(u8 maxClientAllowed, rhea::Allocator 
 {
     logger = &nullLogger;
     allocator = allocatorIN;
-    OSSocket_init (&sok);
-	OSSocket_init(&sokUDP);
+	rhea::socket::init (&sok);
+	rhea::socket::init(&sokUDP);
     clientList.setup (allocator, maxClientAllowed);
 }
 
@@ -31,7 +31,7 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
     logger->log ("ProtocolServer::start() on port %d... ", portNumber);
     logger->incIndent();
 
-    eSocketError err = OSSocket_openAsTCPServer(&sok, portNumber);
+    eSocketError err = rhea::socket::openAsTCPServer(&sok, portNumber);
     if (err != eSocketError_none)
     {
         logger->log ("FAIL, error code=%d\n", err);
@@ -40,15 +40,15 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
     }
     logger->log ("OK\n");
 
-    OSSocket_setReadTimeoutMSec  (sok, 0);
-    OSSocket_setWriteTimeoutMSec (sok, 10000);
+    rhea::socket::setReadTimeoutMSec  (sok, 0);
+    rhea::socket::setWriteTimeoutMSec (sok, 10000);
 
     logger->log ("listen... ");
-    if (!OSSocket_listen(sok))
+    if (!rhea::socket::listen(sok))
     {
         logger->log ("FAIL\n", err);
         logger->decIndent();
-        OSSocket_close(sok);
+        rhea::socket::close(sok);
         return eSocketError_errorListening;
     }
     logger->log ("OK\n");
@@ -64,8 +64,8 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
 
 
 	//apro la socket UDP per il broadcastr hello
-	err = OSSocket_openAsUDP(&sokUDP);
-    err = OSSocket_UDPbind (sokUDP, portNumber + 1);
+	err = rhea::socket::openAsUDP(&sokUDP);
+    err = rhea::socket::UDPbind (sokUDP, portNumber + 1);
 
 	//aggiungo la socket al gruppo di oggetti in osservazione
 	waitableGrp.addSocket(sokUDP, u32MAX-1);
@@ -95,8 +95,8 @@ void ProtocolSocketServer::close()
 	waitableGrp.removeSocket(sokUDP);
 
     logger->log ("closing socket\n");
-    OSSocket_close(sok);
-	OSSocket_close(sokUDP);
+    rhea::socket::close(sok);
+	rhea::socket::close(sokUDP);
 
     logger->log ("handleArray.unsetup");
     handleArray.unsetup();
@@ -150,7 +150,7 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
 				const u8 BUFFER_SIZE = 64;
 				u8 buffer[BUFFER_SIZE];
 				OSNetAddr from;
-				u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, BUFFER_SIZE, &from);
+				u32 nBytesRead = rhea::socket::UDPReceiveFrom(sokUDP, buffer, BUFFER_SIZE, &from);
 				if (nBytesRead >= 9)
 				{
 					if (memcmp(buffer, "RHEAHEllO", 9) == 0)
@@ -166,7 +166,7 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
 						buffer[ct++] = 'l';
 						buffer[ct++] = 'L';
 						buffer[ct++] = 'O';
-						OSSocket_UDPSendTo(sokUDP, buffer, ct, from);
+						rhea::socket::UDPSendTo(sokUDP, buffer, ct, from);
 					}
 				}
 			}
@@ -285,7 +285,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection (HSokServerClient *out_c
 bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_clientHandle)
 {
     OSSocket acceptedSok;
-	if (!OSSocket_accept(sok, &acceptedSok))
+	if (!rhea::socket::accept(sok, &acceptedSok))
     {
         logger->log("ProtocolServer::priv_checkIncomingConnection() => accept failed\n");
 		return false;

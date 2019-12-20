@@ -8,7 +8,7 @@ using namespace rhea;
 /****************************************************
  * rimuove eventuali . e .. e doppi /
  */
-void fs::sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSanitzed UNUSED_PARAM)
+void fs::sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSanitzed)
 {
 	if (NULL == path)
 	{

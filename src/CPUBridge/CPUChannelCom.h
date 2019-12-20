@@ -26,7 +26,7 @@ namespace cpubridge
 									in uscita, contiene il num di bytes inseriti in out_answer (ovvero la risposta della CPU)
 								*/
 
-		bool					isOpen() const																						{ return OSSerialPort_isValid(comPort); }
+		bool					isOpen() const																						{ return rhea::rs232::isValid(comPort); }
 
 		bool					sendOnlyAndDoNotWait(const u8 *bufferToSend, u16 nBytesToSend, rhea::ISimpleLogger *logger)			{ return priv_handleMsg_send(bufferToSend, nBytesToSend, logger); }
 		bool					waitChar(u64 timeoutMSec, u8 *out_char);

@@ -9,10 +9,10 @@ namespace platform
     bool			serialPort_isInvalid(const OSSerialPort &sp);
 
     bool            serialPort_open (OSSerialPort *out_serialPort, const char *deviceName,
-                                        OSSerialPortConfig::eBaudRate baudRate,
+                                        eRS232BaudRate baudRate,
                                         bool RST_on, bool DTR_on,
-                                        OSSerialPortConfig::eDataBits dataBits, OSSerialPortConfig::eParity parity,
-                                        OSSerialPortConfig::eStopBits stop, OSSerialPortConfig::eFlowControl flowCtrl, bool bBlocking);
+                                        eRS232DataBits dataBits, eRS232Parity parity,
+                                        eRS232StopBits stop, eRS232FlowControl flowCtrl, bool bBlocking);
 
     void            serialPort_close (OSSerialPort &sp);
 

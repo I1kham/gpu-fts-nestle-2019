@@ -75,7 +75,7 @@ namespace rhea
 								u32 real_size_to_alloc = priv_calcRealSizeToAlloc (sizeInBytes, real_align);
 
 								//alloco
-								u8 *p_original = (u8*)OS_alignedAlloc(real_align, real_size_to_alloc);
+								u8 *p_original = (u8*)platform::alignedAlloc(real_align, real_size_to_alloc);
 								assert(p_original);
 								assert(IS_POINTER_ALIGNED(p_original, real_align));
 								track.onAlloc(real_size_to_alloc);
@@ -148,7 +148,7 @@ namespace rhea
 								MEMTRACKER_ON_DEALLOC(p_original, allocated_size);
 
 								track.onDealloc(allocated_size);
-								OS_alignedFree(p_original);
+								platform::alignedFree(p_original);
                             }
 
 	private:

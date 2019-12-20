@@ -1,3 +1,4 @@
+#include "rhea.h"
 #include "rheaMemoryTracker.h"
 #include "rheaDateTime.h"
 #include "rheaCriticalSection.h"
@@ -13,7 +14,7 @@ MemoryTracker::MemoryTracker ()
 	root = NULL;
 
 	char fullFilename[256];
-	sprintf_s (fullFilename, sizeof(fullFilename), "%s/memoryTracker.txt", OS_getAppPathNoSlash());
+	sprintf_s (fullFilename, sizeof(fullFilename), "%s/memoryTracker.txt", rhea::getPhysicalPathToAppFolder());
 	f = fopen(fullFilename, "wt");
 	//fprintf(f, "%16.16s ALLOC %05d 0x%08X %012d\n", fromWho, s->allocID, PTR_TO_INT(p), allocatedSizeInByte);
 	//fprintf(f, "---------------- ALLOC ----- ---------- ---------- ------------

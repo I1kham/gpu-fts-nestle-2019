@@ -29,7 +29,7 @@ void* threadFunctionWrapper (void *userParam)
     //int retCode = (*mainFn)(th->userParam);
     (*mainFn)(th->userParam);
 
-	OS_killThread(th->osThreadHandle);
+	platform::killThread(th->osThreadHandle);
 	
 	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
     RHEAFREE(allocator, th);
@@ -57,7 +57,7 @@ eThreadError rhea::thread::create (HThread *out_hThread, ThMainFunction threadFu
     th->threadMainFn = threadFunction;
     th->userParam = userParam;
 
-    eThreadError err = OS_createThread (th->osThreadHandle, threadFunctionWrapper, stackSizeInKb, th);
+    eThreadError err = platform::createThread (th->osThreadHandle, threadFunctionWrapper, stackSizeInKb, th);
 
     if (err == eThreadError_none)
         *out_hThread = th;
@@ -77,7 +77,7 @@ void rhea::thread::waitEnd(const HThread hThread)
     ThreadInfo *th = thHandleToThreadInfo(hThread);
     if (NULL == th)
         return;
-    OS_waitThreadEnd(th->osThreadHandle);
+	platform::waitThreadEnd(th->osThreadHandle);
 }
 
 /************************************************************************
@@ -86,5 +86,5 @@ void rhea::thread::waitEnd(const HThread hThread)
  */
 void rhea::thread::sleepMSec (size_t msec)
 {
-    OS_sleepMSec(msec);
+	platform::sleepMSec(msec);
 }

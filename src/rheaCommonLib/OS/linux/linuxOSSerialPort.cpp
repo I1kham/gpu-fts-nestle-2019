@@ -51,8 +51,8 @@ bool serialPort_setAsNonBlocking(OSSerialPort &sp, u8 numOfDSecToWaitBeforeRetur
 
 
 //*****************************************************
-bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *deviceName, OSSerialPortConfig::eBaudRate baudRate, bool RST_on, bool DTR_on, OSSerialPortConfig::eDataBits dataBits,
-                        OSSerialPortConfig::eParity parity, OSSerialPortConfig::eStopBits stopBits, OSSerialPortConfig::eFlowControl flowCtrl, bool bBlocking)
+bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *deviceName, eRS232BaudRate baudRate, bool RST_on, bool DTR_on, eRS232DataBits dataBits,
+                        eRS232Parity parity, eRS232StopBits stopBits, eRS232FlowControl flowCtrl, bool bBlocking)
 {
     out_serialPort->fd = ::open(deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
     if (out_serialPort->fd == -1)
@@ -78,49 +78,49 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
     out_serialPort->config.c_cflag &= ~CSIZE;
     switch (dataBits)
     {
-        case OSSerialPortConfig::Data5: out_serialPort->config.c_cflag |= CS5; break;
-        case OSSerialPortConfig::Data6: out_serialPort->config.c_cflag |= CS6; break;
-        case OSSerialPortConfig::Data7: out_serialPort->config.c_cflag |= CS7; break;
-        case OSSerialPortConfig::Data8: out_serialPort->config.c_cflag |= CS8; break;
+        case eRS232DataBits::Data5: out_serialPort->config.c_cflag |= CS5; break;
+        case eRS232DataBits::Data6: out_serialPort->config.c_cflag |= CS6; break;
+        case eRS232DataBits::Data7: out_serialPort->config.c_cflag |= CS7; break;
+        case eRS232DataBits::Data8: out_serialPort->config.c_cflag |= CS8; break;
     }
 
     //parity
     out_serialPort->config.c_cflag &= ~(PARENB | PARODD);
     switch (parity)
     {
-        case OSSerialPortConfig::NoParity:      break;
-        case OSSerialPortConfig::EvenParity:    out_serialPort->config.c_cflag |= PARENB; break;
-        case OSSerialPortConfig::OddParity:     out_serialPort->config.c_cflag |= (PARENB | PARODD); break;
+        case eRS232Parity::NoParity:      break;
+        case eRS232Parity::EvenParity:    out_serialPort->config.c_cflag |= PARENB; break;
+        case eRS232Parity::OddParity:     out_serialPort->config.c_cflag |= (PARENB | PARODD); break;
     }
 
 
     //Stop bits
     switch (stopBits)
     {
-        case OSSerialPortConfig::OneStop: out_serialPort->config.c_cflag &= ~CSTOPB; break;
-        case OSSerialPortConfig::TwoStop: out_serialPort->config.c_cflag |= CSTOPB; break;
+        case eRS232StopBits::OneStop: out_serialPort->config.c_cflag &= ~CSTOPB; break;
+        case eRS232StopBits::TwoStop: out_serialPort->config.c_cflag |= CSTOPB; break;
     }
 
     //flow
     switch (flowCtrl)
     {
-        case OSSerialPortConfig::NoFlowControl:     out_serialPort->config.c_cflag &= ~CRTSCTS; break;
-        case OSSerialPortConfig::HardwareControl:   out_serialPort->config.c_cflag |= CRTSCTS; break;
+        case eRS232FlowControl::NoFlowControl:     out_serialPort->config.c_cflag &= ~CRTSCTS; break;
+        case eRS232FlowControl::HardwareControl:   out_serialPort->config.c_cflag |= CRTSCTS; break;
     }
 
     //baud rate
     int brate = B2400;
     switch (baudRate)
     {
-    case OSSerialPortConfig::Baud1200:      brate = B1200; break;
-    case OSSerialPortConfig::Baud2400:      brate = B2400; break;
-    case OSSerialPortConfig::Baud4800:      brate = B4800; break;
-    case OSSerialPortConfig::Baud9600:      brate = B9600; break;
-    case OSSerialPortConfig::Baud19200:     brate = B19200; break;
-    case OSSerialPortConfig::Baud38400:     brate = B38400; break;
-    case OSSerialPortConfig::Baud57600:     brate = B57600; break;
-    case OSSerialPortConfig::Baud115200:    brate = B115200; break;
-    case OSSerialPortConfig::Baud230400:    brate = B230400; break;
+    case eRS232BaudRate::Baud1200:      brate = B1200; break;
+    case eRS232BaudRate::Baud2400:      brate = B2400; break;
+    case eRS232BaudRate::Baud4800:      brate = B4800; break;
+    case eRS232BaudRate::Baud9600:      brate = B9600; break;
+    case eRS232BaudRate::Baud19200:     brate = B19200; break;
+    case eRS232BaudRate::Baud38400:     brate = B38400; break;
+    case eRS232BaudRate::Baud57600:     brate = B57600; break;
+    case eRS232BaudRate::Baud115200:    brate = B115200; break;
+    case eRS232BaudRate::Baud230400:    brate = B230400; break;
     }
 
 

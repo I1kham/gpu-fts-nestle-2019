@@ -21,7 +21,7 @@ using namespace rhea;
 ProtocolChSocketTCP::ProtocolChSocketTCP(Allocator *allocatorIN, u16 startingSizeOfReadBufferInBytes, u16 maxSizeOfReadBufferInBytes) :
 	IProtocolChannell(allocatorIN, startingSizeOfReadBufferInBytes, maxSizeOfReadBufferInBytes)
 {
-	OSSocket_init(&sok);
+	rhea::socket::init(&sok);
 
 #ifdef DUMP_CProtocolChSocketTCP_TO_FILE
 	char dumpFileName[256];
@@ -43,7 +43,7 @@ ProtocolChSocketTCP::~ProtocolChSocketTCP()
 //**************************************************
 u16 ProtocolChSocketTCP::virt_read (u8 *buffer, u16 nMaxBytesToRead, u32 timeoutMSec)
 {
-	i32 nBytesLetti = OSSocket_read (sok, buffer, nMaxBytesToRead, timeoutMSec);
+	i32 nBytesLetti = rhea::socket::read (sok, buffer, nMaxBytesToRead, timeoutMSec);
 	if (nBytesLetti == 0)
 		return protocol::RES_CHANNEL_CLOSED;
 
@@ -58,7 +58,7 @@ u16 ProtocolChSocketTCP::virt_read (u8 *buffer, u16 nMaxBytesToRead, u32 timeout
 //**************************************************
 u16 ProtocolChSocketTCP::virt_write (const u8 *bufferToWrite, u16 nBytesToWrite)
 {
-	i32 n = OSSocket_write (sok, bufferToWrite, nBytesToWrite);
+	i32 n = rhea::socket::write (sok, bufferToWrite, nBytesToWrite);
 	if (n < 0)
 		return protocol::RES_CHANNEL_CLOSED;
 

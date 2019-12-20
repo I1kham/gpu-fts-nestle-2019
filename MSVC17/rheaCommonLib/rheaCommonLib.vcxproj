@@ -78,11 +78,6 @@
     <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSocket.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSWaitableGrp.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSEnum.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSInclude.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSSerialPort.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSSocket.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\OS\OSWaitableGrp.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOS.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSInclude.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSSerialPort.h" />

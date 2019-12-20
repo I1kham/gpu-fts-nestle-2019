@@ -260,7 +260,7 @@ i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u3
 
 	//purtroppo devo pollare.... in teoria socket_setReadTimeoutMSec dovrebbe settare
 	//la socket in modalità bloccante con il timeout deciso, ma di fatto non funziona quindi mi tocca pollare
-	u64 timeToExitMSec = OS_getTimeNowMSec() + timeoutMSec;
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
 	i32 ret = -1;
 	do
 	{
@@ -274,7 +274,7 @@ i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u3
 		int myerrno = WSAGetLastError();
 		if (myerrno == WSAEINPROGRESS || myerrno == WSAEWOULDBLOCK || myerrno == WSAETIMEDOUT)
 		{
-			OS_sleepMSec(100);
+			platform::sleepMSec(100);
 			continue;
 		}
 
@@ -314,7 +314,7 @@ i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u3
 
 
 		}
-	} while (OS_getTimeNowMSec() < timeToExitMSec);
+	} while (rhea::getTimeNowMSec() < timeToExitMSec);
 
 	return -1;  //timeout
 }
@@ -384,53 +384,6 @@ eSocketError platform::socket_UDPbind (OSSocket &sok, int portNumber)
 
 	return eSocketError_none;
 }
-
-//*************************************************** 
-void platform::socket_UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int porta, const char *subnetMask)
-{
-	//test_test_test();
-
-	// Abilita il broadcast
-	int i = 1;
-	setsockopt(sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
-
-	// Recupero info sul nome host, ip e porta di bind
-	char hostName[128];
-	char myIP[32];
-	if (gethostname(hostName, sizeof(hostName)) != -1)
-	{
-		struct	hostent *clientHost;
-		clientHost = gethostbyname(hostName);
-		if (clientHost != 0)
-		{
-			struct	in_addr clientIP;
-			memcpy(&clientIP, clientHost->h_addr_list[0], sizeof(struct in_addr));
-			strcpy_s(myIP, 32, inet_ntoa(clientIP));
-		}
-	}
-
-	// Broadcasta il messaggio
-	//unsigned long	host_addr = inet_addr(myIP);		// local IP addr
-	//unsigned long	host_addr = inet_addr("10.8.2.55");
-	//unsigned long	host_addr = inet_addr("10.8.0.0");
-	unsigned long	host_addr = inet_addr("192.168.231.1");
-    unsigned long	net_mask = inet_addr(subnetMask);           // LAN netmask 255.255.255.0
-	unsigned long	net_addr = host_addr & net_mask;				
-	unsigned long	dir_bcast_addr = net_addr | (~net_mask);		
-
-	sockaddr_in		saAddress;
-	saAddress.sin_family = AF_INET;
-	saAddress.sin_port = htons(porta);
-	saAddress.sin_addr.s_addr = dir_bcast_addr;
-	sendto(sok.socketID, (const char*)buffer, nBytesToSend, 0, (sockaddr*)&saAddress, sizeof(saAddress));
-
-		
-
-	// Disbilita il broadcast
-	i = 0;
-	setsockopt(sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
-}
-
 
 //*************************************************** 
 u32 platform::socket_UDPSendTo (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const OSNetAddr &addrTo)

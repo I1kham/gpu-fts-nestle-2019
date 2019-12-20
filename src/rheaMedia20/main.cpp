@@ -116,8 +116,8 @@ bool findChrome()
 bool isSMUAlreadyRunning()
 {
 	OSSocket sokUDP;
-	OSSocket_init(&sokUDP);
-	OSSocket_openAsUDP(&sokUDP);
+	rhea::socket::init(&sokUDP);
+	rhea::socket::openAsUDP(&sokUDP);
 
 	u8 buffer[32];
 	u8 ct = 0;
@@ -134,7 +134,7 @@ bool isSMUAlreadyRunning()
 	OSNetAddr addr;
 	rhea::netaddr::setIPv4 (addr, "127.0.0.1");
 	rhea::netaddr::setPort(addr, 2281);
-	OSSocket_UDPSendTo(sokUDP, buffer, ct, addr);
+	rhea::socket::UDPSendTo(sokUDP, buffer, ct, addr);
 	u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	printf("Checking if rheaMedia2.0 is already running");
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
@@ -145,7 +145,7 @@ bool isSMUAlreadyRunning()
 		rhea::thread::sleepMSec(200);
 		printf(".");
 
-		u32 nBytesRead = OSSocket_UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
+		u32 nBytesRead = rhea::socket::UDPReceiveFrom(sokUDP, buffer, sizeof(buffer), &from);
 		if (nBytesRead == 9)
 		{
 			printf("\n");

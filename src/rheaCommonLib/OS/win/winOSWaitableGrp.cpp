@@ -68,7 +68,8 @@ void OSWaitableGrp::removeSocket (OSSocket &sok)
 	{
 		if (p->originType == evt_origin_socket)
 		{
-			if (OSSocket_compare(sok, p->origin.osSocket.sok))
+
+			if (platform::socket_compare(sok, p->origin.osSocket.sok))
 			{
 				priv_removeHandle (p->origin.osSocket.hEventNotify);
 				WSACloseEvent(p->origin.osSocket.hEventNotify);
@@ -79,7 +80,7 @@ void OSWaitableGrp::removeSocket (OSSocket &sok)
 				{
 					if (generatedEventList[i]->originType == evt_origin_socket)
 					{
-						if (OSSocket_compare (sok, generatedEventList[i]->origin.osSocket.sok))
+						if (platform::socket_compare (sok, generatedEventList[i]->origin.osSocket.sok))
 						{
 							generatedEventList[i]->originType = evt_origin_deleted;
 						}
@@ -129,7 +130,7 @@ void OSWaitableGrp::removeEvent (const OSEvent &evt)
 	{
 		if (p->originType == evt_origin_osevent)
 		{
-			if (OSEvent_compare(p->origin.osEvent.evt, evt))
+			if (platform::event_compare(p->origin.osEvent.evt, evt))
 			{
 				priv_removeHandle(p->origin.osEvent.evt.h);
 
@@ -138,7 +139,7 @@ void OSWaitableGrp::removeEvent (const OSEvent &evt)
 				{
 					if (generatedEventList[i]->originType == evt_origin_osevent)
 					{
-						if (OSEvent_compare(evt, generatedEventList[i]->origin.osEvent.evt))
+						if (platform::event_compare(evt, generatedEventList[i]->origin.osEvent.evt))
 						{
 							generatedEventList[i]->originType = evt_origin_deleted;
 						}

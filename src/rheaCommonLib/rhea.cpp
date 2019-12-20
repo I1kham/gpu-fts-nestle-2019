@@ -52,7 +52,7 @@ bool rhea::init (const char *appNameIN, void *platformSpecificInitData)
 
 
 	//init OS Stuff
-	if (!internal_OSInit (platformSpecificInitData, rheaGlobals.appName))
+	if (!platform::internal_init(platformSpecificInitData, rheaGlobals.appName))
 		return false;
 
 	//little/big endian ?
@@ -121,7 +121,7 @@ void rhea::deinit()
     RHEADELETE(memory_getDefaultAllocator(), rheaGlobals.fileLogger);
     rhea::internal_memory_deinit();
 
-	internal_OSDeinit();
+	platform::internal_deinit();
 }
 
 //***************************************************
@@ -162,4 +162,30 @@ bool rhea::netaddr::compare(const OSNetAddr &a, const OSNetAddr &b)
 	if (strcasecmp(ipA, ipB) != 0)
 		return false;
 	return true;
+}
+
+
+//*************************************************** 
+void rhea::socket::UDPSendBroadcast(OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const char *ip, int portNumber, const char *subnetMask)
+{
+	// Abilita il broadcast
+	int i = 1;
+	setsockopt(sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
+
+	// Broadcasta il messaggio
+	const unsigned long	host_addr = inet_addr(ip);
+	const unsigned long	net_mask = inet_addr(subnetMask);
+	const unsigned long	net_addr = host_addr & net_mask;
+	const unsigned long	dir_bcast_addr = net_addr | (~net_mask);
+
+	sockaddr_in		saAddress;
+	saAddress.sin_family = AF_INET;
+	saAddress.sin_port = htons(portNumber);
+	saAddress.sin_addr.s_addr = dir_bcast_addr;
+	sendto(sok.socketID, (const char*)buffer, nBytesToSend, 0, (sockaddr*)&saAddress, sizeof(saAddress));
+
+
+	// Disabilita il broadcast
+	i = 0;
+	setsockopt (sok.socketID, SOL_SOCKET, SO_BROADCAST, (char*)&i, sizeof(i));
 }

@@ -21,14 +21,14 @@ void Date::debug_test_me()
 void Date::setNow ()
 {
     u16	d,m,y;
-    OS_getDateNow (&y, &m, &d);
+	platform::getDateNow(&y, &m, &d);
     setYMD (y, m, d);
 }
 
 //****************************
 void Date::getDateNow(u16 *out_year, u16 *out_month, u16 *out_day)
 {
-	OS_getDateNow (out_year, out_month, out_day);
+	platform::getDateNow(out_year, out_month, out_day);
 }
 
 //****************************

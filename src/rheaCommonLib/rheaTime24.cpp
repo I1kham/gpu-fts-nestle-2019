@@ -9,14 +9,14 @@ using namespace rhea;
 void Time24::setNow ()
 {
     u8 h,m,s;
-    OS_getTimeNow (&h, &m, &s);
+	platform::getTimeNow(&h, &m, &s);
     setHMS (h, m, s, 0);
 }
 
 //****************************
 void Time24::getTimeNow(u8 *out_hour, u8 *out_min, u8 *out_sec)
 {
-	OS_getTimeNow (out_hour, out_min, out_sec);
+	platform::getTimeNow(out_hour, out_min, out_sec);
 }
 
 //****************************

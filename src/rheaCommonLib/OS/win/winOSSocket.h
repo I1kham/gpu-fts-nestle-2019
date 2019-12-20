@@ -39,7 +39,6 @@ namespace platform
 	//=============================== UDP
 	eSocketError        socket_openAsUDP (OSSocket *out_sok);
 	eSocketError        socket_UDPbind (OSSocket &sok, int portNumber);
-    void				socket_UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, int portNumber, const char *subnetMask);
 	u32					socket_UDPSendTo (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const OSNetAddr &addrTo);
 	u32					socket_UDPReceiveFrom (OSSocket &sok, u8 *buffer, u32 nMaxBytesToRead, OSNetAddr *out_addrFrom);
 }

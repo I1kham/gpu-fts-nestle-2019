@@ -30,8 +30,8 @@ namespace rhea
 		OSSocket&			getSocket()																	{ return sok; }
 
 	protected:
-		bool				virt_isOpen() const															{ return OSSocket_isOpen(sok); }
-		void				virt_close()																{ OSSocket_close(sok); }
+		bool				virt_isOpen() const															{ return rhea::socket::isOpen(sok); }
+		void				virt_close()																{ rhea::socket::close(sok); }
 		u16					virt_read (u8 *buffer, u16 nMaxBytesToRead, u32 timeoutMSec);
 		u16					virt_write (const u8 *bufferToWrite, u16 nBytesToWrite);
 
