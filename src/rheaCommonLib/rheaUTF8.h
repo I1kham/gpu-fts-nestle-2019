@@ -1,5 +1,8 @@
 #ifndef _rheaUTF8_h_
 #define _rheaTF8_h_
+#include <stdlib.h>
+#include <string.h>
+#include "OS/OS.h"
 #include "rheaDataTypes.h"
 #include "rheaUTF8Char.h"
 
