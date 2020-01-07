@@ -26,11 +26,37 @@ TaskTemperature.prototype.onTimer 				= function(timeNowMsec)
 {
 	if (timeNowMsec >= this.nextTimeCheckMSec)
 	{
-		this.nextTimeCheckMSec = timeNowMsec + 1000;
+		this.nextTimeCheckMSec = timeNowMsec + 3000;
 		rhea.ajax ("getVandT", "").then( function(result)
 		{
 			var data = JSON.parse(result);
 			rheaSetDivHTMLByName ("pageTemperature_live", pageMaintenance_formatHTMLForTemperature(data));
+		})
+		.catch( function(result)
+		{
+		});		
+	}
+}
+
+/**********************************************************
+ * TaskMaintenance
+ */
+function TaskMaintenance()																{ this.nextTimeCheckMSec=0;}
+TaskMaintenance.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskMaintenance.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskMaintenance.prototype.onFreeBtn1Clicked	= function(ev)								{}
+TaskMaintenance.prototype.onFreeBtn2Clicked	= function(ev)								{}
+TaskMaintenance.prototype.onExit				= function(bSave)						{ return bSave; }
+TaskMaintenance.prototype.onTimer 				= function(timeNowMsec)
+{
+	if (timeNowMsec >= this.nextTimeCheckMSec)
+	{
+		this.nextTimeCheckMSec = timeNowMsec + 3000;
+		rhea.ajax ("getVandT", "").then( function(result)
+		{
+			var data = JSON.parse(result);
+			rheaSetDivHTMLByName ("pageMaintenance_volt", helper_intToFixedOnePointDecimale(data.v) +" V");
+			rheaSetDivHTMLByName ("pageMaintenance_temperature", pageMaintenance_formatHTMLForTemperature(data));
 		})
 		.catch( function(result)
 		{

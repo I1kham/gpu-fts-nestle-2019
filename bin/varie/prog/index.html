@@ -1296,8 +1296,8 @@ function pageMaintenance_show()
 
 	header_setText("MAINTENANCE");
 	btnBack_show();
-	pageMaintenance_updateVoltAndTemperature();
 	pageMaintenance_getDecountersValues();		
+	currentTask = new TaskMaintenance();
 }
 
 function pageMaintenance_formatHTMLForTemperature(jsonObj)
@@ -1305,44 +1305,24 @@ function pageMaintenance_formatHTMLForTemperature(jsonObj)
 	var html = "";
 	if (da3.isInstant())
 	{
-		html += "Tinstant=[" +jsonObj.tABC +"&deg;] ";
+		html += "Tboiler=[" +jsonObj.tbol +"&deg;] ";
 	}
 	else
 	{
 		if (da3.isInduzione())
 		{
-			html += "Tespresso=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
-			html += "Theater=[" +jsonObj.tABC +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "Theater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
 			html += "Tmilker=[" +jsonObj.tcap +"&deg;]";
 		}
 		else
 		{
-			html += "Tespresso=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
-			html += "Tboiler=[" +jsonObj.tABC +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "Tespresso=[" +jsonObj.tbol +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "Theater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
 			html += "Tmilker=[" +jsonObj.tcap +"&deg;]";
 		}
 	}	
 	return html;	
 }
-
-function pageMaintenance_updateVoltAndTemperature()
-{
-console.log("pageMaintenance_updateVoltAndTemperature");
-	rhea.ajax ("getVandT", "").then( function(result)
-	{
-		var data = JSON.parse(result);
-
-		rheaSetDivHTMLByName ("pageMaintenance_volt", data.v +" V");
-		rheaSetDivHTMLByName ("pageMaintenance_temperature", pageMaintenance_formatHTMLForTemperature(data));
-		
-		setTimeout(function() {pageMaintenance_updateVoltAndTemperature();}, 1000);
-	})
-	.catch( function(result)
-	{
-		setTimeout(function() {pageMaintenance_updateVoltAndTemperature();}, 1000);
-	});
-}
-
 
 function pageMaintenance_resetDec(iDecounter)
 {
@@ -2268,14 +2248,12 @@ function pageTemperature_build()
 	{
 		if (da3.isInduzione())
 		{
-			//camera + heater
-			
-			//solo temp heater
+			//solo temp heater (aka camera caffe')
 			html += "<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 		else
 		{
-			//espresso + bollitore
+			//(espresso qui significa bollitore, heater significa camera caffe')
 			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
 				   +"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
 				   +"<tr><td>HEATING TIME</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>"

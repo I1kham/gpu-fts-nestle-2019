@@ -15,12 +15,12 @@ void CmdHandler_ajaxReqGetVoltageAndTemp::passDownRequestToCPUBridge (cpubridge:
 void CmdHandler_ajaxReqGetVoltageAndTemp::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
 	u8 tCamera = 0;
-	u8 tABC = 0;
+	u8 tBollitore = 0;
 	u8 tCappuccinatore = 0;
 	u16 voltaggio = 0;
-	cpubridge::translateNotify_GET_VOLT_AND_TEMP(msgFromCPUBridge, &tCamera, &tABC, &tCappuccinatore, &voltaggio);
+	cpubridge::translateNotify_GET_VOLT_AND_TEMP(msgFromCPUBridge, &tCamera, &tBollitore, &tCappuccinatore, &voltaggio);
 
 	char resp[64];
-	sprintf_s(resp, sizeof(resp), "{\"tcam\":%d,\"tABC\":%d,\"tcap\":%d,\"v\":%d}", tCamera, tABC, tCappuccinatore, voltaggio);
+	sprintf_s(resp, sizeof(resp), "{\"tcam\":%d,\"tbol\":%d,\"tcap\":%d,\"v\":%d}", tCamera, tBollitore, tCappuccinatore, voltaggio);
 	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
 }

@@ -809,10 +809,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
 				{
 					const u8 tCamera = answerBuffer[4];
-					const u8 tABC = answerBuffer[5];
+					const u8 tBollitore = answerBuffer[5];
 					const u8 tCappuccinatore = answerBuffer[6];
 					const u16 voltaggio = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[7]);
-					notify_GET_VOLT_AND_TEMP(sub->q, handlerID, logger, tCamera, tABC, tCappuccinatore, voltaggio);
+					notify_GET_VOLT_AND_TEMP(sub->q, handlerID, logger, tCamera, tBollitore, tCappuccinatore, voltaggio);
 				}
 			}
 			break;

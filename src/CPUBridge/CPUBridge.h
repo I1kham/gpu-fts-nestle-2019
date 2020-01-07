@@ -195,8 +195,8 @@ namespace cpubridge
 	void		notify_EVA_RESET_PARTIALDATA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
 	void		translateNotify_EVA_RESET_PARTIALDATA(const rhea::thread::sMsg &msg, bool *out_result);
 
-	void		notify_GET_VOLT_AND_TEMP(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 tCamera, u8 tABC, u8 tCappuccinatore, u16 voltaggio);
-	void		translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg, u8 *out_tCamera, u8 *out_tABC, u8 *out_tCappuccinatore, u16 *out_voltaggio);
+	void		notify_GET_VOLT_AND_TEMP(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 tCamera, u8 tBollitore, u8 tCappuccinatore, u16 voltaggio);
+	void		translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg, u8 *out_tCamera, u8 *out_tBollitore, u8 *out_tCappuccinatore, u16 *out_voltaggio);
 
 	/***********************************************
 		ask_xxxx

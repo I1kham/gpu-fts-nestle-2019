@@ -1140,25 +1140,25 @@ void cpubridge::translateNotify_EVA_RESET_PARTIALDATA(const rhea::thread::sMsg &
 
 
 //***************************************************
-void cpubridge::notify_GET_VOLT_AND_TEMP(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 tCamera, u8 tABC, u8 tCappuccinatore, u16 voltaggio)
+void cpubridge::notify_GET_VOLT_AND_TEMP(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 tCamera, u8 tBollitore, u8 tCappuccinatore, u16 voltaggio)
 {
 	logger->log("nnotify_GET_VOLT_AND_TEMP\n");
 
 	u8 buffer[8];
 	buffer[0] = tCamera;
-	buffer[1] = tABC;
+	buffer[1] = tBollitore;
 	buffer[2] = tCappuccinatore;
 	rhea::utils::bufferWriteU16(&buffer[3], voltaggio);
 	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP, handlerID, buffer, 5);
 }
 
 //***************************************************
-void cpubridge::translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg, u8 *out_tCamera, u8 *out_tABC, u8 *out_tCappuccinatore, u16 *out_voltaggio)
+void cpubridge::translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg, u8 *out_tCamera, u8 *out_tBollitore, u8 *out_tCappuccinatore, u16 *out_voltaggio)
 {
 	assert(msg.what == CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_tCamera = p[0];
-	*out_tABC = p[1];
+	*out_tBollitore = p[1];
 	*out_tCappuccinatore = p[2];
 	*out_voltaggio = rhea::utils::bufferReadU16(&p[3]);
 }

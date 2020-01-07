@@ -257,7 +257,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 	case eCPUCommand_getExtendedConfigInfo:
 		{
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;			const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
 			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
 			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
 			out_answer[ct++] = '#';
@@ -537,7 +537,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct++] = (u8)subcommand;
 
 				out_answer[ct++] = 30; //temp_camera
-				out_answer[ct++] = 31; //temp_tABC
+				out_answer[ct++] = 31; //temp_tBollitore
 				out_answer[ct++] = 32; //temp_cappuccinatore
 				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 220); //voltage
 				ct += 2;

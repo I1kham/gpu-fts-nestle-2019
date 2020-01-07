@@ -18,7 +18,7 @@ namespace socketbridge
 			json
 			{
 				tcam: temp camera 
-				tABC: temp bollitore oppure instant oppure heater
+				tbol: temp bollitore
 				tcap: temp cappuccinatore
 				v: voltaggio
 			}
