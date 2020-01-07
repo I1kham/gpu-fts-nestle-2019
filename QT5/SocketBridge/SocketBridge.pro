@@ -138,7 +138,8 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBCloseByPath.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetVoltageAndTemp.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -211,7 +212,8 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeTask.h \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBCloseByPath.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetVoltageAndTemp.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
