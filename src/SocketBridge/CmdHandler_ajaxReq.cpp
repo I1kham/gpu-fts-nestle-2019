@@ -29,6 +29,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqTaskStatus.h"
 #include "CmdHandler/CmdHandler_ajaxReqDBCloseByPath.h"
 #include "CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetVoltageAndTemp.h"
 
 using namespace socketbridge;
 
@@ -90,6 +91,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqTaskStatus);
 	CHECK(CmdHandler_ajaxReqDBCloseByPath);
 	CHECK(CmdHandler_ajaxReqIsManualInstalled);
+	CHECK(CmdHandler_ajaxReqGetVoltageAndTemp);
 
 #undef CHECK
     return NULL;

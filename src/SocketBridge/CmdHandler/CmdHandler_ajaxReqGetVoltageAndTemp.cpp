@@ -1,0 +1,26 @@
+#include "CmdHandler_ajaxReqGetVoltageAndTemp.h"
+#include "../SocketBridge.h"
+#include "../../CPUBridge/CPUBridge.h"
+
+
+using namespace socketbridge;
+
+//***********************************************************
+void CmdHandler_ajaxReqGetVoltageAndTemp::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+{
+	cpubridge::ask_CPU_GET_VOLT_AND_TEMP (from, getHandlerID());
+}
+
+//***********************************************************
+void CmdHandler_ajaxReqGetVoltageAndTemp::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+{
+	u8 tCamera = 0;
+	u8 tABC = 0;
+	u8 tCappuccinatore = 0;
+	u16 voltaggio = 0;
+	cpubridge::translateNotify_GET_VOLT_AND_TEMP(msgFromCPUBridge, &tCamera, &tABC, &tCappuccinatore, &voltaggio);
+
+	char resp[64];
+	sprintf_s(resp, sizeof(resp), "{\"tcam\":%d,\"tABC\":%d,\"tcap\":%d,\"v\":%d}", tCamera, tABC, tCappuccinatore, voltaggio);
+	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+}

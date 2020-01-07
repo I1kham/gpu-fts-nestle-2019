@@ -13,6 +13,30 @@ TaskVoid.prototype.onFreeBtn2Clicked	= function(ev)							{}
 TaskVoid.prototype.onExit				= function(bSave)						{ return bSave; }
 
 
+/**********************************************************
+ * TaskTemperature
+ */
+function TaskTemperature()																{ this.nextTimeCheckMSec=0;}
+TaskTemperature.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskTemperature.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskTemperature.prototype.onFreeBtn1Clicked	= function(ev)								{}
+TaskTemperature.prototype.onFreeBtn2Clicked	= function(ev)								{}
+TaskTemperature.prototype.onExit				= function(bSave)						{ return bSave; }
+TaskTemperature.prototype.onTimer 				= function(timeNowMsec)
+{
+	if (timeNowMsec >= this.nextTimeCheckMSec)
+	{
+		this.nextTimeCheckMSec = timeNowMsec + 1000;
+		rhea.ajax ("getVandT", "").then( function(result)
+		{
+			var data = JSON.parse(result);
+			rheaSetDivHTMLByName ("pageTemperature_live", pageMaintenance_formatHTMLForTemperature(data));
+		})
+		.catch( function(result)
+		{
+		});		
+	}
+}
 
 /**********************************************************
  * TaskCleaning

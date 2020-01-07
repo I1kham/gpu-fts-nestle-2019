@@ -529,6 +529,24 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
+
+			case eCPUProgrammingCommand_getVoltAndTemp:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+
+				out_answer[ct++] = 30; //temp_camera
+				out_answer[ct++] = 31; //temp_tABC
+				out_answer[ct++] = 32; //temp_cappuccinatore
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 220); //voltage
+				ct += 2;
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+
+				return true;
 			} //switch (subcommand)
 		}
 		break;

@@ -790,17 +790,33 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA:
-		{
-			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_EVAresetPartial(bufferW, sizeof(bufferW));
-			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
-				notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, true);
-			else
-				notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, false);
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_EVAresetPartial(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+					notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, true);
+				else
+					notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, false);
+			}
+			break;
 
-		}
-		break;
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getVoltAndTemp(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				{
+					const u8 tCamera = answerBuffer[4];
+					const u8 tABC = answerBuffer[5];
+					const u8 tCappuccinatore = answerBuffer[6];
+					const u16 voltaggio = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[7]);
+					notify_GET_VOLT_AND_TEMP(sub->q, handlerID, logger, tCamera, tABC, tCappuccinatore, voltaggio);
+				}
+			}
+			break;
+
 		} //switch
 	} //while
 }

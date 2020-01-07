@@ -125,10 +125,18 @@
 						<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
 						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
 					</tr>
-					<tr>
+					
+					<tr style="border:none">
 						<td>DISPLAY TEMPERATURES<br><span class="tip">as a CPU message</span></td>
 						<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7112"></div></td>
-					</tr>					
+					</tr>
+					<tr style="height:30px;">
+						<td></td>
+						<td colspan="2">
+							<div id="pageMaintenance_temperature" class="tip"></div>
+						</td>
+					</tr>
+					
 					<tr id="pageMaintenance_rowDis">
 						<td>DISINSTALLATION</td>
 						<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DISINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></div></td>
@@ -136,7 +144,11 @@
 					<tr>
 						<td>FIRST INSTALLATION</td>
 						<td colspan="2"><div class="UIOption" data-option="0|YES|1|NO" data-da3="7074"></div></td>
-					</tr>					
+					</tr>
+					<tr>
+						<td>VOLTAGE</td>
+						<td colspan="2"><div id="pageMaintenance_volt" class="bigCaption15"></div></td>
+					</tr>						
 					<!--<tr><td>OUT of service (last 20 OFF)</td><td>todo...</td></tr>-->
 				</table>
 			</div>
@@ -1284,8 +1296,53 @@ function pageMaintenance_show()
 
 	header_setText("MAINTENANCE");
 	btnBack_show();
+	pageMaintenance_updateVoltAndTemperature();
 	pageMaintenance_getDecountersValues();		
 }
+
+function pageMaintenance_formatHTMLForTemperature(jsonObj)
+{
+	var html = "";
+	if (da3.isInstant())
+	{
+		html += "Tinstant=[" +jsonObj.tABC +"&deg;] ";
+	}
+	else
+	{
+		if (da3.isInduzione())
+		{
+			html += "Tespresso=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "Theater=[" +jsonObj.tABC +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "Tmilker=[" +jsonObj.tcap +"&deg;]";
+		}
+		else
+		{
+			html += "Tespresso=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "Tboiler=[" +jsonObj.tABC +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "Tmilker=[" +jsonObj.tcap +"&deg;]";
+		}
+	}	
+	return html;	
+}
+
+function pageMaintenance_updateVoltAndTemperature()
+{
+console.log("pageMaintenance_updateVoltAndTemperature");
+	rhea.ajax ("getVandT", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+
+		rheaSetDivHTMLByName ("pageMaintenance_volt", data.v +" V");
+		rheaSetDivHTMLByName ("pageMaintenance_temperature", pageMaintenance_formatHTMLForTemperature(data));
+		
+		setTimeout(function() {pageMaintenance_updateVoltAndTemperature();}, 1000);
+	})
+	.catch( function(result)
+	{
+		setTimeout(function() {pageMaintenance_updateVoltAndTemperature();}, 1000);
+	});
+}
+
 
 function pageMaintenance_resetDec(iDecounter)
 {
@@ -1860,11 +1917,11 @@ function pageSingleSelection_onChangeGrinder()
 	var win = ui.getWindowByID("pageSingleSelection");
 
 	var macina = 11;
-	if (parseInt(win.getChildByID("pageSingleSelection_cofGrnderChoice").getSelectedOptionValue()) > 0)
-		macina = 12	;
-
 	if (da3.isEspresso())
 	{
+		if (parseInt(win.getChildByID("pageSingleSelection_cofGrnderChoice").getSelectedOptionValue()) > 0)
+			macina = 12	;
+
 		if (da3.isMotorCalibrated(macina)) 
 			um = "gr"; 
 		else
@@ -2193,12 +2250,14 @@ function pageTemperature_show()
 	header_setText("TEMPERATURE");
 	btnBack_show();
 	
+	currentTask = new TaskTemperature();
+	
 }
 
 function pageTemperature_build()
 {
-	var html = "<table border='0' class='elenco'>";
-	
+	var html = "<table border='0' class='elenco'>"
+			   +"	<tr style='height:30px;'><td colspan='3' align='center'><div id='pageTemperature_live'  class='tip'></div></td></tr>";
 	if (da3.isInstant())
 	{
 		//boiler & delta
@@ -2209,11 +2268,14 @@ function pageTemperature_build()
 	{
 		if (da3.isInduzione())
 		{
+			//camera + heater
+			
 			//solo temp heater
 			html += "<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 		else
 		{
+			//espresso + bollitore
 			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
 				   +"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
 				   +"<tr><td>HEATING TIME</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>"
