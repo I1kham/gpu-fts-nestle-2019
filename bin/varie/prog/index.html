@@ -1349,6 +1349,7 @@ function pageMaintenance_refreshOFFList(startIndex)
 
 	rhea.ajax ("getOFFList", { "startIndex":startIndex}).then( function(result)
 	{
+	console.log (result);
 		var data = JSON.parse(result);
 		//console.log (data);
 		

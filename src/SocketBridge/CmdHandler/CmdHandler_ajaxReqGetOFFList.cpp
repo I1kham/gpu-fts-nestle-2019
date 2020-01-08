@@ -124,12 +124,12 @@ void CmdHandler_ajaxReqGetOFFList::onCPUBridgeNotification(socketbridge::Server 
 		
 		//,"codice" : ["8", "7"]
 		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"codice\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, (char)offList[0].codice);
+		rhea::string::append((char*)buffer, sizeOfBuffer, offList[0].codice);
 		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
 			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, (char)offList[i].codice);
+			rhea::string::append((char*)buffer, sizeOfBuffer, offList[i].codice);
 			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
 		}
 		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
