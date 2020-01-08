@@ -73,6 +73,8 @@ namespace cpubridge
 	u8			buildMsg_ricaricaFasciaOrariaFreevend (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_EVAresetPartial(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVoltAndTemp (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getCPUOFFReportDetails(u8 *out_buffer, u8 sizeOfOutBuffer, u8 indexNum, u8 aaa);
+					//indexNum >=0 <=19
 
 
 
@@ -197,6 +199,9 @@ namespace cpubridge
 
 	void		notify_GET_VOLT_AND_TEMP(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 tCamera, u8 tBollitore, u8 tCappuccinatore, u16 voltaggio);
 	void		translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg, u8 *out_tCamera, u8 *out_tBollitore, u8 *out_tCappuccinatore, u16 *out_voltaggio);
+
+	void		notify_GET_OFF_REPORT (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 indexNum, u8 lastIndexNum, const sCPUOffSingleEvent *offs, u8 numOffs, u8 aaa);
+	void		translateNotify_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_lastIndexNum, u8 *out_numOffs, sCPUOffSingleEvent *out, u32 sizeofOut, u8 *out_aaa);
 
 	/***********************************************
 		ask_xxxx
@@ -353,6 +358,10 @@ namespace cpubridge
 
 	void		ask_CPU_GET_VOLT_AND_TEMP(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_GET_VOLT_AND_TEMP
+
+	void		ask_CPU_GET_OFF_REPORT(const sSubscriber &from, u16 handlerID, u8 indexNum, u8 aaa);
+	void		translate_CPU_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_aaa);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_GET_OFF_REPORT
 
 } // namespace cpubridge
 

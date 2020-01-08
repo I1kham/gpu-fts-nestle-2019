@@ -88,69 +88,85 @@
 		<!-- page Maintenance -->
 		<div id="pageMaintenance" class="UIWindow">
 			<div class="UIWindowContent">
-				<table border='0' class='elenco'>
-					<!--<tr><td class='description'>Machine Voltage</td><td>todo...</td></tr>-->
-					<tr>
-						<td style="width:380px">ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
-						<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageMaintenance_selector' data-option='0|GENERAL OPTIONS|1|INSTALLATON|2|OFF LIST' data-onclick='pageMaintenance_onSelector()'></div></td>
 					</tr>
-					
-					<tr>
-						<td>
-							WATER FILTER DECOUNTER<br>
-							<div style="float:left; margin-right:10px">current value:</div>
-							<div id="pageMaintenance_11" style="float:left" class="bigCaption15">00000</div>
-							<div class="clear"></div>
-						</td>
-						<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
-						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></div></td>
-					</tr>
-					<tr id="pageMaintenance_decCofBrew">
-						<td>
-							 COFFEE BREWER DECOUNTER<br>
-							<div style="float:left; margin-right:10px">current value:</div>
-							<div id="pageMaintenance_12" style="float:left" class="bigCaption15">0000</div>
-							<div class="clear"></div>
-						</td>
-						<td><div class="UINumber" id="pageMaintenance_12_cap" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
-						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></div></td>
-					</tr>
-					<tr id="pageMaintenance_decCofGround">
-						<td>
-							COFFEE GROUND DECOUNTER<br>
-							<div style="float:left; margin-right:10px">current value:</div>
-							<div id="pageMaintenance_13" style="float:left" class="bigCaption15">0000</div>
-							<div class="clear"></div>
-						</td>
-						<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
-						<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></div></td>
-					</tr>
-					
-					<tr style="border:none">
-						<td>DISPLAY TEMPERATURES<br><span class="tip">as a CPU message</span></td>
-						<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7112"></div></td>
-					</tr>
-					<tr style="height:30px;">
-						<td></td>
-						<td colspan="2">
-							<div id="pageMaintenance_temperature" class="tip"></div>
-						</td>
-					</tr>
-					
-					<tr id="pageMaintenance_rowDis">
-						<td>DISINSTALLATION</td>
-						<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DISINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></div></td>
-					</tr>					
-					<tr>
-						<td>FIRST INSTALLATION</td>
-						<td colspan="2"><div class="UIOption" data-option="0|YES|1|NO" data-da3="7074"></div></td>
-					</tr>
-					<tr>
-						<td>VOLTAGE</td>
-						<td colspan="2"><div id="pageMaintenance_volt" class="bigCaption15"></div></td>
-					</tr>						
-					<!--<tr><td>OUT of service (last 20 OFF)</td><td>todo...</td></tr>-->
 				</table>
+				<br>
+
+				<div id="pageMaintenance_gs" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
+							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
+						</tr>
+						
+						<tr>
+							<td>
+								WATER FILTER DECOUNTER<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageMaintenance_11" style="float:left" class="bigCaption15">00000</div>
+								<div class="clear"></div>
+							</td>
+							<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></td>
+						</tr>
+						<tr id="pageMaintenance_decCofBrew">
+							<td>
+								 COFFEE BREWER DECOUNTER<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageMaintenance_12" style="float:left" class="bigCaption15">0000</div>
+								<div class="clear"></div>
+							</td>
+							<td><div class="UINumber" id="pageMaintenance_12_cap" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></td>
+						</tr>
+						<tr id="pageMaintenance_decCofGround">
+							<td>
+								COFFEE GROUND DECOUNTER<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageMaintenance_13" style="float:left" class="bigCaption15">0000</div>
+								<div class="clear"></div>
+							</td>
+							<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></td>
+						</tr>
+						
+						<tr style="border:none">
+							<td>DISPLAY TEMPERATURES<br><span class="tip">as a CPU message</span></td>
+							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7112"></div></td>
+						</tr>
+						<tr style="height:30px;">
+							<td></td>
+							<td colspan="2">
+								<div id="pageMaintenance_temperature" class="tip"></div>
+							</td>
+						</tr>
+
+						<tr>
+							<td>VOLTAGE</td>
+							<td colspan="2"><div id="pageMaintenance_volt" class="bigCaption15"></div></td>
+						</tr>						
+					</table>
+				</div>
+				
+				<div id="pageMaintenance_inst" style="display:none">
+					<table border='0' class='elenco'>
+						<tr id="pageMaintenance_rowDis">
+							<td>DISINSTALLATION</td>
+							<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DISINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></td>
+						</tr>					
+						<tr>
+							<td>FIRST INSTALLATION</td>
+							<td colspan="2"><div class="UIOption" data-option="0|YES|1|NO" data-da3="7074"></div></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="pageMaintenance_off" style="display:none">
+					<div id="pageMaintenance_off_content"></div>
+				</div>
 			</div>
 		</div><!-- page Maintenance -->
 		
@@ -1297,28 +1313,109 @@ function pageMaintenance_show()
 	header_setText("MAINTENANCE");
 	btnBack_show();
 	pageMaintenance_getDecountersValues();		
+	pageMaintenance_refreshOFFList(0);
+	pageMaintenance_onSelector();
 	currentTask = new TaskMaintenance();
+}
+
+function pageMaintenance_onSelector()
+{
+	var elemGS = rheaGetElemByID("pageMaintenance_gs");
+	var elemINST = rheaGetElemByID("pageMaintenance_inst");
+	var elemOFF = rheaGetElemByID("pageMaintenance_off");
+	rheaHideElem(elemGS);
+	rheaHideElem(elemINST);
+	rheaHideElem(elemOFF);
+	
+	var win = ui.getWindowByID("pageMaintenance");
+	switch (parseInt(win.getChildByID("pageMaintenance_selector").getSelectedOptionValue()))
+	{
+		case 0: rheaShowElem(elemGS); break;
+		case 1: rheaShowElem(elemINST); break;
+		case 2: rheaShowElem(elemOFF); break;
+	}
+	win.showHideScrollBar();
+}
+
+
+var pageMaintenance_offListHTML="";
+function pageMaintenance_refreshOFFList(startIndex)
+{
+	if (startIndex == 0)
+	{
+		pageMaintenance_offListHTML="";
+		rheaSetDivHTMLByName("pageMaintenance_off_content", "<center><img src='img/animationRound.gif'></center>");
+	}
+
+	rhea.ajax ("getOFFList", { "startIndex":startIndex}).then( function(result)
+	{
+		var data = JSON.parse(result);
+		//console.log (data);
+		
+		if (startIndex == 0)
+		{
+			pageMaintenance_offListHTML = "<table class='dataAudit' align='center' width='80%'>"
+					+"<tr valign='middle'>"
+					+"	<th>DATE yyyy/mm/dd</td>"
+					+"	<th>TIME</td>"
+					+"	<th>OFF CODE</td>"
+					+"	<th>STATUS</td>"
+					+"</tr>";
+		}
+			
+		var numOffs = data.yyyy.length;
+		for (var i=0; i<numOffs; i++)
+		{
+			var rowCss="";
+			var status = "ON";
+			if (data.stato[i] == 0)
+			{
+				status = "OFF";
+				rowCss = " class='rowAllZero'";
+			}
+			pageMaintenance_offListHTML += "<tr valign='middle'" +rowCss +">"
+					+"<td>" +data.yyyy[i] +"/" +data.mm[i] +"/" +data.dd[i] +"</td>"
+					+"<td>" +data.hh[i] +":" +data.min[i] +"</td>"
+					+"<td>" +data.codice[i] +data.tipo[i] +"</td>"
+					+"<td>" +status +"</td>"
+					"+</tr>";
+		}
+		
+		if (data.nextIndex == 0)
+		{
+			pageMaintenance_offListHTML += "</table>";
+			var d = rheaGetElemByID("pageMaintenance_off_content");
+			rheaSetElemHTML(d, pageMaintenance_offListHTML);
+		}
+		else
+			setTimeout (function(){ pageMaintenance_refreshOFFList(data.nextIndex); }, 200);
+	})
+	.catch( function(result)
+	{
+		console.log ("ERRROR");
+		console.log (result);
+	});
 }
 
 function pageMaintenance_formatHTMLForTemperature(jsonObj)
 {
-	var html = "";
+	var html = "Current temperature: ";
 	if (da3.isInstant())
 	{
-		html += "Tboiler=[" +jsonObj.tbol +"&deg;] ";
+		html += "boiler=[" +jsonObj.tbol +"&deg;] ";
 	}
 	else
 	{
 		if (da3.isInduzione())
 		{
-			html += "Theater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
-			html += "Tmilker=[" +jsonObj.tcap +"&deg;]";
+			html += "heater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "milker=[" +jsonObj.tcap +"&deg;]";
 		}
 		else
 		{
-			html += "Tespresso=[" +jsonObj.tbol +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
-			html += "Theater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
-			html += "Tmilker=[" +jsonObj.tcap +"&deg;]";
+			html += "espresso=[" +jsonObj.tbol +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "heater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "milker=[" +jsonObj.tcap +"&deg;]";
 		}
 	}	
 	return html;	

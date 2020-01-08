@@ -21,8 +21,11 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	curCPUMessage = cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;
-	macina.reset();
-	macina.posizioneMacina = 100 +(u16)rhea::randomU32(100);
+	macine[0].reset();
+	macine[0].posizioneMacina = 100 +(u16)rhea::randomU32(100);
+
+	macine[1].reset();
+	macine[1].posizioneMacina = 100 + (u16)rhea::randomU32(100);
 }
 
 //*****************************************************************
@@ -79,7 +82,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
     //u8 msgLen = bufferToSend[2];
 	u32 ct = 0;
 
-	macina.update(rhea::getTimeNowMSec());
+	macine[0].update(rhea::getTimeNowMSec());
+	macine[1].update(rhea::getTimeNowMSec());
 
 	switch (cpuCommand)
 	{
@@ -257,9 +261,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 	case eCPUCommand_getExtendedConfigInfo:
 		{
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
+			const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
 			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
 			out_answer[ct++] = '#';
 			out_answer[ct++] = cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
@@ -499,7 +503,15 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct++] = 0; //lunghezza
 				out_answer[ct++] = (u8)subcommand;
 				out_answer[ct++] = bufferToSend[4]; //macina
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], macina.posizioneMacina);
+
+				if (bufferToSend[4] == 11)
+					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], macine[0].posizioneMacina);
+				else if (bufferToSend[4] == 12)
+					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], macine[1].posizioneMacina);
+				else
+				{
+					DBGBREAK;
+				}
 				ct += 2;
 				out_answer[2] = (u8)ct + 1;
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
@@ -507,13 +519,22 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 
 			case eCPUProgrammingCommand_setMotoreMacina:
-				macina.tipoMovimentoMacina = bufferToSend[5];
+				if (bufferToSend[4] == 11)
+					macine[0].tipoMovimentoMacina = bufferToSend[5];
+				else if (bufferToSend[4] == 12)
+					macine[1].tipoMovimentoMacina = bufferToSend[5];
+				else
+				{
+					DBGBREAK;
+				}
+
+				
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
 				out_answer[ct++] = (u8)subcommand;
 				out_answer[ct++] = bufferToSend[4]; //macina
-				out_answer[ct++] = macina.tipoMovimentoMacina; //tipo di movimento
+				out_answer[ct++] = bufferToSend[5]; //tipo di movimento
 				out_answer[2] = (u8)ct + 1;
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
@@ -547,6 +568,36 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 
 				return true;
+
+			case eCPUProgrammingCommand_getCPUOFFReportDetails:
+				{
+					const u8 startIndex = bufferToSend[4];
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+
+					out_answer[ct++] = startIndex; //start index
+					if (startIndex == 0)
+					{
+						out_answer[ct++] = 6; //last index
+
+						out_answer[ct++] = '7'; out_answer[ct++] = 'A';  out_answer[ct++] = 16; out_answer[ct++] = 32; out_answer[ct++] = 3; out_answer[ct++] = 1; out_answer[ct++] = 20; out_answer[ct++] = 1;
+						out_answer[ct++] = '8'; out_answer[ct++] = ' '; out_answer[ct++] = 18; out_answer[ct++] = 2; out_answer[ct++] = 4; out_answer[ct++] = 1; out_answer[ct++] = 20; out_answer[ct++] = 0;
+					}
+					else
+					{
+						out_answer[ct++] = 19; //last index
+
+						out_answer[ct++] = '9'; out_answer[ct++] = 'B';  out_answer[ct++] = 8; out_answer[ct++] = 49; out_answer[ct++] = 5; out_answer[ct++] = 1; out_answer[ct++] = 20; out_answer[ct++] = 0;
+						out_answer[ct++] = '5'; out_answer[ct++] = 'C'; out_answer[ct++] = 1; out_answer[ct++] = 32; out_answer[ct++] = 6; out_answer[ct++] = 1; out_answer[ct++] = 20; out_answer[ct++] = 1;
+					}
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
+				return true;
+
 			} //switch (subcommand)
 		}
 		break;

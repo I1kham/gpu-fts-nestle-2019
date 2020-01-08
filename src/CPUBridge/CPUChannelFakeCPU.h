@@ -82,7 +82,7 @@ namespace cpubridge
 		u8							curCPUMessageImportanceLevel;
 		u64							timeToSwapCPUMsgMesc;
 		sCleaning					cleaning;
-		sMovimentoMacina			macina;
+		sMovimentoMacina			macine[2];
     };
 
 } // namespace cpubridge

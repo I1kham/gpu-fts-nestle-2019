@@ -58,6 +58,7 @@
 #define		CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU				0x0120
 #define		CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA			0x0121
 #define		CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP				0x0122
+#define		CPUBRIDGE_NOTITFY_GET_OFF_REPORT				0x0123
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -107,6 +108,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA			0x0826
 #define		CPUBRIDGE_SUBSCRIBER_ASK_DIE							0x0827
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP				0x0828
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT					0x0829
 
 namespace cpubridge
 {
@@ -243,6 +245,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_ricaricaFasciaOrariaFV = 0x15,
 		eCPUProgrammingCommand_EVAresetPartial = 0x16,
 		eCPUProgrammingCommand_getVoltAndTemp = 0x17,
+		eCPUProgrammingCommand_getCPUOFFReportDetails = 0x18,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 
@@ -434,6 +437,18 @@ namespace cpubridge
 		eCPUMachineType	machineType;
 		u8				machineModel;
 		u8				isInduzione;		//induzione o bollitore?
+	};
+
+	struct sCPUOffSingleEvent
+	{
+		u8 codice;
+		u8 tipo;
+		u8 ora;
+		u8 minuto;
+		u8 giorno;
+		u8 mese;
+		u8 anno;
+		u8 stato;
 	};
 } // namespace cpubridge
 

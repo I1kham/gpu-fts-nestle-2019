@@ -701,7 +701,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 selNum = 0;
 			eCPUProgrammingCommand_testSelectionDevice m;
 			cpubridge::translate_CPU_TEST_SELECTION(msg, &selNum, &m);
-
+			
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_testSelection(bufferW, sizeof(bufferW), selNum, m);
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
@@ -817,6 +817,37 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT:
+			{
+				u8 indexNum = 0;
+				u8 aaa = 0;
+				cpubridge::translate_CPU_GET_OFF_REPORT(msg, &indexNum, &aaa);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getCPUOFFReportDetails(bufferW, sizeof(bufferW), indexNum, aaa);
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+				{
+					const u8 lastIndexNum = answerBuffer[5];
+					const u8 numOffs = (u8) ((sizeOfAnswerBuffer - 7) / 8);
+					sCPUOffSingleEvent offs[32];
+					u16 ct = 6;
+					for (u8 i = 0; i < numOffs; i++)
+					{
+						offs[i].codice = answerBuffer[ct++];
+						offs[i].tipo = answerBuffer[ct++];
+						offs[i].ora = answerBuffer[ct++];
+						offs[i].minuto = answerBuffer[ct++];
+						offs[i].giorno = answerBuffer[ct++];
+						offs[i].mese = answerBuffer[ct++];
+						offs[i].anno = answerBuffer[ct++];
+						offs[i].stato = answerBuffer[ct++];
+					}
+
+					notify_GET_OFF_REPORT(sub->q, handlerID, logger, indexNum, lastIndexNum, offs, numOffs, aaa);
+				}
+			}
+			break;
 		} //switch
 	} //while
 }

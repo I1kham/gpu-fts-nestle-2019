@@ -21,6 +21,14 @@ namespace rhea
         // copia *src in *dst eventualmente troncando la copia a [sizeOfDest-1] caratteri
         void    copy_s (char *dst, size_t sizeOfDest, const char *src);
 
+				void	append (char *dst, size_t sizeOfDest, const char *src);
+				void	append(char *dst, size_t sizeOfDest, u32 num, u8 minNumOfDigit=0);
+		inline	void	append(char *dst, size_t sizeOfDest, u16 num)								{ append(dst, sizeOfDest, (u32)num); }
+		inline	void	append(char *dst, size_t sizeOfDest, u8 num)								{ append(dst, sizeOfDest, (u32)num); }
+				void	append(char *dst, size_t sizeOfDest, i32 num, u8 minNumOfDigit = 0);
+		inline	void	append(char *dst, size_t sizeOfDest, i16 num)								{ append(dst, sizeOfDest, (i32)num); }
+		inline	void	append(char *dst, size_t sizeOfDest, i8 num)								{ append(dst, sizeOfDest, (i32)num); }
+				void	append(char *dst, size_t sizeOfDest, char c);
 
 		/*==============================================================================
 		 * formattazione di vari tipi in stringa

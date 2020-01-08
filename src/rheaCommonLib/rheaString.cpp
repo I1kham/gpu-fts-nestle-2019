@@ -60,3 +60,42 @@ void string::copy_s (char *dst, size_t sizeOfDest, const char *src)
     dst[srcLen] = 0x00;
 }
 
+
+//*********************************************************
+void string::append(char *dst, size_t sizeOfDest, const char *src)
+{
+	strcat_s(dst, sizeOfDest, src);
+}
+
+//*********************************************************
+void string::append(char *dst, size_t sizeOfDest, u32 num, u8 minNumOfDigit)
+{ 
+	char s[16];
+	if (minNumOfDigit==0)	
+		sprintf_s(s, sizeof(s), "%d", num); 
+	else
+		sprintf_s(s, sizeof(s), "%0*d", minNumOfDigit, num);
+	
+	string::append(dst, sizeOfDest, s); 
+}
+
+//*********************************************************
+void string::append(char *dst, size_t sizeOfDest, i32 num, u8 minNumOfDigit)
+{
+	char s[16];
+	if (minNumOfDigit == 0)
+		sprintf_s(s, sizeof(s), "%d", num);
+	else
+		sprintf_s(s, sizeof(s), "%0*d", minNumOfDigit, num);
+
+	string::append(dst, sizeOfDest, s);
+}
+
+//*********************************************************
+void string::append(char *dst, size_t sizeOfDest, char c)
+{
+	char s[2];
+	s[0] = c;
+	s[1] = 0;
+	string::append(dst, sizeOfDest, s);
+}

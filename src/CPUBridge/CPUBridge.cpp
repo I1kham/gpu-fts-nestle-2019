@@ -311,6 +311,14 @@ u8 cpubridge::buildMsg_getVoltAndTemp(u8 *out_buffer, u8 sizeOfOutBuffer)
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_getCPUOFFReportDetails(u8 *out_buffer, u8 sizeOfOutBuffer, u8 indexNum, u8 aaa)
+{
+	u8 optionalData[4];
+	optionalData[0] = indexNum;
+	return buildMsg_Programming(eCPUProgrammingCommand_getCPUOFFReportDetails, optionalData, 1, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[4];
@@ -1163,6 +1171,67 @@ void cpubridge::translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg,
 	*out_voltaggio = rhea::utils::bufferReadU16(&p[3]);
 }
 
+//***************************************************
+void cpubridge::notify_GET_OFF_REPORT(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 indexNum, u8 lastIndexNum, const sCPUOffSingleEvent *offs, u8 numOffs, u8 aaa)
+{
+	if (numOffs == 0)
+		return;
+
+	logger->log("notify_GET_OFF_REPORT\n");
+
+	u8 buffer[256];
+	u16 ct = 0;
+	buffer[ct++] = indexNum;
+	buffer[ct++] = lastIndexNum;
+	buffer[ct++] = numOffs;
+
+	for (u8 i = 0; i < numOffs; i++)
+	{
+		buffer[ct++] = offs[i].codice;
+		buffer[ct++] = offs[i].tipo;
+		buffer[ct++] = offs[i].ora;
+		buffer[ct++] = offs[i].minuto;
+		buffer[ct++] = offs[i].giorno;
+		buffer[ct++] = offs[i].mese;
+		buffer[ct++] = offs[i].anno;
+		buffer[ct++] = offs[i].stato;
+	}
+
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_OFF_REPORT, handlerID, buffer, ct);
+}
+
+//***************************************************
+void cpubridge::translateNotify_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_lastIndexNum, u8 *out_numOffs, sCPUOffSingleEvent *out, u32 sizeofOut, u8 *out_aaa)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_GET_OFF_REPORT);
+	const u8 *p = (const u8*)msg.buffer;
+	u16 ct = 0;
+	*out_indexNum = p[ct++];
+	*out_lastIndexNum = p[ct++];
+	*out_numOffs = p[ct++];
+
+	u16 nMaxInOutBuffer = sizeofOut / sizeof(sCPUOffSingleEvent);
+	if (nMaxInOutBuffer > 0xff)
+		nMaxInOutBuffer = 0xff;
+
+	if (*out_numOffs > nMaxInOutBuffer)
+		*out_numOffs = (u8)nMaxInOutBuffer;
+
+	for (u8 i = 0; i < (*out_numOffs); i++)
+	{
+		out[i].codice = p[ct++];
+		out[i].tipo = p[ct++];
+		out[i].ora = p[ct++];
+		out[i].minuto = p[ct++];
+		out[i].giorno = p[ct++];
+		out[i].mese = p[ct++];
+		out[i].anno = p[ct++];
+		out[i].stato = p[ct++];
+	}
+}
+
+
+
 
 
 
@@ -1486,6 +1555,22 @@ void cpubridge::ask_CPU_GET_DATE(const sSubscriber &from, u16 handlerID)
 void cpubridge::ask_CPU_GET_VOLT_AND_TEMP(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_OFF_REPORT(const sSubscriber &from, u16 handlerID, u8 indexNum, u8 aaa)
+{
+	u8 otherData[4];
+	otherData[0] = indexNum;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT, handlerID, otherData, 1);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_aaa)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_indexNum = p[0];
 }
 
 
