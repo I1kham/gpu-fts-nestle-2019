@@ -159,7 +159,6 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_b
 {
 	u8 optionalData[8];
 	u8 ct = 0;
-
 	optionalData[ct++] = keyPressed;
 	optionalData[ct++] = 0;
 	optionalData[ct++] = 0;
@@ -323,6 +322,13 @@ u8 cpubridge::buildMsg_getLastFluxInformation(u8 *out_buffer, u8 sizeOfOutBuffer
 {
 	return buildMsg_Programming(eCPUProgrammingCommand_getLastFluxInformation, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
+
+//***************************************************
+u8 cpubridge::buildMsg_getCPUStringVersionAndModel(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getStringVersionAndModel, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
 
 
 //***************************************************
@@ -1260,8 +1266,6 @@ void cpubridge::translateNotify_GET_LAST_FLUX_INFORMATION(const rhea::thread::sM
 
 
 
-
-
 //***************************************************
 void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
 {
@@ -1603,6 +1607,12 @@ void cpubridge::translate_CPU_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *
 void cpubridge::ask_CPU_GET_LAST_FLUX_INFORMATION(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_FLUX_INFORMATION, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
 }
 
 

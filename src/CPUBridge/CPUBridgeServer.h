@@ -146,6 +146,9 @@ namespace cpubridge
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;
 		sRegolazioneAperturaMacina regolazioneAperturaMacina;
+
+		u8						cpuStringModelAndVersion[68];
+		u64						showCPUStringModelAndVersionUntil_msec;
     };
 
 } // namespace cpubridge

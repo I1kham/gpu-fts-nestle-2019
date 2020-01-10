@@ -76,6 +76,7 @@ namespace cpubridge
 	u8			buildMsg_getCPUOFFReportDetails(u8 *out_buffer, u8 sizeOfOutBuffer, u8 indexNum);
 					//indexNum >=0 <=19
 	u8			buildMsg_getLastFluxInformation(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getCPUStringVersionAndModel(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -206,6 +207,7 @@ namespace cpubridge
 
 	void		notify_GET_LAST_FLUX_INFORMATION (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 lastFlux, u16 lastGrinderPosition);
 	void		translateNotify_GET_LAST_FLUX_INFORMATION(const rhea::thread::sMsg &msg, u16 *out_lastFlux, u16 *out_lastGrinderPosition);
+
 
 	/***********************************************
 		ask_xxxx
@@ -369,6 +371,12 @@ namespace cpubridge
 
 	void		ask_CPU_GET_LAST_FLUX_INFORMATION(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_GET_LAST_FLUX_INFORMATION
+
+	void		ask_CPU_SHOW_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge non notificherà alcunchè. Il risultato però è che per i prossimi 7 secondi, il messaggio
+					//che la CPU invierà ai suoi client sarà il modello e la versione
+
+
 
 } // namespace cpubridge
 

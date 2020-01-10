@@ -111,6 +111,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP				0x0828
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT					0x0829
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_FLUX_INFORMATION		0x082A
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL		0x082B
 
 namespace cpubridge
 {
@@ -250,6 +251,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_getCPUOFFReportDetails = 0x18,
 		//CPU EVENTS report details = 0x19 non implementato
 		eCPUProgrammingCommand_getLastFluxInformation = 0x1A,
+		eCPUProgrammingCommand_getStringVersionAndModel = 0x1B,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

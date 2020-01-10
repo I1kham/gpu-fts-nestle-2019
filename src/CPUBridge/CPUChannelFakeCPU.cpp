@@ -261,9 +261,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 	case eCPUCommand_getExtendedConfigInfo:
 		{
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
+			const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
 			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
 			out_answer[ct++] = '#';
 			out_answer[ct++] = cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
@@ -597,6 +597,31 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					*in_out_sizeOfAnswer = out_answer[2];
 				}
 				return true;
+
+			case eCPUProgrammingCommand_getStringVersionAndModel:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+
+				out_answer[ct++] = 0; //is unicode
+
+				memset(&out_answer[ct], 0, 32);
+				{
+					u8 i = ct;
+					out_answer[i++] = 'V'; out_answer[i++] = 'E'; out_answer[i++] = 'R';
+					out_answer[i++] = ' '; 
+					out_answer[i++] = 'A'; out_answer[i++] = 'N'; out_answer[i++] = 'D';
+					out_answer[i++] = ' '; 
+					out_answer[i++] = 'M'; out_answer[i++] = 'O'; out_answer[i++] = 'D'; out_answer[i++] = 'E'; out_answer[i++] = 'L';
+				}
+				ct += 32;
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
 
 			} //switch (subcommand)
 		}

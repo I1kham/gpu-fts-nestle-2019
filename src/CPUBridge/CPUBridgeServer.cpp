@@ -23,6 +23,8 @@ Server::Server()
 	runningSel.sub = NULL;
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.status = eRunningSelStatus_finished_OK;
+
+	showCPUStringModelAndVersionUntil_msec = 0;
 }
 
 //***************************************************
@@ -862,7 +864,32 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getCPUStringVersionAndModel(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				{
+					if (sizeOfAnswerBuffer > 30)
+					{
+						bool isUnicode = false;
+						if (answerBuffer[4] == 1)
+							isUnicode = true;
 
+						memset(cpuStringModelAndVersion, 0, sizeof(cpuStringModelAndVersion));
+
+						u32 len = 32;
+						if (isUnicode)
+							len = 64;
+						memcpy(cpuStringModelAndVersion, &answerBuffer[5], len);
+
+						//per i prossimi 7 secondi, nella risposta al comando B inserirò di default il messaggio con la versione e modello
+						showCPUStringModelAndVersionUntil_msec = rhea::getTimeNowMSec() + 7000;
+					}
+				}
+			}
+			break;
 
 		} //switch
 	} //while
@@ -2502,7 +2529,31 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		cpuStatus.LCDMsg.importanceLevel = 0xff;
 
 	
-	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato...
+	//Se sono nella modalità "mostra la stringa con cpu model and version" per tot secondi, faccio l'override del messaggio di CPU e
+	//spedisco sempre e comunque il messagio con modello e versione
+	if (showCPUStringModelAndVersionUntil_msec)
+	{
+		msgLCDct = 0;
+		if (answer[1] == 'B')
+		{
+			//versione ascii
+			for (u8 i = 0; i < 32; i++)
+				msgLCD[msgLCDct++] = cpuStringModelAndVersion[i];
+		}
+		else
+		{
+			//versione unicode
+			for (u8 i = 0; i < 32; i++)
+				msgLCD[msgLCDct++] = (u16)cpuStringModelAndVersion[i*2] + (u16)cpuStringModelAndVersion[i*2 + 1] * 256;
+		}
+		msgLCD[msgLCDct] = 0;
+		cpuStatus.LCDMsg.importanceLevel = 0xff;
+
+		if (rhea::getTimeNowMSec() >= showCPUStringModelAndVersionUntil_msec)
+			showCPUStringModelAndVersionUntil_msec = 0;
+	}
+
+	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato, devo notificare il nuovo messaggio a tutti
 	msgLCDct *= 2;
 	if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCDct != lastCPUMsgLen || memcmp(msgLCD, lastCPUMsg, msgLCDct) != 0)
 	{
@@ -2544,7 +2595,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			}
 		}
 
-		//noticico tutti
+		//notifico tutti
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
 			notify_CPU_NEW_LCD_MESSAGE (subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
 	}
