@@ -59,6 +59,7 @@
 #define		CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA			0x0121
 #define		CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP				0x0122
 #define		CPUBRIDGE_NOTITFY_GET_OFF_REPORT				0x0123
+#define		CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION		0x0124
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -109,6 +110,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_DIE							0x0827
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP				0x0828
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT					0x0829
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_FLUX_INFORMATION		0x082A
 
 namespace cpubridge
 {
@@ -246,6 +248,8 @@ namespace cpubridge
 		eCPUProgrammingCommand_EVAresetPartial = 0x16,
 		eCPUProgrammingCommand_getVoltAndTemp = 0x17,
 		eCPUProgrammingCommand_getCPUOFFReportDetails = 0x18,
+		//CPU EVENTS report details = 0x19 non implementato
+		eCPUProgrammingCommand_getLastFluxInformation = 0x1A,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

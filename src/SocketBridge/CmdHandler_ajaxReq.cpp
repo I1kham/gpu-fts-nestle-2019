@@ -31,6 +31,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetVoltageAndTemp.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetOFFList.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.h"
 
 using namespace socketbridge;
 
@@ -94,6 +95,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqIsManualInstalled);
 	CHECK(CmdHandler_ajaxReqGetVoltageAndTemp);
 	CHECK(CmdHandler_ajaxReqGetOFFList);
+	CHECK(CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo);
 
 #undef CHECK
     return NULL;

@@ -820,11 +820,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT:
 			{
 				u8 indexNum = 0;
-				u8 aaa = 0;
-				cpubridge::translate_CPU_GET_OFF_REPORT(msg, &indexNum, &aaa);
+				cpubridge::translate_CPU_GET_OFF_REPORT(msg, &indexNum);
 
 				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_getCPUOFFReportDetails(bufferW, sizeof(bufferW), indexNum, aaa);
+				const u16 nBytesToSend = cpubridge::buildMsg_getCPUOFFReportDetails(bufferW, sizeof(bufferW), indexNum);
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 				{
@@ -844,10 +843,27 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						offs[i].stato = answerBuffer[ct++];
 					}
 
-					notify_GET_OFF_REPORT(sub->q, handlerID, logger, indexNum, lastIndexNum, offs, numOffs, aaa);
+					notify_GET_OFF_REPORT(sub->q, handlerID, logger, indexNum, lastIndexNum, offs, numOffs);
 				}
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_FLUX_INFORMATION:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_getLastFluxInformation(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				{
+					const u16 lastFlux = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4]);
+					const u16 lastGrinderPos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[6]);
+					notify_GET_LAST_FLUX_INFORMATION(sub->q, handlerID, logger, lastFlux, lastGrinderPos);
+				}
+			}
+			break;
+
+
+
 		} //switch
 	} //while
 }
@@ -2121,9 +2137,7 @@ void Server::priv_enterState_normal()
 void Server::priv_handleState_normal()
 {
 	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 250;
-	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 2;
-	//const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 50;
-	//const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 15;
+	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 5;
 	u8 nRetry = 0;
 
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;

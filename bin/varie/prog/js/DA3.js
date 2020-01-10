@@ -53,6 +53,11 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	//overload di machineType e modello
 	theDa3.da3_original[9465] = theDa3.da3_current[9465] = theDa3.machineType;
 	theDa3.da3_original[9466] = theDa3.da3_current[9466] = theDa3.machineModel;
+	
+	//se "varigrind enable auto regolation" == test, lo metto == no
+	if (theDa3.read8(7590) == 2) theDa3.write8(7590, 0);
+	if (theDa3.read8(7686) == 2) theDa3.write8(7686, 0);
+	
 	onDA3Loaded(1);
 	
 	

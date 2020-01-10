@@ -566,7 +566,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pagePayment_selector' data-option='0|GENERAL<br>OPTIONS|1|MDB|2|MACHINE ID|3|RFID CARD' data-onclick='pagePayment_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pagePayment_selector' data-option='0|GENERAL OPTIONS|1|MDB|2|MACHINE ID|3|RFID CARD' data-onclick='pagePayment_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -740,14 +740,42 @@
 							</td>
 							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div></td>
 						</tr>
-						<tr><td>REFERRING SEL. NUM</td><td colspan="2"><div class="UINumber" data-numfigures="2" data-max="12" data-da3="7588" data-da3bit="8"></div></td></tr>
-						<tr><td>ENABLE REG. GRAN.</td><td colspan="2"><div class='UIOption' data-option='0|NO|1|YES|2|TEST' data-da3='7590' data-da3bit='8'></div></td></tr>
-						<tr><td>REFERRING FLUX</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div></td></tr>
-						<tr><td>NUM OF SAMPLINGS</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="100" data-da3="7594" data-da3bit="16"></div></td></tr>
-						<tr><td>REFERRING POSITION</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7596" data-da3bit="16"></div></td></tr>
-					</table>				
+						<tr>
+							<td>ENABLE AUTO<br>REGULATION</td>
+							<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
+						</tr>
+					</table>
+					<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
+						<tr>
+							<td style='width:280px'>REFERRING SELECTION<br>NUMBER</td>
+							<td style='width:320px'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7588" data-da3bit="8"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
+						</tr>
+						<tr>
+							<td>NUMBER OF<br>SAMPLES</td>
+							<td><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>REFERRING FLUX</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div></td>
+							<td align="right">
+								<div id='pageDevices_vgrind1_lastFlux_caption' class="tip">Last flux: please click on <b>RUN SELECTION</b></div>
+								<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastFlux(1)"></div>
+							</td>
+						</tr>
+						<tr>
+							<td>REFERRING POSITION</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7596" data-da3bit="16"></div></td>
+							<td align="right">
+								<div id='pageDevices_vgrind1_lastPos_caption' class="tip">Last position: please click on <b>RUN SELECTION</b></div>
+								<div id='pageDevices_vgrind1_lastPos_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastPosition(1)"></div>
+							</td>
+						</tr>
+					</table>
 				</div>
 				
+				<!--- vgrind 2-->
 				<div id="pageDevices_vgrind2" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
@@ -764,11 +792,35 @@
 							</td>
 							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div></td>
 						</tr>
-						<tr><td>REFERRING SEL. NUM</td><td colspan="2"><div class="UINumber" data-numfigures="2" data-max="12" data-da3="7684" data-da3bit="8"></div></td></tr>
-						<tr><td>HABIL. REG. GRAN.</td><td colspan="2"><div class='UIOption' data-option='0|NO|1|YES|2|TEST' data-da3='7686' data-da3bit='8'></div></td></tr>
-						<tr><td>REFERRING FLUX</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div></td></tr>
-						<tr><td>NUM OF SAMPLINGS</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="100" data-da3="7690" data-da3bit="16"></div></td></tr>
-						<tr><td>REFERRING POSITION</td><td colspan="2"><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7692" data-da3bit="16"></div></td></tr>
+						<tr><td>ENABLE AUTO<br>REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
+					</table>
+					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>						
+						<tr>
+							<td style='width:280px'>REFERRING SELECTION<br>NUMBER</td>
+							<td style='width:320px'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7684" data-da3bit="8"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
+						</tr>
+						<tr>
+							<td>NUMBER OF<br>SAMPLES</td>
+							<td><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7690" data-da3bit="16"></div></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>REFERRING FLUX</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div></td>
+							<td align="right">
+								<div id='pageDevices_vgrind2_lastFlux_caption' class="tip">Last flux: please click on <b>RUN SELECTION</b></div>
+								<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastFlux(2)"></div>
+							</td>
+						</tr>
+						<tr>
+							<td>REFERRING POSITION</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7692" data-da3bit="16"></div></td>
+							<td align="right">
+								<div id='pageDevices_vgrind2_lastPos_caption' class="tip">Last position: please click on <b>RUN SELECTION</b></div>
+								<div id='pageDevices_vgrind2_lastPos_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastPosition(2)"></div>
+							</td>
+						</tr>
 					</table>								
 				</div>
 				
@@ -1349,7 +1401,6 @@ function pageMaintenance_refreshOFFList(startIndex)
 
 	rhea.ajax ("getOFFList", { "startIndex":startIndex}).then( function(result)
 	{
-	console.log (result);
 		var data = JSON.parse(result);
 		//console.log (data);
 		
@@ -2169,9 +2220,10 @@ function pageSingleSelection_build()
 
 
 		rowID = "pageSingleSelection_M_" +i;
+		timeID = "pageSingleSelection_M_t" +i;
 		htmlM +="<tr id='" +rowID +"'>"
 				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+31) +")'></div></td>"
-				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
+				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
 				+"<td align='center'><div class='UIOption' data-option='1|LOW|2|MED|3|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
 			+"</tr>";		
@@ -2211,7 +2263,7 @@ function pageSingleSelection_showPartialFull (win, bPartial)
 		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
 		{
 			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_W_t" +i, "pageSingleSelection_W_" +i);
-			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_W_t" +i, "pageSingleSelection_M_" +i);
+			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_M_t" +i, "pageSingleSelection_M_" +i);
 		}
 	}
 	else
@@ -2659,13 +2711,115 @@ function pageDevices_show()
 			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
 			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
 		}
+		
+		pageDevices_vgrind_setLastFlux(1, -1);
+		pageDevices_vgrind_setLastPos(1, -1);
+		pageDevices_vgrind_setLastFlux(2, -1);
+		pageDevices_vgrind_setLastPos(2, -1);
 	
 	}
 
 	pageDevices_onSelector();
+	pageDevices_onEnableAuto(1);
+	pageDevices_onEnableAuto(2);
 	header_setText("DEVICES");
 	btnBack_show();
 	currentTask = new TaskDevices();
+}
+
+function pageDevices_vgrind_runSelection(whichVG)
+{
+	var win = ui.getWindowByID("pageDevices");
+	var selNum = parseInt(win.getChildByID("pageDevices_vgrind" +whichVG +"_selNum").getValue())
+	currentTask.runSelection(selNum);
+}
+
+function pageDevices_vgrind_runSelection_onFinish()
+{
+	//console.log ("pageDevices_vgrind_runSelection_onFinished");
+	
+	//chiedo le info relativamente all'ultimo flusso e posizione
+	rhea.ajax ("getLastFluxInfo", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+		pageDevices_vgrind_setLastFlux(1, data.flux);
+		pageDevices_vgrind_setLastPos (1, data.grinderPos);
+		pageDevices_vgrind_runSelection_onFinish2();
+	})
+	.catch( function(result)
+	{
+		pageDevices_vgrind_runSelection_onFinish2();
+	});	
+}
+
+function pageDevices_vgrind_runSelection_onFinish2()
+{
+	pleaseWait_hide();
+	currentTask.enterQueryMacinePos();
+}
+
+var pageDevices_vgrind_lastFlux = [0, -1, -1];
+function pageDevices_vgrind_setLastFlux(whichVG, value)
+{
+	pageDevices_vgrind_lastFlux[whichVG] = value;
+	
+	var elemBtnUse = rheaGetElemByID ("pageDevices_vgrind" +whichVG +"_lastFlux_btnUse");
+	if (value < 0)
+	{
+		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastFlux_caption", "Last flux: please click on <b>RUN SELECTION</b>");
+		rheaHideElem (elemBtnUse);
+	}
+	else
+	{
+		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastFlux_caption", "Last flux: " +value);
+		rheaShowElem (elemBtnUse);
+	}
+}
+
+function pageDevices_vgrind_useLastFlux(whichVG)
+{
+}
+
+var pageDevices_vgrind_lastPos = [0, -1, -1];
+function pageDevices_vgrind_setLastPos(whichVG, value)
+{
+	pageDevices_vgrind_lastPos[whichVG] = value;
+	
+	var elemBtnUse = rheaGetElemByID ("pageDevices_vgrind" +whichVG +"_lastPos_btnUse");
+	if (value < 0)
+	{
+		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastPos_caption", "Last position: please click on <b>RUN SELECTION</b>");
+		rheaHideElem (elemBtnUse);
+	}
+	else
+	{
+		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastPos_caption", "Last position: " +value);
+		rheaShowElem (elemBtnUse);
+	}
+}
+
+function pageDevices_vgrind_useLastPosition(whichVG)
+{
+}
+
+
+
+
+function pageDevices_onEnableAuto(whichVG)
+{
+	var win = ui.getWindowByID("pageDevices");
+	
+	var tableName = "pageDevices_vgrind" +whichVG +"_params";
+	var elemTable = rheaGetElemByID(tableName);
+	
+	var selectorName = "pageDevices_vgrind" +whichVG +"_selector";
+	switch (parseInt(win.getChildByID(selectorName).getSelectedOptionValue()))
+	{
+		default: rheaHideElem(elemTable); break;
+		case 1:  rheaSetDisplayMode(elemTable, "table"); break;
+	}
+	
+	win.showHideScrollBar();
 }
 
 function pageDevices_onSelector()
@@ -2689,7 +2843,7 @@ function pageDevices_onSelector()
 		case 3:  rheaShowElem(elem3); break;
 	}
 	
-	ui.getWindowByID("pageDevices").showHideScrollBar();
+	win.showHideScrollBar();
 }
 
 function pageDevices_setVGrind (macina1o2)

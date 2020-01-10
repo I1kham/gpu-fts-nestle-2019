@@ -241,7 +241,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			//98 btyes composti da 49 prezzi ciascuno da 2 bytes (byte basso byte alto)
 			for (u8 i = 0; i < 49; i++)
 			{
-				out_answer[ct++] = (i + 1);
+				out_answer[ct++] = (i+1);
 				out_answer[ct++] = 0;
 			}
 
@@ -261,9 +261,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 	case eCPUCommand_getExtendedConfigInfo:
 		{
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
 			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
+			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
 			out_answer[ct++] = '#';
 			out_answer[ct++] = cpuCommand;
 			out_answer[ct++] = 0; //lunghezza

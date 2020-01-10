@@ -631,7 +631,7 @@ TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
 			if (timeElapsedMSec < 2000)
 				return;
 			//monitoro lo stato di cpu per capire quando esce da 21 e terminare
-			if (this.cpuStatus != 21 && this.cpuStatus != 101) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
+			if (this.cpuStatus != 21 && this.cpuStatus != 3 && this.cpuStatus != 101 && this.cpuStatus != 105) //21==eVMCState_TEST_ATTUATORE_SELEZIONE
 				pageSingleSelection_test_onFinish();
 		}
 	}
@@ -782,6 +782,7 @@ function TaskDevices()
 	this.firstTimeMacina1 = 1;
 	this.firstTimeMacina2 = 1;
 	this.cpuStatus = 0;
+	this.selNum = 0;
 	this.enterQueryMacinePos();
 }
 
@@ -800,9 +801,39 @@ TaskDevices.prototype.enterSetMacinaPos = function(macina_1o2, targetValue)
 	rhea.sendStartPosizionamentoMacina(macina_1o2, targetValue);
 }
 
+TaskDevices.prototype.runSelection = function(selNum)
+{	
+	this.what = 2;
+	this.fase = 0;
+	this.selNum = selNum;
+	pleaseWait_show();
+}
+
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
 TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
-TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)							{}
+TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
+{
+	if (this.what == 1)
+	{
+		//siamo in regolazione apertura vgrind
+		if (this.fase > 0)
+		{
+			pleaseWait_btn1_hide();
+			
+			//Attivo la macina
+			rhea.ajax ("runMotor", { "m":10+this.macina, "d":50, "n":1, "p":0}).then( function(result)
+			{
+				setTimeout ( function() {pleaseWait_btn1_show();}, 5000);
+			})
+			.catch( function(result)
+			{
+				console.log (result);
+				pleaseWait_btn1_show();
+			});								
+		}
+		
+	}
+}
 TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)							{}
 TaskDevices.prototype.onExit			 = function(bSave)						{ return bSave; }
 
@@ -811,8 +842,40 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 {
 	if (this.what == 0)
 		this.priv_handleRichiestaPosizioneMacina();
-	else
+	else if (this.what == 1)
 		this.priv_handleRegolazionePosizioneMacina();
+	else if (this.what == 2)
+		this.priv_handleRunSelection(timeNowMsec);
+}
+
+TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
+{
+	if (this.fase == 0)
+	{
+		this.fase = 1;
+		this.timeStartedMSec = timeNowMsec;
+		
+		console.log ("TaskDevices::ajax::testSelection(" +this.selNum +")");
+		rhea.ajax ("testSelection", {"s":this.selNum, "d":0} ).then( function(result)
+		{
+			if (result != "OK")
+				pageDevices_vgrind_runSelection_onFinish();
+		})
+		.catch( function(result)
+		{
+			pageDevices_vgrind_runSelection_onFinish();
+		});			
+	}
+	else
+	{
+		//aspetto almeno un paio di secondi
+		if ((timeNowMsec - this.timeStartedMSec) < 2000)
+			return;
+		//monitoro lo stato di cpu per capire quando esce da 3 (prep bevanda)
+		if (this.cpuStatus != 3 && this.cpuStatus != 101 && this.cpuStatus != 105)
+			pageDevices_vgrind_runSelection_onFinish();
+	}
+	
 }
 
 TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
@@ -863,7 +926,14 @@ TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
 {
 	switch (this.fase)
 	{
-		case 0: this.fase=1; break;
+		case 0: 
+			this.fase=1; 
+			
+			pleaseWait_freeText_setText("While the varigrind is opening/closing, you can press RUN GRINDER to run the grinder in order to facilitate the operation.");
+			pleaseWait_freeText_show();
+			pleaseWait_btn1_setText("RUN GRINDER");
+			pleaseWait_btn1_show();
+			break;
 		case 1: this.fase=2; break;
 		case 2: 
 			this.priv_queryMacina(this.macina);

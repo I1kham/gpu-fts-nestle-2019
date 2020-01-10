@@ -38,7 +38,7 @@ void CmdHandler_ajaxReqGetOFFList::passDownRequestToCPUBridge(cpubridge::sSubscr
 	if (rhea::json::parse(params, ajaxReqGetOFFList_jsonTrapFunction, &data))
 	{
 		if (data.startIndex != 0xff)
-			cpubridge::ask_CPU_GET_OFF_REPORT(from, getHandlerID(), data.startIndex, 0);
+			cpubridge::ask_CPU_GET_OFF_REPORT(from, getHandlerID(), data.startIndex);
 	}
 }
 
@@ -48,9 +48,8 @@ void CmdHandler_ajaxReqGetOFFList::onCPUBridgeNotification(socketbridge::Server 
 	u8 lastIndex = 0;
 	u8 startIndex = 0;
 	u8 numOffs = 0;
-	u8 aaa = 0;
 	cpubridge::sCPUOffSingleEvent offList[32];
-	cpubridge::translateNotify_GET_OFF_REPORT(msgFromCPUBridge, &startIndex, &lastIndex, &numOffs, offList, sizeof(offList), &aaa);
+	cpubridge::translateNotify_GET_OFF_REPORT(msgFromCPUBridge, &startIndex, &lastIndex, &numOffs, offList, sizeof(offList));
 
 	if (numOffs > 0)
 	{

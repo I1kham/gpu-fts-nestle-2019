@@ -311,12 +311,19 @@ u8 cpubridge::buildMsg_getVoltAndTemp(u8 *out_buffer, u8 sizeOfOutBuffer)
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_getCPUOFFReportDetails(u8 *out_buffer, u8 sizeOfOutBuffer, u8 indexNum, u8 aaa)
+u8 cpubridge::buildMsg_getCPUOFFReportDetails(u8 *out_buffer, u8 sizeOfOutBuffer, u8 indexNum)
 {
 	u8 optionalData[4];
 	optionalData[0] = indexNum;
 	return buildMsg_Programming(eCPUProgrammingCommand_getCPUOFFReportDetails, optionalData, 1, out_buffer, sizeOfOutBuffer);
 }
+
+//***************************************************
+u8 cpubridge::buildMsg_getLastFluxInformation(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getLastFluxInformation, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -1172,7 +1179,7 @@ void cpubridge::translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg,
 }
 
 //***************************************************
-void cpubridge::notify_GET_OFF_REPORT(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 indexNum, u8 lastIndexNum, const sCPUOffSingleEvent *offs, u8 numOffs, u8 aaa)
+void cpubridge::notify_GET_OFF_REPORT(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 indexNum, u8 lastIndexNum, const sCPUOffSingleEvent *offs, u8 numOffs)
 {
 	if (numOffs == 0)
 		return;
@@ -1201,7 +1208,7 @@ void cpubridge::notify_GET_OFF_REPORT(const sSubscriber &to, u16 handlerID, rhea
 }
 
 //***************************************************
-void cpubridge::translateNotify_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_lastIndexNum, u8 *out_numOffs, sCPUOffSingleEvent *out, u32 sizeofOut, u8 *out_aaa)
+void cpubridge::translateNotify_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_lastIndexNum, u8 *out_numOffs, sCPUOffSingleEvent *out, u32 sizeofOut)
 {
 	assert(msg.what == CPUBRIDGE_NOTITFY_GET_OFF_REPORT);
 	const u8 *p = (const u8*)msg.buffer;
@@ -1230,7 +1237,26 @@ void cpubridge::translateNotify_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8
 	}
 }
 
+//***************************************************
+void cpubridge::notify_GET_LAST_FLUX_INFORMATION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 lastFlux, u16 lastGrinderPosition)
+{
+	logger->log("notify_GET_LAST_FLUX_INFORMATION\n");
 
+	u8 buffer[4];
+	rhea::utils::bufferWriteU16(&buffer[0], lastFlux);
+	rhea::utils::bufferWriteU16(&buffer[2], lastGrinderPosition);
+
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION, handlerID, buffer, 4);
+}
+
+//***************************************************
+void cpubridge::translateNotify_GET_LAST_FLUX_INFORMATION(const rhea::thread::sMsg &msg, u16 *out_lastFlux, u16 *out_lastGrinderPosition)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_lastFlux = rhea::utils::bufferReadU16(&p[0]);
+	*out_lastGrinderPosition = rhea::utils::bufferReadU16(&p[2]);
+}
 
 
 
@@ -1558,7 +1584,7 @@ void cpubridge::ask_CPU_GET_VOLT_AND_TEMP(const sSubscriber &from, u16 handlerID
 }
 
 //***************************************************
-void cpubridge::ask_CPU_GET_OFF_REPORT(const sSubscriber &from, u16 handlerID, u8 indexNum, u8 aaa)
+void cpubridge::ask_CPU_GET_OFF_REPORT(const sSubscriber &from, u16 handlerID, u8 indexNum)
 {
 	u8 otherData[4];
 	otherData[0] = indexNum;
@@ -1566,11 +1592,17 @@ void cpubridge::ask_CPU_GET_OFF_REPORT(const sSubscriber &from, u16 handlerID, u
 }
 
 //***************************************************
-void cpubridge::translate_CPU_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_aaa)
+void cpubridge::translate_CPU_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_indexNum = p[0];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_LAST_FLUX_INFORMATION(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_FLUX_INFORMATION, handlerID, NULL, 0);
 }
 
 
