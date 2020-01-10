@@ -706,7 +706,7 @@
 						<td><div class='UIOptionSmall' id='pageDevices_selector' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|OTHER' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
-				<br>
+				<div style='height:5px'></div>
 			
 				<div id="pageDevices_general" style="display:none">
 					<table border='0' class='elenco'>
@@ -747,29 +747,35 @@
 					</table>
 					<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
 						<tr>
-							<td style='width:280px'>REFERRING SELECTION<br>NUMBER</td>
-							<td style='width:320px'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7588" data-da3bit="8"></div></td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
-						</tr>
-						<tr>
-							<td>NUMBER OF<br>SAMPLES</td>
-							<td><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td>REFERRING FLUX</td>
-							<td><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div></td>
-							<td align="right">
-								<div id='pageDevices_vgrind1_lastFlux_caption' class="tip">Last flux: please click on <b>RUN SELECTION</b></div>
-								<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastFlux(1)"></div>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
+										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7588" data-da3bit="8"></div></td>
+										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
+									</tr>
+								</table>
 							</td>
 						</tr>
+
 						<tr>
-							<td>REFERRING POSITION</td>
-							<td><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7596" data-da3bit="16"></div></td>
-							<td align="right">
-								<div id='pageDevices_vgrind1_lastPos_caption' class="tip">Last position: please click on <b>RUN SELECTION</b></div>
-								<div id='pageDevices_vgrind1_lastPos_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastPosition(1)"></div>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:320px; border-right:solid 1px #999'>
+											<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
+										</td>
+										<td style='width:165px; padding-left:20px'>REFERRING<br>POSITION</td>
+										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+										<td align="right">
+											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
+											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
+										</td>
+									</tr>
+								</table>
 							</td>
 						</tr>
 					</table>
@@ -794,34 +800,39 @@
 						</tr>
 						<tr><td>ENABLE AUTO<br>REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
 					</table>
-					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>						
+					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
 						<tr>
-							<td style='width:280px'>REFERRING SELECTION<br>NUMBER</td>
-							<td style='width:320px'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7684" data-da3bit="8"></div></td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
-						</tr>
-						<tr>
-							<td>NUMBER OF<br>SAMPLES</td>
-							<td><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7690" data-da3bit="16"></div></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td>REFERRING FLUX</td>
-							<td><div class="UINumber" data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div></td>
-							<td align="right">
-								<div id='pageDevices_vgrind2_lastFlux_caption' class="tip">Last flux: please click on <b>RUN SELECTION</b></div>
-								<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastFlux(2)"></div>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7690" data-da3bit="16"></div></td>
+										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7684" data-da3bit="8"></div></td>
+										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
+									</tr>
+								</table>
 							</td>
 						</tr>
 						<tr>
-							<td>REFERRING POSITION</td>
-							<td><div class="UINumber" data-numfigures="3" data-max="600" data-da3="7692" data-da3bit="16"></div></td>
-							<td align="right">
-								<div id='pageDevices_vgrind2_lastPos_caption' class="tip">Last position: please click on <b>RUN SELECTION</b></div>
-								<div id='pageDevices_vgrind2_lastPos_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE THIS VALUE' data-onclick="pageDevices_vgrind_useLastPosition(2)"></div>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:320px; border-right:solid 1px #999'>
+											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div>
+										</td>
+										<td style='width:165px; padding-left:20px'>REFERRING<br>POSITION</td>
+										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+										<td align="right">
+											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
+											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
+										</td>
+									</tr>
+								</table>
 							</td>
 						</tr>
-					</table>								
+					</table>
 				</div>
 				
 			</div>
@@ -2712,11 +2723,9 @@ function pageDevices_show()
 			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
 		}
 		
-		pageDevices_vgrind_setLastFlux(1, -1);
-		pageDevices_vgrind_setLastPos(1, -1);
-		pageDevices_vgrind_setLastFlux(2, -1);
-		pageDevices_vgrind_setLastPos(2, -1);
-	
+		rheaSetDivHTMLByName("pageDevices_vgrind1_lastPos_caption", da3.read16(7596));
+		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7692));
+		pageDevices_vgrind_setLastFluxAndPos(-1, -1);
 	}
 
 	pageDevices_onSelector();
@@ -2736,14 +2745,11 @@ function pageDevices_vgrind_runSelection(whichVG)
 
 function pageDevices_vgrind_runSelection_onFinish()
 {
-	//console.log ("pageDevices_vgrind_runSelection_onFinished");
-	
 	//chiedo le info relativamente all'ultimo flusso e posizione
 	rhea.ajax ("getLastFluxInfo", "").then( function(result)
 	{
 		var data = JSON.parse(result);
-		pageDevices_vgrind_setLastFlux(1, data.flux);
-		pageDevices_vgrind_setLastPos (1, data.grinderPos);
+		pageDevices_vgrind_setLastFluxAndPos(data.flux, data.grinderPos);
 		pageDevices_vgrind_runSelection_onFinish2();
 	})
 	.catch( function(result)
@@ -2758,48 +2764,44 @@ function pageDevices_vgrind_runSelection_onFinish2()
 	currentTask.enterQueryMacinePos();
 }
 
-var pageDevices_vgrind_lastFlux = [0, -1, -1];
-function pageDevices_vgrind_setLastFlux(whichVG, value)
+var pageDevices_vgrind_lastFlux = -1;
+var pageDevices_vgrind_lastPos = -1
+function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 {
-	pageDevices_vgrind_lastFlux[whichVG] = value;
+	pageDevices_vgrind_lastFlux = flux;
+	pageDevices_vgrind_lastPos = pos;
 	
-	var elemBtnUse = rheaGetElemByID ("pageDevices_vgrind" +whichVG +"_lastFlux_btnUse");
-	if (value < 0)
+	var elemBtnUse1 = rheaGetElemByID ("pageDevices_vgrind1_lastFlux_btnUse");
+	var elemBtnUse2 = rheaGetElemByID ("pageDevices_vgrind2_lastFlux_btnUse");
+	if (flux < 0)
 	{
-		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastFlux_caption", "Last flux: please click on <b>RUN SELECTION</b>");
-		rheaHideElem (elemBtnUse);
+		var msg = "Last flux/position:<br>please click on <b>RUN SELECTION</b>";
+		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
+		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
+		rheaHideElem (elemBtnUse1);
+		rheaHideElem (elemBtnUse2);
 	}
 	else
 	{
-		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastFlux_caption", "Last flux: " +value);
-		rheaShowElem (elemBtnUse);
+		var msg = "Last flux: " +flux +"<br>Last pos: " +pos;
+		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
+		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
+		rheaShowElem (elemBtnUse1);
+		rheaShowElem (elemBtnUse1);
 	}
 }
 
-function pageDevices_vgrind_useLastFlux(whichVG)
+function pageDevices_vgrind_useLastFluxAndPos(whichVG)
 {
-}
+	var win = ui.getWindowByID("pageDevices");
 
-var pageDevices_vgrind_lastPos = [0, -1, -1];
-function pageDevices_vgrind_setLastPos(whichVG, value)
-{
-	pageDevices_vgrind_lastPos[whichVG] = value;
+	win.getChildByID("pageDevices_vgrind" +whichVG +"_refFlux").setValue(pageDevices_vgrind_lastFlux);
 	
-	var elemBtnUse = rheaGetElemByID ("pageDevices_vgrind" +whichVG +"_lastPos_btnUse");
-	if (value < 0)
-	{
-		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastPos_caption", "Last position: please click on <b>RUN SELECTION</b>");
-		rheaHideElem (elemBtnUse);
-	}
+	if (whichVG==1)
+		da3.write16 (7596, pageDevices_vgrind_lastPos);
 	else
-	{
-		rheaSetDivHTMLByName ("pageDevices_vgrind" +whichVG +"_lastPos_caption", "Last position: " +value);
-		rheaShowElem (elemBtnUse);
-	}
-}
-
-function pageDevices_vgrind_useLastPosition(whichVG)
-{
+		da3.write16 (7692, pageDevices_vgrind_lastPos);
+	rheaSetDivHTMLByName("pageDevices_vgrind" +whichVG +"_lastPos_caption", pageDevices_vgrind_lastPos);
 }
 
 

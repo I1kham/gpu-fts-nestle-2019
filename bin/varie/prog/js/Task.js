@@ -929,10 +929,13 @@ TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
 		case 0: 
 			this.fase=1; 
 			
-			pleaseWait_freeText_setText("While the varigrind is opening/closing, you can press RUN GRINDER to run the grinder in order to facilitate the operation.");
+			pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position");
+			pleaseWait_freeText_show();
+			/*pleaseWait_freeText_setText("While the varigrind is opening/closing, you can press RUN GRINDER to run the grinder in order to facilitate the operation.");
 			pleaseWait_freeText_show();
 			pleaseWait_btn1_setText("RUN GRINDER");
 			pleaseWait_btn1_show();
+			*/
 			break;
 		case 1: this.fase=2; break;
 		case 2: 
