@@ -140,7 +140,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBCloseByPath.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetVoltageAndTemp.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetOFFList.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetOFFList.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
@@ -215,7 +216,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBCloseByPath.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetVoltageAndTemp.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetOFFList.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetOFFList.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
