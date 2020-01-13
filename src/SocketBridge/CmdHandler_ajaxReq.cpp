@@ -4,33 +4,33 @@
 #include "CmdHandler/CmdHandler_ajaxReqDBC.h"
 #include "CmdHandler/CmdHandler_ajaxReqDBQ.h"
 #include "CmdHandler/CmdHandler_ajaxReqDBE.h"
-#include "CmdHandler/CmdHandler_ajaxReqSanWashStatus.h"
-#include "CmdHandler/CmdHandler_ajaxReqVMCDataFileTimestamp.h"
-#include "CmdHandler/CmdHandler_ajaxReqSetDecounter.h"
-#include "CmdHandler/CmdHandler_ajaxReqGetAllDecounterValues.h"
-#include "CmdHandler/CmdHandler_ajaxReqmachineTypeAndModel.h"
-#include "CmdHandler/CmdHandler_ajaxReqSetCalibFactor.h"
-#include "CmdHandler/CmdHandler_ajaxReqStatoGruppo.h"
-#include "CmdHandler/CmdHandler_ajaxReqAttivazioneMotore.h"
-#include "CmdHandler/CmdHandler_ajaxReqStartImpulseCalc.h"
-#include "CmdHandler/CmdHandler_ajaxReqQueryImpulseCalcStatus.h"
-#include "CmdHandler/CmdHandler_ajaxReqGetTime.h"
-#include "CmdHandler/CmdHandler_ajaxReqGetDate.h"
-#include "CmdHandler/CmdHandler_ajaxReqSetTime.h"
-#include "CmdHandler/CmdHandler_ajaxReqSetDate.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h"
+#include "CmdHandler/CmdHandler_ajaxReq_T_VMCDataFileTimestamp.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x04_SetDecounter.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x06_GetAllDecounterValues.h"
+#include "CmdHandler/CmdHandler_ajaxReqMachineTypeAndModel.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x0F_SetCalibFactor.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x0B_StatoGruppo.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x0C_AttivazioneMotore.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x0E_StartImpulseCalc.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x0E_QueryImpulseCalcStatus.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x07_GetTime.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x08_GetDate.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x09_SetTime.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x0A_SetDate.h"
 #include "CmdHandler/CmdHandler_ajaxReqTestSelection.h"
-#include "CmdHandler/CmdHandler_ajaxReqGetPosizioneMacina.h"
-#include "CmdHandler/CmdHandler_ajaxReqNomiLingueCPU.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x13_NomiLingueCPU.h"
 #include "CmdHandler/CmdHandler_ajaxReqFSFileList.h"
 #include "CmdHandler/CmdHandler_ajaxReqFSFileCopy.h"
-#include "CmdHandler/CmdHandler_ajaxReqResetEVA.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x16_ResetEVA.h"
 #include "CmdHandler/CmdHandler_ajaxReqFSDriveList.h"
 #include "CmdHandler/CmdHandler_ajaxReqTaskSpawn.h"
 #include "CmdHandler/CmdHandler_ajaxReqTaskStatus.h"
 #include "CmdHandler/CmdHandler_ajaxReqDBCloseByPath.h"
 #include "CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h"
-#include "CmdHandler/CmdHandler_ajaxReqGetVoltageAndTemp.h"
-#include "CmdHandler/CmdHandler_ajaxReqGetOFFList.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x18_GetOFFList.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.h"
 
 using namespace socketbridge;
@@ -68,33 +68,33 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqDBC);
 	CHECK(CmdHandler_ajaxReqDBQ);
 	CHECK(CmdHandler_ajaxReqDBE);
-	CHECK(CmdHandler_ajaxReqSanWashStatus);
-	CHECK(CmdHandler_ajaxReqVMCDataFileTimestamp);
-	CHECK(CmdHandler_ajaxReqSetDecounter);
-	CHECK(CmdHandler_ajaxReqGetAllDecounterValues);
-	CHECK(CmdHandler_ajaxReqmachineTypeAndModel);
-	CHECK(CmdHandler_ajaxReqSetCalibFactor);
-	CHECK(CmdHandler_ajaxReqStatoGruppo);
-	CHECK(CmdHandler_ajaxReqAttivazioneMotore);
-	CHECK(CmdHandler_ajaxReqStartImpulseCalc);
-	CHECK(CmdHandler_ajaxReqQueryImpulseCalcStatus);
-	CHECK(CmdHandler_ajaxReqGetTime);
-	CHECK(CmdHandler_ajaxReqGetDate);
-	CHECK(CmdHandler_ajaxReqSetTime);
-	CHECK(CmdHandler_ajaxReqSetDate);
+	CHECK(CmdHandler_ajaxReq_P0x03_SanWashStatus);
+	CHECK(CmdHandler_ajaxReq_T_VMCDataFileTimestamp);
+	CHECK(CmdHandler_ajaxReq_P0x04_SetDecounter);
+	CHECK(CmdHandler_ajaxReq_P0x06_GetAllDecounterValues);
+	CHECK(CmdHandler_ajaxReqMachineTypeAndModel);
+	CHECK(CmdHandler_ajaxReq_P0x0F_SetCalibFactor);
+	CHECK(CmdHandler_ajaxReq_P0x0B_StatoGruppo);
+	CHECK(CmdHandler_ajaxReq_P0x0C_AttivazioneMotore);
+	CHECK(CmdHandler_ajaxReq_P0x0E_StartImpulseCalc);
+	CHECK(CmdHandler_ajaxReq_P0x0E_QueryImpulseCalcStatus);
+	CHECK(CmdHandler_ajaxReq_P0x07_GetTime);
+	CHECK(CmdHandler_ajaxReq_P0x08_GetDate);
+	CHECK(CmdHandler_ajaxReq_P0x09_SetTime);
+	CHECK(CmdHandler_ajaxReq_P0x0A_SetDate);
 	CHECK(CmdHandler_ajaxReqTestSelection);
-	CHECK(CmdHandler_ajaxReqGetPosizioneMacina);
-	CHECK(CmdHandler_ajaxReqNomiLingueCPU);
+	CHECK(CmdHandler_ajaxReq_P0x10_GetPosizioneMacina);
+	CHECK(CmdHandler_ajaxReq_P0x13_NomiLingueCPU);
     CHECK(CmdHandler_ajaxReqFSFileList);
 	CHECK(CmdHandler_ajaxReqFSFileCopy);
-	CHECK(CmdHandler_ajaxReqResetEVA);
+	CHECK(CmdHandler_ajaxReq_P0x16_ResetEVA);
 	CHECK(CmdHandler_ajaxReqFSDriveList);
 	CHECK(CmdHandler_ajaxReqTaskSpawn);
 	CHECK(CmdHandler_ajaxReqTaskStatus);
 	CHECK(CmdHandler_ajaxReqDBCloseByPath);
 	CHECK(CmdHandler_ajaxReqIsManualInstalled);
-	CHECK(CmdHandler_ajaxReqGetVoltageAndTemp);
-	CHECK(CmdHandler_ajaxReqGetOFFList);
+	CHECK(CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp);
+	CHECK(CmdHandler_ajaxReq_P0x18_GetOFFList);
 	CHECK(CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo);
 
 #undef CHECK

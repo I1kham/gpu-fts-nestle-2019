@@ -859,21 +859,28 @@ TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
 		rhea.ajax ("testSelection", {"s":this.selNum, "d":0} ).then( function(result)
 		{
 			if (result != "OK")
+			{
+				this.fase = 2;
 				pageDevices_vgrind_runSelection_onFinish();
+			}
 		})
 		.catch( function(result)
 		{
+			this.fase = 2;
 			pageDevices_vgrind_runSelection_onFinish();
 		});			
 	}
-	else
+	else if (this.fase == 1)
 	{
 		//aspetto almeno un paio di secondi
 		if ((timeNowMsec - this.timeStartedMSec) < 2000)
 			return;
 		//monitoro lo stato di cpu per capire quando esce da 3 (prep bevanda)
 		if (this.cpuStatus != 3 && this.cpuStatus != 101 && this.cpuStatus != 105)
+		{
+			this.fase = 2;
 			pageDevices_vgrind_runSelection_onFinish();
+		}
 	}
 	
 }

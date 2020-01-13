@@ -9,7 +9,8 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqCPUBtnProgPressed
      *
-     *
+     *	Utilizzato per inviare automaticamente l'evento 'eEventType_btnProgPressed' ai client collegati.
+	 *	Questo evento viene scatenato quando l'utente preme il btn fisico per entrare in menu prog
      *
      */
     class CmdHandler_eventReqCPUBtnProgPressed : public CmdHandler_eventReq

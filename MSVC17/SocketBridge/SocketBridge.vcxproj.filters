@@ -13,6 +13,21 @@
     <Filter Include="Task">
       <UniqueIdentifier>{e8862ee6-f58e-4de1-9e9b-959101cdd178}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CmdHandler\ajax\DB">
+      <UniqueIdentifier>{0af316d6-4cd0-4ccc-9d3b-8a96d724f10a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\ajax\FileSystem">
+      <UniqueIdentifier>{0b8bffe0-a9f5-4e8c-84d7-8737117a9fd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\ajax\Task">
+      <UniqueIdentifier>{d467f271-7a93-4603-a692-1c9ad479fdc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\ajax\Prog">
+      <UniqueIdentifier>{6e5974cf-6785-4969-98c2-266309b2af27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\event\Prog">
+      <UniqueIdentifier>{59921bac-c196-46f2-b180-39b2c2421236}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
@@ -23,12 +38,6 @@
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeServer.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeFileT.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\DBList.cpp" />
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
@@ -62,9 +71,6 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
@@ -77,20 +83,11 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFileTimestamp.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUProgrammingCmd.cpp">
       <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUSanWashingStatus.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSanWashStatus.cpp">
-      <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqBtnPressed.cpp">
       <Filter>CmdHandler\event</Filter>
@@ -98,89 +95,11 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqPartialVMCDataFile.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqVMCDataFileTimestamp.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUExtendedConfigInfo.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDecounter.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetDecounter.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetAllDecounters.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStatoGruppo.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqAttivazioneMotore.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStartImpulseCalc.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetTime.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetDate.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetTime.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDate.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetMotoreMacina.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetPosizioneMacina.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetPosizioneMacina.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.cpp">
       <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqNomiLingueCPU.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartDisintallation.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileList.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileCopy.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqResetEVA.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSDriveList.cpp">
-      <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeTask.cpp">
       <Filter>Task</Filter>
@@ -191,26 +110,122 @@
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeTaskFactory.cpp">
       <Filter>Task</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBCloseByPath.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqIsManualInstalled.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetVoltageAndTemp.cpp">
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.cpp">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBCloseByPath.cpp">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.cpp">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.cpp">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSDriveList.cpp">
+      <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileCopy.cpp">
+      <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileList.cpp">
+      <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqMachineTypeAndModel.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetOFFList.cpp">
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.cpp">
+      <Filter>CmdHandler\ajax\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.cpp">
+      <Filter>CmdHandler\ajax\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.cpp">
+      <Filter>CmdHandler\ajax\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_T_VMCDataFileTimestamp.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.cpp">
-      <Filter>CmdHandler\ajax</Filter>
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0C_AttivazioneMotore.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x06_GetAllDecounterValues.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x08_GetDate.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x18_GetOFFList.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x07_GetTime.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x13_NomiLingueCPU.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0E_QueryImpulseCalcStatus.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x16_ResetEVA.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x03_SanWashStatus.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0F_SetCalibFactor.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0A_SetDate.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x04_SetDecounter.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x09_SetTime.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0E_StartImpulseCalc.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0B_StatoGruppo.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_T_VMCDataFileTimestamp.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x03_CPUSanWashingStatus.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_GetPosizioneMacina.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,12 +241,6 @@
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeFileT.h" />
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeFileTEnumAndDefine.h" />
     <ClInclude Include="..\..\src\SocketBridge\DBList.h" />
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSelAvailability.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
@@ -265,9 +274,6 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUbtnProgPressed.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
@@ -280,20 +286,11 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFileTimestamp.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUProgrammingCmd.h">
       <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUSanWashingStatus.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSanWashStatus.h">
-      <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqBtnPressed.h">
       <Filter>CmdHandler\event</Filter>
@@ -301,89 +298,11 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqPartialVMCDataFile.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqVMCDataFileTimestamp.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetAllDecounterValues.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUExtendedConfigInfo.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDecounter.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetDecounter.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetAllDecounters.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqmachineTypeAndModel.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetCalibFactor.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStatoGruppo.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqAttivazioneMotore.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqStartImpulseCalc.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqQueryImpulseCalcStatus.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetTime.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetDate.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetTime.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqSetDate.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetMotoreMacina.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqGetPosizioneMacina.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetPosizioneMacina.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.h">
       <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqNomiLingueCPU.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartDisintallation.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRecalcFasciaOrariaFV.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileList.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileCopy.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqResetEVA.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSDriveList.h">
-      <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeTask.h">
       <Filter>Task</Filter>
@@ -391,26 +310,122 @@
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeTaskFactory.h">
       <Filter>Task</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBCloseByPath.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqIsManualInstalled.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetVoltageAndTemp.h">
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBC.h">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBCloseByPath.h">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBE.h">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqDBQ.h">
+      <Filter>CmdHandler\ajax\DB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSDriveList.h">
+      <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileCopy.h">
+      <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSFileList.h">
+      <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqMachineTypeAndModel.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetOFFList.h">
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.h">
+      <Filter>CmdHandler\ajax\Task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.h">
+      <Filter>CmdHandler\ajax\Task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.h">
+      <Filter>CmdHandler\ajax\Task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_T_VMCDataFileTimestamp.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.h">
-      <Filter>CmdHandler\ajax</Filter>
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0C_AttivazioneMotore.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x06_GetAllDecounterValues.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x08_GetDate.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x18_GetOFFList.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x07_GetTime.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x13_NomiLingueCPU.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0E_QueryImpulseCalcStatus.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x16_ResetEVA.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x03_SanWashStatus.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0F_SetCalibFactor.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0A_SetDate.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x04_SetDecounter.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x09_SetTime.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0E_StartImpulseCalc.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x0B_StatoGruppo.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_T_VMCDataFileTimestamp.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x03_CPUSanWashingStatus.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_GetPosizioneMacina.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.h">
+      <Filter>CmdHandler\event\Prog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

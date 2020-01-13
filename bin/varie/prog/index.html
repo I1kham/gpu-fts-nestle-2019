@@ -62,7 +62,7 @@
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DATA AUDIT" data-onclick="pageDataAudit_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS<br>(max 48)" data-onclick="pageSelections_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS" data-onclick="pageSelections_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DEVICES" data-onclick="pageDevices_show()"></div></td>
 					</tr>
@@ -638,6 +638,10 @@
 				<div id="pagePayment_mid" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
+							<td>PROTOCOL</td>
+							<td><div class='UISelect' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
+						</tr>						
+						<tr>
 							<td>CODE ID 101</td>
 							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7314" data-da3bit="32"></div></td>
 						</tr>
@@ -653,10 +657,6 @@
 							<td>ADDRESS VIDTS</td>
 							<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7326" data-da3bit="16"></div></td>
 						</tr>
-						<tr>
-							<td>PROTOCOL</td>
-							<td><div class='UISelect' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
-						</tr>						
 					</table>
 				</div>
 				
@@ -2745,6 +2745,7 @@ function pageDevices_vgrind_runSelection(whichVG)
 
 function pageDevices_vgrind_runSelection_onFinish()
 {
+console.log ("finish");
 	//chiedo le info relativamente all'ultimo flusso e posizione
 	rhea.ajax ("getLastFluxInfo", "").then( function(result)
 	{
@@ -2786,8 +2787,8 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 		var msg = "Last flux: " +flux +"<br>Last pos: " +pos;
 		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
 		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
-		rheaShowElem (elemBtnUse1);
-		rheaShowElem (elemBtnUse2);
+		rheaSetDisplayMode (elemBtnUse1, "table");
+		rheaSetDisplayMode (elemBtnUse2, "table");
 	}
 }
 

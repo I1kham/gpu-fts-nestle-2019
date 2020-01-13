@@ -13,20 +13,20 @@
 #include "CmdHandler/CmdHandler_eventReqDataAudit.h"
 #include "CmdHandler/CmdHandler_eventReqCPUIniParam.h"
 #include "CmdHandler/CmdHandler_eventReqVMCDataFile.h"
-#include "CmdHandler/CmdHandler_eventReqVMCDataFileTimestamp.h"
+#include "CmdHandler/CmdHandler_eventReq_T_VMCDataFileTimestamp.h"
 #include "CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.h"
 #include "CmdHandler/CmdHandler_eventReqCPUProgrammingCmd.h"
-#include "CmdHandler/CmdHandler_eventReqCPUSanWashingStatus.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x03_CPUSanWashingStatus.h"
 #include "CmdHandler/CmdHandler_eventReqBtnPressed.h"
 #include "CmdHandler/CmdHandler_eventReqPartialVMCDataFile.h"
 #include "CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.h"
-#include "CmdHandler/CmdHandler_eventReqSetDecounter.h"
-#include "CmdHandler/CmdHandler_eventReqGetAllDecounters.h"
-#include "CmdHandler/CmdHandler_eventReqGetPosizioneMacina.h"
-#include "CmdHandler/CmdHandler_eventReqSetMotoreMacina.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x04_SetDecounter.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x06_GetAllDecounters.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x10_GetPosizioneMacina.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x11_SetMotoreMacina.h"
 #include "CmdHandler/CmdHandler_eventReqSetPosizioneMacina.h"
-#include "CmdHandler/CmdHandler_eventReqStartDisintallation.h"
-#include "CmdHandler/CmdHandler_eventReqRecalcFasciaOrariaFV.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x14_StartDisintallation.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h"
 
 using namespace socketbridge;
 
@@ -54,20 +54,20 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReqDataAudit);
 	CHECK(CmdHandler_eventReqCPUIniParam);
 	CHECK(CmdHandler_eventReqVMCDataFile);
-	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
+	CHECK(CmdHandler_eventReq_T_VMCDataFileTimestamp);
 	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
 	CHECK(CmdHandler_eventReqCPUProgrammingCmd);
-	CHECK(CmdHandler_eventReqCPUSanWashingStatus);
+	CHECK(CmdHandler_eventReq_P0x03_CPUSanWashingStatus);
 	CHECK(CmdHandler_eventReqBtnPressed);
 	CHECK(CmdHandler_eventReqPartialVMCDataFile);
 	CHECK(CmdHandler_eventReqCPUExtendedConfigInfo);
-	CHECK(CmdHandler_eventReqSetDecounter);
-	CHECK(CmdHandler_eventReqGetAllDecounters);
-	CHECK(CmdHandler_eventReqGetPosizioneMacina);
-	CHECK(CmdHandler_eventReqSetMotoreMacina);
+	CHECK(CmdHandler_eventReq_P0x04_SetDecounter);
+	CHECK(CmdHandler_eventReq_P0x06_GetAllDecounters);
+	CHECK(CmdHandler_eventReq_P0x10_GetPosizioneMacina);
+	CHECK(CmdHandler_eventReq_P0x11_SetMotoreMacina);
 	CHECK(CmdHandler_eventReqSetPosizioneMacina);
-	CHECK(CmdHandler_eventReqStartDisintallation);
-	CHECK(CmdHandler_eventReqRecalcFasciaOrariaFV);
+	CHECK(CmdHandler_eventReq_P0x14_StartDisintallation);
+	CHECK(CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV);
 #undef CHECK
 
     return NULL;
@@ -93,20 +93,20 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqDataAudit);
 	CHECK(CmdHandler_eventReqCPUIniParam);
 	CHECK(CmdHandler_eventReqVMCDataFile);
-	CHECK(CmdHandler_eventReqVMCDataFileTimestamp);
+	CHECK(CmdHandler_eventReq_T_VMCDataFileTimestamp);
 	CHECK(CmdHandler_eventReqWriteLocalVMCDataFile);
 	CHECK(CmdHandler_eventReqCPUProgrammingCmd);
-	CHECK(CmdHandler_eventReqCPUSanWashingStatus);
+	CHECK(CmdHandler_eventReq_P0x03_CPUSanWashingStatus);
 	CHECK(CmdHandler_eventReqBtnPressed);
 	CHECK(CmdHandler_eventReqPartialVMCDataFile);
 	CHECK(CmdHandler_eventReqCPUExtendedConfigInfo);
-	CHECK(CmdHandler_eventReqSetDecounter);
-	CHECK(CmdHandler_eventReqGetAllDecounters);
-	CHECK(CmdHandler_eventReqGetPosizioneMacina);
-	CHECK(CmdHandler_eventReqSetMotoreMacina);
+	CHECK(CmdHandler_eventReq_P0x04_SetDecounter);
+	CHECK(CmdHandler_eventReq_P0x06_GetAllDecounters);
+	CHECK(CmdHandler_eventReq_P0x10_GetPosizioneMacina);
+	CHECK(CmdHandler_eventReq_P0x11_SetMotoreMacina);
 	CHECK(CmdHandler_eventReqSetPosizioneMacina);
-	CHECK(CmdHandler_eventReqStartDisintallation);
-	CHECK(CmdHandler_eventReqRecalcFasciaOrariaFV);
+	CHECK(CmdHandler_eventReq_P0x14_StartDisintallation);
+	CHECK(CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV);
 #undef CHECK
 
 	return NULL;

@@ -1,12 +1,12 @@
-#ifndef _CmdHandler_ajaxReqmachineTypeAndModel_h_
-#define _CmdHandler_ajaxReqmachineTypeAndModel_h_
+#ifndef _CmdHandler_ajaxReqMachineTypeAndModel_h_
+#define _CmdHandler_ajaxReqMachineTypeAndModel_h_
 #include "../CmdHandler_ajaxReq.h"
 
 
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_ajaxReqmachineTypeAndModel
+     * CmdHandler_ajaxReqMachineTypeAndModel
      *
      * la GUI ha mandato una richiesta AJAX per conosce il machine type (espresso o instant) e il model (un numero che indentifica il modello, tipo BL o Fusion)
      *
@@ -24,10 +24,10 @@ namespace socketbridge
      */
 
 
-    class CmdHandler_ajaxReqmachineTypeAndModel : public CmdHandler_ajaxReq
+    class CmdHandler_ajaxReqMachineTypeAndModel : public CmdHandler_ajaxReq
     {
     public:
-		CmdHandler_ajaxReqmachineTypeAndModel(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
+		CmdHandler_ajaxReqMachineTypeAndModel(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
                                 CmdHandler_ajaxReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID)
                                 { }
 
@@ -40,4 +40,4 @@ namespace socketbridge
 
 } // namespace socketbridge
 
-#endif // _CmdHandler_ajaxReqmachineTypeAndModel_h_
+#endif // _CmdHandler_ajaxReqMachineTypeAndModel_h_
