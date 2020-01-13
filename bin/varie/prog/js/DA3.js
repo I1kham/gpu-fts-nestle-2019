@@ -237,7 +237,7 @@ DA3.prototype.write8 = function (pos, value)
 	var v = parseInt(value); 
 	if (v<0) v = 0;
 	if (v>255) v=255;
-	//console.log("DA3 write8@" +pos +"=" + v);
+//	console.log("DA3 write8@" +pos +"=" + v);
 	this.da3_current[pos] = v;
 }
 

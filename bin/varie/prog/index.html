@@ -77,7 +77,9 @@
 						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div></td>
+						<td width="33%" align="center">
+							<!--<div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div>-->
+						</td>
 						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
 					</tr>
@@ -238,8 +240,10 @@
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7086" data-da3bit="8"></div></td>
 						</tr>			
 						<tr><td>FMILK TOPPING SWITCH</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7096' data-da3bit='8'></div></td></tr>
-						<tr id="pageMiscellaneous_gs_audit_induzione"><td>ENABLE DATA-AUDIT BEFORE</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7106' data-da3bit='8'></div></td></tr>
-						<tr id="pageMiscellaneous_gs_audit_bollitore"><td>ENABLE DATA-AUDIT BEFORE</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7088' data-da3bit='8'></div></td></tr>
+						<tr>
+							<td>ENABLE DATA-AUDIT BEFORE</td>
+							<td><div id="pageMiscellaneous_gs_auditBefore" class='UIOption' data-option='1|YES|0|NO' data-da3='7106' data-da3bit='8'></div></td>
+						</tr>
  					</table>
 				</div>
 				
@@ -271,8 +275,10 @@
 				
 				<div id="pageMiscellaneous_fv" style="display:none">
 					<table border='0' class='elenco'>
-						<tr id="pageMiscellaneous_fv_induzione"><td style="width:380px">FV HARDWARE KEY<br>MODE</td><td colspan="2"><div class='UIOption' data-option='0|DISABLED|1|ENABLED 1|2|ENABLED ++' data-da3="7104" data-da3bit="8"></div></td></tr>
-						<tr id="pageMiscellaneous_fv_bollitore"><td style="width:380px">FV HARDWARE KEY<br>MODE</td><td colspan="2"><div class='UIOption' data-option='0|DISABLED|1|ENABLED 1|2|ENABLED ++' data-da3="7106" data-da3bit="8"></div></td></tr>
+						<tr>
+							<td style="width:380px">FV HARDWARE KEY<br>MODE</td>
+							<td colspan="2"><div id="pageMiscellaneous_fvHwKey" class='UIOption' data-option='0|DISABLED|1|ENABLED 1|2|ENABLED ++' data-da3="7104" data-da3bit="8"></div></td>
+						</tr>
 						<tr id="pageMiscellaneous_fv_r1">
 							<td>START FREEVEND NOW<br><span class="tip">It will last for the indicated<br>num. of hours</span></td>
 							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="hours"></div></td>
@@ -1623,19 +1629,23 @@ function pageMiscellaneous_show()
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r2"));
 		}
 		
+		var objDataAuditBefore = win.getChildByID("pageMiscellaneous_gs_auditBefore");
+		var objFvHWKey = win.getChildByID("pageMiscellaneous_fvHwKey");
 		if (da3.isInduzione())
 		{
 			//versione induzione
-			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_bollitore"));
-			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fv_bollitore"));
-			//
+			objDataAuditBefore.da3Pos=7106;
+			objFvHWKey.da3Pos=7104;
 		}
 		else
 		{
 			//versione bollitore
-			rheaHideElem (rheaGetElemByID("pageMiscellaneous_gs_audit_induzione"));
-			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fv_induzione"));
+			objDataAuditBefore.da3Pos=7088
+			objFvHWKey.da3Pos=7106;
 		}
+
+		objDataAuditBefore.loadFromDA3(da3);
+		objFvHWKey.loadFromDA3(da3);
 		
 		win.showHideScrollBar();
 	}
