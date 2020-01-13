@@ -1422,7 +1422,6 @@ function pageMaintenance_refreshOFFList(startIndex)
 					+"	<th>DATE yyyy/mm/dd</td>"
 					+"	<th>TIME</td>"
 					+"	<th>OFF CODE</td>"
-					+"	<th>STATUS</td>"
 					+"</tr>";
 		}
 			
@@ -1430,17 +1429,10 @@ function pageMaintenance_refreshOFFList(startIndex)
 		for (var i=0; i<numOffs; i++)
 		{
 			var rowCss="";
-			var status = "ACTIVE";
-			if (data.stato[i] == 0)
-			{
-				status = "RESOLVED";
-				rowCss = " class='rowAllZero'";
-			}
 			pageMaintenance_offListHTML += "<tr valign='middle'" +rowCss +">"
 					+"<td>" +data.yyyy[i] +"/" +data.mm[i] +"/" +data.dd[i] +"</td>"
 					+"<td>" +data.hh[i] +":" +data.min[i] +"</td>"
 					+"<td>" +data.codice[i] +data.tipo[i] +"</td>"
-					+"<td>" +status +"</td>"
 					"+</tr>";
 		}
 		
