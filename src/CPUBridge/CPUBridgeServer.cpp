@@ -833,25 +833,19 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 					const u8 numOffs = (u8) ((sizeOfAnswerBuffer - 7) / 8);
 					sCPUOffSingleEvent offs[32];
 					u16 ct = 6;
-					u8 realNumOFF = 0;
 					for (u8 i = 0; i < numOffs; i++)
 					{
-						offs[realNumOFF].codice = answerBuffer[ct++];
-						offs[realNumOFF].tipo = answerBuffer[ct++];
-						offs[realNumOFF].ora = answerBuffer[ct++];
-						offs[realNumOFF].minuto = answerBuffer[ct++];
-						offs[realNumOFF].giorno = answerBuffer[ct++];
-						offs[realNumOFF].mese = answerBuffer[ct++];
-						offs[realNumOFF].anno = answerBuffer[ct++];
-						offs[realNumOFF].stato = answerBuffer[ct++];
-						
-						//CPU dovrebbe mandarmi solo OFF con stato 0 o 1, ma capita (spesso) che mandi OFF con stato==2 che non
-						//vuol dire nulla. Questi off li scarto
-						if (offs[realNumOFF].stato == 0 || offs[realNumOFF].stato == 1)
-							++realNumOFF;
+                        offs[i].codice = answerBuffer[ct++];
+                        offs[i].tipo = answerBuffer[ct++];
+                        offs[i].ora = answerBuffer[ct++];
+                        offs[i].minuto = answerBuffer[ct++];
+                        offs[i].giorno = answerBuffer[ct++];
+                        offs[i].mese = answerBuffer[ct++];
+                        offs[i].anno = answerBuffer[ct++];
+                        offs[i].stato = answerBuffer[ct++];
 					}
 
-					notify_GET_OFF_REPORT(sub->q, handlerID, logger, indexNum, lastIndexNum, offs, realNumOFF);
+                    notify_GET_OFF_REPORT(sub->q, handlerID, logger, indexNum, lastIndexNum, offs, numOffs);
 				}
 			}
 			break;

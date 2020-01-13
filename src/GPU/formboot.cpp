@@ -350,8 +350,8 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             }
             else if (status == cpubridge::eReadDataFileStatus_finishedOK)
             {
-                sprintf_s (s, sizeof(s), "Downloading data audit... SUCCESS. Copying to USB folder");
-                priv_pleaseWaitSetOK (s);
+                sprintf_s (s, sizeof(s), "Downloading data audit finished. Copying to USB folder, please wait...");
+                priv_pleaseWaitSetText (s);
 
                 //se non esiste, creo il folder di destinazione
                 rhea::fs::folderCreate (glob->usbFolder_Audit);
@@ -374,7 +374,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
                 else
                 {
                     sprintf_s (s, sizeof(s), "Finalizing copy...");
-                    priv_syncUSBFileSystem(2000);
+                    priv_syncUSBFileSystem(4000);
 
                     sprintf_s (s, sizeof(s), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
                     priv_pleaseWaitSetOK (s);
