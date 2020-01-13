@@ -710,7 +710,7 @@
 			
 				<div id="pageDevices_general" style="display:none">
 					<table border='0' class='elenco'>
-						<tr><td>DIPTRAY DETECTION</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7092' data-da3bit='8'></div></td></tr>
+						<tr><td>DRIPTRAY DETECTION</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7092' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_cofSensor"><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ENABLED|0|DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
 						<tr><td>CUP SENSOR THRESHOLD</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
 					</table>
@@ -1430,10 +1430,10 @@ function pageMaintenance_refreshOFFList(startIndex)
 		for (var i=0; i<numOffs; i++)
 		{
 			var rowCss="";
-			var status = "ON";
+			var status = "ACTIVE";
 			if (data.stato[i] == 0)
 			{
-				status = "OFF";
+				status = "RESOLVED";
 				rowCss = " class='rowAllZero'";
 			}
 			pageMaintenance_offListHTML += "<tr valign='middle'" +rowCss +">"
