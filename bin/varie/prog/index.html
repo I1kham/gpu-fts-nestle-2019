@@ -1449,6 +1449,9 @@ function pageMaintenance_refreshOFFList(startIndex)
 			pageMaintenance_offListHTML += "</table>";
 			var d = rheaGetElemByID("pageMaintenance_off_content");
 			rheaSetElemHTML(d, pageMaintenance_offListHTML);
+			
+			win = ui.getWindowByID("pageMaintenance");
+			win.showHideScrollBar();
 		}
 		else
 			setTimeout (function(){ pageMaintenance_refreshOFFList(data.nextIndex); }, 200);
