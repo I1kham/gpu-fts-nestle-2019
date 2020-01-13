@@ -2728,12 +2728,46 @@ function pageDevices_show()
 		pageDevices_vgrind_setLastFluxAndPos(-1, -1);
 	}
 
+	currentTask = new TaskDevices();
 	pageDevices_onSelector();
 	pageDevices_onEnableAuto(1);
 	pageDevices_onEnableAuto(2);
 	header_setText("DEVICES");
 	btnBack_show();
-	currentTask = new TaskDevices();
+	
+}
+
+var pageDevices_whichPage = 0;
+function pageDevices_onSelector()
+{
+	var elem0 = rheaGetElemByID("pageDevices_general");
+	var elem1 = rheaGetElemByID("pageDevices_vflex");
+	var elem2 = rheaGetElemByID("pageDevices_vgrind1");
+	var elem3 = rheaGetElemByID("pageDevices_vgrind2");
+
+	rheaHideElem(elem0);
+	rheaHideElem(elem1);
+	rheaHideElem(elem2);
+	rheaHideElem(elem3);
+	
+	var win = ui.getWindowByID("pageDevices");
+	pageDevices_whichPage = parseInt(win.getChildByID("pageDevices_selector").getSelectedOptionValue());
+	switch (pageDevices_whichPage)
+	{
+		default: rheaShowElem(elem0); break;
+		case 1:  rheaShowElem(elem1); break;
+		case 2:  
+			currentTask.enterQueryMacinePos(1);
+			rheaShowElem(elem2); 
+			break;
+			
+		case 3:  
+			currentTask.enterQueryMacinePos(2);
+			rheaShowElem(elem3); 
+			break;
+	}
+	
+	win.showHideScrollBar();
 }
 
 function pageDevices_vgrind_runSelection(whichVG)
@@ -2745,7 +2779,6 @@ function pageDevices_vgrind_runSelection(whichVG)
 
 function pageDevices_vgrind_runSelection_onFinish()
 {
-console.log ("finish");
 	//chiedo le info relativamente all'ultimo flusso e posizione
 	rhea.ajax ("getLastFluxInfo", "").then( function(result)
 	{
@@ -2762,7 +2795,10 @@ console.log ("finish");
 function pageDevices_vgrind_runSelection_onFinish2()
 {
 	pleaseWait_hide();
-	currentTask.enterQueryMacinePos();
+	if (pageDevices_whichPage == 3)
+		currentTask.enterQueryMacinePos(2);
+	else
+		currentTask.enterQueryMacinePos(1);
 }
 
 var pageDevices_vgrind_lastFlux = -1;
@@ -2820,30 +2856,6 @@ function pageDevices_onEnableAuto(whichVG)
 	{
 		default: rheaHideElem(elemTable); break;
 		case 1:  rheaSetDisplayMode(elemTable, "table"); break;
-	}
-	
-	win.showHideScrollBar();
-}
-
-function pageDevices_onSelector()
-{
-	var elem0 = rheaGetElemByID("pageDevices_general");
-	var elem1 = rheaGetElemByID("pageDevices_vflex");
-	var elem2 = rheaGetElemByID("pageDevices_vgrind1");
-	var elem3 = rheaGetElemByID("pageDevices_vgrind2");
-
-	rheaHideElem(elem0);
-	rheaHideElem(elem1);
-	rheaHideElem(elem2);
-	rheaHideElem(elem3);
-	
-	var win = ui.getWindowByID("pageDevices");
-	switch (parseInt(win.getChildByID("pageDevices_selector").getSelectedOptionValue()))
-	{
-		default: rheaShowElem(elem0); break;
-		case 1:  rheaShowElem(elem1); break;
-		case 2:  rheaShowElem(elem2); break;
-		case 3:  rheaShowElem(elem3); break;
 	}
 	
 	win.showHideScrollBar();

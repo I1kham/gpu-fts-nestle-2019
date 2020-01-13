@@ -779,17 +779,18 @@ function TaskDevices()
 {
 	this.what = 0;
 	this.fase = 0;
-	this.firstTimeMacina1 = 1;
-	this.firstTimeMacina2 = 1;
+	this.firstTimeMacina1 = 2;
+	this.firstTimeMacina2 = 2;
 	this.cpuStatus = 0;
 	this.selNum = 0;
-	this.enterQueryMacinePos();
+	this.enterQueryMacinePos(1);
 }
 
-TaskDevices.prototype.enterQueryMacinePos = function()
+TaskDevices.prototype.enterQueryMacinePos = function(macina_1o2)
 {	
 	this.what = 0;
 	this.fase = 0;
+	this.whichMacinaToQuery = macina_1o2;
 }
 
 TaskDevices.prototype.enterSetMacinaPos = function(macina_1o2, targetValue)
@@ -827,7 +828,6 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 			})
 			.catch( function(result)
 			{
-				console.log (result);
 				pleaseWait_btn1_show();
 			});								
 		}
@@ -855,7 +855,6 @@ TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
 		this.fase = 1;
 		this.timeStartedMSec = timeNowMsec;
 		
-		console.log ("TaskDevices::ajax::testSelection(" +this.selNum +")");
 		rhea.ajax ("testSelection", {"s":this.selNum, "d":0} ).then( function(result)
 		{
 			if (result != "OK")
@@ -890,41 +889,42 @@ TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 	var me = this;
 	if (this.fase == 0)
 	{
-		//chiede la posizione della macina 1
+		//chiede la posizione della macina
 		this.fase = 1;
-		rhea.ajax ("getPosMacina", {"m":1}).then( function(result)
+		rhea.ajax ("getPosMacina", {"m":this.whichMacinaToQuery}).then( function(result)
 		{
 			var obj = JSON.parse(result);
-			rheaSetDivHTMLByName("pageDevices_vg1", obj.v);
-			if (me.firstTimeMacina1 == 1)
+			if (obj.m == 1) //macina1
 			{
-				me.firstTimeMacina1 = 0;
-				ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg1_target").setValue(obj.v)
+				rheaSetDivHTMLByName("pageDevices_vg1", obj.v);
+				if (me.firstTimeMacina1>0)
+				{
+					me.firstTimeMacina1--;
+					if (me.firstTimeMacina1==0)					
+						ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg1_target").setValue(obj.v)
+				}
 			}
+			else
+			{
+				rheaSetDivHTMLByName("pageDevices_vg2", obj.v);
+				if (me.firstTimeMacina2 > 0)
+				{
+					me.firstTimeMacina2--;
+					if (me.firstTimeMacina2 == 0)
+						ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg2_target").setValue(obj.v)
+				}
+			}				
+			me.fase = 0;
 		})
 		.catch( function(result)
 		{
+			me.fase = 0;
 		});			
 		return;
 	}
 	else
 	{
-		//chiede la posizione della macina 2
-		this.fase = 0;
-		rhea.ajax ("getPosMacina", {"m":2}).then( function(result)
-		{
-			var obj = JSON.parse(result);
-			rheaSetDivHTMLByName("pageDevices_vg2", obj.v);
-			if (me.firstTimeMacina2 == 1)
-			{
-				me.firstTimeMacina2 = 0;
-				ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg2_target").setValue(obj.v)
-			}
-		})
-		.catch( function(result)
-		{
-		});			
-		return;		
+		//aspetto una risposta alla query precedente
 	}
 
 }
@@ -954,7 +954,7 @@ TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
 			//a questo punto CPU dovrebbe essere in stato 102 e dovrebbe rimanerci fino a fine operazione
 			if (this.cpuStatus != 102 && this.cpuStatus != 101)
 			{
-				this.enterQueryMacinePos();
+				this.enterQueryMacinePos(this.macina);
 				pleaseWait_hide();
 				return;
 			}
