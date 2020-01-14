@@ -9,6 +9,7 @@ namespace Ui
     class FormBoot;
 }
 
+
 /*******************************************************************
  * MainWindow
  *
@@ -48,6 +49,19 @@ private:
         eFileListMode_Manual
     };
 
+    enum eDwnloadDataAuditCallBack
+    {
+        eDwnloadDataAuditCallBack_none = 0,
+        eDwnloadDataAuditCallBack_btn = 1,
+        eDwnloadDataAuditCallBack_service = 2
+    };
+
+    enum eUploadDA3CallBack
+    {
+        eUploadDA3CallBack_none = 0,
+        eUploadDA3CallBack_btn = 1
+    };
+
 private:
     void                    priv_pleaseWaitShow (const char *message);
     void                    priv_pleaseWaitHide();
@@ -63,13 +77,20 @@ private:
     void                    priv_updateLabelInfo();
     void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
     bool                    priv_langCopy (const char *srcFolder, const char *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec);
-    void                    foreverDisableBtnStartVMC();
-    void                    priv_uploadDA3 (const char *srcFullFilePathAndName);
+    void                    priv_foreverDisableBtnStartVMC();
+    void                    priv_on_btnInstall_DA3_onFileSelected (const char *srcFullFilePathAndName);
     void                    priv_uploadManual (const char *srcFullFilePathAndName);
     void                    priv_uploadGUI (const char *srcFullFolderPath);
     void                    priv_uploadCPUFW (const char *fullFilePathAndName);
     void                    priv_syncUSBFileSystem(u64 minTimeMSecToWaitMSec);
     void                    priv_enableButton (QPushButton *btn, bool bEnabled);
+
+    void                    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode);
+    void                    priv_startUploadDA3 (eUploadDA3CallBack mode, const char *fullFilePathAndName);
+    void                    priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg);
+    void                    priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::sMsg &msg);
+    void                    priv_on_btnDownload_diagnostic_makeZip();
+    void                    priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg);
 
 private:
     sGlobal                 *glob;
@@ -78,8 +99,8 @@ private:
     QChar                   msgCPU[128];
     eFileListMode           fileListShowMode;
     eRetCode                retCode;
-    //QFont                   fntButton;
-    //QFont                   fnt12;
+    eDwnloadDataAuditCallBack dwnloadDataAuditCallBack;
+    eUploadDA3CallBack      upldDA3CallBack;
 
 };
 
