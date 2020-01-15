@@ -23,6 +23,8 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
 {
     this->glob = glob;
     retCode = eRetCode_none;
+    dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
+    upldDA3CallBack = eUploadDA3CallBack_none;
     bBtnStartVMCEnabled = true;
 
     ui->setupUi(this);
@@ -88,7 +90,7 @@ void FormBoot::showMe()
         //ci sono stati dei problemi con la sincronizzazione con la CPU.
         //In generale questo vuol dire che la CPU non è installata oppure è una versione non compatibile.
         //Disbailito il pulsante di START VMC e chiedo di aggiornare il FW
-        foreverDisableBtnStartVMC();
+        priv_foreverDisableBtnStartVMC();
         priv_pleaseWaitSetError("WARNING: There was an error during synchronization with the CPU.<br>Please upgrade the CPU FW to a compatible version.");
     }
     priv_updateLabelInfo();
@@ -336,90 +338,19 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         break;
 
     case CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS:
+        switch (dwnloadDataAuditCallBack)
         {
-            cpubridge::eReadDataFileStatus status;
-            u16 totKbSoFar = 0;
-            u16 fileID = 0;
-            cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
-
-            char s[512];
-            if (status == cpubridge::eReadDataFileStatus_inProgress)
-            {
-                sprintf_s (s, sizeof(s), "Downloading data audit... %d Kb", totKbSoFar);
-                priv_pleaseWaitSetText (s);
-            }
-            else if (status == cpubridge::eReadDataFileStatus_finishedOK)
-            {
-                sprintf_s (s, sizeof(s), "Downloading data audit finished. Copying to USB folder, please wait...");
-                priv_pleaseWaitSetText (s);
-
-                //se non esiste, creo il folder di destinazione
-                rhea::fs::folderCreate (glob->usbFolder_Audit);
-
-                char src[256];
-                sprintf_s (src, sizeof(src), "%s/dataAudit%d.txt", glob->tempFolder, fileID);
-
-                char dstFilename[64];
-                rhea::DateTime dt;
-                dt.setNow();
-                dt.formatAs_YYYYMMDDHHMMSS (s, sizeof(s), '_', '-', '-');
-                sprintf_s (dstFilename, sizeof(dstFilename), "dataAudit_%s.txt", s);
-
-                char dst[256];
-                sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_Audit, dstFilename);
-                if (!rhea::fs::fileCopy(src, dst))
-                {
-                    priv_pleaseWaitSetError("Error copying file to USB");
-                }
-                else
-                {
-                    sprintf_s (s, sizeof(s), "Finalizing copy...");
-                    priv_syncUSBFileSystem(4000);
-
-                    sprintf_s (s, sizeof(s), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
-                    priv_pleaseWaitSetOK (s);
-                }
-
-                priv_pleaseWaitHide();
-
-            }
-            else
-            {
-                sprintf_s (s, sizeof(s), "Downloading data audit... ERROR: %s", rhea::app::utils::verbose_readDataFileStatus(status));
-                priv_pleaseWaitSetError(s);
-                priv_pleaseWaitHide();
-            }
-
+        default: break;
+        case eDwnloadDataAuditCallBack_btn:         priv_on_btnDownload_audit_download(msg); break;
+        case eDwnloadDataAuditCallBack_service:     priv_on_btnDownload_diagnostic_downloadDataAudit(msg); break;
         }
         break;
 
     case CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS:
+        switch (upldDA3CallBack)
         {
-            cpubridge::eWriteDataFileStatus status;
-            u16 totKbSoFar = 0;
-            cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS (msg, &status, &totKbSoFar);
-
-            char s[512];
-            if (status == cpubridge::eWriteDataFileStatus_inProgress)
-            {
-                sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d Kb", totKbSoFar);
-                priv_pleaseWaitSetText (s);
-            }
-            else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
-            {
-                sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");
-                priv_pleaseWaitSetOK (s);
-                priv_pleaseWaitHide();
-                priv_updateLabelInfo();
-            }
-            else
-            {
-                sprintf_s (s, sizeof(s), "Installing VMC Settings...... ERROR: %s", rhea::app::utils::verbose_writeDataFileStatus(status));
-                priv_pleaseWaitSetError(s);
-                priv_pleaseWaitHide();
-                priv_updateLabelInfo();
-            }
-
+        default: break;
+        case eUploadDA3CallBack_btn: priv_on_btnInstall_DA3_upload(msg); break;
         }
         break;
 
@@ -462,7 +393,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 
 
 //***********************************************************
-void FormBoot::foreverDisableBtnStartVMC()
+void FormBoot::priv_foreverDisableBtnStartVMC()
 {
     if (!bBtnStartVMCEnabled)
         return;
@@ -470,6 +401,20 @@ void FormBoot::foreverDisableBtnStartVMC()
     ui->buttonStart->setStyleSheet("QPushButton {color: #FF0000; border:  none}");
     ui->buttonStart->setText ("Please restart\nVMC");
 }
+
+//**********************************************************************
+void FormBoot::priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode)
+{
+    dwnloadDataAuditCallBack = mode;
+    cpubridge::ask_READ_DATA_AUDIT (glob->subscriber, 0);
+}
+
+void FormBoot::priv_startUploadDA3 (eUploadDA3CallBack mode, const char *fullFilePathAndName)
+{
+    upldDA3CallBack = mode;
+    cpubridge::ask_WRITE_VMCDATAFILE (glob->subscriber, 0, fullFilePathAndName);
+}
+
 
 //*******************************************
 void FormBoot::on_buttonStart_clicked()
@@ -612,7 +557,7 @@ void FormBoot::on_btnOK_clicked()
     case eFileListMode_DA3:
         sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_VMCSettings, srcFilename.toStdString().c_str());
         priv_fileListHide();
-        priv_uploadDA3(src);
+        priv_on_btnInstall_DA3_onFileSelected(src);
         break;
 
     case eFileListMode_Manual:
@@ -759,16 +704,48 @@ void FormBoot::priv_uploadManual (const char *srcFullFolderPath)
  */
 void FormBoot::on_btnInstall_DA3_clicked()
 {
+    //chiedo all'utente quale file vuole uppare...
     priv_fileListShow(eFileListMode_DA3);
     priv_fileListPopulate(glob->usbFolder_VMCSettings, "*.da3", true);
 }
 
-void FormBoot::priv_uploadDA3 (const char *fullFilePathAndName)
+void FormBoot::priv_on_btnInstall_DA3_onFileSelected (const char *fullFilePathAndName)
 {
     priv_pleaseWaitShow("Installing VMC Settings...");
-    cpubridge::ask_WRITE_VMCDATAFILE (glob->subscriber, 0, fullFilePathAndName);
+    priv_startUploadDA3 (eUploadDA3CallBack_btn, fullFilePathAndName);
 }
 
+void FormBoot::priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg)
+{
+    cpubridge::eWriteDataFileStatus status;
+    u16 totKbSoFar = 0;
+    cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS (msg, &status, &totKbSoFar);
+
+    char s[512];
+    if (status == cpubridge::eWriteDataFileStatus_inProgress)
+    {
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d Kb", totKbSoFar);
+        priv_pleaseWaitSetText (s);
+    }
+    else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
+    {
+        upldDA3CallBack = eUploadDA3CallBack_none;
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");
+        priv_pleaseWaitSetOK (s);
+        priv_pleaseWaitHide();
+        priv_updateLabelInfo();
+        priv_foreverDisableBtnStartVMC();
+    }
+    else
+    {
+        upldDA3CallBack = eUploadDA3CallBack_none;
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... ERROR: %s", rhea::app::utils::verbose_writeDataFileStatus(status));
+        priv_pleaseWaitSetError(s);
+        priv_pleaseWaitHide();
+        priv_updateLabelInfo();
+    }
+
+}
 
 /**********************************************************************
  * Install GUI
@@ -856,7 +833,7 @@ void FormBoot::on_btnInstall_CPU_clicked()
 void FormBoot::priv_uploadCPUFW (const char *fullFilePathAndName)
 {
     priv_pleaseWaitShow("Installing CPU FW...");
-    foreverDisableBtnStartVMC();
+    priv_foreverDisableBtnStartVMC();
     cpubridge::ask_WRITE_CPUFW (glob->subscriber, 0, fullFilePathAndName);
 }
 
@@ -994,6 +971,75 @@ void FormBoot::on_btnDownload_GUI_clicked()
 }
 
 
+/**********************************************************************
+ * Download data audit
+ */
+void FormBoot::on_btnDownload_audit_clicked()
+{
+    priv_pleaseWaitShow("Downloading data audit...");
+    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack_btn);
+}
+
+void FormBoot::priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg)
+{
+    cpubridge::eReadDataFileStatus status;
+    u16 totKbSoFar = 0;
+    u16 fileID = 0;
+    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
+
+    char s[512];
+    if (status == cpubridge::eReadDataFileStatus_inProgress)
+    {
+        sprintf_s (s, sizeof(s), "Downloading data audit... %d Kb", totKbSoFar);
+        priv_pleaseWaitSetText (s);
+    }
+    else if (status == cpubridge::eReadDataFileStatus_finishedOK)
+    {
+        dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
+        sprintf_s (s, sizeof(s), "Downloading data audit finished. Copying to USB folder, please wait...");
+        priv_pleaseWaitSetText (s);
+
+        //se non esiste, creo il folder di destinazione
+        rhea::fs::folderCreate (glob->usbFolder_Audit);
+
+        char src[256];
+        sprintf_s (src, sizeof(src), "%s/dataAudit%d.txt", glob->tempFolder, fileID);
+
+        char dstFilename[64];
+        rhea::DateTime dt;
+        dt.setNow();
+        dt.formatAs_YYYYMMDDHHMMSS (s, sizeof(s), '_', '-', '-');
+        sprintf_s (dstFilename, sizeof(dstFilename), "dataAudit_%s.txt", s);
+
+        char dst[256];
+        sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_Audit, dstFilename);
+        if (!rhea::fs::fileCopy(src, dst))
+        {
+            priv_pleaseWaitSetError("Error copying file to USB");
+        }
+        else
+        {
+            sprintf_s (s, sizeof(s), "Finalizing copy...");
+            priv_syncUSBFileSystem(4000);
+
+            sprintf_s (s, sizeof(s), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
+            priv_pleaseWaitSetOK (s);
+        }
+
+        priv_pleaseWaitHide();
+
+    }
+    else
+    {
+        dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
+        sprintf_s (s, sizeof(s), "Downloading data audit... ERROR: %s", rhea::app::utils::verbose_readDataFileStatus(status));
+        priv_pleaseWaitSetError(s);
+        priv_pleaseWaitHide();
+    }
+}
+
+
+
 /************************************************************+
  * Download Diagnostic
  */
@@ -1005,10 +1051,66 @@ void FormBoot::on_btnDownload_diagnostic_clicked()
     sprintf_s (s, sizeof(s), "%s/RHEA_ServicePack.tar.gz", rhea::getPhysicalPathToAppFolder());
     rhea::fs::fileDelete(s);
 
+    //download del data audit. Al termine del download, la procedura riprende con la fn priv_on_btnDownload_diagnostic_makeZip()
+    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack_service);
+}
+
+void FormBoot::priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::sMsg &msg)
+{
+    cpubridge::eReadDataFileStatus status;
+    u16 totKbSoFar = 0;
+    u16 fileID = 0;
+    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
+
+    char s[512];
+    if (status == cpubridge::eReadDataFileStatus_inProgress)
+    {
+        sprintf_s (s, sizeof(s), "Preparing service zip file (it may takes up to 2 minutes)...<br>Downloading data audit... %d Kb", totKbSoFar);
+        priv_pleaseWaitSetText (s);
+    }
+    else if (status == cpubridge::eReadDataFileStatus_finishedOK)
+    {
+        dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
+
+        //finito, lo copio in /current (che poi viene zippata)
+        char src[256];
+        sprintf_s (src, sizeof(src), "%s/dataAudit%d.txt", glob->tempFolder, fileID);
+
+        char dstFilename[64];
+        rhea::DateTime dt;
+        dt.setNow();
+        dt.formatAs_YYYYMMDDHHMMSS (s, sizeof(s), '_', '-', '-');
+        sprintf_s (dstFilename, sizeof(dstFilename), "dataAudit_%s.txt", s);
+
+        char dst[256];
+        sprintf_s (dst, sizeof(dst), "%s/%s", glob->current, dstFilename);
+        rhea::fs::fileCopy(src, dst);
+
+        //passo alla fase successiva
+        priv_on_btnDownload_diagnostic_makeZip();
+    }
+    else
+    {
+        dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
+        //sprintf_s (s, sizeof(s), "Downloading data audit... ERROR: %s", rhea::app::utils::verbose_readDataFileStatus(status));
+
+        //passo alla fase successiva anche se c'è stato un errore nel download del data audit
+        priv_on_btnDownload_diagnostic_makeZip();
+    }
+}
+
+void FormBoot::priv_on_btnDownload_diagnostic_makeZip()
+{
+    //eseguo lo scprit che zippa tutto quanto
+    char s[512];
+    sprintf_s (s, sizeof(s), "Preparing service zip file (it may takes up to 2 minutes)...<br>compressing files...");
+    priv_pleaseWaitSetText (s);
+
     sprintf_s (s, sizeof(s), "%s/makeRheaServicePack.sh", rhea::getPhysicalPathToAppFolder());
     system(s);
 
 
+    //copio lo zip su USB
     priv_pleaseWaitSetText("Copying to USB...");
 
     char dstFileName[64];
@@ -1034,15 +1136,3 @@ void FormBoot::on_btnDownload_diagnostic_clicked()
     }
     priv_pleaseWaitHide();
 }
-
-
-/**********************************************************************
- * Download data audit
- */
-void FormBoot::on_btnDownload_audit_clicked()
-{
-    priv_pleaseWaitShow("Downloading data audit...");
-    cpubridge::ask_READ_DATA_AUDIT (glob->subscriber, 0);
-}
-
-

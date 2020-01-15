@@ -20,19 +20,10 @@ bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *lo
 	return socketbridge::startServer(logger, hCPUServiceChannelW, false, out_hThread);
 }
 
-void testEVA()
-{
-	EVADTSParser parser;
-	//parser.loadAndParse("C:/Users/gbrunelli/Desktop/Eva_A_1.txt");
-	parser.loadAndParse("C:/Users/gbrunelli/Desktop/dataAudit0.txt");
-}
 
 //*****************************************************
 bool startCPUBridge()
 {
-	//testEVA(); return false;
-
-
 #ifdef _DEBUG
 	rhea::StdoutLogger loggerSTD; 
 	//rhea::NullLogger loggerSTD;
