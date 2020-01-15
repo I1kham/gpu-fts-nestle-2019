@@ -69,6 +69,7 @@ struct sGlobal
     char    *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
     char    *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
     char    *usbFolder_Manual;
+    char    *usbFolder_AutoF2;              //folder su chiavetta USB per l'auto update
 
     rhea::ISimpleLogger *logger;
 };

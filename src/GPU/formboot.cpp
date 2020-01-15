@@ -25,7 +25,13 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     retCode = eRetCode_none;
     dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
     upldDA3CallBack = eUploadDA3CallBack_none;
+    upldCPUFWCallBack = eUploadCPUFWCallBack_none;
     bBtnStartVMCEnabled = true;
+
+    autoupdate.isRunning = false;
+    memset (autoupdate.cpuFileName, 0, sizeof(autoupdate.cpuFileName));
+    memset (autoupdate.da3FileName, 0, sizeof(autoupdate.da3FileName));
+    memset (autoupdate.guiFolderName, 0, sizeof(autoupdate.guiFolderName));
 
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
@@ -45,12 +51,15 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labVersion_protocol->setText("");
     ui->labGPU_buildDate->setText ("Build date: " __DATE__ " " __TIME__);
 
-
     //Bottoni
     ui->btnInstall_languages->setVisible(false);
 
     ui->framePleaseWait->setVisible(false);
     ui->framePleaseWait->move (0, 250);
+
+
+    ui->frameAutoUpdate->setVisible(false);
+
 
     priv_updateLabelInfo();
 }
@@ -84,6 +93,10 @@ void FormBoot::showMe()
         cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
         cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
+
+        //se esite la cartella AUTOF2, parto con l'autoupdate
+        if (priv_autoupdate_exists())
+            priv_autoupdate_showForm();
     }
     else
     {
@@ -96,24 +109,6 @@ void FormBoot::showMe()
     priv_updateLabelInfo();
     this->show();
 }
-
-//*******************************************
-eRetCode FormBoot::onTick()
-{
-    if (retCode != eRetCode_none)
-        return retCode;
-
-    //vediamo se CPUBridge ha qualcosa da dirmi
-    rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
-    {
-        priv_onCPUBridgeNotification(msg);
-        rhea::thread::deleteMsg(msg);
-    }
-
-    return eRetCode_none;
-}
-
 
 //*******************************************
 void FormBoot::priv_updateLabelInfo()
@@ -265,6 +260,26 @@ void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
     rhea::fs::fileDelete(s);
 }
 
+//*******************************************
+eRetCode FormBoot::onTick()
+{
+    if (retCode != eRetCode_none)
+        return retCode;
+
+    //vediamo se CPUBridge ha qualcosa da dirmi
+    rhea::thread::sMsg msg;
+    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    {
+        priv_onCPUBridgeNotification(msg);
+        rhea::thread::deleteMsg(msg);
+    }
+
+    if (autoupdate.isRunning)
+        priv_autoupdate_onTick();
+
+    return eRetCode_none;
+}
+
 /**************************************************************************
  * priv_onCPUBridgeNotification
  *
@@ -355,36 +370,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         break;
 
     case CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS:
+        switch (upldCPUFWCallBack)
         {
-            cpubridge::eWriteCPUFWFileStatus status;
-            u16 param = 0;
-            cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
-
-            char s[512];
-            if (status == cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash)
-            {
-                priv_pleaseWaitSetText ("Installing CPU FW...erasing flash");
-            }
-            else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
-            {
-                sprintf_s (s, sizeof(s), "Installing CPU FW... %d Kb", param);
-                priv_pleaseWaitSetText (s);
-            }
-            else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
-            {
-                sprintf_s (s, sizeof(s), "Installing CPU FW... SUCCESS, please restart the machine");
-                priv_pleaseWaitSetOK (s);
-                priv_pleaseWaitHide();
-                priv_updateLabelInfo();
-            }
-            else
-            {
-                sprintf_s (s, sizeof(s), "Installing CPU FW... ERROR: %s [%d]", rhea::app::utils::verbose_WriteCPUFWFileStatus(status), param);
-                priv_pleaseWaitSetError(s);
-                priv_pleaseWaitHide();
-                priv_updateLabelInfo();
-            }
-
+        default: break;
+        case eUploadCPUFWCallBack_btn: priv_on_btnInstall_CPU_upload(msg); break;
         }
         break;
     }
@@ -415,6 +404,12 @@ void FormBoot::priv_startUploadDA3 (eUploadDA3CallBack mode, const char *fullFil
     cpubridge::ask_WRITE_VMCDATAFILE (glob->subscriber, 0, fullFilePathAndName);
 }
 
+void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const char *fullFilePathAndName)
+{
+    upldCPUFWCallBack = mode;
+    priv_foreverDisableBtnStartVMC();
+    cpubridge::ask_WRITE_CPUFW (glob->subscriber, 0, fullFilePathAndName);
+}
 
 //*******************************************
 void FormBoot::on_buttonStart_clicked()
@@ -575,7 +570,7 @@ void FormBoot::on_btnOK_clicked()
     case eFileListMode_CPU:
         sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_CPUFW, srcFilename.toStdString().c_str());
         priv_fileListHide();
-        priv_uploadCPUFW(src);
+        priv_on_btnInstall_CPU_onFileSelected(src);
         break;
     }
 
@@ -747,6 +742,8 @@ void FormBoot::priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg)
 
 }
 
+
+
 /**********************************************************************
  * Install GUI
  */
@@ -785,9 +782,19 @@ void FormBoot::on_btnInstall_GUI_clicked()
 
 void FormBoot::priv_uploadGUI (const char *srcFullFolderPath)
 {
-    char s[512];
     priv_pleaseWaitShow("Installing GUI...");
 
+    if (priv_doInstallGUI (srcFullFolderPath))
+        priv_pleaseWaitSetOK("SUCCESS.<br>GUI installed");
+    else
+        priv_pleaseWaitSetError("ERROR copying files");
+
+    priv_pleaseWaitHide();
+    priv_updateLabelInfo();
+}
+
+bool FormBoot::priv_doInstallGUI (const char *srcFullFolderPath) const
+{
     //elimino la roba attualmente installata
     rhea::fs::deleteAllFileInFolderRecursively(glob->current_GUI, false);
     rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_gui, false);
@@ -796,48 +803,72 @@ void FormBoot::priv_uploadGUI (const char *srcFullFolderPath)
     char srcOnlyFolderName[256];
     rhea::fs::extractFileNameWithoutExt (srcFullFolderPath, srcOnlyFolderName, sizeof(srcOnlyFolderName));
     if (!rhea::fs::folderCopy(srcFullFolderPath, glob->current_GUI))
-        priv_pleaseWaitSetError("ERROR copying files");
-    else
+        return false;
+
+    //creo un file con il nome del folder e lo salvo in last_installed_gui in modo da poter visualizzare il "nome" dell'ultima gui installata
+    char s[512];
+    sprintf_s (s, sizeof(s), "%s/%s.rheagui", glob->last_installed_gui, srcOnlyFolderName);
+    FILE *f = fopen (s, "wt");
     {
-        //creo un file con il nome del folder e lo salvo in last_installed_gui in modo da poter visualizzare il "nome" dell'ultima gui installata
-        sprintf_s (s, sizeof(s), "%s/%s.rheagui", glob->last_installed_gui, srcOnlyFolderName);
-        FILE *f = fopen (s, "wt");
-        {
-            rhea::DateTime dt;
-            dt.setNow();
-            dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), ' ', '/', ':');
-            fprintf (f, "%s", s);
-        }
-        fclose(f);
-
-        priv_pleaseWaitSetOK("SUCCESS.<br>GUI installed");
+        rhea::DateTime dt;
+        dt.setNow();
+        dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), ' ', '/', ':');
+        fprintf (f, "%s", s);
     }
+    fclose(f);
 
-
-
-    priv_pleaseWaitHide();
-    priv_updateLabelInfo();
+    return true;
 }
-
 
 /************************************************************+
  * Install CPU FW
  */
 void FormBoot::on_btnInstall_CPU_clicked()
 {
+    //chiedo all'utente di scegliere il file
     priv_fileListShow(eFileListMode_CPU);
     priv_fileListPopulate(glob->usbFolder_CPUFW, "*.mhx", true);
-
 }
 
-void FormBoot::priv_uploadCPUFW (const char *fullFilePathAndName)
+void FormBoot::priv_on_btnInstall_CPU_onFileSelected (const char *fullFilePathAndName)
 {
     priv_pleaseWaitShow("Installing CPU FW...");
-    priv_foreverDisableBtnStartVMC();
-    cpubridge::ask_WRITE_CPUFW (glob->subscriber, 0, fullFilePathAndName);
+    priv_startUploadCPUFW (eUploadCPUFWCallBack_btn, fullFilePathAndName);
 }
 
+void FormBoot::priv_on_btnInstall_CPU_upload (rhea::thread::sMsg &msg)
+{
+    cpubridge::eWriteCPUFWFileStatus status;
+    u16 param = 0;
+    cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
 
+    char s[512];
+    if (status == cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash)
+    {
+        priv_pleaseWaitSetText ("Installing CPU FW...erasing flash");
+    }
+    else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
+    {
+        sprintf_s (s, sizeof(s), "Installing CPU FW... %d Kb", param);
+        priv_pleaseWaitSetText (s);
+    }
+    else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
+    {
+        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
+        sprintf_s (s, sizeof(s), "Installing CPU FW... SUCCESS, please restart the machine");
+        priv_pleaseWaitSetOK (s);
+        priv_pleaseWaitHide();
+        priv_updateLabelInfo();
+    }
+    else
+    {
+        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
+        sprintf_s (s, sizeof(s), "Installing CPU FW... ERROR: %s [%d]", rhea::app::utils::verbose_WriteCPUFWFileStatus(status), param);
+        priv_pleaseWaitSetError(s);
+        priv_pleaseWaitHide();
+        priv_updateLabelInfo();
+    }
+}
 
 /**********************************************************************
  * Download DA3
@@ -1136,3 +1167,343 @@ void FormBoot::priv_on_btnDownload_diagnostic_makeZip()
     }
     priv_pleaseWaitHide();
 }
+
+
+
+/************************************************************+
+ * autoupdate handler
+ */
+bool FormBoot::priv_autoupdate_exists()
+{
+    ui->labFileFound_cpuFW->setText("CPU: nothing found");
+    priv_autoupdate_setText (ui->labStatus_cpuFW, "waiting...");
+
+    ui->labFileFound_gui->setText("GUI: nothing found");
+    priv_autoupdate_setText (ui->labStatus_gui, "waiting...");
+
+    ui->labFileFound_da3->setText("VMC datafile: nothing found");
+    priv_autoupdate_setText (ui->labStatus_da3, "waiting...");
+
+    memset (autoupdate.cpuFileName, 0, sizeof(autoupdate.cpuFileName));
+    memset (autoupdate.da3FileName, 0, sizeof(autoupdate.da3FileName));
+    memset (autoupdate.guiFolderName, 0, sizeof(autoupdate.guiFolderName));
+
+    if (!rhea::fs::folderExists(glob->usbFolder_AutoF2))
+        return false;
+
+    bool ret = false;
+    OSFileFind ff;
+
+    //dentro la cartella, c'è un file per la CPU?
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, "*.mhx"))
+    {
+        do
+        {
+            if (rhea::fs::findIsDirectory(ff))
+                continue;
+
+            ret = true;
+            rhea::fs::findGetFileName (ff, autoupdate.cpuFileName, sizeof(autoupdate.cpuFileName));
+            ui->labFileFound_cpuFW->setText(QString("CPU: ") +autoupdate.cpuFileName);
+            break;
+
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+
+    //dentro la cartella, c'è un file da3?
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, "*.da3"))
+    {
+        do
+        {
+            if (rhea::fs::findIsDirectory(ff))
+                continue;
+
+            ret = true;
+            rhea::fs::findGetFileName (ff, autoupdate.da3FileName, sizeof(autoupdate.da3FileName));
+            ui->labFileFound_da3->setText(QString("VMC datafile: ") +autoupdate.da3FileName);
+            break;
+
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+
+    //dentro la cartella, c'è una cartella con una valida gui
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, "*.*"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+                continue;
+
+            const char *dirName = rhea::fs::findGetFileName(ff);
+            if (dirName[0] == '.')
+                continue;
+
+            char s[512];
+            sprintf_s (s, sizeof(s), "%s/%s/template.rheagui", glob->usbFolder_AutoF2, dirName);
+            if (rhea::fs::fileExists(s))
+            {
+                ret = true;
+                rhea::fs::findGetFileName (ff, autoupdate.guiFolderName, sizeof(autoupdate.guiFolderName));
+                ui->labFileFound_gui->setText(QString("GUI: ") +autoupdate.guiFolderName);
+                break;
+            }
+
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+
+    return ret;
+}
+
+//**********************************************************************
+void FormBoot::priv_autoupdate_setTextWithColor (QLabel *lab, const char *message, const char *bgColor, const char *textColor)
+{
+    char s[256];
+    sprintf_s (s, sizeof(s), "QLabel { background-color:%s; color:%s; }", bgColor, textColor);
+    lab->setStyleSheet(s);
+    lab->setVisible(true);
+    lab->setText(message);
+    QApplication::processEvents();
+}
+
+void FormBoot::priv_autoupdate_setText (QLabel *lab, const char *message)               { priv_autoupdate_setTextWithColor (lab, message, "#9b9", "#fff"); }
+void FormBoot::priv_autoupdate_setOK (QLabel *lab, const char *message)                 { priv_autoupdate_setTextWithColor (lab, message, "#43b441", "#fff"); }
+void FormBoot::priv_autoupdate_setError (QLabel *lab, const char *message)              { priv_autoupdate_setTextWithColor (lab, message, "#f00", "#fff"); }
+
+void FormBoot::priv_autoupdate_center (QLabel *lab)
+{
+    int x = (ui->frameAutoUpdate->width() - lab->width()) / 2;
+    lab->move (x, lab->y());
+}
+
+void FormBoot::priv_autoupdate_toTheLeft (QLabel *lab)
+{
+    lab->move (10, lab->y());
+}
+
+
+void FormBoot::priv_autoupdate_showForm()
+{
+    autoupdate.isRunning = true;
+    autoupdate.fase = eAutoUpdateFase_begin;
+    autoupdate.skipInHowManySec = 7;
+    autoupdate.nextTimeTickMSec = 0;
+
+    ui->labFirstMessage->setVisible(true);
+    ui->btnSkipAll->setText ("SKIP");
+    ui->btnSkipAll->setVisible(true);
+
+    priv_autoupdate_center(ui->labFileFound_cpuFW);
+    priv_autoupdate_center(ui->labStatus_cpuFW);
+    ui->btnSkipCPU->setVisible(false);
+
+    priv_autoupdate_center(ui->labFileFound_gui);
+    priv_autoupdate_center(ui->labStatus_gui);
+    ui->btnSkipGUI->setVisible(false);
+
+    priv_autoupdate_center(ui->labFileFound_da3);
+    priv_autoupdate_center(ui->labStatus_da3);
+    ui->btnSkipDA3->setVisible(false);
+
+    ui->labFinalMessage->setVisible(false);
+
+    ui->frameAutoUpdate->move(10, 35);
+    ui->frameAutoUpdate->setVisible(true);
+    ui->frameAutoUpdate->raise();
+
+}
+
+//*****************************************************
+void FormBoot::priv_autoupdate_onTick()
+{
+    const u64 timeNowMSec = rhea::getTimeNowMSec();
+    if (timeNowMSec < autoupdate.nextTimeTickMSec)
+        return;
+    autoupdate.nextTimeTickMSec = timeNowMSec+1000;
+
+    char s[128];
+
+    switch (autoupdate.fase)
+    {
+    case eAutoUpdateFase_begin:
+            //ho appena mostrato il form, sto visualizzando il msg iniziale ed il btn SKIP
+            if (autoupdate.skipInHowManySec == 0)
+            {
+                ui->btnSkipAll->setVisible(false);
+                autoupdate.fase = eAutoUpdateFase_cpu_start;
+            }
+            else
+            {
+                sprintf_s (s, sizeof(s), "SKIP (%d)", autoupdate.skipInHowManySec);
+                ui->btnSkipAll->setText (s);
+                autoupdate.skipInHowManySec--;
+            }
+        break;
+
+
+    case eAutoUpdateFase_cpu_start:
+        if (autoupdate.cpuFileName[0] == 0x00)
+        {
+            priv_autoupdate_setOK (ui->labStatus_cpuFW, "skipped, no valid file found");
+            autoupdate.fase = eAutoUpdateFase_gui_start;
+        }
+        else
+        {
+            priv_autoupdate_toTheLeft(ui->labFileFound_cpuFW);
+            priv_autoupdate_toTheLeft(ui->labStatus_cpuFW);
+            ui->btnSkipCPU->setText ("SKIP");
+            ui->btnSkipCPU->setVisible(true);
+            autoupdate.fase = eAutoUpdateFase_cpu_waitForSkip;
+            autoupdate.skipInHowManySec = 5;
+        }
+        break;
+
+    case eAutoUpdateFase_cpu_waitForSkip:
+        if (autoupdate.skipInHowManySec == 0)
+        {
+            ui->btnSkipCPU->setVisible(false);
+            autoupdate.fase = eAutoUpdateFase_cpu_upload;
+        }
+        else
+        {
+            sprintf_s (s, sizeof(s), "SKIP (%d)", autoupdate.skipInHowManySec);
+            ui->btnSkipCPU->setText (s);
+            autoupdate.skipInHowManySec--;
+        }
+    break;
+
+    case eAutoUpdateFase_cpu_upload:
+        priv_autoupdate_setOK (ui->labStatus_cpuFW, "SUCCESS");
+        autoupdate.fase = eAutoUpdateFase_gui_start;
+        break;
+
+
+
+    case eAutoUpdateFase_gui_start:
+        priv_autoupdate_center(ui->labFileFound_cpuFW);
+        priv_autoupdate_center(ui->labStatus_cpuFW);
+        if (autoupdate.guiFolderName[0] == 0x00)
+        {
+            priv_autoupdate_setOK (ui->labStatus_gui, "skipped, no valid file found");
+            autoupdate.fase = eAutoUpdateFase_da3_start;
+        }
+        else
+        {
+            priv_autoupdate_toTheLeft(ui->labFileFound_gui);
+            priv_autoupdate_toTheLeft(ui->labStatus_gui);
+            ui->btnSkipGUI->setText ("SKIP");
+            ui->btnSkipGUI->setVisible(true);
+            autoupdate.fase = eAutoUpdateFase_gui_waitForSkip;
+            autoupdate.skipInHowManySec = 5;
+        }
+        break;
+
+    case eAutoUpdateFase_gui_waitForSkip:
+        if (autoupdate.skipInHowManySec == 0)
+        {
+            ui->btnSkipGUI->setVisible(false);
+            autoupdate.fase = eAutoUpdateFase_gui_upload;
+        }
+        else
+        {
+            sprintf_s (s, sizeof(s), "SKIP (%d)", autoupdate.skipInHowManySec);
+            ui->btnSkipGUI->setText (s);
+            autoupdate.skipInHowManySec--;
+        }
+    break;
+
+    case eAutoUpdateFase_gui_upload:
+        priv_autoupdate_setOK (ui->labStatus_gui, "skipped, no valid file found");
+        autoupdate.fase = eAutoUpdateFase_da3_start;
+        break;
+
+
+
+
+    case eAutoUpdateFase_da3_start:
+        priv_autoupdate_center(ui->labFileFound_gui);
+        priv_autoupdate_center(ui->labStatus_gui);
+        if (autoupdate.da3FileName[0] == 0x00)
+        {
+            priv_autoupdate_setOK (ui->labStatus_da3, "skipped, no valid file found");
+            autoupdate.fase = eAutoUpdateFase_finished;
+        }
+        else
+        {
+            priv_autoupdate_toTheLeft(ui->labFileFound_da3);
+            priv_autoupdate_toTheLeft(ui->labStatus_da3);
+            ui->btnSkipDA3->setText ("SKIP");
+            ui->btnSkipDA3->setVisible(true);
+            autoupdate.fase = eAutoUpdateFase_da3_waitForSkip;
+            autoupdate.skipInHowManySec = 5;
+        }
+        break;
+
+    case eAutoUpdateFase_da3_waitForSkip:
+        if (autoupdate.skipInHowManySec == 0)
+        {
+            ui->btnSkipDA3->setVisible(false);
+            autoupdate.fase = eAutoUpdateFase_da3_upload;
+        }
+        else
+        {
+            sprintf_s (s, sizeof(s), "SKIP (%d)", autoupdate.skipInHowManySec);
+            ui->btnSkipDA3->setText (s);
+            autoupdate.skipInHowManySec--;
+        }
+    break;
+
+    case eAutoUpdateFase_da3_upload:
+        autoupdate.fase = eAutoUpdateFase_finished;
+        priv_autoupdate_setOK (ui->labStatus_da3, "SUCCESS");
+        break;
+
+    case eAutoUpdateFase_finished:
+        autoupdate.fase = eAutoUpdateFase_finished_wait;
+        priv_autoupdate_center(ui->labFileFound_da3);
+        priv_autoupdate_center(ui->labStatus_da3);
+        priv_autoupdate_setOK (ui->labFinalMessage, "Auto update finished. Please restart the machine");
+        break;
+
+    case eAutoUpdateFase_finished_wait:
+        break;
+
+    case eAutoUpdateFase_backToFormBoot:
+        autoupdate.isRunning = false;
+        ui->frameAutoUpdate->setVisible(false);
+        break;
+    }
+}
+
+//*****************************************************
+void FormBoot::on_btnSkipAll_clicked()
+{
+    ui->btnSkipAll->setVisible(false);
+    autoupdate.fase = eAutoUpdateFase_backToFormBoot;
+}
+
+void FormBoot::on_btnSkipCPU_clicked()
+{
+    ui->btnSkipCPU->setVisible(false);
+    priv_autoupdate_setOK (ui->labStatus_cpuFW, "skipped");
+    autoupdate.fase = eAutoUpdateFase_gui_start;
+
+}
+
+void FormBoot::on_btnSkipGUI_clicked()
+{
+    ui->btnSkipGUI->setVisible(false);
+    priv_autoupdate_setOK (ui->labStatus_gui, "skipped");
+    autoupdate.fase = eAutoUpdateFase_da3_start;
+}
+
+
+void FormBoot::on_btnSkipDA3_clicked()
+{
+    ui->btnSkipDA3->setVisible(false);
+    priv_autoupdate_setOK (ui->labStatus_da3, "skipped");
+    autoupdate.fase = eAutoUpdateFase_finished;
+}
+

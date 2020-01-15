@@ -595,7 +595,7 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>580</y>
+     <y>584</y>
      <width>1004</width>
      <height>511</height>
     </rect>
@@ -894,6 +894,385 @@ VMC settings</string>
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
+  <widget class="QFrame" name="frameAutoUpdate">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>35</y>
+     <width>1004</width>
+     <height>581</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#cc5f29</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::WinPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>271</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>16</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:#fff</string>
+    </property>
+    <property name="text">
+     <string>AUTO UPDATE DETECTED</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labStatus_cpuFW">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>154</y>
+      <width>841</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#9b9; color:#fff</string>
+    </property>
+    <property name="text">
+     <string>Stato dell'installazione del FW CPU</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labStatus_gui">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>264</y>
+      <width>841</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#9b9; color:#fff</string>
+    </property>
+    <property name="text">
+     <string>Stato dell'installazione della GUI</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labStatus_da3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>374</y>
+      <width>841</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#9b9; color:#fff</string>
+    </property>
+    <property name="text">
+     <string>Stato dell'installazione del DA3</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labFirstMessage">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>651</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:#fff</string>
+    </property>
+    <property name="text">
+     <string>Auto update has been detected and it will automatically starts in a few seconds.
+Click on SKIP if you do not want to auto update this machine.</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnSkipAll">
+    <property name="geometry">
+     <rect>
+      <x>790</x>
+      <y>30</y>
+      <width>200</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>SKIP (7)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnSkipCPU">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>130</y>
+      <width>121</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>SKIP (5)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnSkipGUI">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>240</y>
+      <width>121</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>SKIP (5)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnSkipDA3">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>350</y>
+      <width>121</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>SKIP (5)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labFinalMessage">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>450</y>
+      <width>981</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#9b9; color:#fff</string>
+    </property>
+    <property name="text">
+     <string>Finito, fare il reboot</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labFileFound_cpuFW">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>130</y>
+      <width>841</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#000; color:#fff</string>
+    </property>
+    <property name="text">
+     <string>CPU: nothing found</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labFileFound_gui">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>841</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#000; color:#fff</string>
+    </property>
+    <property name="text">
+     <string>GUI: nothing found</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labFileFound_da3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>350</y>
+      <width>841</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#000; color:#fff</string>
+    </property>
+    <property name="text">
+     <string>VMC datafile: nothing found</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
   <zorder>buttonStart</zorder>
   <zorder>labCPUMessage</zorder>
   <zorder>labInstalledFiles</zorder>
@@ -914,10 +1293,11 @@ VMC settings</string>
   <zorder>line_3</zorder>
   <zorder>line_4</zorder>
   <zorder>line_5</zorder>
-  <zorder>frameFileList</zorder>
   <zorder>labInstalled_DA3_DataUM</zorder>
   <zorder>labGPU_buildDate</zorder>
   <zorder>labVersion_GPU</zorder>
+  <zorder>frameFileList</zorder>
+  <zorder>frameAutoUpdate</zorder>
  </widget>
  <resources/>
  <connections/>

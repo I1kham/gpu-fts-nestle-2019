@@ -154,7 +154,6 @@ void MainWindow::priv_showForm (eForm w)
         cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         this->show();
         utils::hideMouse();
-
         break;
 
     case eForm_boot:

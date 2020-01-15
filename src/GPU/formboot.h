@@ -1,6 +1,7 @@
 #ifndef FORMBOOT_H
 #define FORMBOOT_H
 #include <QDialog>
+#include <QLabel>
 #include "header.h"
 #include "../CPUBridge/CPUBridge.h"
 
@@ -40,6 +41,14 @@ private slots:
     void                on_btnDownload_diagnostic_clicked();
     void                on_btnInstall_CPU_clicked();
 
+    void on_btnSkipAll_clicked();
+
+    void on_btnSkipCPU_clicked();
+
+    void on_btnSkipDA3_clicked();
+
+    void on_btnSkipGUI_clicked();
+
 private:
     enum eFileListMode
     {
@@ -62,6 +71,45 @@ private:
         eUploadDA3CallBack_btn = 1
     };
 
+    enum eUploadCPUFWCallBack
+    {
+        eUploadCPUFWCallBack_none = 0,
+        eUploadCPUFWCallBack_btn = 1,
+    };
+
+    enum eAutoUpdateFase
+    {
+        eAutoUpdateFase_begin = 0,
+
+        eAutoUpdateFase_cpu_start = 10,
+        eAutoUpdateFase_cpu_waitForSkip = 11,
+        eAutoUpdateFase_cpu_upload = 12,
+
+        eAutoUpdateFase_gui_start = 20,
+        eAutoUpdateFase_gui_waitForSkip = 21,
+        eAutoUpdateFase_gui_upload = 22,
+
+        eAutoUpdateFase_da3_start = 30,
+        eAutoUpdateFase_da3_waitForSkip = 31,
+        eAutoUpdateFase_da3_upload = 32,
+
+        eAutoUpdateFase_finished = 252,
+        eAutoUpdateFase_finished_wait = 253,
+        eAutoUpdateFase_backToFormBoot = 254
+    };
+
+private:
+    struct sAutoupdate
+    {
+        bool        isRunning;
+        eAutoUpdateFase  fase;
+        u8          skipInHowManySec;
+        u64         nextTimeTickMSec;
+        char        cpuFileName[256];
+        char        da3FileName[256];
+        char        guiFolderName[256];
+    };
+
 private:
     void                    priv_pleaseWaitShow (const char *message);
     void                    priv_pleaseWaitHide();
@@ -81,16 +129,29 @@ private:
     void                    priv_on_btnInstall_DA3_onFileSelected (const char *srcFullFilePathAndName);
     void                    priv_uploadManual (const char *srcFullFilePathAndName);
     void                    priv_uploadGUI (const char *srcFullFolderPath);
-    void                    priv_uploadCPUFW (const char *fullFilePathAndName);
+    void                    priv_on_btnInstall_CPU_onFileSelected (const char *fullFilePathAndName);
     void                    priv_syncUSBFileSystem(u64 minTimeMSecToWaitMSec);
     void                    priv_enableButton (QPushButton *btn, bool bEnabled);
 
     void                    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode);
     void                    priv_startUploadDA3 (eUploadDA3CallBack mode, const char *fullFilePathAndName);
+    void                    priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const char *fullFilePathAndName);
     void                    priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg);
     void                    priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::sMsg &msg);
     void                    priv_on_btnDownload_diagnostic_makeZip();
     void                    priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg);
+    void                    priv_on_btnInstall_CPU_upload (rhea::thread::sMsg &msg);
+    bool                    priv_doInstallGUI (const char *srcFullFolderPath) const;
+
+    bool                    priv_autoupdate_exists();
+    void                    priv_autoupdate_showForm();
+    void                    priv_autoupdate_onTick();
+    void                    priv_autoupdate_setTextWithColor (QLabel *lab, const char *message, const char *bgColor, const char *textColor);
+    void                    priv_autoupdate_setText (QLabel *lab, const char *message);
+    void                    priv_autoupdate_setOK (QLabel *lab, const char *message);
+    void                    priv_autoupdate_setError (QLabel *lab, const char *message);
+    void                    priv_autoupdate_center (QLabel *lab);
+    void                    priv_autoupdate_toTheLeft (QLabel *lab);
 
 private:
     sGlobal                 *glob;
@@ -101,6 +162,8 @@ private:
     eRetCode                retCode;
     eDwnloadDataAuditCallBack dwnloadDataAuditCallBack;
     eUploadDA3CallBack      upldDA3CallBack;
+    eUploadCPUFWCallBack    upldCPUFWCallBack;
+    sAutoupdate             autoupdate;
 
 };
 
