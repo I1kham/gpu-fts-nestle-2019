@@ -836,7 +836,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 					for (u8 i = 0; i < numOffs; i++)
 					{
                         offs[i].codice = answerBuffer[ct++];
-                        offs[i].tipo = answerBuffer[ct++];
+                        const u8 tipo = answerBuffer[ct++];
+						if ((tipo >= 'a' && tipo <= 'z') || (tipo >= 'A' && tipo <= 'Z') || (tipo >= '0' && tipo <= '9'))
+							offs[i].tipo = tipo;
+						else
+							offs[i].tipo = ' ';
                         offs[i].ora = answerBuffer[ct++];
                         offs[i].minuto = answerBuffer[ct++];
                         offs[i].giorno = answerBuffer[ct++];

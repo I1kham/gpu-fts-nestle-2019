@@ -1419,7 +1419,6 @@ function pageMaintenance_refreshOFFList(startIndex)
 	rhea.ajax ("getOFFList", { "startIndex":startIndex}).then( function(result)
 	{
 		var data = JSON.parse(result);
-		//console.log (data);
 		
 		if (startIndex == 0)
 		{
@@ -1434,6 +1433,10 @@ function pageMaintenance_refreshOFFList(startIndex)
 		var numOffs = data.yyyy.length;
 		for (var i=0; i<numOffs; i++)
 		{
+			//la CPU per errore potrebbe mandare degli OFF con data 2001/01/01 alle 01:01 codice:1
+			//Questi OFF li filtro e non li mostro
+			if (data.yyyy[i]==2001 && data.mm[i]==1 && data.dd[i]==1 && data.hh[i]==1 && data.min[i]==1)
+				continue;
 			var rowCss="";
 			pageMaintenance_offListHTML += "<tr valign='middle'" +rowCss +">"
 					+"<td>" +data.yyyy[i] +"/" +data.mm[i] +"/" +data.dd[i] +"</td>"
