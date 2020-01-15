@@ -6,7 +6,7 @@
 /*#define GPU_VERSION_MAJOR   2
 #define GPU_VERSION_MINOR   0
 #define GPU_VERSION_BUILD   0*/
-#define GPU_VERSION "2.1.0 RC"
+#define GPU_VERSION "2.2.0"
 
 
 //nome della porta seriale

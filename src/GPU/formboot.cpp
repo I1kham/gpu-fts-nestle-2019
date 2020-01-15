@@ -366,6 +366,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         {
         default: break;
         case eUploadDA3CallBack_btn: priv_on_btnInstall_DA3_upload(msg); break;
+        case eUploadDA3CallBack_auto: priv_autoupdate_onDA3_upload(msg); break;
         }
         break;
 
@@ -374,6 +375,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         {
         default: break;
         case eUploadCPUFWCallBack_btn: priv_on_btnInstall_CPU_upload(msg); break;
+        case eUploadCPUFWCallBack_auto: priv_autoupdate_onCPU_upload(msg); break;
         }
         break;
     }
@@ -1176,13 +1178,13 @@ void FormBoot::priv_on_btnDownload_diagnostic_makeZip()
 bool FormBoot::priv_autoupdate_exists()
 {
     ui->labFileFound_cpuFW->setText("CPU: nothing found");
-    priv_autoupdate_setText (ui->labStatus_cpuFW, "waiting...");
+    priv_autoupdate_setText (ui->labStatus_cpuFW, "pending...");
 
     ui->labFileFound_gui->setText("GUI: nothing found");
-    priv_autoupdate_setText (ui->labStatus_gui, "waiting...");
+    priv_autoupdate_setText (ui->labStatus_gui, "pending...");
 
     ui->labFileFound_da3->setText("VMC datafile: nothing found");
-    priv_autoupdate_setText (ui->labStatus_da3, "waiting...");
+    priv_autoupdate_setText (ui->labStatus_da3, "pending...");
 
     memset (autoupdate.cpuFileName, 0, sizeof(autoupdate.cpuFileName));
     memset (autoupdate.da3FileName, 0, sizeof(autoupdate.da3FileName));
@@ -1323,7 +1325,7 @@ void FormBoot::priv_autoupdate_onTick()
         return;
     autoupdate.nextTimeTickMSec = timeNowMSec+1000;
 
-    char s[128];
+    char s[512];
 
     switch (autoupdate.fase)
     {
@@ -1375,9 +1377,24 @@ void FormBoot::priv_autoupdate_onTick()
     break;
 
     case eAutoUpdateFase_cpu_upload:
-        priv_autoupdate_setOK (ui->labStatus_cpuFW, "SUCCESS");
+        autoupdate.fase = eAutoUpdateFase_cpu_upload_wait;
+        priv_autoupdate_setText(ui->labStatus_cpuFW, "Installing CPU FW...");
+        sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.cpuFileName);
+        priv_startUploadCPUFW (eUploadCPUFWCallBack_auto, s);
+        break;
+
+    case eAutoUpdateFase_cpu_upload_wait:
+        break;
+
+    case eAutoUpdateFase_cpu_upload_finishedKO:
+        autoupdate.fase = eAutoUpdateFase_finishedKO;
+        break;
+
+    case eAutoUpdateFase_cpu_upload_finishedOK:
         autoupdate.fase = eAutoUpdateFase_gui_start;
         break;
+
+
 
 
 
@@ -1415,9 +1432,27 @@ void FormBoot::priv_autoupdate_onTick()
     break;
 
     case eAutoUpdateFase_gui_upload:
-        priv_autoupdate_setOK (ui->labStatus_gui, "skipped, no valid file found");
-        autoupdate.fase = eAutoUpdateFase_da3_start;
+        autoupdate.fase = eAutoUpdateFase_gui_upload_copy;
+        priv_autoupdate_setText(ui->labStatus_gui, "Installing GUI, please wait...");
         break;
+
+    case eAutoUpdateFase_gui_upload_copy:
+        sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.guiFolderName);
+        if (priv_doInstallGUI (s))
+        {
+            priv_autoupdate_setOK (ui->labStatus_gui, "SUCCESS, GUI installed");
+            autoupdate.fase = eAutoUpdateFase_da3_start;
+        }
+        else
+        {
+            priv_autoupdate_setError (ui->labStatus_gui, "ERROR copying files");
+            autoupdate.fase = eAutoUpdateFase_finishedKO;
+        }
+        break;
+
+
+
+
 
 
 
@@ -1456,15 +1491,39 @@ void FormBoot::priv_autoupdate_onTick()
     break;
 
     case eAutoUpdateFase_da3_upload:
-        autoupdate.fase = eAutoUpdateFase_finished;
-        priv_autoupdate_setOK (ui->labStatus_da3, "SUCCESS");
+        priv_autoupdate_setText (ui->labStatus_da3, "Installing VMC Settings...");
+        sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.da3FileName);
+        priv_startUploadDA3 (eUploadDA3CallBack_auto, s);
+        autoupdate.fase = eAutoUpdateFase_da3_upload_wait;
         break;
+
+    case eAutoUpdateFase_da3_upload_wait:
+        break;
+
+    case eAutoUpdateFase_da3_upload_finishedOK:
+        autoupdate.fase = eAutoUpdateFase_finished;
+        break;
+
+    case eAutoUpdateFase_da3_upload_finishedKO:
+        autoupdate.fase = eAutoUpdateFase_finishedKO;
+        break;
+
+
+
+
 
     case eAutoUpdateFase_finished:
         autoupdate.fase = eAutoUpdateFase_finished_wait;
         priv_autoupdate_center(ui->labFileFound_da3);
         priv_autoupdate_center(ui->labStatus_da3);
         priv_autoupdate_setOK (ui->labFinalMessage, "Auto update finished. Please restart the machine");
+        break;
+
+    case eAutoUpdateFase_finishedKO:
+        autoupdate.fase = eAutoUpdateFase_finished_wait;
+        priv_autoupdate_center(ui->labFileFound_da3);
+        priv_autoupdate_center(ui->labStatus_da3);
+        priv_autoupdate_setError (ui->labFinalMessage, "Auto update failed. Please restart the machine");
         break;
 
     case eAutoUpdateFase_finished_wait:
@@ -1507,3 +1566,69 @@ void FormBoot::on_btnSkipDA3_clicked()
     autoupdate.fase = eAutoUpdateFase_finished;
 }
 
+//******************************************************************
+void FormBoot::priv_autoupdate_onCPU_upload (rhea::thread::sMsg &msg)
+{
+    cpubridge::eWriteCPUFWFileStatus status;
+    u16 param = 0;
+    cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
+
+    char s[512];
+    if (status == cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash)
+    {
+        priv_autoupdate_setText(ui->labStatus_cpuFW, "Installing CPU FW...erasing flash");
+    }
+    else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
+    {
+        sprintf_s (s, sizeof(s), "Installing CPU FW... %d Kb", param);
+        priv_autoupdate_setText(ui->labStatus_cpuFW, s);
+    }
+    else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
+    {
+        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
+        sprintf_s (s, sizeof(s), "Installing CPU FW... SUCCESS");
+        priv_autoupdate_setOK(ui->labStatus_cpuFW, s);
+        priv_updateLabelInfo();
+        autoupdate.fase = eAutoUpdateFase_cpu_upload_finishedOK;
+    }
+    else
+    {
+        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
+        sprintf_s (s, sizeof(s), "Installing CPU FW... ERROR: %s [%d]", rhea::app::utils::verbose_WriteCPUFWFileStatus(status), param);
+        priv_autoupdate_setError(ui->labStatus_cpuFW, s);
+        priv_updateLabelInfo();
+        autoupdate.fase = eAutoUpdateFase_cpu_upload_finishedKO;
+    }
+}
+
+//******************************************************************
+void FormBoot::priv_autoupdate_onDA3_upload (rhea::thread::sMsg &msg)
+{
+    cpubridge::eWriteDataFileStatus status;
+    u16 totKbSoFar = 0;
+    cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS (msg, &status, &totKbSoFar);
+
+    char s[512];
+    if (status == cpubridge::eWriteDataFileStatus_inProgress)
+    {
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d Kb", totKbSoFar);
+        priv_autoupdate_setText (ui->labStatus_da3, s);
+    }
+    else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
+    {
+        upldDA3CallBack = eUploadDA3CallBack_none;
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");
+        priv_autoupdate_setOK (ui->labStatus_da3, s);
+        priv_updateLabelInfo();
+        autoupdate.fase = eAutoUpdateFase_da3_upload_finishedOK;
+    }
+    else
+    {
+        upldDA3CallBack = eUploadDA3CallBack_none;
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... ERROR: %s", rhea::app::utils::verbose_writeDataFileStatus(status));
+        priv_autoupdate_setError (ui->labStatus_da3, s);
+        priv_updateLabelInfo();
+        autoupdate.fase = eAutoUpdateFase_da3_upload_finishedKO;
+    }
+
+}

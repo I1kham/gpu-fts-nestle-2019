@@ -916,6 +916,7 @@ var currentPageID="";
 var timeNowMSec = 0;
 var uiStandAloneNum = null;
 var manualFolderName = "";
+var currentCPUStatusID = -1;
 
 function onRheaBootstrapFinished()
 {
@@ -923,7 +924,7 @@ function onRheaBootstrapFinished()
 	document.getElementById("pagePleaseWait_freeBtn2").addEventListener("mousedown", function(ev) { currentTask.onFreeBtn2Clicked(ev); } , true);
 		
 	
-	rhea.onEvent_cpuStatus = function(statusID, statusStr) 			{ currentTask.onEvent_cpuStatus(statusID, statusStr); }
+	rhea.onEvent_cpuStatus = function(statusID, statusStr) 			{ currentCPUStatusID=statusID; currentTask.onEvent_cpuStatus(statusID, statusStr); }
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
 	
 	dataOra_setup();
@@ -1050,10 +1051,35 @@ function onGUIInfoLoaded()
 		case "pageCleaningMilker": 
 			//start del lavaggio milker e, alla fine, goto back to HMI
 			pageCleaning_show(); 
-			pageCleaning_startLavSanitario(5,0); 
+			
+			//prima di poter partire col lavaggio sanitario del milker, bisogna che la CPU non sia ancora in stato INI_CHECK
+			//pageCleaning_startLavSanitario(5,1); 
 			bGotoHMIAfterLavaggio = 1;
+			pleaseWait_show(); 
+			pleaseWait_freeText_show();
+			pleaseWait_freeText_setText("MILK MODULE RINSING<br>Waiting for machine to be ready");
+			setTimeout (waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3), 100);
 			break;
 	}	
+}
+	
+function waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft)
+{
+	pleaseWait_freeText_appendText(".");
+	if (currentCPUStatusID != 2) //2 == READY
+	{
+		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3); }, 1000);
+		return;
+	}
+	
+	howManyTimesLeft--;
+	if (howManyTimesLeft == 0)
+	{
+		pleaseWait_freeText_appendText ("<br>Cleaning is starting");
+		pageCleaning_startLavSanitario(5,1); 
+	}
+	else
+		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft); }, 1000);
 }
 
 function manualViewBox_show()

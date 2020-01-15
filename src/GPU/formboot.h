@@ -68,34 +68,44 @@ private:
     enum eUploadDA3CallBack
     {
         eUploadDA3CallBack_none = 0,
-        eUploadDA3CallBack_btn = 1
+        eUploadDA3CallBack_btn = 1,
+        eUploadDA3CallBack_auto = 2
     };
 
     enum eUploadCPUFWCallBack
     {
         eUploadCPUFWCallBack_none = 0,
         eUploadCPUFWCallBack_btn = 1,
+        eUploadCPUFWCallBack_auto = 2
     };
 
     enum eAutoUpdateFase
     {
-        eAutoUpdateFase_begin = 0,
+        eAutoUpdateFase_begin,
 
-        eAutoUpdateFase_cpu_start = 10,
-        eAutoUpdateFase_cpu_waitForSkip = 11,
-        eAutoUpdateFase_cpu_upload = 12,
+        eAutoUpdateFase_cpu_start,
+        eAutoUpdateFase_cpu_waitForSkip,
+        eAutoUpdateFase_cpu_upload,
+        eAutoUpdateFase_cpu_upload_wait,
+        eAutoUpdateFase_cpu_upload_finishedOK,
+        eAutoUpdateFase_cpu_upload_finishedKO,
 
-        eAutoUpdateFase_gui_start = 20,
-        eAutoUpdateFase_gui_waitForSkip = 21,
-        eAutoUpdateFase_gui_upload = 22,
+        eAutoUpdateFase_gui_start,
+        eAutoUpdateFase_gui_waitForSkip,
+        eAutoUpdateFase_gui_upload,
+        eAutoUpdateFase_gui_upload_copy,
 
-        eAutoUpdateFase_da3_start = 30,
-        eAutoUpdateFase_da3_waitForSkip = 31,
-        eAutoUpdateFase_da3_upload = 32,
+        eAutoUpdateFase_da3_start,
+        eAutoUpdateFase_da3_waitForSkip,
+        eAutoUpdateFase_da3_upload,
+        eAutoUpdateFase_da3_upload_wait,
+        eAutoUpdateFase_da3_upload_finishedOK,
+        eAutoUpdateFase_da3_upload_finishedKO,
 
-        eAutoUpdateFase_finished = 252,
-        eAutoUpdateFase_finished_wait = 253,
-        eAutoUpdateFase_backToFormBoot = 254
+        eAutoUpdateFase_finished,
+        eAutoUpdateFase_finishedKO,
+        eAutoUpdateFase_finished_wait,
+        eAutoUpdateFase_backToFormBoot
     };
 
 private:
@@ -152,6 +162,8 @@ private:
     void                    priv_autoupdate_setError (QLabel *lab, const char *message);
     void                    priv_autoupdate_center (QLabel *lab);
     void                    priv_autoupdate_toTheLeft (QLabel *lab);
+    void                    priv_autoupdate_onCPU_upload (rhea::thread::sMsg &msg);
+    void                    priv_autoupdate_onDA3_upload (rhea::thread::sMsg &msg);
 
 private:
     sGlobal                 *glob;
