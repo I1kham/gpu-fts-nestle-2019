@@ -313,7 +313,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             bool isUnicode = false;
             char s[256];
             cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, &isUnicode, (u8*)s, sizeof(s));
-            ui->labVersion_CPUMasterName->setText(s);
+            QString sss = s;
+            sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " ");
+            sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " ");
+            ui->labVersion_CPUMasterName->setText(sss);
         }
         break;
 

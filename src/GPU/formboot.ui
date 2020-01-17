@@ -1286,6 +1286,7 @@ Click on SKIP if you do not want to auto update this machine.</string>
     <font>
      <family>Roboto</family>
      <pointsize>12</pointsize>
+     <italic>true</italic>
     </font>
    </property>
    <property name="styleSheet">
