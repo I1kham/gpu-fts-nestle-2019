@@ -101,6 +101,7 @@ void FormBoot::showMe()
         cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
         cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
+        cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
 
         //se esite la cartella AUTOF2, parto con l'autoupdate
         if (priv_autoupdate_exists())
@@ -307,6 +308,15 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
+    case CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER:
+        {
+            bool isUnicode = false;
+            char s[256];
+            cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, &isUnicode, (u8*)s, sizeof(s));
+            ui->labVersion_CPUMasterName->setText(s);
+        }
+        break;
+
     case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
         {
             char s[256];

@@ -1277,7 +1277,7 @@ Click on SKIP if you do not want to auto update this machine.</string>
    <property name="geometry">
     <rect>
      <x>770</x>
-     <y>105</y>
+     <y>100</y>
      <width>241</width>
      <height>25</height>
     </rect>
@@ -1289,7 +1289,7 @@ Click on SKIP if you do not want to auto update this machine.</string>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#000</string>
+    <string notr="true">background-color:#000;color:#fff</string>
    </property>
    <property name="text">
     <string>CPU Master name</string>

@@ -141,7 +141,8 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeServer.cpp \
     ../../src/SocketBridge/SocketBridgeTask.cpp \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
-    ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
+    ../../src/SocketBridge/SocketBridgeTaskStatus.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -217,7 +218,8 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeServer.h \
     ../../src/SocketBridge/SocketBridgeTask.h \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
-    ../../src/SocketBridge/SocketBridgeVersion.h
+    ../../src/SocketBridge/SocketBridgeVersion.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.h
 
 unix {
     target.path = /usr/lib
