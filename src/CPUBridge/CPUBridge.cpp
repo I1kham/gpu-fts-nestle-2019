@@ -1264,6 +1264,55 @@ void cpubridge::translateNotify_GET_LAST_FLUX_INFORMATION(const rhea::thread::sM
 	*out_lastGrinderPosition = rhea::utils::bufferReadU16(&p[2]);
 }
 
+//***************************************************
+void cpubridge::notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool isUnicode, const u8 *msg)
+{
+	logger->log("notify_CPU_STRING_VERSION_AND_MODEL\n");
+
+	u8 buffer[68];
+
+	if (isUnicode)
+	{
+		buffer[0] = 0x01;
+		memcpy(&buffer[1], msg, 64);
+		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 65);
+	}
+	else
+	{
+		buffer[0] = 0x00;
+		memcpy(&buffer[1], msg, 32);
+		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 33);
+	}
+
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread::sMsg &msg, bool *out_isUnicode, u8 *out_msg, u32 sizeOfOutMsg)
+{
+	assert(msg.what == CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER);
+	const u8 *p = (const u8*)msg.buffer;
+
+	u8 nToCopy;
+	if (p[0] == 0x00)
+	{
+		*out_isUnicode = false;
+		nToCopy = 32;
+	}
+	else
+	{
+		*out_isUnicode = true;
+		nToCopy = 64;
+	}
+
+	if (sizeOfOutMsg >= nToCopy)
+		memcpy(out_msg, &p[1], nToCopy);
+	else
+	{
+		out_msg[0] = out_msg[1] = 0x00;
+	}
+
+
+}
 
 
 //***************************************************
@@ -1613,6 +1662,13 @@ void cpubridge::ask_CPU_GET_LAST_FLUX_INFORMATION(const sSubscriber &from, u16 h
 void cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
+
 }
 
 

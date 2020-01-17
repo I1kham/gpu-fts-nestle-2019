@@ -227,6 +227,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.cpp">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -426,6 +429,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.h">
       <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

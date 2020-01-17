@@ -32,6 +32,7 @@
 #include "CmdHandler/CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x18_GetOFFList.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.h"
 
 using namespace socketbridge;
 
@@ -96,6 +97,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp);
 	CHECK(CmdHandler_ajaxReq_P0x18_GetOFFList);
 	CHECK(CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo);
+	CHECK(CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer);
 
 #undef CHECK
     return NULL;

@@ -51,6 +51,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_T_VMCDataFileTimestamp.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqBtnPressed.cpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskSpawn.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTaskStatus.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_T_VMCDataFileTimestamp.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqBtnPressed.h" />

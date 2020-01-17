@@ -869,6 +869,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL:
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_STR_VERSION_AND_MODEL:
 			{
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_getCPUStringVersionAndModel(bufferW, sizeof(bufferW));
@@ -888,8 +889,15 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 							len = 64;
 						memcpy(cpuStringModelAndVersion, &answerBuffer[5], len);
 
-						//per i prossimi 7 secondi, nella risposta al comando B inserirò di default il messaggio con la versione e modello
-						showCPUStringModelAndVersionUntil_msec = rhea::getTimeNowMSec() + 7000;
+						if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL)
+						{
+							//per i prossimi 7 secondi, nella risposta al comando B inserirò di default il messaggio con la versione e modello
+							showCPUStringModelAndVersionUntil_msec = rhea::getTimeNowMSec() + 7000;
+						}
+						else
+						{
+							notify_CPU_STRING_VERSION_AND_MODEL(sub->q, handlerID, logger, isUnicode, cpuStringModelAndVersion);
+						}
 					}
 				}
 			}
