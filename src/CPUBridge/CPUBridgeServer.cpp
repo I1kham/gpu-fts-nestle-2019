@@ -382,7 +382,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		{
 			char srcFullFileNameAndPath[512];
 			translate_WRITE_VMCDATAFILE(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-			if (stato.get() == sStato::eStato_normal)
+            if (stato.get() == sStato::eStato_normal || stato.get() == sStato::eStato_CPUNotSupported)
 				priv_uploadVMCDataFile(&sub->q, handlerID, srcFullFileNameAndPath);
 			else
 				//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
@@ -1795,7 +1795,7 @@ void Server::priv_handleState_compatibilityCheck()
 		nRetry--;
 		if (nRetry == 0)
 		{
-			//la CPU non ha mai risposto, ne deduco che non esiste oppure non è in gradi di rispondere.
+            //la CPU non ha mai risposto, ne deduco che non esiste oppure non è in grado di rispondere.
 			//Essendo questa la procedera di "boot", vado nello stato NOT_SUPPORTED perchè non sono stato
 			//in grado di contattare la CPU nemmeno una volta
 			priv_enterState_CPUNotSupported();
@@ -1807,7 +1807,7 @@ void Server::priv_handleState_compatibilityCheck()
 
 
 
-	//la CPU ha risposto, a questo punto verifico che supporti il comando "c"
+    //la CPU ha risposto, a questo punto verifico che supporti il comando "c" che è tipico delle CPU fusion2
 	priv_handleMsgQueues(rhea::getTimeNowMSec(), 10);
 	nRetry = 4;
 	while (1)
@@ -1834,7 +1834,11 @@ void Server::priv_handleState_compatibilityCheck()
 	priv_enterState_DA3Sync();
 }
 
-//***************************************************
+/***************************************************
+ * Questo stato è una sorta di stato invalido e ci si entra quando, durante le fasi iniziali, la GPU non è riuscita a contattare la CPU
+ * oppure la CPU contattata non è una versione valida per questo sw.
+ * Da questo stato non si esce mai. E' consentito aggiornare il FW di CPU, ma alla fine è comunque necessario fare il reboot
+ */
 void Server::priv_enterState_CPUNotSupported()
 {
 	logger->log("CPUBridgeServer::priv_enterState_CPUNotSupported()\n");
@@ -1882,8 +1886,12 @@ void Server::priv_handleState_CPUNotSupported()
 	}
 }
 
-
-//***************************************************
+/***************************************************
+ * In questo stato la GPU consulta la CPU per verificare lo stato di sincronia del DA3.
+ * Se la CPU riporta un timestamp != da quello della GPU, allora automaticamente parte la procedura di download del DA3 e aggiornamento del timestamp.
+ * Lo scopo ultimo di questo stato è fare in modo che il DA3 di GPU sia uguale a quello di CPU.
+ * Da questo stato si passa automaticamente nello stato "normal" oppure in "com error"
+ */
 void Server::priv_enterState_DA3Sync()
 {
 	logger->log("CPUBridgeServer::priv_enterState_DA3Sync()\n");
@@ -2009,7 +2017,12 @@ void Server::priv_handleState_DA3Sync()
 
 
 
-//***************************************************
+/***************************************************
+ * Se la CPU ha smesso di rispondere, si entra in questo stato.
+ * Una volta qui dentro, la GPU comincerà a mandare il comando "C" perdiodicamente (circa una volta ogni 3 secondi).
+ * Se la CPU risponde, si passa automaticamente allo stato DA3Sync.
+ * Fintanto che la CPU non risponde, si rimane qui dentro all'infinito, inviando periodicamente il comando "C" per vedere se la CPU è viva
+ */
 void Server::priv_enterState_comError()
 {
 	logger->log("CPUBridgeServer::priv_enterState_comError()\n");
@@ -2150,7 +2163,10 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 }
 
 
-//***************************************************
+/***************************************************
+ * Questo è il normale stato operativo. La CPU è stata contattata, è viva, ha riportato una versione supportata e il file DA3 è stato
+ * sincronizzato.
+ */
 void Server::priv_enterState_normal()
 {
 	logger->log("CPUBridgeServer::priv_enterState_normal()\n");

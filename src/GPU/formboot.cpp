@@ -47,6 +47,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
 
     //Software version
     ui->labVersion_CPU->setText("");
+    ui->labVersion_CPUMasterName->setText("");
     ui->labVersion_GPU->setText("");
     ui->labVersion_protocol->setText("");
     ui->labGPU_buildDate->setText ("Build date: " __DATE__ " " __TIME__);
@@ -87,9 +88,16 @@ void FormBoot::showMe()
     priv_pleaseWaitSetText("");
     priv_pleaseWaitHide();
 
+    //Download di data-audit e dello zip diagnostico è possibile solo quando la CPU è pronta.
+    //E' la CPU che ad un certo punto comunica che è pronta per eventuali download del data-audit. Fino ad allora, disabilito
+    //la possibilità di richiederlo (e dato che lo zippone deve include il data-audit, disabilito anche lui)
     priv_enableButton(ui->btnDownload_audit, false);
+    priv_enableButton(ui->btnDownload_diagnostic, false);
+
     if (glob->bSyncWithCPUResult)
     {
+        //se entriamo qui. vuol dire che la CPU attualmente installata è "buona", ovvero è una CPU fusion 2, quindi possiamo procedere
+        //normalmente
         cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
         cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
@@ -100,11 +108,17 @@ void FormBoot::showMe()
     }
     else
     {
-        //ci sono stati dei problemi con la sincronizzazione con la CPU.
+        //se arriviamo qui è perchè ci sono stati dei problemi con la sincronizzazione con la CPU.
         //In generale questo vuol dire che la CPU non è installata oppure è una versione non compatibile.
-        //Disbailito il pulsante di START VMC e chiedo di aggiornare il FW
+        //Disbailito il pulsante di START VMC e chiedo di aggiornare il FW di CPU perchè non è possibile procedere oltre senza una
+        //CPU adeguata
         priv_foreverDisableBtnStartVMC();
         priv_pleaseWaitSetError("WARNING: There was an error during synchronization with the CPU.<br>Please upgrade the CPU FW to a compatible version.");
+
+        //in ogni caso, se esite la cartella AUTOF2, parto con l'autoupdate perchè probabilmente nella cartella AUTOF2 c'è una CPU buona da caricare
+        if (priv_autoupdate_exists())
+            priv_autoupdate_showForm();
+
     }
     priv_updateLabelInfo();
     this->show();
@@ -318,11 +332,15 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             ui->labCPUStatus->setText (rhea::app::utils::verbose_eVMCState (vmcState));
 
             if (0 == (flag1 & cpubridge::sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT))
+            {
                 priv_enableButton (ui->btnDownload_audit, false);
+                priv_enableButton(ui->btnDownload_diagnostic, false);
+            }
             else
             {
                 glob->bCPUEnteredInMainLoop=1;
                 priv_enableButton (ui->btnDownload_audit, true);
+                priv_enableButton(ui->btnDownload_diagnostic, true);
             }
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG

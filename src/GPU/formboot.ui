@@ -143,7 +143,7 @@ VMC</string>
     <rect>
      <x>10</x>
      <y>80</y>
-     <width>601</width>
+     <width>761</width>
      <height>25</height>
     </rect>
    </property>
@@ -163,9 +163,9 @@ VMC</string>
   <widget class="QLabel" name="labVersion_CPU">
    <property name="geometry">
     <rect>
-     <x>640</x>
+     <x>790</x>
      <y>80</y>
-     <width>371</width>
+     <width>221</width>
      <height>25</height>
     </rect>
    </property>
@@ -188,9 +188,9 @@ VMC</string>
   <widget class="QLabel" name="labVersion_GPU">
    <property name="geometry">
     <rect>
-     <x>640</x>
-     <y>110</y>
-     <width>371</width>
+     <x>790</x>
+     <y>140</y>
+     <width>221</width>
      <height>25</height>
     </rect>
    </property>
@@ -215,7 +215,7 @@ VMC</string>
     <rect>
      <x>10</x>
      <y>110</y>
-     <width>601</width>
+     <width>741</width>
      <height>25</height>
     </rect>
    </property>
@@ -238,7 +238,7 @@ VMC</string>
     <rect>
      <x>10</x>
      <y>160</y>
-     <width>601</width>
+     <width>741</width>
      <height>25</height>
     </rect>
    </property>
@@ -513,9 +513,9 @@ VMC settings</string>
   <widget class="QLabel" name="labVersion_protocol">
    <property name="geometry">
     <rect>
-     <x>640</x>
-     <y>160</y>
-     <width>371</width>
+     <x>880</x>
+     <y>190</y>
+     <width>131</width>
      <height>25</height>
     </rect>
    </property>
@@ -529,7 +529,7 @@ VMC settings</string>
     <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
-    <string>Protocol ver: 4</string>
+    <string>Protocol ver: 43</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -594,8 +594,8 @@ VMC settings</string>
   <widget class="QFrame" name="frameFileList">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>584</y>
+     <x>0</x>
+     <y>570</y>
      <width>1004</width>
      <height>511</height>
     </rect>
@@ -704,7 +704,7 @@ VMC settings</string>
     <rect>
      <x>10</x>
      <y>190</y>
-     <width>601</width>
+     <width>841</width>
      <height>25</height>
     </rect>
    </property>
@@ -871,9 +871,9 @@ VMC settings</string>
   <widget class="QLabel" name="labGPU_buildDate">
    <property name="geometry">
     <rect>
-     <x>640</x>
-     <y>130</y>
-     <width>371</width>
+     <x>780</x>
+     <y>160</y>
+     <width>231</width>
      <height>25</height>
     </rect>
    </property>
@@ -897,8 +897,8 @@ VMC settings</string>
   <widget class="QFrame" name="frameAutoUpdate">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>35</y>
+     <x>470</x>
+     <y>560</y>
      <width>1004</width>
      <height>581</height>
     </rect>
@@ -1273,17 +1273,41 @@ Click on SKIP if you do not want to auto update this machine.</string>
     </property>
    </widget>
   </widget>
+  <widget class="QLabel" name="labVersion_CPUMasterName">
+   <property name="geometry">
+    <rect>
+     <x>770</x>
+     <y>105</y>
+     <width>241</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Roboto</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#000</string>
+   </property>
+   <property name="text">
+    <string>CPU Master name</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <zorder>labVersion_CPU</zorder>
   <zorder>buttonStart</zorder>
   <zorder>labCPUMessage</zorder>
   <zorder>labInstalledFiles</zorder>
   <zorder>labSoftwareVer</zorder>
   <zorder>labInstalled_CPU</zorder>
-  <zorder>labVersion_CPU</zorder>
   <zorder>labInstalled_DA3</zorder>
   <zorder>labInstalled_GUI</zorder>
   <zorder>frameInstallBtn</zorder>
   <zorder>frameDownloadBtn</zorder>
-  <zorder>labVersion_protocol</zorder>
   <zorder>labCPUStatus</zorder>
   <zorder>labWait</zorder>
   <zorder>labInstalled_Manual</zorder>
@@ -1298,6 +1322,8 @@ Click on SKIP if you do not want to auto update this machine.</string>
   <zorder>labVersion_GPU</zorder>
   <zorder>frameFileList</zorder>
   <zorder>frameAutoUpdate</zorder>
+  <zorder>labVersion_CPUMasterName</zorder>
+  <zorder>labVersion_protocol</zorder>
  </widget>
  <resources/>
  <connections/>
