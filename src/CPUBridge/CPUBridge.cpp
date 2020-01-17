@@ -1275,13 +1275,16 @@ void cpubridge::notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 h
 	{
 		buffer[0] = 0x01;
 		memcpy(&buffer[1], msg, 64);
-		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 65);
+		buffer[65] = 0x00;
+		buffer[66] = 0x00;
+		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 67);
 	}
 	else
 	{
 		buffer[0] = 0x00;
 		memcpy(&buffer[1], msg, 32);
-		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 33);
+		buffer[33] = 0x00;
+		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 34);
 	}
 
 }
@@ -1296,12 +1299,12 @@ void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread:
 	if (p[0] == 0x00)
 	{
 		*out_isUnicode = false;
-		nToCopy = 32;
+		nToCopy = 33;
 	}
 	else
 	{
 		*out_isUnicode = true;
-		nToCopy = 64;
+		nToCopy = 66;
 	}
 
 	if (sizeOfOutMsg >= nToCopy)

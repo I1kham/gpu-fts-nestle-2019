@@ -622,7 +622,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 				out_answer[ct++] = 0; //is unicode
 
-				memset(&out_answer[ct], 0, 32);
+				memset(&out_answer[ct], ' ', 32);
 				{
 					u8 i = ct;
 					out_answer[i++] = 'V'; out_answer[i++] = 'E'; out_answer[i++] = 'R';
