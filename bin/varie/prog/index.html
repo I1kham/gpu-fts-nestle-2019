@@ -78,7 +78,7 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center">
-							<!--<div class="UIButton bigButton3x4 UIdisabled" data-caption="ACCOUNT"></div>-->
+							<!--<div class="UIButton bigButton3x4" data-caption="SW VERSION" data-onclick="pageSWVersion_show()"></div>-->
 						</td>
 						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU<br>(legacy)" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
@@ -86,6 +86,19 @@
 				</table>
 			</div>
 		</div><!--- page Main Menu -->
+		
+		<!-- page pageSWVersion -->
+		<div id="pageSWVersion" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>	
+					<tr valign='middle'><td style='width:230px'>CPU VERSION</td><td><div class='bigCaption10' id="pageSWVersion_cpuV"></div></td></tr>
+					<tr valign='middle'><td>CPU MODEL</td><td><div class='bigCaption10' id="pageSWVersion_cpuM"></div></td></tr>
+					<tr valign='middle'><td>GPU VERSION</td><td><div class='bigCaption10' id="pageSWVersion_gpuV"></div></td></tr>
+					<tr valign='middle'><td>GPU BUILD DATE</td><td><div class='bigCaption10' id="pageSWVersion_gpuB"></div></td></tr>
+				</table>
+				<br>
+			</div>
+		</div><!-- pageSWVersion -->
 		
 		<!-- page Maintenance -->
 		<div id="pageMaintenance" class="UIWindow">
@@ -390,7 +403,7 @@
 				<table border='0' class='elenco'>
 					<tr>
 						<td>STEAM TEMPERATURE<br><span class="tip">max 140</span></td>
-						<td><div class="UINumber" data-numfigures="3" data-max="140" data-da3="7618" data-da3bit="8"></div></td>
+						<td><div class="UINumber" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
 					</tr>
 					<tr>
 						<td>RINSING PERIOD<br><span class="tip">max 900</span></td></td>
@@ -849,7 +862,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS|3|RESET DATA' data-onclick='pageDataAudit_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS|3|REFRESH DATA' data-onclick='pageDataAudit_onSelector()'></div></td>
 					</tr>
 				</table>
 				
@@ -861,7 +874,7 @@
 					<br>
 					<table border='0' align="center">
 						<tr valign='middle'>
-							<td><div class='UIButton actionButton' data-caption='DOWNLOAD DATA AGAIN' data-onclick="pageDataAudit_downloadEVA()"></div></td>
+							<td><div class='UIButton actionButton' data-caption='REFRESH DATA AGAIN' data-onclick="pageDataAudit_downloadEVA()"></div></td>
 							<td style="width:100px">&nbsp;</td>
 							<td><div class='UIButton actionButton' data-caption='RESET PARTIAL DATA' data-onclick="pageDataAudit_resetPartialData()"></div></td>
 						</tr>
@@ -876,7 +889,7 @@
 	<div id="divFooter" class="footer">
 		<div id="footer_L">
 			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;BACK&nbsp;&nbsp&nbsp&nbsp" data-onclick="btnBack_onClick(0)"></div></div>
-			<div style="float:left"><div id="bntSave" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;S&nbsp&nbspA&nbsp&nbspV&nbsp&nbspE&nbsp;&nbsp&nbsp&nbsp" data-onclick="btnBack_onClick(1)"></div></div>
+			<div style="float:left"><div id="btnSave" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;S&nbsp&nbspA&nbsp&nbspV&nbsp&nbspE&nbsp;&nbsp&nbsp&nbsp" data-onclick="btnBack_onClick(1)"></div></div>
 			<div class="clear"></div>
 		</div>
 		<div id="footer_C">
@@ -931,7 +944,7 @@ function onRheaBootstrapFinished()
 	
 	ui = new UI ("divPage");
 	ui.setupStandaloneButton("bntBack");
-	ui.setupStandaloneButton("bntSave");
+	ui.setupStandaloneButton("btnSave");
 	ui.setupStandaloneButton("bntTestSelection");
 	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
 	
@@ -1105,8 +1118,8 @@ function showPageEx(pageID, da3Offset)
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS); 
 	return ret;
 }
-function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); rheaSetDisplayMode(rheaGetElemByID("bntSave"), "table"); }
-function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("bntSave")); rheaHideElem(rheaGetElemByID("bntTestSelection")); }
+function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); rheaSetDisplayMode(rheaGetElemByID("btnSave"), "table"); }
+function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("btnSave")); rheaHideElem(rheaGetElemByID("bntTestSelection")); }
 function btnBack_onClick (bSave)				
 { 
 	if (currentTask != voidTask)
@@ -1598,7 +1611,7 @@ function pageCleaning_show()
 	header_setText("CLEANING");
 
 	btnBack_show();
-	//rheaHideElem(rheaGetElemByID("bntSave"));
+	//rheaHideElem(rheaGetElemByID("btnSave"));
 }
 
 function pageCleaning_action (what)
@@ -1803,6 +1816,19 @@ function pageProductQty_show()
 	header_setText("PRODUCT QUANTITY");
 	btnBack_show();
 	
+	//aggiorno le unità di misura
+	var win = ui.getWindowByID("pageProductQty");
+	for (var i=0; i<da3.getNumProdotti(); i++)
+	{
+		var um = "sec";
+		if (da3.isMotorCalibrated(i+1)) 
+			um = "gr"; 
+
+		win.getChildByID("pageProductQty_decCurCap_" +(i+1)).changeUM(um);
+		win.getChildByID("pageProductQty_decCurWarn_" +(i+1)).changeUM(um);
+	}	
+	
+	
 	//chiedo il valore attuale dei decontatori alla SMU
 	pleaseWait_show();
 	rhea.ajax ("getAllDecounters", "").then( function(result)
@@ -1842,6 +1868,7 @@ function pageProductQty_build()
 		var pageID = "pageProductQty_page_" +(i+1);
 		var currentValueID = "pageProductQty_decCurVal_" +(i+1);
 		var currentCapacityID = "pageProductQty_decCurCap_" +(i+1);
+		var currentWarningID = "pageProductQty_decCurWarn_" +(i+1);
 		
 		var currentDecountValue = "00000";
 		
@@ -1852,8 +1879,8 @@ function pageProductQty_build()
 				+"		<td style='width:400px'><span id='" +currentValueID +"' class='bigCaption25'>" +currentDecountValue +"</span></td>"
 				+"		<td align='center'><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
 				+"	</tr>"
-				+"	<tr><td>CANISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999'></div></td></tr>"
-				+"	<tr><td>WARNING AT</td><td colspan='2'><div class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999'></div></td></tr>"
+				+"	<tr><td>CANISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999' data-um='sec'></div></td></tr>"
+				+"	<tr><td>WARNING AT</td><td colspan='2'><div id='" +currentWarningID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999' data-um='sec'></div></td></tr>"
 				+"	<tr style='border:0'><td>ENABLE STOP</td><td colspan='2'><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
 				+"</table></div>";
 		da3Loc_decounter+=2;
@@ -1887,10 +1914,15 @@ function pageProductQty_updateDecounterCurrentValueFromString(s)
 	{
 		var iDecounter_1_10 = i+1;
 		var currentValueID = "pageProductQty_decCurVal_" +iDecounter_1_10;
+		
+		var um = "sec";
+		if (da3.isMotorCalibrated(iDecounter_1_10)) 
+			um = "gr"; 		
+		
 		var v = e[i];
 		while (v.length < 5)
 			v = "0" +v;
-		var s = v.substr(0,4) +"." +v.substr(4);
+		var s = v.substr(0,4) +"." +v.substr(4) +"<span style='font-size:0.4em'> " +um +"</span>";
 		
 		rheaSetDivHTMLByName(currentValueID, s);
 	}
@@ -1965,7 +1997,7 @@ function pageSelections_show()
 	header_setText("SELECTIONS");
 	rheaHideElem(rheaGetElemByID("bntTestSelection"));
 	btnBack_show();
-	rheaHideElem(rheaGetElemByID("bntSave"));
+	rheaHideElem(rheaGetElemByID("btnSave"));
 	pageSelections_onSelector();
 }
 
@@ -2603,7 +2635,7 @@ function pageCalibration_show()
 	
 	header_setText("CALIBRATION");
 	btnBack_show();
-	rheaHideElem(rheaGetElemByID("bntSave"));
+	rheaHideElem(rheaGetElemByID("btnSave"));
 	currentTask = taskCalibMotor;
 }
 
@@ -2928,7 +2960,7 @@ function pageDataAudit_show()
 
 	header_setText("DATA AUDIT");
 	btnBack_show();
-	rheaHideElem(rheaGetElemByID("bntSave"));
+	rheaHideElem(rheaGetElemByID("btnSave"));
 }
 
 
@@ -3197,5 +3229,7 @@ function pageDataAudit_downloadEVA_onFinish()
 	pleaseWait_hide();
 	currentTask = voidTask;
 }
+
+
 </script>
 </html>
