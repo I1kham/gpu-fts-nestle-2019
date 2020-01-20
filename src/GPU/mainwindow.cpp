@@ -579,7 +579,7 @@ void MainWindow::on_webView_urlChanged(const QUrl &arg1)
     }
     else if (url.indexOf("gotoHMI.html") > 0)
     {
-        //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
+        //dal nuovo menu di programmazione, vogliamo tornare alla GUI utente
         retCode = eRetCode_gotoFormBrowser;
     }
 }

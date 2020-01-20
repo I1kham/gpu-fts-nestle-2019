@@ -524,7 +524,7 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 		}
 		else
 		{
-			//si vuole scaricare il file app/temp/vmcDataFile%d.da3
+            //si vuole scaricare il file app/temp/vmcDataFile%d.da3 (vedi CPUBridgeServer::priv_downloadVMCDataFile)
 			sprintf_s(s, sizeof(s), "%s/temp/vmcDataFile%s.da3", rhea::getPhysicalPathToAppFolder(), &data.what[3]);
 		}
 	}
