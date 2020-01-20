@@ -949,17 +949,40 @@ function onRheaBootstrapFinished()
 	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
 	
 	pleaseWait_show();
-	pleaseWait_setTextLeft("loading da3");
+	pleaseWait_setTextLeft("Please wait...");
+	pleaseWait_freeText_show();
 
-	priv_askCPULangNames();
-	//priv_askMachineTypeAndModel();
+	syncDA3IfNeeded();
+	//priv_askCPULangNames();
 }
+
+function syncDA3IfNeeded ()
+{
+	pleaseWait_freeText_appendText("da3 sync...");
+	rhea.sendStartDownloadDA3();
+	setTimeout (function(){ syncDA3IfNeeded_onProgress();}, 600);
+}
+
+function syncDA3IfNeeded_onProgress ()
+{
+	if (currentCPUStatusID != -1 && currentCPUStatusID != 105)
+	{
+		pleaseWait_freeText_appendText("<br>");
+		priv_askCPULangNames();
+	}
+	else
+	{
+		setTimeout (function(){ syncDA3IfNeeded_onProgress();}, 800);
+		pleaseWait_freeText_appendText(".");
+	}
+}
+
 
 var cpuLangName1 = "";
 var cpuLangName2 = "";
 function priv_askCPULangNames()
 {
-	//richiedo machine type & model
+	pleaseWait_freeText_appendText("getting CPU lang names...<br>");
 	//console.log ("ajax::getCPULangNames");
 	rhea.ajax ("getCPULangNames", "").then( function(result)
 	{
@@ -981,13 +1004,14 @@ function priv_askCPULangNames()
 
 function priv_askMachineTypeAndModel()
 {
-	//richiedo machine type & model
+	pleaseWait_freeText_appendText("getting machine type and model...<br>");
 	//console.log ("ajax::getMachineTypeAndModel");
 	rhea.ajax ("getMachineTypeAndModel", "").then( function(result)
 	{
 		var obj = JSON.parse(result);
 		
 		//carico il da3
+		pleaseWait_freeText_appendText("loading da3...<br>");
 		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione);
 		da3.load();
 	})

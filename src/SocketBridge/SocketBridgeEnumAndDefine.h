@@ -61,6 +61,7 @@ namespace socketbridge
 		eEventType_setPosizioneMacina = 'z',				//122	0x80
 		eEventType_startDisinstallation = 'A',				//65	0x41
 		eEventType_recalcFasciaOrariaFV = 'B',				//66	0x42
+		eEventType_enterDA3Sync = 'C',						//67	0x43
 		
         eEventType_unknown = 0xff
     };

@@ -1671,7 +1671,12 @@ void cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(const sSubscriber &from, u
 void cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
+}
 
+//***************************************************
+void cpubridge::ask_CPU_DA3SYNC(const sSubscriber &from)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC, 0, NULL, 0);
 }
 
 

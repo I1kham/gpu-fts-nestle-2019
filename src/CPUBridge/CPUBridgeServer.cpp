@@ -274,6 +274,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		}
 		break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC:
+			priv_enterState_DA3Sync();
+			break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION:
 			if (stato.get() == sStato::eStato_selection)
 				runningSel.stopSelectionWasRequested = 1;
@@ -2237,7 +2241,11 @@ void Server::priv_handleState_normal()
 }
 
 
-//***************************************************
+/***************************************************
+ * In questo stato si entra quando la CPU va in stato PROGRAMMAZIONE.
+ *	Da questo stato si esce quando la CPU esce dallo stato PROGRAMMAZIONE.
+ *	All'uscita si va in DA3_SYNC
+ */
 void Server::priv_enterState_programmazione()
 {
     logger->log("CPUBridgeServer::priv_enterState_programmazione()\n");

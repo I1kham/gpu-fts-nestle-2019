@@ -382,6 +382,10 @@ namespace cpubridge
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_STRING_VERSION_AND_MODEL
 
 
+	void		ask_CPU_DA3SYNC(const sSubscriber &from);
+					//Si richiede la sincronizzazione del file DA3 tra CPU e SMU
+					//Alla ricezione di questo messaggio, lo stato di SMU passerà in eVMCState_DA3_SYNC e ci rimarrà fino alla fine
+					//delle operazioni. Quando lo stato diventa != da DA3_SYNC, siamo sicuro che il da3 locale è aggiornato a quello della CPU
 
 } // namespace cpubridge
 

@@ -6,7 +6,7 @@
 
 namespace socketbridge
 {
-	//*************** fwd decalration
+	//*************** fwd declaration
 	class	Task;
 	i16		SocketBridgeTaskThreadFn(void *userParam);
 
