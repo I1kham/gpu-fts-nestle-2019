@@ -181,6 +181,7 @@ void MainWindow::priv_showForm (eForm w)
             priv_loadURL(s);
             cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
             cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
+            cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         }
         break;
 
