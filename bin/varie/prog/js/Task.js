@@ -75,6 +75,7 @@ function TaskCleaning (whichWashIN)
 	this.fase = 0;
 	this.btn1 = 0;
 	this.btn2 = 0;
+	this.btnTrick = 0;
 	this.nextTimeSanWashStatusCheckMSec = 0;
 	
 	rhea.sendGetCPUStatus();
@@ -101,8 +102,10 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
 TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
 
-TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); }
-TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); }
+TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)						{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+{}
 TaskCleaning.prototype.onExit				= function(bSave)					{ return bSave; }
 
 TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
@@ -154,15 +157,37 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				pleaseWait_btn1_hide();
 			else
 			{
-				pleaseWait_btn1_setText ("BUTTON " +me.btn1);
-				pleaseWait_btn1_show();	
+				if (me.fase == 4)
+				{
+					//qui, la CPU invia il BTN 3 che serve per "debug" per saltare la fase di dissoluzione della tab.
+					//Non mostro il tasto, ma uso il btn trick che è in semi trasparenza nell'angolo in alto a dx. Gli operatore
+					//che conoscono il trucco, possono cliccare sul btn invisibile per skippare questa fase
+					me.btnTrick = me.btn1;
+					pleaseWait_btnTrick_show();	
+				}
+				else
+				{
+					var btnText = "BUTTON " +me.btn1;
+					switch (me.fase)
+					{
+						case 3: btnText = "CONTINUE"; break; //wait to insert tablet
+						case 10: btnText = "SKIP COFFEE"; break;
+					}
+					pleaseWait_btn1_setText (btnText);
+					pleaseWait_btn1_show();	
+				}
 			}
 			
 			if (me.btn2 == 0)
 				pleaseWait_btn2_hide();
 			else
 			{
-				pleaseWait_btn2_setText ("BUTTON " +me.btn2);
+				var btnText = "BUTTON " +me.btn2;
+				switch (me.fase)
+				{
+					case 10: btnText = "HAVE A COFFEE"; break;
+				}
+				pleaseWait_btn2_setText (btnText);
 				pleaseWait_btn2_show();	
 			}			
 		})

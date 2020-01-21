@@ -30,6 +30,8 @@
 			<div id="pagePleaseWait_freeBtn2" style="position:absolute; top:400px; left:20px; display:none">
 				<div id="bntFree2" class="UIButton bigButton3x4"><p id="bntFree2Text">testo bottone 2 bottone 2</p></div>
 			</div>
+
+			<div id="pagePleaseWait_freeBtnTrick" style="position:absolute; right:10px; top:50px; width:100px; height:80px; background-color:rgba(40,40,40,0.7);">&nbsp;&nbsp;&nbsp;&nbsp;</div>
 			
 		</div>
 	</div>
@@ -933,9 +935,9 @@ var currentCPUStatusID = -1;
 
 function onRheaBootstrapFinished()
 {
-	document.getElementById("pagePleaseWait_freeBtn1").addEventListener("mousedown", function(ev) { currentTask.onFreeBtn1Clicked(ev); } , true);
-	document.getElementById("pagePleaseWait_freeBtn2").addEventListener("mousedown", function(ev) { currentTask.onFreeBtn2Clicked(ev); } , true);
-		
+	document.getElementById("pagePleaseWait_freeBtn1").addEventListener("mousedown", function(ev) 		{ currentTask.onFreeBtn1Clicked(ev); } , true);
+	document.getElementById("pagePleaseWait_freeBtn2").addEventListener("mousedown", function(ev) 		{ currentTask.onFreeBtn2Clicked(ev); } , true);
+	document.getElementById("pagePleaseWait_freeBtnTrick").addEventListener("mousedown", function(ev) 	{ currentTask.onFreeBtnTrickClicked(ev); } , true);
 	
 	rhea.onEvent_cpuStatus = function(statusID, statusStr) 			{ currentCPUStatusID=statusID; currentTask.onEvent_cpuStatus(statusID, statusStr); }
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
@@ -1268,6 +1270,7 @@ function pleaseWait_show()
 	
 	pleaseWait_btn1_hide();
 	pleaseWait_btn2_hide();
+	pleaseWait_btnTrick_hide();
 	pleaseWait_freeText_hide();
 	
 	pleaseWait_wait_show();
@@ -1293,6 +1296,10 @@ function pleaseWait_btn1_setText(s)		{ rheaSetDivHTMLByName("bntFree1Text", s); 
 function pleaseWait_btn2_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
 function pleaseWait_btn2_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
 function pleaseWait_btn2_setText(s)		{ rheaSetDivHTMLByName("bntFree2Text", s); }
+
+function pleaseWait_btnTrick_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
+function pleaseWait_btnTrick_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
+
 
 function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
 function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
