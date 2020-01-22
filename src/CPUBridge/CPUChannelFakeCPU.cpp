@@ -16,7 +16,13 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	memset(cpuMessage1, 0x00, sizeof(cpuMessage1));
 	memset(cpuMessage2, 0x00, sizeof(cpuMessage2));
 
-	sprintf_s(cpuMessage1, sizeof(cpuMessage1), "CPU message example 1");
+	//sprintf_s(cpuMessage1, sizeof(cpuMessage1), "CPU message example 1");
+	//sprintf_s(cpuMessage1, sizeof(cpuMessage1), "\"L'aria in città, è molto sporca\"");
+	int ct = 0;
+	//cpuMessage1[ct++] = 0x22; cpuMessage1[ct++] = 0x4c; cpuMessage1[ct++] = 0x27; cpuMessage1[ct++] = 0x61; cpuMessage1[ct++] = 0x72; cpuMessage1[ct++] = 0x69; cpuMessage1[ct++] = 0x61; cpuMessage1[ct++] = 0x20; cpuMessage1[ct++] = 0x69; cpuMessage1[ct++] = 0x6e; cpuMessage1[ct++] = 0x20; cpuMessage1[ct++] = 0x63; cpuMessage1[ct++] = 0x69; cpuMessage1[ct++] = 0x74; cpuMessage1[ct++] = 0x74; cpuMessage1[ct++] = 0xc3; cpuMessage1[ct++] = 0xa0; cpuMessage1[ct++] = 0x2c; cpuMessage1[ct++] = 0x20; cpuMessage1[ct++] = 0xc3; cpuMessage1[ct++] = 0xa8; cpuMessage1[ct++] = 0x20; cpuMessage1[ct++] = 0x6d; cpuMessage1[ct++] = 0x6f; cpuMessage1[ct++] = 0x6c; cpuMessage1[ct++] = 0x74; cpuMessage1[ct++] = 0x6f; cpuMessage1[ct++] = 0x20; cpuMessage1[ct++] = 0x73; cpuMessage1[ct++] = 0x70; cpuMessage1[ct++] = 0x6f; cpuMessage1[ct++] = 0x72; cpuMessage1[ct++] = 0x63; cpuMessage1[ct++] = 0x61; cpuMessage1[ct++] = 0x22;
+	cpuMessage1[ct++] = 0x65; cpuMessage1[ct++] = 0xc3; cpuMessage1[ct++] = 0xa8;
+
+
 	sprintf_s(cpuMessage2, sizeof(cpuMessage2), "CPU message example 2");
 	curCPUMessage = cpuMessage2;
 	curCPUMessageImportanceLevel = 1;

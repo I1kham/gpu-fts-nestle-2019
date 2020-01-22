@@ -61,6 +61,9 @@
     <Filter Include="rhea\string\utf8">
       <UniqueIdentifier>{884e277a-6945-4152-aee9-8c36f8d965c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rhea\string\utf16">
+      <UniqueIdentifier>{058ec8d1-1f1c-4c29-8f66-1a91c9697bf3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp">
@@ -212,6 +215,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8Parser.cpp">
       <Filter>rhea\string\utf8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF16.cpp">
+      <Filter>rhea\string\utf16</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -394,6 +400,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF8Char.h">
       <Filter>rhea\string\utf8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF16.h">
+      <Filter>rhea\string\utf16</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

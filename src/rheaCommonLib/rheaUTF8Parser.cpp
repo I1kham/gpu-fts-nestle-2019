@@ -27,12 +27,12 @@ bool is_b_r_n_t (const utf8::Char &c)
 
 
 //*******************************************
-void parser::Source::setup (const char *src, u32 firstByte, u32 maxByteToChek)
+void parser::Source::setup (const u8 *src, u32 firstByte, u32 maxByteToChek)
 {
 	s = src; 
 	iNow = firstByte; 
 	if (numByteToCheck == u32MAX)
-		numByteToCheck = (u32)strlen(src);
+		numByteToCheck = (u32)strlen((const char*)src);
 	else
 		numByteToCheck = maxByteToChek; 
 	curChar.setFrom (&s[iNow], numByteToCheck);
@@ -566,12 +566,12 @@ bool parser::extractCPPComment (parser::Source &srcIN, parser::Source *result)
 }
 
 //*****************************************
-bool parser::find_CaseSens (parser::Source &srcIN, const char *whatTofind, u32 whatTofindLen)
+bool parser::find_CaseSens (parser::Source &srcIN, const u8 *whatTofind, u32 whatTofindLen)
 {
 	assert (NULL != whatTofind);
 	parser::Source src = srcIN;
 	if (0 == whatTofindLen)
-		whatTofindLen = (u32)strlen(whatTofind);
+		whatTofindLen = (u32)strlen((const char*)whatTofind);
 
 	
 	parser::Source what;
@@ -608,12 +608,12 @@ bool parser::find_CaseSens (parser::Source &srcIN, const char *whatTofind, u32 w
 }
 
 //*****************************************
-bool parser::find_NoCaseSens (parser::Source &srcIN, const char *whatTofind, u32 whatTofindLen)
+bool parser::find_NoCaseSens (parser::Source &srcIN, const u8 *whatTofind, u32 whatTofindLen)
 {
 	assert (NULL != whatTofind);
 	parser::Source src = srcIN;
 	if (0 == whatTofindLen)
-		whatTofindLen = (u32)strlen(whatTofind);
+		whatTofindLen = (u32)strlen((const char*)whatTofind);
 
 	
 	parser::Source what;

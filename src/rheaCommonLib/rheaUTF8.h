@@ -11,32 +11,43 @@ namespace rhea
 {
 	namespace utf8
 	{
-		bool	isAValidUTF8Char (const char *src , u32 nBytes);
+		bool	isAValidUTF8Char (const u8 *src , u32 nBytes);
 					/* controlla ESATTAMENTE i primi nBytes di src e determina se TUTTI INSIEME corrispondono ad una valida seq utf8
 					*/
 
-		u8		detectCharlenInByteByFirstByte (char c);
+		u8		detectCharlenInByteByFirstByte (u8 c);
 					/* dato il primo char di una ipotetica seq utf8, ritorna il num di byte necessari per la corretta sequenza */
 
-		bool	examineSequence (const char *src, u32 nBytesToCheck, u32 *outNumValidBytes=NULL, u32 *outNumValidUTF8Char=NULL);
+		bool	examineSequence (const u8 *src, u32 nBytesToCheck, u32 *outNumValidBytes=NULL, u32 *outNumValidUTF8Char=NULL);
 					/*	Se *src contiene una valida seq utf8, allora ritorna true, altrimenti false.
 						Anche in caso di false, outNumValidBytes e outNumValidUTF8Char vengono correttamente valorizzati
 						riportando il num di bytes buoni (prima di trovare una seq invalida) ed il num di char utf8 contenuti nei bytes buoni
 					*/
 
-		bool	extractOneUTF8Char (const char *src, u32 srcLen, u8 *outNumUsedBytes);
+		bool	extractOneUTF8Char (const u8 *src, u32 srcLen, u8 *outNumUsedBytes);
 					/*	estrae il primo utf8 char da *src, oppure ritorna false se la sequenza è invalida.
 						Valorizza outNumUsedBytes con il num di byte corrispondendi al primo utf8 char 
 					*/
 
-		bool	extractOneUTF8CharRev (const char *src, u32 srcLen, u8 *outNumUsedBytes);
+		bool	extractOneUTF8CharRev (const u8 *src, u32 srcLen, u8 *outNumUsedBytes);
 					/*	parte da src[srcLen-1] e va all'indietro.
 						estrae il primo utf8 char, oppure ritorna false se la sequenza è invalida.
 						Valorizza outNumUsedBytes con il num di byte corrispondendi al primo utf8 char 
 					*/
 
+		bool	oneUTF8ToUTF32(const u8 *utf8Sequence, u32 utf8SeqLen, u32 *out_utf32);
+					/*	[utf8Sequence] punta ad un valido carattere utf8, codificato con [utf8SeqLen] bytes.
+						Ritorna l'equivalente in UTF32
+					*/
 
-		bool	findCharOffset (const char *src, u32 nBytesToCheck, u32 iEsimoChar, u32 *outOffsetInByte, u32 *outNumUTF8Char = NULL);
+		u8		oneUTF32ToUTF8(u32 utf32, u8 *out_utf8, u8 lenOfOutUTF8);
+					/* converte il carattere epresso in UTF32 in una sequenza UTF8. 
+						Potrebbere essere necessari fino a 4 byte per la codifica.
+						La fn ritorna 0 se [lenOfOutUTF8] non è suff a contenere l'intera codifica.
+						In caso di successo, ritorna il num di byte utilizzati per la conversione (ie, la lunghezza della seq messa in [out_utf8])
+					*/
+
+		bool	findCharOffset (const u8 *src, u32 nBytesToCheck, u32 iEsimoChar, u32 *outOffsetInByte, u32 *outNumUTF8Char = NULL);
 					/*  Avanza fino all i-esimo char.
 						Se durante l'avanzamento incontra una sequenza invalida, ritorna false
 						Se l'iesimo char non esiste (perchè nBytesToCheck è troppo piccolo), ritorna false.
@@ -44,7 +55,7 @@ namespace rhea
 						Lo stesso dicasi per outNumUTF8Char (che pero' è opzionale)
 					*/
 
-		bool	findCharOffsetRev (const char *src, u32 nBytesToCheck, u32 iEsimoChar, u32 *outOffsetInByte, u32 *outNumUTF8Char = NULL);
+		bool	findCharOffsetRev (const u8 *src, u32 nBytesToCheck, u32 iEsimoChar, u32 *outOffsetInByte, u32 *outNumUTF8Char = NULL);
 					/*  Parte da src[nBytesToCheck-1] e va all'indietro
 						Se durante l'avanzamento incontra una sequenza invalida, ritorna false
 						Se l'iesimo char non esiste (perchè nBytesToCheck è troppo piccolo), ritorna false.
@@ -71,7 +82,7 @@ namespace rhea
 			{
 							Source ()																		{ nullChar.setNULL(); s=NULL; }
 							Source (const Source &b)														{ nullChar.setNULL(); copyFrom(b); }
-				void		setup (const char *src, u32 firstByte=0, u32 maxByteToChek=u32MAX);
+				void		setup (const u8 *src, u32 firstByte=0, u32 maxByteToChek=u32MAX);
 				void		setMaxByteToCheck (u32 i)														{ numByteToCheck=i;}
 				u32			getMaxByteToCheck() const														{ return numByteToCheck; }
 				bool		next();
@@ -81,26 +92,27 @@ namespace rhea
 				bool		toFirst();
 				bool		toLast();
 				Source&		operator= (const Source &b)														{ copyFrom(b); return *this; }
-				bool		cmp (const char *b, bool bCaseSensitive) const							
+				bool		cmp (const u8 *b, bool bCaseSensitive) const
 							{ 
 								if (isEOL()) return false;
 								bool ret;
-                                if (bCaseSensitive) ret = (strncmp (&s[iNow], b, numByteToCheck) == 0); else ret = (strncasecmp (&s[iNow], b, numByteToCheck) == 0);
+                                if (bCaseSensitive) ret = (strncmp ((const char*)&s[iNow], (const char*)b, numByteToCheck) == 0); 
+								else ret = (strncasecmp ((const char*)&s[iNow], (const char*)b, numByteToCheck) == 0);
 								if (ret && b[numByteToCheck]==0) return true;
 								return false;				
 							}
 
 				const Char&	getCurChar() const																	{ if (s[iNow] == 0x00 || numByteToCheck==0) return nullChar; return curChar; }
-				const char*	getCurStrPointer() const															{ if (s[iNow] == 0x00 || numByteToCheck==0) return 0x00; return &s[iNow]; }
+				const u8*	getCurStrPointer() const															{ if (s[iNow] == 0x00 || numByteToCheck==0) return 0x00; return &s[iNow]; }
 				bool		isEOL() const																		{ return getCurStrPointer() == NULL; }
-				void		copyCurStr (char *out, u32 sizeofOut) const									
+				void		copyCurStr (u8 *out, u32 sizeofOut) const
 							{
 								if (isEOL()) out[0] = 0;
 								else { assert (sizeofOut > numByteToCheck); memcpy (out, &s[iNow], numByteToCheck); out[numByteToCheck] = 0; }
 							}
 
 			public:
-				const char	*s;
+				const u8	*s;
 				u32			iNow;
 				u32			numByteToCheck;
 				Char		curChar;
@@ -234,8 +246,8 @@ namespace rhea
 												2- inizia con /*, allora e finisce quando trova * /
 										*/
 
-					bool			find_CaseSens (Source &src, const char *whatTofind, u32 whatTofindLen=0);
-					bool			find_NoCaseSens (Source &src, const char *whatTofind, u32 whatTofindLen=0);
+					bool			find_CaseSens (Source &src, const u8 *whatTofind, u32 whatTofindLen=0);
+					bool			find_NoCaseSens (Source &src, const u8 *whatTofind, u32 whatTofindLen=0);
 										/*	Ritorna true se trova whatTofind, nel qual caso src punta al primo char di whatTofind
 											Ritorna false se non ha trovato whatTofind, nel qual caso src rimane immodificato
 											Se whatTofindLen==0, allora si suppone che whatTofind sia una stringa terminante per 0x00

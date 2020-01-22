@@ -17,21 +17,21 @@ namespace rhea
 		public:
 						Char ()												{ memset(c,0,4); }
 						Char (const Char &b)								{ setFrom(b); }
-						Char (char b)										{ setFrom(b); }
-						Char (const char *b)								{ assertStringIsComposedByOnlyOneUTF8Char(b); setFrom(b, 4); }
+						Char (u8 b)											{ setFrom(b); }
+						Char (const u8 *b)									{ assertStringIsComposedByOnlyOneUTF8Char(b); setFrom(b, 4); }
 
 						//========================= assign
 			Char&		operator= (const char b)							{ assert ((b & 0x80)==0); setFrom(b); return *this; }
-			Char&		operator= (const char *b)							{ assertStringIsComposedByOnlyOneUTF8Char(b); setFrom(b); return *this; }
+			Char&		operator= (const u8 *b)								{ assertStringIsComposedByOnlyOneUTF8Char(b); setFrom(b); return *this; }
 			Char&		operator= (const Char &b)							{ setFrom(b); return *this; }
 			void		setNULL ()											{ memset(c,0,4); }
 			void		setFrom (const Char &b)								{ memcpy(c, b.c, 4); }
-			void		setFrom (char b)									{ assert ((b & 0x80)==0); memset(c,0,4); c[0]=b; }
-			u8			setFrom (const char *src, u32 srclenInByte);
+			void		setFrom (u8 b)										{ assert ((b & 0x80)==0); memset(c,0,4); c[0]=b; }
+			u8			setFrom (const u8 *src, u32 srclenInByte);
 						/*	estrae il primo utf8char da *src.
 							Ritorna il num di byte della sequenza, oppure 0 se la seq è invalida
 						*/
-			u8			setFromRev (const char *src, u32 srclenInByte);
+			u8			setFromRev (const u8 *src, u32 srclenInByte);
 						/*	parte da src[srclenInByte-1] e cerca all'indietro il primo utf8char.
 							Ritorna il num di byte della sequenza, oppure 0 se la seq è invalida
 						*/
@@ -68,9 +68,9 @@ namespace rhea
 						
 		private:
 #ifdef _DEBUG
-			void		assertStringIsComposedByOnlyOneUTF8Char (const char *c) const;
+			void		assertStringIsComposedByOnlyOneUTF8Char (const u8 *c) const;
 #else
-			void		assertStringIsComposedByOnlyOneUTF8Char (const char *c) const		{}
+			void		assertStringIsComposedByOnlyOneUTF8Char (const u8 *c) const		{}
 #endif
 		private:
 			u8			c[4];
