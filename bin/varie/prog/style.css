@@ -113,6 +113,14 @@ table.UIOptionSmall td div.UIButton p { padding:10px 0 10px 0; }
 .UINumber2Border		{ width:56px; height:71px; position:absolute; top:6px; left:0; border:solid 2px #555; border-radius:10px; z-index:21; }
 .UINumber2Clicker 		{ display:inline-block; position:absolute; top:0; left:0; width:100%; height:100%; z-index:30;}
 
+.UINumber3Container 	{ display:inline-block; width:60px; height:85px; position:relative; z-index:10; margin-right:5px; overflow:hidden;}
+.UINumber3Strip 		{ position: absolute; top:0; left:0; width:60px; height:85px; text-align:center; }
+.UINumber3DecimalPoint 	{ position: absolute; top:12px; left:0; height:80px; font-size:3.0em; text-align:center;}
+.UINumber3Strip p 		{ margin:3px 0 0 0;  padding:0; font-size:2.7em; color:#fff }
+.UINumber3Border		{ width:56px; height:81px; position:absolute; top:0; left:0; border:solid 2px #555; border-radius:10px; z-index:21; }
+.UINumber3Clicker 		{ display:inline-block; position:absolute; top:0; left:0; width:100%; height:100%; z-index:30;}
+
+
 .UISelect 			{ cursor:pointer; }
 .UISelectBtn		{ display:inline-block; background-color:#656565; color:#000; border:0; height:56px; width:40px; padding:0; line-height:56px; text-align:center; }
 table.tselect 		{ width:100%; border:solid 1px #656565; font-size:1.0em; color:#fff; }
