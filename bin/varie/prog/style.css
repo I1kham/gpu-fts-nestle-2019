@@ -143,6 +143,10 @@ table.dataAudit tr.rowAllZero td { color:#666; font-size:0.7em; padding:2px; }
 #UISelectFullPage ul { list-style-type:none; margin:0; padding:0;}
 #UISelectFullPage ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }
 
+#divMenuLang { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+#divMenuLang ul { list-style-type:none; margin:0; padding:0;}
+#divMenuLang ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }
+
 .colorGrey 		{ color:#999999; }
 .UIlit 			{ background-color:#cc5f29; color:#fff; }
 .UIdisabled  	{ background-color:#222; color:#181818; }
