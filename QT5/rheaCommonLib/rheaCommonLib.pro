@@ -106,7 +106,8 @@ SOURCES += \
     ../../src/rheaCommonLib/OS/linux/linuxOSFS.cpp \
     ../../src/rheaCommonLib/rheaUTF8.cpp \
     ../../src/rheaCommonLib/rheaUTF8Char.cpp \
-    ../../src/rheaCommonLib/rheaUTF8Parser.cpp
+    ../../src/rheaCommonLib/rheaUTF8Parser.cpp \
+    ../../src/rheaCommonLib/rheaUTF16.cpp
 
 
 HEADERS += \
@@ -169,7 +170,8 @@ HEADERS += \
     ../../src/rheaCommonLib/SimpleLogger/NullLogger.h \
     ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.h \
     ../../src/rheaCommonLib/rheaUTF8.h \
-    ../../src/rheaCommonLib/rheaUTF8Char.h
+    ../../src/rheaCommonLib/rheaUTF8Char.h \
+    ../../src/rheaCommonLib/rheaUTF16.h
     
 unix {
     target.path = /usr/lib
