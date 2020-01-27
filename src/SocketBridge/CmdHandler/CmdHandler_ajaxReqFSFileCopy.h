@@ -14,8 +14,8 @@ namespace socketbridge
             command: FSCopy
             pSRC:	absolutePathToSRCFolder
 			fSRC:	filename src
-			pDST:	absolutePathToSRCFolder
-			fDST:	filename src
+			pDST:	absolutePathToDSTFolder
+			fDST:	filename dst
 
         Output
 			OK
