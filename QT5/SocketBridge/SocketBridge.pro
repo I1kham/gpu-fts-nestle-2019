@@ -143,7 +143,8 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -221,7 +222,8 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
     ../../src/SocketBridge/SocketBridgeVersion.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.h
 
 unix {
     target.path = /usr/lib

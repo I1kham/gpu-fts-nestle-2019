@@ -191,6 +191,28 @@ void setupFolderInformation (sGlobal *glob)
     }
 }
 
+void unsetupFolderInformation (sGlobal *glob)
+{
+    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+
+    RHEAFREE(allocator, glob->tempFolder);
+    RHEAFREE(allocator, glob->current);
+    RHEAFREE(allocator, glob->current_GUI);
+    RHEAFREE(allocator, glob->current_lang);
+    RHEAFREE(allocator, glob->current_da3);
+    RHEAFREE(allocator, glob->last_installed_da3);
+    RHEAFREE(allocator, glob->last_installed_cpu);
+    RHEAFREE(allocator, glob->last_installed_manual);
+    RHEAFREE(allocator, glob->last_installed_gui);
+    RHEAFREE(allocator, glob->usbFolder);
+    RHEAFREE(allocator, glob->usbFolder_VMCSettings);
+    RHEAFREE(allocator, glob->usbFolder_CPUFW);
+    RHEAFREE(allocator, glob->usbFolder_GUI);
+    RHEAFREE(allocator, glob->usbFolder_Audit);
+    RHEAFREE(allocator, glob->usbFolder_Lang);
+    RHEAFREE(allocator, glob->usbFolder_Manual);
+    RHEAFREE(allocator, glob->usbFolder_AutoF2);
+}
 
 //****************************************************
 void run(int argc, char *argv[])
@@ -225,6 +247,8 @@ void run(int argc, char *argv[])
     myMainWindow->show();
 
     app.exec();
+
+    unsetupFolderInformation(&glob);
 }
 
 

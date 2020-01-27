@@ -203,8 +203,6 @@ void MainWindow::priv_showForm (eForm w)
         break;
 
     case eForm_main_showBrowser:
-        priv_loadURLMenuProg(NULL);
-        /*
         {
             char s[1024];
             sprintf_s (s, sizeof(s), "%s/web/startup.html", glob->current_GUI);
@@ -219,7 +217,6 @@ void MainWindow::priv_showForm (eForm w)
             cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
             cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         }
-        */
         break;
 
     case eForm_oldprog_legacy:
