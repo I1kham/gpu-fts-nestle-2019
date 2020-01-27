@@ -29,6 +29,7 @@ MSVC17/testDB/build/
 QT5/build/
 bin
 !/bin/varie/
+!/bin/varie/prog/index_template.html
 MSVC17/stressTestUpDownDA3/build/
 MSVC17/rheaMedia2.0/build/
 MenuProgTranslator/
