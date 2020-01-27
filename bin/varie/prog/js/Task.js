@@ -169,11 +169,11 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				}
 				else
 				{
-					var btnText = "BUTTON " +me.btn1;
+					var btnText = "$LAB_BUTTON " +me.btn1;
 					switch (me.fase)
 					{
-						case 3: btnText = "CONTINUE"; break; //wait to insert tablet
-						case 10: btnText = "SKIP COFFEE"; break;
+						case 3: btnText = "$LAB_CONTINUE"; break; //wait to insert tablet
+						case 10: btnText = "$LAB_SKIP_COFFEE"; break;
 					}
 					pleaseWait_btn1_setText (btnText);
 					pleaseWait_btn1_show();	
@@ -184,10 +184,10 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				pleaseWait_btn2_hide();
 			else
 			{
-				var btnText = "BUTTON " +me.btn2;
+				var btnText = "$LAB_BUTTON " +me.btn2;
 				switch (me.fase)
 				{
-					case 10: btnText = "HAVE A COFFEE"; break;
+					case 10: btnText = "$LAB_HAVE_A_COFFEE"; break;
 				}
 				pleaseWait_btn2_setText (btnText);
 				pleaseWait_btn2_show();	
@@ -243,7 +243,7 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 				pleaseWait_btn1_hide();
 			else
 			{
-				pleaseWait_btn1_setText ("BUTTON " +me.btn1);
+				pleaseWait_btn1_setText ("$LAB_BUTTON " +me.btn1);
 				pleaseWait_btn1_show();	
 			}
 			
@@ -251,7 +251,7 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 				pleaseWait_btn2_hide();
 			else
 			{
-				pleaseWait_btn2_setText ("BUTTON " +me.btn2);
+				pleaseWait_btn2_setText ("$LAB_BUTTON " +me.btn2);
 				pleaseWait_btn2_show();	
 			}			
 		})
@@ -350,7 +350,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.fase = 10;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Please wait while motor is running");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT1"); //Please wait while motor is running
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -367,10 +367,10 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		
 	case 20:
 		me.fase = 30;
-		pleaseWait_calibration_setText("Please enter the quantity, then press CONTINUE");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT2"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_setText("$LAB_CONTINUE");
 		pleaseWait_btn1_show();
 		break;
 		
@@ -381,12 +381,12 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.value = pleaseWait_calibration_num_getValue();
 		if (parseFloat(me.value) == 0)
 		{
-			pleaseWait_calibration_setText("Invalid value");
+			pleaseWait_calibration_setText("$TASK_CALIB_Invalid_value");
 			me.fase = 20;
 			break;
 		}
 	
-		pleaseWait_calibration_setText("Storing value...");
+		pleaseWait_calibration_setText("$TASK_CALIB_Storing_value ...");
 		me.value = pleaseWait_calibration_num_getValue();
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
@@ -434,10 +434,10 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE");
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT3"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_btn1_setText("$LAB_CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn2_show();		
 		break;
 		
@@ -465,7 +465,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 10:  //attivo le macinate
 		me.fase = 11;
-		pleaseWait_calibration_setText("Please wait while motor is running");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT1"); //Please wait while motor is running
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -481,10 +481,10 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 20:
 		me.fase = 21;
-		pleaseWait_calibration_setText("Please enter the quantity, then press CONTINUE");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT2"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_setText("$LAB_CONTINUE");
 		pleaseWait_btn1_show();
 		break;
 		
@@ -495,12 +495,12 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.value = pleaseWait_calibration_num_getValue();
 		if (parseFloat(me.value) == 0)
 		{
-			pleaseWait_calibration_setText("Invalid value");
+			pleaseWait_calibration_setText("$TASK_CALIB_Invalid_value");
 			me.fase = 20;
 			break;
 		}
 		
-		pleaseWait_calibration_setText("Storing value...");
+		pleaseWait_calibration_setText("$TASK_CALIB_Storing_value ...");
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
@@ -519,7 +519,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 		
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT4"); //Place the brewer into position, then press CONTINUE
 		pleaseWait_btn1_show();
 		me.fase = 41;
 		break;
@@ -548,7 +548,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 60: //gruppo è stato ricollegato, procedo con il calcolo impulsi
 		me.fase = 65;
-		pleaseWait_calibration_setText("Impulse calculation in progress, please wait");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT5"); //Impulse calculation in progress, please wait
 		rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
 		{
 			//me.fase = 70;
@@ -704,10 +704,10 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE");
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT3"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_btn1_setText("$LAB_CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn2_show();
 		break;
 		
@@ -735,7 +735,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		
 	case 10:  //ok, il gruppo è scollegato, chiedo a CPU di attivare la macina
 		me.fase = 11;
-		pleaseWait_calibration_setText ("Grinder is running");
+		pleaseWait_calibration_setText ("$TASK_TESTSEL_Grinder_is_running"); //Grinder is running
 		rhea.ajax ("testSelection", {"s":me.selNum, "d":me.iAttuatore} ).then( function(result)
 		{
 			if (result == "OK")
@@ -762,9 +762,9 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		break;
 	
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE or press REPEAT to grind again");
+		pleaseWait_calibration_setText("$TASK_TESTSEL_WAIT1"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("REPEAT");
+		pleaseWait_btn2_setText("$LAB_REPEAT");
 		pleaseWait_btn2_show();		
 		me.fase = 41;
 		break;
@@ -966,7 +966,7 @@ TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
 		case 0: 
 			this.fase=1; 
 			
-			pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position");
+			pleaseWait_freeText_setText("$TASK_DEV_WAIT1"); //Please wait while the varigrind is adjusting its position
 			pleaseWait_freeText_show();
 			/*pleaseWait_freeText_setText("While the varigrind is opening/closing, you can press RUN GRINDER to run the grinder in order to facilitate the operation.");
 			pleaseWait_freeText_show();
@@ -1051,9 +1051,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		this.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("DISINTALLATION<br><br>Is driptray empty?");
-		pleaseWait_btn1_setText("YES - CONTINUE");
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT1"); //DISINTALLATION<br><br>Is driptray empty?
+		pleaseWait_btn1_setText("$TASK_DISINSTALL_YES_CONTINUE");
+		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -1063,9 +1063,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 10:
 		this.fase = 11;
-		pleaseWait_calibration_setText("DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE");
-		pleaseWait_btn1_setText("CONTINUE");
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT2"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
+		pleaseWait_btn1_setText("$LAB_CONTINUE");
+		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -1075,9 +1075,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 20:
 		this.fase = 21;
-		pleaseWait_calibration_setText("DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation");
-		pleaseWait_btn1_setText("START DISINSTALLATION");
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT3"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
+		pleaseWait_btn1_setText("$LAB_MAINT_START_DISINSTALLATION");
+		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -1087,7 +1087,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 30:
 		this.fase = 31;
-		pleaseWait_calibration_setText("DISINTALLATION is running, please wait...");
+		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT4 ..."); //DISINTALLATION is running, please wait
 		rhea.sendStartDisintallation();
 		
 	case 31: this.fase = 32; break;
@@ -1101,7 +1101,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		break;
 		
 	case 40:
-		pleaseWait_calibration_setText("DISINTALLATION finished, please shut down the machine");
+		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT5"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
 		break;
 		
@@ -1187,7 +1187,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 		case 10: //eva dts scaricato
 			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
 			me.fase = 20;
-			pleaseWait_freeText_appendText ("<br>Done, processing data, please wait<br>");
+			pleaseWait_freeText_appendText ("<br>$TASK_DA_WAIT1<br>"); //Done, processing data, please wait
 			break;
 			
 		case 20: //inizio il download della versione "packed" dell'eva-dts che la GPU ha generato durante la fase precedente
@@ -1202,12 +1202,12 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 			
 		case 200: //errore downloading eva-dts
 			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
-			pleaseWait_freeText_appendText("Error downloading EVA-DTS. Please try again later");
+			pleaseWait_freeText_appendText("$TASK_DA_ERR1"); //Error downloading EVA-DTS. Please try again later
 			me.fase = 201;
 			break;
 			
 		case 201: //mostra btn close e ne aspetta la pressione
-			pleaseWait_btn1_setText("CLOSE");
+			pleaseWait_btn1_setText("$LAB_CLOSE");
 			pleaseWait_btn1_show();
 			me.fase = 202;
 			break;			

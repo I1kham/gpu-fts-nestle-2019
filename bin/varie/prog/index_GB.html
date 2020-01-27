@@ -1,0 +1,3306 @@
+<html>
+<head>
+	<title>PROGRAMMING MENU</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div class="wrapper1024x600">
+	<div id="pagePleaseWait">
+		<div id="pagePleaseWait_header_left"></div>
+		<div id="pagePleaseWait_header_right"></div>
+		<div class="clear"></div>
+		
+		<div class="page">
+			<div id="pagePleaseWait_wait" style="position:absolute; top:150px; left:462px"><img draggable='false' src="img/animationRound.gif"></div>
+			
+			<div id="pagePleaseWait_freeText"></div>
+			
+			<div id="pagePleaseWait_calibration" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">
+				<div id="pagePleaseWait_calibration_text"></div>
+				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="5" data-decimal="1" data-max="99999" data-um="gr"></div>
+			</div>
+			
+			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:400px; left:680px; display:none">
+				<div id="bntFree1" class="UIButton bigButton3x4"><p id="bntFree1Text">testo bottone 1</p></div>
+			</div>
+			<div id="pagePleaseWait_freeBtn2" style="position:absolute; top:400px; left:20px; display:none">
+				<div id="bntFree2" class="UIButton bigButton3x4"><p id="bntFree2Text">testo bottone 2 bottone 2</p></div>
+			</div>
+
+			<div id="pagePleaseWait_freeBtnTrick" style="position:absolute; right:10px; top:50px; width:100px; height:80px; background-color:rgba(40,40,40,0.7);">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+			
+		</div>
+	</div>
+	
+	<div id="UISelectFullPage">
+		<div id="UISelectFullPage_cnt" style="padding:10px"></div>
+		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="javascript:UISelect_hideFullPage()"></div>
+	</div>
+			
+	<!-- page Main menu -->
+	<div class="header">
+		<div id="divHeaderC" class="header_C"></div>
+		<div class="header_R colorGrey">
+			<div id="divHeaderR_data" style="float:left; margin-right:10px"></div>
+			<div id="divHeaderR_ora" style="float:left;"></div>
+			<div class="clear"></div>
+		</div>
+		<div class="clear"></div>
+		
+		<div id="divCurLang" style="position:absolute; top:0; left:0; width:150px; height:46px; z-index:50;" onclick="menuLang_show(1)">
+			<div style="padding-left:15px"><img src="img/flags/GB.png"></div>
+		</div>
+	</div>
+	
+	<div id="divMenuLang">
+		<div style="padding:10px">
+			<ul>
+				<li onmousedown="menuLang_onUserSelected('GB')"><img src="img/flags/GB.png"> ENGLISH</li>
+				<li onmousedown="menuLang_onUserSelected('IT')"><img src="img/flags/IT.png"> ITALIANO</li>
+			</ul>
+		</div>
+		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="menuLang_show(0)"></div>
+	</div>
+	
+
+	<div id="divPage" class="page">
+		<!--- page Main Menu -->
+		<div id="pageMainMenu" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MAINTENANCE" data-onclick="pageMaintenance_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING/<br>RINSING" data-onclick="pageCleaning_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DATA AUDIT" data-onclick="pageDataAudit_show()"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS" data-onclick="pageSelections_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DEVICES" data-onclick="pageDevices_show()"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUCT<br>QUANTITY" data-onclick="pageProductQty_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PAYMENT<br>SYSTEMS" data-onclick="pagePayment_show()"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLOCK" data-onclick="pageClock_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
+					</tr>
+					<tr valign="middle">
+						<td width="33%" align="center">
+							<!--<div class="UIButton bigButton3x4" data-caption="SW VERSION" data-onclick="pageSWVersion_show()"></div>-->
+						</td>
+						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
+					</tr>
+				</table>
+			</div>
+		</div><!--- page Main Menu -->
+		
+		<!-- page pageSWVersion -->
+		<div id="pageSWVersion" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>	
+					<tr valign='middle'><td style='width:230px'>CPU VERSION</td><td><div class='bigCaption10' id="pageSWVersion_cpuV"></div></td></tr>
+					<tr valign='middle'><td>CPU MODEL</td><td><div class='bigCaption10' id="pageSWVersion_cpuM"></div></td></tr>
+					<tr valign='middle'><td>GPU VERSION</td><td><div class='bigCaption10' id="pageSWVersion_gpuV"></div></td></tr>
+					<tr valign='middle'><td>GPU BUILD DATE</td><td><div class='bigCaption10' id="pageSWVersion_gpuB"></div></td></tr>
+				</table>
+				<br>
+			</div>
+		</div><!-- pageSWVersion -->
+		
+		<!-- page Maintenance -->
+		<div id="pageMaintenance" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageMaintenance_selector' data-option='0|GENERAL OPTIONS|1|INSTALLATON|2|OFF LIST' data-onclick='pageMaintenance_onSelector()'></div></td>
+					</tr>
+				</table>
+				<br>
+
+				<div id="pageMaintenance_gs" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
+							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
+						</tr>
+						
+						<tr>
+							<td>
+								WATER FILTER DECOUNTER<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageMaintenance_11" style="float:left" class="bigCaption15">00000</div>
+								<div class="clear"></div>
+							</td>
+							<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></td>
+						</tr>
+						<tr id="pageMaintenance_decCofBrew">
+							<td>
+								COFFEE BREWER DECOUNTER<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageMaintenance_12" style="float:left" class="bigCaption15">0000</div>
+								<div class="clear"></div>
+							</td>
+							<td><div class="UINumber" id="pageMaintenance_12_cap" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></td>
+						</tr>
+						<tr id="pageMaintenance_decCofGround">
+							<td>
+								COFFEE GROUND DECOUNTER<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageMaintenance_13" style="float:left" class="bigCaption15">0000</div>
+								<div class="clear"></div>
+							</td>
+							<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></td>
+						</tr>
+						
+						<tr style="border:none">
+							<td>DISPLAY TEMPERATURES<br><span class="tip">as a CPU message</span></td>
+							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7112"></div></td>
+						</tr>
+						<tr style="height:30px;">
+							<td></td>
+							<td colspan="2">
+								<div id="pageMaintenance_temperature" class="tip"></div>
+							</td>
+						</tr>
+
+						<tr>
+							<td>VOLTAGE</td>
+							<td colspan="2"><div id="pageMaintenance_volt" class="bigCaption15"></div></td>
+						</tr>						
+					</table>
+				</div>
+				
+				<div id="pageMaintenance_inst" style="display:none">
+					<table border='0' class='elenco'>
+						<tr id="pageMaintenance_rowDis">
+							<td>DISINSTALLATION</td>
+							<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DISINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></td>
+						</tr>					
+						<tr>
+							<td>FIRST INSTALLATION</td>
+							<td colspan="2"><div class="UIOption" data-option="0|YES|1|NO" data-da3="7074"></div></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="pageMaintenance_off" style="display:none">
+					<div id="pageMaintenance_off_content"></div>
+				</div>
+			</div>
+		</div><!-- page Maintenance -->
+		
+		<!-- page Cleaning -->
+		<div id="pageCleaning" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
+					<tr valign="middle">
+						<td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="START<br>RINSING" data-onclick="pageCleaning_action(160)"></div></td>
+						<td width="50%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="START<br>RINSING HC" data-onclick="pageCleaning_action(8)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
+					</tr>
+				</table>
+				
+				<br>
+				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
+					<tr valign="middle">
+						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 1" data-onclick="pageCleaning_action(1)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 2" data-onclick="pageCleaning_action(2)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 3" data-onclick="pageCleaning_action(3)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 4" data-onclick="pageCleaning_action(4)"></div></td>
+					</tr>
+				</table>
+				
+				<br><br><br>
+				<table border='0' class='elenco'>
+					<tr style="border:0">
+						<td style="width:300px">AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
+						<td><div id="pageMilker_time1" class="UITime24" data-da3="7466"></div></td>
+					</tr>	
+				</table>
+			</div>
+		</div>
+	
+		<!-- page pageMiscellaneous -->
+		<div id="pageMiscellaneous" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageMiscellaneous_selector' data-option='0|GENERAL OPTIONS|1|MACHINE ID|2|MILK LM|3|FREEVEND' data-onclick='pageMiscellaneous_onSelector()'></div></td>
+					</tr>
+				</table>
+				<br>
+				
+				<div id="pageMiscellaneous_gs" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">MESSAGE NUMBER</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="7" data-da3="7056" data-da3bit="8"></div></td>
+						</tr>					
+						<tr>
+							<td>FAN TIME</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7062" data-da3bit="8" data-um="min"></div></td>
+						</tr>
+						<tr>
+							<td>BEEP TIME</td>
+							<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
+						</tr>
+						<tr>
+							<td>CPU LANGUAGE</td>
+							<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
+						</tr>
+						<tr id="pageMiscellaneous_r1">
+							<td>SIDE WATER PUMP</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="8370" data-da3bit="8"></div></td>
+						</tr>
+						<tr id="pageMiscellaneous_r2">
+							<td>SUGAR CANISTER</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7086" data-da3bit="8"></div></td>
+						</tr>			
+						<tr><td>FMILK TOPPING SWITCH</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7096' data-da3bit='8'></div></td></tr>
+						<tr>
+							<td>ENABLE DATA-AUDIT BEFORE</td>
+							<td><div id="pageMiscellaneous_gs_auditBefore" class='UIOption' data-option='1|YES|0|NO' data-da3='7106' data-da3bit='8'></div></td>
+						</tr>
+ 					</table>
+				</div>
+				
+				<div id="pageMiscellaneous_mid" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">MACHINE CODE A</td>
+							<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7052" data-da3bit="16"></div></td>
+						</tr>
+						<tr>
+							<td>MACHINE CODE B</td>
+							<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7054" data-da3bit="16"></div></td>
+						</tr>
+					</table>
+				</div>
+					
+				<div id="pageMiscellaneous_lm" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">PRODUCT MILK LM</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7082" data-da3bit="8"></div></td>
+						</tr>
+						<tr>
+							<td>MILK LM WATER NUMBER</td>
+							<td><div class="UINumber" data-numfigures="1" data-max="3" data-da3="7084" data-da3bit="8"></div></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="pageMiscellaneous_fv" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:380px">FV HARDWARE KEY<br>MODE</td>
+							<td colspan="2"><div id="pageMiscellaneous_fvHwKey" class='UIOption' data-option='0|DISABLED|1|ENABLED 1|2|ENABLED ++' data-da3="7104" data-da3bit="8"></div></td>
+						</tr>
+						<tr id="pageMiscellaneous_fv_r1">
+							<td>START FREEVEND NOW<br><span class="tip">It will last for the indicated<br>num. of hours</span></td>
+							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="hours"></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='START NOW' data-onclick="pageMiscellaneous_startFVNow()"></div></div></td>
+						</tr>
+						
+						<tr id="pageMiscellaneous_fv_r2">
+							<td>FREEVEND IS NOW <b style='color:#fff'>RUNNING</b></td>
+							<td align="center"><div id="pageMiscellaneous_fvDateEnd"></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='STOP IT NOW' data-onclick="pageMiscellaneous_stopFVNow()"></div></div></td>
+						</tr>
+						
+					</table>
+				</div>				
+			</div>
+		</div>	<!-- page pageMiscellaneous -->
+		
+		<!-- page pageClock -->
+		<div id="pageClock" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td style="width:210px"><b>VIEW SETTINGS FOR</b></td>
+						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|CLOCK|1|HAPPY HOUR|2|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
+					</tr>
+				</table>
+				<br>
+
+				<div id="pageClock_clock" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>TIME</td>
+							<td colspan="3"><div class="UITime24" id="pageClock_time"></div></td>
+							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setTime()"></div></div></td>
+						</tr>
+						
+						<tr>
+							<td>DATE</td>
+							<td><div id="pageClock_dd" class="UINumber" data-numfigures="2" data-max="31" data-min="1" data-um='day'></div></td>
+							<td><div id="pageClock_mm" class="UINumber" data-numfigures="2" data-max="12" data-min="1" data-um='month'></div></td>
+							<td><div id="pageClock_yy" class="UINumber" data-numfigures="4" data-max="2099" data-min="2018" data-um='year'></div></td>
+							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setDate()"></div></div></td>
+						</tr>
+						
+						
+						<tr style="border:0">
+							<td>SUMMER TIME</td>
+							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7080"></div></td>
+							<td colspan="2"></td>
+						</tr>
+					</table>
+				</div>
+
+				<div id="pageClock_happyHour" style="display:none">
+					<table border='0' class='elenco'>
+						<tr style="height:50px; vertical-align:bottom">
+							<th style="width:232px; text-align:left">HAPPY HOUR</th>
+							<th>START</th>
+							<th>END</th>
+						</tr>
+						<tr>
+							<td>HAPPY HOUR 1</td>
+							<td align="center"><div class="UITime24" data-da3="7424"></div></td>
+							<td align="center"><div class="UITime24" data-da3="7426"></div></td>
+						</tr>
+						<tr>
+							<td>HAPPY HOUR 2</td>
+							<td align="center"><div class="UITime24" data-da3="7428"></div></td>
+							<td align="center"><div class="UITime24" data-da3="7430"></div></td>
+						</tr>
+						<tr style="border:0">
+							<td>HAPPY HOUR 3</td>
+							<td align="center"><div class="UITime24" data-da3="7432"></div></td>
+							<td align="center"><div class="UITime24" data-da3="7434"></div></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="pageClock_energySave">
+					<table border='0' class='elenco'>
+						<tr style="height:50px; vertical-align:bottom">
+							<th style="width:232px; text-align:left">ENERGY SAVING</th>
+							<th>SWITCH ON</th>
+							<th>SWITCH OFF</th>
+						</tr>				
+						<tr><td>MONDAY</td><td align="center"><div class="UITime24" data-da3="7436"></div></td><td align="center"><div class="UITime24" data-da3="7438"></div></td></tr>					
+						<tr><td>TUESDAY</td><td align="center"><div class="UITime24" 	data-da3="7440"></div></td><td align="center"><div class="UITime24" data-da3="7442"></div></td></tr>					
+						<tr><td>WEDNESDAY</td><td align="center"><div class="UITime24" 	data-da3="7444"></div></td><td align="center"><div class="UITime24" data-da3="7446"></div></td></tr>					
+						<tr><td>THURSDAY</td><td align="center"><div class="UITime24" 	data-da3="7448"></div></td><td align="center"><div class="UITime24" data-da3="7450"></div></td></tr>					
+						<tr><td>FRIDAY</td><td align="center"><div class="UITime24" 	data-da3="7452"></div></td><td align="center"><div class="UITime24" data-da3="7454"></div></td></tr>					
+						<tr><td>SATURDAY</td><td align="center"><div class="UITime24" 	data-da3="7456"></div></td><td align="center"><div class="UITime24" data-da3="7458"></div></td></tr>					
+						<tr><td>SUNDAY</td><td align="center"><div class="UITime24" 	data-da3="7460"></div></td><td align="center"><div class="UITime24" data-da3="7462"></div></td></tr>					
+					</table>
+				</div>
+			</div>
+		</div>	<!-- page pageClock -->
+		
+		<!-- page productQty -->
+		<div id="pageProductQty" class="UIWindow">
+			<div class="UIWindowContent" id="pageProductQty_content">
+				<!-- il contenuto di questa pagina lo credo dinamicamente perchè dipende da INSTANT o ESPRESSO (vedi pageProductQty_build) -->
+			</div>
+		</div><!-- page productQty -->
+		
+		
+		<!-- page Milker -->
+		<div id="pageMilker" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>
+					<tr>
+						<td style="width:400px">STEAM TEMPERATURE<br><span class="tip">max 140</span></td>
+						<td><div class="UINumber" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
+					</tr>
+					<tr>
+						<td>RINSING PERIOD<br><span class="tip">max 900</span></td></td>
+						<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
+					</tr>
+					<tr>
+						<td>ENABLE RINSING</td>
+						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7622"></div></td>
+					</tr>
+					<tr>
+						<td>RINSE DELAY<br><span class="tip">max 10.0</span></td></td>
+						<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
+					</tr>
+					<tr>
+						<td>ENABLE MILK SENSOR</td>
+						<td><div class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
+					</tr>
+					<tr>
+						<td>SHOW MILKER-RINSING<br>BUTTON AT STARTUP</td>
+						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7628"></div></td>
+					</tr>
+					<tr>
+						<td>AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
+						<td colspan="3"><div id="pageMilker_time1" class="UITime24" data-da3="7468"></div></td>
+					</tr>					
+					
+				</table>
+			</div>
+		</div><!-- page Milker -->
+		
+		
+		<!-- pageSelections -->
+		<div id="pageSelections" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td style="width:140px"><b>SELECTIONS:</b></td>
+						<td><div class='UIOptionSmall' id='pageSelections_selector' data-option='1|1-12|2|13-24|3|25-36|4|37-48' data-onclick='pageSelections_onSelector()'></div></td>
+					</tr>
+				</table>		
+			
+				<div id="pageSelections_c2">
+					<!-- il contenuto di questa pagina lo credo dinamicamente (vedi pageSelections_build) -->
+				</div>
+			</div>
+		</div><!-- pageSelections -->
+		
+		<!-- pageSingleSelection -->
+		<div id="pageSingleSelection" class="UIWindow">
+			<div class="UIWindowContent">
+				
+				<div id="pageSingleSelection_selectorAtTop"></div>
+				
+				<br>
+				<div id="pageSingleSelection_pageG">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>STATUS</td>
+							<td><div id='pageSingleSelection_status' class="UIOption" data-option="0|SELECTION|1|INHIBITED|2|PRESELECTION" data-da3="100" data-onclick='pageSingleSelection_onStatus()'></div></td>
+						</tr>
+					</table>
+					<div id="pageSingleSelection_pageSel">
+						<table border='0' class='elenco'>
+							<tr>
+								<td>PRICE 1</td></td>
+								<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
+							</tr>
+							<tr>
+								<td>PRICE 2<br><span class="tip">happy price</span></td></td>
+								<td><div id='pageSingleSelection_prc2' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
+							</tr>
+							<tr>
+								<td>PROGRAMMING</td>
+								<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
+							</tr>							
+							<tr>
+								<td>JUG<br><span class="tip">num repetitions</span></td></td>
+								<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="177" data-da3bit='8'></div></td>
+							</tr>
+							<tr>
+								<td>SCALING FACTOR<br></td></td>
+								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
+							</tr>						
+						</table>
+					</div>
+				</div> <!--pageSingleSelection_pagegs-->
+				
+				<div id="pageSingleSelection_pageE"></div>
+				<div id="pageSingleSelection_pageP"></div>
+				<div id="pageSingleSelection_pageW"></div>
+				<div id="pageSingleSelection_pageM"></div>
+				
+			</div>
+		</div><!-- pageSingleSelection -->
+		
+		
+		
+		<!-- pageTemperature -->
+		<div id="pageTemperature" class="UIWindow">
+			<div class="UIWindowContent" id="pageTemperature_content">
+				<!-- creato dinamicamente, vedi pageTemperature_build -->
+			</div>
+		</div>
+		<!-- pageTemperature -->
+		
+		
+		<!-- pageCalibration -->
+		<div id="pageCalibration" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' class='elenco'>
+					<tr id="pageCalibration_rowGrinder1">
+						<td>GRINDER 1</td>
+						<td><div id="pageCalibration_m11" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(11)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(11)"></div></div></td>
+					</tr>
+					<tr id="pageCalibration_rowGrinder2">
+						<td>GRINDER 2</td>
+						<td><div id="pageCalibration_m12" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(12)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(12)"></div></div></td>
+					</tr>
+					
+					<tr id="pageCalibration_rowMotor1">
+						<td style="width:150px">MOTOR 1</td>
+						<td style="width:274px"><div id="pageCalibration_m1" class="bigCaption15"></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(1)"></div></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(1)"></div></div></td>
+					</tr>
+					
+					<tr>
+						<td>MOTOR 2</td>
+						<td><div id="pageCalibration_m2" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(2)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(2)"></div></div></td>
+					</tr>
+
+					<tr>
+						<td>MOTOR 3</td>
+						<td><div id="pageCalibration_m3" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(3)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(3)"></div></div></td>
+					</tr>
+					
+					<tr>
+						<td>MOTOR 4</td>
+						<td><div id="pageCalibration_m4" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(4)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(4)"></div></div></td>
+					</tr>
+
+					<tr>
+						<td>MOTOR 5</td>
+						<td><div id="pageCalibration_m5" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(5)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(5)"></div></div></td>
+					</tr>
+					<tr>
+						<td>MOTOR 6</td>
+						<td><div id="pageCalibration_m6" class="bigCaption15"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(6)"></div></div></td>
+					</tr>
+					<tr id="pageCalibration_rowEncoder1">
+						<td>ENCODER 1</td>
+						<td colspan="3"><div id="pageCalibration_encoder1" class="bigCaption15"></div></td>
+					</tr>
+					<tr id="pageCalibration_rowEncoder2">
+						<td>ENCODER 2</td>
+						<td colspan="3"><div id="pageCalibration_encoder2" class="bigCaption15"></div></td>
+					</tr>										
+				</table>
+			</div>
+		</div>
+		<!-- pageCalibration -->
+		
+		<!-- page Payment -->
+		<div id="pagePayment" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pagePayment_selector' data-option='0|GENERAL OPTIONS|1|MDB|2|MACHINE ID|3|RFID CARD' data-onclick='pagePayment_onSelector()'></div></td>
+					</tr>
+				</table>
+				<br>
+			
+				<div id="pagePayment_general" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>COIN MECH TYPE</td>
+							<td><div class='UISelect' data-option='0|PARALLEL SINGLE VEND|1|PARALLEL MULTI VEND|2|EXECUTIVE|3|PRICE HOLDING|4|MDB' data-da3='7058' data-da3bit='8'></div></td>
+						</tr>
+						<tr>
+							<td>CURRENCY (PRICES)<br>NUM OF DECIMALS</td>
+							<td><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='7066' data-da3bit='8'></div></td>
+						</tr>
+					</table>				
+				</div>
+
+				<div id="pagePayment_mdb">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>ESCROW ENABLED</td>
+							<td><div class='UIOption' data-option='0|YES|1|NO' data-da3='7236' data-da3bit='8'></div></td>
+						</tr>
+						<tr><td>CREDIT MAX</td><td><div id="pagePayment_creditMax" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7238" data-da3bit="16"></div></td></tr>
+						<tr><td>REST MAX</td><td><div  id="pagePayment_restMax"class="UINumber" data-numfigures="5" data-max="99999" data-da3="7240" data-da3bit="16"></div></td></tr>
+						<tr>
+							<td>SELL TYPE</td>
+							<td><div class='UIOption' data-option='0|SINGLE|1|MULTI' data-da3='7242' data-da3bit='8'></div></td>
+						</tr>
+						<tr><td>TOKEN VALUE</td><td><div id="pagePayment_tokenV" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7244" data-da3bit="16"></div></td></tr>
+						<tr><td>BILL VALIDATOR</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='7310' data-da3bit='8'></div></td></tr>
+						
+						<tr><td>COIN REST A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7246' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7248' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7250' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7252' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7254' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7256' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7258' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7260' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7262' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7264' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7266' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7268' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7270' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7272' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7274' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN REST P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7276' data-da3bit='16'></div></td></tr>
+
+						<tr><td>COIN NO REST A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7278' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7280' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7282' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7284' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7286' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7288' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7290' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7292' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7294' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7296' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7298' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7300' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7302' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7304' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7306' data-da3bit='16'></div></td></tr>						
+						<tr><td>COIN NO REST P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7308' data-da3bit='16'></div></td></tr>
+					</table>				
+				</div>			
+				
+				<div id="pagePayment_mid" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>PROTOCOL</td>
+							<td><div class='UISelect' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
+						</tr>						
+						<tr>
+							<td>CODE ID 101</td>
+							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7314" data-da3bit="32"></div></td>
+						</tr>
+						<tr>
+							<td>CODE ID 104</td>
+							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7318" data-da3bit="32"></div></td>
+						</tr>
+						<tr>
+							<td>CODE ID 106</td>
+							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7322" data-da3bit="32"></div></td>
+						</tr>
+						<tr>
+							<td>ADDRESS VIDTS</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7326" data-da3bit="16"></div></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="pagePayment_rfid">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>MAX CREDIT CARD</td>
+							<td><div id="pagePayment_maxCC" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7136" data-da3bit="16"></div></td>
+						</tr>
+						<tr>
+							<td>DISCOUNT</td>
+							<td><div class="UINumber" data-numfigures="3" data-max="100" data-da3="7196" data-da3bit="16" data-um="%"></div></td>
+						</tr>
+						<tr><td>COIN A CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7144'></div></td></tr>
+						<tr><td>COIN B CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7146'></div></td></tr>
+						<tr><td>COIN C CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7148'></div></td></tr>
+						<tr><td>COIN D CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7150'></div></td></tr>
+						<tr><td>COIN E CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7152'></div></td></tr>
+						<tr><td>COIN F CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7154'></div></td></tr>
+						<tr><td>COIN G CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7156'></div></td></tr>
+						<tr><td>COIN H CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7158'></div></td></tr>
+						<tr><td>COIN I CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7160'></div></td></tr>
+						<tr><td>COIN J CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7162'></div></td></tr>
+						
+						<tr><td>COIN A NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7176'></div></td></tr>
+						<tr><td>COIN B NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7178'></div></td></tr>
+						<tr><td>COIN C NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7180'></div></td></tr>
+						<tr><td>COIN D NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7182'></div></td></tr>
+						<tr><td>COIN E NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7184'></div></td></tr>
+						<tr><td>COIN F NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7186'></div></td></tr>
+						<tr><td>COIN G NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7188'></div></td></tr>
+						<tr><td>COIN H NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7190'></div></td></tr>
+						<tr><td>COIN I NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7192'></div></td></tr>
+						<tr><td>COIN J NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7194'></div></td></tr>
+					</table>
+				</div>				
+				
+			</div>
+		</div><!-- page Payment -->		
+		
+		
+		<!-- page Devices -->
+		<div id="pageDevices" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%' id="pageDevices_selectorTable">
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageDevices_selector' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|OTHER' data-onclick='pageDevices_onSelector()'></div></td>
+					</tr>
+				</table>
+				<div style='height:5px'></div>
+			
+				<div id="pageDevices_general" style="display:none">
+					<table border='0' class='elenco'>
+						<tr><td>DRIPTRAY DETECTION</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7092' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_cofSensor"><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ENABLED|0|DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
+						<tr><td>CUP SENSOR THRESHOLD</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
+					</table>
+				</div>
+
+				<div id="pageDevices_vflex" style="display:none">
+					<table border='0' class='elenco'>
+						<tr><td>BREWER DIAMETER</td><td><div class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
+						<tr><td>STANDBY POSITION</td><td><div class='UIOption' data-option='0|CLOSE|1|OPEN' data-da3='7556' data-da3bit='8'></div></td></tr>
+						<tr><td>AUTOMATIC<br>ADJUSTMENT</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7558' data-da3bit='8'></div></td></tr>
+					</table>				
+				</div>			
+				
+				<div id="pageDevices_vgrind1" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:260px">
+								POSITION<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageDevices_vg1" style="float:left" class="bigCaption15">000</div>
+								<div class="clear"></div>
+							</td>
+							<td style="width:440px">
+								<div style="float:left; margin-right:10px"><br>desired value</div>
+								<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="470"></div></dv>
+								<div class="clear"></div>
+							</td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div></td>
+						</tr>
+						<tr>
+							<td>ENABLE AUTO<br>REGULATION</td>
+							<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
+						</tr>
+					</table>
+					<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
+						<tr>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
+										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7588" data-da3bit="8"></div></td>
+										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:320px; border-right:solid 1px #999'>
+											<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
+										</td>
+										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
+										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+										<td align="right">
+											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
+											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<!--- vgrind 2-->
+				<div id="pageDevices_vgrind2" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:260px">
+								POSITION<br>
+								<div style="float:left; margin-right:10px">current value:</div>
+								<div id="pageDevices_vg2" style="float:left" class="bigCaption15">000</div>
+								<div class="clear"></div>
+							</td>
+							<td style="width:440px">
+								<div style="float:left; margin-right:10px"><br>desired value</div>
+								<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="470"></div></dv>
+								<div class="clear"></div>
+							</td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div></td>
+						</tr>
+						<tr><td>ENABLE AUTO<br>REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
+					</table>
+					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
+						<tr>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7690" data-da3bit="16"></div></td>
+										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7684" data-da3bit="8"></div></td>
+										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table class='elenco' border='0'>
+									<tr valign="middle" style='border:none'>
+										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:320px; border-right:solid 1px #999'>
+											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div>
+										</td>
+										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
+										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+										<td align="right">
+											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip">Last flux/position:<br>please click on <b>RUN SELECTION</b></b></div>
+											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+			</div>
+		</div><!-- page Devices -->	
+
+		<!-- page DataAudit -->
+		<div id="pageDataAudit" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS|3|REFRESH DATA' data-onclick='pageDataAudit_onSelector()'></div></td>
+					</tr>
+				</table>
+				
+				<div id="pageDataAudit_o" style="display:none"></div>
+				<div id="pageDataAudit_p" style="display:none"></div>
+				<div id="pageDataAudit_t" style="display:none"></div>
+				<div id="pageDataAudit_r" style="display:none">
+					<div id="pageDataAudit_lastDownload">EVA-DTS, downloaded on 2019-11-26 11:42</div>
+					<br>
+					<table border='0' align="center">
+						<tr valign='middle'>
+							<td><div class='UIButton actionButton' data-caption='REFRESH DATA AGAIN' data-onclick="pageDataAudit_downloadEVA()"></div></td>
+							<td style="width:100px">&nbsp;</td>
+							<td><div class='UIButton actionButton' data-caption='RESET PARTIAL DATA' data-onclick="pageDataAudit_resetPartialData()"></div></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div> <!-- page DataAudit -->
+
+		
+	</div> <!-- divPage -->
+
+	<div id="divFooter" class="footer">
+		<div id="footer_L">
+			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="&nbsp;&nbsp;&nbsp;BACK&nbsp;&nbsp;&nbsp;" data-onclick="btnBack_onClick(0)"></div></div>
+			<div style="float:left"><div id="btnSave" class="UIButton" data-caption="&nbsp;&nbsp;&nbsp;S&nbsp;A&nbsp;V&nbsp;E&nbsp;&nbsp;&nbsp;" data-onclick="btnBack_onClick(1)"></div></div>
+			<div class="clear"></div>
+		</div>
+		<div id="footer_C">
+		</div>
+		<div id="footer_R">
+			<div style="float:right"><div id="bntTestSelection" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;TEST SELECTION &nbsp&nbsp&nbsp;" data-onclick="pageSingleSelection_test(0)"></div></div>
+			<div class="clear"></div>
+		</div>
+		<div class="clear"></div>
+	</div>
+</div> <!-- wrapper -->
+
+
+<div id="manualViewBox" style="position:absolute; top:0; left:0; background-color:rgba(80,80,80,0.9); width:100%; height:100%; text-align:center; display:none; z-index:100;">
+	<iframe id='manualViewBoxFrame' class='manualViewBox_frame' src='' border='0'></iframe>
+	<div class='manualViewBox_close' onclick='manualViewBox_close()'><img src='img/close32x32.png'></div>
+</div>
+
+<script src="js/DA3.js"></script>
+<script src="js/GUIInfo.js"></script>
+<script src="js/UI.js"></script>
+<script src="js/UIOption.js"></script>
+<script src="js/UINumberArrow.js"></script>
+<script src="js/UIButtonSel.js"></script>
+<script src="js/UITime24.js"></script>
+<script src="js/UISelect.js"></script>
+<script src="js/Task_GB.js"></script>
+<script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
+<script language="javascript">
+var da3 = null;
+var guiInfo = null;
+var ui = null;
+var voidTask = new TaskVoid();
+var taskCalibMotor = new TaskCalibMotor();
+var currentTask = voidTask;
+var currentPageID="";
+var timeNowMSec = 0;
+var uiStandAloneNum = null;
+var manualFolderName = "";
+var currentCPUStatusID = -1;
+
+function onRheaBootstrapFinished()
+{
+	document.getElementById("pagePleaseWait_freeBtn1").addEventListener("mousedown", function(ev) 		{ currentTask.onFreeBtn1Clicked(ev); } , true);
+	document.getElementById("pagePleaseWait_freeBtn2").addEventListener("mousedown", function(ev) 		{ currentTask.onFreeBtn2Clicked(ev); } , true);
+	document.getElementById("pagePleaseWait_freeBtnTrick").addEventListener("mousedown", function(ev) 	{ currentTask.onFreeBtnTrickClicked(ev); } , true);
+	
+	rhea.onEvent_cpuStatus = function(statusID, statusStr) 			{ currentCPUStatusID=statusID; currentTask.onEvent_cpuStatus(statusID, statusStr); }
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
+	
+	dataOra_setup();
+	
+	ui = new UI ("divPage");
+	ui.setupStandaloneButton("bntBack");
+	ui.setupStandaloneButton("btnSave");
+	ui.setupStandaloneButton("bntTestSelection");
+	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
+	
+	pleaseWait_show();
+	pleaseWait_setTextLeft("Please wait ...");
+	pleaseWait_freeText_show();
+
+	syncDA3IfNeeded();
+	//priv_askCPULangNames();
+}
+
+function syncDA3IfNeeded ()
+{
+	pleaseWait_freeText_appendText("da3 sync...");
+	rhea.sendSyncDA3();
+	setTimeout (function(){ syncDA3IfNeeded_onProgress();}, 600);
+}
+
+function syncDA3IfNeeded_onProgress ()
+{
+	if (currentCPUStatusID != -1 && currentCPUStatusID != 105)
+	{
+		pleaseWait_freeText_appendText("<br>");
+		priv_askCPULangNames();
+	}
+	else
+	{
+		setTimeout (function(){ syncDA3IfNeeded_onProgress();}, 800);
+		pleaseWait_freeText_appendText(".");
+	}
+}
+
+
+var cpuLangName1 = "";
+var cpuLangName2 = "";
+function priv_askCPULangNames()
+{
+	pleaseWait_freeText_appendText("getting CPU lang names...<br>");
+	//console.log ("ajax::getCPULangNames");
+	rhea.ajax ("getCPULangNames", "").then( function(result)
+	{
+		//cpuLangName1 = utf16StrToStr(result, 0);
+		//cpuLangName2 = utf16StrToStr(result, (1+cpuLangName1.length) * 2);
+		var e = result.split("#");
+		cpuLangName1 = e[0];
+		cpuLangName2 = e[1];
+		priv_askMachineTypeAndModel();
+	})
+	.catch( function(result)
+	{
+		console.log ("err[" +result +"]");
+		cpuLangName1 = "lang 1";
+		cpuLangName1 = "lang 2";
+		setTimeout(function() { priv_askCPULangNames(); }, 200);
+	});	
+}
+
+function priv_askMachineTypeAndModel()
+{
+	pleaseWait_freeText_appendText("getting machine type and model...<br>");
+	//console.log ("ajax::getMachineTypeAndModel");
+	rhea.ajax ("getMachineTypeAndModel", "").then( function(result)
+	{
+		var obj = JSON.parse(result);
+		
+		//carico il da3
+		pleaseWait_freeText_appendText("loading da3...<br>");
+		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione);
+		da3.load();
+	})
+	.catch( function(result)
+	{
+		setTimeout(function() { priv_askMachineTypeAndModel(); }, 200);
+	});	
+}
+
+//***************** chiamata al termine del caricamento del da3
+function onDA3Loaded(bResult)
+{
+	if (bResult == 0)
+	{
+		setTimeout ( function() { window.location = "index.html"; }, 1000);
+		return;
+	}
+
+	//console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
+	guiInfo = new GUIInfo();
+	guiInfo.load();
+}
+
+//***************** chiamata al termine delle gui info
+var bGotoHMIAfterLavaggio = 0;
+function onGUIInfoLoaded()
+{
+	pageProductQty_build();
+	pageSelections_build();
+	pageSingleSelection_build();
+	pageTemperature_build();
+	pleaseWait_hide();
+	
+	//chiedo se il manuale e' installato, nel qual caso abilito il relativo bottone
+	rhea.ajax ("isManInstalled", "").then( function(result)
+	{
+		if (result!="KO")
+		{
+			rheaShowElem(rheaGetElemByID("divBtnManual"));
+			manualFolderName = result;
+		}
+	})
+	.catch( function(result)
+	{
+	});
+	
+	
+	//abilito il menu milker se macchine==espresso
+	if (da3.isEspresso())
+	{
+		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+		rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
+	}
+	
+	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
+	
+	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
+	switch (rheaGetURLParamOrDefault("page", "pageMainMenu"))
+	{
+		case "pageMainMenu": pageMainMenu_show(); break;
+		case "pageCleaning": pageCleaning_show(); break;
+		case "pageMaintenance": pageMaintenance_show(); break;
+		case "pageMiscellaneous": pageMiscellaneous_show(); break;
+		case "pageProductQty": pageProductQty_show(); break;
+		case "pageMilker": pageMilker_show(); break;
+		
+		case "pageCleaningSanitario": 
+			//start del lavaggio sanitario e, alla fine, goto back to HMI
+			pageCleaning_show(); 
+			pageCleaning_startLavSanitario(8,0); 
+			bGotoHMIAfterLavaggio = 1;
+			break;
+
+		case "pageCleaningMilker": 
+			//start del lavaggio milker e, alla fine, goto back to HMI
+			pageCleaning_show(); 
+			
+			//prima di poter partire col lavaggio sanitario del milker, bisogna che la CPU non sia ancora in stato INI_CHECK
+			//pageCleaning_startLavSanitario(5,1); 
+			bGotoHMIAfterLavaggio = 1;
+			pleaseWait_show(); 
+			pleaseWait_freeText_show();
+			pleaseWait_freeText_setText("MILK MODULE RINSING<br>Waiting for machine to be ready");
+			setTimeout (waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3), 100);
+			break;
+	}	
+}
+	
+function waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft)
+{
+	pleaseWait_freeText_appendText(".");
+	if (currentCPUStatusID != 2) //2 == READY
+	{
+		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3); }, 1000);
+		return;
+	}
+	
+	howManyTimesLeft--;
+	if (howManyTimesLeft == 0)
+	{
+		pleaseWait_freeText_appendText ("<br>Cleaning is starting");
+		pageCleaning_startLavSanitario(5,1); 
+	}
+	else
+		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft); }, 1000);
+}
+
+function manualViewBox_show()
+{
+	rheaShowElem(rheaGetElemByID("manualViewBox"));
+	var f = document.getElementById("manualViewBoxFrame");
+	f.src = "../../last_installed/manual/" +manualFolderName +"/index.html";
+}
+function manualViewBox_close()		{ rheaHideElem(rheaGetElemByID("manualViewBox")); }
+
+
+function header_setText(s)				{ s=s.replace(/<br>/, "&nbsp;"); rheaSetDivHTMLByName("divHeaderC", s); }
+
+function gotoHMI()						{ window.location = "gotoHMI.html"; }
+function showPage(pageID)				{ return showPageEx(pageID,0); }
+function showPageEx(pageID, da3Offset)	
+{ 
+	currentPageID=pageID; 
+	var win=ui.getWindowByID(currentPageID); 
+	var ret=win.firstTimeShow; 
+	ui.hideAllExcept(currentPageID); 
+	rheaHideElem(rheaGetElemByID("divCurLang"));
+	win.loadFromDA3(da3, da3Offset);
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS); 
+	return ret;
+}
+function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); rheaSetDisplayMode(rheaGetElemByID("btnSave"), "table"); }
+function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("btnSave")); rheaHideElem(rheaGetElemByID("bntTestSelection")); }
+function btnBack_onClick (bSave)				
+{ 
+	if (currentTask != voidTask)
+	{
+		bSave = currentTask.onExit(bSave);
+		currentTask = voidTask;
+	}
+	
+	if (bSave == 0)
+		backToMainMenu();
+	else
+		save( function() { backToMainMenu();} );
+}
+
+
+var backTo="";
+function backToMainMenu()
+{
+	pleaseWait_hide();
+	
+	var where = backTo;
+	backTo="";
+	switch (where)
+	{
+	default:				pageMainMenu_show(); break;
+	case "pageSelections":	pageSelections_show(); break;
+	}
+}
+
+var save_fnToCallWhenFinished = "";
+function save (fnToCallWhenFinished)
+{
+	save_fnToCallWhenFinished = fnToCallWhenFinished;
+	
+	ui.getWindowByID(currentPageID).saveToDA3(da3); 
+	var blockList = da3.compare();
+	var nBlocchi = blockList.length;
+	if (nBlocchi > 0)
+	{
+		//ci sono dei blocchi da3 che sono stati modificati
+		pleaseWait_show();
+		pleaseWait_freeText_setText("Saving datafile, please wait...<br>");
+		pleaseWait_freeText_show();
+		storeDA3Block_step (1, nBlocchi, blockList);
+	}
+	else
+		onSaveFinished();
+}
+
+function onSaveFinished() 	{  save_fnToCallWhenFinished.call(); }
+
+function storeDA3Block_step (uno_di, nBlocchi, blockList)
+{
+	var blockNum = blockList[uno_di-1];
+	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
+			
+	da3.storeBlock (uno_di, nBlocchi, blockNum).then (function(result)
+	{
+		pleaseWait_freeText_appendText (result +"<br>");
+		
+		if (result != "OK")
+		{
+			setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 400 );
+			return;
+		}
+		
+		
+		da3.copyBlockToOriginal(blockNum);
+		if (uno_di >= nBlocchi)
+		{
+			setTimeout ( function() { onSaveFinished(); }, 100);
+			return;
+		}
+		
+		uno_di++;
+		setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 100);
+	})
+	.catch( function(result)
+	{
+		setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 400 );
+	});		
+}
+
+function helper_intToFixedOnePointDecimale(v)
+{
+	if (v > 0)
+	{
+		if (v<10)
+			v = "0." +v;
+		else
+		{
+			v = v.toString();
+			v = v.substr(0, v.length-1) +"." +v.substr(v.length-1);
+		}
+	}
+	return v;
+}
+
+function helper_decodeImpulsi(v)
+{
+	//prende i 3 digiti meno significativi e mette un punto dopo il primo digit
+	var s = v.toString();
+	while (s.length < 3) s = "0" +s;
+	
+	var n = s.length;
+	if (n > 3)
+		s = s.substr(n-3, 3);
+		
+	return s.substr(0,1) +"." +s.substr(1,2);
+}
+
+
+function menuLang_show(bShow)
+{
+	var e = rheaGetElemByID("divMenuLang");
+	if (bShow)
+		rheaShowElem(e);
+	else
+		rheaHideElem(e);
+}
+
+function menuLang_onUserSelected(iso)
+{
+	rhea.ajax ("setLastUsedLangPrgMenu", { "lang":iso}).then( function(result)
+	{
+		window.location = "index_" +iso +".html";
+	})
+	.catch( function(result)
+	{
+		window.location = "index_" +iso +".html";
+	});	
+	
+}
+
+
+/***************************************************************************
+ *
+ * please wait
+ *
+ */
+function pleaseWait_show()				
+{ 
+	pleaseWait_setTextLeft(""); 
+	pleaseWait_setTextRight(""); 
+	pleaseWait_freeText_setText("");
+	
+	pleaseWait_btn1_hide();
+	pleaseWait_btn2_hide();
+	pleaseWait_btnTrick_hide();
+	pleaseWait_freeText_hide();
+	
+	pleaseWait_wait_show();
+	rheaShowElem(rheaGetElemByID("pagePleaseWait")); 
+}
+function pleaseWait_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait")); }
+function pleaseWait_setTextLeft(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_left", s); }
+function pleaseWait_setTextRight(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_right", s); }
+
+function pleaseWait_wait_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_wait")); }
+function pleaseWait_wait_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_wait")); }
+
+function pleaseWait_freeText_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeText")); }
+function pleaseWait_freeText_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeText")); }
+function pleaseWait_freeText_setText(s)		{ rheaSetDivHTMLByName("pagePleaseWait_freeText", s); }
+function pleaseWait_freeText_appendText(s)	{ var d=rheaGetElemByID("pagePleaseWait_freeText"); d.innerHTML += s; }
+
+function pleaseWait_btn1_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }
+function pleaseWait_btn1_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }
+function pleaseWait_btn1_setText(s)		{ rheaSetDivHTMLByName("bntFree1Text", s); }
+
+
+function pleaseWait_btn2_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
+function pleaseWait_btn2_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
+function pleaseWait_btn2_setText(s)		{ rheaSetDivHTMLByName("bntFree2Text", s); }
+
+function pleaseWait_btnTrick_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
+function pleaseWait_btnTrick_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
+
+
+function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_num_show()				{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
+function pleaseWait_calibration_num_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
+function pleaseWait_calibration_num_setValue (v)		{ uiStandAloneNum.setValue(parseInt(v)); }
+function pleaseWait_calibration_num_getValue()			{ return uiStandAloneNum.getValue(); }
+function pleaseWait_calibration_setText(s)				{ rheaSetDivHTMLByName("pagePleaseWait_calibration_text", s); }
+
+/***************************************************************************
+ *
+ * data & ora
+ *
+ */
+var dataora_mm = 1;
+var dataora_dd = 1;
+var dataora_yy = 2018;
+var dataora_hh = 0;
+var dataora_min = 0;
+var dataora_sec = 0;
+var dataora_interval = null;
+
+function dataOra_setup ()
+{
+	if (null != dataora_interval)
+	{
+		clearInterval(dataora_interval);
+		dataora_interval = null;
+	}
+		
+	//console.log ("dataOra_setup::ajax::getTime");
+	rhea.ajax ("getTime", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+		dataora_hh = data.h;
+		dataora_min = data.m;
+		dataora_sec = data.s;
+	
+		//console.log ("dataOra_setup::ajax::getDate");	
+		rhea.ajax ("getDate", "").then( function(result)
+		{
+			var data = JSON.parse(result);
+			dataora_dd = data.d;
+			dataora_mm = data.m;
+			dataora_yy = data.y;
+			dataOra_run();
+		})
+		.catch( function(result)
+		{
+			//console.log ("dataOra_setup::ajax::getDate::err");
+			setTimeout ( function() {dataOra_setup();}, 200);
+		});	
+	})
+	.catch( function(result)
+	{
+		console.log ("dataOra_setup::ajax::getTime::err[" +result +"]");
+		setTimeout ( function() {dataOra_setup();}, 200);
+	});
+}
+
+function dataOra_getYYYYMMDD()
+{
+	var mm = dataora_mm.toString();
+	if (mm.length<2) mm = "0"+mm;
+	
+	var gg = dataora_dd.toString();
+	if (gg.length<2) gg = "0"+gg;
+	return dataora_yy +"/" +mm +"/" +gg;
+}
+
+function dataOra_getHHMM(sep)
+{
+	var hh = dataora_hh.toString();
+	if (hh.length<2) hh = "0"+hh;
+	
+	var mm = dataora_min.toString();
+	if (mm.length<2) mm = "0"+mm;
+	return hh +sep +mm;
+}
+
+function dataOra_run ()
+{
+	if (null != dataora_interval)
+		clearInterval(dataora_interval);
+
+
+	rheaSetDivHTMLByName("divHeaderR_data", dataOra_getYYYYMMDD());
+	
+	dataora_interval = setInterval (function() 
+					{ 
+						dataora_sec++;
+						if (dataora_sec >= 60)
+						{
+							dataora_sec = 0;
+							dataora_min++;
+							if (dataora_min >= 60)
+							{
+								dataora_min = 0;
+								if (dataora_hh==23)
+								{
+									dataOra_setup();
+									return;
+								}
+								dataora_hh++;
+							}
+						}
+						
+						var hhmm = ""
+						if (dataora_sec % 2 == 0)
+							hhmm = dataOra_getHHMM("&nbsp;");
+						else
+						hhmm = dataOra_getHHMM(":");
+						rheaSetDivHTMLByName("divHeaderR_ora", hhmm);
+					}, 
+					1000);
+}
+
+
+/***************************************************************************
+ *
+ * pageMainMenu
+ *
+ */
+function pageMainMenu_show()
+{
+	showPage("pageMainMenu");
+	header_setText("<div style='margin-left:140px'><center><img  src='img/iconHome.png'> Programming Menu</center></div>");
+	rheaShowElem(rheaGetElemByID("divCurLang"));
+	btnBack_hide();
+}
+
+
+/***************************************************************************
+ *
+ * pageMaintenance
+ *
+ */
+function pageMaintenance_show()
+{
+	if (showPage('pageMaintenance'))
+	{
+		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			rheaHideElem(rheaGetElemByID("pageMaintenance_rowDis"));
+			rheaHideElem(rheaGetElemByID("pageMaintenance_decCofBrew"));
+			rheaHideElem(rheaGetElemByID("pageMaintenance_decCofGround"));
+		}
+	}
+
+	header_setText("MAINTENANCE");
+	btnBack_show();
+	pageMaintenance_getDecountersValues();		
+	pageMaintenance_refreshOFFList(0);
+	pageMaintenance_onSelector();
+	currentTask = new TaskMaintenance();
+}
+
+function pageMaintenance_onSelector()
+{
+	var elemGS = rheaGetElemByID("pageMaintenance_gs");
+	var elemINST = rheaGetElemByID("pageMaintenance_inst");
+	var elemOFF = rheaGetElemByID("pageMaintenance_off");
+	rheaHideElem(elemGS);
+	rheaHideElem(elemINST);
+	rheaHideElem(elemOFF);
+	
+	var win = ui.getWindowByID("pageMaintenance");
+	switch (parseInt(win.getChildByID("pageMaintenance_selector").getSelectedOptionValue()))
+	{
+		case 0: rheaShowElem(elemGS); break;
+		case 1: rheaShowElem(elemINST); break;
+		case 2: rheaShowElem(elemOFF); break;
+	}
+	win.showHideScrollBar();
+}
+
+
+var pageMaintenance_offListHTML="";
+function pageMaintenance_refreshOFFList(startIndex)
+{
+	if (startIndex == 0)
+	{
+		pageMaintenance_offListHTML="";
+		rheaSetDivHTMLByName("pageMaintenance_off_content", "<center><img src='img/animationRound.gif'></center>");
+	}
+
+	rhea.ajax ("getOFFList", { "startIndex":startIndex}).then( function(result)
+	{
+		var data = JSON.parse(result);
+		
+		if (startIndex == 0)
+		{
+			pageMaintenance_offListHTML = "<table class='dataAudit' align='center' width='80%'>"
+					+"<tr valign='middle'>"
+					+"	<th>DATE yyyy/mm/dd</td>"
+					+"	<th>TIME</td>"
+					+"	<th>OFF CODE</td>"
+					+"</tr>";
+		}
+			
+		var numOffs = data.yyyy.length;
+		for (var i=0; i<numOffs; i++)
+		{
+			//la CPU per errore potrebbe mandare degli OFF con data 2001/01/01 alle 01:01 codice:1
+			//Questi OFF li filtro e non li mostro
+			if (data.yyyy[i]==2001 && data.mm[i]==1 && data.dd[i]==1 && data.hh[i]==1 && data.min[i]==1)
+				continue;
+			var rowCss="";
+			pageMaintenance_offListHTML += "<tr valign='middle'" +rowCss +">"
+					+"<td>" +data.yyyy[i] +"/" +data.mm[i] +"/" +data.dd[i] +"</td>"
+					+"<td>" +data.hh[i] +":" +data.min[i] +"</td>"
+					+"<td>" +data.codice[i] +data.tipo[i] +"</td>"
+					"+</tr>";
+		}
+		
+		if (data.nextIndex == 0)
+		{
+			pageMaintenance_offListHTML += "</table>";
+			var d = rheaGetElemByID("pageMaintenance_off_content");
+			rheaSetElemHTML(d, pageMaintenance_offListHTML);
+			
+			win = ui.getWindowByID("pageMaintenance");
+			win.showHideScrollBar();
+		}
+		else
+			setTimeout (function(){ pageMaintenance_refreshOFFList(data.nextIndex); }, 200);
+	})
+	.catch( function(result)
+	{
+		//console.log ("ERROR");
+		console.log (result);
+	});
+}
+
+function pageMaintenance_formatHTMLForTemperature(jsonObj)
+{
+	var html = "Current temperature: ";
+	if (da3.isInstant())
+	{
+		html += "boiler=[" +jsonObj.tbol +"&deg;] ";
+	}
+	else
+	{
+		if (da3.isInduzione())
+		{
+			html += "heater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "milker=[" +jsonObj.tcap +"&deg;]";
+		}
+		else
+		{
+			html += "espresso=[" +jsonObj.tbol +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "heater=[" +jsonObj.tcam +"&deg;] &nbsp;&nbsp;&nbsp;&nbsp;";
+			html += "milker=[" +jsonObj.tcap +"&deg;]";
+		}
+	}	
+	return html;	
+}
+
+function pageMaintenance_resetDec(iDecounter)
+{
+	//per prima cosa devo salvare eventuali modifiche
+	save( function(){ pageMaintenance_reset_afterSave(iDecounter); } );
+}
+function pageMaintenance_reset_afterSave(iDecounter)
+{
+	var currentCapacityID = "pageMaintenance_" +iDecounter +"_cap";
+	var decValue = parseInt(ui.getWindowByID("pageMaintenance").getChildByID(currentCapacityID).getValue());
+		
+	//invio il comando di set alla SMU
+	pleaseWait_show();
+	rhea.ajax ("setDecounter", { "d":iDecounter, "v":decValue}).then( function(result)
+	{
+		//chiedo i decontatori alla SMU
+		pageMaintenance_getDecountersValues();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
+
+function pageMaintenance_getDecountersValues()
+{
+	rhea.ajax ("getAllDecounters", "").then( function(result)
+	{
+		pageMaintenance_updateDecounterCurrentValueFromString(result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});		
+}
+
+function pageMaintenance_updateDecounterCurrentValueFromString(s)
+{
+	var e = s.split(",");
+	for (var i=10; i<13; i++)
+	{
+		var iDecounter = i+1;
+		var currentValueID = "pageMaintenance_" +iDecounter;
+		var v = e[i];
+		
+		var len = 4;
+		if (i == 10)
+			len = 5;
+		while (v.length < len)
+			v = "0" +v;
+		rheaSetDivHTMLByName(currentValueID, v);
+	}
+}
+
+function pageMaintenance_disinstall()
+{
+	pleaseWait_show();
+	currentTask = new TaskDisintall();
+}
+
+function pageMaintenance_disinstall_onAbort()
+{
+	currentTask = voidTask;
+}
+
+/***************************************************************************
+ *
+ * pageCleaning
+ *
+ */
+function pageCleaning_show()
+{
+	if (showPage("pageCleaning"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			var w = ui.getWindowByID("pageCleaning");
+			w.getChildByID("pageCleaning_btnCleanHC").hide();
+		}
+	}
+	header_setText("CLEANING/<br>RINSING");
+
+	btnBack_show();
+	//rheaHideElem(rheaGetElemByID("btnSave"));
+}
+
+function pageCleaning_action (what)
+{
+	pleaseWait_show();
+	
+	if (what == 8 || what==5)
+		pageCleaning_startLavSanitario(what,1);
+	else
+	{
+		currentTask = new TaskCleaning(what);
+		rhea.requestGPUCleaning(parseInt(what));
+	}
+}
+	
+function pageCleaning_startLavSanitario (what, bSendRequestToGPU)
+{
+	pleaseWait_show();
+	currentTask = new TaskCleaning(what);
+	if (bSendRequestToGPU)
+		rhea.requestGPUCleaning(parseInt(what));
+}
+
+function pageCleaning_onFinished()
+{
+	currentTask = voidTask;
+	
+	if (bGotoHMIAfterLavaggio)
+	{
+		gotoHMI();
+		return;
+	}
+		
+	pleaseWait_hide();
+}
+
+	
+	
+/***************************************************************************
+ *
+ * pageMiscellaneous
+ *
+ */
+var pageMiscellaneous_fvhBefore = 0;
+function pageMiscellaneous_show()
+{
+	var win = ui.getWindowByID("pageMiscellaneous");
+	if (showPage("pageMiscellaneous"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
+		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
+		
+		if (!da3.isInstant())
+		{
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r1"));
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r2"));
+		}
+		
+		var objDataAuditBefore = win.getChildByID("pageMiscellaneous_gs_auditBefore");
+		var objFvHWKey = win.getChildByID("pageMiscellaneous_fvHwKey");
+		if (da3.isInduzione())
+		{
+			//versione induzione
+			objDataAuditBefore.da3Pos=7106;
+			objFvHWKey.da3Pos=7104;
+		}
+		else
+		{
+			//versione bollitore
+			objDataAuditBefore.da3Pos=7088
+			objFvHWKey.da3Pos=7106;
+		}
+
+		objDataAuditBefore.loadFromDA3(da3);
+		objFvHWKey.loadFromDA3(da3);
+		
+		win.showHideScrollBar();
+	}
+	
+	pageMiscellaneous_fv_refresh();
+
+	header_setText("MISCELLANEOUS");
+	pageMiscellaneous_onSelector();
+	btnBack_show();
+	
+	//currentTask = new TaskP15();
+}
+
+function pageMiscellaneous_fv_refresh()
+{
+	var win = ui.getWindowByID("pageMiscellaneous");
+
+	//data e ora di fine freevend
+	var enddate_minute = da3.read8(8435);
+	var enddate_hh = da3.read8(8436);
+	var enddate_gg = da3.read8(8437);
+	var enddate_mm = da3.read8(8438);
+	var enddate_yy = 2000 + da3.read8(8439);
+	var dataScadenza = new Date(enddate_yy, enddate_mm-1, enddate_gg, enddate_hh, enddate_minute, 0, 0);
+
+	var dataNow = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
+	var minuteLeft = Math.floor ((dataScadenza - dataNow) / 60000);
+	if (minuteLeft < 0 || minuteLeft >= 255*60)
+	{
+		//freevend non in corso
+		rheaSetDisplayMode(rheaGetElemByID("pageMiscellaneous_fv_r1"), "table-row");
+		rheaHideElem(rheaGetElemByID("pageMiscellaneous_fv_r2"));
+		da3.freevendFasciaOraria_stopItNow();
+	}
+	else
+	{
+		//freevend in corso
+		rheaHideElem(rheaGetElemByID("pageMiscellaneous_fv_r1"));
+		rheaSetDisplayMode(rheaGetElemByID("pageMiscellaneous_fv_r2"), "table-row");
+
+		if (enddate_mm <10) enddate_mm = "0" +enddate_mm;
+		if (enddate_gg <10) enddate_gg = "0" +enddate_gg;
+		if (enddate_hh <10) enddate_hh = "0" +enddate_hh;
+		if (enddate_minute <10) enddate_minute = "0" +enddate_minute;
+		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND will ends on<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
+	}
+}
+
+function pageMiscellaneous_startFVNow()
+{
+	var win = ui.getWindowByID("pageMiscellaneous");
+	var h = parseInt(win.getChildByID("pageMiscellaneous_fvH").getValue());
+	if (h < 1)
+		return;
+	
+	pleaseWait_show();
+	var dataNow = new Date(dataora_yy, dataora_mm-1, dataora_dd, dataora_hh, dataora_min, 0, 0);
+	da3.freevendFasciaOraria_startNowAndLastForNHours(dataNow, h);
+	save( function(){ pageMiscellaneous_stopFVNow_onFinish(); } );
+}
+
+
+function pageMiscellaneous_stopFVNow()
+{
+	pleaseWait_show();
+	da3.freevendFasciaOraria_stopItNow();
+	save( function(){ pageMiscellaneous_stopFVNow_onFinish(); } );
+}
+
+function pageMiscellaneous_stopFVNow_onFinish()
+{
+	//notifica la CPU di aggiornare il suo stato di freevend
+	setTimeout ( function() { pageMiscellaneous_sendP15(); }, 1000);
+}
+
+function pageMiscellaneous_sendP15()
+{
+	var buffer = new Uint8Array(1);
+	buffer[0] = 66;
+	rhea.sendGPUCommand ("E", buffer, 0, 0);
+	pageMiscellaneous_fv_refresh();
+	pleaseWait_hide();
+}
+
+function pageMiscellaneous_oldProgMenu()		{ window.location = "gotoLegacyMenu.html"; }
+
+function  pageMiscellaneous_onSelector()
+{
+	var elemGS = rheaGetElemByID("pageMiscellaneous_gs");
+	var elemMID = rheaGetElemByID("pageMiscellaneous_mid");
+	var elemLM = rheaGetElemByID("pageMiscellaneous_lm");
+	var elemFV = rheaGetElemByID("pageMiscellaneous_fv");
+	
+	rheaHideElem(elemGS);
+	rheaHideElem(elemMID);
+	rheaHideElem(elemLM);
+	rheaHideElem(elemFV);
+	
+	var win = ui.getWindowByID("pageMiscellaneous");
+	switch (parseInt(win.getChildByID("pageMiscellaneous_selector").getSelectedOptionValue()))
+	{
+		case 0: rheaShowElem(elemGS); break;
+		case 1: rheaShowElem(elemMID); break;
+		case 2: rheaShowElem(elemLM); break;
+		case 3: rheaShowElem(elemFV); break;
+	}
+	win.showHideScrollBar();
+}
+
+
+
+
+/***************************************************************************
+ *
+ * pageProductQty
+ *
+ */
+function pageProductQty_show()
+{
+	if (showPage("pageProductQty"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		pageProductQty_getDecounterValues();
+	}
+	pageProductQty_showDecounter();
+	header_setText("PRODUCT<br>QUANTITY");
+	btnBack_show();
+	
+	//aggiorno le unità di misura
+	var win = ui.getWindowByID("pageProductQty");
+	for (var i=0; i<da3.getNumProdotti(); i++)
+	{
+		var um = "sec";
+		if (da3.isMotorCalibrated(i+1)) 
+			um = "gr"; 
+
+		win.getChildByID("pageProductQty_decCurCap_" +(i+1)).changeUM(um);
+		win.getChildByID("pageProductQty_decCurWarn_" +(i+1)).changeUM(um);
+	}	
+	
+	
+	//chiedo il valore attuale dei decontatori alla SMU
+	pleaseWait_show();
+	rhea.ajax ("getAllDecounters", "").then( function(result)
+	{
+		pageProductQty_updateDecounterCurrentValueFromString(result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});	
+}
+
+function pageProductQty_build()
+{
+	var nProdotti = da3.getNumProdotti();
+	var da3Loc_decounter = 7334;
+	var da3Loc_warning = da3Loc_decounter +2*nProdotti;
+	var da3Loc_enable = da3Loc_warning +2*nProdotti;
+	var html = "";
+	
+	var dataOption = "1|1";
+	for (var i=2; i<=nProdotti; i++)
+		dataOption += "|" +i +"|" +i;
+		
+	html = 	"<table border='0' width='100%'><tr valign='middle'>"
+			+"	<td style='width:160px'><b>SELECT A<br>DECOUNTER</b></td>"
+			+"	<td><div class='UIOptionSmall' id='pageProductQty_decSelector' data-option='" +dataOption +"' data-onclick='pageProductQty_showDecounter()'></div></td>"
+			+"</tr></table><br>";
+	
+	for (var i=0; i<nProdotti; i++)
+	{
+		var num = (i+1);
+		if (i<9) num = "0" +num;
+		num = "#" +num;
+		
+		var pageID = "pageProductQty_page_" +(i+1);
+		var currentValueID = "pageProductQty_decCurVal_" +(i+1);
+		var currentCapacityID = "pageProductQty_decCurCap_" +(i+1);
+		var currentWarningID = "pageProductQty_decCurWarn_" +(i+1);
+		
+		var currentDecountValue = "00000";
+		
+		html +=  "<div id='" +pageID +"' style='display:none'>"
+				+"<table border='0' class='elenco'>"
+				+"	<tr style='height:70px'>"
+				+"		<td style='width:300px'>DECOUNTER #" +(i+1) +"<br>current value</td>"
+				+"		<td style='width:400px'><span id='" +currentValueID +"' class='bigCaption25'>" +currentDecountValue +"</span></td>"
+				+"		<td align='center'><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
+				+"	</tr>"
+				+"	<tr><td>CANISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999' data-um='sec'></div></td></tr>"
+				+"	<tr><td>WARNING AT</td><td colspan='2'><div id='" +currentWarningID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999' data-um='sec'></div></td></tr>"
+				+"	<tr style='border:0'><td>ENABLE PRODUCT STOP</td><td colspan='2'><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
+				+"</table></div>";
+		da3Loc_decounter+=2;
+		da3Loc_warning+=2;
+		da3Loc_enable+=2;
+	}
+	
+	rheaSetDivHTMLByName("pageProductQty_content", html);
+}
+
+function pageProductQty_showDecounter()
+{
+	var opt = ui.getWindowByID("pageProductQty").getChildByID("pageProductQty_decSelector");
+	var decSelected = opt.getSelectedOptionValue();
+	
+	var nProdotti = da3.getNumProdotti();
+	for (var i=1; i<=nProdotti; i++)
+	{
+		var pageID = "pageProductQty_page_" +i;
+		if (i == decSelected)
+			rheaShowElem(rheaGetElemByID(pageID));
+		else
+			rheaHideElem(rheaGetElemByID(pageID));
+	}
+}
+
+function pageProductQty_updateDecounterCurrentValueFromString(s)
+{
+	var e = s.split(",");
+	for (var i=0; i<e.length; i++)
+	{
+		var iDecounter_1_10 = i+1;
+		var currentValueID = "pageProductQty_decCurVal_" +iDecounter_1_10;
+		
+		var um = "sec";
+		if (da3.isMotorCalibrated(iDecounter_1_10)) 
+			um = "gr"; 		
+		
+		var v = e[i];
+		while (v.length < 5)
+			v = "0" +v;
+		var s = v.substr(0,4) +"." +v.substr(4) +"<span style='font-size:0.4em'> " +um +"</span>";
+		
+		rheaSetDivHTMLByName(currentValueID, s);
+	}
+}
+
+function pageProductQty_reset (iDecounter_1_10)
+{
+	//per prima cosa devo salvare eventuali modifiche
+	save( function(){ pageProductQty_reset_afterSave(iDecounter_1_10); } );
+}
+function pageProductQty_reset_afterSave(iDecounter_1_10)
+{
+	var currentCapacityID = "pageProductQty_decCurCap_" +iDecounter_1_10;
+	var decValue = parseInt(ui.getWindowByID("pageProductQty").getChildByID(currentCapacityID).getValue());
+		
+	//invio il comando di set alla SMU
+	pleaseWait_show();
+	rhea.ajax ("setDecounter", { "d":iDecounter_1_10, "v":decValue}).then( function(result)
+	{
+		//chiedo i decontatori alla SMU
+		pageProductQty_getDecounterValues();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
+
+function pageProductQty_getDecounterValues()
+{
+	rhea.ajax ("getAllDecounters", "").then( function(result)
+	{
+		pageProductQty_updateDecounterCurrentValueFromString(result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});		
+}
+
+
+
+/***************************************************************************
+ *
+ * pageMilker
+ *
+ */
+function pageMilker_show()
+{
+	if (showPage("pageMilker"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("MILKER");
+	btnBack_show();
+}
+
+
+
+/***************************************************************************
+ *
+ * pageSelections
+ *
+ */
+function pageSelections_show()
+{
+	if (showPage("pageSelections"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("SELECTIONS");
+	rheaHideElem(rheaGetElemByID("bntTestSelection"));
+	btnBack_show();
+	rheaHideElem(rheaGetElemByID("btnSave"));
+	pageSelections_onSelector();
+}
+
+function pageSelections_build()
+{
+	var html = "";
+	
+	var iSel = 1;
+	
+	for (var page=1; page<=4; page++)
+	{
+		html += "<div id='pageSelections_page" +page +"' style='display:none'><table border='0'><tr>";
+		for (var r=0; r<4; r++)
+		{
+			for (var c=0; c<3; c++)
+			{
+				var caption = "SELECTION " +rheaLeftPad(iSel,2,'0');
+				html += "<td width='33%' align='center'><div class='UIButtonSel' "
+						+"data-caption='" +caption +"' "
+						+"data-caption2='" +guiInfo.selInfo[iSel].name +"' "
+						+"data-caption3='" +guiInfo.selInfo[iSel].short +"' "
+						+"data-onclick='pageSelections_onClick(" +iSel +")'></div></td>";
+				iSel++;
+			}
+			html += "</tr>";
+		}
+		html += "</table></div>";
+	}
+	rheaSetDivHTMLByName("pageSelections_c2", html);
+}
+
+
+function pageSelections_onSelector()
+{
+	var win = ui.getWindowByID("pageSelections");
+	var option = parseInt(win.getChildByID("pageSelections_selector").getSelectedOptionValue());
+	for (var page=1; page<=4; page++)
+	{
+		var elem = rheaGetElemByID("pageSelections_page" +page);
+		if (option == page)
+			rheaShowElem(elem);
+		else
+			rheaHideElem(elem);
+	}
+}
+
+function pageSelections_onClick(iSel)
+{
+	pleaseWait_show();
+	setTimeout (function(){ pageSingleSelection_show(iSel); }, 100);
+}
+
+/***************************************************************************
+ *
+ * pageSingleSelection
+ *
+ */
+var pageSingleSelection_curSel = 0;
+function pageSingleSelection_show(iSel)
+{
+	pageSingleSelection_curSel = iSel;
+	if (showPageEx("pageSingleSelection", 100 * (iSel-1)))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	
+	var win = ui.getWindowByID("pageSingleSelection");
+	
+	//lo scaling factor delle selezioni potrebbe valere 0 nel qual caso significa 100%
+	var da3Loc = 180 + 100 * (iSel-1);
+	if (da3.read8(da3Loc) == 0)
+		win.getChildByID("pageSingleSelection_sfactor").setValue(100);
+	
+	//Setto i prezzi
+	var obj = win.getChildByID("pageSingleSelection_prc1");
+	obj.setDecimals(da3.getDecimalsForPrices());
+	obj.da3offset = 0;
+	obj.da3Pos = da3.getPriceLocation(1,iSel);
+	obj.loadFromDA3(da3);
+	
+	obj = win.getChildByID("pageSingleSelection_prc2");
+	obj.setDecimals(da3.getDecimalsForPrices());
+	obj.da3offset = 0;
+	obj.da3Pos = da3.getPriceLocation(2,iSel);
+	obj.loadFromDA3(da3);	
+	
+	//unita misura prodotti
+	for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
+	{
+		if (da3.isMotorCalibrated(i+1)) 
+			um = "gr"; 
+		else
+			um = "sec";
+		win.getChildByID("pageSingleSelection_P_d"+i).changeUM(um);
+	}	
+	
+	//unita' misura macina
+	pageSingleSelection_onChangeGrinder();
+	
+	//titolo della finestra
+	var title = "SELECTION " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name;
+	header_setText(title);
+	
+	backTo = "pageSelections";
+	btnBack_show();
+	
+	rheaSetElemTop(rheaGetElemByID("pageSingleSelection_content"), 0);
+	rheaHideElem(rheaGetElemByID("pageSingleSelection_arrowUp"));
+	
+	//seleziono "general option"
+	win.getChildByID("pageSingleSelection_selector").selectOptionByValue(0);
+	pageSingleSelection_showPartialFull (win, 0);
+	pageSingleSelection_onStatus();
+	
+	pleaseWait_hide();
+	
+	//bottone test selezione, commentato perche' la CPU non e' ancora pronta a gestirlo
+	rheaShowElem(rheaGetElemByID("bntTestSelection"));
+}
+
+function pageSingleSelection_onChangeGrinder()
+{
+	var win = ui.getWindowByID("pageSingleSelection");
+
+	var macina = 11;
+	if (da3.isEspresso())
+	{
+		if (parseInt(win.getChildByID("pageSingleSelection_cofGrnderChoice").getSelectedOptionValue()) > 0)
+			macina = 12	;
+
+		if (da3.isMotorCalibrated(macina)) 
+			um = "gr"; 
+		else
+			um="sec";
+		win.getChildByID("pageSingleSelection_coffeeGrinder").changeUM(um);
+	}	
+}
+
+var SINGLESEL_NUM_PRODOTTI = 0;
+var SINGLESEL_NUM_ACQUE = 0;
+function pageSingleSelection_build()
+{
+	var da3LocProd;
+	var da3LocWater;
+	var da3LocEVTemperature = 0;
+	var WATER_COLONNA_FLOW_TYPE = 0;
+	var WATER_COLONNA_FLOW_TITLE = "";
+	
+	if (da3.isInstant())
+	{
+		SINGLESEL_NUM_PRODOTTI = 9;
+		SINGLESEL_NUM_ACQUE = 5;
+		da3LocProd = 102;
+		da3ProductLM = da3LocProd +3*SINGLESEL_NUM_PRODOTTI;
+		da3LocWater = da3ProductLM +3;
+		
+		WATER_COLONNA_FLOW_TYPE = 1;
+		WATER_COLONNA_FLOW_TITLE = "FLOW";
+	}
+	else
+	{
+		SINGLESEL_NUM_PRODOTTI = 7;
+		SINGLESEL_NUM_ACQUE = 5;
+		da3LocProd = 105;
+		da3ProductLM = 129;
+		da3LocWater = da3ProductLM +3;
+
+		if (da3.isInduzione())
+		{
+			WATER_COLONNA_FLOW_TYPE=2;
+			WATER_COLONNA_FLOW_TITLE = "EV TEMPERATURE";
+			da3LocEVTemperature = 169;
+		}
+		else
+			WATER_COLONNA_FLOW_TITLE = "";
+	}
+
+	
+	var s = "";
+	if (da3.isInstant())
+		s = "0|OVERVIEW|2|PRODUCTS|3|WATERS|4|MIXERS";
+	else
+		s = "0|OVERVIEW|1|ESPRESSO|2|PRODUCTS|3|WATERS|4|MIXERS";
+	rheaSetDivHTMLByName("pageSingleSelection_selectorAtTop", "<div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div>");
+	
+	
+	var htmlE="";
+	if (da3.isEspresso())
+	{
+		htmlE = "<table border='0' class='elenco'>"
+				+"<tr><td>COFFEE SEQUENCE</td><td><div class='UIOption' data-option='0|AFTER|1|BEFORE' data-da3='103' data-da3bit='8'></div></td></tr>"
+				+"<tr><td>COFFEE WATER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
+				+"<tr><td>COFFEE GRINDER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(12)'></div></td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
+				+"<tr><td>PREINFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='128' data-da3bit='4' data-max='15' data-um='sec'></div></td></tr>"
+				+"<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>";
+		
+		if (da3.isInduzione())
+			htmlE += "<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>";
+			
+		htmlE  +="<tr><td>GRANULOMETRY</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DISABLED|1|FINE|2|REFERRING|3|ROUGHLY' data-da3='175' data-da3bit='8'></div></td></tr>"
+				+"<tr><td>LATTE MACCHIATO<br>START BREWER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>"
+				+"<tr><td>EV FRESH MILK<br>QTY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+				+"<tr><td>EV FRESH MILK<br>DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+				+"<tr><td>EV AIR FRESH MILK</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+				+"<tr><td>EV AIR FRESH MILK<br>DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+
+				+"<tr><td>SELECT GRINDER 2</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|NO|1|YES' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>"
+				+"<tr><td>COFFEE REPEAT</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"
+				+"</table>";
+	}
+	var htmlP = "<table border='0' class='elenco'>"
+				+"<tr>"
+				+"	<th style='width:184px; text-align:left;'>PRODUCT #</th>"
+				+"	<th style='width:290px; text-align:left;'>DOSAGE</th>"
+				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
+				+"	<th style='width:260px; text-align:center;'>NUM BREAKS</th>"
+				+"</tr>";
+	
+	for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
+	{
+		var prodNum;
+		prodNum = rheaLeftPad(i+1, 2, '0');
+			
+		var rowID = "pageSingleSelection_P_" +i;
+		var dosageID = "pageSingleSelection_P_d" +i;
+		htmlP +="<tr id='" +rowID +"'>"
+				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
+				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
+				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"
+			+"</tr>";
+		da3LocProd+= 3;
+	}
+	
+	//product LM
+	var rowID = "pageSingleSelection_P_LM";
+	var dosageID = "pageSingleSelection_P_dLM";
+	htmlP +="<tr id='" +rowID +"'>"
+			+"<td>#PRODUCT LM<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
+			+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3ProductLM +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
+			+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3ProductLM+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
+			+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3ProductLM+2) +"' data-da3bit='4'></div></td>"
+		+"</tr>";
+	
+	htmlP += "<tr><td>TEA BAG</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
+	htmlP += "</table>";
+
+
+	//waters & mixers
+	var htmlW = "<table border='0' class='elenco'>"
+				+"<tr>"
+				+"	<th style='width:184px; text-align:left;'>WATER #</th>"
+				+"	<th style='width:290px; text-align:left;'>TIME</th>"
+				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
+				+"	<th style='width:260px; text-align:center;'>" +WATER_COLONNA_FLOW_TITLE +"</th>"
+				+"</tr>";
+				
+	var htmlM = "<table border='0' class='elenco'>"
+				+"<tr>"
+				+"	<th style='width:184px; text-align:left;'>MIXER #</th>"
+				+"	<th style='width:290px; text-align:left;'>TIME</th>"
+				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
+				+"	<th style='width:260px; text-align:center;'>SPEED</th>"
+				+"</tr>";		
+	for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
+	{
+		var prodNum;
+		if (i==4)
+			prodNum = "LM";
+		else 
+			prodNum = rheaLeftPad(i+1, 2, '0');
+	
+		var rowID = "pageSingleSelection_W_" +i;
+		var timeID = "pageSingleSelection_W_t" +i;
+		htmlW +="<tr id='" +rowID +"'>"
+				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+21) +")'></div></td>"
+				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>";
+
+				
+		//la colonna 3, può essere FLOW, EV-TEMP o vuota, seconda di induzione/bollitore e espresso/instant
+		switch (WATER_COLONNA_FLOW_TYPE)
+		{
+		default:
+			htmlW +="<td></td>"; 
+			break;
+		case 1:
+			htmlW += "<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+			break;
+		case 2:
+				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-max='98' data-um='&deg;C'></div></td></tr>";
+				da3LocEVTemperature++;
+				break;
+		}
+		htmlW += "</tr>";
+		da3LocWater+= 3;	
+
+
+		rowID = "pageSingleSelection_M_" +i;
+		timeID = "pageSingleSelection_M_t" +i;
+		htmlM +="<tr id='" +rowID +"'>"
+				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+31) +")'></div></td>"
+				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
+				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
+				+"<td align='center'><div class='UIOption' data-option='1|LOW|2|MED|3|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
+			+"</tr>";		
+		da3LocWater+= 3;
+	}
+	htmlW += "</table>";
+	htmlM += "</table>";
+	
+	
+	rheaSetDivHTMLByName("pageSingleSelection_pageE", htmlE);
+	rheaSetDivHTMLByName("pageSingleSelection_pageP", htmlP);
+	rheaSetDivHTMLByName("pageSingleSelection_pageW", htmlW);
+	rheaSetDivHTMLByName("pageSingleSelection_pageM", htmlM);
+}
+
+function pageSingleSelection_hideIfDosageIsZero (win, dosageID, rowID)
+{
+	if (parseInt(win.getChildByID(dosageID).getValue()) == 0)
+		rheaHideElem(rheaGetElemByID(rowID));
+}
+
+function pageSingleSelection_onProgramming()
+{
+	var win = ui.getWindowByID("pageSingleSelection");
+	var partial = parseInt(win.getChildByID("pageSingleSelection_programming").getSelectedOptionValue());
+	pageSingleSelection_showPartialFull (win, partial);
+}
+
+function pageSingleSelection_showPartialFull (win, bPartial)
+{
+	if (bPartial==1)
+	{
+		for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
+			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_P_d" +i, "pageSingleSelection_P_" +i);
+		pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_P_dLM", "pageSingleSelection_P_LM");
+		
+		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
+		{
+			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_W_t" +i, "pageSingleSelection_W_" +i);
+			pageSingleSelection_hideIfDosageIsZero (win, "pageSingleSelection_M_t" +i, "pageSingleSelection_M_" +i);
+		}
+	}
+	else
+	{
+		for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
+		{
+			var rowID = "pageSingleSelection_P_" +i;
+			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+		}
+		
+		rheaSetDisplayMode(rheaGetElemByID("pageSingleSelection_P_LM"), "table-row");
+		
+		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
+		{
+			var rowID = "pageSingleSelection_W_" +i;
+			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+			
+			rowID = "pageSingleSelection_M_" +i;
+			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+		}		
+	}
+	
+	win.showHideScrollBar();
+}
+
+function pageSingleSelection_onStatus()
+{
+	pageSingleSelection_onProgramming();
+	pageSingleSelection_onSelector();
+
+	var win = ui.getWindowByID("pageSingleSelection");
+	switch (parseInt(win.getChildByID("pageSingleSelection_status").getSelectedOptionValue()))
+	{
+		case 0: //selection
+			rheaShowElem(rheaGetElemByID("pageSingleSelection_selector"));
+			rheaShowElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			break;
+			
+		case 1: //inhibit
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_selector"));
+			break;
+		
+		case 2: //presel
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel")); 
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_selector"));
+			break;
+		
+	}
+}
+
+function pageSingleSelection_onSelector()
+{
+	var elemG = rheaGetElemByID("pageSingleSelection_pageG");
+	var elemE = rheaGetElemByID("pageSingleSelection_pageE");
+	var elemP = rheaGetElemByID("pageSingleSelection_pageP");
+	var elemW = rheaGetElemByID("pageSingleSelection_pageW");
+	var elemM = rheaGetElemByID("pageSingleSelection_pageM");
+	rheaHideElem(elemG);
+	rheaHideElem(elemE);
+	rheaHideElem(elemP);
+	rheaHideElem(elemW);
+	rheaHideElem(elemM);
+	
+	var win = ui.getWindowByID("pageSingleSelection");
+	switch (parseInt(win.getChildByID("pageSingleSelection_selector").getSelectedOptionValue()))
+	{
+		case 0: rheaShowElem(elemG); break;
+		case 1: rheaShowElem(elemE); break;
+		case 2: rheaShowElem(elemP); break;
+		case 3: rheaShowElem(elemW); break;
+		case 4: rheaShowElem(elemM); break;
+		
+	}
+	win.showHideScrollBar();
+}
+
+
+var ajax_testSelection_nRetry = 0;
+function pageSingleSelection_test (iAttuatore)
+{
+	//console.log ("pageSingleSelection_test:: selnum[" +pageSingleSelection_curSel +"] attuatore[" +iAttuatore +"]");
+	//prima di tutto salvo e spedisco la ricetta alla CPU
+	ajax_testSelection_nRetry = 3;
+	save( function(){ pageSingleSelection_test_afterSave(iAttuatore); } );
+}
+
+function pageSingleSelection_test_afterSave(iAttuatore)
+{
+	//invio il comando alla CPU e aspetto che la CPU finisca
+	pleaseWait_show();
+	currentTask = new TaskTestSelezione(pageSingleSelection_curSel, iAttuatore);
+}
+
+function pageSingleSelection_test_onFinish()
+{
+	//console.log ("pageSingleSelection_test_onFinish");
+	currentTask = voidTask;
+	pleaseWait_hide();
+}
+
+
+/***************************************************************************
+ *
+ * pageTemperature
+ *
+ */
+function pageTemperature_show()
+{
+	if (showPage("pageTemperature"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("TEMPERATURE");
+	btnBack_show();
+	
+	currentTask = new TaskTemperature();
+	
+}
+
+function pageTemperature_build()
+{
+	var html = "<table border='0' class='elenco'>"
+			   +"	<tr style='height:30px;'><td colspan='3' align='center'><div id='pageTemperature_live'  class='tip'></div></td></tr>";
+	if (da3.isInstant())
+	{
+		//boiler & delta
+		html += "<tr><td>BOILER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='92' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+			   +"<tr><td>DELTA</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='16' data-da3='7042' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+	}
+	else
+	{
+		if (da3.isInduzione())
+		{
+			//solo temp heater (aka camera caffe')
+			html += "<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+		}
+		else
+		{
+			//(espresso qui significa bollitore, heater significa camera caffe')
+			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+				   +"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
+				   +"<tr><td>HEATING TIME</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>"
+				   +"<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+		}
+	}	
+	html += "</table>";
+	rheaSetDivHTMLByName("pageTemperature_content", html);
+}
+
+/***************************************************************************
+ *
+ * pageClock
+ *
+ */
+function pageClock_show()
+{
+	if (showPage("pageClock"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
+	header_setText("CLOCK");
+	pageClock_onSelector();
+	btnBack_show();
+	
+	//sincronizzo data e ora
+	pageClock_syncTime();
+	pageClock_syncDate();
+}
+	
+function pageClock_syncTime()
+{	
+	//console.log ("ajax::getTime");
+	rhea.ajax ("getTime", "").then( function(result)
+	{
+		var win = ui.getWindowByID("pageClock");
+		var obj = win.getChildByID("pageClock_time");
+		
+		var data = JSON.parse(result);
+		obj.setValueHH(data.h);
+		obj.setValueMM(data.m);
+		dataOra_setup();
+	})
+	.catch( function(result)
+	{
+		setTimeout ( function() {pageClock_syncTime();}, 200);
+	});
+}
+
+function pageClock_syncDate()
+{
+	//console.log ("ajax::getDate");
+	rhea.ajax ("getDate", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+
+		var win = ui.getWindowByID("pageClock");
+		win.getChildByID("pageClock_dd").setValue(data.d);
+		win.getChildByID("pageClock_mm").setValue(data.m);
+		win.getChildByID("pageClock_yy").setValue(data.y);
+		dataOra_setup();
+	})
+	.catch( function(result)
+	{
+		setTimeout ( function() {pageClock_syncDate();}, 200);
+	});	
+}
+
+function pageClock_onSelector()
+{
+	var elemClock = rheaGetElemByID("pageClock_clock");
+	var elemHH = rheaGetElemByID("pageClock_happyHour");
+	var elemES = rheaGetElemByID("pageClock_energySave");
+	
+	rheaHideElem(elemClock);
+	rheaHideElem(elemHH);
+	rheaHideElem(elemES);
+	
+	var win = ui.getWindowByID("pageClock");
+	switch (parseInt(win.getChildByID("pageClock_selector").getSelectedOptionValue()))
+	{
+		default: rheaShowElem(elemClock); break;
+		case 1:  rheaShowElem(elemHH); break;
+		case 2:  rheaShowElem(elemES); break;
+	}
+	
+	ui.getWindowByID("pageClock").showHideScrollBar();
+}
+
+function pageClock_setTime()
+{
+	var win = ui.getWindowByID("pageClock");
+	var obj = win.getChildByID("pageClock_time");
+	
+	pleaseWait_show();
+	//console.log ("ajax::setTime");
+	rhea.ajax ("setTime", { "h":obj.getValueHH(), "m":obj.getValueMM(), "s":0}).then( function(result)
+	{
+		pleaseWait_hide();
+		pageClock_syncTime();
+	})
+	.catch( function(result)
+	{
+		setTimeout ( function() { pageClock_setTime(); }, 200);
+	});
+}
+
+function pageClock_setDate()
+{
+	var win = ui.getWindowByID("pageClock");
+	var yy = win.getChildByID("pageClock_yy").getValue();
+	var mm = win.getChildByID("pageClock_mm").getValue();
+	var dd = win.getChildByID("pageClock_dd").getValue();
+	
+	pleaseWait_show();
+	//console.log ("ajax::setDate");
+	rhea.ajax ("setDate", { "y":yy, "m":mm, "d":dd}).then( function(result)
+	{
+		pleaseWait_hide();
+		pageClock_syncDate();
+	})
+	.catch( function(result)
+	{
+		etTimeout ( function() { pageClock_setDate(); }, 200);
+	});
+}
+
+/***************************************************************************
+ *
+ * pageCalibration
+ *
+ */
+function pageCalibration_show()
+{
+	if (showPage("pageCalibration"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder1"));
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
+		}
+		else
+		{
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor1"));
+			if (da3.getNumMacine() == 1)
+				rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
+		}
+	}
+
+	pageCalibration_refreshCalibValueOnScreen();
+	
+	header_setText("CALIBRATION");
+	btnBack_show();
+	rheaHideElem(rheaGetElemByID("btnSave"));
+	currentTask = taskCalibMotor;
+}
+
+function pageCalibration_refreshCalibValueOnScreen()
+{
+	if (da3.isInstant())
+	{
+		for (var i=1; i<=6; i++)
+		{
+			var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
+			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
+		}
+		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
+		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
+	}
+	else
+	{
+		//macina 1
+		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(11) );
+		rheaSetDivHTMLByName("pageCalibration_m11", v +"&nbsp;gr/sec");
+		v = helper_decodeImpulsi(da3.getImpulsi(11));
+		rheaSetDivHTMLByName("pageCalibration_encoder1", v +"&nbsp;imp/grams");
+		
+		//motori
+		for (var i=2; i<=6; i++)
+		{
+			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
+			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
+		}
+		
+		//macina 2
+		if (da3.getNumMacine() == 1)
+			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
+		else
+		{
+			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(12) );
+			rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
+			v = helper_decodeImpulsi(da3.getImpulsi(12));
+			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/grams");
+		}
+		
+	}	
+}
+
+function pageCalibration_reset(motor)
+{
+	pleaseWait_show();
+	rhea.ajax ("setFattoreCalib", { "m":motor, "v":0}).then( function(result)
+	{
+		rheaSetDivHTMLByName("pageCalibration_m" +motor, "0&nbsp;gr/sec");
+		da3.setCalibFactorGSec(motor, 0);
+
+		if (motor==11) 
+		{
+			da3.setImpulsi(11,0);
+			rheaSetDivHTMLByName("pageCalibration_encoder1", "0");
+		}
+
+		if (motor==12)
+		{
+			da3.setImpulsi(12,0);
+			rheaSetDivHTMLByName("pageCalibration_encoder2", "0");
+		}
+		
+		setTimeout (
+			function()
+			{
+				save (function() { pleaseWait_hide();});
+			},
+			1000);
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
+
+function pageCalibration_start (motor)
+{
+	taskCalibMotor.startMotorCalib(motor);
+}
+
+function pageCalibration_onFinish ()
+{
+	save (function() { pageCalibration_refreshCalibValueOnScreen(); pleaseWait_hide();});
+}
+
+
+/***************************************************************************
+ *
+ * pagePayment
+ *
+ */
+function pagePayment_show()
+{
+	if (showPage("pagePayment"))
+	{
+	}
+
+	pagePayment_onSelector();
+	
+	var win = ui.getWindowByID("pagePayment");
+	win.getChildByID("pagePayment_creditMax").setDecimals(da3.getDecimalsForPrices());
+	win.getChildByID("pagePayment_restMax").setDecimals(da3.getDecimalsForPrices());
+	win.getChildByID("pagePayment_tokenV").setDecimals(da3.getDecimalsForPrices());
+	win.getChildByID("pagePayment_maxCC").setDecimals(da3.getDecimalsForPrices());
+	header_setText("PAYMENT<br>SYSTEMS");
+	btnBack_show();
+}
+
+function pagePayment_onSelector()
+{
+	var elem0 = rheaGetElemByID("pagePayment_general");
+	var elem1 = rheaGetElemByID("pagePayment_mdb");
+	var elem2 = rheaGetElemByID("pagePayment_mid");
+	var elem3 = rheaGetElemByID("pagePayment_rfid");
+
+	rheaHideElem(elem0);
+	rheaHideElem(elem1);
+	rheaHideElem(elem2);
+	rheaHideElem(elem3);
+	
+	var win = ui.getWindowByID("pagePayment");
+	switch (parseInt(win.getChildByID("pagePayment_selector").getSelectedOptionValue()))
+	{
+		default: rheaShowElem(elem0); break;
+		case 1:  rheaShowElem(elem1); break;
+		case 2:  rheaShowElem(elem2); break;
+		case 3:  rheaShowElem(elem3); break;
+	}
+	
+	ui.getWindowByID("pagePayment").showHideScrollBar();
+}
+
+
+/***************************************************************************
+ *
+ * pageDevices
+ *
+ */
+function pageDevices_show()
+{
+	if (showPage("pageDevices"))
+	{
+		//è la prima volta che visualizziamo la pagina
+		if (da3.isInstant())
+		{
+			var win = ui.getWindowByID("pageDevices");
+			win.getChildByID("pageDevices_selector").selectOptionByValue(0);
+			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
+			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
+		}
+		
+		rheaSetDivHTMLByName("pageDevices_vgrind1_lastPos_caption", da3.read16(7596));
+		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7692));
+		pageDevices_vgrind_setLastFluxAndPos(-1, -1);
+	}
+
+	currentTask = new TaskDevices();
+	pageDevices_onSelector();
+	pageDevices_onEnableAuto(1);
+	pageDevices_onEnableAuto(2);
+	header_setText("DEVICES");
+	btnBack_show();
+	
+}
+
+var pageDevices_whichPage = 0;
+function pageDevices_onSelector()
+{
+	var elem0 = rheaGetElemByID("pageDevices_general");
+	var elem1 = rheaGetElemByID("pageDevices_vflex");
+	var elem2 = rheaGetElemByID("pageDevices_vgrind1");
+	var elem3 = rheaGetElemByID("pageDevices_vgrind2");
+
+	rheaHideElem(elem0);
+	rheaHideElem(elem1);
+	rheaHideElem(elem2);
+	rheaHideElem(elem3);
+	
+	var win = ui.getWindowByID("pageDevices");
+	pageDevices_whichPage = parseInt(win.getChildByID("pageDevices_selector").getSelectedOptionValue());
+	switch (pageDevices_whichPage)
+	{
+		default: rheaShowElem(elem0); break;
+		case 1:  rheaShowElem(elem1); break;
+		case 2:  
+			currentTask.enterQueryMacinePos(1);
+			rheaShowElem(elem2); 
+			break;
+			
+		case 3:  
+			currentTask.enterQueryMacinePos(2);
+			rheaShowElem(elem3); 
+			break;
+	}
+	
+	win.showHideScrollBar();
+}
+
+function pageDevices_vgrind_runSelection(whichVG)
+{
+	var win = ui.getWindowByID("pageDevices");
+	var selNum = parseInt(win.getChildByID("pageDevices_vgrind" +whichVG +"_selNum").getValue())
+	currentTask.runSelection(selNum);
+}
+
+function pageDevices_vgrind_runSelection_onFinish()
+{
+	//chiedo le info relativamente all'ultimo flusso e posizione
+	rhea.ajax ("getLastFluxInfo", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+		pageDevices_vgrind_setLastFluxAndPos(data.flux, data.grinderPos);
+		pageDevices_vgrind_runSelection_onFinish2();
+	})
+	.catch( function(result)
+	{
+		pageDevices_vgrind_runSelection_onFinish2();
+	});	
+}
+
+function pageDevices_vgrind_runSelection_onFinish2()
+{
+	pleaseWait_hide();
+	if (pageDevices_whichPage == 3)
+		currentTask.enterQueryMacinePos(2);
+	else
+		currentTask.enterQueryMacinePos(1);
+}
+
+var pageDevices_vgrind_lastFlux = -1;
+var pageDevices_vgrind_lastPos = -1
+function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
+{
+	pageDevices_vgrind_lastFlux = flux;
+	pageDevices_vgrind_lastPos = pos;
+	
+	var elemBtnUse1 = rheaGetElemByID ("pageDevices_vgrind1_lastFlux_btnUse");
+	var elemBtnUse2 = rheaGetElemByID ("pageDevices_vgrind2_lastFlux_btnUse");
+	if (flux < 0)
+	{
+		var msg = "Last flux/position:<br>please click on <b>RUN SELECTION</b>";
+		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
+		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
+		rheaHideElem (elemBtnUse1);
+		rheaHideElem (elemBtnUse2);
+	}
+	else
+	{
+		var msg = "Last flux: " +flux +"<br>Last pos: " +pos;
+		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
+		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
+		rheaSetDisplayMode (elemBtnUse1, "table");
+		rheaSetDisplayMode (elemBtnUse2, "table");
+	}
+}
+
+function pageDevices_vgrind_useLastFluxAndPos(whichVG)
+{
+	var win = ui.getWindowByID("pageDevices");
+
+	win.getChildByID("pageDevices_vgrind" +whichVG +"_refFlux").setValue(pageDevices_vgrind_lastFlux);
+	
+	if (whichVG==1)
+		da3.write16 (7596, pageDevices_vgrind_lastPos);
+	else
+		da3.write16 (7692, pageDevices_vgrind_lastPos);
+	rheaSetDivHTMLByName("pageDevices_vgrind" +whichVG +"_lastPos_caption", pageDevices_vgrind_lastPos);
+}
+
+
+
+
+function pageDevices_onEnableAuto(whichVG)
+{
+	var win = ui.getWindowByID("pageDevices");
+	
+	var tableName = "pageDevices_vgrind" +whichVG +"_params";
+	var elemTable = rheaGetElemByID(tableName);
+	
+	var selectorName = "pageDevices_vgrind" +whichVG +"_selector";
+	switch (parseInt(win.getChildByID(selectorName).getSelectedOptionValue()))
+	{
+		default: rheaHideElem(elemTable); break;
+		case 1:  rheaSetDisplayMode(elemTable, "table"); break;
+	}
+	
+	win.showHideScrollBar();
+}
+
+function pageDevices_setVGrind (macina1o2)
+{
+	var win = ui.getWindowByID("pageDevices");
+	var target = 0;
+	
+	if (macina1o2 == 1)
+		target = parseInt(win.getChildByID("pageDevices_vg1_target").getValue());
+	else
+		target = parseInt(win.getChildByID("pageDevices_vg2_target").getValue());
+		
+	//console.log ("pageDevices_setVGrind:: macina[" +macina1o2 +"] target[" +target +"]");
+	
+	currentTask.enterSetMacinaPos(macina1o2, target);
+}
+
+
+/***************************************************************************
+ *
+ * pageDataAudit
+ *
+ */
+var taskResetEVA = new TaskResetEVA();
+function pageDataAudit_show()
+{
+	if (showPage("pageDataAudit"))
+	{
+		pageDataAudit_downloadEVA();
+	}
+	
+	pageDataAudit_onSelector();
+
+	header_setText("DATA AUDIT");
+	btnBack_show();
+	rheaHideElem(rheaGetElemByID("btnSave"));
+}
+
+
+
+function toCurrency (numberIN, numDecimali)
+{
+	var s = numberIN.toString();
+	if (numDecimali == 0)
+		return s;
+		
+	while (s.length < numDecimali)
+		s = "0" +s;
+
+	var n = s.length;
+	if (n == numDecimali)
+		return "0." +s;
+		
+	return s.substr(0, n-numDecimali) +"." +s.substr(n-numDecimali, numDecimali);
+}
+
+function formatInteger(x) { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+
+function pageDataAudit_build_overview(numSelezioni, numDecimali, buffer, offset)
+{
+	var col = [];
+	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>&nbsp;</th>"
+				+"<th colspan='2' align='center'>NUM PAID (VA1)</th>"
+				+"<th colspan='2' align='center'>NUM FREEVEND (VA3)</th>"
+				+"<th colspan='2' align='center'>NUM TESTVEND (VA2)</th>"
+			+"</tr><tr valign='bottom'>"
+				+"<th style='width:100px'>&nbsp;</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+			+"</tr>";
+
+	//VA101/2/3
+	var va101 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va102 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va103 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va104 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+
+	var va201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va202 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va204 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	
+	var va301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va302 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+	var va304 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+
+	html += "<tr>"
+				+"<td>TOTALS</td>"
+				+"<td>" +formatInteger(va102) +"</td>"
+				+"<td>" +formatInteger(va104) +"</td>"
+				+"<td>" +formatInteger(va302) +"</td>"
+				+"<td>" +formatInteger(va304) +"</td>"
+				+"<td>" +formatInteger(va202) +"</td>"
+				+"<td>" +formatInteger(va204) +"</td>"
+			+"</tr></table><br>";
+				
+				
+				
+	html += "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>&nbsp;</th>"
+				+"<th colspan='2' align='center'>NUM PAID (PA2)</th>"
+				+"<th colspan='2' align='center'>NUM FREEVEND (PA4)</th>"
+				+"<th colspan='2' align='center'>NUM TESTVEND (PA3)</th>"
+			+"</tr><tr valign='bottom'>"
+				+"<th style='width:100px'>SEL NUM</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+				+"<th style='width:130px'>TOT</th>"
+				+"<th style='width:130px'>PAR</th>"
+			+"</tr>";
+			
+	for (var i=0; i<numSelezioni; i++)
+	{
+		var selNum = (i+1).toString();
+		if (selNum.length<2) selNum = "0"+selNum;
+		
+		var pa201 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa202 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa203 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa204 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
+		
+		var pa301 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa302 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa303 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa304 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
+
+		var pa401 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa402 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa403 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		var pa404 = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;		
+		
+		var rowCss="";
+		if (pa201+pa203+ pa301+pa303 +pa401+pa403==0)
+			rowCss = " class='rowAllZero'";		
+		html += "<tr" +rowCss +">"
+				+"<td>#" +selNum +"</td>"
+				+"<td>" +formatInteger(pa201) +"</td>"
+				+"<td>" +formatInteger(pa203) +"</td>"
+				+"<td>" +formatInteger(pa401) +"</td>"
+				+"<td>" +formatInteger(pa403) +"</td>"
+				+"<td>" +formatInteger(pa301) +"</td>"
+				+"<td>" +formatInteger(pa303) +"</td>"
+			+"</tr>";
+	}
+	html += "</table>";
+	
+	rheaSetDivHTMLByName("pageDataAudit_o", html);
+}
+
+function pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)
+{
+	var htmlTable = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>SEL<br>NUM</th>"
+				+"<th>NUM PAID<br>PRICE1</th>"
+				+"<th>NUM PAID<br>HAPPY</th>"
+				+"<th>NUM<br>FREEVEND</th>"
+				+"<th>NUM<br>TESTVEND</th>"
+				+"<th>NUM TOTAL</th>"
+				+"<td style='width:100px'>&nbsp;</td>"
+				+"<th>MONEY<br>PRICE1</th>"
+				+"<th>MONEY<br>PRICE2</th>"
+				+"<th>MONEY TOTAL</th>"
+				+"</tr>";
+	
+	var html = "";	
+	var rowSum = [0,0,0,0,0,0,0,0,0,0,0,0];
+	for (var i=0; i<numSelezioni; i++)
+	{
+		var selNum = (i+1).toString();
+		if (selNum.length<2) selNum = "0"+selNum;
+		
+		var col = [];
+		col[0] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[1] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[2] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[3] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[4] = col[0] +col[1] +col[2] +col[3];
+		col[5] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[6] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[7] = col[5] +col[6];
+		
+		for (var i2=0; i2<=7;i2++)
+			rowSum[i2] += col[i2];
+			
+		var rowCss="";
+		if (parseFloat(col[4]) == 0 && parseFloat(col[7]) == 0)
+			rowCss = " class='rowAllZero'";
+		html += "<tr" +rowCss +">"
+					+"<td>#" +selNum +"</td>"
+					+"<td>" +formatInteger(col[0]) +"</td>"
+					+"<td>" +formatInteger(col[1]) +"</td>"
+					+"<td>" +formatInteger(col[2]) +"</td>"
+					+"<td>" +formatInteger(col[3]) +"</td>"
+					+"<td><b>" +formatInteger(col[4]) +"</b></td>"
+					+"<td></td>"
+					+"<td>" +toCurrency(col[5], numDecimali) +"</td>"
+					+"<td>" +toCurrency(col[6], numDecimali) +"</td>"
+					+"<td><b>" +toCurrency(col[7], numDecimali) +"</b></td>"
+				+"</tr>";
+	}
+
+	//totali di riga
+	var htmlTotali = "<tr class='rowTot'>"
+				+"<td>TOTALS</td>"
+				+"<td>" +formatInteger(rowSum[0]) +"</td>"
+				+"<td>" +formatInteger(rowSum[1]) +"</td>"
+				+"<td>" +formatInteger(rowSum[2]) +"</td>"
+				+"<td>" +formatInteger(rowSum[3]) +"</td>"
+				+"<td><b>" +formatInteger(rowSum[4]) +"</b></td>"
+				+"<td></td>"
+				+"<td>" +toCurrency(rowSum[5], numDecimali) +"</td>"
+				+"<td>" +toCurrency(rowSum[6], numDecimali) +"</td>"
+				+"<td><b>" +toCurrency(rowSum[7], numDecimali) +"</b></td>"
+			+"</tr>";
+	
+	return htmlTable + htmlTotali +html +"</table>";
+}
+
+function pageDataAudit_build_partial(numSelezioni, numDecimali, buffer, offset)		{ rheaSetDivHTMLByName("pageDataAudit_p", pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)); }
+function pageDataAudit_build_total(numSelezioni, numDecimali, buffer, offset)		{ rheaSetDivHTMLByName("pageDataAudit_t", pageDataAudit_build_fromBuffer(numSelezioni, numDecimali, buffer, offset)); }
+function  pageDataAudit_onSelector()
+{
+	var elemO = rheaGetElemByID("pageDataAudit_o");
+	var elemP = rheaGetElemByID("pageDataAudit_p");
+	var elemT = rheaGetElemByID("pageDataAudit_t");
+	var elemR = rheaGetElemByID("pageDataAudit_r");
+	
+	rheaHideElem(elemO);
+	rheaHideElem(elemP);
+	rheaHideElem(elemT);
+	rheaHideElem(elemR);
+	
+	var win = ui.getWindowByID("pageDataAudit");
+	switch (parseInt(win.getChildByID("pageDataAudit_selector").getSelectedOptionValue()))
+	{
+		case 0: rheaShowElem(elemO); break;
+		case 1: rheaShowElem(elemP); break;
+		case 2: rheaShowElem(elemT); break;
+		case 3: rheaShowElem(elemR); break;
+	}
+	win.showHideScrollBar();
+}
+
+function pageDataAudit_resetPartialData()
+{
+	pleaseWait_show();
+	pleaseWait_btn1_setText("YES, do reset partial data");
+	pleaseWait_btn1_show();
+
+	pleaseWait_btn2_setText("NO, do NOT reset partial data");
+	pleaseWait_btn2_show();
+
+	pleaseWait_freeText_setText ("You're about to reset partial EVA-DTS data.<br><br>Do you confirm?");
+	pleaseWait_freeText_show();
+	currentTask = taskResetEVA;
+}
+
+
+function pageDataAudit_downloadEVA()
+{
+	pleaseWait_show();
+	rheaSetDivHTMLByName("pageDataAudit_o", "");
+	rheaSetDivHTMLByName("pageDataAudit_t", "");
+	rheaSetDivHTMLByName("pageDataAudit_p", "");
+
+	currentTask = new TaskDataAudit();
+}
+
+function pageDataAudit_downloadEVA_onFinish()
+{
+	if (currentTask.bufferSize != 0)
+	{
+		//download riuscito
+		//console.log (currentTask.buffer);
+		
+		rheaSetDivHTMLByName("pageDataAudit_lastDownload", "EVA-DTS, last downloaded on " +dataOra_getYYYYMMDD() +" " +dataOra_getHHMM(":"));
+		
+		var numSelezioni = parseInt(currentTask.buffer[1]);
+		var numDecimali  = parseInt(currentTask.buffer[2]);
+		var addrBloccoGeneral = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
+		var addrBloccoPartial = rheaReadU32FromUint8Buffer(currentTask.buffer, 8);
+		var addrBloccoTotal = rheaReadU32FromUint8Buffer(currentTask.buffer, 12);
+		
+		
+		pageDataAudit_build_overview(numSelezioni, numDecimali, currentTask.buffer, addrBloccoGeneral);;
+		pageDataAudit_build_partial (numSelezioni, numDecimali, currentTask.buffer, addrBloccoPartial);
+		pageDataAudit_build_total (numSelezioni, numDecimali, currentTask.buffer, addrBloccoTotal);
+
+		var win = ui.getWindowByID("pageDataAudit");
+		win.getChildByID("pageDataAudit_selector").selectOptionByValue(0);
+		pageDataAudit_onSelector();
+	}
+	
+	pleaseWait_hide();
+	currentTask = voidTask;
+}
+
+
+</script>
+</html>
