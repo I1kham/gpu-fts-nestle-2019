@@ -93,6 +93,39 @@ void MainWindow::priv_loadURL (const char *url)
     ui->webView->setFocus();
 }
 
+//*****************************************************
+void MainWindow::priv_loadURLMenuProg (const char *paramsInGet)
+{
+    char folder[256];
+    sprintf_s (folder, sizeof(folder), "%s/varie/prog", rhea::getPhysicalPathToAppFolder());
+
+    char lang[4];
+    sprintf_s (lang, sizeof(lang),"GB");
+
+    //se esiste il file lastUsedLang.txt, allora dentro c'è l'ultima lingua usata per il menu di prog
+    char s[256];
+    sprintf_s (s, sizeof(s), "%s/lastUsedLang.txt", folder);
+    if (rhea::fs::fileExists(s))
+    {
+        FILE *f = fopen(s,"rt");
+        fread (lang, 2, 1, f);
+        lang[2] = 0;
+        fclose(f);
+    }
+
+    sprintf_s (s, sizeof(s), "%s/index_%s.html", folder, lang);
+    if (!rhea::fs::fileExists(s))
+        sprintf_s (s, sizeof(s), "%s/index_GB.html", folder);
+
+    if (NULL != paramsInGet)
+    {
+        strcat_s (s, sizeof(s), "?");
+        strcat_s (s, sizeof(s), paramsInGet);
+    }
+
+    sprintf_s (folder, sizeof(folder), "file://%s", s);
+    priv_loadURL(folder);
+}
 
 //*****************************************************
 bool MainWindow::priv_shouldIShowFormPreGUI()
@@ -170,11 +203,14 @@ void MainWindow::priv_showForm (eForm w)
         break;
 
     case eForm_main_showBrowser:
+        priv_loadURLMenuProg(NULL);
+        /*
         {
             char s[1024];
             sprintf_s (s, sizeof(s), "%s/web/startup.html", glob->current_GUI);
             if (rhea::fs::fileExists(s))
                 sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
+
             else
                 sprintf_s (s, sizeof(s), "file://%s/varie/no-gui-installed.html", rhea::getPhysicalPathToAppFolder());
 
@@ -183,6 +219,7 @@ void MainWindow::priv_showForm (eForm w)
             cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
             cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
         }
+        */
         break;
 
     case eForm_oldprog_legacy:
@@ -192,27 +229,15 @@ void MainWindow::priv_showForm (eForm w)
         break;
 
     case eForm_newprog:
-        {
-            char s[256];
-            sprintf_s (s, sizeof(s), "file://%s/varie/prog/index.html", rhea::getPhysicalPathToAppFolder());
-            priv_loadURL(s);
-        }
+        priv_loadURLMenuProg(NULL);
         break;
 
     case eForm_newprog_lavaggioSanitario:
-        {
-            char s[256];
-            sprintf_s (s, sizeof(s), "file://%s/varie/prog/index.html?page=pageCleaningSanitario", rhea::getPhysicalPathToAppFolder());
-            priv_loadURL(s);
-        }
+        priv_loadURLMenuProg("page=pageCleaningSanitario");
         break;
 
     case eForm_newprog_lavaggioMilker:
-        {
-            char s[256];
-            sprintf_s (s, sizeof(s), "file://%s/varie/prog/index.html?page=pageCleaningMilker", rhea::getPhysicalPathToAppFolder());
-            priv_loadURL(s);
-        }
+        priv_loadURLMenuProg("page=pageCleaningMilker");
         break;
     }
 }

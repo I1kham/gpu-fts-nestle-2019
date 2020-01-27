@@ -47,6 +47,7 @@ private:
 
 private:
     void                    priv_loadURL (const char *url);
+    void                    priv_loadURLMenuProg (const char *paramsInGet);
     bool                    priv_shouldIShowFormPreGUI();
     void                    priv_showForm (eForm w);
     void                    priv_start();
