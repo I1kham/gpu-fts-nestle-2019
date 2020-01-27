@@ -10,6 +10,7 @@ TaskVoid.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
 TaskVoid.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
 TaskVoid.prototype.onFreeBtn1Clicked	= function(ev)							{}
 TaskVoid.prototype.onFreeBtn2Clicked	= function(ev)							{}
+TaskVoid.prototype.onFreeBtnTrickClicked= function(ev)							{}
 TaskVoid.prototype.onExit				= function(bSave)						{ return bSave; }
 
 
@@ -21,6 +22,7 @@ TaskTemperature.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{
 TaskTemperature.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
 TaskTemperature.prototype.onFreeBtn1Clicked	= function(ev)								{}
 TaskTemperature.prototype.onFreeBtn2Clicked	= function(ev)								{}
+TaskTemperature.prototype.onFreeBtnTrickClicked= function(ev)							{}
 TaskTemperature.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskTemperature.prototype.onTimer 				= function(timeNowMsec)
 {
@@ -46,6 +48,7 @@ TaskMaintenance.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{
 TaskMaintenance.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
 TaskMaintenance.prototype.onFreeBtn1Clicked	= function(ev)								{}
 TaskMaintenance.prototype.onFreeBtn2Clicked	= function(ev)								{}
+TaskMaintenance.prototype.onFreeBtnTrickClicked= function(ev)							{}
 TaskMaintenance.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskMaintenance.prototype.onTimer 				= function(timeNowMsec)
 {
@@ -105,7 +108,6 @@ TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pl
 TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)						{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
-{}
 TaskCleaning.prototype.onExit				= function(bSave)					{ return bSave; }
 
 TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
@@ -334,7 +336,7 @@ TaskCalibMotor.prototype.onFreeBtn2Clicked	= function(ev)
 		break;		
 	}
 }
-
+TaskCalibMotor.prototype.onFreeBtnTrickClicked= function(ev)							{}
 
 TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 {
@@ -688,6 +690,8 @@ TaskTestSelezione.prototype.onFreeBtn2Clicked	= function(ev)
 	}
 }
 
+TaskTestSelezione.prototype.onFreeBtnTrickClicked= function(ev)							{}
+
 TaskTestSelezione.prototype.onExit				= function(bSave)					{ return bSave; }
 
 TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
@@ -860,6 +864,7 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 	}
 }
 TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)							{}
+TaskDevices.prototype.onFreeBtnTrickClicked= function(ev)						{}
 TaskDevices.prototype.onExit			 = function(bSave)						{ return bSave; }
 
 
@@ -1032,6 +1037,7 @@ TaskDisintall.prototype.onFreeBtn2Clicked	 = function(ev)
 	this.fase = 99;
 }
 
+TaskDisintall.prototype.onFreeBtnTrickClicked= function(ev)						{}
 
 TaskDisintall.prototype.onTimer = function (timeNowMsec)
 {
@@ -1134,9 +1140,8 @@ TaskDataAudit.prototype.onFreeBtn1Clicked	 = function(ev)
 	}
 }
 
-TaskDataAudit.prototype.onFreeBtn2Clicked	 = function(ev)						
-{
-}
+TaskDataAudit.prototype.onFreeBtn2Clicked	 = function(ev)						{}
+TaskDataAudit.prototype.onFreeBtnTrickClicked= function(ev)						{}
 
 
 TaskDataAudit.prototype.onTimer = function (timeNowMsec)
@@ -1146,7 +1151,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 	var timeElapsedMSec = timeNowMsec - this.timeStarted;
 	
 	var me = this;
-	//console.log ("TaskDataAudit fase[" +this.fase +"]");
+	console.log ("TaskDataAudit fase[" +this.fase +"]");
 	switch (this.fase)
 	{
 		case 0:
@@ -1173,7 +1178,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 			pleaseWait_show();
 			pleaseWait_freeText_setText ("REQUESTING EVA-DTS, please wait");
 			pleaseWait_freeText_show();
-			rhea.sendStartDownloadDA3();			
+			rhea.sendStartDownloadDataAudit();			
 			break;
 			
 		case 1: //download eva-dts in corso
@@ -1248,6 +1253,7 @@ TaskResetEVA.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
 TaskResetEVA.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
 TaskResetEVA.prototype.onFreeBtn1Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 10; }
 TaskResetEVA.prototype.onFreeBtn2Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 99; }
+TaskResetEVA.prototype.onFreeBtnTrickClicked= function(ev)							{}
 TaskResetEVA.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskResetEVA.prototype.onTimer 				= function(timeNowMsec)					
 {
@@ -1299,8 +1305,9 @@ TaskResetEVA.prototype.onTimer 				= function(timeNowMsec)
 function TaskP15()																{ this.nextTimeSendP15 = 0;}
 TaskP15.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
 TaskP15.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
-TaskP15.prototype.onFreeBtn1Clicked	= function(ev)							{}
-TaskP15.prototype.onFreeBtn2Clicked	= function(ev)							{}
+TaskP15.prototype.onFreeBtn1Clicked	= function(ev)								{}
+TaskP15.prototype.onFreeBtn2Clicked	= function(ev)								{}
+TaskP15.prototype.onFreeBtnTrickClicked= function(ev)							{}
 TaskP15.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskP15.prototype.onTimer 				= function(timeNowMsec)					
 {

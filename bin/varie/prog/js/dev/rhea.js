@@ -699,7 +699,7 @@ Rhea.prototype.sendStartDisintallation = function()
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
-Rhea.prototype.sendStartDownloadDA3 = function()
+Rhea.prototype.sendSyncDA3 = function()
 {
 	var buffer = new Uint8Array(1);
 	buffer[0] = 67; //C
@@ -713,10 +713,10 @@ Rhea.prototype.sendGetCPUStatus = function()
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
-Rhea.prototype.sendEnterDA3Sync = function()
+Rhea.prototype.sendStartDownloadDataAudit = function()
 {
 	var buffer = new Uint8Array(1);
-	buffer[0] = RHEA_EVENT_READ_DATA_AUDIT;
+	buffer[0] = RHEA_EVENT_READ_DATA_AUDIT; //108 l
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
