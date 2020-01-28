@@ -2675,7 +2675,7 @@ function pageClock_setDate()
 	})
 	.catch( function(result)
 	{
-		etTimeout ( function() { pageClock_setDate(); }, 200);
+		setTimeout ( function() { pageClock_setDate(); }, 200);
 	});
 }
 

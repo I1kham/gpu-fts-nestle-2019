@@ -290,6 +290,22 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			default:
 				return false;
 
+			case eCPUProgrammingCommand_setTime:
+			case eCPUProgrammingCommand_setDate:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = bufferToSend[4];
+				out_answer[ct++] = bufferToSend[5];
+				out_answer[ct++] = bufferToSend[6];
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+				break;
+
 			case eCPUProgrammingCommand_setFattoreCalibrazioneMotore:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
