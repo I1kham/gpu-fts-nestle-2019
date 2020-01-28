@@ -41,7 +41,7 @@ void update_console_header(WinTerminal *wt)
 /*****************************************************
  *	connect [ip] [port]
  *
- *	se ip no è specificato, assume di default IP=127.0.0.1 e PORT=DEFAULT_PORT_NUMBER
+ *	se ip non è specificato, assume di default IP=127.0.0.1 e PORT=DEFAULT_PORT_NUMBER
  *	se ip è specificato e port non lo è, assume PORT=DEFAULT_PORT_NUMBER
  */
 bool handleCommandSyntax_connect (WinTerminal *logger, const char *s, char *out_ip, u32 sizeofIP, u16 *out_port)
@@ -828,6 +828,8 @@ void go()
 	rhea::thread::deleteMsgQ(handleR, handleW);
 }
 
+
+//*****************************************************
 #include "Iphlpapi.h"
 #include "ws2tcpip.h"
 #pragma comment(lib, "IPHLPAPI.lib")
@@ -919,7 +921,7 @@ int main()
 	HINSTANCE hInst = NULL;
 	rhea::init("rheaConsole", &hInst);
 
-	//elenco delle schede di rete e relativi ip/subnet mask. Serve per il broadcasta su tutte le reti del comando hello
+	//elenco delle schede di rete e relativi ip/subnet mask. Serve per il broadcast su tutte le reti del comando hello
 	rhea::Allocator *localAllocator = rhea::memory_getDefaultAllocator();
 	ipList = scanNetworkAdaptersAndFindLocalIP(localAllocator, &nIPList);
 
