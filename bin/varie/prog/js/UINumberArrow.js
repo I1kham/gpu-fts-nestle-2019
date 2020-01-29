@@ -20,6 +20,7 @@ var UINUMBER_TOP_OFFSET = 10;
 var UINUMBER_NUM_HEIGHT = 56;
 function UINumber (parentID, childNum, node)
 {
+	this.flash_alpha_0_1 = 0;
 	this.valueMin = parseInt(UIUtils_getAttributeOrDefault(node, "data-min", "0"));
 	this.valueMax = parseInt(UIUtils_getAttributeOrDefault(node, "data-max", "999999999;"));
 	
@@ -90,6 +91,45 @@ UINumber.prototype.priv_buildHTML = function(nodeIN)
 	
 	if (null == nodeIN)
 		this.bindEvents();
+}
+
+
+UINumber.prototype.flashBackground = function (valueToSetAtTheEndOfAnimation)
+{
+	this.flash_valueToSetAtTheEndOfAnimation = valueToSetAtTheEndOfAnimation;
+	if (this.flash_alpha_0_1 > 0)
+	{
+		this.flash_alpha_0_1 = 1;
+		return;
+	}
+	
+	this.flash_alpha_0_1 = 1;
+	this.priv_do_flashBackground();
+	
+}
+UINumber.prototype.priv_do_flashBackground = function ()
+{
+	var c = Math.floor(255.0 * this.flash_alpha_0_1);
+	var targetCol = "rgb(" +c +",0,0)";
+	for (var i=0; i<this.numCifre; i++)
+	{
+		var idStrip = this.id +"_fig" +i;
+		var idContainer = idStrip+"_cnt";
+		rheaSetElemBackgroundColor (rheaGetElemByID(idContainer), targetCol);
+	}
+	
+	if (this.flash_alpha_0_1 > 0)
+	{
+		this.flash_alpha_0_1 -= 0.05;
+		var me = this;
+		
+		if (this.flash_alpha_0_1 < 0.2)
+			this.setValue(this.flash_valueToSetAtTheEndOfAnimation);
+		
+		setTimeout ( function() { me.priv_do_flashBackground(); }, 40 );
+	}
+	else 
+		this.setValue(this.flash_valueToSetAtTheEndOfAnimation);
 }
 
 UINumber.prototype.priv_getHTMLForAFigure = function(i)
@@ -188,6 +228,9 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 
 	node.addEventListener("mouseup", function (ev)
 	{
+		if (me.flash_alpha_0_1 > 0)
+			return;
+		
 		var timeElapsedMSec = parseInt(ev.timeStamp - me.clickStartTimeMSec[iCifra]);
 		var xdiff = parseInt(Math.abs(me.clickPosX[iCifra] - ev.clientX));
 		var ydiff = parseInt(Math.abs(me.clickPosY[iCifra] - ev.clientY));
@@ -197,8 +240,10 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 		{
 			var dStrip = document.getElementById(idStrip);
 			var whichNum = parseInt(dStrip.getAttribute("data-value"));
+			var bVolevoIncrementare = 0;
 			if (me.mousedown_relY[iCifra] < 0)
 			{
+				bVolevoIncrementare = 1;
 				whichNum++;
 				if (whichNum > 9)
 					whichNum = 0;
@@ -209,10 +254,25 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 				if (whichNum < 0)
 					whichNum = 9;
 			}
+			
+			var curValue = me.getValue();
 			dStrip.setAttribute("data-value", whichNum);		
+			var newValue = me.getValue();
 
 			//per assicurarmi di stare all'interno di valueMin/valueMax...
-			me.setValue(me.getValue());
+			//me.setValue(me.getValue());
+			
+			if (newValue < me.valueMin || newValue > me.valueMax) 
+			{
+				console.log ("cur[" +curValue +"], new[" +newValue +"]");
+				if (bVolevoIncrementare)
+					me.setValue(me.valueMax);
+				else
+					me.setValue(me.valueMin);
+				me.flashBackground(curValue);
+			}
+			else
+				me.setValue(newValue);
 		}
 	}, 
 	true);	
@@ -247,6 +307,7 @@ UINumber.prototype.priv_clampToLimit = function(v)
 	var value = parseInt(v);
 	if (value==null || value=="")
 		value = 0;
+	
 	if (value < this.valueMin) value = this.valueMin;
 	if (value > this.valueMax) value = this.valueMax;
 
