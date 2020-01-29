@@ -266,10 +266,17 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 			{
 				console.log ("cur[" +curValue +"], new[" +newValue +"]");
 				if (bVolevoIncrementare)
+				{
 					me.setValue(me.valueMax);
+					//me.flashBackground(curValue);
+					me.flashBackground(me.valueMax);
+				}
 				else
+				{
 					me.setValue(me.valueMin);
-				me.flashBackground(curValue);
+					me.flashBackground(me.valueMin);
+				}
+				
 			}
 			else
 				me.setValue(newValue);
