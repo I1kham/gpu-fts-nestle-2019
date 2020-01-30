@@ -22,7 +22,7 @@ function UINumber (parentID, childNum, node)
 {
 	this.flash_alpha_0_1 = 0;
 	this.valueMin = parseInt(UIUtils_getAttributeOrDefault(node, "data-min", "0"));
-	this.valueMax = parseInt(UIUtils_getAttributeOrDefault(node, "data-max", "999999999;"));
+	this.valueMax = parseInt(UIUtils_getAttributeOrDefault(node, "data-max", "999999999"));
 	
 	this.id = node.getAttribute("id");
 	if (this.id==null || this.id=="")
