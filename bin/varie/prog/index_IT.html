@@ -20,8 +20,37 @@
 			<div id="pagePleaseWait_freeText"></div>
 			
 			<div id="pagePleaseWait_calibration" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">
+				<div id="pagePleaseWait_calibration_1">
+					<table border='0' cellspacing='0' cellpadding='0'>
+						<tr valign="middle">
+							<td>If you wish, you can grind again by pressing</td>
+							<td>&nbsp;&nbsp;</td>
+							<td><div id='pagePleaseWait_calibration_1_grind' class='UIButton bigButton60 actionButton' data-caption='GRIND AGAIN' data-onclick="pageCalibration_grindAgain()"></div></td>
+						</tr>
+					</table>
+					<hr>
+
+					If you wish, you can adjust the opening of the Varigrind using the controls below:
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:33%" align="center">
+								POSIZIONE<br>
+								<div style="float:left; margin-right:10px">valore attuale:</div>
+								<div id="pagePleaseWait_calibration_1_vg" style="float:left" class="bigCaption15">000</div>
+								<div class="clear"></div>
+							</td>
+							<td style="width:34%" align="center">
+								<div style="float:left; margin-right:10px"><br>valore<br>desiderato</div>
+								<div style="float:left;"><div class="UINumber" id="pagePleaseWait_calibration_1_vg_target" data-numfigures="3" data-max="470"></div></dv>
+								<div class="clear"></div>
+							</td>
+							<td style="width:33%" align="center"><div id='pagePleaseWait_calibration_1_vg_set' class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageCalibration_setVGrind()"></div></td>
+						</tr>
+					</table>
+					<br>
+				</div>
 				<div id="pagePleaseWait_calibration_text"></div>
-				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="5" data-decimal="1" data-max="99999" data-um="gr"></div>
+				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="4" data-decimal="1" data-max="9999" data-um="gr"></div>
 			</div>
 			
 			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:400px; left:680px; display:none">
@@ -61,6 +90,7 @@
 			<ul>
 				<li onmousedown="menuLang_onUserSelected('GB')"><img src="img/flags/GB.png"> ENGLISH</li>
 				<li onmousedown="menuLang_onUserSelected('IT')"><img src="img/flags/IT.png"> ITALIANO</li>
+				<li onmousedown="menuLang_onUserSelected('FR')"><img src="img/flags/FR.png"> FRANÇAIS</li>
 			</ul>
 		</div>
 		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="menuLang_show(0)"></div>
@@ -330,7 +360,6 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td style="width:210px"><b>VIEW SETTINGS FOR</b></td>
 						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|DATA/ORA|1|HAPPY HOUR|2|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
 					</tr>
 				</table>
@@ -934,6 +963,7 @@
 <script src="js/UITime24.js"></script>
 <script src="js/UISelect.js"></script>
 <script src="js/Task_IT.js"></script>
+
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
 var da3 = null;
@@ -945,6 +975,7 @@ var currentTask = voidTask;
 var currentPageID="";
 var timeNowMSec = 0;
 var uiStandAloneNum = null;
+var uiStandAloneVarigringTargetPos = null;
 var manualFolderName = "";
 var currentCPUStatusID = -1;
 
@@ -964,6 +995,9 @@ function onRheaBootstrapFinished()
 	ui.setupStandaloneButton("btnSave");
 	ui.setupStandaloneButton("bntTestSelection");
 	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
+	uiStandAloneVarigringTargetPos = ui.setupStandaloneNumber("pagePleaseWait_calibration_1_vg_target");
+	ui.setupStandaloneButton("pagePleaseWait_calibration_1_vg_set");
+	ui.setupStandaloneButton("pagePleaseWait_calibration_1_grind");
 	
 	pleaseWait_show();
 	pleaseWait_setTextLeft("Attendere prego ...");
@@ -1341,13 +1375,15 @@ function pleaseWait_btnTrick_show()			{ rheaShowElem(rheaGetElemByID("pagePlease
 function pleaseWait_btnTrick_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
 
 
-function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
-function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
 function pleaseWait_calibration_num_show()				{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
 function pleaseWait_calibration_num_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
 function pleaseWait_calibration_num_setValue (v)		{ uiStandAloneNum.setValue(parseInt(v)); }
 function pleaseWait_calibration_num_getValue()			{ return uiStandAloneNum.getValue(); }
 function pleaseWait_calibration_setText(s)				{ rheaSetDivHTMLByName("pagePleaseWait_calibration_text", s); }
+function pleaseWait_calibration_varigrind_show()		{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
+function pleaseWait_calibration_varigrind_hide()		{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
 
 /***************************************************************************
  *
@@ -2357,7 +2393,7 @@ function pageSingleSelection_build()
 			htmlW +="<td></td>"; 
 			break;
 		case 1:
-			htmlW += "<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+			htmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|LENTA|1|MEDIA|2|VELOCE' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
 			break;
 		case 2:
 				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-max='98' data-um='&deg;C'></div></td></tr>";
@@ -2374,7 +2410,7 @@ function pageSingleSelection_build()
 				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+31) +")'></div></td>"
 				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
-				+"<td align='center'><div class='UIOption' data-option='1|LOW|2|MED|3|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
+				+"<td align='center'><div class='UIOption bigCaption10' data-option='1|LENTA|2|MEDIA|3|VELOCE' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
 			+"</tr>";		
 		da3LocWater+= 3;
 	}
@@ -2795,6 +2831,23 @@ function pageCalibration_onFinish ()
 	save (function() { pageCalibration_refreshCalibValueOnScreen(); pleaseWait_hide();});
 }
 
+function pageCalibration_grindAgain()
+{
+	pleaseWait_calibration_varigrind_hide();
+	pleaseWait_calibration_num_hide();
+	pleaseWait_btn1_hide();
+	pleaseWait_calibration_setText("");
+	taskCalibMotor.fase = 10;
+}
+
+function pageCalibration_setVGrind()
+{
+	pleaseWait_calibration_varigrind_hide();
+	pleaseWait_calibration_num_hide();
+	pleaseWait_btn1_hide();
+	pleaseWait_calibration_setText("");
+	taskCalibMotor.fase = 25;
+}
 
 /***************************************************************************
  *

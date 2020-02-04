@@ -20,8 +20,37 @@
 			<div id="pagePleaseWait_freeText"></div>
 			
 			<div id="pagePleaseWait_calibration" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">
+				<div id="pagePleaseWait_calibration_1">
+					<table border='0' cellspacing='0' cellpadding='0'>
+						<tr valign="middle">
+							<td>If you wish, you can grind again by pressing</td>
+							<td>&nbsp;&nbsp;</td>
+							<td><div id='pagePleaseWait_calibration_1_grind' class='UIButton bigButton60 actionButton' data-caption='GRIND AGAIN' data-onclick="pageCalibration_grindAgain()"></div></td>
+						</tr>
+					</table>
+					<hr>
+
+					If you wish, you can adjust the opening of the Varigrind using the controls below:
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:33%" align="center">
+								$LAB_DEV_POSITION<br>
+								<div style="float:left; margin-right:10px">$LAB_current_value:</div>
+								<div id="pagePleaseWait_calibration_1_vg" style="float:left" class="bigCaption15">000</div>
+								<div class="clear"></div>
+							</td>
+							<td style="width:34%" align="center">
+								<div style="float:left; margin-right:10px"><br>$LAB_DEV_desired_value</div>
+								<div style="float:left;"><div class="UINumber" id="pagePleaseWait_calibration_1_vg_target" data-numfigures="3" data-max="470"></div></dv>
+								<div class="clear"></div>
+							</td>
+							<td style="width:33%" align="center"><div id='pagePleaseWait_calibration_1_vg_set' class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageCalibration_setVGrind()"></div></td>
+						</tr>
+					</table>
+					<br>
+				</div>
 				<div id="pagePleaseWait_calibration_text"></div>
-				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="5" data-decimal="1" data-max="99999" data-um="gr"></div>
+				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="4" data-decimal="1" data-max="9999" data-um="gr"></div>
 			</div>
 			
 			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:400px; left:680px; display:none">
@@ -61,6 +90,7 @@
 			<ul>
 				<li onmousedown="menuLang_onUserSelected('GB')"><img src="img/flags/GB.png"> ENGLISH</li>
 				<li onmousedown="menuLang_onUserSelected('IT')"><img src="img/flags/IT.png"> ITALIANO</li>
+				<li onmousedown="menuLang_onUserSelected('FR')"><img src="img/flags/FR.png"> FRANÇAIS</li>
 			</ul>
 		</div>
 		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="menuLang_show(0)"></div>
@@ -73,31 +103,31 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_MAINTENANCE" data-onclick="pageMaintenance_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_CLEANING" data-onclick="pageCleaning_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_DATA_AUDIT" data-onclick="pageDataAudit_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_MAINTENANCE" data-onclick="pageMaintenance_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_CLEANING" data-onclick="pageCleaning_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_DATA_AUDIT" data-onclick="pageDataAudit_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_SELECTIONS" data-onclick="pageSelections_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_DEVICES" data-onclick="pageDevices_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_SELECTIONS" data-onclick="pageSelections_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_DEVICES" data-onclick="pageDevices_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_PRODUCT_QUANTITY" data-onclick="pageProductQty_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_PAYMENT_SYSTEMS" data-onclick="pagePayment_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_PRODUCT_QUANTITY" data-onclick="pageProductQty_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_PAYMENT_SYSTEMS" data-onclick="pagePayment_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_CLOCK" data-onclick="pageClock_show()"></div></td>
-						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="$LAB_MAINMENU_MILKER" data-onclick="pageMilker_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_CLOCK" data-onclick="pageClock_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="$LAB_MM_MILKER" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center">
 							<!--<div class="UIButton bigButton3x4" data-caption="SW VERSION" data-onclick="pageSWVersion_show()"></div>-->
 						</td>
-						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MAINMENU_OLD_PROG_MENU" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
+						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="$LAB_MM_OLD_PROG_MENU" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
 					</tr>
 				</table>
 			</div>
@@ -330,8 +360,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td style="width:210px"><b>VIEW SETTINGS FOR</b></td>
-						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|$LAB_MAINMENU_CLOCK|1|HAPPY HOUR|2|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|$LAB_MM_CLOCK|1|HAPPY HOUR|2|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -456,7 +485,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td style="width:140px"><b>$LAB_MAINMENU_SELECTIONS:</b></td>
+						<td style="width:140px"><b>$LAB_MM_SELECTIONS:</b></td>
 						<td><div class='UIOptionSmall' id='pageSelections_selector' data-option='1|1-12|2|13-24|3|25-36|4|37-48' data-onclick='pageSelections_onSelector()'></div></td>
 					</tr>
 				</table>		
@@ -934,6 +963,7 @@
 <script src="js/UITime24.js"></script>
 <script src="js/UISelect.js"></script>
 <script src="js/Task_$_CUR_LANG_ISO_2_LETTERS.js"></script>
+
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
 var da3 = null;
@@ -945,6 +975,7 @@ var currentTask = voidTask;
 var currentPageID="";
 var timeNowMSec = 0;
 var uiStandAloneNum = null;
+var uiStandAloneVarigringTargetPos = null;
 var manualFolderName = "";
 var currentCPUStatusID = -1;
 
@@ -964,6 +995,9 @@ function onRheaBootstrapFinished()
 	ui.setupStandaloneButton("btnSave");
 	ui.setupStandaloneButton("bntTestSelection");
 	uiStandAloneNum = ui.setupStandaloneNumber("pagePleaseWait_calibration_num");
+	uiStandAloneVarigringTargetPos = ui.setupStandaloneNumber("pagePleaseWait_calibration_1_vg_target");
+	ui.setupStandaloneButton("pagePleaseWait_calibration_1_vg_set");
+	ui.setupStandaloneButton("pagePleaseWait_calibration_1_grind");
 	
 	pleaseWait_show();
 	pleaseWait_setTextLeft("$LAB_Please_wait ...");
@@ -1341,13 +1375,15 @@ function pleaseWait_btnTrick_show()			{ rheaShowElem(rheaGetElemByID("pagePlease
 function pleaseWait_btnTrick_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
 
 
-function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
-function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
 function pleaseWait_calibration_num_show()				{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
 function pleaseWait_calibration_num_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
 function pleaseWait_calibration_num_setValue (v)		{ uiStandAloneNum.setValue(parseInt(v)); }
 function pleaseWait_calibration_num_getValue()			{ return uiStandAloneNum.getValue(); }
 function pleaseWait_calibration_setText(s)				{ rheaSetDivHTMLByName("pagePleaseWait_calibration_text", s); }
+function pleaseWait_calibration_varigrind_show()		{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
+function pleaseWait_calibration_varigrind_hide()		{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
 
 /***************************************************************************
  *
@@ -1490,7 +1526,7 @@ function pageMaintenance_show()
 		}
 	}
 
-	header_setText("$LAB_MAINMENU_MAINTENANCE");
+	header_setText("$LAB_MM_MAINTENANCE");
 	btnBack_show();
 	pageMaintenance_getDecountersValues();		
 	pageMaintenance_refreshOFFList(0);
@@ -1680,7 +1716,7 @@ function pageCleaning_show()
 			w.getChildByID("pageCleaning_btnCleanHC").hide();
 		}
 	}
-	header_setText("$LAB_MAINMENU_CLEANING");
+	header_setText("$LAB_MM_CLEANING");
 
 	btnBack_show();
 	//rheaHideElem(rheaGetElemByID("btnSave"));
@@ -1766,7 +1802,7 @@ function pageMiscellaneous_show()
 	
 	pageMiscellaneous_fv_refresh();
 
-	header_setText("$LAB_MAINMENU_MISCELLANEOUS");
+	header_setText("$LAB_MM_MISCELLANEOUS");
 	pageMiscellaneous_onSelector();
 	btnBack_show();
 	
@@ -1885,7 +1921,7 @@ function pageProductQty_show()
 		pageProductQty_getDecounterValues();
 	}
 	pageProductQty_showDecounter();
-	header_setText("$LAB_MAINMENU_PRODUCT_QUANTITY");
+	header_setText("$LAB_MM_PRODUCT_QUANTITY");
 	btnBack_show();
 	
 	//aggiorno le unità di misura
@@ -2049,7 +2085,7 @@ function pageMilker_show()
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	header_setText("$LAB_MAINMENU_MILKER");
+	header_setText("$LAB_MM_MILKER");
 	btnBack_show();
 }
 
@@ -2066,7 +2102,7 @@ function pageSelections_show()
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	header_setText("$LAB_MAINMENU_SELECTIONS");
+	header_setText("$LAB_MM_SELECTIONS");
 	rheaHideElem(rheaGetElemByID("bntTestSelection"));
 	btnBack_show();
 	rheaHideElem(rheaGetElemByID("btnSave"));
@@ -2357,7 +2393,7 @@ function pageSingleSelection_build()
 			htmlW +="<td></td>"; 
 			break;
 		case 1:
-			htmlW += "<td align='center'><div class='UIOption' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+			htmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|$LAB_SEL_SPEED_LOW|1|$LAB_SEL_SPEED_MED|2|$LAB_SEL_SPEED_HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
 			break;
 		case 2:
 				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-max='98' data-um='&deg;C'></div></td></tr>";
@@ -2374,7 +2410,7 @@ function pageSingleSelection_build()
 				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; $LAB_TEST_IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+31) +")'></div></td>"
 				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
-				+"<td align='center'><div class='UIOption' data-option='1|LOW|2|MED|3|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
+				+"<td align='center'><div class='UIOption bigCaption10' data-option='1|$LAB_SEL_SPEED_LOW|2|$LAB_SEL_SPEED_MED|3|$LAB_SEL_SPEED_HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
 			+"</tr>";		
 		da3LocWater+= 3;
 	}
@@ -2526,7 +2562,7 @@ function pageTemperature_show()
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	header_setText("$LAB_MAINMENU_TEMPERATURE");
+	header_setText("$LAB_MM_TEMPERATURE");
 	btnBack_show();
 	
 	currentTask = new TaskTemperature();
@@ -2574,7 +2610,7 @@ function pageClock_show()
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	header_setText("$LAB_MAINMENU_CLOCK");
+	header_setText("$LAB_MM_CLOCK");
 	pageClock_onSelector();
 	btnBack_show();
 	
@@ -2705,7 +2741,7 @@ function pageCalibration_show()
 
 	pageCalibration_refreshCalibValueOnScreen();
 	
-	header_setText("$LAB_MAINMENU_CALIBRATION");
+	header_setText("$LAB_MM_CALIBRATION");
 	btnBack_show();
 	rheaHideElem(rheaGetElemByID("btnSave"));
 	currentTask = taskCalibMotor;
@@ -2795,6 +2831,23 @@ function pageCalibration_onFinish ()
 	save (function() { pageCalibration_refreshCalibValueOnScreen(); pleaseWait_hide();});
 }
 
+function pageCalibration_grindAgain()
+{
+	pleaseWait_calibration_varigrind_hide();
+	pleaseWait_calibration_num_hide();
+	pleaseWait_btn1_hide();
+	pleaseWait_calibration_setText("");
+	taskCalibMotor.fase = 10;
+}
+
+function pageCalibration_setVGrind()
+{
+	pleaseWait_calibration_varigrind_hide();
+	pleaseWait_calibration_num_hide();
+	pleaseWait_btn1_hide();
+	pleaseWait_calibration_setText("");
+	taskCalibMotor.fase = 25;
+}
 
 /***************************************************************************
  *
@@ -2814,7 +2867,7 @@ function pagePayment_show()
 	win.getChildByID("pagePayment_restMax").setDecimals(da3.getDecimalsForPrices());
 	win.getChildByID("pagePayment_tokenV").setDecimals(da3.getDecimalsForPrices());
 	win.getChildByID("pagePayment_maxCC").setDecimals(da3.getDecimalsForPrices());
-	header_setText("$LAB_MAINMENU_PAYMENT_SYSTEMS");
+	header_setText("$LAB_MM_PAYMENT_SYSTEMS");
 	btnBack_show();
 }
 
@@ -2870,7 +2923,7 @@ function pageDevices_show()
 	pageDevices_onSelector();
 	pageDevices_onEnableAuto(1);
 	pageDevices_onEnableAuto(2);
-	header_setText("$LAB_MAINMENU_DEVICES");
+	header_setText("$LAB_MM_DEVICES");
 	btnBack_show();
 	
 }
@@ -3030,7 +3083,7 @@ function pageDataAudit_show()
 	
 	pageDataAudit_onSelector();
 
-	header_setText("$LAB_MAINMENU_DATA_AUDIT");
+	header_setText("$LAB_MM_DATA_AUDIT");
 	btnBack_show();
 	rheaHideElem(rheaGetElemByID("btnSave"));
 }

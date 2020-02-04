@@ -275,6 +275,7 @@ function TaskCalibMotor()
 	this.what = 0;  //0==nulla, 1=calib motore prodott, 2=calib macina
 	this.fase = 0;
 	this.value = 0;
+	this.cpuStatus = 0;
 }
 TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
 {
@@ -283,6 +284,7 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
 	this.motor = motorIN;
 	this.value = 0;
 	this.impulsi = 0;
+	this.amIAskingForVGrindPos = 0;
 	
 	this.what = 0;
 	if (motorIN == 11 || motorIN == 12)
@@ -292,7 +294,7 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
 	
 }
 
-TaskCalibMotor.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskCalibMotor.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{ this.cpuStatus = statusID;}
 TaskCalibMotor.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
 TaskCalibMotor.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
@@ -367,7 +369,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		
 	case 20:
 		me.fase = 30;
-		pleaseWait_calibration_setText("Please enter the quantity, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("When you're done, please enter the obtained quantity in grams, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUE");
@@ -438,7 +440,8 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_setText("ABORT");
-		pleaseWait_btn2_show();		
+		pleaseWait_btn2_show();	
+		uiStandAloneVarigringTargetPos.setValue(0);
 		break;
 		
 	case 1:	//attendo btn CONTINUE
@@ -481,14 +484,71 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 20:
 		me.fase = 21;
-		pleaseWait_calibration_setText("Please enter the quantity, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
+		
+		//mostro le regolazioni per il varigrind
+		pleaseWait_calibration_varigrind_show();		
+		
+		pleaseWait_calibration_setText("When you're done, please enter the obtained quantity in grams, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
 		break;
 		
-	case 21: //attendo pressione di continue
+	case 21: //attendo pressione di continue per terminare, oppure GRIND AGAIN o SET per calibrare l'apertura del vgrind
+		
+		
+		//periodicamente, chiedo la posizione attuale della macina del VGrind
+		if (!me.amIAskingForVGrindPos)
+		{
+			console.log ("asking");
+			me.amIAskingForVGrindPos = 1;
+			rhea.ajax ("getPosMacina", {"m":(me.motor-10)}).then( function(result)
+			{
+				var obj = JSON.parse(result);
+				rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
+				if (uiStandAloneVarigringTargetPos.getValue() == 0)					
+					uiStandAloneVarigringTargetPos.setValue(obj.v)
+				me.amIAskingForVGrindPos = 0;
+			})
+			.catch( function(result)
+			{
+				me.amIAskingForVGrindPos = 0;
+			});		
+		}	
+		break;
+		
+		
+	case 25:	//qui ci andiamo se siamo in fase 21 e l'utente preme il btn SET per impostare una nuova apertura del VGrind
+		pleaseWait_calibration_setText("Please wait while the varigrind is adjusting its position"); //Please wait while the varigrind is adjusting its position
+		rhea.sendStartPosizionamentoMacina((me.motor-10), uiStandAloneVarigringTargetPos.getValue());
+		me.fase = 26;
+		break;
+		
+	case 26:	me.fase = 27; break;
+	case 27:	me.fase = 28; break;
+	case 28:
+		rhea.ajax ("getPosMacina", {"m":(me.motor-10)}).then( function(result)
+		{
+			var obj = JSON.parse(result);
+			rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
+			pleaseWait_calibration_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position  [current pos]
+		})
+		.catch( function(result)
+		{
+		});	
+		me.fase = 29;
+		break;	
+
+	case 29:
+		//a questo punto CPU dovrebbe essere in stato 102 e dovrebbe rimanerci fino a fine operazione
+		if (me.cpuStatus != 102 && me.cpuStatus != 101)
+		{
+			//ho finito, torno alla schermata dove è possibile macinare di nuovo, inputare i gr e calibrare il vgrind
+			me.fase = 20;
+		}
+		else
+			me.fase = 28;		
 		break;
 		
 	case 30:
@@ -500,6 +560,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 			break;
 		}
 		
+		pleaseWait_calibration_varigrind_hide();
 		pleaseWait_calibration_setText("Storing value ...");
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
@@ -1000,6 +1061,7 @@ TaskDevices.prototype.priv_queryMacina = function(macina_1o2)
 	{
 		var obj = JSON.parse(result);
 		rheaSetDivHTMLByName("pageDevices_vg" +macina_1o2, obj.v);
+		pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
 	})
 	.catch( function(result)
 	{

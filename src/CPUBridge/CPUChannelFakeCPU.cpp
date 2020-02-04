@@ -26,6 +26,8 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 
 	macine[1].reset();
 	macine[1].posizioneMacina = 100 + (u16)rhea::randomU32(100);
+
+	timeToEndTestSelezioneMSec = 0;
 }
 
 //*****************************************************************
@@ -263,8 +265,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 	case eCPUCommand_getExtendedConfigInfo:
 		{
 			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
+			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
 			out_answer[ct++] = '#';
 			out_answer[ct++] = cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
@@ -290,6 +292,26 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			{
 			default:
 				return false;
+
+			case eCPUProgrammingCommand_testSelezione:
+				if (timeToEndTestSelezioneMSec == 0)
+				{
+					timeToEndTestSelezioneMSec = rhea::getTimeNowMSec() + 8000;
+					VMCState = eVMCState_TEST_ATTUATORE_SELEZIONE;
+				}
+				
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = bufferToSend[4];
+				out_answer[ct++] = bufferToSend[5];
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+				break;
 
 			case eCPUProgrammingCommand_setTime:
 			case eCPUProgrammingCommand_setDate:
@@ -666,6 +688,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 //*****************************************************************
 void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {
+	//gestione fake del cleaning
 	if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
 	{
 		if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
@@ -699,6 +722,16 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 		}
 	}
 
+	//gestione fake del "test selezione"
+	if (VMCState == eVMCState_TEST_ATTUATORE_SELEZIONE)
+	{
+		if (rhea::getTimeNowMSec() > timeToEndTestSelezioneMSec)
+		{
+			timeToEndTestSelezioneMSec = 0;
+			VMCState = eVMCState_DISPONIBILE;
+		}
+	}
+	
 
 	u32 ct = 0;
 

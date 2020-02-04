@@ -83,6 +83,7 @@ namespace cpubridge
 		u64							timeToSwapCPUMsgMesc;
 		sCleaning					cleaning;
 		sMovimentoMacina			macine[2];
+		u64							timeToEndTestSelezioneMSec;
     };
 
 } // namespace cpubridge

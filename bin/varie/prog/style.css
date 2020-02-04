@@ -58,8 +58,8 @@ a:hover	{ text-decoration:none; outline: 0; }
 .UIButton 		{ padding:0; margin:3px 0 3px 0; border-radius:5px;  font-size:1.0em; line-height:auto; }
 .UIButton p 	{ display: table-cell; vertical-align:middle; margin:0; padding:3px; }
 
-.bigButton3x4 	{ border-radius:10px; font-size:1.4em; width:322px; height:106px; min-height:106px; max-height:106px; }
-.bigButton3x4 p { padding:10px; }
+.bigButton3x4 	{ border-radius:10px; font-size:1.4em; width:322px; max-width:322px; height:106px; min-height:106px; max-height:106px; }
+.bigButton3x4 p { padding:10px; max-width:302px; }
 
 .bigButton4x4 	{ border-radius:10px; font-size:1.3em; width:241px; height:106px; min-height:106px; max-height:106px; }
 
@@ -98,6 +98,8 @@ table.UIOption tr { border:0; vertical-align:middle;}
 table.UIOption td { margin:0; padding:0; text-align:center; }
 table.UIOption td div.UIButton { width:98%; border-radius:10px; font-size:1.3em;  }
 table.UIOption td div.UIButton p { padding:20px 0 20px 0; }
+table.UIOption.bigCaption10 td div.UIButton { width:98%; border-radius:10px; font-size:1.0em;  }
+
 
 table.UIOptionSmall { border:0; border-collapse:collapse; font-size:1.0em; width:100%; font-family: "MyFont"; color:#999999; }
 table.UIOptionSmall tr { border:0; vertical-align:middle;}
