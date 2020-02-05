@@ -369,7 +369,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		
 	case 20:
 		me.fase = 30;
-		pleaseWait_calibration_setText("Al termine, inserire la quantità in grammi ottenuta e poi premere CONTINUA"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("Al termine, inserire la quantità in grammi ottenuta dall'ultima macinata e poi premere CONTINUA"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUA");
@@ -488,7 +488,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		//mostro le regolazioni per il varigrind
 		pleaseWait_calibration_varigrind_show();		
 		
-		pleaseWait_calibration_setText("Al termine, inserire la quantità in grammi ottenuta e poi premere CONTINUA"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("Al termine, inserire la quantità in grammi ottenuta dall'ultima macinata e poi premere CONTINUA"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUA");
