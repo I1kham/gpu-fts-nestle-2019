@@ -501,7 +501,6 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		//periodicamente, chiedo la posizione attuale della macina del VGrind
 		if (!me.amIAskingForVGrindPos)
 		{
-			console.log ("asking");
 			me.amIAskingForVGrindPos = 1;
 			rhea.ajax ("getPosMacina", {"m":(me.motor-10)}).then( function(result)
 			{
