@@ -2666,7 +2666,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			memcpy(&msgLCD[msgLCDct], cpuStatus.LCDMsg.buffer, cpuStatus.LCDMsg.ct);
 			msgLCDct += cpuStatus.LCDMsg.ct/2;
 		}
-		msgLCD[msgLCDct++] = 0;
+		msgLCD[msgLCDct] = 0;
 
 		cpuStatus.LCDMsg.importanceLevel = 0xff;
 		bDoNotifyNewLCDMessage = true;
