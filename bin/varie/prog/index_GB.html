@@ -49,6 +49,17 @@
 					</table>
 					<br>
 				</div>
+				
+				<div id="pagePleaseWait_calibration_2">
+					<table border='0' cellspacing='0' cellpadding='0'>
+						<tr valign="middle">
+							<td>If you wish, you can grind again by pressing</td>
+							<td>&nbsp;&nbsp;</td>
+							<td><div id='pagePleaseWait_calibration_2_runMotor' class='UIButton bigButton60 actionButton' data-caption='RUN MOTOR AGAIN' data-onclick="pageCalibration_runMotorAgain()"></div></td>
+						</tr>
+					</table>
+					<hr>
+				</div>
 				<div id="pagePleaseWait_calibration_text"></div>
 				<div class="UINumber" id="pagePleaseWait_calibration_num" data-numfigures="4" data-decimal="1" data-max="9999" data-um="gr"></div>
 			</div>
@@ -80,8 +91,8 @@
 		</div>
 		<div class="clear"></div>
 		
-		<div id="divCurLang" style="position:absolute; top:0; left:0; width:150px; height:46px; z-index:50;">
-			<div style="padding-left:15px; display:none"><img src="img/flags/GB.png"></div>
+		<div id="divCurLang" style="position:absolute; top:0; left:0; width:150px; height:46px; z-index:50;" onclick="menuLang_show(1)">
+			<div style="padding-left:15px"><img src="img/flags/GB.png"></div>
 		</div>
 	</div>
 	
@@ -836,7 +847,7 @@
 										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
-											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
+											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
 											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
 										</td>
 									</tr>
@@ -890,7 +901,7 @@
 										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
-											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip">Last flux/position:<br>please click on <b>RUN SELECTION</b></b></div>
+											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></b></div>
 											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
 										</td>
 									</tr>
@@ -998,6 +1009,7 @@ function onRheaBootstrapFinished()
 	uiStandAloneVarigringTargetPos = ui.setupStandaloneNumber("pagePleaseWait_calibration_1_vg_target");
 	ui.setupStandaloneButton("pagePleaseWait_calibration_1_vg_set");
 	ui.setupStandaloneButton("pagePleaseWait_calibration_1_grind");
+	ui.setupStandaloneButton("pagePleaseWait_calibration_2_runMotor");
 	
 	pleaseWait_show();
 	pleaseWait_setTextLeft("Please wait ...");
@@ -1384,6 +1396,8 @@ function pleaseWait_calibration_num_getValue()			{ return uiStandAloneNum.getVal
 function pleaseWait_calibration_setText(s)				{ rheaSetDivHTMLByName("pagePleaseWait_calibration_text", s); }
 function pleaseWait_calibration_varigrind_show()		{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
 function pleaseWait_calibration_varigrind_hide()		{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
+function pleaseWait_calibration_motor_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_2")); }
+function pleaseWait_calibration_motor_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_2")); }
 
 /***************************************************************************
  *
@@ -2823,6 +2837,7 @@ function pageCalibration_reset(motor)
 
 function pageCalibration_start (motor)
 {
+	pleaseWait_show();
 	taskCalibMotor.startMotorCalib(motor);
 }
 
@@ -2847,6 +2862,15 @@ function pageCalibration_setVGrind()
 	pleaseWait_btn1_hide();
 	pleaseWait_calibration_setText("");
 	taskCalibMotor.fase = 25;
+}
+
+function pageCalibration_runMotorAgain()
+{
+	pleaseWait_calibration_motor_hide();
+	pleaseWait_calibration_num_hide();
+	pleaseWait_btn1_hide();
+	pleaseWait_calibration_setText("");
+	taskCalibMotor.fase = 0;
 }
 
 /***************************************************************************
@@ -3011,7 +3035,11 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 	}
 	else
 	{
-		var msg = "Last flux: " +flux +"<br>Last pos: " +pos;
+		//flux è di 3 cifre, con due decimali
+		var s = flux.toString();
+		while (s.length < 3) s = "0" +s;
+		s = s.substr(0,1) +"." +s.substr(1,2);
+		var msg = "Last flux: " +s +"<br>Last pos: " +pos;
 		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
 		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
 		rheaSetDisplayMode (elemBtnUse1, "table");

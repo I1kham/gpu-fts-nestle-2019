@@ -286,6 +286,9 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
 	this.impulsi = 0;
 	this.amIAskingForVGrindPos = 0;
 	
+	pleaseWait_calibration_varigrind_hide();
+	pleaseWait_calibration_motor_hide();
+	
 	this.what = 0;
 	if (motorIN == 11 || motorIN == 12)
 		this.what = 2;
@@ -369,6 +372,12 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		
 	case 20:
 		me.fase = 30;
+		
+		//mostro la riga che chiede se si vuole rifare il movimento del motore
+		pleaseWait_calibration_motor_show();
+		pleaseWait_calibration_varigrind_hide();		
+
+		
 		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT2"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
@@ -376,10 +385,11 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		pleaseWait_btn1_show();
 		break;
 		
-	case 30:
+	case 30: //attende che l'utente prema uno dei pulsanti visibili a video
 		break;
 		
 	case 40:
+		pleaseWait_calibration_motor_hide();
 		me.value = pleaseWait_calibration_num_getValue();
 		if (parseFloat(me.value) == 0)
 		{
@@ -486,6 +496,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.fase = 21;
 		
 		//mostro le regolazioni per il varigrind
+		pleaseWait_calibration_motor_hide();
 		pleaseWait_calibration_varigrind_show();		
 		
 		pleaseWait_calibration_setText("$TASK_CALIB_PLEASE_WAIT2"); //Please enter the quantity, then press CONTINUE
