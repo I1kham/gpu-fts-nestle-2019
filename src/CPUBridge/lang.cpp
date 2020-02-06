@@ -265,7 +265,7 @@ u16 lang_translate (sLanguage *lang, u16 *msgIN_OUT, int maxNumOfXCharInmsgIN_OU
                         {
                             msgIN_OUT[i-1] = LANG_PARAM_SEPARATOR;
 
-                            u16 secondMsg[LCD_BUFFER_SIZE_IN_U16];
+                            u16 secondMsg[MAX_LCD_BUFFER_SIZE_IN_U16];
                             int t = n - 5;
                             int ct = 0;
                             while (params[nParam][t] != 0x00)
@@ -274,7 +274,7 @@ u16 lang_translate (sLanguage *lang, u16 *msgIN_OUT, int maxNumOfXCharInmsgIN_OU
 
                             params[nParam][n - 5] = 0x00;
                             lang_translate(lang, msgIN_OUT, maxNumOfXCharInmsgIN_OUT);
-                            lang_translate(lang, secondMsg, LCD_BUFFER_SIZE_IN_U16-1);
+                            lang_translate(lang, secondMsg, MAX_LCD_BUFFER_SIZE_IN_U16 -1);
 
                             t = 0;
                             while (msgIN_OUT[t] != 0x00)

@@ -15,8 +15,8 @@ void CmdHandler_eventReqCPUMessage::onCPUBridgeNotification (socketbridge::Serve
 {
 	//rispondo con:
 	//1 byte per indicare il livello di importanza del msg
-	//2 byte per indicare la lunghezza in byte del messaggio in formato utf8
-	//n byte per il messaggio utf8
+	//2 byte per indicare la lunghezza in byte del messaggio in formato utf16
+	//n byte per il messaggio utf16
 
 	//NB: se modifichi questo, modifica anche rhea::app::CurrentCPUMessage::decodeAnswer()
 

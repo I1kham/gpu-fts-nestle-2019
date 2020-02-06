@@ -4,10 +4,14 @@
 #include "../rheaCommonLib/rheaBit.h"
 
 #define		NUM_MAX_SELECTIONS					48
+/*
 #define		_CPU_MSG_LCD_MAX_LEN_IN_BYTES		64
 #define		LCD_BUFFER_SIZE_IN_BYTES			(_CPU_MSG_LCD_MAX_LEN_IN_BYTES+4)
 #define		LCD_BUFFER_SIZE_IN_U16				(LCD_BUFFER_SIZE_IN_BYTES/2)
 #define		TRANSLATED_LCD_BUFFER_SIZE_IN_U16	(LCD_BUFFER_SIZE_IN_U16 + 16)
+*/
+
+#define		MAX_LCD_BUFFER_SIZE_IN_U16			120
 #define		VMCDATAFILE_BLOCK_SIZE_IN_BYTE		64
 #define		VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE	10048
 
@@ -389,9 +393,10 @@ namespace cpubridge
 	};
 
 
+
 	struct sCPULCDMessage
 	{
-		u16			buffer[TRANSLATED_LCD_BUFFER_SIZE_IN_U16];
+		u16			buffer[MAX_LCD_BUFFER_SIZE_IN_U16];
 		u16			ct;	//num di bytes "buffer" in msgLCG
 		u8			importanceLevel;
 	};

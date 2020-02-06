@@ -141,7 +141,7 @@ namespace cpubridge
 		u8						cpu_numDecimalsForPrices;
 		rhea::FastArray<sSubscription*>	subscriberList;
 		sLanguage				language;
-		u16						lastCPUMsg[LCD_BUFFER_SIZE_IN_U16];
+		u16						lastCPUMsg[MAX_LCD_BUFFER_SIZE_IN_U16];
 		u16						lastCPUMsgLen;
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;

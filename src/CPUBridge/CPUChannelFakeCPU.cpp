@@ -16,8 +16,9 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	memset(cpuMessage1, 0x00, sizeof(cpuMessage1));
 	memset(cpuMessage2, 0x00, sizeof(cpuMessage2));
 
-	sprintf_s(cpuMessage1, sizeof(cpuMessage1), "CPU message example 1");
-	sprintf_s(cpuMessage2, sizeof(cpuMessage2), "CPU message example 2");
+	//sprintf_s(cpuMessage1, sizeof(cpuMessage1), "CPU message example 1");
+	sprintf_s(cpuMessage1, sizeof(cpuMessage1), "x123456789 123456789 123456789 X");
+	sprintf_s(cpuMessage2, sizeof(cpuMessage2), "ABCDEFGHI ABCDEFGHI ABCDEFGHI AB");
 	curCPUMessage = cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;

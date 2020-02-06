@@ -19,6 +19,8 @@ Server::Server()
 	chToCPU = NULL;
 	logger = &nullLogger;
 
+	memset(cpuStringModelAndVersion, 0, sizeof(cpuStringModelAndVersion));
+
 	runningSel.selNum = 0;
 	runningSel.sub = NULL;
 	runningSel.stopSelectionWasRequested = 0;
@@ -892,6 +894,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						if (isUnicode)
 							len = 64;
 						memcpy(cpuStringModelAndVersion, &answerBuffer[5], len);
+
+						//trimmo a destra
+						len--;
+						while (cpuStringModelAndVersion[len] == ' ')
+							cpuStringModelAndVersion[len--] = 0x00;
 
 						if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL)
 						{
@@ -2473,7 +2480,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 
 
 	//messaggio testuale, può essere in ASCII o in unicode
-	u16	msgLCD[LCD_BUFFER_SIZE_IN_U16];
+	u16	msgLCD[MAX_LCD_BUFFER_SIZE_IN_U16];
 	u8 msgLCDct = 0;
 	u8 z = 11;
 	//64 bytes unicode di messaggio "testuale"
@@ -2485,7 +2492,6 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		else //answer[1] == 'Z'
 		{
 			msgLCD[msgLCDct] = (u16)answer[z] + (u16)answer[z + 1] * 256;
-			//msgLCD[msgLCDct] = (u16)answer[z+1] + (u16)answer[z] * 256;
 			z += 2;
 		}
 
@@ -2501,8 +2507,15 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 				msgLCD[msgLCDct++] = ' ';
 		}
 	}
-	assert(msgLCDct <= LCD_BUFFER_SIZE_IN_U16);
+	assert(msgLCDct <= MAX_LCD_BUFFER_SIZE_IN_U16);
 	msgLCD[msgLCDct] = 0;
+
+	//rtrim
+	while (msgLCD[msgLCDct] == ' ' || msgLCD[msgLCDct] == 0x00)
+		msgLCD[msgLCDct--] = 0x00;
+	msgLCDct++;
+	msgLCD[msgLCDct] = 0x00;
+	
 	
 	//1 bit per ogni selezione per indicare se la selezione è disponibile o no
 	//Considerando che NumMaxSelections=48, dovrebbero servire 6 byte
@@ -2564,8 +2577,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	if (cpuStatus.selAvailability.areAllNotAvail())
 		cpuStatus.LCDMsg.importanceLevel = 0xff;
 
-	
-	//Se sono nella modalità "mostra la stringa con cpu model and version" per tot secondi, faccio l'override del messaggio di CPU e
+	/*Se sono nella modalità "mostra la stringa con cpu model and version" per tot secondi, faccio l'override del messaggio di CPU e
 	//spedisco sempre e comunque il messagio con modello e versione
 	if (showCPUStringModelAndVersionUntil_msec)
 	{
@@ -2580,24 +2592,25 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		{
 			//versione unicode
 			for (u8 i = 0; i < 32; i++)
-				msgLCD[msgLCDct++] = (u16)cpuStringModelAndVersion[i*2] + (u16)cpuStringModelAndVersion[i*2 + 1] * 256;
+				msgLCD[msgLCDct++] = (u16)cpuStringModelAndVersion[i * 2] + (u16)cpuStringModelAndVersion[i * 2 + 1] * 256;
 		}
 		msgLCD[msgLCDct] = 0;
 		cpuStatus.LCDMsg.importanceLevel = 0xff;
 
 		if (rhea::getTimeNowMSec() >= showCPUStringModelAndVersionUntil_msec)
 			showCPUStringModelAndVersionUntil_msec = 0;
-	}
+	}*/
 
 	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato, devo notificare il nuovo messaggio a tutti
+	bool bDoNotifyNewLCDMessage = false;
 	msgLCDct *= 2;
 	if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCDct != lastCPUMsgLen || memcmp(msgLCD, lastCPUMsg, msgLCDct) != 0)
 	{
-		memcpy (lastCPUMsg, msgLCD, msgLCDct);
+		memcpy(lastCPUMsg, msgLCD, msgLCDct);
 		lastCPUMsgLen = msgLCDct;
 
 		cpuStatus.LCDMsg.ct = msgLCDct;
-		memcpy (cpuStatus.LCDMsg.buffer, msgLCD, msgLCDct);
+		memcpy(cpuStatus.LCDMsg.buffer, msgLCD, msgLCDct);
 
 		//lo traduco se necessario
 		if (isMultilangage)
@@ -2624,14 +2637,52 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 					while (cpuStatus.LCDMsg.buffer[t] == ' ')
 						cpuStatus.LCDMsg.buffer[t--] = 0x00;
 
-					cpuStatus.LCDMsg.ct = lang_translate (&language, cpuStatus.LCDMsg.buffer, TRANSLATED_LCD_BUFFER_SIZE_IN_U16 -1);
-					assert(cpuStatus.LCDMsg.ct < TRANSLATED_LCD_BUFFER_SIZE_IN_U16);
+					cpuStatus.LCDMsg.ct = lang_translate(&language, cpuStatus.LCDMsg.buffer, MAX_LCD_BUFFER_SIZE_IN_U16 - 1);
+					assert(cpuStatus.LCDMsg.ct < MAX_LCD_BUFFER_SIZE_IN_U16);
 					cpuStatus.LCDMsg.ct *= 2;
 				}
 			}
 		}
 
-		//notifico tutti
+		bDoNotifyNewLCDMessage = true;
+	}
+
+
+
+	//Se sono nella modalità "mostra la stringa con cpu model and version", per tot secondi prependo il nome modello all'attuale msg di CPU
+	if (showCPUStringModelAndVersionUntil_msec)
+	{
+		u8 len1 = (u8)strlen((const char*)cpuStringModelAndVersion);
+		msgLCDct = 0;
+		for (u8 i = 0; i < len1; i++)
+			msgLCD[msgLCDct++] = cpuStringModelAndVersion[i];
+
+		if (cpuStatus.LCDMsg.ct)
+		{
+			msgLCD[msgLCDct++] = ' ';
+			msgLCD[msgLCDct++] = '-';
+			msgLCD[msgLCDct++] = ' ';
+
+			memcpy(&msgLCD[msgLCDct], cpuStatus.LCDMsg.buffer, cpuStatus.LCDMsg.ct);
+			msgLCDct += cpuStatus.LCDMsg.ct/2;
+		}
+		msgLCD[msgLCDct++] = 0;
+
+		cpuStatus.LCDMsg.importanceLevel = 0xff;
+		bDoNotifyNewLCDMessage = true;
+		cpuStatus.LCDMsg.ct = msgLCDct * 2;
+		memcpy(cpuStatus.LCDMsg.buffer, msgLCD, cpuStatus.LCDMsg.ct);
+
+		if (rhea::getTimeNowMSec() >= showCPUStringModelAndVersionUntil_msec)
+			showCPUStringModelAndVersionUntil_msec = 0;
+	}
+
+
+
+
+	//se richiesto, notifico tutti del nuovo messaggio LCD di CPU
+	if (bDoNotifyNewLCDMessage)
+	{
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
 			notify_CPU_NEW_LCD_MESSAGE (subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
 	}
