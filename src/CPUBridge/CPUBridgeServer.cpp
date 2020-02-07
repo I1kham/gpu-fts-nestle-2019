@@ -2537,7 +2537,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 
 	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato, devo notificare il nuovo messaggio a tutti
 	bool bDoNotifyNewLCDMessage = false;
-    if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCD_len != lastCPUMsg_len || memcmp(utf16_msgLCD, utf16_lastCPUMsg, lastCPUMsg_len + 1) != 0)
+    if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCD_len != lastCPUMsg_len || memcmp(utf16_msgLCD, utf16_lastCPUMsg, lastCPUMsg_len*2 + 1) != 0)
 	{
 		memcpy(utf16_lastCPUMsg, utf16_msgLCD, (msgLCD_len + 1) * 2);
 		lastCPUMsg_len = msgLCD_len;
@@ -2585,6 +2585,8 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			if (cpuStatus.LCDMsg.utf16LCDString[0] != 0x0000)
 				rhea::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_spacer);
 			rhea::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_CPUMasterVersionString);
+            lastCPUMsg_len = rhea::utf16::length (cpuStatus.LCDMsg.utf16LCDString);
+            cpuStatus.LCDMsg.importanceLevel = 0xff;
 		}
 		else
 		{
@@ -2599,6 +2601,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 				rhea::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_CPUMasterVersionString);
 				bDoNotifyNewLCDMessage = true;
 				cpuStatus.LCDMsg.importanceLevel = 0xff;
+                lastCPUMsg_len = rhea::utf16::length (cpuStatus.LCDMsg.utf16LCDString);
 			}
 		}
 		

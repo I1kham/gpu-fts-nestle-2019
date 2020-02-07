@@ -235,7 +235,7 @@ void utf16::prepend (u16 *dst, u32 sizeOfDstInBytes, const u16* const strToPrepe
 	}
 
 	if (nBytesToShift)
-		memcpy(&dst[iStart/2], dst, nBytesToShift);
+        memmove(&dst[iStart/2], dst, nBytesToShift);
 
 	memcpy(dst, strToPrepend, lenPrepend * 2);
 
