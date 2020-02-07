@@ -2572,6 +2572,10 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 
 
     //Se sono nella modalità "mostra la stringa con cpu model and version", per tot secondi prependo il nome modello all'attuale msg di CPU
+	/*showCPUStringModelAndVersionUntil_msec = 10;
+	utf16_CPUMasterVersionString[0] = 0;
+	rhea::utf16::concatFromASCII(utf16_CPUMasterVersionString, sizeof(utf16_CPUMasterVersionString), "xxxxxxxxxTS30 02.03.00    GB-GB");
+	*/
 	if (showCPUStringModelAndVersionUntil_msec)
     {
 		const u16 utf16_spacer[] = { 0x0020, 0x002d, 0x0020, 0x0000 }; // è la stringa " - "
