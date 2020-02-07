@@ -2604,7 +2604,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato, devo notificare il nuovo messaggio a tutti
 	bool bDoNotifyNewLCDMessage = false;
 	msgLCDct *= 2;
-	if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCDct != lastCPUMsgLen || memcmp(msgLCD, lastCPUMsg, msgLCDct) != 0)
+    if (showCPUStringModelAndVersionUntil_msec>0 || prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCDct != lastCPUMsgLen || memcmp(msgLCD, lastCPUMsg, msgLCDct) != 0)
 	{
 		memcpy(lastCPUMsg, msgLCD, msgLCDct);
 		lastCPUMsgLen = msgLCDct;
@@ -2645,38 +2645,35 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		}
 
 		bDoNotifyNewLCDMessage = true;
-	}
 
+        //Se sono nella modalità "mostra la stringa con cpu model and version", per tot secondi prependo il nome modello all'attuale msg di CPU
+        if (showCPUStringModelAndVersionUntil_msec)
+        {
+            u8 len1 = (u8)strlen((const char*)cpuStringModelAndVersion);
+            msgLCDct = 0;
+            for (u8 i = 0; i < len1; i++)
+                msgLCD[msgLCDct++] = cpuStringModelAndVersion[i];
 
+            if (cpuStatus.LCDMsg.ct)
+            {
+                msgLCD[msgLCDct++] = ' ';
+                msgLCD[msgLCDct++] = '-';
+                msgLCD[msgLCDct++] = ' ';
 
-	//Se sono nella modalità "mostra la stringa con cpu model and version", per tot secondi prependo il nome modello all'attuale msg di CPU
-	if (showCPUStringModelAndVersionUntil_msec)
-	{
-		u8 len1 = (u8)strlen((const char*)cpuStringModelAndVersion);
-		msgLCDct = 0;
-		for (u8 i = 0; i < len1; i++)
-			msgLCD[msgLCDct++] = cpuStringModelAndVersion[i];
+                memcpy(&msgLCD[msgLCDct], cpuStatus.LCDMsg.buffer, cpuStatus.LCDMsg.ct);
+                msgLCDct += cpuStatus.LCDMsg.ct/2;
+            }
+            msgLCD[msgLCDct] = 0;
 
-		if (cpuStatus.LCDMsg.ct)
-		{
-			msgLCD[msgLCDct++] = ' ';
-			msgLCD[msgLCDct++] = '-';
-			msgLCD[msgLCDct++] = ' ';
+            cpuStatus.LCDMsg.importanceLevel = 0xff;
+            bDoNotifyNewLCDMessage = true;
+            cpuStatus.LCDMsg.ct = msgLCDct * 2;
+            memcpy(cpuStatus.LCDMsg.buffer, msgLCD, cpuStatus.LCDMsg.ct);
 
-			memcpy(&msgLCD[msgLCDct], cpuStatus.LCDMsg.buffer, cpuStatus.LCDMsg.ct);
-			msgLCDct += cpuStatus.LCDMsg.ct/2;
-		}
-		msgLCD[msgLCDct] = 0;
-
-		cpuStatus.LCDMsg.importanceLevel = 0xff;
-		bDoNotifyNewLCDMessage = true;
-		cpuStatus.LCDMsg.ct = msgLCDct * 2;
-		memcpy(cpuStatus.LCDMsg.buffer, msgLCD, cpuStatus.LCDMsg.ct);
-
-		if (rhea::getTimeNowMSec() >= showCPUStringModelAndVersionUntil_msec)
-			showCPUStringModelAndVersionUntil_msec = 0;
-	}
-
+            if (rhea::getTimeNowMSec() >= showCPUStringModelAndVersionUntil_msec)
+                showCPUStringModelAndVersionUntil_msec = 0;
+        }
+    }
 
 
 
