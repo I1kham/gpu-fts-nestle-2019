@@ -1,6 +1,7 @@
 #include "CPUChannelFakeCPU.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/rheaDateTime.h"
+#include "../rheaCommonLib//rheaUTF16.h"
 
 using namespace cpubridge;
 
@@ -13,13 +14,48 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	VMCState = eVMCState_DISPONIBILE;
 	memset(&runningSel, 0, sizeof(runningSel));
 
-	memset(cpuMessage1, 0x00, sizeof(cpuMessage1));
-	memset(cpuMessage2, 0x00, sizeof(cpuMessage2));
+	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
+	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
+	rhea::utf16::concatFromASCII (utf16_cpuMessage1, sizeof(utf16_cpuMessage1), "x123456789 123456789 123456789 X");
+	rhea::utf16::concatFromASCII (utf16_cpuMessage2, sizeof(utf16_cpuMessage2), "ABC"); //DEFGHI ABCDEFGHI ABCDEFGHI AB");
 
-	//sprintf_s(cpuMessage1, sizeof(cpuMessage1), "CPU message example 1");
-	sprintf_s(cpuMessage1, sizeof(cpuMessage1), "x123456789 123456789 123456789 X");
-	sprintf_s(cpuMessage2, sizeof(cpuMessage2), "ABCDEFGHI ABCDEFGHI ABCDEFGHI AB");
-	curCPUMessage = cpuMessage2;
+	//Det gør ondt her
+	{
+		u32 i = 0;
+		utf16_cpuMessage2[i++] = 0x0044;
+		utf16_cpuMessage2[i++] = 0x0065;
+		utf16_cpuMessage2[i++] = 0x0074;
+		utf16_cpuMessage2[i++] = 0x0020;
+		utf16_cpuMessage2[i++] = 0x0067;
+		utf16_cpuMessage2[i++] = 0x00f8;
+		utf16_cpuMessage2[i++] = 0x0072;
+		utf16_cpuMessage2[i++] = 0x0020;
+		utf16_cpuMessage2[i++] = 0x006f;
+		utf16_cpuMessage2[i++] = 0x006e;
+		utf16_cpuMessage2[i++] = 0x0064;
+		utf16_cpuMessage2[i++] = 0x0074;
+		utf16_cpuMessage2[i++] = 0x0020;
+		utf16_cpuMessage2[i++] = 0x0068;
+		utf16_cpuMessage2[i++] = 0x0065;
+		utf16_cpuMessage2[i++] = 0x0072;
+		utf16_cpuMessage2[i++] = 0x00;
+	}
+
+	//你是从哪里来的？
+	{
+		u32 i = 0;
+		utf16_cpuMessage2[i++] = 0x4f60;
+		utf16_cpuMessage2[i++] = 0x662f;
+		utf16_cpuMessage2[i++] = 0x4ece;
+		utf16_cpuMessage2[i++] = 0x54ea;
+		utf16_cpuMessage2[i++] = 0x91cc;
+		utf16_cpuMessage2[i++] = 0x6765;
+		utf16_cpuMessage2[i++] = 0x7684;
+		utf16_cpuMessage2[i++] = 0xff1f;
+		utf16_cpuMessage2[i++] = 0x00;
+	}
+
+	utf16_curCPUMessage = utf16_cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;
 	macine[0].reset();
@@ -61,16 +97,16 @@ void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
 {
 	if (timeNowMSec < timeToSwapCPUMsgMesc)
 		return;
-	timeToSwapCPUMsgMesc = timeNowMSec + 20000;
-	if (curCPUMessage == cpuMessage1)
+	timeToSwapCPUMsgMesc = timeNowMSec + 5000; //20000;
+	if (utf16_curCPUMessage == utf16_cpuMessage1)
 	{
 		curCPUMessageImportanceLevel = 0;
-		curCPUMessage = cpuMessage2;
+		utf16_curCPUMessage = utf16_cpuMessage2;
 	}
 	else
 	{
 		curCPUMessageImportanceLevel = 1;
-		curCPUMessage = cpuMessage1;
+		utf16_curCPUMessage = utf16_cpuMessage1;
 	}
 }
 
@@ -190,7 +226,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				else
 				{
-					//ok, � tempo di terminare la selezione
+					//ok, è tempo di terminare la selezione
 					bFinished = true;
 				}
 
@@ -412,23 +448,48 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 			case eCPUProgrammingCommand_getNomiLinguaCPU:
 			{
+				const char isUnicode = 1;
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
 				out_answer[ct++] = (u8)subcommand;
-				out_answer[ct++] = 0; //is unicode
+				out_answer[ct++] = isUnicode;
 
-				u8 i2 = ct;
-				for (u8 i = 0; i<64; i++)
-					out_answer[ct++] = ' ';
-				out_answer[i2] = 'E';
-				out_answer[i2+1] = 'N';
-				out_answer[i2+2] = '1';
+				if (!isUnicode)
+				{
+					u8 i2 = ct;
+					for (u8 i = 0; i < 64; i++)
+						out_answer[ct++] = ' ';
+					out_answer[i2] = 'E';
+					out_answer[i2 + 1] = 'N';
+					out_answer[i2 + 2] = '1';
 
-				i2 += 32;
-				out_answer[i2] = 'E';
-				out_answer[i2 + 1] = 'N';
-				out_answer[i2 + 2] = '2';
+					i2 += 32;
+					out_answer[i2] = 'E';
+					out_answer[i2 + 1] = 'N';
+					out_answer[i2 + 2] = '2';
+				}
+				else
+				{
+					const u8 startOfMsg1 = ct;
+					for (u8 i = 0; i < 64; i++)
+					{
+						out_answer[ct++] = ' ';
+						out_answer[ct++] = 0x00;
+					}
+
+					u8 i2= startOfMsg1;
+					out_answer[i2++] = 'E'; out_answer[i2++] = 0x00;
+					out_answer[i2++] = 'N'; out_answer[i2++] = 0x00;
+					out_answer[i2++] = '1'; out_answer[i2++] = 0x00;
+
+					//האלפבית העבר
+					{
+						const u16 utf16Seq[] = { 0x05d4, 0x05d0, 0x05dc, 0x05e4, 0x05d1, 0x05d9, 0x05ea, 0x0020, 0x05d4, 0x05e2, 0x05d1, 0x05e8, 0x0000 };
+						i2 = startOfMsg1 + 64;
+						rhea::utf16::utf16SequenceToU8Buffer_LSB_MSB(utf16Seq, &out_answer[i2], 64, false);
+					}
+				}
 
 				out_answer[2] = (u8)ct + 1;
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
@@ -742,7 +803,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	2		lunghezza in byte del messaggio
 	*/
 	out_answer[ct++] = '#';
-	out_answer[ct++] = 'B';
+	out_answer[ct++] = 'Z';
 	out_answer[ct++] = 0; //lunghezza
 
 	/*
@@ -777,9 +838,9 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	if (out_answer[1] == 'B')
 	{
 		memset(&out_answer[ct], 0x00, 32);
-		u32 n = (u32)strlen(curCPUMessage);
-		if (n)
-			memcpy(&out_answer[ct], curCPUMessage, n);
+		u32 n = (u32)rhea::utf16::length(utf16_curCPUMessage);
+		for (u32 i=0;i<n;i++)
+			out_answer[ct+i] = (u8)utf16_curCPUMessage[i];
 		ct += 32;
 	}
 	else
@@ -787,21 +848,21 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 		//11-74		32 unicode char col messaggio di stato
 		assert(ct == 11);
 		memset(&out_answer[ct], 0x00, 64);
-		for (u8 i = 0; i < 32; i++)
+
+		u32 n = (u32)rhea::utf16::length(utf16_curCPUMessage);
+		for (u8 i = 0; i < n; i++)
 		{
-			out_answer[ct++] = 0;
-			out_answer[ct++] = curCPUMessage[i];
-			if (curCPUMessage[i] == 0x00)
-				break;
+			out_answer[ct++] = (u8)(utf16_curCPUMessage[i] & 0x00FF);
+			out_answer[ct++] = (u8)((utf16_curCPUMessage[i] & 0xFF00) >> 8);
 		}
 
 		ct = 11 + 64;
 	}
 
 	/*
-	75		6 byte con lo stato di disponibilit� delle 48 selezioni
-	76		ATTENZIONE che il bit a zero significa che la selezione � disponibile, il bit
-	77		a 1 significa che NON � disponibile
+	75		6 byte con lo stato di disponibilità delle 48 selezioni
+	76		ATTENZIONE che il bit a zero significa che la selezione è disponibile, il bit
+	77		a 1 significa che NON è disponibile
 	78
 	79
 	80
@@ -856,13 +917,13 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 
 
 	//protocl version 4
-	//1 byte per indicare se btn prog � cliccato
+	//1 byte per indicare se btn prog è cliccato
 	out_answer[ct++] = 0;
 
 	//protocol version 5
 	//1 byte a mo' di 8 bit flag per usi futuri
 	out_answer[ct] = 0;
-	out_answer[ct] |= 0x01; //indica che CPU � pronta per fornire il data-audit
+	out_answer[ct] |= 0x01; //indica che CPU è pronta per fornire il data-audit
 	ct++;
 
 

@@ -76,9 +76,9 @@ namespace cpubridge
 		eVMCState					VMCState;
 		sRunningSel					runningSel;
 
-		char						cpuMessage1[33];
-		char						cpuMessage2[33];
-		const char					*curCPUMessage;
+		u16							utf16_cpuMessage1[33];
+		u16							utf16_cpuMessage2[33];
+		const u16					*utf16_curCPUMessage;
 		u8							curCPUMessageImportanceLevel;
 		u64							timeToSwapCPUMsgMesc;
 		sCleaning					cleaning;

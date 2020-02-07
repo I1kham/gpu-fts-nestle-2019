@@ -208,8 +208,8 @@ namespace cpubridge
 	void		notify_GET_LAST_FLUX_INFORMATION (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 lastFlux, u16 lastGrinderPosition);
 	void		translateNotify_GET_LAST_FLUX_INFORMATION(const rhea::thread::sMsg &msg, u16 *out_lastFlux, u16 *out_lastGrinderPosition);
 
-	void		notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool isUnicode, const u8 *msg);
-	void		translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread::sMsg &msg, bool *out_isUnicode, u8 *out_msg, u32 sizeOfOutMsg);
+	void		notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *utf16_msg);
+	void		translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread::sMsg &msg, u16 *out_utf16msg, u32 sizeOfOutUTF16MsgInBytes);
 
 	/***********************************************
 		ask_xxxx

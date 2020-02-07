@@ -42,7 +42,7 @@ namespace rhea
 
 		u8		oneUTF32ToUTF8(u32 utf32, u8 *out_utf8, u8 lenOfOutUTF8);
 					/* converte il carattere epresso in UTF32 in una sequenza UTF8. 
-						Potrebbere essere necessari fino a 4 byte per la codifica.
+						Potrebbero essere necessari fino a 4 byte per la codifica.
 						La fn ritorna 0 se [lenOfOutUTF8] non è suff a contenere l'intera codifica.
 						In caso di successo, ritorna il num di byte utilizzati per la conversione (ie, la lunghezza della seq messa in [out_utf8])
 					*/

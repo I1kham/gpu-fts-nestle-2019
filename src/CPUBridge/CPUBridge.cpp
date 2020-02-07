@@ -2,6 +2,7 @@
 #include "CPUBridgeServer.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/rheaNetBufferView.h"
+#include "../rheaCommonLib//rheaUTF16.h"
 
 struct sThreadInitParam
 {
@@ -1121,17 +1122,17 @@ void cpubridge::translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u1
 	out_strLingua1UTF16[0] = out_strLingua2UTF16[0] = 0x0000;
 	for (u8 i = 0; i < 32; i++)
 	{
+		out_strLingua1UTF16[i] = p[i];
 		if (p[i] == 0x0000)
 			break;
-		out_strLingua1UTF16[i] = p[i];
 	}
 
 	p += 33;
 	for (u8 i = 0; i < 32; i++)
 	{
+		out_strLingua2UTF16[i] = p[i];
 		if (p[i] == 0x0000)
 			break;
-		out_strLingua2UTF16[i] = p[i];
 	}
 }
 
@@ -1265,55 +1266,30 @@ void cpubridge::translateNotify_GET_LAST_FLUX_INFORMATION(const rhea::thread::sM
 }
 
 //***************************************************
-void cpubridge::notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool isUnicode, const u8 *msg)
+void cpubridge::notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *utf16_msg)
 {
 	logger->log("notify_CPU_STRING_VERSION_AND_MODEL\n");
 
-	u8 buffer[68];
-
-	if (isUnicode)
-	{
-		buffer[0] = 0x01;
-		memcpy(&buffer[1], msg, 64);
-		buffer[65] = 0x00;
-		buffer[66] = 0x00;
-		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 67);
-	}
-	else
-	{
-		buffer[0] = 0x00;
-		memcpy(&buffer[1], msg, 32);
-		buffer[33] = 0x00;
-		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, buffer, 34);
-	}
-
+	u32 n = rhea::utf16::length(utf16_msg);
+	if (n > 0)
+		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, utf16_msg, (n+1)*2);
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread::sMsg &msg, bool *out_isUnicode, u8 *out_msg, u32 sizeOfOutMsg)
+void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread::sMsg &msg, u16 *out_utf16msg, u32 sizeOfOutUTF16MsgInBytes)
 {
 	assert(msg.what == CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER);
-	const u8 *p = (const u8*)msg.buffer;
+	const u16 *p = (const u16*)msg.buffer;
 
-	u8 nToCopy;
-	if (p[0] == 0x00)
-	{
-		*out_isUnicode = false;
-		nToCopy = 33;
-	}
+	const u32 n = rhea::utf16::length(p);
+	const u32 nBytesNeeded = (n+1) * 2;
+	if (sizeOfOutUTF16MsgInBytes >= nBytesNeeded)
+		memcpy(out_utf16msg, p, nBytesNeeded);
 	else
 	{
-		*out_isUnicode = true;
-		nToCopy = 66;
+		memcpy(out_utf16msg, p, sizeOfOutUTF16MsgInBytes);
+		out_utf16msg[(sizeOfOutUTF16MsgInBytes / 2) - 1] = 0;
 	}
-
-	if (sizeOfOutMsg >= nToCopy)
-		memcpy(out_msg, &p[1], nToCopy);
-	else
-	{
-		out_msg[0] = out_msg[1] = 0x00;
-	}
-
 
 }
 

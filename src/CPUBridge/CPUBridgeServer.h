@@ -141,13 +141,13 @@ namespace cpubridge
 		u8						cpu_numDecimalsForPrices;
 		rhea::FastArray<sSubscription*>	subscriberList;
 		sLanguage				language;
-		u16						lastCPUMsg[MAX_LCD_BUFFER_SIZE_IN_U16];
-		u16						lastCPUMsgLen;
+		u16						utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
+		u16						lastCPUMsg_len;
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;
 		sRegolazioneAperturaMacina regolazioneAperturaMacina;
 
-		u8						cpuStringModelAndVersion[68];
+		u16						utf16_CPUMasterVersionString[34];
 		u64						showCPUStringModelAndVersionUntil_msec;
     };
 
