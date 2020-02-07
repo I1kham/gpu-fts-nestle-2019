@@ -310,10 +310,16 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     {
     case CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER:
         {
-            bool isUnicode = false;
-            char s[256];
-            cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, &isUnicode, (u8*)s, sizeof(s));
-            QString sss = s;
+            u16  s[64];
+            cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, s, sizeof(s));
+
+            QString sss ="";
+            u32 i=0;
+            while (s[i] != 0x00)
+            {
+                sss += QChar(s[i]);
+                i++;
+            }
             sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " ");
             sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " "); sss.replace("  ", " ");
             ui->labVersion_CPUMasterName->setText(sss);
@@ -372,8 +378,11 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::translateNotify_CPU_NEW_LCD_MESSAGE(msg, &cpuMsg);
 
             u32 i=0;
-            for (; i< cpuMsg.ct; i++)
-                msgCPU[i] = cpuMsg.buffer[i];
+            while (cpuMsg.utf16LCDString[i] != 0x00)
+            {
+                msgCPU[i] = cpuMsg.utf16LCDString[i];
+                i++;
+            }
             msgCPU[i] = 0;
             ui->labCPUMessage->setText(QString(msgCPU, -1));
         }

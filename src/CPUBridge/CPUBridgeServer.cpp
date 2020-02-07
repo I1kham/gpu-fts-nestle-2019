@@ -2537,7 +2537,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 
 	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato, devo notificare il nuovo messaggio a tutti
 	bool bDoNotifyNewLCDMessage = false;
-	if (showCPUStringModelAndVersionUntil_msec > 0 || prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCD_len != lastCPUMsg_len || memcmp(utf16_msgLCD, utf16_lastCPUMsg, lastCPUMsg_len + 1) != 0)
+    if (prevMsgLcdCPUImportanceLevel != cpuStatus.LCDMsg.importanceLevel || msgLCD_len != lastCPUMsg_len || memcmp(utf16_msgLCD, utf16_lastCPUMsg, lastCPUMsg_len + 1) != 0)
 	{
 		memcpy(utf16_lastCPUMsg, utf16_msgLCD, (msgLCD_len + 1) * 2);
 		lastCPUMsg_len = msgLCD_len;

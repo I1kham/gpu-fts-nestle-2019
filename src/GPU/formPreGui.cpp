@@ -155,8 +155,11 @@ void FormPreGui::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             cpubridge::translateNotify_CPU_NEW_LCD_MESSAGE(msg, &cpuMsg);
 
             u32 i=0;
-            for (; i< cpuMsg.ct; i++)
-                msgCPU[i] = cpuMsg.buffer[i];
+            while (cpuMsg.utf16LCDString[i] != 0x00)
+            {
+                msgCPU[i] = cpuMsg.utf16LCDString[i];
+                i++;
+            }
             msgCPU[i] = 0;
             ui->labCPUMessage->setText(QString(msgCPU, -1));
         }
