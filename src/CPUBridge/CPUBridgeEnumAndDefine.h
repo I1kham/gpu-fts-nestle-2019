@@ -57,6 +57,8 @@
 #define		CPUBRIDGE_NOTITFY_GET_OFF_REPORT				0x0123
 #define		CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION		0x0124
 #define		CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER	0x0125
+#define		CPUBRIDGE_NOTITFY_CPU_START_MODEM_TEST			0x0126
+#define		CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS			0x0127
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -111,6 +113,9 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL		0x082B
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_STR_VERSION_AND_MODEL	0x082C
 #define		CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC						0x082D
+#define		CPUBRIDGE_SUBSCRIBER_ASK_START_MODEM_TEST				0x082E
+#define		CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_TOTALS				0x082F
+
 
 namespace cpubridge
 {
@@ -169,6 +174,7 @@ namespace cpubridge
 		eVMCState_DATA_AUDIT = 18,
         eVMCState_LAVAGGIO_SANITARIO = 20,
 		eVMCState_TEST_ATTUATORE_SELEZIONE = 21,
+		eVMCState_TEST_MODEM = 22,
 		
 		eVMCState_COM_ERROR     = 101,
 		eVMCState_REG_APERTURA_MACINA = 102,
@@ -251,6 +257,8 @@ namespace cpubridge
 		//CPU EVENTS report details = 0x19 non implementato
 		eCPUProgrammingCommand_getLastFluxInformation = 0x1A,
 		eCPUProgrammingCommand_getStringVersionAndModel = 0x1B,
+		eCPUProgrammingCommand_startModemTest = 0x1C,
+		eCPUProgrammingCommand_EVAresetTotals = 0x1D,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

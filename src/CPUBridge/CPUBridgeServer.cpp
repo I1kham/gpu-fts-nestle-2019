@@ -795,6 +795,16 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_TOTALS:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_EVAresetTotals(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+					notify_CPU_EVA_RESET_TOTALS(sub->q, handlerID, logger);
+			}
+			break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP:
 			{
 				u8 bufferW[16];
@@ -896,6 +906,17 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						}
 					}
 				}
+			}
+			break;
+
+		
+		case CPUBRIDGE_SUBSCRIBER_ASK_START_MODEM_TEST:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_startModemTest(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+					notify_CPU_START_MODEM_TEST(sub->q, handlerID, logger);
 			}
 			break;
 

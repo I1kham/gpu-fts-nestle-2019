@@ -305,6 +305,13 @@ u8 cpubridge::buildMsg_EVAresetPartial(u8 *out_buffer, u8 sizeOfOutBuffer)
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_EVAresetTotals(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_EVAresetTotals, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 u8 cpubridge::buildMsg_getVoltAndTemp(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	return buildMsg_Programming(eCPUProgrammingCommand_getVoltAndTemp, NULL, 0, out_buffer, sizeOfOutBuffer);
@@ -330,7 +337,11 @@ u8 cpubridge::buildMsg_getCPUStringVersionAndModel(u8 *out_buffer, u8 sizeOfOutB
 	return buildMsg_Programming(eCPUProgrammingCommand_getStringVersionAndModel, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
-
+//***************************************************
+u8 cpubridge::buildMsg_startModemTest(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_startModemTest, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -1293,6 +1304,19 @@ void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread:
 
 }
 
+//***************************************************
+void cpubridge::notify_CPU_START_MODEM_TEST(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_CPU_START_MODEM_TEST\n");
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_CPU_START_MODEM_TEST, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::notify_CPU_EVA_RESET_TOTALS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_CPU_EVA_RESET_TOTALS\n");
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS, handlerID, NULL, 0);
+}
 
 //***************************************************
 void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
@@ -1657,6 +1681,12 @@ void cpubridge::ask_CPU_DA3SYNC(const sSubscriber &from)
 
 
 //***************************************************
+void cpubridge::ask_CPU_START_MODEM_TEST(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_MODEM_TEST, handlerID, NULL, 0);
+}
+
+//***************************************************
 void cpubridge::ask_CPU_SET_TIME(const sSubscriber &from, u16 handlerID, u8 hh, u8 mm, u8 ss)
 {
 	u8 otherData[4];
@@ -1801,7 +1831,11 @@ void cpubridge::ask_CPU_EVA_RESET_PARTIALDATA(const sSubscriber &from, u16 handl
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA, handlerID, NULL, 0);
 }
 
-
+//***************************************************
+void cpubridge::ask_CPU_EVA_RESET_TOTALS(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_TOTALS, handlerID, NULL, 0);
+}
 
 
 

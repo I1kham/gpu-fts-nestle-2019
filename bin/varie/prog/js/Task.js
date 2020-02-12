@@ -910,7 +910,14 @@ TaskDevices.prototype.runSelection = function(selNum)
 	pleaseWait_show();
 }
 
-TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
+TaskDevices.prototype.runModemTest = function()
+{	
+	this.what = 3;
+	this.fase = 0;
+	pleaseWait_show();
+}
+
+TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft(statusStr +" [" +statusID +"]"); }
 TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 {
@@ -947,6 +954,8 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 		this.priv_handleRegolazionePosizioneMacina();
 	else if (this.what == 2)
 		this.priv_handleRunSelection(timeNowMsec);
+	else if (this.what == 3)
+		this.priv_handleModemTest(timeNowMsec);
 }
 
 TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
@@ -1077,6 +1086,67 @@ TaskDevices.prototype.priv_queryMacina = function(macina_1o2)
 	{
 	});			
 }
+
+
+TaskDevices.prototype.priv_handleModemTest = function(timeNowMsec)
+{
+	var me = this;
+	switch (me.fase)
+	{
+	case 0:
+		pleaseWait_freeText_setText ("Modem test is starting...");
+		pleaseWait_freeText_show();
+		me.fase = 1;
+		rhea.ajax ("startModemTest", "" ).then( function(result)
+		{
+			if (result == "OK")
+				me.fase = 10;
+			else
+				me.fase = 90;
+		})
+		.catch( function(result)
+		{
+			me.fase = 90;
+		});			
+		break;
+
+
+	case 1:
+		//sono in attesa della risposta al comando "startModemTest"
+		break;
+		
+	case 10:
+		//ho ricevuto l'OK dal comando startModemTest. La CPU dovrebbe andare in stato 22 e rimanerci fino alla fine
+		//della procedura di test
+		//Aspetto un paio di secondi per dare tempo alla CPU di cambiare di stato
+		pleaseWait_freeText_setText ("Modem test is running, please wait...");
+		me.timeStartedMSec = timeNowMsec;
+		me.fase = 11;
+		break;
+		
+	case 11:
+		//aspetto un paio di secondi
+		if ((timeNowMsec - me.timeStartedMSec) >= 2000)
+			me.fase = 20;
+		break;
+		
+	case 20:
+		//monitoro lo stato di cpu per capire quando questa esce da 22 (test_modem)
+		if (me.cpuStatus != 22 && me.cpuStatus != 101 && me.cpuStatus != 105)
+		{
+			pleaseWait_freeText_setText ("Modem test finished");
+			me.fase = 90;
+		}
+		break;
+		
+	case 90: //fine
+		pleaseWait_hide();
+		me.what = 0;
+		break;
+	}
+	
+}
+
 
 /**********************************************************
  * TaskDisintall
@@ -1314,6 +1384,72 @@ function TaskDataAudit_load_onEnd (theTask, reasonRefused, obj)
 	for (var i=0; i<obj.fileSize; i++)
 		theTask.buffer[i] = obj.fileBuffer[i];
 	theTask.fase = 210;
+}
+
+
+/********************************************************
+ * TaskDAResetTotals
+ */
+function TaskDAResetTotals()
+{
+	this.fase = 0;	
+}
+TaskDAResetTotals.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{}
+TaskDAResetTotals.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskDAResetTotals.prototype.onFreeBtn1Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); if (this.fase==11) this.fase = 20;}
+TaskDAResetTotals.prototype.onFreeBtn2Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 90;}
+TaskDAResetTotals.prototype.onFreeBtnTrickClicked= function(ev)							{}
+TaskDAResetTotals.prototype.onExit				= function(bSave)						{ return bSave; }
+TaskDAResetTotals.prototype.onTimer = function(timeNowMsec)
+{
+	var me = this;
+	switch (this.fase)
+	{
+	case 0:
+		this.fase = 1;
+		pleaseWait_freeText_setText("WARNING: This procedure will RESET all EVADTS total counters.<br>It is highly recommended NOT to do this operation.<br><br>If you're sure you know what you're doing, click RESET ALL TOTAL COUNTERS button, otherwise click CANCEL");
+		pleaseWait_freeText_show();
+		
+		pleaseWait_btn1_hide();
+		pleaseWait_btn2_setText("CANCEL");
+		pleaseWait_btn2_show();
+		break;
+		
+	//aspetto qualche secondo prima di far vedere il bt "RESET ALL TOTAL"
+	case 1: this.fase=2; break;
+	case 2: this.fase=3; break;
+	case 3: this.fase=4; break;
+	case 4: this.fase=5; break;
+	case 5: this.fase=10; break;
+	
+	case 10:
+		this.fase = 11;
+		pleaseWait_btn1_setText("RESET ALL TOTAL COUNTERS");
+		pleaseWait_btn1_show();
+		break;
+		
+	case 11: //attendo pressione di btn1 o 2
+		break;
+		
+	case 20:
+		//ho premuto btn1
+		this.fase = 90;
+		rhea.ajax ("EVArstTotals", "")
+			.then( function(result) 
+			{
+				me.fase = 90;
+			})
+			.catch( function(result)
+			{
+				me.fase = 90;				
+			});
+		break;
+	
+	case 90:
+		this.fase = 99;
+		pageDataAudit_showSecretDaResetButtonWindow_finished();
+		break;
+	}
 }
 
 

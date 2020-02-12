@@ -788,6 +788,7 @@
 						<tr><td>DRIPTRAY DETECTION</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7092' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_cofSensor"><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ENABLED|0|DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
 						<tr><td>CUP SENSOR THRESHOLD</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
+						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startModemTest()"></div></td></tr>
 					</table>
 				</div>
 
@@ -936,6 +937,9 @@
 							<td><div class='UIButton actionButton' data-caption='RESET PARTIAL DATA' data-onclick="pageDataAudit_resetPartialData()"></div></td>
 						</tr>
 					</table>
+					
+					<!-- bottone segreto per fare il reset dei totali dei dati audit. Va cliccato 5/6 volte ripetutamente -->
+					<div id="divSecretDAResetButton" style="position:absolute; top:410px; left:910px; width:110px; height:90px; background-color:#f00">&nbsp;</div>
 				</div>
 			</div>
 		</div> <!-- page DataAudit -->
@@ -973,7 +977,8 @@
 <script src="js/UIButtonSel.js"></script>
 <script src="js/UITime24.js"></script>
 <script src="js/UISelect.js"></script>
-<script src="js/Task_GB.js"></script>
+<!--<script src="js/Task_GB.js"></script>-->
+<script src="js/Task.js"></script>
 
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
@@ -3095,6 +3100,10 @@ function pageDevices_setVGrind (macina1o2)
 	currentTask.enterSetMacinaPos(macina1o2, target);
 }
 
+function pageDevices_startModemTest()
+{
+	currentTask.runModemTest();
+}
 
 /***************************************************************************
  *
@@ -3102,11 +3111,30 @@ function pageDevices_setVGrind (macina1o2)
  *
  */
 var taskResetEVA = new TaskResetEVA();
+var pageDA_secretBtnCounter = 0;
+var pageDA_secretBtnLastTimeClickedMSec=0;
 function pageDataAudit_show()
 {
 	if (showPage("pageDataAudit"))
 	{
 		pageDataAudit_downloadEVA();
+		
+		var node = document.getElementById("divSecretDAResetButton");		
+		node.addEventListener("mousedown", function (ev)
+		{
+			var timeNowMSec = ev.timeStamp;
+			if (timeNowMSec - pageDA_secretBtnLastTimeClickedMSec > 1000)
+				pageDA_secretBtnCounter = 0;
+			pageDA_secretBtnLastTimeClickedMSec = timeNowMSec;
+			pageDA_secretBtnCounter++;
+			console.log ("pageDA_secretBtnCounter[" +pageDA_secretBtnCounter +"]");
+			if (pageDA_secretBtnCounter >= 6)
+			{
+				pageDA_secretBtnCounter=0;
+				setTimeout (function(){pageDataAudit_showSecretDaResetButtonWindow();}, 100);
+			}
+		}, 
+		true);
 	}
 	
 	pageDataAudit_onSelector();
@@ -3116,7 +3144,17 @@ function pageDataAudit_show()
 	rheaHideElem(rheaGetElemByID("btnSave"));
 }
 
+function pageDataAudit_showSecretDaResetButtonWindow()
+{
+	pleaseWait_show();
+	currentTask = new TaskDAResetTotals();
+}
 
+function pageDataAudit_showSecretDaResetButtonWindow_finished()
+{
+	pleaseWait_hide();
+	currentTask = voidTask;
+}
 
 function toCurrency (numberIN, numDecimali)
 {

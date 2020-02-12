@@ -13,6 +13,8 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
 	VMCState = eVMCState_DISPONIBILE;
 	memset(&runningSel, 0, sizeof(runningSel));
+	memset(&cleaning, 0, sizeof(cleaning));
+	memset(&testModem, 0, sizeof(testModem));
 
 	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
 	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
@@ -81,8 +83,6 @@ bool CPUChannelFakeCPU::open(rhea::ISimpleLogger *logger)
 	logger->incIndent();
 	logger->log("OK\n");
 	logger->decIndent();
-
-	memset(&cleaning, 0, sizeof(cleaning));
 	return true;
 }
 
@@ -652,6 +652,17 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
+			case eCPUProgrammingCommand_EVAresetTotals:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
 			case eCPUProgrammingCommand_getVoltAndTemp:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
@@ -739,6 +750,19 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
+			case eCPUProgrammingCommand_startModemTest:
+				//fingo un modem test. CPU deve andare in stato TEST_MODEM(22) e rimanerci per un po' di tempo
+				testModem.timeToEndMSec = rhea::getTimeNowMSec() + 5000;
+
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
 
 			} //switch (subcommand)
 		}
@@ -790,6 +814,17 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 		if (rhea::getTimeNowMSec() > timeToEndTestSelezioneMSec)
 		{
 			timeToEndTestSelezioneMSec = 0;
+			VMCState = eVMCState_DISPONIBILE;
+		}
+	}
+
+	//gestione fake del "test modem"
+	if (testModem.timeToEndMSec > 0)
+	{
+		VMCState = eVMCState_TEST_MODEM;
+		if (rhea::getTimeNowMSec() >= testModem.timeToEndMSec)
+		{
+			testModem.timeToEndMSec = 0;
 			VMCState = eVMCState_DISPONIBILE;
 		}
 	}

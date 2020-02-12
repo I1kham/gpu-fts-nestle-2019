@@ -77,6 +77,8 @@ namespace cpubridge
 					//indexNum >=0 <=19
 	u8			buildMsg_getLastFluxInformation(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getCPUStringVersionAndModel(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_startModemTest(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_EVAresetTotals(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 
@@ -210,6 +212,10 @@ namespace cpubridge
 
 	void		notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *utf16_msg);
 	void		translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread::sMsg &msg, u16 *out_utf16msg, u32 sizeOfOutUTF16MsgInBytes);
+
+	void		notify_CPU_START_MODEM_TEST(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
+	void		notify_CPU_EVA_RESET_TOTALS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 
 	/***********************************************
 		ask_xxxx
@@ -381,11 +387,16 @@ namespace cpubridge
 	void		ask_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_STRING_VERSION_AND_MODEL
 
-
 	void		ask_CPU_DA3SYNC(const sSubscriber &from);
 					//Si richiede la sincronizzazione del file DA3 tra CPU e SMU
 					//Alla ricezione di questo messaggio, lo stato di SMU passerà in eVMCState_DA3_SYNC e ci rimarrà fino alla fine
 					//delle operazioni. Quando lo stato diventa != da DA3_SYNC, siamo sicuro che il da3 locale è aggiornato a quello della CPU
+
+	void		ask_CPU_START_MODEM_TEST(const sSubscriber &from, u16 handlerID);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_START_MODEM_TEST
+
+	void		ask_CPU_EVA_RESET_TOTALS(const sSubscriber &from, u16 handlerID);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_EVA_RESET_TOTALS
 
 } // namespace cpubridge
 

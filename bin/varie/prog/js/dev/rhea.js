@@ -340,6 +340,7 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						case 15: statusStr ="END DISINSTALLATION"; break;
 						case 20: statusStr ="SAN WASHING"; break;
 						case 21: statusStr ="TEST SEL"; break;
+						case 22: statusStr ="TEST MODEM"; break;
 						case 101: statusStr ="COM_ERROR"; break;
 						case 102: statusStr ="GRINDER OPENING"; break;
 					}

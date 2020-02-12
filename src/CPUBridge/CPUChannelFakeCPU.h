@@ -66,6 +66,11 @@ namespace cpubridge
 			}
 		};
 
+		struct sTestModem
+		{
+			u64	timeToEndMSec;
+		};
+
 	private:
 		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
 		void					priv_updateCPUMessageToBeSent (u64 timeNowMSec);
@@ -83,6 +88,7 @@ namespace cpubridge
 		u64							timeToSwapCPUMsgMesc;
 		sCleaning					cleaning;
 		sMovimentoMacina			macine[2];
+		sTestModem					testModem;
 		u64							timeToEndTestSelezioneMSec;
     };
 
