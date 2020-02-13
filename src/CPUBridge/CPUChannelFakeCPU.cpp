@@ -302,8 +302,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 	case eCPUCommand_getExtendedConfigInfo:
 		{
 			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
+			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
 			out_answer[ct++] = '#';
 			out_answer[ct++] = cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
@@ -511,8 +511,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				else
 				{
-					out_answer[ct++] = 100;
-					out_answer[ct++] = 1;
+					const u16 impulsi = (u16)(50 + rhea::randomU32(200));
+					out_answer[ct++] = (u8)(impulsi & 0x00FF);
+					out_answer[ct++] = (u8)((impulsi & 0xFF00) >> 8);
 				}
 
 				out_answer[2] = (u8)ct + 1;

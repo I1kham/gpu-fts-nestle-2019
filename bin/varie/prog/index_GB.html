@@ -41,7 +41,7 @@
 							</td>
 							<td style="width:34%" align="center">
 								<div style="float:left; margin-right:10px"><br>desired value</div>
-								<div style="float:left;"><div class="UINumber" id="pagePleaseWait_calibration_1_vg_target" data-numfigures="3" data-max="470"></div></dv>
+								<div style="float:left;"><div class="UINumber" id="pagePleaseWait_calibration_1_vg_target" data-numfigures="3" data-max="520"></div></div>
 								<div class="clear"></div>
 							</td>
 							<td style="width:33%" align="center"><div id='pagePleaseWait_calibration_1_vg_set' class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageCalibration_setVGrind()"></div></td>
@@ -81,7 +81,7 @@
 		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="javascript:UISelect_hideFullPage()"></div>
 	</div>
 			
-	<!-- page Main menu -->
+	<!-- header -->
 	<div class="header">
 		<div id="divHeaderC" class="header_C"></div>
 		<div class="header_R colorGrey">
@@ -94,7 +94,7 @@
 		<div id="divCurLang" style="position:absolute; top:0; left:0; width:150px; height:46px; z-index:50;" onclick="menuLang_show(1)">
 			<div style="padding-left:15px"><img src="img/flags/GB.png"></div>
 		</div>
-	</div>
+	</div> <!-- header -->
 	
 	<div id="divMenuLang">
 		<div style="padding:10px">
@@ -134,28 +134,13 @@
 						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center">
-							<!--<div class="UIButton bigButton3x4" data-caption="SW VERSION" data-onclick="pageSWVersion_show()"></div>-->
-						</td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="ESPRESSO CALIBRATION (beta)" data-onclick="pageExpCalib_show()"></div></td>
 						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
 					</tr>
 				</table>
 			</div>
 		</div><!--- page Main Menu -->
-		
-		<!-- page pageSWVersion -->
-		<div id="pageSWVersion" class="UIWindow">
-			<div class="UIWindowContent">
-				<table border='0' class='elenco'>	
-					<tr valign='middle'><td style='width:230px'>CPU VERSION</td><td><div class='bigCaption10' id="pageSWVersion_cpuV"></div></td></tr>
-					<tr valign='middle'><td>CPU MODEL</td><td><div class='bigCaption10' id="pageSWVersion_cpuM"></div></td></tr>
-					<tr valign='middle'><td>GPU VERSION</td><td><div class='bigCaption10' id="pageSWVersion_gpuV"></div></td></tr>
-					<tr valign='middle'><td>GPU BUILD DATE</td><td><div class='bigCaption10' id="pageSWVersion_gpuB"></div></td></tr>
-				</table>
-				<br>
-			</div>
-		</div><!-- pageSWVersion -->
 		
 		<!-- page Maintenance -->
 		<div id="pageMaintenance" class="UIWindow">
@@ -271,7 +256,7 @@
 					</tr>	
 				</table>
 			</div>
-		</div>
+		</div> <!-- page Cleaning -->
 	
 		<!-- page pageMiscellaneous -->
 		<div id="pageMiscellaneous" class="UIWindow">
@@ -352,13 +337,13 @@
 						<tr id="pageMiscellaneous_fv_r1">
 							<td>START FREEVEND NOW<br><span class="tip">It will last for the indicated<br>num. of hours</span></td>
 							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="hours"></div></td>
-							<td align="right"><div class='UIButton actionButton' data-caption='START NOW' data-onclick="pageMiscellaneous_startFVNow()"></div></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='START NOW' data-onclick="pageMiscellaneous_startFVNow()"></div></td>
 						</tr>
 						
 						<tr id="pageMiscellaneous_fv_r2">
 							<td>FREEVEND IS NOW <b style='color:#fff'>RUNNING</b></td>
 							<td align="center"><div id="pageMiscellaneous_fvDateEnd"></div></td>
-							<td align="right"><div class='UIButton actionButton' data-caption='STOP IT NOW' data-onclick="pageMiscellaneous_stopFVNow()"></div></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='STOP IT NOW' data-onclick="pageMiscellaneous_stopFVNow()"></div></td>
 						</tr>
 						
 					</table>
@@ -381,7 +366,7 @@
 						<tr>
 							<td>TIME</td>
 							<td colspan="3"><div class="UITime24" id="pageClock_time"></div></td>
-							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setTime()"></div></div></td>
+							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setTime()"></div></td>
 						</tr>
 						
 						<tr>
@@ -389,7 +374,7 @@
 							<td><div id="pageClock_dd" class="UINumber" data-numfigures="2" data-max="31" data-min="1" data-um='day'></div></td>
 							<td><div id="pageClock_mm" class="UINumber" data-numfigures="2" data-max="12" data-min="1" data-um='month'></div></td>
 							<td><div id="pageClock_yy" class="UINumber" data-numfigures="4" data-max="2050" data-min="2017" data-um='year'></div></td>
-							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setDate()"></div></div></td>
+							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setDate()"></div></td>
 						</tr>
 						
 						
@@ -462,7 +447,7 @@
 						<td><div class="UINumber" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
 					</tr>
 					<tr>
-						<td>RINSING PERIOD<br><span class="tip">max 900</span></td></td>
+						<td>RINSING PERIOD<br><span class="tip">max 900</span></td>
 						<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 					</tr>
 					<tr>
@@ -470,7 +455,7 @@
 						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7622"></div></td>
 					</tr>
 					<tr>
-						<td>RINSE DELAY<br><span class="tip">max 10.0</span></td></td>
+						<td>RINSE DELAY<br><span class="tip">max 10.0</span></td>
 						<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
 					</tr>
 					<tr>
@@ -484,8 +469,7 @@
 					<tr>
 						<td>AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
 						<td colspan="3"><div id="pageMilker_time1" class="UITime24" data-da3="7468"></div></td>
-					</tr>					
-					
+					</tr>
 				</table>
 			</div>
 		</div><!-- page Milker -->
@@ -510,9 +494,7 @@
 		<!-- pageSingleSelection -->
 		<div id="pageSingleSelection" class="UIWindow">
 			<div class="UIWindowContent">
-				
 				<div id="pageSingleSelection_selectorAtTop"></div>
-				
 				<br>
 				<div id="pageSingleSelection_pageG">
 					<table border='0' class='elenco'>
@@ -524,11 +506,11 @@
 					<div id="pageSingleSelection_pageSel">
 						<table border='0' class='elenco'>
 							<tr>
-								<td>PRICE 1</td></td>
+								<td>PRICE 1</td>
 								<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
 							</tr>
 							<tr>
-								<td>PRICE 2<br><span class="tip">happy price</span></td></td>
+								<td>PRICE 2<br><span class="tip">happy price</span></td>
 								<td><div id='pageSingleSelection_prc2' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
 							</tr>
 							<tr>
@@ -536,11 +518,11 @@
 								<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
 							</tr>							
 							<tr>
-								<td>JUG<br><span class="tip">num repetitions</span></td></td>
+								<td>JUG<br><span class="tip">num repetitions</span></td>
 								<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="177" data-da3bit='8'></div></td>
 							</tr>
 							<tr>
-								<td>SCALING FACTOR<br></td></td>
+								<td>SCALING FACTOR<br></td>
 								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
 							</tr>						
 						</table>
@@ -555,15 +537,12 @@
 			</div>
 		</div><!-- pageSingleSelection -->
 		
-		
-		
 		<!-- pageTemperature -->
 		<div id="pageTemperature" class="UIWindow">
 			<div class="UIWindowContent" id="pageTemperature_content">
 				<!-- creato dinamicamente, vedi pageTemperature_build -->
 			</div>
-		</div>
-		<!-- pageTemperature -->
+		</div> <!-- pageTemperature -->
 		
 		
 		<!-- pageCalibration -->
@@ -573,55 +552,55 @@
 					<tr id="pageCalibration_rowGrinder1">
 						<td>GRINDER 1</td>
 						<td><div id="pageCalibration_m11" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(11)"></div></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(11)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(11)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(11)"></div></td>
 					</tr>
 					<tr id="pageCalibration_rowGrinder2">
 						<td>GRINDER 2</td>
 						<td><div id="pageCalibration_m12" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(12)"></div></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(12)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(12)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(12)"></div></td>
 					</tr>
 					
 					<tr id="pageCalibration_rowMotor1">
 						<td style="width:150px">MOTOR 1</td>
 						<td style="width:274px"><div id="pageCalibration_m1" class="bigCaption15"></div></td>
-						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(1)"></div></div></td>
-						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(1)"></div></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(1)"></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(1)"></div></td>
 					</tr>
 					
 					<tr>
 						<td>MOTOR 2</td>
 						<td><div id="pageCalibration_m2" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(2)"></div></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(2)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(2)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(2)"></div></td>
 					</tr>
 
 					<tr>
 						<td>MOTOR 3</td>
 						<td><div id="pageCalibration_m3" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(3)"></div></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(3)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(3)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(3)"></div></td>
 					</tr>
 					
 					<tr>
 						<td>MOTOR 4</td>
 						<td><div id="pageCalibration_m4" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(4)"></div></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(4)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(4)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(4)"></div></td>
 					</tr>
 
 					<tr>
 						<td>MOTOR 5</td>
 						<td><div id="pageCalibration_m5" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(5)"></div></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(5)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(5)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(5)"></div></td>
 					</tr>
 					<tr>
 						<td>MOTOR 6</td>
 						<td><div id="pageCalibration_m6" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(6)"></div></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(6)"></div></td>
 					</tr>
 					<tr id="pageCalibration_rowEncoder1">
 						<td>ENCODER 1</td>
@@ -633,8 +612,7 @@
 					</tr>										
 				</table>
 			</div>
-		</div>
-		<!-- pageCalibration -->
+		</div> <!-- pageCalibration -->
 		
 		<!-- page Payment -->
 		<div id="pagePayment" class="UIWindow">
@@ -812,7 +790,7 @@
 							</td>
 							<td style="width:440px">
 								<div style="float:left; margin-right:10px"><br>desired value</div>
-								<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="470"></div></dv>
+								<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="520"></div></div>
 								<div class="clear"></div>
 							</td>
 							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div></td>
@@ -870,7 +848,7 @@
 							</td>
 							<td style="width:440px">
 								<div style="float:left; margin-right:10px"><br>desired value</div>
-								<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="470"></div></dv>
+								<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="520"></div></dv>
 								<div class="clear"></div>
 							</td>
 							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div></td>
@@ -902,7 +880,7 @@
 										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
-											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></b></div>
+											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
 											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
 										</td>
 									</tr>
@@ -944,7 +922,49 @@
 			</div>
 		</div> <!-- page DataAudit -->
 
-		
+		<!-- page pageExpCalib -->
+		<div id="pageExpCalib" class="UIWindow">
+			<div class="UIWindowContent">
+				
+				<table border='0' class='elenco'>
+					<tr style='border-bottom:none'>
+						<td style="width:10%"><b style='color:#fff'>SELECTION</b></td>
+						<td style="width:30%" align="center"><div id='pageExpCalib_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48"></td>
+						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageExpCalib_runSelection()"></div></td>
+						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='EDIT SELECTION' data-onclick=""></div></td>
+					</tr>
+
+					<tr style='height:50px;'>
+						<td>LAST FLUX</td>
+						<td align="center"><div id='pageExpCalib_lastFlux'>0.00 cc/sec</div></td>
+						<td colspan="2"><span class="tip">Flux information are updated everytime you "run selection"</span></td>
+					</tr>					
+
+					<tr>
+						<td><b style='color:#fff'>GRINDER</b></td>
+						<td align="center">current calibration factor<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START CALIBRATION' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESET CALIBRATION' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
+					</tr>					
+
+
+					<tr style='height:125px;'>
+						<td><b style='color:#fff'>VARIGRIND</b></td>
+						<td align="center">current position<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
+						<td align="center">desired position<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageExpCalib_regolaVG()"></div></td>
+					</tr>
+					
+					<tr style='border-bottom:none'>
+						<td><b style='color:#fff'>IMPULSES</b></td>
+						<td align="center">current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START IMPULSE CALCULATION' data-onclick="pageExpCalib_startCalcoloImpulsi()"></div></td>
+						<td></td>
+					</tr>
+				</table>
+			</div>
+		</div> <!-- page pageExpCalib -->		
+				
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
@@ -978,6 +998,7 @@
 <script src="js/UITime24.js"></script>
 <script src="js/UISelect.js"></script>
 <script src="js/Task_GB.js"></script>
+
 
 
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
@@ -1216,10 +1237,7 @@ function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHide
 function btnBack_onClick (bSave)				
 { 
 	if (currentTask != voidTask)
-	{
-		bSave = currentTask.onExit(bSave);
 		currentTask = voidTask;
-	}
 	
 	if (bSave == 0)
 		backToMainMenu();
@@ -2784,7 +2802,7 @@ function pageCalibration_refreshCalibValueOnScreen()
 		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(11) );
 		rheaSetDivHTMLByName("pageCalibration_m11", v +"&nbsp;gr/sec");
 		v = helper_decodeImpulsi(da3.getImpulsi(11));
-		rheaSetDivHTMLByName("pageCalibration_encoder1", v +"&nbsp;imp/grams");
+		rheaSetDivHTMLByName("pageCalibration_encoder1", v +"&nbsp;imp/gr");
 		
 		//motori
 		for (var i=2; i<=6; i++)
@@ -2801,7 +2819,7 @@ function pageCalibration_refreshCalibValueOnScreen()
 			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(12) );
 			rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
 			v = helper_decodeImpulsi(da3.getImpulsi(12));
-			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/grams");
+			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/gr");
 		}
 		
 	}	
@@ -2843,12 +2861,21 @@ function pageCalibration_reset(motor)
 function pageCalibration_start (motor)
 {
 	pleaseWait_show();
-	taskCalibMotor.startMotorCalib(motor);
+	
+	if (motor == 11)
+		taskCalibMotor.startCalibrazioneMacina(1, 1);
+	else if (motor == 12)
+		taskCalibMotor.startCalibrazioneMacina(2, 1);
+	else
+		taskCalibMotor.startMotorCalib(motor);
 }
 
 function pageCalibration_onFinish ()
 {
-	save (function() { pageCalibration_refreshCalibValueOnScreen(); pleaseWait_hide();});
+	if (currentPageID == "pageExpCalib")
+		pageExpCalib_onFinish();
+	else
+		save (function() { pageCalibration_refreshCalibValueOnScreen(); pleaseWait_hide();});
 }
 
 function pageCalibration_grindAgain()
@@ -3421,6 +3448,123 @@ function pageDataAudit_downloadEVA_onFinish()
 	currentTask = voidTask;
 }
 
+/***************************************************************************
+ *
+ * pageExpCalib
+ *
+ */
+var taskEspressoCalib = null;
+function pageExpCalib_show()
+{
+	if (showPage("pageExpCalib"))
+	{
+		//è la prima volta che visualizziamo la pagina
+	}
 
+	if (null == taskEspressoCalib)
+		taskEspressoCalib = new TaskEspressoCalib();
+	currentTask = taskEspressoCalib;
+	currentTask.setMacina(1);
+	
+	pageExpCalib_refreshCalibValueOnScreen();
+	header_setText("ESPRESSO CALIBRATION (beta)");
+	btnBack_show();
+	rheaHideElem(rheaGetElemByID("btnSave"));
+}
+
+function pageExpCalib_regolaVG()
+{
+	var win = ui.getWindowByID("pageExpCalib");
+	var target = parseInt(win.getChildByID("pageExpCalib_vg_target").getValue());
+	currentTask.enterSetMacinaPos(target);
+}
+
+function pageExpCalib_runSelection()
+{
+	var win = ui.getWindowByID("pageExpCalib");
+	var selNum = parseInt(win.getChildByID("pageExpCalib_selNum").getValue())
+	currentTask.runSelection(selNum);
+}
+
+function pageExpCalib_runSelection_onFinish()
+{
+	//chiedo le info relativamente all'ultimo flusso e posizione
+	rhea.ajax ("getLastFluxInfo", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+
+		//flux è di 3 cifre, con due decimali
+		var s = data.flux.toString();
+		while (s.length < 3) s = "0" +s;
+		s = s.substr(0,1) +"." +s.substr(1,2);
+		rheaSetDivHTMLByName("pageExpCalib_lastFlux", s +" cc/sec");
+
+		pageExpCalib_runSelection_onFinish2();
+	})
+	.catch( function(result)
+	{
+		pageExpCalib_runSelection_onFinish2();
+	});	
+}
+
+function pageExpCalib_runSelection_onFinish2()
+{
+	pleaseWait_hide();
+	currentTask.enterQueryMacinePos();
+}
+
+function pageExpCalib_startCalcoloImpulsi ()
+{
+	pleaseWait_show();
+	var macina = currentTask.macina1o2;
+	currentTask = taskCalibMotor;
+	taskCalibMotor.startCalcoloImpulsi(macina);
+}
+
+
+function pageExpCalib_resetMacinaCalib()
+{
+	pleaseWait_show();
+	var motor = 10 + currentTask.macina1o2;
+	rhea.ajax ("setFattoreCalib", { "m":motor, "v":0}).then( function(result)
+	{
+		rheaSetDivHTMLByName("pageExpCalib_grSec", "0&nbsp;gr/sec");
+		da3.setCalibFactorGSec(motor, 0);
+		da3.setImpulsi(motor,0);
+		rheaSetDivHTMLByName("pageExpCalib_imp", "0.00 imp/gr");
+		
+		setTimeout ( function() { save (function() { pleaseWait_hide();}); }, 1000);
+	})
+	.catch( function(result)
+	{
+		pleaseWait_hide();
+	});
+}
+
+function pageExpCalib_startMacinaCalib ()
+{
+	pleaseWait_show();
+	var macina = currentTask.macina1o2;
+	currentTask = taskCalibMotor;
+	taskCalibMotor.startCalibrazioneMacina(macina, 0);
+}
+
+function pageExpCalib_onFinish ()
+{
+	currentTask = taskEspressoCalib;
+	save (function() { pageExpCalib_refreshCalibValueOnScreen(); pleaseWait_hide();});
+}
+
+function pageExpCalib_refreshCalibValueOnScreen()
+{
+	//macina 1
+	var motor = 10 + currentTask.macina1o2;
+	
+	var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(motor) );
+	rheaSetDivHTMLByName("pageExpCalib_grSec", v +"&nbsp;gr/sec");
+	
+	v = helper_decodeImpulsi(da3.getImpulsi(motor));
+	rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");	
+}
 </script>
 </html>

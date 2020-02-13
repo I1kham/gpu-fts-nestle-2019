@@ -11,7 +11,6 @@ TaskVoid.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaS
 TaskVoid.prototype.onFreeBtn1Clicked	= function(ev)							{}
 TaskVoid.prototype.onFreeBtn2Clicked	= function(ev)							{}
 TaskVoid.prototype.onFreeBtnTrickClicked= function(ev)							{}
-TaskVoid.prototype.onExit				= function(bSave)						{ return bSave; }
 
 
 /**********************************************************
@@ -23,7 +22,6 @@ TaskTemperature.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		
 TaskTemperature.prototype.onFreeBtn1Clicked	= function(ev)								{}
 TaskTemperature.prototype.onFreeBtn2Clicked	= function(ev)								{}
 TaskTemperature.prototype.onFreeBtnTrickClicked= function(ev)							{}
-TaskTemperature.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskTemperature.prototype.onTimer 				= function(timeNowMsec)
 {
 	if (timeNowMsec >= this.nextTimeCheckMSec)
@@ -49,7 +47,6 @@ TaskMaintenance.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		
 TaskMaintenance.prototype.onFreeBtn1Clicked	= function(ev)								{}
 TaskMaintenance.prototype.onFreeBtn2Clicked	= function(ev)								{}
 TaskMaintenance.prototype.onFreeBtnTrickClicked= function(ev)							{}
-TaskMaintenance.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskMaintenance.prototype.onTimer 				= function(timeNowMsec)
 {
 	if (timeNowMsec >= this.nextTimeCheckMSec)
@@ -108,7 +105,6 @@ TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pl
 TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)						{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
-TaskCleaning.prototype.onExit				= function(bSave)					{ return bSave; }
 
 TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 {
@@ -272,18 +268,35 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 function TaskCalibMotor()
 {
 	this.timeStarted = 0;
-	this.what = 0;  //0==nulla, 1=calib motore prodott, 2=calib macina
+	this.what = 0;  //0==nulla, 1=calib motore prodott, 2=calib macina, 3=calcolo impulsi
 	this.fase = 0;
 	this.value = 0;
 	this.cpuStatus = 0;
+	this.bAlsoCalcImpulses = 1;
 }
-TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
+
+TaskCalibMotor.prototype.startCalibrazioneMacina = function (macina1o2, bAlsoCalcImpulses)
 {
+	var motor = 10 + macina1o2;
+	this.startMotorCalib(motor);
+	this.bAlsoCalcImpulses = bAlsoCalcImpulses;
+}
+
+TaskCalibMotor.prototype.startCalcoloImpulsi = function (macina1o2)
+{
+	var motor = 10 + macina1o2;
+	this.startMotorCalib(motor);
+	this.impulsi = 0;
+	this.what = 3;
+}
+
+TaskCalibMotor.prototype.startMotorCalib = function (motorIN) //motorIN==11 per macina1, 12 per macina2
+{
+	this.bAlsoCalcImpulses = 0;
 	this.timeStarted = 0;
 	this.fase = 0;
 	this.motor = motorIN;
 	this.value = 0;
-	this.impulsi = 0;
 	this.amIAskingForVGrindPos = 0;
 	
 	pleaseWait_calibration_varigrind_hide();
@@ -294,12 +307,10 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN)
 		this.what = 2;
 	else
 		this.what = 1;
-	
 }
 
 TaskCalibMotor.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{ this.cpuStatus = statusID;}
 TaskCalibMotor.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
-TaskCalibMotor.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
 {
 	if (this.timeStarted == 0)
@@ -310,6 +321,7 @@ TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
 	{
 		case 1: this.priv_handleCalibProdotto(timeElapsedMSec); break;
 		case 2: this.priv_handleCalibMacina(timeElapsedMSec); break;
+		case 3: this.priv_handleCalcoloImpulsi(timeElapsedMSec); break;
 	}
 }
 
@@ -508,7 +520,6 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 21: //attendo pressione di continue per terminare, oppure GRIND AGAIN o SET per calibrare l'apertura del vgrind
 		
-		
 		//periodicamente, chiedo la posizione attuale della macina del VGrind
 		if (!me.amIAskingForVGrindPos)
 		{
@@ -576,8 +587,8 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_calibration_num_hide();
 		
 		da3.setCalibFactorGSec(me.motor, me.gsec);
-		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(me.motor) );
-		rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
+		//var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(me.motor) );
+		//rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
 		
 		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
 		{
@@ -617,8 +628,33 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 51://attendo risposta CPU
 		break;
 		
-	case 60: //gruppo è stato ricollegato, procedo con il calcolo impulsi
+	case 60: //gruppo è stato ricollegato, procedo con il calcolo impulsi se richiesto
+		if (me.bAlsoCalcImpulses==0)
+			me.fase = 200;
+		else
+		{
+			var macina1o2 = me.motor - 10;
+			me.startCalcoloImpulsi(macina1o2);
+		}
+		break;		
+	
+	case 200:
+		me.what = 0;
+		pleaseWait_btn1_hide();
+		pleaseWait_calibration_hide();
+		pageCalibration_onFinish();
+		break;
+	}
+}
+
+TaskCalibMotor.prototype.priv_handleCalcoloImpulsi = function (timeElapsedMSec)
+{
+	var me = this;
+	switch (this.fase)
+	{
+	case 0:
 		me.fase = 65;
+		pleaseWait_calibration_show();
 		pleaseWait_calibration_setText("Calcolo degli impulsi in corso, attendere prego"); //Impulse calculation in progress, please wait
 		rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
 		{
@@ -628,7 +664,8 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		.catch( function(result)
 		{
 			me.fase = 60;
-		});			
+		});
+		break;		
 		
 	case 65: //attendo risposta CPU
 		break;
@@ -658,8 +695,12 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 		
 	case 190: //devo memorizzare gli impulsi ricevuti nel da3??
-		pleaseWait_calibration_setText("Impulse: " +me.impulsi);
 		da3.setImpulsi(me.motor, me.impulsi);
+
+		var s = me.impulsi.toString();
+		while (s.length < 3) s = "0" +s;		
+		pleaseWait_calibration_setText("Impulse: " +s.substr(0,1) +"." +s.substr(1,2));
+		
 		me.fase = 191;
 		break;
 		
@@ -677,8 +718,6 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 	}
 }
-
-
 
 /**********************************************************
  * TaskTestSelezione
@@ -762,8 +801,6 @@ TaskTestSelezione.prototype.onFreeBtn2Clicked	= function(ev)
 }
 
 TaskTestSelezione.prototype.onFreeBtnTrickClicked= function(ev)							{}
-
-TaskTestSelezione.prototype.onExit				= function(bSave)					{ return bSave; }
 
 TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 {
@@ -943,7 +980,6 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 }
 TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)							{}
 TaskDevices.prototype.onFreeBtnTrickClicked= function(ev)						{}
-TaskDevices.prototype.onExit			 = function(bSave)						{ return bSave; }
 
 
 TaskDevices.prototype.onTimer = function (timeNowMsec)
@@ -1160,7 +1196,6 @@ function TaskDisintall()
 
 TaskDisintall.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
 TaskDisintall.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
-TaskDisintall.prototype.onExit			 = function(bSave)						{ return bSave; }
 
 TaskDisintall.prototype.onFreeBtn1Clicked	 = function(ev)						
 {
@@ -1272,7 +1307,6 @@ function TaskDataAudit()
 
 TaskDataAudit.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft (statusStr +" [" +statusID +"]"); }
 TaskDataAudit.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
-TaskDataAudit.prototype.onExit			   = function(bSave)					{ return bSave; }
 
 TaskDataAudit.prototype.onFreeBtn1Clicked	 = function(ev)						
 {
@@ -1293,7 +1327,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 	var timeElapsedMSec = timeNowMsec - this.timeStarted;
 	
 	var me = this;
-	console.log ("TaskDataAudit fase[" +this.fase +"]");
+	//console.log ("TaskDataAudit fase[" +this.fase +"]");
 	switch (this.fase)
 	{
 		case 0:
@@ -1399,7 +1433,6 @@ TaskDAResetTotals.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)
 TaskDAResetTotals.prototype.onFreeBtn1Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); if (this.fase==11) this.fase = 20;}
 TaskDAResetTotals.prototype.onFreeBtn2Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 90;}
 TaskDAResetTotals.prototype.onFreeBtnTrickClicked= function(ev)							{}
-TaskDAResetTotals.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskDAResetTotals.prototype.onTimer = function(timeNowMsec)
 {
 	var me = this;
@@ -1462,10 +1495,9 @@ TaskResetEVA.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ r
 TaskResetEVA.prototype.onFreeBtn1Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 10; }
 TaskResetEVA.prototype.onFreeBtn2Clicked	= function(ev)							{ pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase = 99; }
 TaskResetEVA.prototype.onFreeBtnTrickClicked= function(ev)							{}
-TaskResetEVA.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskResetEVA.prototype.onTimer 				= function(timeNowMsec)					
 {
-	console.log ("TaskResetEVA::fase[" +this.fase +"]");
+	//console.log ("TaskResetEVA::fase[" +this.fase +"]");
 	switch (this.fase)
 	{
 	case 10: //do reset
@@ -1516,7 +1548,6 @@ TaskP15.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)		{ rheaSe
 TaskP15.prototype.onFreeBtn1Clicked	= function(ev)								{}
 TaskP15.prototype.onFreeBtn2Clicked	= function(ev)								{}
 TaskP15.prototype.onFreeBtnTrickClicked= function(ev)							{}
-TaskP15.prototype.onExit				= function(bSave)						{ return bSave; }
 TaskP15.prototype.onTimer 				= function(timeNowMsec)					
 {
 	if (timeNowMsec >= this.nextTimeSendP15)
@@ -1525,6 +1556,200 @@ TaskP15.prototype.onTimer 				= function(timeNowMsec)
 		var buffer = new Uint8Array(1);
 		buffer[0] = 66;
 		rhea.sendGPUCommand ("E", buffer, 0, 0);		
-		console.log ("p15");
+		//console.log ("p15");
 	}
+}
+
+
+
+
+/**********************************************************
+ * TaskEspressoCalib
+ */
+function TaskEspressoCalib()
+{
+	this.what = 0;
+	this.fase = 0;
+	this.macina1o2 = 1;
+	this.firstTimeMacina = 2;
+	this.cpuStatus = 0;
+	this.selNum = 0;
+	this.enterQueryMacinePos();
+}
+
+TaskEspressoCalib.prototype.setMacina = function (macina1o2)
+{
+	this.macina1o2 = macina1o2;
+}
+
+TaskEspressoCalib.prototype.enterQueryMacinePos = function()
+{	
+	this.what = 0;
+	this.fase = 0;
+}
+
+TaskEspressoCalib.prototype.enterSetMacinaPos = function(targetValue)
+{	
+	this.what = 1;
+	this.fase = 0;
+	pleaseWait_show();
+	rhea.sendStartPosizionamentoMacina(this.macina1o2, targetValue);
+}
+
+TaskEspressoCalib.prototype.runSelection = function(selNum)
+{	
+	this.what = 2;
+	this.fase = 0;
+	this.selNum = selNum;
+	pleaseWait_show();
+}
+
+
+TaskEspressoCalib.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_setTextLeft(statusStr +" [" +statusID +"]"); }
+TaskEspressoCalib.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_setTextRight(msg); }
+TaskEspressoCalib.prototype.onFreeBtn1Clicked	 = function(ev)
+{
+	if (this.what == 1)
+	{
+		//siamo in regolazione apertura vgrind
+		if (this.fase > 0)
+		{
+			pleaseWait_btn1_hide();
+			
+			//Attivo la macina
+			rhea.ajax ("runMotor", { "m":10+this.macina, "d":50, "n":1, "p":0}).then( function(result)
+			{
+				setTimeout ( function() {pleaseWait_btn1_show();}, 5000);
+			})
+			.catch( function(result)
+			{
+				pleaseWait_btn1_show();
+			});								
+		}
+		
+	}
+}
+TaskEspressoCalib.prototype.onFreeBtn2Clicked	 = function(ev)						{}
+TaskEspressoCalib.prototype.onFreeBtnTrickClicked= function(ev)						{}
+
+
+TaskEspressoCalib.prototype.onTimer = function (timeNowMsec)
+{
+	if (this.what == 0)
+		this.priv_handleRichiestaPosizioneMacina();
+	else if (this.what == 1)
+		this.priv_handleRegolazionePosizioneMacina();
+	else if (this.what == 2)
+		this.priv_handleRunSelection(timeNowMsec);
+}
+
+TaskEspressoCalib.prototype.priv_handleRunSelection = function(timeNowMsec)
+{
+	if (this.fase == 0)
+	{
+		this.fase = 1;
+		this.timeStartedMSec = timeNowMsec;
+		
+		rhea.ajax ("testSelection", {"s":this.selNum, "d":0} ).then( function(result)
+		{
+			if (result != "OK")
+			{
+				this.fase = 2;
+				pageExpCalib_runSelection_onFinish();
+			}
+		})
+		.catch( function(result)
+		{
+			this.fase = 2;
+			pageExpCalib_runSelection_onFinish();
+		});			
+	}
+	else if (this.fase == 1)
+	{
+		//aspetto almeno un paio di secondi
+		if ((timeNowMsec - this.timeStartedMSec) < 2000)
+			return;
+		//monitoro lo stato di cpu per capire quando esce da 3 (prep bevanda)
+		if (this.cpuStatus != 3 && this.cpuStatus != 101 && this.cpuStatus != 105)
+		{
+			this.fase = 2;
+			pageExpCalib_runSelection_onFinish();
+		}
+	}
+	
+}
+
+TaskEspressoCalib.prototype.priv_handleRichiestaPosizioneMacina = function()
+{
+	var me = this;
+	if (this.fase == 0)
+	{
+		//chiede la posizione della macina
+		this.fase = 1;
+		rhea.ajax ("getPosMacina", {"m":this.macina1o2}).then( function(result)
+		{
+			var obj = JSON.parse(result);
+			rheaSetDivHTMLByName("pageExpCalib_vgCurPos", obj.v);
+			if (me.firstTimeMacina>0)
+			{
+				me.firstTimeMacina--;
+				if (me.firstTimeMacina==0)					
+					ui.getWindowByID("pageExpCalib").getChildByID("pageExpCalib_vg_target").setValue(obj.v)
+			}
+			me.fase = 0;
+		})
+		.catch( function(result)
+		{
+			me.fase = 0;
+		});			
+		return;
+	}
+	else
+	{
+		//aspetto una risposta alla query precedente
+	}
+
+}
+
+TaskEspressoCalib.prototype.priv_handleRegolazionePosizioneMacina = function()
+{
+	switch (this.fase)
+	{
+		case 0: 
+			this.fase=1; 
+			
+			pleaseWait_freeText_setText("Si prega di attendere mentre il varigrind sta regolando la posizione"); //Please wait while the varigrind is adjusting its position
+			pleaseWait_freeText_show();
+			break;
+		case 1: this.fase=2; break;
+		case 2: 
+			this.priv_queryMacina();
+			this.fase=3; 
+			break;
+		
+		case 3: 
+			//a questo punto CPU dovrebbe essere in stato 102 e dovrebbe rimanerci fino a fine operazione
+			if (this.cpuStatus != 102 && this.cpuStatus != 101)
+			{
+				this.enterQueryMacinePos();
+				pleaseWait_hide();
+				return;
+			}
+			
+			this.fase = 2;
+			break;
+	}
+}
+
+TaskEspressoCalib.prototype.priv_queryMacina = function()
+{
+	rhea.ajax ("getPosMacina", {"m":this.macina1o2}).then( function(result)
+	{
+		var obj = JSON.parse(result);
+		rheaSetDivHTMLByName("pageExpCalib_vgCurPos", obj.v);
+		pleaseWait_freeText_setText("Si prega di attendere mentre il varigrind sta regolando la posizione" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
+	})
+	.catch( function(result)
+	{
+	});			
 }
