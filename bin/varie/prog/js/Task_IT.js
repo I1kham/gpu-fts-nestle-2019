@@ -268,7 +268,7 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 function TaskCalibMotor()
 {
 	this.timeStarted = 0;
-	this.what = 0;  //0==nulla, 1=calib motore prodott, 2=calib macina, 3=calcolo impulsi
+	this.what = 0;  //0==nulla, 1=calib motore prodott, 2=calib macina
 	this.fase = 0;
 	this.value = 0;
 	this.cpuStatus = 0;
@@ -282,13 +282,6 @@ TaskCalibMotor.prototype.startCalibrazioneMacina = function (macina1o2, bAlsoCal
 	this.bAlsoCalcImpulses = bAlsoCalcImpulses;
 }
 
-TaskCalibMotor.prototype.startCalcoloImpulsi = function (macina1o2)
-{
-	var motor = 10 + macina1o2;
-	this.startMotorCalib(motor);
-	this.impulsi = 0;
-	this.what = 3;
-}
 
 TaskCalibMotor.prototype.startMotorCalib = function (motorIN) //motorIN==11 per macina1, 12 per macina2
 {
@@ -296,6 +289,7 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN) //motorIN==11 per 
 	this.timeStarted = 0;
 	this.fase = 0;
 	this.motor = motorIN;
+	this.impulsi = 0;
 	this.value = 0;
 	this.amIAskingForVGrindPos = 0;
 	
@@ -321,7 +315,6 @@ TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
 	{
 		case 1: this.priv_handleCalibProdotto(timeElapsedMSec); break;
 		case 2: this.priv_handleCalibMacina(timeElapsedMSec); break;
-		case 3: this.priv_handleCalcoloImpulsi(timeElapsedMSec); break;
 	}
 }
 
@@ -633,40 +626,21 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 			me.fase = 200;
 		else
 		{
-			var macina1o2 = me.motor - 10;
-			me.startCalcoloImpulsi(macina1o2);
+			me.fase = 65;
+			pleaseWait_calibration_show();
+			pleaseWait_calibration_setText("Calcolo degli impulsi in corso, attendere prego"); //Impulse calculation in progress, please wait
+			rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
+			{
+				//me.fase = 70;
+				setTimeout ( function() { me.fase = 70; }, 3000);
+			})
+			.catch( function(result)
+			{
+				me.fase = 60;
+			});
 		}
 		break;		
-	
-	case 200:
-		me.what = 0;
-		pleaseWait_btn1_hide();
-		pleaseWait_calibration_hide();
-		pageCalibration_onFinish();
-		break;
-	}
-}
-
-TaskCalibMotor.prototype.priv_handleCalcoloImpulsi = function (timeElapsedMSec)
-{
-	var me = this;
-	switch (this.fase)
-	{
-	case 0:
-		me.fase = 65;
-		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Calcolo degli impulsi in corso, attendere prego"); //Impulse calculation in progress, please wait
-		rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
-		{
-			//me.fase = 70;
-			setTimeout ( function() { me.fase = 70; }, 3000);
-		})
-		.catch( function(result)
-		{
-			me.fase = 60;
-		});
-		break;		
-		
+			
 	case 65: //attendo risposta CPU
 		break;
 		

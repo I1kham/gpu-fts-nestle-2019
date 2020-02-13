@@ -958,7 +958,7 @@
 					<tr style='border-bottom:none'>
 						<td><b style='color:#fff'>IMPULSES</b></td>
 						<td align="center">current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START IMPULSE CALCULATION' data-onclick="pageExpCalib_startCalcoloImpulsi()"></div></td>
+						<td align="center"></td>
 						<td></td>
 					</tr>
 				</table>
@@ -3513,13 +3513,7 @@ function pageExpCalib_runSelection_onFinish2()
 	currentTask.enterQueryMacinePos();
 }
 
-function pageExpCalib_startCalcoloImpulsi ()
-{
-	pleaseWait_show();
-	var macina = currentTask.macina1o2;
-	currentTask = taskCalibMotor;
-	taskCalibMotor.startCalcoloImpulsi(macina);
-}
+
 
 
 function pageExpCalib_resetMacinaCalib()
@@ -3546,7 +3540,7 @@ function pageExpCalib_startMacinaCalib ()
 	pleaseWait_show();
 	var macina = currentTask.macina1o2;
 	currentTask = taskCalibMotor;
-	taskCalibMotor.startCalibrazioneMacina(macina, 0);
+	taskCalibMotor.startCalibrazioneMacina(macina, 1);
 }
 
 function pageExpCalib_onFinish ()
