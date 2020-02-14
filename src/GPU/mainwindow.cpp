@@ -195,6 +195,7 @@ void MainWindow::priv_showForm (eForm w)
         break;
 
     case eForm_specialActionBeforeGUI:
+        cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
         if (!priv_shouldIShowFormPreGUI())
         {
             priv_scheduleFormChange(eForm_main_showBrowser);
