@@ -165,11 +165,11 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				}
 				else
 				{
-					var btnText = "BUTTON " +me.btn1;
+					var btnText = "BOUTON " +me.btn1;
 					switch (me.fase)
 					{
-						case 3: btnText = "CONTINUE"; break; //wait to insert tablet
-						case 10: btnText = "SKIP COFFEE"; break;
+						case 3: btnText = "CONTINUER"; break; //wait to insert tablet
+						case 10: btnText = "SAUTER LE CAFÉ"; break;
 					}
 					pleaseWait_btn1_setText (btnText);
 					pleaseWait_btn1_show();	
@@ -180,10 +180,10 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				pleaseWait_btn2_hide();
 			else
 			{
-				var btnText = "BUTTON " +me.btn2;
+				var btnText = "BOUTON " +me.btn2;
 				switch (me.fase)
 				{
-					case 10: btnText = "HAVE A COFFEE"; break;
+					case 10: btnText = "FAIRE UN CAFÉ"; break;
 				}
 				pleaseWait_btn2_setText (btnText);
 				pleaseWait_btn2_show();	
@@ -239,7 +239,7 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 				pleaseWait_btn1_hide();
 			else
 			{
-				pleaseWait_btn1_setText ("BUTTON " +me.btn1);
+				pleaseWait_btn1_setText ("BOUTON " +me.btn1);
 				pleaseWait_btn1_show();	
 			}
 			
@@ -247,7 +247,7 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 				pleaseWait_btn2_hide();
 			else
 			{
-				pleaseWait_btn2_setText ("BUTTON " +me.btn2);
+				pleaseWait_btn2_setText ("BOUTON " +me.btn2);
 				pleaseWait_btn2_show();	
 			}			
 		})
@@ -386,7 +386,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		pleaseWait_calibration_setText("When you're done, please enter the quantity in grams of the LAST ground, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
 		break;
 		
@@ -452,7 +452,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_show();
 		pleaseWait_calibration_show();
 		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE"); //Please remove the brewer, then press CONTINUE
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();	
@@ -507,7 +507,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_calibration_setText("When you're done, please enter the quantity in grams of the LAST ground, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
 		break;
 		
@@ -787,7 +787,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		pleaseWait_show();
 		pleaseWait_calibration_show();
 		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE"); //Please remove the brewer, then press CONTINUE
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();
@@ -846,7 +846,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 	case 40: //chiedo di rimettere a posto il gruppo
 		pleaseWait_calibration_setText("Place the brewer into position and then press CONTINUE, or press REPEAT to grind again"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("REPEAT");
+		pleaseWait_btn2_setText("RÉPÉTER");
 		pleaseWait_btn2_show();		
 		me.fase = 41;
 		break;
@@ -1215,7 +1215,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 	case 10:
 		this.fase = 11;
 		pleaseWait_calibration_setText("DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
-		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
@@ -1227,7 +1227,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 	case 20:
 		this.fase = 21;
 		pleaseWait_calibration_setText("DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
-		pleaseWait_btn1_setText("START DISINSTALLATION");
+		pleaseWait_btn1_setText("COMMENCER À DÉSINSTALLER");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
@@ -1357,7 +1357,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 			break;
 			
 		case 201: //mostra btn close e ne aspetta la pressione
-			pleaseWait_btn1_setText("CLOSE");
+			pleaseWait_btn1_setText("PROCHE");
 			pleaseWait_btn1_show();
 			me.fase = 202;
 			break;			

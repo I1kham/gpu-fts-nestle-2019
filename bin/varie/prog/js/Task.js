@@ -100,7 +100,7 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 }
 
 TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL (statusStr +" [" +statusID +"]"); }
-TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_header_setTextR(msg); }
+TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 
 TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
@@ -304,7 +304,7 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN) //motorIN==11 per 
 }
 
 TaskCalibMotor.prototype.onEvent_cpuStatus 	= function(statusID, statusStr)			{ this.cpuStatus = statusID;}
-TaskCalibMotor.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); }
+TaskCalibMotor.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg);}
 TaskCalibMotor.prototype.onTimer = function (timeNowMsec)
 {
 	if (this.timeStarted == 0)
@@ -749,7 +749,7 @@ TaskTestSelezione.prototype.onTimer = function (timeNowMsec)
 }
 
 TaskTestSelezione.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL (statusStr +" [" +statusID +"]"); }
-TaskTestSelezione.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_header_setTextR(msg); }
+TaskTestSelezione.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskTestSelezione.prototype.onFreeBtn1Clicked	= function(ev)
 { 
 	if (this.iAttuatore != 12)
@@ -929,7 +929,7 @@ TaskDevices.prototype.runModemTest = function()
 }
 
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr +" [" +statusID +"]"); }
-TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_header_setTextR(msg); }
+TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 {
 	if (this.what == 1)
@@ -1169,7 +1169,7 @@ function TaskDisintall()
 }
 
 TaskDisintall.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL (statusStr +" [" +statusID +"]"); }
-TaskDisintall.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_header_setTextR(msg); }
+TaskDisintall.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 
 TaskDisintall.prototype.onFreeBtn1Clicked	 = function(ev)						
 {
@@ -1280,7 +1280,7 @@ function TaskDataAudit()
 }
 
 TaskDataAudit.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL (statusStr +" [" +statusID +"]"); }
-TaskDataAudit.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_header_setTextR(msg); }
+TaskDataAudit.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 
 TaskDataAudit.prototype.onFreeBtn1Clicked	 = function(ev)						
 {
@@ -1581,7 +1581,7 @@ TaskEspressoCalib.prototype.runSelection = function(selNum)
 
 
 TaskEspressoCalib.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr +" [" +statusID +"]"); }
-TaskEspressoCalib.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ pleaseWait_header_setTextR(msg); }
+TaskEspressoCalib.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskEspressoCalib.prototype.onFreeBtn1Clicked	 = function(ev)
 {
 	if (this.what == 1)
