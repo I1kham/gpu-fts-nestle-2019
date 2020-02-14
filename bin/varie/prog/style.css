@@ -39,8 +39,8 @@ a:hover	{ text-decoration:none; outline: 0; }
 	.header_C { float:left; margin-left:10px; width:854px; text-align:left; font-size:1.4em; }
 	.header_R { float:left; margin-right:10px; width:150px; text-align:right; font-size:16px; }
 .footer	{ height:49px; width:1004px; overflow:hidden; border-top:solid 1px #fff; line-height:50px; padding:0 10px 0 10px; }
-#footer_L { float:left; min-width:250px; width:250px; height:100%; overflow:hidden; }
-#footer_C { float:left; min-width:480px; width:480px; height:100%; margin:0; overflow:hidden; text-align:center; color:#888 }
+#footer_L { float:left; min-width:270px; width:250px; height:100%; overflow:hidden; }
+#footer_C { float:left; min-width:460px; width:480px; height:100%; margin:0; overflow:hidden; text-align:center; color:#888 }
 #footer_R { float:right;min-width:250px; width:250px; height:100%; overflow:hidden; }
 
 .page { position:relative; top:0; left:0; width:100%; padding:0; margin:0; height:500px; }

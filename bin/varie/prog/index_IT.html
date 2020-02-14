@@ -603,11 +603,11 @@
 						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRA' data-onclick="pageCalibration_start(6)"></div></td>
 					</tr>
 					<tr id="pageCalibration_rowEncoder1">
-						<td>ENCODER 1</td>
+						<td>IMPULSI 1</td>
 						<td colspan="3"><div id="pageCalibration_encoder1" class="bigCaption15"></div></td>
 					</tr>
 					<tr id="pageCalibration_rowEncoder2">
-						<td>ENCODER 2</td>
+						<td>IMPULSI 2</td>
 						<td colspan="3"><div id="pageCalibration_encoder2" class="bigCaption15"></div></td>
 					</tr>										
 				</table>
@@ -928,10 +928,10 @@
 				
 				<table border='0' class='elenco'>
 					<tr style='border-bottom:none'>
-						<td style="width:10%"><b style='color:#fff'>SELECTION</b></td>
+						<td style="width:10%"><b style='color:#fff'>SELEZIONE</b></td>
 						<td style="width:30%" align="center"><div id='pageExpCalib_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48"></td>
-						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageExpCalib_runSelection()"></div></td>
-						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='EDIT SELECTION' data-onclick=""></div></td>
+						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='ESEGUI SELEZIONE' data-onclick="pageExpCalib_runSelection()"></div></td>
+						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='EDIT SELECTION' data-onclick="pageExpCalib_editSelection()"></div></td>
 					</tr>
 
 					<tr style='height:50px;'>
@@ -941,7 +941,7 @@
 					</tr>					
 
 					<tr>
-						<td><b style='color:#fff'>GRINDER</b></td>
+						<td><b style='color:#fff'>MACINA</b></td>
 						<td align="center">current calibration factor<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
 						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START CALIBRATION' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
 						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESET CALIBRATION' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
@@ -956,10 +956,13 @@
 					</tr>
 					
 					<tr style='border-bottom:none'>
-						<td><b style='color:#fff'>IMPULSES</b></td>
+						<td><b style='color:#fff'>IMPULSI</b></td>
 						<td align="center">current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
-						<td align="center"></td>
-						<td></td>
+						<td colspan="2" align="right">
+							<div style="widt:420px; max-width:420px">
+								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|MACINA 1|2|MACINA 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>
+							</div>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -969,12 +972,13 @@
 
 	<div id="divFooter" class="footer">
 		<div id="footer_L">
-			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="INDIETRO" data-onclick="btnBack_onClick(0)"></div></div>
-			<div style="float:left"><div id="btnSave" class="UIButton" data-caption="&nbsp;&nbsp;&nbsp;SALVA&nbsp;&nbsp;&nbsp;" data-onclick="btnBack_onClick(1)"></div></div>
+			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="INDIETRO" data-onclick="btnBack_onClick()"></div></div>
+			<div style="float:left"><div id="btnSave" class="UIButton" data-caption="&nbsp;&nbsp;&nbsp;SALVA&nbsp;&nbsp;&nbsp;" data-onclick="btnSave_onClick()"></div></div>
 			<div class="clear"></div>
 		</div>
-		<div id="footer_C">
-		</div>
+		
+		<div id="footer_C"></div>
+		
 		<div id="footer_R">
 			<div style="float:right"><div id="bntTestSelection" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;TEST SELEZIONE &nbsp&nbsp&nbsp;" data-onclick="pageSingleSelection_test(0)"></div></div>
 			<div class="clear"></div>
@@ -989,6 +993,9 @@
 	<div class='manualViewBox_close' onclick='manualViewBox_close()'><img src='img/close32x32.png'></div>
 </div>
 
+<script src="js/Helper.js"></script>
+<script src="js/PleaseWait.js"></script>
+<script src="js/DataOra.js"></script>
 <script src="js/DA3.js"></script>
 <script src="js/GUIInfo.js"></script>
 <script src="js/UI.js"></script>
@@ -997,7 +1004,9 @@
 <script src="js/UIButtonSel.js"></script>
 <script src="js/UITime24.js"></script>
 <script src="js/UISelect.js"></script>
+<script src="js/StartupOperation.js"></script>
 <script src="js/Task_IT.js"></script>
+
 
 
 
@@ -1005,24 +1014,26 @@
 <script language="javascript">
 var da3 = null;
 var guiInfo = null;
+var currentPageID="";
+var currentCPUStatusID = -1;
+var timeNowMSec = 0;
+
+var manualFolderName = "";
+
 var ui = null;
+var uiStandAloneNum = null;
+var uiStandAloneVarigringTargetPos = null;
+
 var voidTask = new TaskVoid();
 var taskCalibMotor = new TaskCalibMotor();
 var currentTask = voidTask;
-var currentPageID="";
-var timeNowMSec = 0;
-var uiStandAloneNum = null;
-var uiStandAloneVarigringTargetPos = null;
-var manualFolderName = "";
-var currentCPUStatusID = -1;
+
 
 function onRheaBootstrapFinished()
 {
-	document.getElementById("pagePleaseWait_freeBtn1").addEventListener("mousedown", function(ev) 		{ currentTask.onFreeBtn1Clicked(ev); } , true);
-	document.getElementById("pagePleaseWait_freeBtn2").addEventListener("mousedown", function(ev) 		{ currentTask.onFreeBtn2Clicked(ev); } , true);
-	document.getElementById("pagePleaseWait_freeBtnTrick").addEventListener("mousedown", function(ev) 	{ currentTask.onFreeBtnTrickClicked(ev); } , true);
+	pleaseWait_setup();
 	
-	rhea.onEvent_cpuStatus = function(statusID, statusStr) 			{ currentCPUStatusID=statusID; currentTask.onEvent_cpuStatus(statusID, statusStr); }
+	rhea.onEvent_cpuStatus  = function(statusID, statusStr) 		{ currentCPUStatusID=statusID; currentTask.onEvent_cpuStatus(statusID, statusStr); }
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
 	
 	dataOra_setup();
@@ -1038,228 +1049,67 @@ function onRheaBootstrapFinished()
 	ui.setupStandaloneButton("pagePleaseWait_calibration_2_runMotor");
 	
 	pleaseWait_show();
-	pleaseWait_setTextLeft("Attendere prego ...");
+	pleaseWait_header_setTextL("Attendere prego ...");
 	pleaseWait_freeText_show();
 
-	syncDA3IfNeeded();
-	//priv_askCPULangNames();
+	//scarica il da3, carica guiInfo... in genrale fa tutte quelle operazioni che sono necessarie prima di poter visualizzare il main menu
+	startupOperation();
 }
-
-function syncDA3IfNeeded ()
-{
-	pleaseWait_freeText_appendText("da3 sync...");
-	rhea.sendSyncDA3();
-	setTimeout (function(){ syncDA3IfNeeded_onProgress();}, 600);
-}
-
-function syncDA3IfNeeded_onProgress ()
-{
-	if (currentCPUStatusID != -1 && currentCPUStatusID != 105)
-	{
-		pleaseWait_freeText_appendText("<br>");
-		priv_askCPULangNames();
-	}
-	else
-	{
-		setTimeout (function(){ syncDA3IfNeeded_onProgress();}, 800);
-		pleaseWait_freeText_appendText(".");
-	}
-}
-
-
-var cpuLangName1 = "";
-var cpuLangName2 = "";
-function priv_askCPULangNames()
-{
-	pleaseWait_freeText_appendText("getting CPU lang names...<br>");
-	//console.log ("ajax::getCPULangNames");
-	rhea.ajax ("getCPULangNames", "").then( function(result)
-	{
-		//cpuLangName1 = utf16StrToStr(result, 0);
-		//cpuLangName2 = utf16StrToStr(result, (1+cpuLangName1.length) * 2);
-		var e = result.split("#");
-		cpuLangName1 = e[0];
-		cpuLangName2 = e[1];
-		priv_askMachineTypeAndModel();
-	})
-	.catch( function(result)
-	{
-		console.log ("err[" +result +"]");
-		cpuLangName1 = "lang 1";
-		cpuLangName1 = "lang 2";
-		setTimeout(function() { priv_askCPULangNames(); }, 200);
-	});	
-}
-
-function priv_askMachineTypeAndModel()
-{
-	pleaseWait_freeText_appendText("getting machine type and model...<br>");
-	//console.log ("ajax::getMachineTypeAndModel");
-	rhea.ajax ("getMachineTypeAndModel", "").then( function(result)
-	{
-		var obj = JSON.parse(result);
-		
-		//carico il da3
-		pleaseWait_freeText_appendText("loading da3...<br>");
-		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione);
-		da3.load();
-	})
-	.catch( function(result)
-	{
-		setTimeout(function() { priv_askMachineTypeAndModel(); }, 200);
-	});	
-}
-
-//***************** chiamata al termine del caricamento del da3
-function onDA3Loaded(bResult)
-{
-	if (bResult == 0)
-	{
-		setTimeout ( function() { window.location = "index.html"; }, 1000);
-		return;
-	}
-
-	//console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
-	guiInfo = new GUIInfo();
-	guiInfo.load();
-}
-
-//***************** chiamata al termine delle gui info
-var bGotoHMIAfterLavaggio = 0;
-function onGUIInfoLoaded()
-{
-	pageProductQty_build();
-	pageSelections_build();
-	pageSingleSelection_build();
-	pageTemperature_build();
-	pleaseWait_hide();
-	
-	//chiedo se il manuale e' installato, nel qual caso abilito il relativo bottone
-	rhea.ajax ("isManInstalled", "").then( function(result)
-	{
-		if (result!="KO")
-		{
-			rheaShowElem(rheaGetElemByID("divBtnManual"));
-			manualFolderName = result;
-		}
-	})
-	.catch( function(result)
-	{
-	});
-	
-	
-	//abilito il menu milker se macchine==espresso
-	if (da3.isEspresso())
-	{
-		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
-		rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
-	}
-	
-	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
-	
-	//di default mostro la pagina pageMainMenu. Se però in GET c'è specificata un'altra pagina..
-	switch (rheaGetURLParamOrDefault("page", "pageMainMenu"))
-	{
-		case "pageMainMenu": pageMainMenu_show(); break;
-		case "pageCleaning": pageCleaning_show(); break;
-		case "pageMaintenance": pageMaintenance_show(); break;
-		case "pageMiscellaneous": pageMiscellaneous_show(); break;
-		case "pageProductQty": pageProductQty_show(); break;
-		case "pageMilker": pageMilker_show(); break;
-		
-		case "pageCleaningSanitario": 
-			//start del lavaggio sanitario e, alla fine, goto back to HMI
-			pageCleaning_show(); 
-			pageCleaning_startLavSanitario(8,0); 
-			bGotoHMIAfterLavaggio = 1;
-			break;
-
-		case "pageCleaningMilker": 
-			//start del lavaggio milker e, alla fine, goto back to HMI
-			pageCleaning_show(); 
-			
-			//prima di poter partire col lavaggio sanitario del milker, bisogna che la CPU non sia ancora in stato INI_CHECK
-			//pageCleaning_startLavSanitario(5,1); 
-			bGotoHMIAfterLavaggio = 1;
-			pleaseWait_show(); 
-			pleaseWait_freeText_show();
-			pleaseWait_freeText_setText("MILK MODULE RINSING<br>Waiting for machine to be ready");
-			setTimeout (waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3), 100);
-			break;
-	}	
-}
-	
-function waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft)
-{
-	pleaseWait_freeText_appendText(".");
-	if (currentCPUStatusID != 2) //2 == READY
-	{
-		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3); }, 1000);
-		return;
-	}
-	
-	howManyTimesLeft--;
-	if (howManyTimesLeft == 0)
-	{
-		pleaseWait_freeText_appendText ("<br>Cleaning is starting");
-		pageCleaning_startLavSanitario(5,1); 
-	}
-	else
-		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft); }, 1000);
-}
-
-function manualViewBox_show()
-{
-	rheaShowElem(rheaGetElemByID("manualViewBox"));
-	var f = document.getElementById("manualViewBoxFrame");
-	f.src = "../../last_installed/manual/" +manualFolderName +"/index.html";
-}
-function manualViewBox_close()		{ rheaHideElem(rheaGetElemByID("manualViewBox")); }
-
 
 function header_setText(s)				{ s=s.replace(/<br>/, "&nbsp;"); rheaSetDivHTMLByName("divHeaderC", s); }
-
 function gotoHMI()						{ window.location = "gotoHMI.html"; }
-function showPage(pageID)				{ return showPageEx(pageID,0); }
-function showPageEx(pageID, da3Offset)	
+
+/***************************************************************************
+ *
+ * show page
+ *	ritorna != 0 se è la prima volta che questa finestra viene visualizzata
+ */
+function showPage  (pageID, pageTitle, bShowBtnBack, bShowBtnSave)				{ return showPageEx(pageID, pageTitle, bShowBtnBack, bShowBtnSave,0); }
+function showPageEx(pageID, pageTitle, bShowBtnBack, bShowBtnSave, da3Offset)	
 { 
-	currentPageID=pageID; 
-	var win=ui.getWindowByID(currentPageID); 
-	var ret=win.firstTimeShow; 
+	currentPageID = pageID; 
+	var win = ui.getWindowByID(currentPageID); 
+	var ret = win.firstTimeShow; 
 	ui.hideAllExcept(currentPageID); 
 	rheaHideElem(rheaGetElemByID("divCurLang"));
 	win.loadFromDA3(da3, da3Offset);
-	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS); 
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
+	
+	pleaseWait_hide();
+	header_setText (pageTitle);
+	btnBack_setCallback("btnBack_defaultCallback();");
+	btnSave_setCallback("btnSave_defaultCallback();");
+	if (bShowBtnBack!=0) btnBack_show(); else btnBack_hide();
+	if (bShowBtnSave!=0) btnSave_show(); else btnSave_hide();
 	return ret;
 }
-function btnBack_show() 				{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); rheaSetDisplayMode(rheaGetElemByID("btnSave"), "table"); }
-function btnBack_hide() 				{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("btnSave")); rheaHideElem(rheaGetElemByID("bntTestSelection")); }
-function btnBack_onClick (bSave)				
-{ 
-	if (currentTask != voidTask)
-		currentTask = voidTask;
-	
-	if (bSave == 0)
-		backToMainMenu();
-	else
-		save( function() { backToMainMenu();} );
-}
 
 
-var backTo="";
-function backToMainMenu()
-{
-	pleaseWait_hide();
-	
-	var where = backTo;
-	backTo="";
-	switch (where)
-	{
-	default:				pageMainMenu_show(); break;
-	case "pageSelections":	pageSelections_show(); break;
-	}
-}
+/***************************************************************************
+ *
+ * bottoni back / save
+ */
+var btn_save_callback = null;
+var btn_back_callback = null;
+function btnSave_show()								{ rheaSetDisplayMode(rheaGetElemByID("btnSave"), "table"); }
+function btnSave_hide()								{ rheaHideElem(rheaGetElemByID("btnSave")); }
+function btnSave_setCallback (fnToCallWhenFinished)	{ btn_save_callback=fnToCallWhenFinished; }
+function btnSave_onClick()							{ eval(btn_save_callback); }
+function btnSave_defaultCallback()					{ save( function() { btnBack_onClick();} ); }
 
+function btnBack_show() 							{ rheaSetDisplayMode(rheaGetElemByID("bntBack"), "table"); }
+function btnBack_hide() 							{ rheaHideElem(rheaGetElemByID("bntBack")); rheaHideElem(rheaGetElemByID("bntTestSelection")); }
+function btnBack_setCallback (fnToCallWhenFinished)	{ btn_back_callback=fnToCallWhenFinished; }
+function btnBack_onClick ()							{ eval(btn_back_callback); }
+function btnBack_defaultCallback()					{ if (currentTask != voidTask) currentTask = voidTask; pageMainMenu_show(); }
+
+
+
+/***************************************************************************
+ *
+ * save
+ * se ci sono state modifiche al da3, le salva e le trasmette a CPU. Al termine, chiama la fn [fnToCallWhenFinished]
+ */
 var save_fnToCallWhenFinished = "";
 function save (fnToCallWhenFinished)
 {
@@ -1274,15 +1124,13 @@ function save (fnToCallWhenFinished)
 		pleaseWait_show();
 		pleaseWait_freeText_setText("Salvataggio datafile, attendere prego...<br>");
 		pleaseWait_freeText_show();
-		storeDA3Block_step (1, nBlocchi, blockList);
+		save_storeDA3Block_step (1, nBlocchi, blockList);
 	}
 	else
-		onSaveFinished();
+		save_onFinished();
 }
 
-function onSaveFinished() 	{  save_fnToCallWhenFinished.call(); }
-
-function storeDA3Block_step (uno_di, nBlocchi, blockList)
+function save_storeDA3Block_step (uno_di, nBlocchi, blockList)
 {
 	var blockNum = blockList[uno_di-1];
 	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
@@ -1293,7 +1141,7 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 		
 		if (result != "OK")
 		{
-			setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 400 );
+			setTimeout ( function() { save_storeDA3Block_step (uno_di, nBlocchi, blockList); }, 400 );
 			return;
 		}
 		
@@ -1301,48 +1149,27 @@ function storeDA3Block_step (uno_di, nBlocchi, blockList)
 		da3.copyBlockToOriginal(blockNum);
 		if (uno_di >= nBlocchi)
 		{
-			setTimeout ( function() { onSaveFinished(); }, 100);
+			setTimeout ( function() { save_onFinished(); }, 100);
 			return;
 		}
 		
 		uno_di++;
-		setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 100);
+		setTimeout ( function() { save_storeDA3Block_step (uno_di, nBlocchi, blockList); }, 100);
 	})
 	.catch( function(result)
 	{
-		setTimeout ( function() { storeDA3Block_step (uno_di, nBlocchi, blockList); }, 400 );
+		setTimeout ( function() { save_storeDA3Block_step (uno_di, nBlocchi, blockList); }, 400 );
 	});		
 }
 
-function helper_intToFixedOnePointDecimale(v)
-{
-	if (v > 0)
-	{
-		if (v<10)
-			v = "0." +v;
-		else
-		{
-			v = v.toString();
-			v = v.substr(0, v.length-1) +"." +v.substr(v.length-1);
-		}
-	}
-	return v;
-}
-
-function helper_decodeImpulsi(v)
-{
-	//prende i 3 digiti meno significativi e mette un punto dopo il primo digit
-	var s = v.toString();
-	while (s.length < 3) s = "0" +s;
-	
-	var n = s.length;
-	if (n > 3)
-		s = s.substr(n-3, 3);
-		
-	return s.substr(0,1) +"." +s.substr(1,2);
-}
+function save_onFinished() 	{  save_fnToCallWhenFinished.call(); }
 
 
+/***************************************************************************
+ *
+ * menu linguaggio
+ * 
+ */
 function menuLang_show(bShow)
 {
 	var e = rheaGetElemByID("divMenuLang");
@@ -1362,173 +1189,23 @@ function menuLang_onUserSelected(iso)
 	{
 		window.location = "index_" +iso +".html";
 	});	
-	
 }
+
 
 
 /***************************************************************************
  *
- * please wait
+ * manuale
  *
  */
-function pleaseWait_show()				
-{ 
-	pleaseWait_setTextLeft(""); 
-	pleaseWait_setTextRight(""); 
-	pleaseWait_freeText_setText("");
-	
-	pleaseWait_btn1_hide();
-	pleaseWait_btn2_hide();
-	pleaseWait_btnTrick_hide();
-	pleaseWait_freeText_hide();
-	
-	pleaseWait_wait_show();
-	rheaShowElem(rheaGetElemByID("pagePleaseWait")); 
-}
-function pleaseWait_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait")); }
-function pleaseWait_setTextLeft(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_left", s); }
-function pleaseWait_setTextRight(s)		{ rheaSetDivHTMLByName("pagePleaseWait_header_right", s); }
-
-function pleaseWait_wait_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_wait")); }
-function pleaseWait_wait_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_wait")); }
-
-function pleaseWait_freeText_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeText")); }
-function pleaseWait_freeText_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeText")); }
-function pleaseWait_freeText_setText(s)		{ rheaSetDivHTMLByName("pagePleaseWait_freeText", s); }
-function pleaseWait_freeText_appendText(s)	{ var d=rheaGetElemByID("pagePleaseWait_freeText"); d.innerHTML += s; }
-
-function pleaseWait_btn1_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }
-function pleaseWait_btn1_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn1")); }
-function pleaseWait_btn1_setText(s)		{ rheaSetDivHTMLByName("bntFree1Text", s); }
-
-
-function pleaseWait_btn2_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
-function pleaseWait_btn2_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtn2")); }
-function pleaseWait_btn2_setText(s)		{ rheaSetDivHTMLByName("bntFree2Text", s); }
-
-function pleaseWait_btnTrick_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
-function pleaseWait_btnTrick_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_freeBtnTrick")); }
-
-
-function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
-function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
-function pleaseWait_calibration_num_show()				{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
-function pleaseWait_calibration_num_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
-function pleaseWait_calibration_num_setValue (v)		{ uiStandAloneNum.setValue(parseInt(v)); }
-function pleaseWait_calibration_num_getValue()			{ return uiStandAloneNum.getValue(); }
-function pleaseWait_calibration_setText(s)				{ rheaSetDivHTMLByName("pagePleaseWait_calibration_text", s); }
-function pleaseWait_calibration_varigrind_show()		{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
-function pleaseWait_calibration_varigrind_hide()		{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_1")); }
-function pleaseWait_calibration_motor_show()			{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_2")); }
-function pleaseWait_calibration_motor_hide()			{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_2")); }
-
-/***************************************************************************
- *
- * data & ora
- *
- */
-var dataora_mm = 1;
-var dataora_dd = 1;
-var dataora_yy = 2018;
-var dataora_hh = 0;
-var dataora_min = 0;
-var dataora_sec = 0;
-var dataora_interval = null;
-
-function dataOra_setup ()
+function manualViewBox_show()
 {
-	if (null != dataora_interval)
-	{
-		clearInterval(dataora_interval);
-		dataora_interval = null;
-	}
-		
-	//console.log ("dataOra_setup::ajax::getTime");
-	rhea.ajax ("getTime", "").then( function(result)
-	{
-		var data = JSON.parse(result);
-		dataora_hh = data.h;
-		dataora_min = data.m;
-		dataora_sec = data.s;
-	
-		//console.log ("dataOra_setup::ajax::getDate");	
-		rhea.ajax ("getDate", "").then( function(result)
-		{
-			var data = JSON.parse(result);
-			dataora_dd = data.d;
-			dataora_mm = data.m;
-			dataora_yy = data.y;
-			dataOra_run();
-		})
-		.catch( function(result)
-		{
-			//console.log ("dataOra_setup::ajax::getDate::err");
-			setTimeout ( function() {dataOra_setup();}, 200);
-		});	
-	})
-	.catch( function(result)
-	{
-		console.log ("dataOra_setup::ajax::getTime::err[" +result +"]");
-		setTimeout ( function() {dataOra_setup();}, 200);
-	});
+	rheaShowElem(rheaGetElemByID("manualViewBox"));
+	var f = document.getElementById("manualViewBoxFrame");
+	f.src = "../../last_installed/manual/" +manualFolderName +"/index.html";
 }
+function manualViewBox_close()		{ rheaHideElem(rheaGetElemByID("manualViewBox")); }
 
-function dataOra_getYYYYMMDD()
-{
-	var mm = dataora_mm.toString();
-	if (mm.length<2) mm = "0"+mm;
-	
-	var gg = dataora_dd.toString();
-	if (gg.length<2) gg = "0"+gg;
-	return dataora_yy +"/" +mm +"/" +gg;
-}
-
-function dataOra_getHHMM(sep)
-{
-	var hh = dataora_hh.toString();
-	if (hh.length<2) hh = "0"+hh;
-	
-	var mm = dataora_min.toString();
-	if (mm.length<2) mm = "0"+mm;
-	return hh +sep +mm;
-}
-
-function dataOra_run ()
-{
-	if (null != dataora_interval)
-		clearInterval(dataora_interval);
-
-
-	rheaSetDivHTMLByName("divHeaderR_data", dataOra_getYYYYMMDD());
-	
-	dataora_interval = setInterval (function() 
-					{ 
-						dataora_sec++;
-						if (dataora_sec >= 60)
-						{
-							dataora_sec = 0;
-							dataora_min++;
-							if (dataora_min >= 60)
-							{
-								dataora_min = 0;
-								if (dataora_hh==23)
-								{
-									dataOra_setup();
-									return;
-								}
-								dataora_hh++;
-							}
-						}
-						
-						var hhmm = ""
-						if (dataora_sec % 2 == 0)
-							hhmm = dataOra_getHHMM("&nbsp;");
-						else
-						hhmm = dataOra_getHHMM(":");
-						rheaSetDivHTMLByName("divHeaderR_ora", hhmm);
-					}, 
-					1000);
-}
 
 
 /***************************************************************************
@@ -1538,10 +1215,9 @@ function dataOra_run ()
  */
 function pageMainMenu_show()
 {
-	showPage("pageMainMenu");
-	header_setText("<div style='margin-left:140px'><center><img  src='img/iconHome.png'> Menù programmazione</center></div>");
+	var title = "<div style='margin-left:140px'><center><img  src='img/iconHome.png'> Menù programmazione</center></div>";
+	showPage("pageMainMenu", title, 0, 0);
 	rheaShowElem(rheaGetElemByID("divCurLang"));
-	btnBack_hide();
 }
 
 
@@ -1552,7 +1228,7 @@ function pageMainMenu_show()
  */
 function pageMaintenance_show()
 {
-	if (showPage('pageMaintenance'))
+	if (showPage("pageMaintenance", "MANUTENZIONE", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -1563,8 +1239,6 @@ function pageMaintenance_show()
 		}
 	}
 
-	header_setText("MANUTENZIONE");
-	btnBack_show();
 	pageMaintenance_getDecountersValues();		
 	pageMaintenance_refreshOFFList(0);
 	pageMaintenance_onSelector();
@@ -1744,7 +1418,7 @@ function pageMaintenance_disinstall_onAbort()
  */
 function pageCleaning_show()
 {
-	if (showPage("pageCleaning"))
+	if (showPage("pageCleaning", "PULIZIA/<br>LAVAGGI", 1 ,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -1753,10 +1427,6 @@ function pageCleaning_show()
 			w.getChildByID("pageCleaning_btnCleanHC").hide();
 		}
 	}
-	header_setText("PULIZIA/<br>LAVAGGI");
-
-	btnBack_show();
-	//rheaHideElem(rheaGetElemByID("btnSave"));
 }
 
 function pageCleaning_action (what)
@@ -1804,7 +1474,7 @@ var pageMiscellaneous_fvhBefore = 0;
 function pageMiscellaneous_show()
 {
 	var win = ui.getWindowByID("pageMiscellaneous");
-	if (showPage("pageMiscellaneous"))
+	if (showPage("pageMiscellaneous", "VARIE", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
@@ -1838,12 +1508,7 @@ function pageMiscellaneous_show()
 	}
 	
 	pageMiscellaneous_fv_refresh();
-
-	header_setText("VARIE");
 	pageMiscellaneous_onSelector();
-	btnBack_show();
-	
-	//currentTask = new TaskP15();
 }
 
 function pageMiscellaneous_fv_refresh()
@@ -1952,14 +1617,12 @@ function  pageMiscellaneous_onSelector()
  */
 function pageProductQty_show()
 {
-	if (showPage("pageProductQty"))
+	if (showPage("pageProductQty", "QUANTITA'<br>PRODOTTI", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		pageProductQty_getDecounterValues();
 	}
 	pageProductQty_showDecounter();
-	header_setText("QUANTITA'<br>PRODOTTI");
-	btnBack_show();
 	
 	//aggiorno le unità di misura
 	var win = ui.getWindowByID("pageProductQty");
@@ -2118,12 +1781,7 @@ function pageProductQty_getDecounterValues()
  */
 function pageMilker_show()
 {
-	if (showPage("pageMilker"))
-	{
-		//è la prima volta che visualizziamo la pagina
-	}
-	header_setText("CAPPUCCINATORE");
-	btnBack_show();
+	showPage("pageMilker", "CAPPUCCINATORE", 1,1);
 }
 
 
@@ -2135,14 +1793,11 @@ function pageMilker_show()
  */
 function pageSelections_show()
 {
-	if (showPage("pageSelections"))
+	if (showPage("pageSelections", "SELEZIONI", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	header_setText("SELEZIONI");
 	rheaHideElem(rheaGetElemByID("bntTestSelection"));
-	btnBack_show();
-	rheaHideElem(rheaGetElemByID("btnSave"));
 	pageSelections_onSelector();
 }
 
@@ -2204,10 +1859,13 @@ var pageSingleSelection_curSel = 0;
 function pageSingleSelection_show(iSel)
 {
 	pageSingleSelection_curSel = iSel;
-	if (showPageEx("pageSingleSelection", 100 * (iSel-1)))
+	
+	var title = "SELEZIONE " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name;
+	if (showPageEx("pageSingleSelection", title, 1, 1, 100 * (iSel-1)))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
+	btnBack_setCallback("pageSelections_show()");
 	
 	var win = ui.getWindowByID("pageSingleSelection");
 	
@@ -2241,14 +1899,7 @@ function pageSingleSelection_show(iSel)
 	
 	//unita' misura macina
 	pageSingleSelection_onChangeGrinder();
-	
-	//titolo della finestra
-	var title = "SELEZIONE " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name;
-	header_setText(title);
-	
-	backTo = "pageSelections";
-	btnBack_show();
-	
+
 	rheaSetElemTop(rheaGetElemByID("pageSingleSelection_content"), 0);
 	rheaHideElem(rheaGetElemByID("pageSingleSelection_arrowUp"));
 	
@@ -2595,15 +2246,11 @@ function pageSingleSelection_test_onFinish()
  */
 function pageTemperature_show()
 {
-	if (showPage("pageTemperature"))
+	if (showPage("pageTemperature", "TEMPERATURE", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	header_setText("TEMPERATURE");
-	btnBack_show();
-	
 	currentTask = new TaskTemperature();
-	
 }
 
 function pageTemperature_build()
@@ -2643,13 +2290,11 @@ function pageTemperature_build()
  */
 function pageClock_show()
 {
-	if (showPage("pageClock"))
+	if (showPage("pageClock", "DATA/ORA", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	header_setText("DATA/ORA");
 	pageClock_onSelector();
-	btnBack_show();
 	
 	//sincronizzo data e ora
 	pageClock_syncTime();
@@ -2760,7 +2405,7 @@ function pageClock_setDate()
  */
 function pageCalibration_show()
 {
-	if (showPage("pageCalibration"))
+	if (showPage("pageCalibration", "CALIBRAZIONI", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -2777,10 +2422,6 @@ function pageCalibration_show()
 	}
 
 	pageCalibration_refreshCalibValueOnScreen();
-	
-	header_setText("CALIBRAZIONI");
-	btnBack_show();
-	rheaHideElem(rheaGetElemByID("btnSave"));
 	currentTask = taskCalibMotor;
 }
 
@@ -2790,7 +2431,7 @@ function pageCalibration_refreshCalibValueOnScreen()
 	{
 		for (var i=1; i<=6; i++)
 		{
-			var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
+			var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
 		}
 		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
@@ -2799,7 +2440,7 @@ function pageCalibration_refreshCalibValueOnScreen()
 	else
 	{
 		//macina 1
-		var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(11) );
+		var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(11) );
 		rheaSetDivHTMLByName("pageCalibration_m11", v +"&nbsp;gr/sec");
 		v = helper_decodeImpulsi(da3.getImpulsi(11));
 		rheaSetDivHTMLByName("pageCalibration_encoder1", v +"&nbsp;imp/gr");
@@ -2807,7 +2448,7 @@ function pageCalibration_refreshCalibValueOnScreen()
 		//motori
 		for (var i=2; i<=6; i++)
 		{
-			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(i) );
+			v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
 		}
 		
@@ -2816,7 +2457,7 @@ function pageCalibration_refreshCalibValueOnScreen()
 			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
 		else
 		{
-			v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(12) );
+			v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(12) );
 			rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
 			v = helper_decodeImpulsi(da3.getImpulsi(12));
 			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/gr");
@@ -2912,7 +2553,7 @@ function pageCalibration_runMotorAgain()
  */
 function pagePayment_show()
 {
-	if (showPage("pagePayment"))
+	if (showPage("pagePayment", "SISTEMI DI<br>PAGAMENTO", 1,1))
 	{
 	}
 
@@ -2923,8 +2564,6 @@ function pagePayment_show()
 	win.getChildByID("pagePayment_restMax").setDecimals(da3.getDecimalsForPrices());
 	win.getChildByID("pagePayment_tokenV").setDecimals(da3.getDecimalsForPrices());
 	win.getChildByID("pagePayment_maxCC").setDecimals(da3.getDecimalsForPrices());
-	header_setText("SISTEMI DI<br>PAGAMENTO");
-	btnBack_show();
 }
 
 function pagePayment_onSelector()
@@ -2959,7 +2598,7 @@ function pagePayment_onSelector()
  */
 function pageDevices_show()
 {
-	if (showPage("pageDevices"))
+	if (showPage("pageDevices", "DISPOSITIVI", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -2972,16 +2611,13 @@ function pageDevices_show()
 		
 		rheaSetDivHTMLByName("pageDevices_vgrind1_lastPos_caption", da3.read16(7596));
 		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7692));
-		pageDevices_vgrind_setLastFluxAndPos(-1, -1);
+		pageDevices_vgrind_setLastFluxAndPos(pageDevices_vgrind_lastFlux, pageDevices_vgrind_lastPos);
 	}
 
 	currentTask = new TaskDevices();
 	pageDevices_onSelector();
 	pageDevices_onEnableAuto(1);
 	pageDevices_onEnableAuto(2);
-	header_setText("DISPOSITIVI");
-	btnBack_show();
-	
 }
 
 var pageDevices_whichPage = 0;
@@ -3076,6 +2712,8 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
 		rheaSetDisplayMode (elemBtnUse1, "table");
 		rheaSetDisplayMode (elemBtnUse2, "table");
+		
+		rheaSetDivHTMLByName("pageExpCalib_lastFlux", s +" cc/sec");
 	}
 }
 
@@ -3090,10 +2728,10 @@ function pageDevices_vgrind_useLastFluxAndPos(whichVG)
 	else
 		da3.write16 (7692, pageDevices_vgrind_lastPos);
 	rheaSetDivHTMLByName("pageDevices_vgrind" +whichVG +"_lastPos_caption", pageDevices_vgrind_lastPos);
+	
+	//forzo un salvataggio dei dati
+	save ( function() { pleaseWait_hide(); } );
 }
-
-
-
 
 function pageDevices_onEnableAuto(whichVG)
 {
@@ -3142,7 +2780,7 @@ var pageDA_secretBtnCounter = 0;
 var pageDA_secretBtnLastTimeClickedMSec=0;
 function pageDataAudit_show()
 {
-	if (showPage("pageDataAudit"))
+	if (showPage("pageDataAudit", "DATA AUDIT", 1,0))
 	{
 		pageDataAudit_downloadEVA();
 		
@@ -3165,10 +2803,6 @@ function pageDataAudit_show()
 	}
 	
 	pageDataAudit_onSelector();
-
-	header_setText("DATA AUDIT");
-	btnBack_show();
-	rheaHideElem(rheaGetElemByID("btnSave"));
 }
 
 function pageDataAudit_showSecretDaResetButtonWindow()
@@ -3454,9 +3088,10 @@ function pageDataAudit_downloadEVA_onFinish()
  *
  */
 var taskEspressoCalib = null;
+var pageExpCalib_macina1o2 = 1;
 function pageExpCalib_show()
 {
-	if (showPage("pageExpCalib"))
+	if (showPage("pageExpCalib", "ESPRESSO CALIBRATION (beta)", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
@@ -3464,12 +3099,8 @@ function pageExpCalib_show()
 	if (null == taskEspressoCalib)
 		taskEspressoCalib = new TaskEspressoCalib();
 	currentTask = taskEspressoCalib;
-	currentTask.setMacina(1);
-	
+	currentTask.setMacina(pageExpCalib_macina1o2);
 	pageExpCalib_refreshCalibValueOnScreen();
-	header_setText("ESPRESSO CALIBRATION (beta)");
-	btnBack_show();
-	rheaHideElem(rheaGetElemByID("btnSave"));
 }
 
 function pageExpCalib_regolaVG()
@@ -3477,6 +3108,16 @@ function pageExpCalib_regolaVG()
 	var win = ui.getWindowByID("pageExpCalib");
 	var target = parseInt(win.getChildByID("pageExpCalib_vg_target").getValue());
 	currentTask.enterSetMacinaPos(target);
+}
+
+function pageExpCalib_editSelection()
+{
+	currentTask = voidTask;
+	pleaseWait_show();
+	var win = ui.getWindowByID("pageExpCalib");
+	var selNum = parseInt(win.getChildByID("pageExpCalib_selNum").getValue())
+	pageSingleSelection_show(selNum);
+	btnBack_setCallback("pageExpCalib_show()");
 }
 
 function pageExpCalib_runSelection()
@@ -3492,13 +3133,7 @@ function pageExpCalib_runSelection_onFinish()
 	rhea.ajax ("getLastFluxInfo", "").then( function(result)
 	{
 		var data = JSON.parse(result);
-
-		//flux è di 3 cifre, con due decimali
-		var s = data.flux.toString();
-		while (s.length < 3) s = "0" +s;
-		s = s.substr(0,1) +"." +s.substr(1,2);
-		rheaSetDivHTMLByName("pageExpCalib_lastFlux", s +" cc/sec");
-
+		pageDevices_vgrind_setLastFluxAndPos(data.flux, data.grinderPos);
 		pageExpCalib_runSelection_onFinish2();
 	})
 	.catch( function(result)
@@ -3512,9 +3147,6 @@ function pageExpCalib_runSelection_onFinish2()
 	pleaseWait_hide();
 	currentTask.enterQueryMacinePos();
 }
-
-
-
 
 function pageExpCalib_resetMacinaCalib()
 {
@@ -3554,11 +3186,26 @@ function pageExpCalib_refreshCalibValueOnScreen()
 	//macina 1
 	var motor = 10 + currentTask.macina1o2;
 	
-	var v = helper_intToFixedOnePointDecimale( da3.getCalibFactorGSec(motor) );
+	var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(motor) );
 	rheaSetDivHTMLByName("pageExpCalib_grSec", v +"&nbsp;gr/sec");
 	
 	v = helper_decodeImpulsi(da3.getImpulsi(motor));
 	rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");	
+}
+
+function pageExpCalib_onChangeGrinder()
+{
+	pleaseWait_show();
+	var win = ui.getWindowByID("pageExpCalib");
+	switch (parseInt(win.getChildByID("pageExpCalib_macina1o2").getSelectedOptionValue()))
+	{
+		case 2: pageExpCalib_macina1o2=2; break;
+		default: pageExpCalib_macina1o2=1; break;
+	}
+	rheaSetDivHTMLByName("pageExpCalib_vgCurPos", "");
+	win.getChildByID("pageExpCalib_vg_target").setValue(0);
+	
+	setTimeout ( function() {pageExpCalib_show();}, 200);
 }
 </script>
 </html>
