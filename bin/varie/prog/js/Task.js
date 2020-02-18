@@ -1201,8 +1201,8 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 	case 0:
 		this.fase = 1;
 		pleaseWait_show();
-		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT1"); //DISINTALLATION<br><br>Is driptray empty?
+		pleaseWait_freeText_show();
+		pleaseWait_freeText_setText("$TASK_DISINSTALL_WAIT1"); //DISINTALLATION<br><br>Is driptray empty?
 		pleaseWait_btn1_setText("$TASK_DISINSTALL_YES_CONTINUE");
 		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn1_show();
@@ -1214,7 +1214,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 10:
 		this.fase = 11;
-		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT2"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
+		pleaseWait_freeText_setText("$TASK_DISINSTALL_WAIT2"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
 		pleaseWait_btn1_setText("$LAB_CONTINUE");
 		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn1_show();
@@ -1226,7 +1226,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 20:
 		this.fase = 21;
-		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT3"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
+		pleaseWait_freeText_setText("$TASK_DISINSTALL_WAIT3"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
 		pleaseWait_btn1_setText("$LAB_MAINT_START_DISINSTALLATION");
 		pleaseWait_btn2_setText("$LAB_ABORT");
 		pleaseWait_btn1_show();
@@ -1238,7 +1238,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 30:
 		this.fase = 31;
-		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT4 ..."); //DISINTALLATION is running, please wait
+		pleaseWait_freeText_setText("$TASK_DISINSTALL_WAIT4 ..."); //DISINTALLATION is running, please wait
 		rhea.sendStartDisintallation();
 		
 	case 31: this.fase = 32; break;
@@ -1252,7 +1252,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		break;
 		
 	case 40:
-		pleaseWait_calibration_setText("$TASK_DISINSTALL_WAIT5"); //DISINTALLATION finished, please shut down the machine
+		pleaseWait_freeText_setText("$TASK_DISINSTALL_WAIT5"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
 		break;
 		
