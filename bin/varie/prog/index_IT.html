@@ -1104,6 +1104,8 @@ function btnBack_setCallback (fnToCallWhenFinished)	{ btn_back_callback=fnToCall
 function btnBack_onClick ()							{ eval(btn_back_callback); }
 function btnBack_defaultCallback()					{ if (currentTask != voidTask) currentTask = voidTask; pageMainMenu_show(); }
 
+function btnTestSelection_show()					{ rheaShowElem(rheaGetElemByID("bntTestSelection")); }
+function btnTestSelection_hide()					{ rheaHideElem(rheaGetElemByID("bntTestSelection")); }
 
 
 /***************************************************************************
@@ -1798,7 +1800,7 @@ function pageSelections_show()
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
-	rheaHideElem(rheaGetElemByID("bntTestSelection"));
+	btnTestSelection_hide();
 	pageSelections_onSelector();
 }
 
@@ -1867,6 +1869,7 @@ function pageSingleSelection_show(iSel)
 		//è la prima volta che visualizziamo la pagina
 	}
 	btnBack_setCallback("pageSelections_show()");
+	btnTestSelection_show();
 	
 	var win = ui.getWindowByID("pageSingleSelection");
 	
@@ -1910,9 +1913,6 @@ function pageSingleSelection_show(iSel)
 	pageSingleSelection_onStatus();
 	
 	pleaseWait_hide();
-	
-	//bottone test selezione, commentato perche' la CPU non e' ancora pronta a gestirlo
-	rheaShowElem(rheaGetElemByID("bntTestSelection"));
 }
 
 function pageSingleSelection_onChangeGrinder()
@@ -3096,6 +3096,7 @@ function pageExpCalib_show()
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
+	btnTestSelection_hide();
 
 	if (null == taskEspressoCalib)
 		taskEspressoCalib = new TaskEspressoCalib();
