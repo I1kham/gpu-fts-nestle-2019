@@ -369,6 +369,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
             else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
                 retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
+            //come sopra ma per il cappucinatore
+            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER)
+                retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
+
         }
         break;
 

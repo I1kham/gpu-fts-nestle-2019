@@ -541,6 +541,9 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
             //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
             else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
                 retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
+            //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO del cappucinatore. Funziona come sopra
+            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER)
+                retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
         }
         break;
 
