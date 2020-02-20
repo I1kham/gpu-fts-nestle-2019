@@ -175,6 +175,7 @@ namespace cpubridge
         eVMCState_LAVAGGIO_SANITARIO = 20,
 		eVMCState_TEST_ATTUATORE_SELEZIONE = 21,
 		eVMCState_TEST_MODEM = 22,
+		eVMCState_LAVAGGIO_MILKER = 23,
 		
 		eVMCState_COM_ERROR     = 101,
 		eVMCState_REG_APERTURA_MACINA = 102,

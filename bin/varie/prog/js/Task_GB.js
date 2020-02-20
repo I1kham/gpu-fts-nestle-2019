@@ -200,8 +200,8 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 
 TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 {
-	//termino quando lo stato della CPU diventa != da SAN_WASHING
-	if (timeElapsedMSec > 3000 && this.cpuStatus != 20) //20==sanitary washing
+	//termino quando lo stato della CPU diventa != da LAVAGGIO_MILKER
+	if (timeElapsedMSec > 3000 && this.cpuStatus != 23) //23==LAVAGGIO_MILKER
 	{
 		pageCleaning_onFinished();
 		return;

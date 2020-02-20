@@ -147,18 +147,28 @@ function onGUIInfoLoaded()
 function waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft)
 {
 	pleaseWait_freeText_appendText(".");
-	if (currentCPUStatusID != 2) //2 == READY
+	
+	if (currentCPUStatusID == 23) //23==MILK_WASHING
 	{
-		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3); }, 1000);
+		//la CPU è già in lavaggio milker, non devo aspettare alcun cambio di stato
+		pageCleaning_startLavSanitario(5,0); 
+	}
+	else if (currentCPUStatusID == 2) //2==READY
+	{	
+		//la CPU è diventata ready, ma aspetto 2,3 secondi prima di comandare il lavaggio
+		howManyTimesLeft--;
+		if (howManyTimesLeft == 0)
+		{
+			pleaseWait_freeText_appendText ("<br>Cleaning is starting");
+			pageCleaning_startLavSanitario(5,1); 
+		}
+		else
+			setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft); }, 1000);
 		return;
 	}
-	
-	howManyTimesLeft--;
-	if (howManyTimesLeft == 0)
-	{
-		pleaseWait_freeText_appendText ("<br>Cleaning is starting");
-		pageCleaning_startLavSanitario(5,1); 
-	}
 	else
-		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft); }, 1000);
+	{
+		//la CPU non è READY e nemmeno MILK_WASHING, aspetto che entri in uno dei 2 stati
+		setTimeout (function() { waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3); }, 1000);
+	}
 }

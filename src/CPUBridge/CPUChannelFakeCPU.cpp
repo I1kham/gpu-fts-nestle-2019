@@ -532,6 +532,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
 					this->VMCState = eVMCState_LAVAGGIO_SANITARIO;
+				else if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker)
+					this->VMCState = eVMCState_LAVAGGIO_MILKER;
 				else
 					this->VMCState = eVMCState_LAVAGGIO_MANUALE;
 
@@ -545,7 +547,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 
 			case eCPUProgrammingCommand_querySanWashingStatus:
-				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
+				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario ||
+					cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker)
 				{
 					out_answer[ct++] = '#';
 					out_answer[ct++] = 'P';
