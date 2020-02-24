@@ -365,6 +365,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
             if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
                 retCode = eRetCode_gotoFormOldMenuProg;
+
+            /* GIX: voglio che il form boot rimanga nel form boot anche in caso di lavaggi sanitari pendenti
+             *
+             *
             //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO. Spegnendo e riaccendendo la macchina, la
             //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
             else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
@@ -372,7 +376,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             //come sopra ma per il cappucinatore
             else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
-
+            */
         }
         break;
 

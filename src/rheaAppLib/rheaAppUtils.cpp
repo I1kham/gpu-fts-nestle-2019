@@ -10,7 +10,7 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 //***************************************************************
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
-    static const char v[24][16] = {
+    static const char v[26][16] = {
         {"READY"},      //DISPONIBILE
         {"DISPENSING"}, //PREP BEVANDA
 		{"PROG"},
@@ -34,7 +34,9 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 		{"COMPATIB_CHECK"}, //20
 		{"CPU_NOT_SUPP"},
 		{"DA3_SYNC"},
-		{"TEST_SEL"},
+        {"TEST_SEL"}, //23
+        {"TEST_MODEM"},
+        {"MILKER_WASH"},
 	};
 
 	switch (s)
@@ -60,13 +62,15 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 	case cpubridge::eVMCState_DATA_AUDIT:				return v[16];
     case cpubridge::eVMCState_LAVAGGIO_SANITARIO:		return v[17];
 
+    case cpubridge::eVMCState_TEST_ATTUATORE_SELEZIONE:	return v[23];
+    case cpubridge::eVMCState_TEST_MODEM:               return v[24];
+    case cpubridge::eVMCState_LAVAGGIO_MILKER:          return v[25];
+
     case cpubridge::eVMCState_COM_ERROR:				return v[18];
 	case cpubridge::eVMCState_REG_APERTURA_MACINA:		return v[19];
-
 	case cpubridge::eVMCState_COMPATIBILITY_CHECK:		return v[20];
 	case cpubridge::eVMCState_CPU_NOT_SUPPORTED:		return v[21];
 	case cpubridge::eVMCState_DA3_SYNC:					return v[22];
-	case cpubridge::eVMCState_TEST_ATTUATORE_SELEZIONE:	return v[23];
 	}
 }
 
