@@ -38,6 +38,7 @@ namespace cpubridge
 				eStato_compatibilityCheck = 5,
 				eStato_CPUNotSupported = 6,
 				eStato_DA3_sync = 7,
+				eStato_telemetry = 8,
 
 				eStato_quit = 0xff
             };
@@ -100,6 +101,9 @@ namespace cpubridge
 
         void					priv_enterState_programmazione();
         void                    priv_handleState_programmazione();
+
+		void					priv_enterState_telemetry();
+		void					priv_handleState_telemetry();
 
 		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target);
 		void                    priv_handleState_regolazioneAperturaMacina();

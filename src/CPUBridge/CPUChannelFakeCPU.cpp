@@ -171,27 +171,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 	case eCPUCommand_checkStatus_B:
 		//ho ricevuto una richiesta di stato, rispondo in maniera appropriata
 		{
-			/*unsigned char rawData[147] = {
-				0x23, 0x42, 0x40, 0x02, 0x00, 0x00, 0xFF, 0x0F, 0x2C, 0x40, 0x03, 0x40,
-				0x41, 0x30, 0x32, 0x39, 0xA7, 0x04, 0x20, 0x20, 0x20, 0x20, 0x20, 0x30,
-				0x2E, 0x30, 0x30, 0x40, 0x41, 0x30, 0x32, 0x36, 0xA7, 0x01, 0x20, 0x20,
-				0x20, 0x20, 0x20, 0x30, 0x2E, 0x30, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0x00, 0x0D, 0x00, 0x31, 0x47, 0x42, 0x00, 0x20, 0x20, 0x20, 0x20, 0x30,
-				0x2E, 0x30, 0x30, 0x6D, 0x97, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0xFF, 0x00, 0xFD, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00,
-				0x00, 0x1C, 0x01, 0x0C, 0x10, 0x00, 0x0C, 0x0E, 0x60, 0xF4, 0xEB, 0x20,
-				0x00, 0x00, 0x00, 0x04, 0x01, 0x20, 0x00, 0x20, 0x91, 0x30, 0x00, 0x00,
-				0x28, 0x91, 0x00, 0x21, 0x00, 0xFE, 0x00, 0x00, 0x06, 0x00, 0xF0, 0x00,
-				0x00, 0xFE, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0xFF, 0x00, 0x00
-			};
-			*in_out_sizeOfAnswer = 64;
-			memcpy(out_answer, rawData, *in_out_sizeOfAnswer);
-			return true;*/
-			
-
-
 			priv_updateCPUMessageToBeSent(rhea::getTimeNowMSec());
 
 			const u8 tastoPremuto = bufferToSend[3];
@@ -286,7 +265,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 			//Da qui in poi sono dati nuovi, introdotti a dicembre 2018
 			//115			versione protocollo.Inizialmente = 1, potrebbe cambiare in futuro
-			out_answer[ct++] = 5;
+			out_answer[ct++] = CPU_REPORTED_PROTOCOL_VERSION;
 
 			//116 ck
 			out_answer[2] = (u8)ct+1;
@@ -778,6 +757,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 //*****************************************************************
 void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {
+	memset(out_answer, 0, *in_out_sizeOfAnswer);
 	//gestione fake del cleaning
 	if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
 	{
@@ -955,15 +935,32 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	out_answer[ct++] = ' ';
 
 
-	//protocl version 4
-	//1 byte per indicare se btn prog è cliccato
-	out_answer[ct++] = 0;
+	if (CPU_REPORTED_PROTOCOL_VERSION >= 4)
+	{
+		//protocol version 4
+		//1 byte per indicare se btn prog è cliccato
+		out_answer[ct++] = 0;
 
-	//protocol version 5
-	//1 byte a mo' di 8 bit flag per usi futuri
-	out_answer[ct] = 0;
-	out_answer[ct] |= 0x01; //indica che CPU è pronta per fornire il data-audit
-	ct++;
+		//protocol version 5
+		if (CPU_REPORTED_PROTOCOL_VERSION >= 5)
+		{
+			//1 byte a mo' di 8 bit flag per usi futuri
+			u8 newFCPUFlag1 = 0;
+			out_answer[ct] = 0;
+			
+			newFCPUFlag1 |= 0x01; //indica che CPU è pronta per fornire il data-audit
+
+			//protocol version 6
+			if (CPU_REPORTED_PROTOCOL_VERSION >= 6)
+			{
+				bool bSimulaStatoTelemetria = false;
+				if (bSimulaStatoTelemetria)
+					newFCPUFlag1 |= 0x02; //indica se CPU è in telemetria oppure no (default: no)
+			}
+
+			out_answer[ct++] = newFCPUFlag1;
+		}
+	}
 
 
 	//116 ck

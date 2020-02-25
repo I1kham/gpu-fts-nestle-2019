@@ -37,7 +37,7 @@ namespace rhea
 
 
 		u32			length (const u16 *s);
-					/* ritorna il numero di caratteri della stringa (non il numero di bytes). NB che un caratter 
+					/* ritorna il numero di caratteri della stringa (non il numero di bytes). 
 					*/
 
 		u32			rtrim(u16 *s);

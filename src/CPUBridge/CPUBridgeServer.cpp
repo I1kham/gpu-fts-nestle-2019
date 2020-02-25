@@ -137,6 +137,10 @@ void Server::run()
 		case sStato::eStato_regolazioneAperturaMacina:
 			priv_handleState_regolazioneAperturaMacina();
 			break;
+
+		case sStato::eStato_telemetry:
+			priv_handleState_telemetry();
+			break;
 		}
 	}
 
@@ -2161,7 +2165,7 @@ void Server::priv_enterState_normal()
 void Server::priv_handleState_normal()
 {
 	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 250;
-	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 10;
+	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 5;
 	u8 nRetry = 0;
 
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
@@ -2194,6 +2198,13 @@ void Server::priv_handleState_normal()
                     priv_enterState_programmazione();
                     return;
                 }
+
+				// se la CPU mi sta dicendo che è in telemetria...
+				if ((cpuStatus.flag1 & sCPUStatus::FLAG1_TELEMETRY_RUNNING) != 0)
+				{
+					priv_enterState_telemetry();
+					return;
+				}
 			}
 
 			//schedulo il prossimo msg di stato
@@ -2265,6 +2276,57 @@ void Server::priv_handleState_programmazione()
         priv_handleMsgQueues (timeNowMSec, TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec);
     }
 }
+
+
+/***************************************************
+ * In questo stato si entra quando la CPU tira su un preciso bit durante la risposta al comando
+ *	'B'. Una volta entrati in questo stato, ci aspettiamo che la CPU possa non rispondere ad alcun
+ *	comando per parecchio tempo. Durante questo stato, ci comportiamo come se fossimo in com_error solo
+ *	che il messaggio visualizzato a video è "telemetry in progress" invece che "com error".
+ *	Usiamo da qui quando la CPU ricomincia a rispondere e tira giu il bit di cui sopra
+ */
+void Server::priv_enterState_telemetry()
+{
+	logger->log("CPUBridgeServer::priv_enterState_telemetry()\n");
+	stato.set(sStato::eStato_telemetry);
+}
+
+//***************************************************
+void Server::priv_handleState_telemetry()
+{
+	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 500;
+
+	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
+	while (stato.get() == sStato::eStato_telemetry)
+	{
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
+
+		//ogni tot, invio un msg di stato alla CPU
+		if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
+		{
+			u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+			if (0 != sizeOfAnswerBuffer)
+			{
+				//parso la risposta
+				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+
+				// se non siamo più in telemetria, esco da questo stato
+				if ((cpuStatus.flag1 & sCPUStatus::FLAG1_TELEMETRY_RUNNING) == 0)
+				{
+					priv_enterState_DA3Sync();
+					return;
+				}
+			}
+
+			//schedulo il prossimo msg di stato
+			nextTimeSendCheckStatusMsgWasMSec = rhea::getTimeNowMSec() + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
+		}
+
+		//ci sono messaggi in ingresso?
+		priv_handleMsgQueues(timeNowMSec, TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec);
+	}
+}
+
 
 /***************************************************
  *	priv_parseAnswer_checkStatus
@@ -2382,6 +2444,15 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 							newCpuStatusFlag1 |= sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT;
 						else
 							newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT);
+
+						if (cpuParamIniziali.protocol_version >= 6)
+						{
+							if ((flag & 0x02) != 0)
+								newCpuStatusFlag1 |= sCPUStatus::FLAG1_TELEMETRY_RUNNING;
+							else
+								newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_TELEMETRY_RUNNING);
+							
+						}//if (cpuParamIniziali.protocol_version >= 6)						
 					}//if (cpuParamIniziali.protocol_version >= 5)
 				}//if (cpuParamIniziali.protocol_version >= 4)
 			}//if (cpuParamIniziali.protocol_version >= 3)
@@ -2470,56 +2541,79 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	assert(msgLCD_len <= sCPULCDMessage::BUFFER_SIZE_IN_U16);
 	utf16_msgLCD[msgLCD_len] = 0;
 	rhea::utf16::rtrim(utf16_msgLCD);
-	
+
+	//se la CPU ha alzato il bit di "telemetria in corso", devo fare un override del messaggio testuale
+	if ((cpuStatus.flag1 & sCPUStatus::FLAG1_TELEMETRY_RUNNING) != 0)
+	{
+		utf16_msgLCD[0] = 0;
+		rhea::utf16::concatFromASCII (utf16_msgLCD, sizeof(utf16_msgLCD), "TELEMETRY RUNNING...");
+		msgLCD_len = rhea::utf16::length(utf16_msgLCD);
+	}
+
+
 	
 	//1 bit per ogni selezione per indicare se la selezione è disponibile o no
 	//Considerando che NumMaxSelections=48, dovrebbero servire 6 byte
 	//ATTENZIONE che bit==0 significa che la selezione è OK, bit==1 significa KO
 	//Io invece traduco al contrario, per cui per me cupStatus.selAvailability == 1 se la selezione è disponibile
 	u8 anythingChanged = 0;
-	if (cpuStatus.VMCstate == eVMCState_DISPONIBILE || cpuStatus.VMCstate == eVMCState_PREPARAZIONE_BEVANDA)
-	{
-		u8 mask = 0x01;
-		for (u8 i = 0; i < NUM_MAX_SELECTIONS; i++)
-		{
-			u8 isSelectionAvail = 1;
-			if ((answer[z] & mask) != 0)
-				isSelectionAvail = 0;
 
-			if (isSelectionAvail)
-			{
-				if (!cpuStatus.selAvailability.isAvail(i + 1))
-				{
-					anythingChanged = 1;
-					cpuStatus.selAvailability.setAsAvail(i + 1);
-				}
-			}
-			else
-			{
-				if (cpuStatus.selAvailability.isAvail(i + 1))
-				{
-					anythingChanged = 1;
-					cpuStatus.selAvailability.setAsNotAvail(i + 1);
-				}
-			}
 
-			if (mask == 0x80)
-			{
-				mask = 0x01;
-				z++;
-			}
-			else
-				mask <<= 1;
-		}
-	}
-	else
+	//se la CPU ha alzato il bit di "telemetria in corso", devo disabilitare d'ufficio tutte le selezioni
+	if ((cpuStatus.flag1 & sCPUStatus::FLAG1_TELEMETRY_RUNNING) != 0)
 	{
-		//la CPU non è in uno stato valido per fare erogazioni, per cui forzo a priori  la totalte
-		//indisponibilità delle bevande
 		if (cpuStatus.selAvailability.areAllNotAvail() == false)
 		{
 			cpuStatus.selAvailability.reset();
 			anythingChanged = 1;
+		}
+	}
+	else
+	{
+		if (cpuStatus.VMCstate == eVMCState_DISPONIBILE || cpuStatus.VMCstate == eVMCState_PREPARAZIONE_BEVANDA)
+		{
+			u8 mask = 0x01;
+			for (u8 i = 0; i < NUM_MAX_SELECTIONS; i++)
+			{
+				u8 isSelectionAvail = 1;
+				if ((answer[z] & mask) != 0)
+					isSelectionAvail = 0;
+
+				if (isSelectionAvail)
+				{
+					if (!cpuStatus.selAvailability.isAvail(i + 1))
+					{
+						anythingChanged = 1;
+						cpuStatus.selAvailability.setAsAvail(i + 1);
+					}
+				}
+				else
+				{
+					if (cpuStatus.selAvailability.isAvail(i + 1))
+					{
+						anythingChanged = 1;
+						cpuStatus.selAvailability.setAsNotAvail(i + 1);
+					}
+				}
+
+				if (mask == 0x80)
+				{
+					mask = 0x01;
+					z++;
+				}
+				else
+					mask <<= 1;
+			}
+		}
+		else
+		{
+			//la CPU non è in uno stato valido per fare erogazioni, per cui forzo a priori  la totalte
+			//indisponibilità delle bevande
+			if (cpuStatus.selAvailability.areAllNotAvail() == false)
+			{
+				cpuStatus.selAvailability.reset();
+				anythingChanged = 1;
+			}
 		}
 	}
 	if (anythingChanged)
@@ -2532,29 +2626,6 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	if (cpuStatus.selAvailability.areAllNotAvail())
 		cpuStatus.LCDMsg.importanceLevel = 0xff;
 
-	/*Se sono nella modalità "mostra la stringa con cpu model and version" per tot secondi, faccio l'override del messaggio di CPU e
-	//spedisco sempre e comunque il messagio con modello e versione
-	if (showCPUStringModelAndVersionUntil_msec)
-	{
-		msgLCDct = 0;
-		if (answer[1] == 'B')
-		{
-			//versione ascii
-			for (u8 i = 0; i < 32; i++)
-				msgLCD[msgLCDct++] = cpuStringModelAndVersion[i];
-		}
-		else
-		{
-			//versione unicode
-			for (u8 i = 0; i < 32; i++)
-				msgLCD[msgLCDct++] = (u16)cpuStringModelAndVersion[i * 2] + (u16)cpuStringModelAndVersion[i * 2 + 1] * 256;
-		}
-		msgLCD[msgLCDct] = 0;
-		cpuStatus.LCDMsg.importanceLevel = 0xff;
-
-		if (rhea::getTimeNowMSec() >= showCPUStringModelAndVersionUntil_msec)
-			showCPUStringModelAndVersionUntil_msec = 0;
-	}*/
 
 	//se il messaggio LCD è cambiato dal giro precedente, oppure lo stato di importanza è cambiato, devo notificare il nuovo messaggio a tutti
 	bool bDoNotifyNewLCDMessage = false;

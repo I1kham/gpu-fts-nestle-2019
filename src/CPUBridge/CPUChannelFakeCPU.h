@@ -12,6 +12,9 @@ namespace cpubridge
 	 */
 	class CPUChannelFakeCPU : public CPUChannel
 	{
+	private:
+		static const u8 CPU_REPORTED_PROTOCOL_VERSION = 6;
+
 	public:
 								CPUChannelFakeCPU();
 								~CPUChannelFakeCPU();

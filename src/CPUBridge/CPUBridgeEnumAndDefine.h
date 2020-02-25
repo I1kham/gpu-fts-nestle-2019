@@ -152,7 +152,7 @@ namespace cpubridge
 		eStatoPreparazioneBevanda_wait = 0x02,
 		eStatoPreparazioneBevanda_running = 0x03
 	};
-
+	
 	enum eVMCState
 	{
 		eVMCState_DISPONIBILE = 2,
@@ -404,7 +404,8 @@ namespace cpubridge
 
 	struct sCPUStatus
 	{
-		static const u16 FLAG1_READY_TO_DELIVER_DATA_AUDIT	= 0x0001;
+		static const u16 FLAG1_READY_TO_DELIVER_DATA_AUDIT= 0x0001;
+		static const u16 FLAG1_TELEMETRY_RUNNING = 0x0002;
 		
 		static const u16 FLAG1_CUP_ABSENT					= 0x0100;
 		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0200;
