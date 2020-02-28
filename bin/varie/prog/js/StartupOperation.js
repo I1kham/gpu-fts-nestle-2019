@@ -73,8 +73,10 @@ function onDA3Loaded(bResult)
 		setTimeout ( function() { window.location = "index.html"; }, 1000);
 		return;
 	}
-
 	//console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
+	
+	
+	//inizio il load delle GUI info
 	guiInfo = new GUIInfo();
 	guiInfo.load();
 }
@@ -105,6 +107,7 @@ function onGUIInfoLoaded()
 	//abilito il menu milker se macchine==espresso
 	if (da3.isEspresso())
 	{
+		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnEspressoCalib"), "UIdisabled");
 		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
 		rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
 	}

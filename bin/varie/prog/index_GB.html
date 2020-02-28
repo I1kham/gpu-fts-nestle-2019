@@ -120,21 +120,22 @@
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS" data-onclick="pageSelections_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DEVICES" data-onclick="pageDevices_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnEspressoCalib" class="UIButton bigButton3x4 UIdisabled" data-caption="ESPRESSO CALIBRATION" data-onclick="pageExpCalib_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="INSTANT<br>CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUCT<br>QUANTITY" data-onclick="pageProductQty_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PAYMENT<br>SYSTEMS" data-onclick="pagePayment_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUCT<br>QUANTITY" data-onclick="pageProductQty_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DEVICES" data-onclick="pageDevices_show()"></div></td>						
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLOCK" data-onclick="pageClock_show()"></div></td>
 						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="ESPRESSO CALIBRATION (beta)" data-onclick="pageExpCalib_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
+
 						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
 					</tr>
@@ -793,11 +794,16 @@
 								<div class="clear"></div>
 							</td>
 							<td style="width:440px">
-								<div style="float:left; margin-right:10px"><br>desired value</div>
-								<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="520"></div></div>
-								<div class="clear"></div>
+								<div style="display:none">
+									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
+									<div style="float:left; margin-right:10px"><br>desired value</div>
+									<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="520"></div></div>
+									<div class="clear"></div>
+								</div>
 							</td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div></td>
+							<td align="right">
+								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div>-->
+							</td>
 						</tr>
 						<tr>
 							<td>ENABLE AUTO<br>REGULATION</td>
@@ -831,7 +837,7 @@
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
 											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
-											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
+											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='SAVE VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
 										</td>
 									</tr>
 								</table>
@@ -851,11 +857,16 @@
 								<div class="clear"></div>
 							</td>
 							<td style="width:440px">
-								<div style="float:left; margin-right:10px"><br>desired value</div>
-								<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="520"></div></dv>
-								<div class="clear"></div>
+								<div style="display:none">
+									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
+									<div style="float:left; margin-right:10px"><br>desired value</div>
+									<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="520"></div></dv>
+									<div class="clear"></div>
+								</div>
 							</td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div></td>
+							<td align="right">
+								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div>-->
+							</td>
 						</tr>
 						<tr><td>ENABLE AUTO<br>REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
 					</table>
@@ -885,7 +896,7 @@
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
 											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
-											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='USE LAST VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
+											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='SAVE VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
 										</td>
 									</tr>
 								</table>
@@ -2410,7 +2421,7 @@ function pageClock_setDate()
  */
 function pageCalibration_show()
 {
-	if (showPage("pageCalibration", "CALIBRATION", 1,0))
+	if (showPage("pageCalibration", "INSTANT<br>CALIBRATION", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -2423,6 +2434,12 @@ function pageCalibration_show()
 			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor1"));
 			if (da3.getNumMacine() == 1)
 				rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
+				
+			//nascondo la calibrazione di macina1&2 anche qui perchè ho spostto tuto nel menu ESPRESSO calibration
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder1"));
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));		
+			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
+			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
 		}
 	}
 
@@ -2467,8 +2484,8 @@ function pageCalibration_refreshCalibValueOnScreen()
 			v = helper_decodeImpulsi(da3.getImpulsi(12));
 			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/gr");
 		}
-		
 	}	
+	ui.getWindowByID("pageCalibration").showHideScrollBar();
 }
 
 function pageCalibration_reset(motor)
@@ -3096,7 +3113,7 @@ var taskEspressoCalib = null;
 var pageExpCalib_macina1o2 = 1;
 function pageExpCalib_show()
 {
-	if (showPage("pageExpCalib", "ESPRESSO CALIBRATION (beta)", 1,0))
+	if (showPage("pageExpCalib", "ESPRESSO CALIBRATION", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
