@@ -447,6 +447,11 @@ u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *option
     return cpubridge_buildMsg (cpubridge::eCPUCommand_programming, optionalData, 1+ sizeOfOptionalDataIN, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_getTimeNextLavaggioSanCappuccinatore(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
 
 
 
@@ -1124,6 +1129,7 @@ void cpubridge::notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea
 	}
 	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU, handlerID, buffer, sizeof(buffer));
 }
+
 //***************************************************
 void cpubridge::translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16)
 {
@@ -1317,6 +1323,38 @@ void cpubridge::notify_CPU_EVA_RESET_TOTALS(const sSubscriber &to, u16 handlerID
 	logger->log("notify_CPU_EVA_RESET_TOTALS\n");
 	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS, handlerID, NULL, 0);
 }
+
+//***************************************************
+void cpubridge::notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm)
+{
+	logger->log("notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE\n");
+
+	u8 buffer[4];
+	buffer[0] = hh;
+	buffer[1] = mm;
+
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GET_TIME_LAVSAN_CAPPUCINATORE, handlerID, buffer, 2);
+}
+
+//***************************************************
+void cpubridge::translateNotify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_TIME_LAVSAN_CAPPUCINATORE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_hh = p[0];
+	*out_mm = p[1];
+}
+
+
+
+
+
+
+
+
+
+
+
 
 //***************************************************
 void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
@@ -1837,5 +1875,9 @@ void cpubridge::ask_CPU_EVA_RESET_TOTALS(const sSubscriber &from, u16 handlerID)
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_TOTALS, handlerID, NULL, 0);
 }
 
-
+//***************************************************
+void cpubridge::ask_CPU_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC, handlerID, NULL, 0);
+}
 

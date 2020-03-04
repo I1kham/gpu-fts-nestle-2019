@@ -253,7 +253,7 @@
 				<table border='0' class='elenco'>
 					<tr style="border:0">
 						<td style="width:300px">AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
-						<td><div id="pageMilker_time1" class="UITime24" data-da3="7466"></div></td>
+						<td><div class="UITime24" data-da3="7466"></div></td>
 					</tr>	
 				</table>
 			</div>
@@ -574,7 +574,7 @@
 						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(1)"></div></td>
 					</tr>
 					
-					<tr>
+					<tr id="pageCalibration_rowMotor2">
 						<td>MOTOR 2</td>
 						<td><div id="pageCalibration_m2" class="bigCaption15"></div></td>
 						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(2)"></div></td>
@@ -937,7 +937,7 @@
 			</div>
 		</div> <!-- page DataAudit -->
 
-		<!-- page pageExpCalib -->
+		<!-- page page Espresso Calibration -->
 		<div id="pageExpCalib" class="UIWindow">
 			<div class="UIWindowContent">
 				
@@ -1021,6 +1021,7 @@
 <script src="js/UISelect.js"></script>
 <script src="js/StartupOperation.js"></script>
 <script src="js/Task_GB.js"></script>
+
 
 
 
@@ -1470,6 +1471,24 @@ function pageCleaning_startLavSanitario (what, bSendRequestToGPU)
 
 function pageCleaning_onFinished()
 {
+	if (currentTask.whichWash == 5)
+	{
+		//se ho terminato il lav san del cappuccinatore, chiedo alla CPU
+		//il nuovo orario del prossimo lavaggio
+		rhea.ajax ("getTimeLavSanCapp", "").then( function(result)
+		{
+			var win = ui.getWindowByID("pageMilker");
+			var obj = win.getChildByID("pageMilker_time1");
+			var data = JSON.parse(result);
+			obj.setValueHH(data.h);
+			obj.setValueMM(data.m);
+			obj.saveToDA3(da3);
+		})
+		.catch( function(result)
+		{
+		});		
+	}
+
 	currentTask = voidTask;
 	
 	if (bGotoHMIAfterLavaggio)
@@ -2416,7 +2435,7 @@ function pageClock_setDate()
 
 /***************************************************************************
  *
- * pageCalibration
+ * pageCalibration (instant)
  *
  */
 function pageCalibration_show()
@@ -2431,7 +2450,9 @@ function pageCalibration_show()
 		}
 		else
 		{
+			//nascondo motor 1 e motor 2
 			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor1"));
+			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor2"));
 			if (da3.getNumMacine() == 1)
 				rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
 				
@@ -2679,7 +2700,17 @@ function pageDevices_vgrind_runSelection(whichVG)
 {
 	var win = ui.getWindowByID("pageDevices");
 	var selNum = parseInt(win.getChildByID("pageDevices_vgrind" +whichVG +"_selNum").getValue())
-	currentTask.runSelection(selNum);
+	//vogliamo far partire la selezione [selNum].
+	//Devo verificare che la granulometria di questa selezione sia DISABLED o REFERRING, altrimenti non
+	//la si può utilizzare per calibrare la macchina dato che con granulemtria FINE o ROUGHLY la CPU apre/chiude di suo la macina
+	var da3Loc = 175 + 100 * (selNum-1);
+	var gran = da3.read8(da3Loc);
+	if (gran == 0 || gran == 2)	
+		currentTask.runSelection(selNum);
+	else
+	{
+		currentTask.messageBox ("WARNING: You can't use this selection becase its granularity is FINE or ROUGHLY.<br><br><br>Please choose a selection with granularity DISABLED or REFERRING (or edit the current selection and alter the granularity parameter)."); //you can't use this selection..please choose another one
+	}
 }
 
 function pageDevices_vgrind_runSelection_onFinish()
@@ -3146,8 +3177,19 @@ function pageExpCalib_editSelection()
 function pageExpCalib_runSelection()
 {
 	var win = ui.getWindowByID("pageExpCalib");
-	var selNum = parseInt(win.getChildByID("pageExpCalib_selNum").getValue())
-	currentTask.runSelection(selNum);
+	var selNum = parseInt(win.getChildByID("pageExpCalib_selNum").getValue());
+	
+	//vogliamo far partire la selezione [selNum].
+	//Devo verificare che la granulometria di questa selezione sia DISABLED o REFERRING, altrimenti non
+	//la si può utilizzare per calibrare la macchina dato che con granulemtria FINE o ROUGHLY la CPU apre/chiude di suo la macina
+	var da3Loc = 175 + 100 * (selNum-1);
+	var gran = da3.read8(da3Loc);
+	if (gran == 0 || gran == 2)	
+		currentTask.runSelection(selNum);
+	else
+	{
+		currentTask.messageBox ("WARNING: You can't use this selection becase its granularity is FINE or ROUGHLY.<br><br><br>Please choose a selection with granularity DISABLED or REFERRING (or edit the current selection and alter the granularity parameter)."); //you can't use this selection..please choose another one
+	}
 }
 
 function pageExpCalib_runSelection_onFinish()

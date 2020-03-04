@@ -59,6 +59,7 @@
 #define		CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER	0x0125
 #define		CPUBRIDGE_NOTITFY_CPU_START_MODEM_TEST			0x0126
 #define		CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS			0x0127
+#define		CPUBRIDGE_NOTIFY_GET_TIME_LAVSAN_CAPPUCINATORE	0x0128
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED					0x01FF
 
@@ -115,6 +116,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC						0x082D
 #define		CPUBRIDGE_SUBSCRIBER_ASK_START_MODEM_TEST				0x082E
 #define		CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_TOTALS				0x082F
+#define		CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC		0x0830
 
 
 namespace cpubridge
@@ -260,6 +262,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_getStringVersionAndModel = 0x1B,
 		eCPUProgrammingCommand_startModemTest = 0x1C,
 		eCPUProgrammingCommand_EVAresetTotals = 0x1D,
+		eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore = 0x1E,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 

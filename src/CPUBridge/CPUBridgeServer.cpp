@@ -924,6 +924,24 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getTimeNextLavaggioSanCappuccinatore(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			{
+				if (sizeOfAnswerBuffer == 7)
+				{
+					const u8 hh = answerBuffer[4];
+					const u8 mm = answerBuffer[5];
+					if (hh < 24 && mm < 60)
+						notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(sub->q, handlerID, logger, hh, mm);
+				}
+			}
+		}
+		break;
+
 		} //switch
 	} //while
 }

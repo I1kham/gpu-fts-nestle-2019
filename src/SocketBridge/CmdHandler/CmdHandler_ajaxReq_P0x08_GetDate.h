@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReq_P0x08_GetDate
      *
-     * la GUI richiede il valore di tutti i decounterProdotto + i 3 contatori water_filter_dec, coffee_brewer_dec, coffee_ground_dec
+     * la GUI richiede la data di sistema
      *
         Input:
             command: getDate

@@ -79,7 +79,7 @@ namespace cpubridge
 	u8			buildMsg_getCPUStringVersionAndModel(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_startModemTest(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_EVAresetTotals(u8 *out_buffer, u8 sizeOfOutBuffer);
-
+	u8			buildMsg_getTimeNextLavaggioSanCappuccinatore(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 	/***********************************************
@@ -216,6 +216,10 @@ namespace cpubridge
 	void		notify_CPU_START_MODEM_TEST(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 
 	void		notify_CPU_EVA_RESET_TOTALS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
+	void		notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm);
+	void		translateNotify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm);
+	
 
 	/***********************************************
 		ask_xxxx
@@ -398,6 +402,8 @@ namespace cpubridge
 	void		ask_CPU_EVA_RESET_TOTALS(const sSubscriber &from, u16 handlerID);
 				//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_EVA_RESET_TOTALS
 
+	void		ask_CPU_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &from, u16 handlerID);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

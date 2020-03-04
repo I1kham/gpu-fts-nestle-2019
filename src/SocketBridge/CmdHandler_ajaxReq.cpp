@@ -36,6 +36,7 @@
 #include "CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x1C_StartModemTest.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.h"
 
 using namespace socketbridge;
 
@@ -104,6 +105,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_setLastUsedLangForProgMenu);
 	CHECK(CmdHandler_ajaxReq_P0x1C_StartModemTest);
 	CHECK(CmdHandler_ajaxReq_P0x1D_ResetEVATotals);
+	CHECK(CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc);
 
 #undef CHECK
     return NULL;

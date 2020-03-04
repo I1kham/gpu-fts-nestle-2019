@@ -242,6 +242,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1D_ResetEVATotals.cpp">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -455,6 +458,9 @@
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1D_ResetEVATotals.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.h">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
   </ItemGroup>

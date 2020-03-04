@@ -928,12 +928,27 @@ TaskDevices.prototype.runModemTest = function()
 	pleaseWait_show();
 }
 
+TaskDevices.prototype.messageBox = function (msg)
+{
+	this.whatBeforeMsgBox = this.what;
+	this.what = 4;
+	this.fase = 0;
+	pleaseWait_show();
+	pleaseWait_rotella_hide();
+	pleaseWait_btn1_setText("OK");
+	pleaseWait_btn1_show();
+	pleaseWait_freeText_show();
+	pleaseWait_freeText_setText(msg);
+	
+}
+
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr +" [" +statusID +"]"); }
 TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 {
-	if (this.what == 1)
+	switch (this.what)
 	{
+	case 1:
 		//siamo in regolazione apertura vgrind
 		if (this.fase > 0)
 		{
@@ -949,6 +964,12 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 				pleaseWait_btn1_show();
 			});								
 		}
+		break;
+		
+	case 4: //msgbox
+		pleaseWait_hide();
+		this.what = this.whatBeforeMsgBox;
+		break;
 		
 	}
 }
@@ -1579,13 +1600,27 @@ TaskEspressoCalib.prototype.runSelection = function(selNum)
 	pleaseWait_show();
 }
 
+TaskEspressoCalib.prototype.messageBox = function (msg)
+{
+	this.what = 3;
+	this.fase = 0;
+	pleaseWait_show();
+	pleaseWait_rotella_hide();
+	pleaseWait_btn1_setText("OK");
+	pleaseWait_btn1_show();
+	pleaseWait_freeText_show();
+	pleaseWait_freeText_setText(msg);
+	
+}
+
 
 TaskEspressoCalib.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr +" [" +statusID +"]"); }
 TaskEspressoCalib.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskEspressoCalib.prototype.onFreeBtn1Clicked	 = function(ev)
 {
-	if (this.what == 1)
+	switch (this.what)
 	{
+	case 1:
 		//siamo in regolazione apertura vgrind
 		if (this.fase > 0)
 		{
@@ -1601,7 +1636,12 @@ TaskEspressoCalib.prototype.onFreeBtn1Clicked	 = function(ev)
 				pleaseWait_btn1_show();
 			});								
 		}
+		break;
 		
+	case 3: //message box
+		pleaseWait_hide();
+		this.what = 0;
+		break;
 	}
 }
 TaskEspressoCalib.prototype.onFreeBtn2Clicked	 = function(ev)						{}
