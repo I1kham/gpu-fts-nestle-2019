@@ -146,7 +146,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1C_StartModemTest.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -227,7 +228,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1C_StartModemTest.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.h
 
 unix {
     target.path = /usr/lib
