@@ -259,6 +259,27 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 	{
 		const u16 handlerID = (u16)msg.paramU32;
 
+		//questo è un comando di comodo per simulare "uno qualunque" dei comandi P.
+		//In realtà, è necessario gestire qui caso per caso
+		if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD)
+		{
+			if (priv_handleProgrammingMessage(sub, handlerID, msg))
+				return;
+
+			eCPUProgrammingCommand cmd;
+			const u8 *optionalData;
+			cpubridge::translate_CPU_PROGRAMMING_CMD(msg, &cmd, &optionalData);
+			switch (cmd)
+			{
+			case eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore:
+				msg.what = CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC;
+				break;
+
+			default:
+				return;
+			}
+		}
+
 		switch (msg.what)
 		{
 		default:
@@ -417,10 +438,6 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			priv_uploadCPUFW(&sub->q, handlerID, srcFullFileNameAndPath);
 		}
 		break;
-
-		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD:
-			priv_handleProgrammingMessage(sub, handlerID, msg);
-			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE:
 		{
@@ -1029,7 +1046,7 @@ void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
 }
 
 //**********************************************
-void Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg)
+bool Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg)
 {
 	eCPUProgrammingCommand cmd;
 	const u8 *optionalData;
@@ -1042,7 +1059,7 @@ void Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 	switch (cmd)
 	{
 	default:
-		logger->log("ERR: invalid prog command [%d]\n", (u8)cmd);
+		return false;
 		break;
 
 	case eCPUProgrammingCommand_enterProg:
@@ -1089,6 +1106,7 @@ void Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 			}
 		}
 	}
+	return true;
 }
 
 //**********************************************

@@ -1480,9 +1480,14 @@ function pageCleaning_onFinished()
 			var win = ui.getWindowByID("pageMilker");
 			var obj = win.getChildByID("pageMilker_time1");
 			var data = JSON.parse(result);
-			obj.setValueHH(data.h);
-			obj.setValueMM(data.m);
-			obj.saveToDA3(da3);
+			console.log ("obj:" +obj);
+			if (null != obj)
+			{
+				obj.setValueHH(data.h);
+				obj.setValueMM(data.m);
+			}
+			var v = parseInt(data.h) * 100 + parseInt(data.m);
+			da3.write16(7468, v);			
 		})
 		.catch( function(result)
 		{

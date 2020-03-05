@@ -78,7 +78,7 @@ namespace cpubridge
 		bool					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
 		void					priv_handleMsgFromServiceMsgQ();
 		void					priv_handleMsgFromSingleSubscriber(sSubscription *sub);
-		void					priv_handleProgrammingMessage(sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg);
+		bool					priv_handleProgrammingMessage(sSubscription *sub, u16 handlerID, const rhea::thread::sMsg &msg);
 
 		void					priv_deleteSubscriber (sSubscription *sub, bool bAlsoRemoveFromSubsriberList);
 		
