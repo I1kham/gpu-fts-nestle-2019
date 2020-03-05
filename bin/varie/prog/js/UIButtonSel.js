@@ -31,20 +31,7 @@ function UIButtonSel (parentID, childNum, node)
 	
 	shortImg="";
 	if (this.caption3 != "")
-	{
 		shortImg = "<img src='img/sel" +this.caption3 +".png' draggable='false'>";
-		
-		//per ragioni storiche, lo short name è nel formato LLS, RLS... ora invece lo vogliamo vogliamo nel formato NNS, YNS..
-		//Sostituisco i primi 2 char (che sono L o R o x) con N o Y
-		var c1 = this.caption3.substr(0,1);
-		var c2 = this.caption3.substr(1,1);
-		var c3 = this.caption3.substr(2,1);
-		if (c1=="L") c1="N";
-		else if (c1=="R") c1="Y";
-		if (c2=="L") c2="N";
-		else if (c2=="R") c2="Y";
-		this.caption3 = c1 +c2 +c3;		
-	}
 	
 	var captionID = this.id +"_caption";
 	node.innerHTML =  "<table width='100%'><tr valign='top'><td id='" +captionID +"'><b>" +this.caption1 +"</b><br>" +this.caption2 +"</td>"

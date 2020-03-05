@@ -1902,7 +1902,7 @@ function pageSingleSelection_show(iSel)
 {
 	pageSingleSelection_curSel = iSel;
 	
-	var title = "SELEZIONE " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name;
+	var title = "SELEZIONE " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name +"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:0.7em;color:#888'>" +guiInfo.selInfo[iSel].short +"</span>";
 	if (showPageEx("pageSingleSelection", title, 1, 1, 100 * (iSel-1)))
 	{
 		//è la prima volta che visualizziamo la pagina
