@@ -133,24 +133,25 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 			switch (me.fase)
 			{
 				case 0: pleaseWait_freeText_setText("Health Cleaning is not started (or ended)"); break;
-				case 1: pleaseWait_freeText_setText("Health Cleaning is started"); break;
-				case 2: pleaseWait_freeText_setText("brewer placed"); break;
-				case 3: pleaseWait_freeText_setText("wait for tablet"); break;
-				case 4: pleaseWait_freeText_setText("infusion"); break;
-				case 5: pleaseWait_freeText_setText("brewer cleaning cycles 1"); break;
-				case 6: pleaseWait_freeText_setText("brewer cleaning cycles 2"); break;
-				case 7: pleaseWait_freeText_setText("brewer cleaning cycles 3"); break;
-				case 8: pleaseWait_freeText_setText("brewer cleaning cycles 4"); break;
-				case 9: pleaseWait_freeText_setText("brewer cleaning cycles 5"); break;
-				case 10: pleaseWait_freeText_setText("brewer cleaning cycles 6"); break;
-				case 11: pleaseWait_freeText_setText("brewer cleaning repeat cycle"); break;
-				case 12: pleaseWait_freeText_setText("brewer placed in brush position"); break;
-				case 13: pleaseWait_freeText_setText("skip final coffee or make a coffee"); break;
-				case 14: pleaseWait_freeText_setText("coffee delivery"); break;
-				case 15: pleaseWait_freeText_setText("cleaning 1"); break;
-				case 16: pleaseWait_freeText_setText("cleaning 2"); break;
-				case 17: pleaseWait_freeText_setText("cleaning 3"); break;
-				case 18: pleaseWait_freeText_setText("cleaning 4"); break;
+				case 1: pleaseWait_freeText_setText("Health Cleaning is started"); break; //HC_STEP_STARTED
+				case 2: pleaseWait_freeText_setText("Brewer placed"); break; //HC_STEP_BRW_PLACED
+				case 3: pleaseWait_freeText_setText("Put pastille and push START"); break; //HC_STEP_TABLET
+				case 4: pleaseWait_freeText_setText("Infusion"); break; //HC_STEP_INFUSION                     
+				case 5: pleaseWait_freeText_setText("Brewer cleaning cycles 1"); break; // HC_STEP_BRW_1
+				case 6: pleaseWait_freeText_setText("Brewer cleaning cycles 2"); break;	// HC_STEP_BRW_2
+				case 7: pleaseWait_freeText_setText("Brewer cleaning cycles 3"); break;	// HC_STEP_BRW_3
+				case 8: pleaseWait_freeText_setText("Brewer cleaning cycles 4"); break;	// HC_STEP_BRW_4
+				case 9: pleaseWait_freeText_setText("Brewer cleaning cycles 5"); break;	// HC_STEP_BRW_5
+				case 10: pleaseWait_freeText_setText("Brewer cleaning cycles 6"); break;	// HC_STEP_BRW_6
+				
+				case 11: pleaseWait_freeText_setText("Repeat clean ?"); break;	//HC_STEP_BRW_REPEAT
+				case 12: pleaseWait_freeText_setText("Brewer placed in brush position, press CONTINUE when finished."); break;	//HC_STEP_BRW_BRUSH_POSITION
+				case 13: pleaseWait_freeText_setText("Skip final coffee or make a coffee"); break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
+				case 14: pleaseWait_freeText_setText("Coffee delivery"); break; //HC_STEP_COFFEE_DELIVERY
+				case 15: pleaseWait_freeText_setText("Cleaning 1"); break; 	//HC_STEP_MIXER_1
+				case 16: pleaseWait_freeText_setText("Cleaning 2"); break; 	//HC_STEP_MIXER_2
+				case 17: pleaseWait_freeText_setText("Cleaning 3"); break;	//HC_STEP_MIXER_3
+				case 18: pleaseWait_freeText_setText("Cleaning 4"); break;	//HC_STEP_MIXER_4
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();
@@ -172,8 +173,10 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					var btnText = "BOTTONE " +me.btn1;
 					switch (me.fase)
 					{
-						case 3: btnText = "CONTINUA"; break; //wait to insert tablet
-						case 13: btnText = "SALTA CAFFE'"; break;
+						case 3:  btnText = "INIZIA"; break; //HC_STEP_TABLET
+						case 11: btnText = "SI"; break; //HC_STEP_BRW_REPEAT
+						case 12: btnText = "CONTINUA"; break; //HC_STEP_BRW_BRUSH_POSITION
+						case 13: btnText = "SALTA CAFFE'"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 					}
 					pleaseWait_btn1_setText (btnText);
 					pleaseWait_btn1_show();	
@@ -187,7 +190,8 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				var btnText = "BOTTONE " +me.btn2;
 				switch (me.fase)
 				{
-					case 13: btnText = "FAI UN CAFFE'"; break;
+					case 11: btnText = "NO"; break;//HC_STEP_BRW_REPEAT
+					case 13: btnText = "FAI UN CAFFE'"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 				}
 				pleaseWait_btn2_setText (btnText);
 				pleaseWait_btn2_show();	

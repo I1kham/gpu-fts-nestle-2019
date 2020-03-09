@@ -777,17 +777,23 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 		{
 			if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
 			{
-				cleaning.timeToEnd += 3000;
+				cleaning.timeToEnd += 2000;
 				cleaning.btn1 = cleaning.btn2 = 0;
 				++cleaning.fase;
 
-				if (cleaning.fase == 3)
+				if (cleaning.fase == 3 || cleaning.fase == 12)
 				{
 					cleaning.btn1 = 10;
-					cleaning.timeToEnd += 7000;
+					cleaning.timeToEnd += 3000;
+				}
+				if (cleaning.fase == 11 || cleaning.fase == 13)
+				{
+					cleaning.btn1 = 10;
+					cleaning.btn2 = 1;
+					cleaning.timeToEnd += 3000;
 				}
 
-				if (cleaning.fase >= 6)
+				if (cleaning.fase >= 19)
 				{
 					cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
 					this->VMCState = cleaning.prevState;
