@@ -143,10 +143,14 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				case 8: pleaseWait_freeText_setText("brewer cleaning cycles 4"); break;
 				case 9: pleaseWait_freeText_setText("brewer cleaning cycles 5"); break;
 				case 10: pleaseWait_freeText_setText("brewer cleaning cycles 6"); break;
-				case 11: pleaseWait_freeText_setText("mixer 1 cleaning"); break;
-				case 12: pleaseWait_freeText_setText("mixer 2 cleaning"); break;
-				case 13: pleaseWait_freeText_setText("mixer 3 cleaning"); break;
-				case 14: pleaseWait_freeText_setText("mixer 4 cleaning"); break;
+				case 11: pleaseWait_freeText_setText("brewer cleaning repeat cycle"); break;
+				case 12: pleaseWait_freeText_setText("brewer placed in brush position"); break;
+				case 13: pleaseWait_freeText_setText("skip final coffee or make a coffee"); break;
+				case 14: pleaseWait_freeText_setText("coffee delivery"); break;
+				case 15: pleaseWait_freeText_setText("cleaning 1"); break;
+				case 16: pleaseWait_freeText_setText("cleaning 2"); break;
+				case 17: pleaseWait_freeText_setText("cleaning 3"); break;
+				case 18: pleaseWait_freeText_setText("cleaning 4"); break;
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();
@@ -169,7 +173,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					switch (me.fase)
 					{
 						case 3: btnText = "CONTINUE"; break; //wait to insert tablet
-						case 10: btnText = "SKIP COFFEE"; break;
+						case 13: btnText = "SKIP COFFEE"; break;
 					}
 					pleaseWait_btn1_setText (btnText);
 					pleaseWait_btn1_show();	
@@ -183,7 +187,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				var btnText = "BUTTON " +me.btn2;
 				switch (me.fase)
 				{
-					case 10: btnText = "HAVE A COFFEE"; break;
+					case 13: btnText = "HAVE A COFFEE"; break;
 				}
 				pleaseWait_btn2_setText (btnText);
 				pleaseWait_btn2_show();	
