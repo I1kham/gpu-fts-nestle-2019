@@ -174,7 +174,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					switch (me.fase)
 					{
 						case 3:  btnText = "INIZIA"; break; //HC_STEP_TABLET
-						case 11: btnText = "SI"; break; //HC_STEP_BRW_REPEAT
+						case 11: btnText = "NO"; break; //HC_STEP_BRW_REPEAT
 						case 12: btnText = "CONTINUA"; break; //HC_STEP_BRW_BRUSH_POSITION
 						case 13: btnText = "SALTA CAFFE'"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 					}
@@ -190,7 +190,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				var btnText = "BOTTONE " +me.btn2;
 				switch (me.fase)
 				{
-					case 11: btnText = "NO"; break;//HC_STEP_BRW_REPEAT
+					case 11: btnText = "SI"; break;//HC_STEP_BRW_REPEAT
 					case 13: btnText = "FAI UN CAFFE'"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 				}
 				pleaseWait_btn2_setText (btnText);

@@ -174,7 +174,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					switch (me.fase)
 					{
 						case 3:  btnText = "START"; break; //HC_STEP_TABLET
-						case 11: btnText = "OUI"; break; //HC_STEP_BRW_REPEAT
+						case 11: btnText = "NO"; break; //HC_STEP_BRW_REPEAT
 						case 12: btnText = "CONTINUER"; break; //HC_STEP_BRW_BRUSH_POSITION
 						case 13: btnText = "SAUTER LE CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 					}
@@ -190,7 +190,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				var btnText = "BOUTON " +me.btn2;
 				switch (me.fase)
 				{
-					case 11: btnText = "NO"; break;//HC_STEP_BRW_REPEAT
+					case 11: btnText = "OUI"; break;//HC_STEP_BRW_REPEAT
 					case 13: btnText = "FAIRE UN CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 				}
 				pleaseWait_btn2_setText (btnText);
