@@ -67,9 +67,10 @@ TaskMaintenance.prototype.onTimer 				= function(timeNowMsec)
 /**********************************************************
  * TaskCleaning
  */
-function TaskCleaning (whichWashIN)
+function TaskCleaning (whichWashIN, isEspresso)
 {
 	this.timeStarted = 0;
+	this.isEspresso = isEspresso;
 	this.cpuStatus = 0;
 	this.whichWash = whichWashIN;
 	this.fase = 0;
@@ -148,10 +149,30 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				case 12: pleaseWait_freeText_setText("Brewer placed in brush position, press CONTINUE when finished."); break;	//HC_STEP_BRW_BRUSH_POSITION
 				case 13: pleaseWait_freeText_setText("Skip final coffee or make a coffee"); break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 				case 14: pleaseWait_freeText_setText("Coffee delivery"); break; //HC_STEP_COFFEE_DELIVERY
-				case 15: pleaseWait_freeText_setText("Cleaning 1"); break; 	//HC_STEP_MIXER_1
-				case 16: pleaseWait_freeText_setText("Cleaning 2"); break; 	//HC_STEP_MIXER_2
-				case 17: pleaseWait_freeText_setText("Cleaning 3"); break;	//HC_STEP_MIXER_3
-				case 18: pleaseWait_freeText_setText("Cleaning 4"); break;	//HC_STEP_MIXER_4
+				case 15: //HC_STEP_MIXER_1
+					if (me.isEspresso)
+						pleaseWait_freeText_setText("Cleaning 2");
+					else
+						pleaseWait_freeText_setText("Cleaning 1");
+					break; 	
+				case 16: //HC_STEP_MIXER_2
+					if (me.isEspresso)
+						pleaseWait_freeText_setText("Cleaning 3");
+					else
+						pleaseWait_freeText_setText("Cleaning 2");
+					break; 	
+				case 17: //HC_STEP_MIXER_3
+					if (me.isEspresso)
+						pleaseWait_freeText_setText("Cleaning 4");
+					else
+						pleaseWait_freeText_setText("Cleaning 3");
+					break; 	
+				case 18: //HC_STEP_MIXER_4
+					if (me.isEspresso)
+						pleaseWait_freeText_setText("Cleaning 5");
+					else
+						pleaseWait_freeText_setText("Cleaning 4");
+					break; 	
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();

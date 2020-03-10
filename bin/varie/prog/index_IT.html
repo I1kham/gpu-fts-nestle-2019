@@ -1465,7 +1465,7 @@ function pageCleaning_action (what)
 		pageCleaning_startLavSanitario(what,1);
 	else
 	{
-		currentTask = new TaskCleaning(what);
+		currentTask = new TaskCleaning(what, da3.isEspresso());
 		rhea.requestGPUCleaning(parseInt(what));
 	}
 }
@@ -1473,7 +1473,7 @@ function pageCleaning_action (what)
 function pageCleaning_startLavSanitario (what, bSendRequestToGPU)
 {
 	pleaseWait_show();
-	currentTask = new TaskCleaning(what);
+	currentTask = new TaskCleaning(what, da3.isEspresso());
 	if (bSendRequestToGPU)
 		rhea.requestGPUCleaning(parseInt(what));
 }
