@@ -164,7 +164,13 @@ int main()
 	HINSTANCE hInst = NULL;
 	rhea::init("rheaMedia20", &hInst);
 	
-	printf("rheaMedia 2.0\n\n");
+
+	char nameAndVersion[128];
+	sprintf_s(nameAndVersion, sizeof(nameAndVersion), "RheaMedia2 - Version 2.0 - 2020/03/27");
+
+	SetConsoleTitle(nameAndVersion);
+	printf(nameAndVersion);
+	printf("\n\n");
 	if (findChrome())
 	{
 		if (isSMUAlreadyRunning())

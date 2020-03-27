@@ -23,14 +23,14 @@
 				<div id="pagePleaseWait_calibration_1">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>Si vous le souhaitez, vous pouvez à nouveau moudre en appuyant sur</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_1_grind' class='UIButton bigButton60 actionButton' data-caption='GRIND AGAIN' data-onclick="pageCalibration_grindAgain()"></div></td>
 						</tr>
 					</table>
 					<hr>
 
-					If you wish, you can adjust the opening of the Varigrind using the controls below:
+					Si vous le souhaitez, vous pouvez régler l'ouverture du Varigrind à l'aide des commandes ci-dessous:
 					<table border='0' class='elenco'>
 						<tr>
 							<td style="width:33%" align="center">
@@ -40,7 +40,7 @@
 								<div class="clear"></div>
 							</td>
 							<td style="width:34%" align="center">
-								<div style="float:left; margin-right:10px"><br>desired value</div>
+								<div style="float:left; margin-right:10px"><br>valeur<br>de consigne</div>
 								<div style="float:left;"><div class="UINumber" id="pagePleaseWait_calibration_1_vg_target" data-numfigures="3" data-max="520"></div></div>
 								<div class="clear"></div>
 							</td>
@@ -53,7 +53,7 @@
 				<div id="pagePleaseWait_calibration_2">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>Si vous le souhaitez, vous pouvez à nouveau moudre en appuyant sur</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_2_runMotor' class='UIButton bigButton60 actionButton' data-caption='RUN MOTOR AGAIN' data-onclick="pageCalibration_runMotorAgain()"></div></td>
 						</tr>
@@ -233,26 +233,26 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="START<br>RINSING" data-onclick="pageCleaning_action(160)"></div></td>
-						<td width="50%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="START<br>RINSING HC" data-onclick="pageCleaning_action(8)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="START RINSING<br>MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>
+						<td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="LAVAGE" data-onclick="pageCleaning_action(160)"></div></td>
+						<td width="50%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="LAVAGE SANITAIRE" data-onclick="pageCleaning_action(8)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="LAVAGE CAPPUCCINATORE" data-onclick="pageCleaning_action(5)"></div></td>
 					</tr>
 				</table>
 				
 				<br>
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 1" data-onclick="pageCleaning_action(1)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 2" data-onclick="pageCleaning_action(2)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 3" data-onclick="pageCleaning_action(3)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton4x4 actionButton" data-caption="CLEAN 4" data-onclick="pageCleaning_action(4)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="LAVAGE 1" data-onclick="pageCleaning_action(1)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton4x4 actionButton" data-caption="LAVAGE 2" data-onclick="pageCleaning_action(2)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton4x4 actionButton" data-caption="LAVAGE 3" data-onclick="pageCleaning_action(3)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton4x4 actionButton" data-caption="LAVAGE 4" data-onclick="pageCleaning_action(4)"></div></td>
 					</tr>
 				</table>
 				
 				<br><br><br>
 				<table border='0' class='elenco'>
 					<tr style="border:0">
-						<td style="width:300px">AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
+						<td style="width:300px">LAVAGE AUTOMATIQUE PAR HEURES<br><span class="tip">00:00 signifie désactivé</span></td>
 						<td><div class="UITime24" data-da3="7466"></div></td>
 					</tr>	
 				</table>
@@ -264,7 +264,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageMiscellaneous_selector' data-option='0|OPTIONS GÉNÉRALES|1|ID MACHINE|2|MILK LM|3|FREEVEND' data-onclick='pageMiscellaneous_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageMiscellaneous_selector' data-option='0|OPTIONS GÉNÉRALES|1|ID MACHINE|2|LAIT TACHÉ|3|FREEVEND' data-onclick='pageMiscellaneous_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -272,27 +272,27 @@
 				<div id="pageMiscellaneous_gs" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">MESSAGE NUMBER</td>
+							<td style="width:380px">NUMÉRO DE MESSAGE</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="7" data-da3="7056" data-da3bit="8"></div></td>
 						</tr>					
 						<tr>
-							<td>FAN TIME</td>
+							<td>TEMPS DE VENTILATEUR</td>
 							<td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7062" data-da3bit="8" data-um="min"></div></td>
 						</tr>
 						<tr>
-							<td>BEEP TIME</td>
+							<td>TEMPS DE BEEP</td>
 							<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
 						</tr>
 						<tr>
-							<td>CPU LANGUAGE</td>
+							<td>LANGUE DU CPU</td>
 							<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_r1">
-							<td>SIDE WATER PUMP</td>
+							<td>POMPE A EAU LATERALE</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="8370" data-da3bit="8"></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_r2">
-							<td>SUGAR CANISTER</td>
+							<td>CANISTER DE SUCRE</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7086" data-da3bit="8"></div></td>
 						</tr>			
 						<tr><td>FMILK TOPPING SWITCH</td><td><div class='UIOption' data-option='1|OUI|0|NO' data-da3='7096' data-da3bit='8'></div></td></tr>
@@ -319,11 +319,11 @@
 				<div id="pageMiscellaneous_lm" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">PRODUCT MILK LM</td>
+							<td style="width:380px">PRODUIT LAIT TACHÉ</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7082" data-da3bit="8"></div></td>
 						</tr>
 						<tr>
-							<td>MILK LM WATER NUMBER</td>
+							<td>EV LAIT TACHÉ</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="3" data-da3="7084" data-da3bit="8"></div></td>
 						</tr>
 					</table>
@@ -336,13 +336,13 @@
 							<td colspan="2"><div id="pageMiscellaneous_fvHwKey" class='UIOption' data-option='0|DÉSACTIVÉ|1|ACTIVÉ 1|2|ACTIVÉ ++' data-da3="7104" data-da3bit="8"></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_fv_r1">
-							<td>START FREEVEND NOW<br><span class="tip">It will last for the indicated<br>num. of hours</span></td>
-							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="hours"></div></td>
-							<td align="right"><div class='UIButton actionButton' data-caption='START NOW' data-onclick="pageMiscellaneous_startFVNow()"></div></td>
+							<td>ACTIF FREEVEND MAINTENANT<br><span class="tip">Il durera pendant le nom. indiqué d'heures</span></td>
+							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="heures"></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='COMMENCEZ MAINTENANT' data-onclick="pageMiscellaneous_startFVNow()"></div></td>
 						</tr>
 						
 						<tr id="pageMiscellaneous_fv_r2">
-							<td>FREEVEND IS NOW <b style='color:#fff'>RUNNING</b></td>
+							<td>FREEVEND EST <b style='color:#fff'>ACTIF</b></td>
 							<td align="center"><div id="pageMiscellaneous_fvDateEnd"></div></td>
 							<td align="right"><div class='UIButton actionButton' data-caption='STOP IT NOW' data-onclick="pageMiscellaneous_stopFVNow()"></div></td>
 						</tr>
@@ -372,15 +372,15 @@
 						
 						<tr>
 							<td>DATE</td>
-							<td><div id="pageClock_dd" class="UINumber" data-numfigures="2" data-max="31" data-min="1" data-um='day'></div></td>
-							<td><div id="pageClock_mm" class="UINumber" data-numfigures="2" data-max="12" data-min="1" data-um='month'></div></td>
-							<td><div id="pageClock_yy" class="UINumber" data-numfigures="4" data-max="2050" data-min="2017" data-um='year'></div></td>
+							<td><div id="pageClock_dd" class="UINumber" data-numfigures="2" data-max="31" data-min="1" data-um='JOUR'></div></td>
+							<td><div id="pageClock_mm" class="UINumber" data-numfigures="2" data-max="12" data-min="1" data-um='MOIS'></div></td>
+							<td><div id="pageClock_yy" class="UINumber" data-numfigures="4" data-max="2050" data-min="2017" data-um='ANNÉE'></div></td>
 							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setDate()"></div></td>
 						</tr>
 						
 						
 						<tr style="border:0">
-							<td>SUMMER TIME</td>
+							<td>HEURE D'ÉTÉ</td>
 							<td colspan="2"><div class="UIOption" data-option="1|OUI|0|NO" data-da3="7080"></div></td>
 							<td colspan="2"></td>
 						</tr>
@@ -391,8 +391,8 @@
 					<table border='0' class='elenco'>
 						<tr style="height:50px; vertical-align:bottom">
 							<th style="width:232px; text-align:left">HAPPY HOUR</th>
-							<th>START</th>
-							<th>END</th>
+							<th>COMMENCEMENT</th>
+							<th>FIN</th>
 						</tr>
 						<tr>
 							<td>HAPPY HOUR 1</td>
@@ -416,8 +416,8 @@
 					<table border='0' class='elenco'>
 						<tr style="height:50px; vertical-align:bottom">
 							<th style="width:232px; text-align:left">ENERGY SAVING</th>
-							<th>SWITCH ON</th>
-							<th>SWITCH OFF</th>
+							<th>TOURNER</th>
+							<th>ÉTEINDRE</th>
 						</tr>				
 						<tr><td>LUNDI</td><td align="center"><div class="UITime24" data-da3="7436"></div></td><td align="center"><div class="UITime24" data-da3="7438"></div></td></tr>					
 						<tr><td>MARDI</td><td align="center"><div class="UITime24" 	data-da3="7440"></div></td><td align="center"><div class="UITime24" data-da3="7442"></div></td></tr>					
@@ -444,23 +444,23 @@
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
 					<tr>
-						<td style="width:400px">STEAM TEMPERATURE<br><span class="tip">max 128</span></td>
+						<td style="width:400px">TEMPÉRATURE À LA VAPEUR<br><span class="tip">max 128</span></td>
 						<td><div class="UINumber" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
 					</tr>
 					<tr>
-						<td>RINSING PERIOD<br><span class="tip">max 900</span></td>
+						<td>PÉRIODE DE RINÇAGE<br><span class="tip">max 900</span></td>
 						<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 					</tr>
 					<tr>
-						<td>ENABLE RINSING</td>
+						<td>ACTIVER LE RINÇAGE</td>
 						<td><div class="UIOption" data-option="1|OUI|0|NO" data-da3="7622"></div></td>
 					</tr>
 					<tr>
-						<td>RINSE DELAY<br><span class="tip">max 10.0</span></td>
+						<td>RETARD DE RINÇAGE<br><span class="tip">max 10.0</span></td>
 						<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
 					</tr>
 					<tr>
-						<td>ENABLE MILK SENSOR</td>
+						<td>ACTIVER LE CAPTEUR DE LAIT</td>
 						<td><div class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
 					</tr>
 					<tr>
@@ -468,11 +468,11 @@
 						<td><div class="UIOption" data-option="1|OUI|0|NO" data-da3="7628"></div></td>
 					</tr>
 					<tr>
-						<td>AUTO RINSING AT TIME</td>
+						<td>AFFICHER LE BOUTON DE<br>RINÇAGE DU MILKER AU DÉMARRAGE</td>
 						<td colspan="3"><div id="pageMilker_time1" class="UITime24" data-da3="7468"></div></td>
 					</tr>
 					<tr>
-						<td>AUTO UPDATE RINSING TIME</td>
+						<td>AUTO UPDATE TEMPS DE RINÇAGE</td>
 						<td><div class="UIOption" data-option="1|OUI|0|NO" data-da3="7630"></div></td>
 					</tr>
 				</table>
@@ -504,7 +504,7 @@
 				<div id="pageSingleSelection_pageG">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>STATUS</td>
+							<td>STATUT</td>
 							<td><div id='pageSingleSelection_status' class="UIOption" data-option="0|SELECTION|1|INHIBÉ|2|PRESELECTION" data-da3="100" data-onclick='pageSingleSelection_onStatus()'></div></td>
 						</tr>
 					</table>
@@ -515,7 +515,7 @@
 								<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
 							</tr>
 							<tr>
-								<td>PRIX 2<br><span class="tip">happy price</span></td>
+								<td>PRIX 2<br><span class="tip">prix happy</span></td>
 								<td><div id='pageSingleSelection_prc2' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65535"></div></td>
 							</tr>
 							<tr>
@@ -523,11 +523,11 @@
 								<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
 							</tr>							
 							<tr>
-								<td>JUG<br><span class="tip">num repetitions</span></td>
+								<td>JUG<br><span class="tip">nom. répétitions</span></td>
 								<td><div class="UINumber" data-numfigures="2" data-max="10" data-da3="177" data-da3bit='8'></div></td>
 							</tr>
 							<tr>
-								<td>SCALING FACTOR<br></td>
+								<td>FACTEUR D'ÉCHELLE<br></td>
 								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
 							</tr>						
 						</table>
@@ -633,18 +633,18 @@
 					<table border='0' class='elenco'>
 						<tr>
 							<td>COIN MECH TYPE</td>
-							<td><div class='UISelect' data-option='0|PARALLEL SINGLE VEND|1|PARALLEL MULTI VEND|2|EXECUTIVE|3|PRICE HOLDING|4|MDB' data-da3='7058' data-da3bit='8'></div></td>
+							<td><div class='UISelect' data-option='0|PARALLÈLE VENTE UNIQUE|1|PARALLÈLE VENTE MULTIPLE|2|EXECUTIVE|3|PRICE HOLDING|4|MDB' data-da3='7058' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>CURRENCY (PRICES)<br>NUM OF DECIMALS</td>
+							<td>PRIX<br>NOM DE DÉCIMALES</td>
 							<td><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='7066' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>PRICE LIST FOR CASH</td>
+							<td>LISTE PRIX CASH</td>
 							<td><div class='UIOption' data-option='0|1|1|2' data-da3='8374' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>PRICE LIST FOR CASHLESS</td>
+							<td>LISTE PRIX CASHLESS</td>
 							<td><div class='UIOption' data-option='0|1|1|2' data-da3='8376' data-da3bit='8'></div></td>
 						</tr>
 						
@@ -657,48 +657,48 @@
 							<td>ESCROW ENABLED</td>
 							<td><div class='UIOption' data-option='0|OUI|1|NO' data-da3='7236' data-da3bit='8'></div></td>
 						</tr>
-						<tr><td>CREDIT MAX</td><td><div id="pagePayment_creditMax" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7238" data-da3bit="16"></div></td></tr>
-						<tr><td>REST MAX</td><td><div  id="pagePayment_restMax"class="UINumber" data-numfigures="5" data-max="99999" data-da3="7240" data-da3bit="16"></div></td></tr>
+						<tr><td>CRÉDIT MAX</td><td><div id="pagePayment_creditMax" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7238" data-da3bit="16"></div></td></tr>
+						<tr><td>REPOS MAX</td><td><div  id="pagePayment_restMax"class="UINumber" data-numfigures="5" data-max="99999" data-da3="7240" data-da3bit="16"></div></td></tr>
 						<tr>
 							<td>SELL TYPE</td>
 							<td><div class='UIOption' data-option='0|SINGLE|1|MULTI' data-da3='7242' data-da3bit='8'></div></td>
 						</tr>
-						<tr><td>TOKEN VALUE</td><td><div id="pagePayment_tokenV" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7244" data-da3bit="16"></div></td></tr>
+						<tr><td>VALEUR DE JETON</td><td><div id="pagePayment_tokenV" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7244" data-da3bit="16"></div></td></tr>
 						<tr><td>BILL VALIDATOR</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='7310' data-da3bit='8'></div></td></tr>
 						
-						<tr><td>COIN REST A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7246' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7248' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7250' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7252' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7254' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7256' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7258' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7260' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7262' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7264' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7266' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7268' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7270' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7272' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7274' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7276' data-da3bit='16'></div></td></tr>
+						<tr><td>REPOS MONNAIE A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7246' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7248' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7250' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7252' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7254' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7256' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7258' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7260' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7262' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7264' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7266' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7268' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7270' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7272' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7274' data-da3bit='16'></div></td></tr>						
+						<tr><td>REPOS MONNAIE P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7276' data-da3bit='16'></div></td></tr>
 
-						<tr><td>COIN NO REST A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7278' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7280' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7282' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7284' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7286' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7288' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7290' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7292' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7294' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7296' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7298' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7300' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7302' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7304' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7306' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7308' data-da3bit='16'></div></td></tr>
+						<tr><td>NO REPOS MONNAIE A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7278' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7280' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7282' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7284' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7286' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7288' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7290' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7292' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7294' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7296' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7298' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7300' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7302' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7304' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7306' data-da3bit='16'></div></td></tr>						
+						<tr><td>NO REPOS MONNAIE P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTÉ' data-da3='7308' data-da3bit='16'></div></td></tr>
 					</table>				
 				</div>			
 				
@@ -721,7 +721,7 @@
 							<td><div class="UINumber" data-numfigures="8" data-max="99999999" data-da3="7322" data-da3bit="32"></div></td>
 						</tr>
 						<tr>
-							<td>ADDRESS VIDTS</td>
+							<td>ADRESSE VIDTS</td>
 							<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7326" data-da3bit="16"></div></td>
 						</tr>
 					</table>
@@ -730,7 +730,7 @@
 				<div id="pagePayment_rfid">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>MAX CREDIT CARD</td>
+							<td>CRÉDIT MAX<br>CARTE</td>
 							<td><div id="pagePayment_maxCC" class="UINumber" data-numfigures="5" data-max="99999" data-da3="7136" data-da3bit="16"></div></td>
 						</tr>
 						<tr>
@@ -770,26 +770,26 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selector' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|OTHER' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selector' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|AUTRE' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<div style='height:5px'></div>
 			
 				<div id="pageDevices_general" style="display:none">
 					<table border='0' class='elenco'>
-						<tr><td>DRIPTRAY DETECTION</td><td><div class='UIOption' data-option='0|NO|1|OUI' data-da3='7092' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_cofSensor"><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ACTIVÉ|0|DÉSACTIVÉ' data-da3='7094' data-da3bit='8'></div></td></tr>
-						<tr><td>CUP SENSOR THRESHOLD</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
-						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startModemTest()"></div></td></tr>
+						<tr><td>DÉTECTION DRIPTRAY</td><td><div class='UIOption' data-option='0|NO|1|OUI' data-da3='7092' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_cofSensor"><td>CAPTEUR DE CAFÉ</td><td><div class='UIOption' data-option='1|ACTIVÉ|0|DÉSACTIVÉ' data-da3='7094' data-da3bit='8'></div></td></tr>
+						<tr><td>SEUIL DE CAPTEUR DE VERRE</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
+						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startModemTest()"></div></td></tr>
 					</table>
 				</div>
 
 				<div id="pageDevices_vflex" style="display:none">
 					<table border='0' class='elenco'>
-						<tr><td>BREWER DIAMETER</td><td><div class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
-						<tr><td>STANDBY POSITION</td><td><div class='UIOption' data-option='0|PROCHE|1|OUVERT' data-da3='7556' data-da3bit='8'></div></td></tr>
+						<tr><td>DIAMÈTRE DE BROYEUR</td><td><div class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
+						<tr><td>POSITION DE REPOS</td><td><div class='UIOption' data-option='0|PROCHE|1|OUVERT' data-da3='7556' data-da3bit='8'></div></td></tr>
 						<tr><td>AUTOMATIC<br>ADJUSTMENT</td><td><div class='UIOption' data-option='0|NO|1|OUI' data-da3='7558' data-da3bit='8'></div></td></tr>
-						<tr><td>DELIVERY PHASE</td><td><div class='UIOption' data-option='0|ORDINAIRE|1|VITE' data-da3='7570' data-da3bit='8'></div></td></tr>
+						<tr><td>LIVRAISON RAPIDE</td><td><div class='UIOption' data-option='0|ORDINAIRE|1|VITE' data-da3='7570' data-da3bit='8'></div></td></tr>
 					</table>				
 				</div>			
 				
@@ -805,7 +805,7 @@
 							<td style="width:440px">
 								<div style="display:none">
 									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>desired value</div>
+									<div style="float:left; margin-right:10px"><br>valeur<br>de consigne</div>
 									<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="520"></div></div>
 									<div class="clear"></div>
 								</div>
@@ -815,7 +815,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td>ENABLE AUTO<br>REGULATION</td>
+							<td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td>
 							<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|NO|1|OUI' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
 						</tr>
 					</table>
@@ -824,9 +824,9 @@
 							<td>
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
 										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
 										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7588" data-da3bit="8"></div></td>
 										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
 									</tr>
@@ -838,15 +838,15 @@
 							<td>
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
 										<td style='width:320px; border-right:solid 1px #999'>
 											<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
 										</td>
-										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
+										<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
-											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
-											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='SAVE VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
+											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
+											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
 										</td>
 									</tr>
 								</table>
@@ -868,7 +868,7 @@
 							<td style="width:440px">
 								<div style="display:none">
 									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>desired value</div>
+									<div style="float:left; margin-right:10px"><br>valeur<br>de consigne</div>
 									<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="520"></div></dv>
 									<div class="clear"></div>
 								</div>
@@ -877,16 +877,16 @@
 								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div>-->
 							</td>
 						</tr>
-						<tr><td>ENABLE AUTO<br>REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|OUI' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
+						<tr><td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|OUI' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
 					</table>
 					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
 						<tr>
 							<td>
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
 										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7690" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
 										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="12" data-da3="7684" data-da3bit="8"></div></td>
 										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
 									</tr>
@@ -897,15 +897,15 @@
 							<td>
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
 										<td style='width:320px; border-right:solid 1px #999'>
 											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div>
 										</td>
-										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
+										<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
-											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
-											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='SAVE VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
+											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
+											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
 										</td>
 									</tr>
 								</table>
@@ -922,7 +922,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS|3|REFRESH DATA' data-onclick='pageDataAudit_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|APERÇU|1|PARTIEL|2|TOTAL|3|MISE à JOUR' data-onclick='pageDataAudit_onSelector()'></div></td>
 					</tr>
 				</table>
 				
@@ -936,7 +936,7 @@
 						<tr valign='middle'>
 							<td><div class='UIButton actionButton' data-caption='REFRESH DATA AGAIN' data-onclick="pageDataAudit_downloadEVA()"></div></td>
 							<td style="width:100px">&nbsp;</td>
-							<td><div class='UIButton actionButton' data-caption='RESET PARTIAL DATA' data-onclick="pageDataAudit_resetPartialData()"></div></td>
+							<td><div class='UIButton actionButton' data-caption='RESET PARTIEL DATA' data-onclick="pageDataAudit_resetPartialData()"></div></td>
 						</tr>
 					</table>
 					
@@ -961,27 +961,27 @@
 					<tr style='height:50px;'>
 						<td>LAST FLUX</td>
 						<td align="center"><div id='pageExpCalib_lastFlux'>0.00 cc/sec</div></td>
-						<td colspan="2"><span class="tip">Flux information are updated everytime you "run selection"</span></td>
+						<td colspan="2"><span class="tip">Les informations de flux sont mises à jour chaque fois que vous &quot;dèbut sélection&quot;</span></td>
 					</tr>					
 
 					<tr>
 						<td><b style='color:#fff'>MOULIN</b></td>
-						<td align="center">current calibration factor<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START CALIBRATION' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESET CALIBRATION' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
+						<td align="center">facteurs d'étalonnage actuels<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT CALIBRAGE' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESET CALIBRAGE' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
 					</tr>					
 
 
 					<tr style='height:125px;'>
 						<td><b style='color:#fff'>VARIGRIND</b></td>
-						<td align="center">current position<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
-						<td align="center">desired position<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
+						<td align="center">position actuelle<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
+						<td align="center">position souhaitée<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
 						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageExpCalib_regolaVG()"></div></td>
 					</tr>
 					
 					<tr style='border-bottom:none'>
 						<td><b style='color:#fff'>IMPULSES</b></td>
-						<td align="center">current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
+						<td align="center">courant<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
 						<td colspan="2" align="right">
 							<div style="widt:420px; max-width:420px">
 								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|MOULIN 1|2|MOULIN 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>
@@ -1352,7 +1352,7 @@ function pageMaintenance_refreshOFFList(startIndex)
 
 function pageMaintenance_formatHTMLForTemperature(jsonObj)
 {
-	var html = "Current temperature: ";
+	var html = "Températures actuelles: ";
 	if (da3.isInstant())
 	{
 		html += "boiler=[" +jsonObj.tbol +"&deg;] ";
@@ -1593,7 +1593,7 @@ function pageMiscellaneous_fv_refresh()
 		if (enddate_gg <10) enddate_gg = "0" +enddate_gg;
 		if (enddate_hh <10) enddate_hh = "0" +enddate_hh;
 		if (enddate_minute <10) enddate_minute = "0" +enddate_minute;
-		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND will ends on<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
+		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND se terminera sur<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
 	}
 }
 
@@ -1714,7 +1714,7 @@ function pageProductQty_build()
 		dataOption += "|" +i +"|" +i;
 		
 	html = 	"<table border='0' width='100%'><tr valign='middle'>"
-			+"	<td style='width:160px'><b>SELECT A<br>DECOUNTER</b></td>"
+			+"	<td style='width:160px'><b>CHOISIR UNE DECOMPUTER</b></td>"
 			+"	<td><div class='UIOptionSmall' id='pageProductQty_decSelector' data-option='" +dataOption +"' data-onclick='pageProductQty_showDecounter()'></div></td>"
 			+"</tr></table><br>";
 	
@@ -1738,9 +1738,9 @@ function pageProductQty_build()
 				+"		<td style='width:400px'><span id='" +currentValueID +"' class='bigCaption25'>" +currentDecountValue +"</span></td>"
 				+"		<td align='center'><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
 				+"	</tr>"
-				+"	<tr><td>CANISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999' data-um='sec'></div></td></tr>"
-				+"	<tr><td>WARNING AT</td><td colspan='2'><div id='" +currentWarningID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999' data-um='sec'></div></td></tr>"
-				+"	<tr style='border:0'><td>ENABLE PRODUCT STOP</td><td colspan='2'><div class='UIOption' data-option='1|OUI|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
+				+"	<tr><td>CAPACITÉ<br>CANISTER</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='99999' data-um='sec'></div></td></tr>"
+				+"	<tr><td>AVERTISSEMENT</td><td colspan='2'><div id='" +currentWarningID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='99999' data-um='sec'></div></td></tr>"
+				+"	<tr style='border:0'><td>ACTIVER STOP DU PRODUIT</td><td colspan='2'><div class='UIOption' data-option='1|OUI|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
 				+"</table></div>";
 		da3Loc_decounter+=2;
 		da3Loc_warning+=2;
@@ -2000,7 +2000,7 @@ function pageSingleSelection_build()
 		da3LocWater = da3ProductLM +3;
 		
 		WATER_COLONNA_FLOW_TYPE = 1;
-		WATER_COLONNA_FLOW_TITLE = "FLOW";
+		WATER_COLONNA_FLOW_TITLE = "FLUX";
 	}
 	else
 	{
@@ -2013,7 +2013,7 @@ function pageSingleSelection_build()
 		if (da3.isInduzione())
 		{
 			WATER_COLONNA_FLOW_TYPE=2;
-			WATER_COLONNA_FLOW_TITLE = "EV TEMPERATURE";
+			WATER_COLONNA_FLOW_TITLE = "TEMPÉRATURE EV";
 			da3LocEVTemperature = 169;
 		}
 		else
@@ -2023,9 +2023,9 @@ function pageSingleSelection_build()
 	
 	var s = "";
 	if (da3.isInstant())
-		s = "0|OVERVIEW|2|PRODUIT|3|EAUX|4|MIXERS";
+		s = "0|OPTIONS GÉNÉRAL.|2|PRODUIT|3|EAUX|4|MIXERS";
 	else
-		s = "0|OVERVIEW|1|ESPRESSO|2|PRODUIT|3|EAUX|4|MIXERS";
+		s = "0|OPTIONS GÉNÉRAL.|1|ESPRESSO|2|PRODUIT|3|EAUX|4|MIXERS";
 	rheaSetDivHTMLByName("pageSingleSelection_selectorAtTop", "<div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div>");
 	
 	
@@ -2034,22 +2034,22 @@ function pageSingleSelection_build()
 	{
 		htmlE = "<table border='0' class='elenco'>"
 				+"<tr><td>COFFEE SEQUENCE</td><td><div class='UIOption' data-option='0|APRÈS|1|AVANT' data-da3='103' data-da3bit='8'></div></td></tr>"
-				+"<tr><td>COFFEE WATER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
-				+"<tr><td>COFFEE GRINDER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(12)'></div></td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
+				+"<tr><td>EAU DE CAFÉ<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
+				+"<tr><td>MOULIN DE CAFÉ<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(12)'></div></td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
 				+"<tr><td>PREINFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='128' data-da3bit='4' data-max='15' data-um='sec'></div></td></tr>"
-				+"<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>";
+				+"<tr><td>PRESSION D'INFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>";
 		
 		if (da3.isInduzione())
-			htmlE += "<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>";
+			htmlE += "<tr><td>TEMPÉRATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>";
 			
-		htmlE  +="<tr><td>GRANULOMETRY</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DÉSACTIVÉ|1|FIN|2|GROSS|3|RÉFÉRENCE' data-da3='175' data-da3bit='8'></div></td></tr>"
-				+"<tr><td>LATTE MACCHIATO<br>START BREWER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>"
-				+"<tr><td>EV FRESH MILK<br>QTY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
-				+"<tr><td>EV FRESH MILK<br>DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
-				+"<tr><td>EV AIR FRESH MILK</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
-				+"<tr><td>EV AIR FRESH MILK<br>DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+		htmlE  +="<tr><td>GRANULOMÉTRIE</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DÉSACTIVÉ|1|FIN|2|GROSS|3|RÉFÉRENCE' data-da3='175' data-da3bit='8'></div></td></tr>"
+				+"<tr><td>LAIT TACHÉ<br>RETARD</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>"
+				+"<tr><td>LAIT FRAIS<br>QTÉ</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+				+"<tr><td>LAIT FRAIS<br>RETARD</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+				+"<tr><td>EV AIR LAIT FRAIS</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+				+"<tr><td>EV AIR LAIT FRAIS<br>RETARD</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
 
-				+"<tr><td>SELECT GRINDER 2</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|NO|1|OUI' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>"
+				+"<tr><td>UTILISER GRINDER 2</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|NO|1|OUI' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>"
 				+"<tr><td>COFFEE REPEAT</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"
 				+"</table>";
 	}
@@ -2087,7 +2087,7 @@ function pageSingleSelection_build()
 			+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3ProductLM+2) +"' data-da3bit='4'></div></td>"
 		+"</tr>";
 	
-	htmlP += "<tr><td>TEA BAG</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
+	htmlP += "<tr><td>SACHET TEA</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
 	htmlP += "</table>";
 
 
@@ -2095,7 +2095,7 @@ function pageSingleSelection_build()
 	var htmlW = "<table border='0' class='elenco'>"
 				+"<tr>"
 				+"	<th style='width:184px; text-align:left;'>EAU #</th>"
-				+"	<th style='width:290px; text-align:left;'>TIME</th>"
+				+"	<th style='width:290px; text-align:left;'>DURÉE</th>"
 				+"	<th style='width:290px; text-align:left;'>RETARD DÉPART</th>"
 				+"	<th style='width:260px; text-align:center;'>" +WATER_COLONNA_FLOW_TITLE +"</th>"
 				+"</tr>";
@@ -2103,7 +2103,7 @@ function pageSingleSelection_build()
 	var htmlM = "<table border='0' class='elenco'>"
 				+"<tr>"
 				+"	<th style='width:184px; text-align:left;'>MIXER #</th>"
-				+"	<th style='width:290px; text-align:left;'>TIME</th>"
+				+"	<th style='width:290px; text-align:left;'>DURÉE</th>"
 				+"	<th style='width:290px; text-align:left;'>RETARD DÉPART</th>"
 				+"	<th style='width:260px; text-align:center;'>VITESSE</th>"
 				+"</tr>";		
@@ -2309,7 +2309,7 @@ function pageTemperature_build()
 	if (da3.isInstant())
 	{
 		//boiler & delta
-		html += "<tr><td>BOILER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='92' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+		html += "<tr><td>BOUILLOIRE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='92' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
 			   +"<tr><td>DELTA</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='16' data-da3='7042' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 	}
 	else
@@ -2317,15 +2317,15 @@ function pageTemperature_build()
 		if (da3.isInduzione())
 		{
 			//solo temp heater (aka camera caffe')
-			html += "<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+			html += "<tr><td>CHAUFFE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 		else
 		{
 			//(espresso qui significa bollitore, heater significa camera caffe')
 			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
-				   +"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
-				   +"<tr><td>HEATING TIME</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>"
-				   +"<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+				   +"<tr><td>PREMIER CAFÉ</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
+				   +"<tr><td>TEMPS DE CHAUFFAGE</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>"
+				   +"<tr><td>CHAUFFE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 	}	
 	html += "</table>";
@@ -2762,7 +2762,7 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 	var elemBtnUse2 = rheaGetElemByID ("pageDevices_vgrind2_lastFlux_btnUse");
 	if (flux < 0)
 	{
-		var msg = "Last flux/position:<br>please click on <b>RUN SELECTION</b>";
+		var msg = "Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b>";
 		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
 		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
 		rheaHideElem (elemBtnUse1);

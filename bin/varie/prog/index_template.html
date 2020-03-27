@@ -23,14 +23,14 @@
 				<div id="pagePleaseWait_calibration_1">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>$LAB_ESPCAL_If_you_wish_you_can_grind_again_by_pressing</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_1_grind' class='UIButton bigButton60 actionButton' data-caption='GRIND AGAIN' data-onclick="pageCalibration_grindAgain()"></div></td>
 						</tr>
 					</table>
 					<hr>
 
-					If you wish, you can adjust the opening of the Varigrind using the controls below:
+					$LAB_ESPCAL_If_you_wish_you_can_adjust_the_opening_of_the_Varigrind_using_the_controls_below
 					<table border='0' class='elenco'>
 						<tr>
 							<td style="width:33%" align="center">
@@ -53,7 +53,7 @@
 				<div id="pagePleaseWait_calibration_2">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>$LAB_ESPCAL_If_you_wish_you_can_grind_again_by_pressing</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_2_runMotor' class='UIButton bigButton60 actionButton' data-caption='RUN MOTOR AGAIN' data-onclick="pageCalibration_runMotorAgain()"></div></td>
 						</tr>
@@ -961,27 +961,27 @@
 					<tr style='height:50px;'>
 						<td>LAST FLUX</td>
 						<td align="center"><div id='pageExpCalib_lastFlux'>0.00 cc/sec</div></td>
-						<td colspan="2"><span class="tip">Flux information are updated everytime you "run selection"</span></td>
+						<td colspan="2"><span class="tip">$LAB_ESPCAL_Flux_information_are_updated_everytime_you_run_selection</span></td>
 					</tr>					
 
 					<tr>
 						<td><b style='color:#fff'>$LAB_GRINDER</b></td>
-						<td align="center">current calibration factor<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START CALIBRATION' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESET CALIBRATION' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
+						<td align="center">$LAB_ESPCAL_current_calibration_factor<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_ESPCAL_START_CALIBRATION' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_ESPCAL_RESET_CALIBRATION' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
 					</tr>					
 
 
 					<tr style='height:125px;'>
 						<td><b style='color:#fff'>VARIGRIND</b></td>
-						<td align="center">current position<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
-						<td align="center">desired position<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
+						<td align="center">$LAB_ESPCAL_current_position<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
+						<td align="center">$LAB_ESPCAL_desired_position<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
 						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageExpCalib_regolaVG()"></div></td>
 					</tr>
 					
 					<tr style='border-bottom:none'>
 						<td><b style='color:#fff'>$LAB_IMPULSES</b></td>
-						<td align="center">current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
+						<td align="center">$LAB_ESPCAL_current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
 						<td colspan="2" align="right">
 							<div style="widt:420px; max-width:420px">
 								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|$LAB_GRINDER 1|2|$LAB_GRINDER 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>

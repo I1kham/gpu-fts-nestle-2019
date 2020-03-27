@@ -194,7 +194,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					var btnText = "BOUTON " +me.btn1;
 					switch (me.fase)
 					{
-						case 3:  btnText = "START"; break; //HC_STEP_TABLET
+						case 3:  btnText = "DÉBUT"; break; //HC_STEP_TABLET
 						case 11: btnText = "NO"; break; //HC_STEP_BRW_REPEAT
 						case 12: btnText = "CONTINUER"; break; //HC_STEP_BRW_BRUSH_POSITION
 						case 13: btnText = "SAUTER LE CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
@@ -389,7 +389,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.fase = 10;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Please wait while motor is running"); //Please wait while motor is running
+		pleaseWait_calibration_setText("Veuillez patienter pendant que le moteur tourne"); //Please wait while motor is running
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -412,7 +412,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		pleaseWait_calibration_varigrind_hide();		
 
 		
-		pleaseWait_calibration_setText("When you're done, please enter the quantity in grams of the LAST ground, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("Lorsque vous avez terminé, veuillez entrer la quantité en grammes du DERNIER sol, puis appuyez sur CONTINUER"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUER");
@@ -427,12 +427,12 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.value = pleaseWait_calibration_num_getValue();
 		if (parseFloat(me.value) == 0)
 		{
-			pleaseWait_calibration_setText("Invalid value");
+			pleaseWait_calibration_setText("Valeur invalide");
 			me.fase = 20;
 			break;
 		}
 	
-		pleaseWait_calibration_setText("Storing value ...");
+		pleaseWait_calibration_setText("Stockage de valeur ...");
 		me.value = pleaseWait_calibration_num_getValue();
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
@@ -480,7 +480,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_calibration_setText("Veuillez retirer l'infuseur, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_setText("ABORT");
@@ -512,7 +512,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 10:  //attivo le macinate
 		me.fase = 11;
-		pleaseWait_calibration_setText("Please wait while motor is running"); //Please wait while motor is running
+		pleaseWait_calibration_setText("Veuillez patienter pendant que le moteur tourne"); //Please wait while motor is running
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -533,7 +533,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_calibration_motor_hide();
 		pleaseWait_calibration_varigrind_show();		
 		
-		pleaseWait_calibration_setText("When you're done, please enter the quantity in grams of the LAST ground, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("Lorsque vous avez terminé, veuillez entrer la quantité en grammes du DERNIER sol, puis appuyez sur CONTINUER"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUER");
@@ -563,7 +563,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 		
 	case 25:	//qui ci andiamo se siamo in fase 21 e l'utente preme il btn SET per impostare una nuova apertura del VGrind
-		pleaseWait_calibration_setText("Please wait while the varigrind is adjusting its position"); //Please wait while the varigrind is adjusting its position
+		pleaseWait_calibration_setText("Veuillez patienter pendant que le varigrind ajuste sa position"); //Please wait while the varigrind is adjusting its position
 		rhea.sendStartPosizionamentoMacina((me.motor-10), uiStandAloneVarigringTargetPos.getValue());
 		me.fase = 26;
 		break;
@@ -575,7 +575,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		{
 			var obj = JSON.parse(result);
 			rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
-			pleaseWait_calibration_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position  [current pos]
+			pleaseWait_calibration_setText("Veuillez patienter pendant que le varigrind ajuste sa position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position  [current pos]
 		})
 		.catch( function(result)
 		{
@@ -598,13 +598,13 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.value = pleaseWait_calibration_num_getValue();
 		if (parseFloat(me.value) == 0)
 		{
-			pleaseWait_calibration_setText("Invalid value");
+			pleaseWait_calibration_setText("Valeur invalide");
 			me.fase = 20;
 			break;
 		}
 		
 		pleaseWait_calibration_varigrind_hide();
-		pleaseWait_calibration_setText("Storing value ...");
+		pleaseWait_calibration_setText("Stockage de valeur ...");
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
@@ -623,7 +623,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 		
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE"); //Place the brewer into position, then press CONTINUE
+		pleaseWait_calibration_setText("Placez l'infuseur en position, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
 		pleaseWait_btn1_show();
 		me.fase = 41;
 		break;
@@ -657,7 +657,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		{
 			me.fase = 65;
 			pleaseWait_calibration_show();
-			pleaseWait_calibration_setText("Impulse calculation in progress, please wait"); //Impulse calculation in progress, please wait
+			pleaseWait_calibration_setText("Calcul d'impulsion en cours, veuillez patienter"); //Impulse calculation in progress, please wait
 			rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
 			{
 				//me.fase = 70;
@@ -815,7 +815,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_calibration_setText("Veuillez retirer l'infuseur, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_setText("ABORT");
@@ -846,7 +846,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		
 	case 10:  //ok, il gruppo è scollegato, chiedo a CPU di attivare la macina
 		me.fase = 11;
-		pleaseWait_calibration_setText ("Grinder is running"); //Grinder is running
+		pleaseWait_calibration_setText ("Grinder tourne"); //Grinder is running
 		rhea.ajax ("testSelection", {"s":me.selNum, "d":me.iAttuatore} ).then( function(result)
 		{
 			if (result == "OK")
@@ -873,7 +873,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		break;
 	
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Place the brewer into position and then press CONTINUE, or press REPEAT to grind again"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
+		pleaseWait_calibration_setText("Placez l'infuseur en position, puis appuyez sur CONTINUER ou appuyez sur RÉPÉTER pour moudre à nouveau"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_setText("RÉPÉTER");
 		pleaseWait_btn2_show();		
@@ -1106,7 +1106,7 @@ TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
 		case 0: 
 			this.fase=1; 
 			
-			pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position"); //Please wait while the varigrind is adjusting its position
+			pleaseWait_freeText_setText("Veuillez patienter pendant que le varigrind ajuste sa position"); //Please wait while the varigrind is adjusting its position
 			pleaseWait_freeText_show();
 			/*pleaseWait_freeText_setText("While the varigrind is opening/closing, you can press RUN GRINDER to run the grinder in order to facilitate the operation.");
 			pleaseWait_freeText_show();
@@ -1140,7 +1140,7 @@ TaskDevices.prototype.priv_queryMacina = function(macina_1o2)
 	{
 		var obj = JSON.parse(result);
 		rheaSetDivHTMLByName("pageDevices_vg" +macina_1o2, obj.v);
-		pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
+		pleaseWait_freeText_setText("Veuillez patienter pendant que le varigrind ajuste sa position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
 	})
 	.catch( function(result)
 	{
@@ -1252,8 +1252,8 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		this.fase = 1;
 		pleaseWait_show();
 		pleaseWait_freeText_show();
-		pleaseWait_freeText_setText("DISINTALLATION<br><br>Is driptray empty?"); //DISINTALLATION<br><br>Is driptray empty?
-		pleaseWait_btn1_setText("YES - CONTINUE");
+		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Le driptray est-il vide?"); //DISINTALLATION<br><br>Is driptray empty?
+		pleaseWait_btn1_setText("OUI - CONTINUER");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
@@ -1264,7 +1264,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 10:
 		this.fase = 11;
-		pleaseWait_freeText_setText("DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
+		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Veuillez retirer le marc de café, puis appuyez sur CONTINUER"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
@@ -1276,7 +1276,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 20:
 		this.fase = 21;
-		pleaseWait_freeText_setText("DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
+		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Appuyez sur START DISINSTALLATION pour continuer, ABORT pour annuler l'opération"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
 		pleaseWait_btn1_setText("COMMENCER À DÉSINSTALLER");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
@@ -1288,7 +1288,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 30:
 		this.fase = 31;
-		pleaseWait_freeText_setText("DISINTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
+		pleaseWait_freeText_setText("LA DESINTALLATION est en cours, veuillez patienter ..."); //DISINTALLATION is running, please wait
 		rhea.sendStartDisintallation();
 		
 	case 31: this.fase = 32; break;
@@ -1302,7 +1302,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		break;
 		
 	case 40:
-		pleaseWait_freeText_setText("DISINTALLATION finished, please SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
+		pleaseWait_freeText_setText("DÉSINSTALLATION terminée, veuillez ARRÊTER la machine"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
 		break;
 		
@@ -1387,7 +1387,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 		case 10: //eva dts scaricato
 			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
 			me.fase = 20;
-			pleaseWait_freeText_appendText ("<br>Done. Now processing data, please wait<br>"); //Done, processing data, please wait
+			pleaseWait_freeText_appendText ("<br>Terminé. En cours de traitement des données, veuillez patienter<br>"); //Done, processing data, please wait
 			break;
 			
 		case 20: //inizio il download della versione "packed" dell'eva-dts che la GPU ha generato durante la fase precedente
@@ -1402,7 +1402,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 			
 		case 200: //errore downloading eva-dts
 			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
-			pleaseWait_freeText_appendText("Error downloading EVA-DTS. Please try again later"); //Error downloading EVA-DTS. Please try again later
+			pleaseWait_freeText_appendText("Erreur lors du téléchargement de l'EVA-DTS. Veuillez réessayer plus tard"); //Error downloading EVA-DTS. Please try again later
 			me.fase = 201;
 			break;
 			
@@ -1762,7 +1762,7 @@ TaskEspressoCalib.prototype.priv_handleRegolazionePosizioneMacina = function()
 		case 0: 
 			this.fase=1; 
 			
-			pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position"); //Please wait while the varigrind is adjusting its position
+			pleaseWait_freeText_setText("Veuillez patienter pendant que le varigrind ajuste sa position"); //Please wait while the varigrind is adjusting its position
 			pleaseWait_freeText_show();
 			break;
 		case 1: this.fase=2; break;
@@ -1791,7 +1791,7 @@ TaskEspressoCalib.prototype.priv_queryMacina = function()
 	{
 		var obj = JSON.parse(result);
 		rheaSetDivHTMLByName("pageExpCalib_vgCurPos", obj.v);
-		pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
+		pleaseWait_freeText_setText("Veuillez patienter pendant que le varigrind ajuste sa position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
 	})
 	.catch( function(result)
 	{

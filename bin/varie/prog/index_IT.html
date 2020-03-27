@@ -23,14 +23,14 @@
 				<div id="pagePleaseWait_calibration_1">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>Se lo desideri, puoi macinare nuovamente premendo</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_1_grind' class='UIButton bigButton60 actionButton' data-caption='GRIND AGAIN' data-onclick="pageCalibration_grindAgain()"></div></td>
 						</tr>
 					</table>
 					<hr>
 
-					If you wish, you can adjust the opening of the Varigrind using the controls below:
+					Se lo desidera, puoi modificare l'apertura del Varigrind usando i controlli qui sotto:
 					<table border='0' class='elenco'>
 						<tr>
 							<td style="width:33%" align="center">
@@ -53,7 +53,7 @@
 				<div id="pagePleaseWait_calibration_2">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>Se lo desideri, puoi macinare nuovamente premendo</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_2_runMotor' class='UIButton bigButton60 actionButton' data-caption='RUN MOTOR AGAIN' data-onclick="pageCalibration_runMotorAgain()"></div></td>
 						</tr>
@@ -961,27 +961,27 @@
 					<tr style='height:50px;'>
 						<td>LAST FLUX</td>
 						<td align="center"><div id='pageExpCalib_lastFlux'>0.00 cc/sec</div></td>
-						<td colspan="2"><span class="tip">Flux information are updated everytime you "run selection"</span></td>
+						<td colspan="2"><span class="tip">Le info sul flusso sono aggiornate ogni volta che premi &quot;esegui selezione&quot;</span></td>
 					</tr>					
 
 					<tr>
 						<td><b style='color:#fff'>MACINA</b></td>
-						<td align="center">current calibration factor<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START CALIBRATION' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESET CALIBRATION' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
+						<td align="center">fattori di calibrazione attuali<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='INIZIA CALIBRAZIONE' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESETTA CALIBRAZIONE' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
 					</tr>					
 
 
 					<tr style='height:125px;'>
 						<td><b style='color:#fff'>VARIGRIND</b></td>
-						<td align="center">current position<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
-						<td align="center">desired position<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
+						<td align="center">posizione attuale<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
+						<td align="center">posizione desiderata<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
 						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageExpCalib_regolaVG()"></div></td>
 					</tr>
 					
 					<tr style='border-bottom:none'>
 						<td><b style='color:#fff'>IMPULSI</b></td>
-						<td align="center">current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
+						<td align="center">attuale<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
 						<td colspan="2" align="right">
 							<div style="widt:420px; max-width:420px">
 								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|MACINA 1|2|MACINA 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>
@@ -2045,7 +2045,7 @@ function pageSingleSelection_build()
 		htmlE  +="<tr><td>GRANULOMETRIA</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DISABIL.|1|FINE|2|RIFERIM.|3|GROSSA' data-da3='175' data-da3bit='8'></div></td></tr>"
 				+"<tr><td>LATTE MACCHIATO<br>RITARDO GRUPPO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>"
 				+"<tr><td>LATTE FRESCO<br>QTA'</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
-				+"<tr><td>LATTE FRESCI<br>RITARDO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+				+"<tr><td>LATTE FRESCO<br>RITARDO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
 				+"<tr><td>EV ARIA LATTE FRESCO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
 				+"<tr><td>EV ARIA LATTE FRESCO<br>RITARDO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
 

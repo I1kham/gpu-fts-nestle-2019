@@ -18,9 +18,10 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 
 	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
 	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
-	rhea::utf16::concatFromASCII (utf16_cpuMessage1, sizeof(utf16_cpuMessage1), "x123456789 123456789 123456789 X");
-	rhea::utf16::concatFromASCII (utf16_cpuMessage2, sizeof(utf16_cpuMessage2), "ABC"); //DEFGHI ABCDEFGHI ABCDEFGHI AB");
+	rhea::utf16::concatFromASCII (utf16_cpuMessage1, sizeof(utf16_cpuMessage1), "CPU msg example 1");
+	rhea::utf16::concatFromASCII (utf16_cpuMessage2, sizeof(utf16_cpuMessage2), "CPU msg example 1");
 
+	/*
 	//Det gør ondt her
 	{
 		u32 i = 0;
@@ -56,7 +57,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 		utf16_cpuMessage2[i++] = 0xff1f;
 		utf16_cpuMessage2[i++] = 0x00;
 	}
-
+	*/
 	utf16_curCPUMessage = utf16_cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;

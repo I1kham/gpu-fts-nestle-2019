@@ -72,13 +72,19 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
     <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <TargetName>RheaMedia2_v2.0_2020-27-03</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
     <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>RheaMedia2_v2.0_2020-27-03</TargetName>
     <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>RheaMedia2_v2.0_2020-27-03</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>RheaMedia2_v2.0_2020-27-03</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
