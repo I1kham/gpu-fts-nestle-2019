@@ -74,6 +74,14 @@ namespace cpubridge
 			u64	timeToEndMSec;
 		};
 
+		struct sTestAssorbGruppo
+		{
+			u64	timeToEndMSec;
+			u8	fase;
+			u8	esito;
+			u16	result12[12];
+		};
+
 	private:
 		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
 		void					priv_updateCPUMessageToBeSent (u64 timeNowMSec);
@@ -93,6 +101,7 @@ namespace cpubridge
 		sMovimentoMacina			macine[2];
 		sTestModem					testModem;
 		u64							timeToEndTestSelezioneMSec;
+		sTestAssorbGruppo			testAssorbGruppo;
     };
 
 } // namespace cpubridge

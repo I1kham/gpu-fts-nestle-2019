@@ -968,9 +968,23 @@ TaskDevices.prototype.messageBox = function (msg)
 	pleaseWait_btn1_show();
 	pleaseWait_freeText_show();
 	pleaseWait_freeText_setText(msg);
-	
 }
 
+TaskDevices.prototype.runTestAssorbGruppo = function()
+{	
+	this.what = 5;
+	this.fase = 0;
+	this.test_fase = 0;
+	pleaseWait_show();
+}
+
+TaskDevices.prototype.runTestAssorbMotoriduttore = function()
+{	
+	this.what = 6;
+	this.fase = 0;
+	this.test_fase = 0;
+	pleaseWait_show();
+}
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr +" [" +statusID +"]"); }
 TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
@@ -1000,9 +1014,48 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 		this.what = this.whatBeforeMsgBox;
 		break;
 		
+	case 5: //test assorb gruppo
+		this.fase = 90;	//ho premuto CLOSE al termine del test
+		break;
+
+	case 6: //test assorb motoriduttore
+		switch (this.fase)
+		{
+			case 1:	//ho premuto CONTINUE nella fase di "prego rimuovere il gruppo"
+				this.fase = 2;
+				pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+				break;
+				
+			case 80: //ho premuto CONTINUE al termine del test
+				this.fase = 85;		
+				pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+				break;
+				
+			case 86: //ho premuto CONTINUE nella fase di "prego rimettere a posto il gruppo"
+				this.fase = 87;
+				pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+				break;
+				
+		}
+		break;		
 	}
 }
-TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)							{}
+TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)
+{
+	switch (this.what)
+	{
+	case 6: //test assorb motoriduttore
+		switch (this.fase)
+		{
+			case 1:	//ho premuto ABORT nella fase di "prego rimuovere il gruppo"
+				this.fase = 90;
+				pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+				break;
+		}
+		break;		
+	}
+}
+
 TaskDevices.prototype.onFreeBtnTrickClicked= function(ev)						{}
 
 
@@ -1016,6 +1069,10 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 		this.priv_handleRunSelection(timeNowMsec);
 	else if (this.what == 3)
 		this.priv_handleModemTest(timeNowMsec);
+	else if (this.what == 5)
+		this.priv_handleTestAssorbGruppo(timeNowMsec);
+	else if (this.what == 6)
+		this.priv_handleTestAssorbMotoriduttore(timeNowMsec);
 }
 
 TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
@@ -1207,6 +1264,234 @@ TaskDevices.prototype.priv_handleModemTest = function(timeNowMsec)
 	
 }
 
+
+TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
+{
+	var me = this;
+	switch (me.fase)
+	{
+	case 0:
+		pleaseWait_freeText_setText ("Le test commence...");
+		pleaseWait_freeText_show();
+		me.fase = 1;
+		rhea.ajax ("startTestAssGrp", "" ).then( function(result)
+		{
+			if (result == "OK")
+				me.fase = 10;
+			else
+				me.fase = 90;
+		})
+		.catch( function(result)
+		{
+			me.fase = 90;
+		});			
+		break;
+
+
+	case 1:
+		//sono in attesa della risposta al comando "start Test"
+		break;
+		
+	case 10:
+		//ho ricevuto l'OK dal comando start Test. Da ora in poi, pollo lo stato del test fino a che non finisce
+		pleaseWait_freeText_setText ("Le test est en cours, veuillez patienter<br>Phase actuelle: " +me.test_fase +"/5");
+		me.fase = 11;
+		break;
+		
+	case 11:
+		//query stato del test
+		rhea.ajax ("getStatTestAssGrp", "" ).then( function(result)
+		{
+			var obj = JSON.parse(result);
+			me.test_fase= obj.fase;
+			
+			if (obj.esito != 0)
+			{
+				//errore
+				pleaseWait_freeText_setText ("Le test est terminé.<br>Result: FAILED<br><br>");
+				me.fase = 80;
+			}
+			else
+			{
+				if (obj.fase != 5)
+					me.fase = 10;			
+				else
+				{
+					//test terminato con successo
+					var html = "<table class='dataAudit'>"
+								+"<tr><td>&nbsp;</td><td align='center'><b>ASCENT</b></td><td align='center'><b>DESCENT</b></td></tr>"
+								+"<tr><td>Medium absorption</td><td align='center'>" +obj.r1up +"</td><td align='center'>" +obj.r1down +"</td></tr>"
+								+"<tr><td>Maximum absorption</td><td align='center'>" +obj.r2up +"</td><td align='center'>" +obj.r2down +"</td></tr>"
+								+"<tr><td>Time</td><td align='center'>" +obj.r3up +"</td><td align='center'>" +obj.r3down +"</td></tr>"
+								+"<tr><td>Medium absorption<br>during cycle 1</td><td align='center'>" +obj.r4up +"</td><td align='center'>" +obj.r4down +"</td></tr>"
+								+"<tr><td>Medium absorption<br>during cycle 2</td><td align='center'>" +obj.r5up +"</td><td align='center'>" +obj.r5down +"</td></tr>"
+								+"<tr><td>Medium absorption<br>during cycle 3</td><td align='center'>" +obj.r6up +"</td><td align='center'>" +obj.r6down +"</td></tr>"
+								+"</table>";
+					pleaseWait_freeText_setText ("Le test est terminé.<br>Results:<br><br>" +html);		
+					pleaseWait_btn1_setText("FERME");
+					pleaseWait_btn1_show();	
+					me.fase = 80;
+				}
+			}
+		})
+		.catch( function(result)
+		{
+			me.fase = 10;
+		});			
+		break;
+		
+	case 80: //attendo pressione di un tasto per finire
+		break;
+		
+	case 90: //fine
+		pleaseWait_hide();
+		me.what = 0;
+		break;
+	}	
+}
+
+TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
+{
+	var me = this;
+	switch (me.fase)
+	{
+	case 0: //prego rimuovere il gruppo
+		me.fase = 1;
+		pleaseWait_show();
+		pleaseWait_freeText_setText ("Veuillez retirer l'infuseur, puis appuyez sur CONTINUER");
+		pleaseWait_freeText_show();
+		pleaseWait_btn1_setText("CONTINUER");
+		pleaseWait_btn1_show();
+		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_show();	
+		break;
+		
+	case 1:	//attendo btn CONTINUE
+		break;
+		
+	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			if (result=="0")
+				me.fase = 10;
+			else
+				me.fase = 0;
+		})
+		.catch( function(result)
+		{
+			me.fase = 0;
+		});			
+		me.fase = 3;
+		break;
+		
+	case 3:	//attendo risposta CPU
+		break;
+		
+		
+		
+	case 10: //inizio del test
+		pleaseWait_freeText_setText ("Le test commence ...");
+		me.fase = 1;
+		rhea.ajax ("startTestAssMotorid", "" ).then( function(result)
+		{
+			if (result == "OK")
+				me.fase = 20;
+			else
+				me.fase = 80;
+		})
+		.catch( function(result)
+		{
+			me.fase = 80;
+		});			
+		break;
+
+
+	case 11:
+		//sono in attesa della risposta al comando "start Test"
+		break;
+		
+	case 20:
+		//ho ricevuto l'OK dal comando start Test. Da ora in poi, pollo lo stato del test fino a che non finisce
+		pleaseWait_freeText_setText ("Le test est en cours, veuillez patienter<br>Phase actuelle: " +me.test_fase +"/5");
+		me.fase = 21;
+		break;
+		
+	case 21:
+		//query stato del test
+		rhea.ajax ("getStatTestAssMotorid", "" ).then( function(result)
+		{
+			var obj = JSON.parse(result);
+			me.test_fase= obj.fase;
+			
+			if (obj.esito != 0)
+			{
+				//errore
+				pleaseWait_freeText_setText ("Le test est terminé.<br>Result: FAILED<br><br>");
+				me.fase = 80;
+			}
+			else
+			{
+				if (obj.fase != 5)
+					me.fase = 20;			
+				else
+				{
+					//test terminato con successo
+					var html = "<table class='dataAudit'>"
+								+"<tr><td>&nbsp;</td><td align='center'><b>ASCENT</b></td><td align='center'><b>DESCENT</b></td></tr>"
+								+"<tr><td>Medium absorption</td><td align='center'>" +obj.r1up +"</td><td align='center'>" +obj.r1down +"</td></tr>"
+								+"</table>";
+					pleaseWait_freeText_setText ("Le test est terminé.<br>Results:<br><br>" +html);		
+					pleaseWait_btn1_setText("CONTINUER");
+					pleaseWait_btn1_show();	
+					me.fase = 80;
+				}
+			}
+		})
+		.catch( function(result)
+		{
+			me.fase = 20;
+		});			
+		break;
+		
+	case 80: //attendo pressione di un tasto per proseguire
+		break;
+		
+	case 85: //prego rimettere a posto il gruppo
+		pleaseWait_freeText_setText("Placez l'infuseur en position, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
+		pleaseWait_btn1_setText("CONTINUER");
+		pleaseWait_btn1_show();
+		me.fase = 86;
+		break;
+		
+	case 86:	//attendo btn CONTINUE
+		break;
+		
+	case 87: //verifico che il gruppo sia collegato, altrimenti goto 85
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			if (result=="1")
+				me.fase = 90;
+			else
+				me.fase = 85;
+		})
+		.catch( function(result)
+		{
+			me.fase = 85;
+		});			
+		me.fase = 88;
+		break;
+		
+	case 88:	//attendo risposta CPU
+		break;		
+		
+	
+		
+	case 90: //fine
+		pleaseWait_hide();
+		me.what = 0;
+		break;
+	}	
+}
 
 /**********************************************************
  * TaskDisintall
@@ -1407,7 +1692,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 			break;
 			
 		case 201: //mostra btn close e ne aspetta la pressione
-			pleaseWait_btn1_setText("PROCHE");
+			pleaseWait_btn1_setText("FERME");
 			pleaseWait_btn1_show();
 			me.fase = 202;
 			break;			

@@ -781,6 +781,8 @@
 						<tr id="pageDevices_cofSensor"><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ENABLED|0|DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
 						<tr><td>CUP SENSOR THRESHOLD</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
 						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startModemTest()"></div></td></tr>
+						<tr><td>GROUP TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
+						<tr><td>MOTOR TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
 					</table>
 				</div>
 
@@ -2832,10 +2834,9 @@ function pageDevices_setVGrind (macina1o2)
 	currentTask.enterSetMacinaPos(macina1o2, target);
 }
 
-function pageDevices_startModemTest()
-{
-	currentTask.runModemTest();
-}
+function pageDevices_startModemTest()					{ currentTask.runModemTest(); }
+function pageDevices_startTestAssorbGruppo()			{ currentTask.runTestAssorbGruppo(); }
+function pageDevices_startTestAssorbMotoriduttore()		{ currentTask.runTestAssorbMotoriduttore(); }
 
 /***************************************************************************
  *

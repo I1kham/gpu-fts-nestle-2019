@@ -80,6 +80,10 @@ namespace cpubridge
 	u8			buildMsg_startModemTest(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_EVAresetTotals(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getTimeNextLavaggioSanCappuccinatore(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_startTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getStatoTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_startTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 	/***********************************************
@@ -220,7 +224,17 @@ namespace cpubridge
 	void		notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm);
 	void		translateNotify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm);
 	
+	void		notify_START_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 
+	void		notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
+	void		notify_GET_STATUS_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 fase, u8 esito, const u16 *results);
+	void		translateNotify_GET_STATUS_TEST_ASSORBIMENTO_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_fase, u8 *out_esito, u16 *out_12results);
+
+	void		notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 fase, u8 esito, u16 reportUP, u16 reportDOWN);
+	void		translateNotify_GET_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const rhea::thread::sMsg &msg, u8 *out_fase, u8 *out_esito, u16 *out_reportUP, u16 *out_reportDOWN);
+
+	
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -397,13 +411,26 @@ namespace cpubridge
 					//delle operazioni. Quando lo stato diventa != da DA3_SYNC, siamo sicuro che il da3 locale è aggiornato a quello della CPU
 
 	void		ask_CPU_START_MODEM_TEST(const sSubscriber &from, u16 handlerID);
-				//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_START_MODEM_TEST
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_START_MODEM_TEST
 
 	void		ask_CPU_EVA_RESET_TOTALS(const sSubscriber &from, u16 handlerID);
 				//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_EVA_RESET_TOTALS
 
-	void		ask_CPU_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &from, u16 handlerID);
+	void		ask_CPU_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE (const sSubscriber &from, u16 handlerID);
 				//alla ricezione di questo msg, CPUBridge risponderà con un notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE
+
+	void		ask_CPU_START_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_START_TEST_ASSORBIMENTO_GRUPPO
+
+	void		ask_CPU_START_TEST_ASSORBIMENTO_MOTORIDUTTORE (const sSubscriber &from, u16 handlerID);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE
+
+	void		ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_GRUPPO (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATUS_TEST_ASSORBIMENTO_GRUPPO
+
+	void		ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &from, u16 handlerID);
+	//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

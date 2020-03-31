@@ -344,6 +344,18 @@ u8 cpubridge::buildMsg_startModemTest(u8 *out_buffer, u8 sizeOfOutBuffer)
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_startTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_startTestAssorbGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_startTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_startTestAssorbMotoriduttore, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
 u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[4];
@@ -375,6 +387,19 @@ u8 cpubridge::buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	return buildMsg_Programming(eCPUProgrammingCommand_getStatoGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
+
+//***************************************************
+u8 cpubridge::buildMsg_getStatoTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getStatusTestAssorbGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getStatusTestAssorbMotoriduttore, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 u8 cpubridge::buildMsg_initialParam_C(u8 gpuVersionMajor, u8 gpuVersionMinor, u8 gpuVersionBuild, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -1345,10 +1370,69 @@ void cpubridge::translateNotify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const rhea::
 	*out_mm = p[1];
 }
 
+//***************************************************
+void cpubridge::notify_START_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_START_TEST_ASSORBIMENTO_GRUPPO\n");
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
+}
 
+//***************************************************
+void cpubridge::notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE\n");
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
+}
 
+//***************************************************
+void cpubridge::notify_GET_STATUS_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 fase, u8 esito, const u16 *results)
+{
+	logger->log("notify_GET_STATUS_TEST_ASSORBIMENTO_GRUPPO\n");
 
+	u8 buffer[32];
+	buffer[0] = fase;
+	buffer[1] = esito;
+	for (u8 i=0; i<12; i++)
+		rhea::utils::bufferWriteU16(&buffer[2 +i*2], results[i]);
 
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GETSTATUS_TEST_ASSORBIMENTO_GRUPPO, handlerID, buffer, 26);
+}
+
+//***************************************************
+void cpubridge::translateNotify_GET_STATUS_TEST_ASSORBIMENTO_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_fase, u8 *out_esito, u16 *out_12results)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GETSTATUS_TEST_ASSORBIMENTO_GRUPPO);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_fase = p[0];
+	*out_esito = p[1];
+	for (u8 i = 0; i < 12; i++)
+		out_12results[i] = rhea::utils::bufferReadU16(&p[2 + i * 2]);
+}
+
+//***************************************************
+void cpubridge::notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 fase, u8 esito, u16 reportUP, u16 reportDOWN)
+{
+	logger->log("notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE\n");
+
+	u8 buffer[32];
+	buffer[0] = fase;
+	buffer[1] = esito;
+	rhea::utils::bufferWriteU16(&buffer[2], reportUP);
+	rhea::utils::bufferWriteU16(&buffer[4], reportDOWN);
+
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GETSTATUSTEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, buffer, 6);
+}
+
+//***************************************************
+void cpubridge::translateNotify_GET_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const rhea::thread::sMsg &msg, u8 *out_fase, u8 *out_esito, u16 *out_reportUP, u16 *out_reportDOWN)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GETSTATUSTEST_ASSORBIMENTO_MOTORIDUTTORE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_fase = p[0];
+	*out_esito = p[1];
+	*out_reportUP = rhea::utils::bufferReadU16(&p[2]);
+	*out_reportDOWN = rhea::utils::bufferReadU16(&p[4]);
+}
 
 
 
@@ -1881,3 +1965,26 @@ void cpubridge::ask_CPU_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &f
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC, handlerID, NULL, 0);
 }
 
+//***************************************************
+void cpubridge::ask_CPU_START_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
+}

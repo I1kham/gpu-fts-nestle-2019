@@ -15,6 +15,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	memset(&runningSel, 0, sizeof(runningSel));
 	memset(&cleaning, 0, sizeof(cleaning));
 	memset(&testModem, 0, sizeof(testModem));
+	memset(&testAssorbGruppo, 0, sizeof(testAssorbGruppo));
 
 	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
 	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
@@ -760,6 +761,90 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
+
+			case eCPUProgrammingCommand_startTestAssorbGruppo:
+				//fingo un test di "assorbimento gruppo"
+				testAssorbGruppo.timeToEndMSec = rhea::getTimeNowMSec() + 5000;
+				testAssorbGruppo.fase = 0;
+				testAssorbGruppo.esito = 0;
+				testAssorbGruppo.result12[0] = 1;
+				testAssorbGruppo.result12[1] = 12;
+				testAssorbGruppo.result12[2] = 123;
+				testAssorbGruppo.result12[3] = 1234;
+				testAssorbGruppo.result12[4] = 12345;
+				testAssorbGruppo.result12[5] = 8;
+				testAssorbGruppo.result12[6] = 87;
+				testAssorbGruppo.result12[7] = 876;
+				testAssorbGruppo.result12[8] = 8765;
+				testAssorbGruppo.result12[9] = 54321;
+				testAssorbGruppo.result12[10] = 65535;
+				testAssorbGruppo.result12[11] = 4637;
+
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+			case eCPUProgrammingCommand_getStatusTestAssorbGruppo:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = testAssorbGruppo.fase;
+				out_answer[ct++] = testAssorbGruppo.esito;
+				for (u8 i = 0; i < 12; i++)
+				{
+					rhea::utils::bufferWriteU16_LSB_MSB (&out_answer[ct], testAssorbGruppo.result12[i]);
+					ct += 2;
+				}
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+			case eCPUProgrammingCommand_startTestAssorbMotoriduttore:
+				//fingo un test di "assorbimento motoriduttore"
+				testAssorbGruppo.timeToEndMSec = rhea::getTimeNowMSec() + 5000;
+				testAssorbGruppo.fase = 0;
+				testAssorbGruppo.esito = 0;
+				testAssorbGruppo.result12[0] = 1;
+				testAssorbGruppo.result12[1] = 12;
+				testAssorbGruppo.result12[2] = 123;
+				testAssorbGruppo.result12[3] = 1234;
+
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+			case eCPUProgrammingCommand_getStatusTestAssorbMotoriduttore:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = testAssorbGruppo.fase;
+				out_answer[ct++] = testAssorbGruppo.esito;
+				for (u8 i = 0; i < 2; i++)
+				{
+					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], testAssorbGruppo.result12[i]);
+					ct += 2;
+				}
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
+
+
 			} //switch (subcommand)
 		}
 		break;
@@ -829,6 +914,23 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 		{
 			testModem.timeToEndMSec = 0;
 			VMCState = eVMCState_DISPONIBILE;
+		}
+	}
+
+	//gestione fake del "test assorbimento gruppo" e "assorbimento motoriduttore"
+	if (testAssorbGruppo.timeToEndMSec > 0)
+	{
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
+		if (timeNowMSec >= testAssorbGruppo.timeToEndMSec)
+		{
+			testAssorbGruppo.fase++;
+			if (testAssorbGruppo.fase >= 5)
+			{
+				testAssorbGruppo.fase = 5;
+				testAssorbGruppo.timeToEndMSec = 0;
+			}
+			else
+				testAssorbGruppo.timeToEndMSec = timeNowMSec + 1000;
 		}
 	}
 	

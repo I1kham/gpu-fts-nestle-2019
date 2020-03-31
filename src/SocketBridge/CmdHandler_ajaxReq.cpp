@@ -37,6 +37,10 @@
 #include "CmdHandler/CmdHandler_ajaxReq_P0x1C_StartModemTest.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x1F_StartTestAssorbGruppo.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h"
 
 using namespace socketbridge;
 
@@ -106,6 +110,10 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_P0x1C_StartModemTest);
 	CHECK(CmdHandler_ajaxReq_P0x1D_ResetEVATotals);
 	CHECK(CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc);
+	CHECK(CmdHandler_ajaxReq_P0x1F_StartTestAssorbGruppo);
+	CHECK(CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo);
+	CHECK(CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore);
+	CHECK(CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore);
 
 #undef CHECK
     return NULL;

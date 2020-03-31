@@ -959,6 +959,61 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		}
 		break;
 
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_GRUPPO:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_startTestAssorbimentoGruppo(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				notify_START_TEST_ASSORBIMENTO_GRUPPO(sub->q, handlerID, logger);
+		}
+		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_GRUPPO:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getStatoTestAssorbimentoGruppo(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			{
+				//[fase] [esito] [report1up LSB MSB]  [report1down LSB MSB] ... [report6up LSB MSB] [report6down LSB MSB]
+				const u8 fase = answerBuffer[4];
+				const u8 esito = answerBuffer[5];
+				u16 results[12];
+				for (u8 i=0; i<12; i++)
+					results[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[6+2*i]);
+				notify_GET_STATUS_TEST_ASSORBIMENTO_GRUPPO(sub->q, handlerID, logger, fase, esito, results);
+			}
+		}
+		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_MOTORIDUTTORE:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_startTestAssorbimentoMotoriduttore(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(sub->q, handlerID, logger);
+		}
+		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_getStatoTestAssorbimentoMotoriduttore(bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			{
+				//[fase] [esito] [report_up LSB MSB]  [report_down LSB MSB]
+				const u8 fase = answerBuffer[4];
+				const u8 esito = answerBuffer[5];
+				const u16 reportUP = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[6]);
+				const u16 reportDOWN = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[8]);
+				notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(sub->q, handlerID, logger, fase, esito, reportUP, reportDOWN);
+			}
+		}
+		break;
 		} //switch
 	} //while
 }
