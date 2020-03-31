@@ -147,7 +147,11 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1C_StartModemTest.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1F_StartTestAssorbGruppo.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -229,7 +233,11 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1C_StartModemTest.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1D_ResetEVATotals.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1E_GetTimeLavSanCappuc.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1F_StartTestAssorbGruppo.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h
 
 unix {
     target.path = /usr/lib
