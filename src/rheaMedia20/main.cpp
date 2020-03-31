@@ -136,7 +136,7 @@ bool isSMUAlreadyRunning()
 	rhea::netaddr::setPort(addr, 2281);
 	rhea::socket::UDPSendTo(sokUDP, buffer, ct, addr);
 	u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
-	printf("Checking if rheaMedia2.0 is already running");
+	printf("Checking if rheaMedia2 is already running");
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		OSNetAddr from;
@@ -166,7 +166,7 @@ int main()
 	
 
 	char nameAndVersion[128];
-	sprintf_s(nameAndVersion, sizeof(nameAndVersion), "RheaMedia2 - Version 2.0 - 2020/03/27");
+	sprintf_s(nameAndVersion, sizeof(nameAndVersion), "RheaMedia2 - Version 2.0 - 2020/03/31");
 
 	SetConsoleTitle(nameAndVersion);
 	printf(nameAndVersion);

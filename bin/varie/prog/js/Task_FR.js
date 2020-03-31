@@ -974,7 +974,6 @@ TaskDevices.prototype.runTestAssorbGruppo = function()
 {	
 	this.what = 5;
 	this.fase = 0;
-	this.test_fase = 0;
 	pleaseWait_show();
 }
 
@@ -982,7 +981,6 @@ TaskDevices.prototype.runTestAssorbMotoriduttore = function()
 {	
 	this.what = 6;
 	this.fase = 0;
-	this.test_fase = 0;
 	pleaseWait_show();
 }
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr +" [" +statusID +"]"); }
@@ -1044,6 +1042,16 @@ TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)
 {
 	switch (this.what)
 	{
+	case 5: //test assorb gruppo
+		switch (this.fase)
+		{
+			case 80: //ho premuto REPEAT nella fase finale del test
+				this.fase = 0;
+				pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+				break;		
+		}
+		break;
+		
 	case 6: //test assorb motoriduttore
 		switch (this.fase)
 		{
@@ -1051,6 +1059,12 @@ TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)
 				this.fase = 90;
 				pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
 				break;
+				
+			case 80: //ho premuto REPEAT nella fase finale del test
+				this.fase = 10;
+				pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+				break;
+				
 		}
 		break;		
 	}
@@ -1274,6 +1288,7 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 		pleaseWait_freeText_setText ("Le test commence...");
 		pleaseWait_freeText_show();
 		me.fase = 1;
+		me.test_fase = 0;
 		rhea.ajax ("startTestAssGrp", "" ).then( function(result)
 		{
 			if (result == "OK")
@@ -1323,13 +1338,15 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 								+"<tr><td>Medium absorption</td><td align='center'>" +obj.r1up +"</td><td align='center'>" +obj.r1down +"</td></tr>"
 								+"<tr><td>Maximum absorption</td><td align='center'>" +obj.r2up +"</td><td align='center'>" +obj.r2down +"</td></tr>"
 								+"<tr><td>Time</td><td align='center'>" +obj.r3up +"</td><td align='center'>" +obj.r3down +"</td></tr>"
-								+"<tr><td>Medium absorption<br>during cycle 1</td><td align='center'>" +obj.r4up +"</td><td align='center'>" +obj.r4down +"</td></tr>"
-								+"<tr><td>Medium absorption<br>during cycle 2</td><td align='center'>" +obj.r5up +"</td><td align='center'>" +obj.r5down +"</td></tr>"
-								+"<tr><td>Medium absorption<br>during cycle 3</td><td align='center'>" +obj.r6up +"</td><td align='center'>" +obj.r6down +"</td></tr>"
+								+"<tr><td>Medium absorption during cycle 1</td><td align='center'>" +obj.r4up +"</td><td align='center'>" +obj.r4down +"</td></tr>"
+								+"<tr><td>Medium absorption during cycle 2</td><td align='center'>" +obj.r5up +"</td><td align='center'>" +obj.r5down +"</td></tr>"
+								+"<tr><td>Medium absorption during cycle 3</td><td align='center'>" +obj.r6up +"</td><td align='center'>" +obj.r6down +"</td></tr>"
 								+"</table>";
 					pleaseWait_freeText_setText ("Le test est terminé.<br>Results:<br><br>" +html);		
 					pleaseWait_btn1_setText("FERME");
 					pleaseWait_btn1_show();	
+					pleaseWait_btn2_setText("RÉPÉTER");
+					pleaseWait_btn2_show();	
 					me.fase = 80;
 				}
 			}
@@ -1391,7 +1408,8 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		
 	case 10: //inizio del test
 		pleaseWait_freeText_setText ("Le test commence ...");
-		me.fase = 1;
+		me.fase = 11;
+		me.test_fase = 0;
 		rhea.ajax ("startTestAssMotorid", "" ).then( function(result)
 		{
 			if (result == "OK")
@@ -1443,6 +1461,8 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 					pleaseWait_freeText_setText ("Le test est terminé.<br>Results:<br><br>" +html);		
 					pleaseWait_btn1_setText("CONTINUER");
 					pleaseWait_btn1_show();	
+					pleaseWait_btn2_setText("RÉPÉTER");
+					pleaseWait_btn2_show();	
 					me.fase = 80;
 				}
 			}
