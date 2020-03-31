@@ -1324,6 +1324,10 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 			{
 				//errore
 				pleaseWait_freeText_setText ("Le test est terminé.<br>Result: FAILED<br><br>");
+				pleaseWait_btn1_setText("FERME");
+				pleaseWait_btn1_show();	
+				pleaseWait_btn2_setText("RÉPÉTER");
+				pleaseWait_btn2_show();	
 				me.fase = 80;
 			}
 			else
@@ -1445,6 +1449,10 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 			{
 				//errore
 				pleaseWait_freeText_setText ("Le test est terminé.<br>Result: FAILED<br><br>");
+				pleaseWait_btn1_setText("FERME");
+				pleaseWait_btn1_show();	
+				pleaseWait_btn2_setText("RÉPÉTER");
+				pleaseWait_btn2_show();	
 				me.fase = 80;
 			}
 			else

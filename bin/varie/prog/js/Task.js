@@ -1324,6 +1324,10 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 			{
 				//errore
 				pleaseWait_freeText_setText ("$LAB_DEV_Test_is_complete.<br>Result: FAILED<br><br>");
+				pleaseWait_btn1_setText("$LAB_BUTTON_CLOSE");
+				pleaseWait_btn1_show();	
+				pleaseWait_btn2_setText("$LAB_REPEAT");
+				pleaseWait_btn2_show();	
 				me.fase = 80;
 			}
 			else
@@ -1445,6 +1449,10 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 			{
 				//errore
 				pleaseWait_freeText_setText ("$LAB_DEV_Test_is_complete.<br>Result: FAILED<br><br>");
+				pleaseWait_btn1_setText("$LAB_BUTTON_CLOSE");
+				pleaseWait_btn1_show();	
+				pleaseWait_btn2_setText("$LAB_REPEAT");
+				pleaseWait_btn2_show();	
 				me.fase = 80;
 			}
 			else
