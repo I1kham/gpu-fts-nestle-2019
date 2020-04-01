@@ -1287,6 +1287,7 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 	case 0:
 		pleaseWait_freeText_setText ("Il test sta iniziando...");
 		pleaseWait_freeText_show();
+		pleaseWait_rotella_show();
 		me.fase = 1;
 		me.test_fase = 0;
 		rhea.ajax ("startTestAssGrp", "" ).then( function(result)
@@ -1362,6 +1363,7 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 		break;
 		
 	case 80: //attendo pressione di un tasto per finire
+		pleaseWait_rotella_hide();
 		break;
 		
 	case 90: //fine
@@ -1412,6 +1414,7 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		
 	case 10: //inizio del test
 		pleaseWait_freeText_setText ("Il test sta iniziando ...");
+		pleaseWait_rotella_show();
 		me.fase = 11;
 		me.test_fase = 0;
 		rhea.ajax ("startTestAssMotorid", "" ).then( function(result)
@@ -1483,12 +1486,14 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		break;
 		
 	case 80: //attendo pressione di un tasto per proseguire
+		pleaseWait_rotella_hide();
 		break;
 		
 	case 85: //prego rimettere a posto il gruppo
 		pleaseWait_freeText_setText("Rimettere il gruppo in posizione e poi premere CONTINUA"); //Place the brewer into position, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUA");
 		pleaseWait_btn1_show();
+		pleaseWait_rotella_show();
 		me.fase = 86;
 		break;
 		
