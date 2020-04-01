@@ -1434,7 +1434,7 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		
 	case 20:
 		//ho ricevuto l'OK dal comando start Test. Da ora in poi, pollo lo stato del test fino a che non finisce
-		pleaseWait_freeText_setText ("Il test è in esecuzione, attendere prego…<br>Fase corrente: " +me.test_fase +"/5");
+		pleaseWait_freeText_setText ("Il test è in esecuzione, attendere prego…<br>Fase corrente: " +me.test_fase +"/4");
 		me.fase = 21;
 		break;
 		
@@ -1457,9 +1457,7 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 			}
 			else
 			{
-				if (obj.fase != 5)
-					me.fase = 20;			
-				else
+				if (obj.fase >= 4)
 				{
 					//test terminato con successo
 					var html = "<table class='dataAudit'>"
@@ -1473,6 +1471,9 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 					pleaseWait_btn2_show();	
 					me.fase = 80;
 				}
+				else
+					me.fase = 20;			
+
 			}
 		})
 		.catch( function(result)
