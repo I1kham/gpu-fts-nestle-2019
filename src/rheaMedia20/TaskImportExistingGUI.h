@@ -16,13 +16,20 @@
 class TaskImportExistingGUI : public socketbridge::Task
 {
 public:
+	static void						priv_updateLanguageName(const char *dbPath);
+
+	
+public:
 									TaskImportExistingGUI()				{ };
 	void							run (socketbridge::TaskStatus *status, const char *params);
 
 	static socketbridge::Task*		spawn (rhea::Allocator *allocator) { return RHEANEW(allocator, TaskImportExistingGUI); }
 
+
+
 private:
 	bool							priv_nestle20_template001_importVersion0(const char *userGUISrcPath, const char *dstPath);
+
 private:
 	u32 ct;
 };

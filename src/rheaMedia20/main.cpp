@@ -8,6 +8,10 @@
 #include "TaskExportGUIToUserFolder.h"
 #include "TaskDeleteFolder.h"
 #include "TaskImportExistingGUI.h"
+#include "varie.h"
+
+#define		RHEAMEDIA2_VERSIONE "2.0.1"
+
 
 char chromeFullPathAndName[256];
 char chromeHome[256];
@@ -111,7 +115,6 @@ bool findChrome()
 	return true;
 }
 
-
 //*****************************************************
 bool isSMUAlreadyRunning()
 {
@@ -165,8 +168,12 @@ int main()
 	rhea::init("rheaMedia20", &hInst);
 	
 
+	//varie_patchAllTemplate_updateLanguageNames();
+
+
+
 	char nameAndVersion[128];
-	sprintf_s(nameAndVersion, sizeof(nameAndVersion), "RheaMedia2 - Version 2.0 - 2020/03/31");
+	sprintf_s(nameAndVersion, sizeof(nameAndVersion), "RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - 2020/04/10");
 
 	SetConsoleTitle(nameAndVersion);
 	printf(nameAndVersion);

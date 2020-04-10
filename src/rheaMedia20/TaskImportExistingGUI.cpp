@@ -1,4 +1,4 @@
-#include "TaskImportExistingGUI.h"
+﻿#include "TaskImportExistingGUI.h"
 #include "../rheaDB/SQLite3/SQLInterface_SQLite.h"
 
 
@@ -21,7 +21,7 @@ void TaskImportExistingGUI::run (socketbridge::TaskStatus *status, const char *p
 
 	rhea::string::parser::Iter iter;
 	rhea::string::parser::Iter iter2;
-	const char SEP = '�';
+	const char SEP = '§';
 	iter.setup(params);
 
 	while (1)
@@ -110,6 +110,17 @@ void TaskImportExistingGUI::run (socketbridge::TaskStatus *status, const char *p
 				return;
 			}
 		}
+
+
+		//v2.0.1
+		//La tabella allLanguages contiene l'elenco delle lignue supportate e che compaiono in pagina langSettings.html
+		//I nomi dei linguaggi non erano corretti per cui ora li sovrascrivo con quelli definitivi
+		sprintf_s(dst, sizeof(dst), "%s/web/backoffice/guidb.db3", dstPath);
+		priv_updateLanguageName(dst);
+
+
+
+
 		status->setMessage("OK");
 		return;
 	}
@@ -206,6 +217,44 @@ bool TaskImportExistingGUI::priv_nestle20_template001_importVersion0(const char 
 	dbUser.closeDB();
 	dbTemplate.closeDB();
 	return ret;
+}
 
-	return false;
+
+//*********************************************************************
+void TaskImportExistingGUI::priv_updateLanguageName(const char *dbPath)
+{
+	rhea::SQLInterface_SQLite db;
+
+	if (!db.openDB(dbPath))
+		return;
+
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Magyar' WHERE ISO = 'HU'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Українська' WHERE ISO = 'UA'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Türkçe' WHERE ISO = 'TR'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Svenska' WHERE ISO = 'SV'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Slovenčina' WHERE ISO = 'SK'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Српски' WHERE ISO = 'SR'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Русский' WHERE ISO = 'RU'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Română' WHERE ISO = 'RO'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Português' WHERE ISO = 'PT'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Polski' WHERE ISO = 'PL'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Norsk' WHERE ISO = 'NO'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Lietuvių' WHERE ISO = 'LI'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Latviešu' WHERE ISO = 'LA'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'עברית' WHERE ISO = 'HE'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = '日本語' WHERE ISO = 'JP'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Suomi' WHERE ISO = 'FI'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Eesti' WHERE ISO = 'ET'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Hrvatski' WHERE ISO = 'HR'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = '中文' WHERE ISO = 'CN'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Čeština' WHERE ISO = 'CZ'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Български' WHERE ISO = 'BG'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Nederlands' WHERE ISO = 'NL'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Español' WHERE ISO = 'ES'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Deutsch' WHERE ISO = 'DE'");
+	db.exec(u8"UPDATE allLanguages SET LocalName = 'Français' WHERE ISO = 'FR'");
+	//db.exec(u8"UPDATE allLanguages SET LocalName = 'Italiano' WHERE ISO = 'IT'");
+	//db.exec(u8"UPDATE allLanguages SET LocalName = 'English' WHERE ISO = 'GB'");
+
+	db.closeDB();
 }

@@ -72,19 +72,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
     <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
-    <TargetName>RheaMedia2_v2.0_2020-03-31</TargetName>
+    <TargetName>RheaMedia2_v2.0.1_2020-04-10</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
     <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
-    <TargetName>RheaMedia2_v2.0_2020-03-31</TargetName>
+    <TargetName>RheaMedia2_v2.0.1_2020-04-10</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>RheaMedia2_v2.0_2020-03-31</TargetName>
+    <TargetName>RheaMedia2_v2.0.1_2020-04-10</TargetName>
+    <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
+    <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>RheaMedia2_v2.0_2020-03-31</TargetName>
+    <TargetName>RheaMedia2_v2.0.1_2020-04-10</TargetName>
+    <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
+    <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -145,12 +149,14 @@
     <ClCompile Include="..\..\src\rheaMedia20\TaskDeleteFolder.cpp" />
     <ClCompile Include="..\..\src\rheaMedia20\TaskExportGUIToUserFolder.cpp" />
     <ClCompile Include="..\..\src\rheaMedia20\TaskImportExistingGUI.cpp" />
+    <ClCompile Include="..\..\src\rheaMedia20\varie.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaMedia20\TaskCopyFolderToFolder.h" />
     <ClInclude Include="..\..\src\rheaMedia20\TaskDeleteFolder.h" />
     <ClInclude Include="..\..\src\rheaMedia20\TaskExportGUIToUserFolder.h" />
     <ClInclude Include="..\..\src\rheaMedia20\TaskImportExistingGUI.h" />
+    <ClInclude Include="..\..\src\rheaMedia20\varie.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
