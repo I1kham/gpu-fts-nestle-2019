@@ -1913,10 +1913,10 @@ function TaskEspressoCalib()
 {
 	this.what = 0;
 	this.fase = 0;
-	this.macina1o2 = 1;
-	this.firstTimeMacina = 2;
 	this.cpuStatus = 0;
 	this.selNum = 0;
+
+	this.setMacina(1);
 	this.enterQueryMacinePos();
 }
 
@@ -1924,6 +1924,8 @@ TaskEspressoCalib.prototype.setMacina = function (macina1o2)
 {
 	this.macina1o2 = macina1o2;
 	this.firstTimeMacina = 2;
+	var w = ui.getWindowByID("pageExpCalib");
+	w.getChildByID("pageExpCalib_vgBtnSet").hide();	
 }
 
 TaskEspressoCalib.prototype.enterQueryMacinePos = function()
@@ -2056,8 +2058,12 @@ TaskEspressoCalib.prototype.priv_handleRichiestaPosizioneMacina = function()
 			if (me.firstTimeMacina>0)
 			{
 				me.firstTimeMacina--;
-				if (me.firstTimeMacina==0)					
-					ui.getWindowByID("pageExpCalib").getChildByID("pageExpCalib_vg_target").setValue(obj.v)
+				if (me.firstTimeMacina==0)		
+				{
+					var w = ui.getWindowByID("pageExpCalib");
+					w.getChildByID("pageExpCalib_vg_target").setValue(obj.v)
+					w.getChildByID("pageExpCalib_vgBtnSet").show();
+				}
 			}
 			me.fase = 0;
 		})

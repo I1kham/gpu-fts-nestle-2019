@@ -63,11 +63,20 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
-DA3.prototype.isInduzione = function ()			{ return this.bInduzione; }
-DA3.prototype.isInstant = function ()			{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
-DA3.prototype.isEspresso = function ()			{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
-DA3.prototype.getNumMacine = function()			{ if (this.isInstant()) return 0;  return parseInt(this.da3_current[9465]); }
-DA3.prototype.getModelCode = function ()		{ return parseInt(this.da3_current[9466]); }
+DA3.prototype.isInduzione = function ()								{ return this.bInduzione; }
+DA3.prototype.isInstant = function ()								{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
+DA3.prototype.isEspresso = function ()								{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
+DA3.prototype.isVarigrindAutoRegolationEnabled = function (whichOne)
+{ 
+	var da3Loc = 7590;
+	if (whichOne == 2)
+		da3Loc = 7686;
+	if (this.da3_current[da3Loc] > 0)
+		return 1; 
+	return 0; 
+}
+DA3.prototype.getNumMacine = function()								{ if (this.isInstant()) return 0;  return parseInt(this.da3_current[9465]); }
+DA3.prototype.getModelCode = function ()							{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		
 { 	return 6;
 	//if (this.isEspresso()) return 6; else return 10; 

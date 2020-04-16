@@ -975,10 +975,13 @@
 
 
 					<tr style='height:125px;'>
-						<td><b style='color:#fff'>VARIGRIND</b></td>
+						<td>
+							<b style='color:#fff'>VARIGRIND</b><br>
+							<div class="tip" id="pageExpCalib_vgAutoAjustEnabled"></div>
+						</td>
 						<td align="center">posizione attuale<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
 						<td align="center">posizione desiderata<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="520"></div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageExpCalib_regolaVG()"></div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' id="pageExpCalib_vgBtnSet" data-caption='SET' data-onclick="pageExpCalib_regolaVG()"></div></td>
 					</tr>
 					
 					<tr style='border-bottom:none'>
@@ -3176,7 +3179,13 @@ function pageExpCalib_regolaVG()
 {
 	var win = ui.getWindowByID("pageExpCalib");
 	var target = parseInt(win.getChildByID("pageExpCalib_vg_target").getValue());
-	currentTask.enterSetMacinaPos(target);
+	
+	if (da3.isVarigrindAutoRegolationEnabled(currentTask.macina1o2))
+	{
+		currentTask.messageBox("Non è possibile modificare la posizione attuale del Varigrind perché l'autoregolazione Varigrind è abilitata.<br>Si prega di andare su DISPOSITIVI > VARIGRIND e disabilitarla.");
+	}
+	else
+		currentTask.enterSetMacinaPos(target);
 }
 
 function pageExpCalib_editSelection()
@@ -3270,7 +3279,13 @@ function pageExpCalib_refreshCalibValueOnScreen()
 	rheaSetDivHTMLByName("pageExpCalib_grSec", v +"&nbsp;gr/sec");
 	
 	v = helper_decodeImpulsi(da3.getImpulsi(motor));
-	rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");	
+	rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");
+	
+	if (da3.isVarigrindAutoRegolationEnabled(currentTask.macina1o2))
+		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "la regolazione automatica è ABILITATA");
+	else
+		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "la regolazione automatica è DISABILITATA");
+	
 }
 
 function pageExpCalib_onChangeGrinder()

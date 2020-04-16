@@ -407,7 +407,7 @@ UIButton.prototype.setDA3Offset = function(da3offset)	{}
 UIButton.prototype.loadFromDA3 = function(da3)	{}
 UIButton.prototype.saveToDA3 = function(da3)	{}
 UIButton.prototype.setCaption = function (s)	{ rheaSetDivHTMLByName(this.id +"_caption", s); }	
-UIButton.prototype.show = function()			{ if (this.visible == 0) { this.visible = 1; document.getElementById(this.id).style.display = "block"; } }
+UIButton.prototype.show = function()			{ if (this.visible == 0) { this.visible = 1; document.getElementById(this.id).style.display = "table"; } }
 UIButton.prototype.hide = function()			{ if (this.visible == 1) { this.visible = 0; document.getElementById(this.id).style.display = "none"; }	}
 
 UIButton.prototype.bindEvents = function()
