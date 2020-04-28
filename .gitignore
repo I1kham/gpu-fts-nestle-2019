@@ -34,3 +34,11 @@ MSVC17/stressTestUpDownDA3/build/
 MSVC17/rheaMedia2.0/build/
 MenuProgTranslator/
 DOC/
+MSVC17/CPUBridge/x64/
+MSVC17/GPUConsole/x64/
+MSVC17/rheaCommonLib/x64/
+MSVC17/rheaDB/x64/
+MSVC17/SMU/x64/
+MSVC17/SocketBridge/x64/
+MSVC17/stressTestUpDownDA3/x64/
+MSVC17/testDB/x64/

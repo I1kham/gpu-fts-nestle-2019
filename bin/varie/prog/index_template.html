@@ -249,13 +249,23 @@
 					</tr>
 				</table>
 				
-				<br><br><br>
+				<br>
 				<table border='0' class='elenco'>
 					<tr style="border:0">
 						<td style="width:300px">$LAB_CLEAN_AUTO_RINSING_AT_TIME<br><span class="tip">$LAB_CLEAN_00_00_means_disabled</span></td>
 						<td><div class="UITime24" data-da3="7466"></div></td>
 					</tr>	
 				</table>
+				
+				<table border='0' class='elenco' id='pageCleaning_tabDissolveTable'>
+					<tr style="border:0">
+						<td style="width:690px">$LAB_CLEAN_TAB_DISSOLVE_PAUSE<br>
+							<span class="tip">$LAB_CLEAN_TAB_DISSOLVE_PAUSE_TIP</span>
+						</td>
+						<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7562" data-da3bit="16" data-um="sec"></div></td>
+					</tr>	
+				</table>
+				
 			</div>
 		</div> <!-- page Cleaning -->
 	
@@ -264,7 +274,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageMiscellaneous_selector' data-option='0|$LAB_GENERAL_OPTIONS|1|$LAB_MACHINEID|2|$LAB_MISC_MILK_LM|3|FREEVEND' data-onclick='pageMiscellaneous_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='0|$LAB_GENERAL_OPTIONS|1|$LAB_MACHINEID|2|$LAB_MISC_MILK_LM|3|FREEVEND|4|$LAB_MISC_BLOCKING_COUNTER' data-onclick='pageMiscellaneous_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -348,6 +358,36 @@
 						</tr>
 						
 					</table>
+				</div>
+
+				<div id="pageMiscellaneous_blockingCt" style="display:none">
+					<div id="pageMiscellaneous_blockingCt_pwd">
+						<table border='0' class='elenco'>
+							<tr>
+								<td>$LAB_MISC_INSERT_PIN_CODE</td>
+								<td><div class="UINumber" id='pageMiscellaneous_pincode' data-numfigures="3" data-max="999"></div></td>
+								<td><div class='UIButton actionButton' data-caption='&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;O&nbspK&nbsp;&nbsp;&nbsp;&nbsp&nbsp&nbsp' data-onclick="pageMiscellaneous_onPINCodeInserted()"></div></td>
+							</tr>
+						</table>
+					</div>
+					<div id="pageMiscellaneous_blockingCt_unblocked" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td>$LAB_MISC_BLOCK_MACHINE_AFTER</td>
+								<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7400" data-da3bit="16" data-um="$LAB_SELECTIONS"></div></td>
+							</tr>
+
+							<tr>
+								<td style="width:450px">$LAB_MISC_WARN_AFTER<br><span class="tip">$LAB_MISC_WARN_TIP</span></td>
+								<td><div class="UINumber" data-numfigures="2" data-max="50" data-da3="7402" data-da3bit="16" data-um="%"></div></td>
+							</tr>
+
+							<tr>
+								<td>$LAB_MISC_PIN_CODE<br><span class="tip">$LAB_MISC_PINCODE_TIP</span></td>
+								<td><div class="UINumber" id='pageMiscellaneous_newpincode' data-numfigures="3" data-min="111" data-max="999" data-da3="7404" data-da3bit="16"></div></td>
+							</tr>
+						</table>
+					</div>
 				</div>				
 			</div>
 		</div>	<!-- page pageMiscellaneous -->
@@ -1458,6 +1498,7 @@ function pageCleaning_show()
 		{
 			var w = ui.getWindowByID("pageCleaning");
 			w.getChildByID("pageCleaning_btnCleanHC").hide();
+			rheaHideElem (rheaGetElemByID("pageCleaning_tabDissolveTable"));
 		}
 	}
 }
@@ -1466,7 +1507,9 @@ function pageCleaning_action (what)
 {
 	pleaseWait_show();
 	
-	if (what == 8 || what==5)
+	if (what == 8) //cleaning HC
+		save( function(){ pageCleaning_startLavSanitario(8,1); } );
+	else if (what==5) //milker
 		pageCleaning_startLavSanitario(what,1);
 	else
 	{
@@ -1474,7 +1517,7 @@ function pageCleaning_action (what)
 		rhea.requestGPUCleaning(parseInt(what));
 	}
 }
-	
+
 function pageCleaning_startLavSanitario (what, bSendRequestToGPU)
 {
 	pleaseWait_show();
@@ -1646,11 +1689,13 @@ function  pageMiscellaneous_onSelector()
 	var elemMID = rheaGetElemByID("pageMiscellaneous_mid");
 	var elemLM = rheaGetElemByID("pageMiscellaneous_lm");
 	var elemFV = rheaGetElemByID("pageMiscellaneous_fv");
+	var elemBCT = rheaGetElemByID("pageMiscellaneous_blockingCt");
 	
 	rheaHideElem(elemGS);
 	rheaHideElem(elemMID);
 	rheaHideElem(elemLM);
 	rheaHideElem(elemFV);
+	rheaHideElem(elemBCT);
 	
 	var win = ui.getWindowByID("pageMiscellaneous");
 	switch (parseInt(win.getChildByID("pageMiscellaneous_selector").getSelectedOptionValue()))
@@ -1659,11 +1704,28 @@ function  pageMiscellaneous_onSelector()
 		case 1: rheaShowElem(elemMID); break;
 		case 2: rheaShowElem(elemLM); break;
 		case 3: rheaShowElem(elemFV); break;
+		case 4: rheaShowElem(elemBCT); break;
 	}
 	win.showHideScrollBar();
 }
 
+function pageMiscellaneous_onPINCodeInserted()
+{
+	var win = ui.getWindowByID("pageMiscellaneous");
+	var pinCodeObj = win.getChildByID("pageMiscellaneous_pincode");
+	
+	var pinCode = parseInt(da3.read16(7404));
+	if (parseInt(pinCodeObj.getValue()) != pinCode)
+	{
+		pinCodeObj.setValue("000");
+		return;
+	}
 
+	rheaHideElem (rheaGetElemByID("pageMiscellaneous_blockingCt_pwd"));
+	rheaShowElem (rheaGetElemByID("pageMiscellaneous_blockingCt_unblocked"));
+		
+
+}
 
 
 /***************************************************************************
