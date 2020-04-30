@@ -11,7 +11,8 @@ namespace socketbridge
      *
      *	Utilizzato per inviare automaticamente l'evento 'eEventType_btnProgPressed' ai client collegati.
 	 *	Questo evento viene scatenato quando l'utente preme il btn fisico per entrare in menu prog
-     *
+     *  La notifica "CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED" viene generata spontaneamente da CPUBridge e, in risposta a questa notifica,
+     *  SocketBrdige invia l'evento eEventType_btnProgPressed a tutti i client collegati
      */
     class CmdHandler_eventReqCPUBtnProgPressed : public CmdHandler_eventReq
     {

@@ -22,9 +22,9 @@
 #include "CmdHandler/CmdHandler_eventReqCPUExtendedConfigInfo.h"
 #include "CmdHandler/CmdHandler_eventReq_P0x04_SetDecounter.h"
 #include "CmdHandler/CmdHandler_eventReq_P0x06_GetAllDecounters.h"
-#include "CmdHandler/CmdHandler_eventReq_P0x10_GetPosizioneMacina.h"
+#include "CmdHandler/CmdHandler_eventReq_P0x10_getAperturaVGrind.h"
 #include "CmdHandler/CmdHandler_eventReq_P0x11_SetMotoreMacina.h"
-#include "CmdHandler/CmdHandler_eventReqSetPosizioneMacina.h"
+#include "CmdHandler/CmdHandler_eventReqSetAperturaVGrind.h"
 #include "CmdHandler/CmdHandler_eventReq_P0x14_StartDisintallation.h"
 #include "CmdHandler/CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h"
 #include "CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.h"
@@ -64,9 +64,9 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReqCPUExtendedConfigInfo);
 	CHECK(CmdHandler_eventReq_P0x04_SetDecounter);
 	CHECK(CmdHandler_eventReq_P0x06_GetAllDecounters);
-	CHECK(CmdHandler_eventReq_P0x10_GetPosizioneMacina);
+	CHECK(CmdHandler_eventReq_P0x10_getAperturaVGrind);
 	CHECK(CmdHandler_eventReq_P0x11_SetMotoreMacina);
-	CHECK(CmdHandler_eventReqSetPosizioneMacina);
+	CHECK(CmdHandler_eventReqSetAperturaVGrind);
 	CHECK(CmdHandler_eventReq_P0x14_StartDisintallation);
 	CHECK(CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV);
 	CHECK(CmdHandler_eventReqEnterDA3SyncStatus);
@@ -104,9 +104,9 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReqCPUExtendedConfigInfo);
 	CHECK(CmdHandler_eventReq_P0x04_SetDecounter);
 	CHECK(CmdHandler_eventReq_P0x06_GetAllDecounters);
-	CHECK(CmdHandler_eventReq_P0x10_GetPosizioneMacina);
+	CHECK(CmdHandler_eventReq_P0x10_getAperturaVGrind);
 	CHECK(CmdHandler_eventReq_P0x11_SetMotoreMacina);
-	CHECK(CmdHandler_eventReqSetPosizioneMacina);
+	CHECK(CmdHandler_eventReqSetAperturaVGrind);
 	CHECK(CmdHandler_eventReq_P0x14_StartDisintallation);
 	CHECK(CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV);
 	CHECK(CmdHandler_eventReqEnterDA3SyncStatus);

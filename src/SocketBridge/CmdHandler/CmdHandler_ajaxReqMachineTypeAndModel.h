@@ -8,7 +8,8 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqMachineTypeAndModel
      *
-     * la GUI ha mandato una richiesta AJAX per conosce il machine type (espresso o instant) e il model (un numero che indentifica il modello, tipo BL o Fusion)
+     * Il client ha mandato una richiesta AJAX per conosce il machine type (espresso o instant) e il model (un numero che indentifica il 
+     *  modello, tipo BL o Fusion)
      *
         Input:
             command: getMachineTypeAndModel

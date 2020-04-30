@@ -426,7 +426,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;		
 
-	case socketbridge::eEventType_getPosizioneMacina:
+	case socketbridge::eEventType_getAperturaVGrind:
 		{
 			u8 macina_1o2 = 0;
 			u16 value = 0;

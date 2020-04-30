@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqTaskSpawn
      *
-     * la GUI ha mandato una richiesta AJAX per spawnare un task
+     * Il client ha mandato una richiesta AJAX per spawnare un task
      *
         Input:
             command: taskSpawn

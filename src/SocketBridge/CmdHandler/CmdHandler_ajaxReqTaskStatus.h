@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqTaskStatus
      *
-     * la GUI ha mandato una richiesta AJAX per conoscere lo stato del task i-esimo
+     * Il client ha mandato una richiesta AJAX per conoscere lo stato del task i-esimo
      *
         Input:
             command:	taskStatus

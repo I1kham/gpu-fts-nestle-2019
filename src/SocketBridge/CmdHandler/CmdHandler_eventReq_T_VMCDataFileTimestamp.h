@@ -7,9 +7,10 @@
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_eventReqVMCDataFile
+     * CmdHandler_eventReq_T_VMCDataFileTimestamp
      *
-     *
+     *  Il client vuole conosce il timestamp del DA3 calcolato da CPU
+     *  La richiesta viene passata a CPUBridge la quale risponde con una notifica CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP
      *
      */
     class CmdHandler_eventReq_T_VMCDataFileTimestamp : public CmdHandler_eventReq

@@ -9,7 +9,11 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqDataAudit
      *
-     *
+     *  Il client vuole scaricare il DataAudit.
+     *  La richiesta viene passata a CPUBridge la quale risponde con una serie di notifiche CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS a tutti i client
+     *  connessi.
+     *  La notifica finale CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS che indica se il download è stato terminato con successo oppure no, viene
+     *  inviata solo al client che ha iniziato la richiesta.
      *
      */
     class CmdHandler_eventReqDataAudit : public CmdHandler_eventReq

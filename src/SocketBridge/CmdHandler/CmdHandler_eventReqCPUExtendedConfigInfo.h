@@ -9,7 +9,8 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqCPUExtendedConfigInfo
      *
-     *
+     *  Il client richiede le extende config info.
+     *  La richiesta viene passata a CPUBridge la quale risponde con una notifica CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO
      *
      */
     class CmdHandler_eventReqCPUExtendedConfigInfo : public CmdHandler_eventReq

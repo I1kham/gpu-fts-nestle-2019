@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReq_T_VMCDataFileTimestamp
      *
-     * la GUI ha mandato una richiesta AJAX per conosce il timestamp del da3
+     * Il client ha mandato una richiesta AJAX per conosce il timestamp del da3
      *
         Input:
             command: da3ts

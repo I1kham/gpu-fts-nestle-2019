@@ -9,8 +9,9 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqStartSel
      *
-     *
-     *
+     *  Il client richiede che sia erogata la selezione N
+     *  La richiesta viene passata a CPUBridge.
+     *  Non sono previste risposte da parte di CPUBridge (ie: CPUBRIDGE_NOTIFY_MAX_ALLOWED)
      */
     class CmdHandler_eventReqStartSel : public CmdHandler_eventReq
     {

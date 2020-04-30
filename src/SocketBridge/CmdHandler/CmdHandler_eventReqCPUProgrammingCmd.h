@@ -8,9 +8,10 @@ namespace socketbridge
 {
     /*********************************************************
      * CmdHandler_eventReqCPUProgrammingCmd
-     *
-     *
-     *
+     *  
+     *  Il client ha inviato un comando di "programmazione", vedi lista dei comandi P
+     *  La richiesta viene passata direettamente a CPUBridge e SocketBridge non si aspetta di ricevere in ritorno
+     *  alcuna specifica notifica (infatti onCPUBridgeNotification() è vuoto).
      */
     class CmdHandler_eventReqCPUProgrammingCmd : public CmdHandler_eventReq
     {

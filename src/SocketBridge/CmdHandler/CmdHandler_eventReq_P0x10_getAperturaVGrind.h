@@ -7,18 +7,18 @@
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_eventReq_P0x10_GetPosizioneMacina
+     * CmdHandler_eventReq_P0x10_getAperturaVGrind
      *
      *
      *
      */
-    class CmdHandler_eventReq_P0x10_GetPosizioneMacina : public CmdHandler_eventReq
+    class CmdHandler_eventReq_P0x10_getAperturaVGrind : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_getPosizioneMacina;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_getAperturaVGrind;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTITFY_POSIZIONE_MACINA;
 
-		CmdHandler_eventReq_P0x10_GetPosizioneMacina(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :
+		CmdHandler_eventReq_P0x10_getAperturaVGrind(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :
                         CmdHandler_eventReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec)
                     {  }
 

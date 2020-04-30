@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqDBCloseByPath
      *
-     * la GUI ha mandato una richiesta AJAX per chiudere un DB usando il suo path
+     * Il client ha mandato una richiesta AJAX per chiudere un DB usando il suo path
      *
         Input:
             command: DBClose

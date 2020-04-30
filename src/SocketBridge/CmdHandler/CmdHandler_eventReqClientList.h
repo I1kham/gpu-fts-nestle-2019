@@ -9,7 +9,10 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqClientList
      *
-     *
+     *  Il client vuole conosce l'elenco dei client connessi da SocketBrdige.
+     *  La richiesta viene gestita interamente da SocketBridge senza l'ausilio di CPUBridge.
+     *  Il metodo handleRequestFromSocketBridge() è quello che fa tutto quando, gli altri metodi sono vuoti
+     *  a parte per needToPassDownToCPUBridge() che ritorna false
      *
      */
     class CmdHandler_eventReqClientList : public CmdHandler_eventReq

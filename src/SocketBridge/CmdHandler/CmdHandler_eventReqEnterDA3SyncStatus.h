@@ -9,8 +9,10 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqEnterDA3SyncStatus
      *
-     *
-     *
+     *  Il client vuole che la CPU entri nello stato di sincronizzazione del DA3
+     *  La richiesta viene passata a CPUBridge dalla quale non ci si aspetta alcuna risposta diretta.
+     *  CPUBridge entrerà nello stato DA3Sync() e le usuali notifiche spontanee verranno generate (es: tutte le notifiche relative
+     *  al cambio di stato della CPU e le eventuali notifiche di sincronizzazione in corso del DA3)
      */
     class CmdHandler_eventReqEnterDA3SyncStatus : public CmdHandler_eventReq
     {

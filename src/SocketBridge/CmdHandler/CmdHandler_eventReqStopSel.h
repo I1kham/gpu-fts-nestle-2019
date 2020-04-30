@@ -9,8 +9,9 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqStopSel
      *
-     *
-     *
+     *  Il client richiede che l'erogazione attuale venga fermata.
+     *  La richiesta viene passata a CPUBridge.
+     *  Non sono previste risposte da parte di CPUBridge (ie: CPUBRIDGE_NOTIFY_MAX_ALLOWED)
      */
     class CmdHandler_eventReqStopSel : public CmdHandler_eventReq
     {

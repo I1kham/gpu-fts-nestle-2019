@@ -16,5 +16,5 @@ void CmdHandler_eventReqBtnPressed::passDownRequestToCPUBridge (cpubridge::sSubs
 //***********************************************************
 void CmdHandler_eventReqBtnPressed::onCPUBridgeNotification (socketbridge::Server *server UNUSED_PARAM, HSokServerClient &h UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
-    //quest fn non viene mai chiamata, il CPUBridge non risponde mai ad una richiesta di questo tipo
+    //quest fn non viene mai chiamata, CPUBridge non risponde mai ad una richiesta di questo tipo
 }

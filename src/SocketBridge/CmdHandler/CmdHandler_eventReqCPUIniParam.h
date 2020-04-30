@@ -7,9 +7,10 @@
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_eventReqCPUStatus
+     * CmdHandler_eventReqCPUIniParam
      *
-     *
+     *  Il client richiede gli ini param.
+     *  La richiesta viene passata a CPUBridge la quale risponde con una notifica CPUBRIDGE_NOTIFY_CPU_INI_PARAM
      *
      */
     class CmdHandler_eventReqCPUIniParam : public CmdHandler_eventReq

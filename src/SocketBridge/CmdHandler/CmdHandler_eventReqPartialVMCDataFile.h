@@ -9,7 +9,9 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqPartialVMCDataFile
      *
-     *
+     *  Il client vuole scrivere un blocco nel DA3.
+     *  La richiesta viene passata a CPUBridge la quale risponderà con una notifica CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE
+     *  ad indicare l'esito dell'operazione
      *
      */
     class CmdHandler_eventReqPartialVMCDataFile : public CmdHandler_eventReq

@@ -74,7 +74,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqDataAudit.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.cpp" />
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_GetPosizioneMacina.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqPartialVMCDataFile.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.cpp" />
@@ -83,7 +83,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUProgrammingCmd.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.cpp" />
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetAperturaVGrind.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.cpp" />
@@ -157,7 +157,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCreditUpdated.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqDataAudit.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.h" />
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_GetPosizioneMacina.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqPartialVMCDataFile.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSelAvailability.h" />
@@ -166,7 +166,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUProgrammingCmd.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.h" />
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetAperturaVGrind.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSel.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStopSel.h" />

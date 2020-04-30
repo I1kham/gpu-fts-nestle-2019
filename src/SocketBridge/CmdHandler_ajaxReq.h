@@ -1,3 +1,37 @@
+/******************************************************************************************************************
+    CmdHandler_ajaxReq
+
+    Classe di base per tutti i comandi di tipo "ajax".
+    Per una descrizione sommaria di cosa sia un comando "ajax", vedi SocketBridge.h
+
+    I comandi ajax sono identificati da un nome che deve essere univoco per comando e deve essere ritornato dal metodo statico:
+        static const char*  getCommandName()
+    da implementarsi in ogni classe derivata da CmdHandler_ajaxReq.
+
+    Ogni nuova classe di comando ajax, deve essere aggiunta al file CmdHandler_ajaxReq.cpp nel metodo CmdHandler_ajaxReqFactory::spawn()
+    usando la macro CHECK. Questo è necessario per implementare il meccanismo di instanziamento dinamico delle classi (ovvero, data la
+    stringa con il nome del comando, istanza la classe esatta che gestisce quel comando).
+
+    SocketBridge istanzia comandi di tipo "ajax" solo alla ricezione di un paritcolare msg via socket.
+    Tale messaggio riporta il nome del comando oltre agli eventuali parametri.
+    Alla ricezione di un tale msg, SocketBridge scorre l'elenco dei cmd ajax che conosce fino a che non ne trova uno il cui
+    getCommandName() sia == al nome comando ricevuto dal messaggio.
+
+    Alla ricezione di un (valido) comando ajax, SocketBridge ha due opzioni, a seconda di come è stato pensato il comando:
+        1)  passare l'evento direttamente a CPUBridge
+        2)  gestire l'evento internamente
+
+    Nel caso 1), la richiesta (ad es: richiesta prezzi selezione) viene passata direttamente a CPUBridge.
+    E' compito di CPUBridge gestire la richiesta ed eventualmente produrre una risposta.
+    La risposta di CPUBridge viene passata indietro a SocketBridge (tramite una "notify") insieme con l'indicazione di "chi" ha iniziato la richiesta.
+    Il "chi" è esattamente l'istanza del comando che SocketBridge ha creato alla ricezione del msg via socket.
+    Il metodo onCPUBridgeNotification() di quella istanza viene chiamato in modo da poter fornire una risposta al client che aveva fatto la richiesta.
+        
+    Nel caso 2), la gestione dell'evento è tutta interna a SocketBridge, non è richiesta la collaborazione della CPU.
+    Il procedimento è analogo al punto precedente, tranne per il fatto che non viene fatta alcuna richiesta a CPUBridge.
+    Il metodo onCPUBridgeNotification() dell'istanza del comando viene chiamato in modo da poter fornire una risposta al client che ha fatto la richiesta.
+
+*/
 #ifndef _CmdHandler_ajaxReq_h_
 #define _CmdHandler_ajaxReq_h_
 #include "CmdHandler.h"

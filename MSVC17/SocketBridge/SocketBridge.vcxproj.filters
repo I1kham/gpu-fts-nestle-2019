@@ -98,9 +98,6 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUExtendedConfigInfo.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeTask.cpp">
       <Filter>Task</Filter>
     </ClCompile>
@@ -212,9 +209,6 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.cpp">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_GetPosizioneMacina.cpp">
-      <Filter>CmdHandler\event\Prog</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.cpp">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClCompile>
@@ -256,6 +250,10 @@
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.cpp">
       <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetAperturaVGrind.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -329,9 +327,6 @@
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqCPUExtendedConfigInfo.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetPosizioneMacina.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeTask.h">
@@ -442,9 +437,6 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.h">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_GetPosizioneMacina.h">
-      <Filter>CmdHandler\event\Prog</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClInclude>
@@ -486,6 +478,10 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h">
       <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetAperturaVGrind.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.h">
+      <Filter>CmdHandler\event\Prog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

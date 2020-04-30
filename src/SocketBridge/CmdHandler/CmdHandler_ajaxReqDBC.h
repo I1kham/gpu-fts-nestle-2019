@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqDBC
      *
-     * la GUI ha mandato una richiesta AJAX per conosce collegarsi ad un db locale
+     * Il client ha mandato una richiesta AJAX per collegarsi ad un db locale
      *
         Input:
             command: DBC

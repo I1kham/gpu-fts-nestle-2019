@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqIsManualInstalled
      *
-     * la GUI ha mandato una richiesta AJAX per conosce l'elenco dei drive di sistema
+     * Il client ha mandato una richiesta AJAX per sapere se localmente esiste un manuale per il menu di prog
      *
         Input:
             command: isManInstalled

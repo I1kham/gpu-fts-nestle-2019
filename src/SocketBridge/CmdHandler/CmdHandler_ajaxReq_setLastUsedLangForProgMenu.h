@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReq_setLastUsedLangForProgMenu
      *
-     *
+     *  Il client vuole conoscere l'ultimo linguaggio utilizzato nel menu di programmazione.
         Input:
             command: setLastUsedLangPrgMenu
             params:

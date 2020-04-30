@@ -9,7 +9,9 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqBtnPressed
      *
-     *
+     *  Il client segnala che è stato premuto un pulsante fisico
+     *  La richiesta viene passata a CPUBridge.
+     *  Non sono previste risposte da parte di CPUBridge (ie: CPUBRIDGE_NOTIFY_MAX_ALLOWED)
      *
      */
     class CmdHandler_eventReqBtnPressed : public CmdHandler_eventReq

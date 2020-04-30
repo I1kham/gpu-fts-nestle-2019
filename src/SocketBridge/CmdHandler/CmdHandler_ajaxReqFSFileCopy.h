@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqFSFileCopy
      *
-     * la GUI ha mandato una richiesta AJAX per copiare un file da un folder ad un altro
+     * Il client ha mandato una richiesta AJAX per copiare un file da un folder ad un altro
      *
         Input:
             command: FSCopy

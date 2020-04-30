@@ -8,7 +8,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_eventReqClientList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient)
+void CmdHandler_eventReqClientList::handleRequestFromSocketBridge (socketbridge::Server *server, HSokServerClient &hClient)
 {
 	//NB: se modifichi questa, modifica anche rhea::app::ClientList::decodeAnswer()
 

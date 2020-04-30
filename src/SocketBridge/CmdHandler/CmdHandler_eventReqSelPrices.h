@@ -9,7 +9,8 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqSelPrices
      *
-     *
+     *  Il client vuole conoscere i prezzi delle selezioni.
+     *  La richiesta viene passata a CPUBridge la quale risponderà con una notifica CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED
      *
      */
     class CmdHandler_eventReqSelPrices : public CmdHandler_eventReq

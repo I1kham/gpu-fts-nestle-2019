@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqFSDriveList
      *
-     * la GUI ha mandato una richiesta AJAX per conosce l'elenco dei drive di sistema
+     * Il client ha mandato una richiesta AJAX per conosce l'elenco dei drive di sistema
      *
         Input:
             command: FSDrvList

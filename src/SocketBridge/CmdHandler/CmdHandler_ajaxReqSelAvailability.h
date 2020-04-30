@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqSelAvailability
      *
-     * la GUI ha mandato una richiesta AJAX per conosce la disponibilità delle selezioni
+     * Il client ha mandato una richiesta AJAX per conosce la disponibilità delle selezioni
      *
         Input:
             command: selAvail

@@ -1,11 +1,11 @@
-#include "CmdHandler_eventReq_P0x10_GetPosizioneMacina.h"
+#include "CmdHandler_eventReq_P0x10_getAperturaVGrind.h"
 #include "../SocketBridge.h"
 #include "../../CPUBridge/CPUBridge.h"
 
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_eventReq_P0x10_GetPosizioneMacina::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen)
+void CmdHandler_eventReq_P0x10_getAperturaVGrind::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen)
 {
     assert (payloadLen >= 1);
     const u8 macina_1o2 = payload[1];
@@ -14,7 +14,7 @@ void CmdHandler_eventReq_P0x10_GetPosizioneMacina::passDownRequestToCPUBridge (c
 }
 
 //***********************************************************
-void CmdHandler_eventReq_P0x10_GetPosizioneMacina::onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_eventReq_P0x10_getAperturaVGrind::onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
 	//NB: se modifichi questa, modifica anche rhea::app::GetPosizioneMacina::decodeAnswer()
 

@@ -1,4 +1,4 @@
-#include "CmdHandler_eventReqSetPosizioneMacina.h"
+#include "CmdHandler_eventReqSetAperturaVGrind.h"
 #include "../SocketBridge.h"
 #include "../../CPUBridge/CPUBridge.h"
 #include "../../rheaCommonLib/rheaNetBufferView.h"
@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_eventReqSetPosizioneMacina::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen)
+void CmdHandler_eventReqSetAperturaVGrind::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen)
 {
     assert (payloadLen >= 2);
 
@@ -21,6 +21,6 @@ void CmdHandler_eventReqSetPosizioneMacina::passDownRequestToCPUBridge (cpubridg
 }
 
 //***********************************************************
-void CmdHandler_eventReqSetPosizioneMacina::onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
+void CmdHandler_eventReqSetAperturaVGrind::onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 }

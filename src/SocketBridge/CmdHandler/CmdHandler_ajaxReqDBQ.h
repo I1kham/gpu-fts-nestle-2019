@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqDBQ
      *
-     * la GUI ha mandato una richiesta AJAX per fare una query su un DB precedentemente aperto con DBC
+     * Il client ha mandato una richiesta AJAX per fare una query su un DB precedentemente aperto con DBC
      *
         Input:
             command: DBQ

@@ -7,9 +7,10 @@
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_eventReqSelFinished
+     * CmdHandler_eventReqSelStatus
      *
-     *
+     *  Il client vuole conoscere lo stato della erogazione corrente
+     *  La richiesta viene passata a CPUBridge la quale risponderà con una notifica CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS
      *
      */
     class CmdHandler_eventReqSelStatus : public CmdHandler_eventReq

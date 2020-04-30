@@ -9,7 +9,8 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqSelAvailability
      *
-     *
+     *  Il client vuole conoscere lo stato di disponibilità delle selezioni.
+     *  La richiesta viene passata a CPUBridge la quale risponderà con una notifica CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED
      *
      */
     class CmdHandler_eventReqSelAvailability : public CmdHandler_eventReq

@@ -9,7 +9,13 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_eventReqCPUMessage
      *
-     *
+     *  Il client richiede l'attuale messaggio di CPU
+     *  La richiesta viene passata a CPUBridge la quale risponde con una notifica CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE
+     *  La stessa notifica "CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE" può essere generata spontaneamente da CPUBridge in ogni momento, non
+     *  necessariamente a seguito di una richiesta.
+     *  Quando SocketBridge riceve una notifica CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, se questà è la risposta ad una precisa richiesta, allora
+     *  invia la risposta al solo client che ne ha fatto richiesta.
+     *  Se la notifica invece è stata generata spontaneamente da CPUBridge, SocketBridge invia l'evento a tutti i client connessi
      *
      */
     class CmdHandler_eventReqCPUMessage : public CmdHandler_eventReq

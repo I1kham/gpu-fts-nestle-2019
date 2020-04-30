@@ -820,6 +820,8 @@
 						<tr><td>RILEVAMENTO DRIPTRAY</td><td><div class='UIOption' data-option='0|NO|1|SI' data-da3='7092' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_cofSensor"><td>SENSORE CAFFE'</td><td><div class='UIOption' data-option='1|ABILITATO|0|DISABILITATO' data-da3='7094' data-da3bit='8'></div></td></tr>
 						<tr><td>SOGLIA SENSORE BICCHIERE</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
+						<tr id="pageDevices_boilerSize"><td>BOLLITORE</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
+						
 						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='INIZIA' data-onclick="pageDevices_startModemTest()"></div></td></tr>
 						<tr><td>TEST ASSORBIMENTO GRUPPO</td><td><div class='UIButton bigButton60 actionButton' data-caption='INIZIA' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
 						<tr><td>TEST ASSORBIMENTO MOTORIDUTTORE</td><td><div class='UIButton bigButton60 actionButton' data-caption='INIZIA' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
@@ -2732,6 +2734,9 @@ function pageDevices_show()
 			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
 			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
 		}
+		
+		if (da3.isInduzione())
+			rheaHideElem(rheaGetElemByID("pageDevices_boilerSize"));
 		
 		rheaSetDivHTMLByName("pageDevices_vgrind1_lastPos_caption", da3.read16(7596));
 		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7692));

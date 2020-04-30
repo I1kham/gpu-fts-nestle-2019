@@ -8,7 +8,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqFSFileList
      *
-     * la GUI ha mandato una richiesta AJAX per conosce l'elenco dei file di un folder
+     * Il client ha mandato una richiesta AJAX per conosce l'elenco dei file di un folder
      *
         Input:
             command: FSList
