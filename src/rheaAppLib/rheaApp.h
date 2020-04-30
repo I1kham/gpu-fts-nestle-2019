@@ -209,13 +209,13 @@ namespace rhea
 			void		decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, cpubridge::eCPUProgrammingCommand_macinaMove *out_m);
 		}
 
-		namespace GetPosizioneMacina
+        namespace GetAperturaVGrind
 		{
 			void		ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2);
 			void		decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, u16 *out_pos);
 		}
 		
-		namespace SetPosizioneMacina
+        namespace SetAperturaVGrind
 		{
 			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, u16 target);
 			//decode_	=> non esiste. Capisci che la CPU sta lavorando controllando il suo stato. Durante la regolazione è in stato [eVMCState_REG_APERTURA_MACINA]

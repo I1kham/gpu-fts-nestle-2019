@@ -1,5 +1,5 @@
-#ifndef _CmdHandler_eventReq_P0x10_GetPosizioneMacina_h_
-#define _CmdHandler_eventReq_P0x10_GetPosizioneMacina_h_
+#ifndef _CmdHandler_eventReq_P0x10_getAperturaVGrind_h_
+#define _CmdHandler_eventReq_P0x10_getAperturaVGrind_h_
 #include "../CmdHandler_eventReq.h"
 
 
@@ -27,4 +27,4 @@ namespace socketbridge
         void        onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge);
     };
 } // namespace socketbridge
-#endif // _CmdHandler_eventReq_P0x10_GetPosizioneMacina_h_
+#endif // _CmdHandler_eventReq_P0x10_getAperturaVGrind_h_

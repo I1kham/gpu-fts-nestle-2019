@@ -83,7 +83,6 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x0E_QueryImpulseCalcStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x0E_StartImpulseCalc.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x0F_SetCalibFactor.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x13_NomiLingueCPU.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x16_ResetEVA.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp.cpp \
@@ -107,8 +106,7 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x03_CPUSanWashingStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x04_SetDecounter.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x06_GetAllDecounters.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x10_GetPosizioneMacina.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x11_SetMotoreMacina.cpp \
+	../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x11_SetMotoreMacina.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x14_StartDisintallation.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_T_VMCDataFileTimestamp.cpp \
@@ -126,7 +124,6 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelAvailability.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelPrices.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelStatus.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartSel.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStopSel.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFile.cpp \
@@ -151,7 +148,10 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1F_StartTestAssorbGruppo.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetAperturaVGrind.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -166,7 +166,6 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x0E_QueryImpulseCalcStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x0E_StartImpulseCalc.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x0F_SetCalibFactor.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x13_NomiLingueCPU.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x16_ResetEVA.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x17_GetVoltageAndTemp.h \
@@ -209,8 +208,7 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelAvailability.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelPrices.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelStatus.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetPosizioneMacina.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartSel.h \
+	../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartSel.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStopSel.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqVMCDataFile.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqWriteLocalVMCDataFile.h \
@@ -237,7 +235,10 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x1F_StartTestAssorbGruppo.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x10_getAperturaVGrind.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetAperturaVGrind.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.h
 
 unix {
     target.path = /usr/lib

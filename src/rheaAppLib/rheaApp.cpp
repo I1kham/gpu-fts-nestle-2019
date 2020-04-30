@@ -797,18 +797,18 @@ void app::SetMotoreMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_mac
 }
 
 /*****************************************************************
- * namespace GetPosizioneMacina
+ * namespace GetAperturaVGrind
  */
-void app::GetPosizioneMacina::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2)
+void app::GetAperturaVGrind::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2)
 {
 	u8 optionalData[4];
-	optionalData[0] = socketbridge::eEventType_getPosizioneMacina;
+    optionalData[0] = socketbridge::eEventType_getAperturaVGrind;
 	optionalData[1] = macina_1o2;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
 }
-void app::GetPosizioneMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, u16 *out_pos)
+void app::GetAperturaVGrind::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, u16 *out_pos)
 {
-	assert(msg.eventType == socketbridge::eEventType_getPosizioneMacina);
+    assert(msg.eventType == socketbridge::eEventType_getAperturaVGrind);
 
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
@@ -820,14 +820,14 @@ void app::GetPosizioneMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_
 
 
 /*****************************************************************
- * namespace SetPosizioneMacina
+ * namespace SetAperturaVGrind
  */
-void app::SetPosizioneMacina::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, u16 target)
+void app::SetAperturaVGrind::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, u16 target)
 {
 	u8 optionalData[4];
 	NetStaticBufferViewW nbw;
 	nbw.setup(optionalData, sizeof(optionalData), rhea::eBigEndian);
-	nbw.writeU8((u8)socketbridge::eEventType_setPosizioneMacina);
+    nbw.writeU8((u8)socketbridge::eEventType_setAperturaVGrind);
 	nbw.writeU8((u8)macina_1o2);
 	nbw.writeU16(target);
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 4);
