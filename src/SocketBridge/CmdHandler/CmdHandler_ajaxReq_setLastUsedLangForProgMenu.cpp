@@ -35,7 +35,11 @@ void CmdHandler_ajaxReq_setLastUsedLangForProgMenu::handleRequestFromSocketBridg
 	{
 		//devo creare o sovrascrivere il file varie/prog/lastUsedLang.txt e riempirlo con il codice della lingua
 		char s[512];
-		sprintf_s(s, sizeof(s), "%s/varie/prog/lastUsedLang.txt", rhea::getPhysicalPathToAppFolder());
+
+		sprintf_s(s, sizeof(s), "%s/varie/prog", rhea::getPhysicalPathToAppFolder());
+		rhea::fs::folderCreate (s);
+
+		strcat_s (s, sizeof(s), "/lastUsedLang.txt");
 		FILE *f = fopen(s, "wb");
 		fwrite(data.lang, 2, 1, f);
 		fclose(f);

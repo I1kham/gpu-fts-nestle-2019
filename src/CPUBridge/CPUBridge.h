@@ -1,3 +1,68 @@
+/******************************************************************************************************************************
+	CPUBridge è un thread che si occupa di astrarre la CPU vera e propria.
+	CPUBridge riceve richieste attraverso una msgQ thread-safe (richiesta che arrivano da SocketBridge) ed eventualmente le
+	traduce e le passa alla CPU vera e propria.
+	Si occupa anche di gestire le risposte in arrivo dalla CPU ed eventualmente comunicare a SocketBridge informazioni rilevanti.
+	Ad esempio, CPUBridge in maniera del tutto trasparente e all'insaputa di SocketBridge, invia periodicamente una richiesta di stato alla CPU.
+	La risposta a questa richiesta (o anche la non risposta) può generare un messaggio da CPUBridge verso SocketBridge per esempio per informare che lo 
+	stato delle selezioni è cambiato, oppure che lo stato della CPU è cambiato.
+	CPUBridge notifica SocketBridge solo quanto "qualche cosa" nella CPU vera e propria è cambiata.
+	Per esempio, CPUBridge non manda 100 messaggi a SocketBridge ribadendo costantemente che lo stato della CPU è "disponibile". Gli manda un solo
+	messaggio e, fino a che lo stato di CPU non cambia, non manda altri messaggi del genere (a meno che non sia stato esplicitamente richiesto
+	da SocketBridge). Al variare dello stato di CPU, allora CPUBrdige invia una notifica "spontanea" a SocketBridge informandolo della variazione
+	di stato.
+
+	Il canale di comunicazione tra CPUBridge e la CPU vera e propria è astratto tramite la classe CPUChannel.
+	Al momento esistono 2 classi concrete derivate da CPUChannel:
+		CPUChannelCom	=> invia e riceve messaggi tramite la porta seriale
+		CPUChannelFake	=> finge di inviare messaggi ad una ipotetica CPU e fornisce riposte (in pratica è un simulatore di CPU da usarsi per applicazioni
+							stand alone come il rheaMedia)
+	Una istanza concreta del canale di comunicazione da utilizzare viene passato come parametro nella funzione di inizializzazione del thread,
+	vedi cpubridge::startServer()
+
+	CPUBridge riceve richieste da altri thread (generalmente solo da SocketBridge, ma i thread in ingresso possono essere N).
+	Un generico thread (es: SocketBridge) si "subscribe()" a CPUBridge in modo da poter comunicare e ricevere messaggi (vedi cpubridge::subscribe())
+	Un volta iscritto, il thread invia richieste tramite l'apposita msgQ fornita durante la subscribe() e riceve eventuali risposte/notifiche sulla stessa
+	msgQ.
+
+	In caso di notifiche spontanee, tutti i thread iscritti a CPUBridge ricevono la notifica automaticamente.
+	Ad esempio, quando CPU cambia di stato, o quando cambia la disponibilità delle selezioni, CPUBrdige invia spontaneamente una notifica a tutti i
+	thread che si sono iscritti.
+
+	Le notifiche di CPUBridge verso i thread iscritti avvengono tramite la chiamata ai vari metodi cpubridge::notify_xxx (vedi in questo file .h)
+	Una generica funzione cpubridge::notify_xxx() solitamente non fa altro che pushare un messaggio sulla msgQ del thread ricevente.
+	Come esempio, consideriamo la fn cpubridge:::notify_CPU_STATE_CHANGED(...)
+		Quando CPUBridge invoca questa fn, sulla msgQ del thread ricevente viene pushato un messaggio il cui "what" è == CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED
+		L'elenco delle define delle notifiche si trova in CPUBridgeEnumAndDefine.h. 
+		Tutte le define di questo tipo iniziano con CPUBRIDGE_NOTIFY_
+
+		Quando il thread riceve una notifica, deve chiamare una fn per tradurre il messaggio ricevuto, ovvero per ottenere in maniera "safe" gli eventuali
+		parametri che il messaggio porta con se.
+		Le funzioni di traduzione si chiamano tutte cpubridge::translateNotify_xxx
+		Ad esempio, la fn di traduzione per cpubridge:::notify_CPU_STATE_CHANGED(...) si chiama translateNotify_CPU_STATE_CHANGED(..).
+		La funzione di traduzione non è strettamente obbligatoria, ma è buona norma associare ad ogni notify() la sua translate() in modo da astrarre
+		il modo in cui i parametri sono impacchettati nel messaggio. In questo modo, se in futuro si vuole aggiungere/togliere un parametro da una
+		notify() esistente, basta modificare la sua translate() e ricompilare senza dover andare a cercare in tutto il codice dove e quando quella
+		notify veniva utilizzata e tradotta.
+
+
+	In maniera molto simile, quando un thread vuol chiedere qualcosa a CPUBridge, usa una delle funziona cpubridge::ask_ (vedi a fine di questo .h)
+	La maggior parte delle funzioni cpubridge::ask_ non prevedono parametri ma, qualora lo facessero, è bene implementare la relativa 
+	cpubridge::translate_ per gli stessi motivi esposti poco sopra.
+	Ad esempio:
+		cpubbrige::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber);
+		cpubbrige::translate_CPU_START_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNumber);
+
+		Il thread informa CPUBridge che si vuole far partire la selezione [selNumber] usando la fn cpubbrige::ask_CPU_START_SELECTION()
+		CPUBridge riceve questo messaggio sulla sua msgQ e lo traduce per recuperare il parametro [selNumber].
+		CPUBridge quindi chiama la fn cpubbrige::translate_CPU_START_SELECTION() per tradurre il msg ricevuto.
+		Dopo la traduzione, CPUBridge invia una richiesta alla vera CPU per iniziare la selezione.
+		A seguito di questa operazione, verosimilmente CPUBridge comincerà ad inviare una serie di notifiche spontanee a tutti i thread iscritti per
+		esempio per indicare che la CPU è passata da stato "disponibile" a stato "erogazione in corso" e, successivamente, da "erogazione in corso" di 
+		nuovo in "disponibile".
+
+	
+*/
 #ifndef _CPUBridge_h_
 #define _CPUBridge_h_
 #include "CPUBridgeEnumAndDefine.h"
