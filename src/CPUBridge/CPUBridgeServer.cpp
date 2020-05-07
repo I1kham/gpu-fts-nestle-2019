@@ -2445,7 +2445,12 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	u8 isMultilangage = 0;
 	const u8 prevMsgLcdCPUImportanceLevel = cpuStatus.LCDMsg.importanceLevel;
 	cpuStatus.LCDMsg.importanceLevel = 0xff;
+	
+	//prima di protocol v7, nessuna informazione sullo stato del milker veniva passata.
+	//Per simulare questo fatto, tiro sempre su il bit relativo in modo che la GPU creda che il milker sia sempre collegato
+	//A partire da protocol v7, l'eventuale distacco del milker si riflette su questo bit che viene messo a 0
 	u16 newCpuStatusFlag1 = cpuStatus.flag1;
+	newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_MILKER_ALIVE; 
 
 	if (answer[1] != eCPUCommand_checkStatus_B && answer[1] != eCPUCommand_checkStatus_B_Unicode)
 	{
@@ -2551,8 +2556,21 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 								newCpuStatusFlag1 |= sCPUStatus::FLAG1_TELEMETRY_RUNNING;
 							else
 								newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_TELEMETRY_RUNNING);
-							
+
+							if (cpuParamIniziali.protocol_version >= 7)
+							{
+								if ((flag & 0x04) != 0)
+									newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_MILKER_ALIVE;
+								else
+									newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_IS_MILKER_ALIVE);
+
+								if ((flag & 0x08) != 0)
+									newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_FREEVEND;
+								else
+									newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_IS_FREEVEND);
+							}//if (cpuParamIniziali.protocol_version >= 7)
 						}//if (cpuParamIniziali.protocol_version >= 6)						
+
 					}//if (cpuParamIniziali.protocol_version >= 5)
 				}//if (cpuParamIniziali.protocol_version >= 4)
 			}//if (cpuParamIniziali.protocol_version >= 3)

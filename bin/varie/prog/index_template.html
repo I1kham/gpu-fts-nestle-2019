@@ -1092,6 +1092,7 @@ var da3 = null;
 var guiInfo = null;
 var currentPageID="";
 var currentCPUStatusID = -1;
+var isMilkerAlive = 0;
 var timeNowMSec = 0;
 
 var manualFolderName = "";
@@ -1109,8 +1110,33 @@ function onRheaBootstrapFinished()
 {
 	pleaseWait_setup();
 	
-	rhea.onEvent_cpuStatus  = function(statusID, statusStr) 		{ currentCPUStatusID=statusID; currentTask.onEvent_cpuStatus(statusID, statusStr); }
-	rhea.onEvent_cpuMessage = function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
+	rhea.onEvent_cpuMessage = 	function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
+	rhea.onEvent_cpuStatus  = 	function(statusID, statusStr, flag16)
+								{					
+									//se il milker è collegato, abilito i suoi menu, e viceversa
+									if (isMilkerAlive)
+									{
+										if ((flag16 & 0x04) == 0)
+										{
+											isMilkerAlive = 0;
+											rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+											rheaAddClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
+										}
+									}
+									else
+									{
+										if ((flag16 & 0x04) != 0)
+										{
+											isMilkerAlive = 1;
+											rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+											rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
+										}
+									}
+									
+									
+									currentCPUStatusID=statusID; 
+									currentTask.onEvent_cpuStatus(statusID, statusStr, flag16); 
+								}
 	
 	dataOra_setup();
 	
@@ -1128,7 +1154,7 @@ function onRheaBootstrapFinished()
 	pleaseWait_header_setTextL("$LAB_Please_wait ...");
 	pleaseWait_freeText_show();
 
-	//scarica il da3, carica guiInfo... in genrale fa tutte quelle operazioni che sono necessarie prima di poter visualizzare il main menu
+	//scarica il da3, carica guiInfo... in generale fa tutte quelle operazioni che sono necessarie prima di poter visualizzare il main menu
 	startupOperation();
 }
 
@@ -1210,6 +1236,7 @@ function save (fnToCallWhenFinished)
 
 function save_storeDA3Block_step (uno_di, nBlocchi, blockList)
 {
+	console.log ("DA3 save " +uno_di +" di " +nBlocchi);
 	var blockNum = blockList[uno_di-1];
 	pleaseWait_freeText_appendText (uno_di +"/" +nBlocchi +"&nbsp;&nbsp;&nbsp;block " +blockNum +"... ");
 			
@@ -3336,8 +3363,7 @@ function pageExpCalib_startMacinaCalib ()
 
 function pageExpCalib_onFinish ()
 {
-	currentTask = taskEspressoCalib;
-	save (function() { pageExpCalib_refreshCalibValueOnScreen(); pleaseWait_hide();});
+	save (function() { currentTask = taskEspressoCalib; pageExpCalib_refreshCalibValueOnScreen(); pleaseWait_hide();});
 }
 
 function pageExpCalib_refreshCalibValueOnScreen()

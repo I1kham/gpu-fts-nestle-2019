@@ -325,6 +325,9 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						
 				case RHEA_EVENT_CPU_STATUS:
 					var statusID = parseInt(data[8]);
+					//var errorCode = data[9];
+					//var errorType = data[10];
+					var flag16 = parseInt(data[11] * 256 + data[12]);
 					var statusStr = "";
 					switch (statusID)
 					{
@@ -346,7 +349,7 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						case 102: statusStr ="GRINDER OPENING"; break;
 					}
 					//console.log ("rhea.js => RHEA_EVENT_CPU_STATUS [" +statusID +"] [" +statusStr +"]");
-					me.onEvent_cpuStatus(statusID, statusStr);
+					me.onEvent_cpuStatus(statusID, statusStr, flag16);
 					break;
 					
 				case RHEA_EVENT_SEND_PARTIAL_DA3:

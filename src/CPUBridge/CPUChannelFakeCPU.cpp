@@ -1079,6 +1079,15 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 					newFCPUFlag1 |= 0x02; //indica se CPU è in telemetria oppure no (default: no)
 			}
 
+			//protocol version 7
+			if (CPU_REPORTED_PROTOCOL_VERSION >= 7)
+			{
+				bool isMilkerAlive = true;
+				bool isFreevend = false;
+				if (isMilkerAlive)	newFCPUFlag1 |= 0x04;
+				if (isFreevend)		newFCPUFlag1 |= 0x08;
+			}
+
 			out_answer[ct++] = newFCPUFlag1;
 		}
 	}

@@ -104,13 +104,9 @@ function onGUIInfoLoaded()
 	});
 	
 	
-	//abilito il menu milker se macchine==espresso
+	//abilito menu "espresso calibration" se macchine==espresso
 	if (da3.isEspresso())
-	{
 		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnEspressoCalib"), "UIdisabled");
-		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
-		rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
-	}
 	
 	//da ora in poi, il currentTask.onTimer() viene chiamata una volta al secondo
 	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
