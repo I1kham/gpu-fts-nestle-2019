@@ -458,7 +458,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				if (blocco_n_di >= tot_num_blocchi)
 				{
 					//chiedo alla CPU il nuovo timestamp del file ricevuto e lo salvo localmente
-					sCPUVMCDataFileTimeStamp	vmcDataFileTimeStamp;
+					sCPUVMCDataFileTimeStamp vmcDataFileTimeStamp;
 					u8 nRetry = 20;
 					while (nRetry--)
 					{
@@ -1237,6 +1237,15 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS (*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile, 0);
 		return eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile;
+	}
+
+
+	//invalido il timestamp del mio da3 locale in modo che al termine dell'operazione di upload
+	//del FW CPU, la GPU attivi una fase di sincronizzazione da3
+	{
+		sCPUVMCDataFileTimeStamp localDA3TimeStamp;
+		localDA3TimeStamp.setInvalid();
+		saveVMCDataFileTimeStamp(localDA3TimeStamp);
 	}
 
 
