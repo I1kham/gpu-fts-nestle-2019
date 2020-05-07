@@ -243,7 +243,7 @@ namespace rhea
 											Un commento è valido se:
 												1- inizia con "//", allora è lungo fino alla fine della riga (\n\r o fine buffer)
 												oppure
-												2- inizia con /*, allora e finisce quando trova * /
+                                                2- inizia con / *, allora e finisce quando trova * /
 										*/
 
 					bool			find_CaseSens (Source &src, const u8 *whatTofind, u32 whatTofindLen=0);

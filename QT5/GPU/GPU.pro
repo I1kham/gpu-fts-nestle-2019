@@ -10,8 +10,8 @@ QT       += webkitwidgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++0x -pthread -Wno-unused-result -Wno-expansion-to-defined
-QMAKE_CFLAGS += -std=gnu++0x -pthread
+QMAKE_CXXFLAGS += -std=c++0x -pthread -Wno-unused-result -Wno-expansion-to-defined -Wcomment
+QMAKE_CFLAGS += -std=gnu++0x -pthread -Wcomment
 LIBS += -pthread
 
 #direttive specifiche per quando compilo per yocto embedded
