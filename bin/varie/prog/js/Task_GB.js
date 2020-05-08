@@ -1571,7 +1571,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		this.fase = 1;
 		pleaseWait_show();
 		pleaseWait_freeText_show();
-		pleaseWait_freeText_setText("DISINTALLATION<br><br>Is driptray empty?"); //DISINTALLATION<br><br>Is driptray empty?
+		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Is driptray empty?"); //DISINTALLATION<br><br>Is driptray empty?
 		pleaseWait_btn1_setText("YES - CONTINUE");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
@@ -1583,7 +1583,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 10:
 		this.fase = 11;
-		pleaseWait_freeText_setText("DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
+		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Please remove coffee grounds, then press CONTINUE"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
@@ -1595,7 +1595,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 20:
 		this.fase = 21;
-		pleaseWait_freeText_setText("DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
+		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
 		pleaseWait_btn1_setText("START DISINSTALLATION");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
@@ -1607,7 +1607,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 30:
 		this.fase = 31;
-		pleaseWait_freeText_setText("DISINTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
+		pleaseWait_freeText_setText("DISINSTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
 		rhea.sendStartDisintallation();
 		
 	case 31: this.fase = 32; break;
@@ -1621,7 +1621,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		break;
 		
 	case 40:
-		pleaseWait_freeText_setText("DISINTALLATION finished, please SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
+		pleaseWait_freeText_setText("DISINSTALLATION finished, please SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
 		break;
 		
