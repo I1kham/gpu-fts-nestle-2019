@@ -24,10 +24,10 @@
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_btnpress.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_cpuprogcmd.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_download.cpp" />
-    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_getposmacina.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_getAperturaVgrind.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setdec.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setmotoremacina.cpp" />
-    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setposmacina.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setAperturaVgrind.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startsel.cpp" />
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_upload.cpp" />
@@ -47,7 +47,7 @@
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_da3ts.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_download.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getalldec.h" />
-    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getposmacina.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getAperturaVgrind.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_list.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDA3.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDataAudit.h" />
@@ -55,7 +55,7 @@
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_selavail.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setdec.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setmotoremacina.h" />
-    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setposmacina.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setAperturaVgrind.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startsel.h" />
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_upload.h" />
@@ -105,9 +105,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet_LIB_DEBUG_x86.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet_LIB_RELEASE_x86.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -117,37 +119,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)..\bin\</OutDir>
-    <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
-    <TargetName>WIN$(Configuration)_$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)..\bin\</OutDir>
-    <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
-    <TargetName>WIN$(Configuration)_$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAppLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -168,22 +158,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAppLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

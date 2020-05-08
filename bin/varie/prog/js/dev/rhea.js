@@ -647,6 +647,8 @@ Rhea.prototype.ajaxWithCustomTimeout = function(commandString, plainJSObject, ti
 		for (var i=0; i<jo.length; i++)
 			buffer[t++] = jo.charCodeAt(i);
 
+
+	//console.log ("ajax [" +commandString +"] [" +timeoutMSec +"ms]");
 	return this.sendGPUCommand ("A", buffer, 1, timeoutMSec);
 };
 
@@ -752,7 +754,7 @@ Rhea.prototype.sendPartialDA3AndReturnAPromise = function(uno_di, num_tot, block
 	var me = this;
 	return new Promise( function(resolve, reject) 
 					{
-						var timeoutMs = 5000;
+						var timeoutMs = 10000;
 						var check = function()	{
 												if (me.partialDA3AckRcvd == blockOffset)
 												{

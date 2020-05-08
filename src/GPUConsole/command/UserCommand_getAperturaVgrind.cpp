@@ -1,13 +1,13 @@
-#include "UserCommand_getposmacina.h"
+#include "UserCommand_getAperturaVgrind.h"
 
 //**********************************************************
-const char*	UserCommand_getposmacina::getExplain() const
+const char*	UserCommand_getAperturaVgrind::getExplain() const
 { 
-	return "getposmacina [macina_1o2]\nse non specificata, si assume macina 1";
+	return "getaperturavgrind [macina_1o2]\nse non specificata, si assume macina 1";
 }
 
 //**********************************************************
-void UserCommand_getposmacina::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
+void UserCommand_getAperturaVgrind::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
 {
 	rhea::string::parser::Iter src, temp;
 	src.setup(command);
@@ -33,7 +33,8 @@ void UserCommand_getposmacina::handle(const char *command, rhea::IProtocolChanne
 		break;
 	}
 
-	rhea::app::GetPosizioneMacina::ask (ch, proto, macina_1o2);
+
+	rhea::app::GetAperturaVGrind::ask (ch, proto, macina_1o2);
 	log->log("request sent\n");
 
 }

@@ -36,13 +36,13 @@
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setdec.cpp">
       <Filter>command</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_getposmacina.cpp">
-      <Filter>command</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setmotoremacina.cpp">
       <Filter>command</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setposmacina.cpp">
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setAperturaVgrind.cpp">
+      <Filter>command</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_getAperturaVgrind.cpp">
       <Filter>command</Filter>
     </ClCompile>
   </ItemGroup>
@@ -112,13 +112,13 @@
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getalldec.h">
       <Filter>command</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getposmacina.h">
-      <Filter>command</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setmotoremacina.h">
       <Filter>command</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setposmacina.h">
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setAperturaVgrind.h">
+      <Filter>command</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getAperturaVgrind.h">
       <Filter>command</Filter>
     </ClInclude>
   </ItemGroup>

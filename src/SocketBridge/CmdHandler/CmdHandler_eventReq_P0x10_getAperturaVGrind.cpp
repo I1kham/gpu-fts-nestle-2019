@@ -16,7 +16,7 @@ void CmdHandler_eventReq_P0x10_getAperturaVGrind::passDownRequestToCPUBridge (cp
 //***********************************************************
 void CmdHandler_eventReq_P0x10_getAperturaVGrind::onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
-	//NB: se modifichi questa, modifica anche rhea::app::GetPosizioneMacina::decodeAnswer()
+	//NB: se modifichi questa, modifica anche rhea::app::GetAperturaVgrind::decodeAnswer()
 
 	//rispondo con:
 	//  1 byte per il numero macina

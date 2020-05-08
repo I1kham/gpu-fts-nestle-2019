@@ -147,6 +147,7 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 	u16 nBytesRcv = 0;
 	u8	commandChar = 0x00;
 	u8	msgLen = 0x00;
+	bool bIgnoreIf_B_or_Z = false;
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		//aspetto di riceve un #
@@ -175,13 +176,28 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 			bool bFail = false;
 			if (commandCharIN == 'B')
 			{
+				//se ho inviato un comando "B" (ovvero richiesta di stato), mi aspetto per forza in risposta un comando "B" o "Z"
 				if (commandChar!='B' && commandChar!='Z')
 					bFail = true;
 			}
 			else
 			{
+				//se ho inviato un comando != "B", ovviamente mi aspetto una risposta consona al comando che ho inviato, ma potrebbe anche
+				//essere che nel mezzo mi arrivi una risposta ad un comando "B" o "Z".
+				//Questo accade perchè il comando "B" purtroppo ha la "proprietà" di poter non ricevere risposte. Se mando "B" e non ricevo risposta,
+				//non è un errore. Se non ricevo risposta a 5 "B" consecutivi, allora è un errore.
+				//Il problema potrebbe essere che mando un "B", non ricevo risposta (e lo accetto come dato di fatto), poi mando un "X" e mentre aspetto la risposta
+				//a "X" ricevo la risposta a "B" che è arrivata molto in ritardo rispetto a quando l'avevo chiesta.
+				//Questa situazione fa fallire il comando "X" anche se probabilmente la risposta a "X" arriverà fra poco, dopo la risposta a "B" arrivata in ritardo.
+				//Per ovviare a questo problema, se durante l'attesa della risposta di un comando != "B" ricevo una risposta "B", la parso e poi la scarto senza 
+				//segnalare errori, vado avanti come se non l'avessi mai ricevuta.
 				if (commandCharIN != commandChar)
-					bFail = true;
+				{
+					if (commandChar == 'B' || commandChar == 'Z')
+						bIgnoreIf_B_or_Z = true;
+					else
+						bFail = true;
+				}
 			}
 
 			if (bFail == true)
@@ -232,7 +248,15 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *i
 				DUMPMSG("\n");
 				//eval checksum
 				if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
-					return true;
+				{
+					//ok, ho in mano una valida risposta della CPU.
+					//Dovrei ritornare true e terminare, ma c'è il caso speciale "bIgnoreIf_B_or_Z" da considerare
+					if (!bIgnoreIf_B_or_Z)
+						return true;
+
+					*in_out_sizeOfAnswer = sizeOfBuffer;
+					return priv_handleMsg_rcv (commandCharIN, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
+				}
 
 
 				/*HACK: le versioni non beta della CPU calcolano male il CK del msg C

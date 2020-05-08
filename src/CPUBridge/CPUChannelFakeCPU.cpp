@@ -149,6 +149,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			*in_out_sizeOfAnswer = out_answer[2];
+
+			//simulo estrma lentezza della CPU in risposta
+			//rhea::thread::sleepMSec(8000);
 			return true;
 		}
 		break;

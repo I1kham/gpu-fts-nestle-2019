@@ -430,8 +430,8 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		{
 			u8 macina_1o2 = 0;
 			u16 value = 0;
-			rhea::app::GetPosizioneMacina::decodeAnswer(decoded, &macina_1o2, &value);
-			log->outText(true, true, false, "GetPosizioneMacina: macina[%d] value[%d]\n", macina_1o2, value);
+			rhea::app::GetAperturaVGrind::decodeAnswer(decoded, &macina_1o2, &value);
+			log->outText(true, true, false, "GetAperturaVGrind: macina[%d] value[%d]\n", macina_1o2, value);
 		}
 		break;
 

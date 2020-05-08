@@ -1,13 +1,13 @@
-#include "UserCommand_setposmacina.h"
+#include "UserCommand_setAperturaVgrind.h"
 
 //**********************************************************
-const char*	UserCommand_setposmacina::getExplain() const
+const char*	UserCommand_setAperturaVgrind::getExplain() const
 { 
-	return "setposmacina [macina_1o2] [target]";
+	return "setaperturavgrind [macina_1o2] [target]";
 }
 
 //**********************************************************
-void UserCommand_setposmacina::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
+void UserCommand_setAperturaVgrind::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
 {
 	rhea::string::parser::Iter src, temp;
 	src.setup(command);
@@ -40,7 +40,7 @@ void UserCommand_setposmacina::handle(const char *command, rhea::IProtocolChanne
 	{
 		if (value >= 0 && value <= 360)
 		{
-			rhea::app::SetPosizioneMacina::ask(ch, proto, (u8)macina_1o2, (u16)value);
+			rhea::app::SetAperturaVGrind::ask(ch, proto, (u8)macina_1o2, (u16)value);
 			log->log("request sent\n");
 		}
 		else
