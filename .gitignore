@@ -42,3 +42,6 @@ MSVC17/SMU/x64/
 MSVC17/SocketBridge/x64/
 MSVC17/stressTestUpDownDA3/x64/
 MSVC17/testDB/x64/
+*.idb
+*.pdb
+MSVC17/testHTTP/build/
