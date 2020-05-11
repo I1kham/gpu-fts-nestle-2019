@@ -13,7 +13,7 @@ namespace socketbridge
         Input:
             command: setDecounter
             params:
-				d: 1..13 vedi enum cpubridge::eCPUProgrammingCommand_decounter
+				d: 1..14 vedi enum cpubridge::eCPUProgrammingCommand_decounter
 				v: valore a cui resettare (16bit)
 
 		Output

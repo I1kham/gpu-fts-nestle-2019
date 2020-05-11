@@ -15,12 +15,12 @@ void CmdHandler_eventReq_P0x06_GetAllDecounters::onCPUBridgeNotification (socket
 {
 	//NB: se modifichi questo, modifica anche rhea::app::GetAllDecounters::decodeAnswer()
 	u16 values[32];
-	cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(msgFromCPUBridge, values);
+	cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(msgFromCPUBridge, values, sizeof(values));
 
 	u8 buffer[32 * sizeof(u16)];
 	rhea::NetStaticBufferViewW nbw;
 	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
-	for (u8 i = 0; i < 13; i++)
+	for (u8 i = 0; i < 14; i++)
 		nbw.writeU16(values[i]);
 
 	server->sendEvent(hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, nbw.length());

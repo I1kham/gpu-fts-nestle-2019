@@ -28,7 +28,7 @@ namespace platform
     bool                socket_listen (const OSSocket &sok, u16 maxIncomingConnectionQueueLength = u16MAX);
     bool                socket_accept (const OSSocket &sok, OSSocket *out_clientSocket);
 
-    i32                 socket_read (OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec);
+    i32                 socket_read (OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec, bool bPeekMS);
 
     i32                 socket_write(OSSocket &sok, const void *buffer, u16 nBytesToSend);
 

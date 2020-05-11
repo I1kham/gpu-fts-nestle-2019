@@ -764,7 +764,7 @@ void app::GetAllDecounters::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *pr
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
-void app::GetAllDecounters::decodeAnswer (const sDecodedEventMsg &msg, u16 *out_arrayDi13valori)
+void app::GetAllDecounters::decodeAnswer (const sDecodedEventMsg &msg, u16 *out_arrayDi14valori)
 {
 	assert(msg.eventType == socketbridge::eEventType_getAllDecounters);
 
@@ -772,8 +772,8 @@ void app::GetAllDecounters::decodeAnswer (const sDecodedEventMsg &msg, u16 *out_
 	NetStaticBufferViewR nbr;
 	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
 
-	for (u8 i = 0; i < 13; i++)
-		nbr.readU16(out_arrayDi13valori[i]);
+	for (u8 i = 0; i < 14; i++)
+		nbr.readU16(out_arrayDi14valori[i]);
 }
 
 

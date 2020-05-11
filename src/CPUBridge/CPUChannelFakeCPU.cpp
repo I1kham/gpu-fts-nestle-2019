@@ -22,6 +22,9 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	rhea::utf16::concatFromASCII (utf16_cpuMessage1, sizeof(utf16_cpuMessage1), "CPU msg example 1");
 	rhea::utf16::concatFromASCII (utf16_cpuMessage2, sizeof(utf16_cpuMessage2), "CPU msg example 1");
 
+	for (u8 i = 0; i < 32; i++)
+		decounterVari[i] = 1000 + i;
+
 	/*
 	//Det gør ondt her
 	{
@@ -551,16 +554,22 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				break;
 
 			case eCPUProgrammingCommand_setDecounter:
-				out_answer[ct++] = '#';
-				out_answer[ct++] = 'P';
-				out_answer[ct++] = 0; //lunghezza
-				out_answer[ct++] = (u8)subcommand;
-				out_answer[ct++] = bufferToSend[4]; //which one
-				out_answer[ct++] = bufferToSend[5];	//value LSB
-				out_answer[ct++] = bufferToSend[6]; //value MSB
-				out_answer[2] = (u8)ct + 1;
-				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-				*in_out_sizeOfAnswer = out_answer[2];
+				{
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					const u8 whichOne = out_answer[ct++] = bufferToSend[4]; //which one
+					const u16 value = rhea::utils::bufferReadU16_LSB_MSB(&bufferToSend[5]);
+					out_answer[ct++] = bufferToSend[5];	//value LSB
+					out_answer[ct++] = bufferToSend[6]; //value MSB
+
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+
+					decounterVari[whichOne] = value;
+				}
 				return true;
 
 			case eCPUProgrammingCommand_getAllDecounterValues:
@@ -568,19 +577,20 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
 				out_answer[ct++] = (u8)subcommand;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1001); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1002); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1003); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1004); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1005); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1006); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1007); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1008); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1009); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1010); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1011); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1012); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], 1013); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto1]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto2]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto3]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto4]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto5]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto6]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto7]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto8]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto9]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto10]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_waterFilter]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_coffeeBrewer]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_coffeeGround]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_blocking_counter]); ct += 2;
 
 				out_answer[2] = (u8)ct + 1;
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
@@ -1085,7 +1095,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 			//protocol version 7
 			if (CPU_REPORTED_PROTOCOL_VERSION >= 7)
 			{
-				bool isMilkerAlive = true;
+				bool isMilkerAlive = false;
 				bool isFreevend = false;
 				if (isMilkerAlive)	newFCPUFlag1 |= 0x04;
 				if (isFreevend)		newFCPUFlag1 |= 0x08;

@@ -252,8 +252,12 @@ bool platform::socket_accept (const OSSocket &sok, OSSocket *out_clientSocket)
 
 
 //*************************************************
-i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec)
+i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec, bool bPeekMSG)
 {
+	u32 readFLAG = 0;
+	if (bPeekMSG)
+		readFLAG = MSG_PEEK;
+
 	if (timeoutMSec != sok.readTimeoutMSec)
 		platform::socket_setReadTimeoutMSec(sok, timeoutMSec);
 		
@@ -264,7 +268,7 @@ i32 platform::socket_read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u3
 	i32 ret = -1;
 	do
 	{
-		ret = ::recv(sok.socketID, (char*)buffer, bufferSizeInBytes, 0);
+		ret = ::recv(sok.socketID, (char*)buffer, bufferSizeInBytes, readFLAG);
 		if (ret == 0)
 			return 0;	//socket closed
 		if (ret != SOCKET_ERROR)

@@ -260,6 +260,7 @@
 					</tr>	
 				</table>
 				
+				<!--
 				<table border='0' class='elenco' id='pageCleaning_tabDissolveTable'>
 					<tr style="border:0">
 						<td style="width:690px">$LAB_CLEAN_TAB_DISSOLVE_PAUSE<br>
@@ -268,7 +269,7 @@
 						<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7562" data-da3bit="16" data-um="sec"></div></td>
 					</tr>	
 				</table>
-				
+				-->
 			</div>
 		</div> <!-- page Cleaning -->
 	
@@ -374,20 +375,25 @@
 						</table>
 					</div>
 					<div id="pageMiscellaneous_blockingCt_unblocked" style="display:none">
-						<table border='0' class='elenco'>
+						<table border='0' class='elenco' style="table-layout: fixed">
 							<tr>
-								<td>$LAB_MISC_BLOCK_MACHINE_AFTER</td>
-								<td><div class="UINumber" data-numfigures="5" data-max="99999" data-da3="7400" data-da3bit="16" data-um="$LAB_SELECTIONS"></div></td>
+								<td style="width:414px">$LAB_COUNTER<br>
+									<div style="float:left; margin-right:10px">$LAB_current_value:</div>
+									<div id="pageMiscellaneous_blockingCt_unblocked_curct" style="float:left" class="bigCaption15">00000</div>
+									<div class="clear"></div>
+								</td>
+								<td style="width:335px"><div class="UINumber" id="pageMiscellaneous_blockingCt_newValue" data-numfigures="5" data-max="99999" data-da3="7400" data-da3bit="16"></div></td>
+								<td style="width:255px" align="right"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_RESET' data-onclick="pageMiscellaneous_blockingCounter_set()"></div></td>
 							</tr>
 
 							<tr>
-								<td style="width:450px">$LAB_MISC_WARN_AFTER<br><span class="tip">$LAB_MISC_WARN_TIP</span></td>
-								<td><div class="UINumber" data-numfigures="2" data-max="50" data-da3="7402" data-da3bit="16" data-um="%"></div></td>
+								<td>$LAB_MISC_WARN_AFTER<br><span class="tip">$LAB_MISC_WARN_TIP</span></td>
+								<td colspan="2"><div class="UINumber" data-numfigures="2" data-max="50" data-da3="7402" data-da3bit="16" data-um="%"></div></td>
 							</tr>
 
 							<tr>
 								<td>$LAB_MISC_PIN_CODE<br><span class="tip">$LAB_MISC_PINCODE_TIP</span></td>
-								<td><div class="UINumber" id='pageMiscellaneous_newpincode' data-numfigures="3" data-min="111" data-max="999" data-da3="7404" data-da3bit="16"></div></td>
+								<td colspan="2"><div class="UINumber" id='pageMiscellaneous_newpincode' data-numfigures="3" data-min="111" data-max="999" data-da3="7404" data-da3bit="16"></div></td>
 							</tr>
 						</table>
 					</div>
@@ -1639,7 +1645,51 @@ function pageMiscellaneous_show()
 	}
 	
 	pageMiscellaneous_fv_refresh();
+	pageMiscellaneous_blockingCounter_refresh();
 	pageMiscellaneous_onSelector();
+}
+
+function pageMiscellaneous_blockingCounter_refresh()
+{
+	//valore attuale del blocking counter
+	pleaseWait_show();
+	rhea.ajax ("getAllDecounters", "").then( function(result)
+	{
+		var e = result.split(",");
+		var v = e[13];
+		while (v.length < 5)
+			v = "0" +v;
+		rheaSetDivHTMLByName("pageMiscellaneous_blockingCt_unblocked_curct", v);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		rheaSetDivHTMLByName("pageMiscellaneous_blockingCt_unblocked_curct", "?????");
+		pleaseWait_hide();
+	});	
+}
+
+function pageMiscellaneous_blockingCounter_set()
+{
+	//per prima cosa devo salvare eventuali modifiche
+	save( function(){ pageMiscellaneous_blockingCounter_set_afterSave(); } );
+}
+function pageMiscellaneous_blockingCounter_set_afterSave()
+{
+	var counter = parseInt(ui.getWindowByID("pageMiscellaneous").getChildByID("pageMiscellaneous_blockingCt_newValue").getValue());
+		
+	//invio il comando di set alla SMU
+	pleaseWait_show();
+	rhea.ajax ("setDecounter", { "d":14, "v":counter}).then( function(result)
+	{
+		pageMiscellaneous_blockingCounter_refresh();
+		
+	})
+	.catch( function(result)
+	{
+		console.log ("ERR: pageMiscellaneous_blockingCounter_set_afterSave()");
+		pleaseWait_hide();
+	});
 }
 
 function pageMiscellaneous_fv_refresh()
@@ -1755,8 +1805,7 @@ function pageMiscellaneous_onPINCodeInserted()
 
 	rheaHideElem (rheaGetElemByID("pageMiscellaneous_blockingCt_pwd"));
 	rheaShowElem (rheaGetElemByID("pageMiscellaneous_blockingCt_unblocked"));
-		
-
+	win.showHideScrollBar();
 }
 
 

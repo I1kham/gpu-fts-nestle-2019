@@ -512,10 +512,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
 			{
-				u16 decounters[13];
-				for (u8 i = 0; i < 13; i++)
+				u16 decounters[14];
+				for (u8 i = 0; i < 14; i++)
 					decounters[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4 + i * 2]);
-				notify_CPU_ALL_DECOUNTER_VALUES(sub->q, handlerID, logger, decounters);
+				notify_CPU_ALL_DECOUNTER_VALUES(sub->q, handlerID, logger, decounters, sizeof(decounters));
 			}
 		}
 		break;
@@ -2568,9 +2568,14 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 									newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_FREEVEND;
 								else
 									newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_IS_FREEVEND);
+
+								if ((flag & 0x10) != 0)
+									newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_TESTVEND;
+								else
+									newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_IS_TESTVEND);
+
 							}//if (cpuParamIniziali.protocol_version >= 7)
 						}//if (cpuParamIniziali.protocol_version >= 6)						
-
 					}//if (cpuParamIniziali.protocol_version >= 5)
 				}//if (cpuParamIniziali.protocol_version >= 4)
 			}//if (cpuParamIniziali.protocol_version >= 3)

@@ -155,10 +155,10 @@ namespace rhea
 			 */
 
 
-		inline bool					listen(const OSSocket &sok, u16 maxIncomingConnectionQueueLength = u16MAX)				{ return platform::socket_listen(sok, maxIncomingConnectionQueueLength); }
-		inline bool					accept(const OSSocket &sok, OSSocket *out_clientSocket)									{ return platform::socket_accept(sok, out_clientSocket); }
+		inline bool					listen(const OSSocket &sok, u16 maxIncomingConnectionQueueLength = u16MAX)					{ return platform::socket_listen(sok, maxIncomingConnectionQueueLength); }
+		inline bool					accept(const OSSocket &sok, OSSocket *out_clientSocket)										{ return platform::socket_accept(sok, out_clientSocket); }
 
-		inline i32					read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec)				{ return platform::socket_read(sok, buffer, bufferSizeInBytes, timeoutMSec); }
+		inline i32					read(OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec, bool bPeekMsg=false)	{ return platform::socket_read(sok, buffer, bufferSizeInBytes, timeoutMSec, bPeekMsg); }
 			/* prova a leggere dalla socket. La chiamata è bloccante per un massimo di timeoutMSec.
 			 * Riguardo [timeoutMSec], valgono le stesse considerazioni indicate in setReadTimeoutMSec()
 			 *

@@ -861,20 +861,22 @@ void cpubridge::translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg,
 }
 
 //***************************************************
-void cpubridge::notify_CPU_ALL_DECOUNTER_VALUES(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *arrayDiAlmeno13Elementi)
+void cpubridge::notify_CPU_ALL_DECOUNTER_VALUES(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *arrayDiAlmeno14Elementi, u32 sizeof_in_array)
 {
+	assert (sizeof_in_array >= 14 * sizeof(u16));
 	logger->log("notify_CPU_ALL_DECOUNTER_VALUES\n");
 
-	u16 buffer[13];
-	memcpy(buffer, arrayDiAlmeno13Elementi, sizeof(u16) * 13);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES, handlerID, buffer, 13 * sizeof(u16));
+	u16 buffer[14];
+	memcpy(buffer, arrayDiAlmeno14Elementi, sizeof(u16) * 14);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES, handlerID, buffer, 14 * sizeof(u16));
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u16 *out_arrayDiAlmeno13Elementi)
+void cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u16 *out_arrayDiAlmeno14Elementi, u32 sizeof_out_array)
 {
+	assert (sizeof_out_array >= 14 * sizeof(u16));
 	assert(msg.what == CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES);
-	memcpy(out_arrayDiAlmeno13Elementi, msg.buffer, sizeof(u16) * 13);
+	memcpy(out_arrayDiAlmeno14Elementi, msg.buffer, sizeof(u16) * 14);
 }
 
 //***************************************************

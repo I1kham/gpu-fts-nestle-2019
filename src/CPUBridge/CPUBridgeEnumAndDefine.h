@@ -305,6 +305,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_decounter_waterFilter = 11,
 		eCPUProgrammingCommand_decounter_coffeeBrewer = 12,
 		eCPUProgrammingCommand_decounter_coffeeGround = 13,
+		eCPUProgrammingCommand_blocking_counter = 14,
 		eCPUProgrammingCommand_decounter_error = 0xff
 	};
 
@@ -422,6 +423,7 @@ namespace cpubridge
 		static const u16 FLAG1_TELEMETRY_RUNNING			= 0x0002;
 		static const u16 FLAG1_IS_MILKER_ALIVE				= 0x0004;
 		static const u16 FLAG1_IS_FREEVEND					= 0x0008;
+		static const u16 FLAG1_IS_TESTVEND					= 0x0010;
 		
 		static const u16 FLAG1_CUP_ABSENT					= 0x0100;
 		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0200;

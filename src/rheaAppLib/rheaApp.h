@@ -200,7 +200,7 @@ namespace rhea
 		namespace GetAllDecounters
 		{
 			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto);
-			void		decodeAnswer(const sDecodedEventMsg &msg, u16 *out_arrayDi13valori);
+			void		decodeAnswer(const sDecodedEventMsg &msg, u16 *out_arrayDi14valori);
 		}
 
 		namespace SetMotoreMacina

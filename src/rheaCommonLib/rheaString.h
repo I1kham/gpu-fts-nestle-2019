@@ -238,7 +238,7 @@ namespace rhea
 										/*	Si portano a fine stringa e poi vanno indietro di 1 char alla volta fino a che non trovano un "/" o inizio buffer
 											Il path sono tutti i char da inizio stringa fino all'ultimo / trovato
 											src rimane immutato
-										*/						
+										*/
 
 		}; //namespace parser
     }; //namespace string

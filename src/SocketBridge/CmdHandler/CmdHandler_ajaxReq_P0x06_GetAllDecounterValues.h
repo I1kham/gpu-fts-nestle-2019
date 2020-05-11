@@ -9,13 +9,15 @@ namespace socketbridge
      * CmdHandler_ajaxReq_P0x06_GetAllDecounterValues
      *
      * la GUI richiede il valore di tutti e 10 i decounterProdotto + i 3 contatori water_filter_dec, coffee_brewer_dec, coffee_ground_dec
+     * + il "blocking_counter"
      *
         Input:
             command: getAllDecounters
             params:  none
 
         Output:
-			stringa di 13 interi separati da virgola. I primi 10 sono i decontatori prodotti, poi water_filter_dec, coffee_brewer_dec, coffee_ground_dec
+			stringa di 14 interi separati da virgola. I primi 10 sono i decontatori prodotti, poi water_filter_dec, coffee_brewer_dec, coffee_ground_dec,
+            blocking_counter
      */
 
 
