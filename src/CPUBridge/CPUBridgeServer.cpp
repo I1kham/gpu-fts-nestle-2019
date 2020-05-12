@@ -431,6 +431,23 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		}
 		break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER:
+		{
+			u8 bufferW[64];
+			const u8 nBytesToSend = buildMsg_getMilkerVer(bufferW, sizeof(bufferW));
+
+			//invio richiesta a CPU
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
+			{
+				//la CPU risponde con [#] [M] [len] [ASCII 1] [..] [ASCII n] [ck]
+				answerBuffer[sizeOfAnswerBuffer - 1] = 0;
+				notify_CPU_MILKER_VER(sub->q, handlerID, logger, (const char*)&answerBuffer[3]);
+			}
+		}
+		break;
+
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW:
 		{
 			char srcFullFileNameAndPath[512];

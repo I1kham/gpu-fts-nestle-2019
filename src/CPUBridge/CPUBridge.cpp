@@ -462,6 +462,13 @@ u8 cpubridge::buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuff
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_getMilkerVer(u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return cpubridge_buildMsg(cpubridge::eCPUCommand_getMilkerVer, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalDataIN, u32 sizeOfOptionalDataIN, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	assert(sizeOfOptionalDataIN < 31);
@@ -1437,6 +1444,40 @@ void cpubridge::translateNotify_GET_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const
 }
 
 
+//***************************************************
+void cpubridge::notify_CPU_MILKER_VER (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ver)
+{
+	logger->log("notify_CPU_MILKER_VER\n");
+
+	const u32 len = (u32)strlen(ver);
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_MILKER_VER, handlerID, ver, len+1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, char *out_ver, u32 sizeofOutVer)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_MILKER_VER);
+
+	if (sizeofOutVer >= msg.bufferSize)
+		memcpy(out_ver, msg.buffer, msg.bufferSize);
+	else
+	{
+		memcpy(out_ver, msg.buffer, sizeofOutVer - 1);
+		out_ver[sizeofOutVer] = 0;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1596,6 +1637,7 @@ void cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handl
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP, handlerID);
 }
+
 
 //***************************************************
 void cpubridge::ask_WRITE_CPUFW(const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath)
@@ -1989,4 +2031,10 @@ void cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_GRUPPO(const sSu
 void cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_MILKER_VER(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER, handlerID);
 }

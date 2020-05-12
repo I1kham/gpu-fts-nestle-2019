@@ -309,6 +309,20 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		*in_out_sizeOfAnswer = 0;
 		return true;
 
+	case eCPUCommand_getMilkerVer:
+		out_answer[ct++] = '#';
+		out_answer[ct++] = cpuCommand;
+		out_answer[ct++] = 0; //lunghezza
+		out_answer[ct++] = 'x';
+		out_answer[ct++] = 'y';
+		out_answer[ct++] = 'z';
+
+		out_answer[2] = (u8)ct + 1;
+		out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+		*in_out_sizeOfAnswer = out_answer[2];
+		return true;
+
+
 	case eCPUCommand_programming:
 		{
 			// [#] [P] [len] [subcommand] [optional_data] [ck]
@@ -856,8 +870,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
-
-
 			} //switch (subcommand)
 		}
 		break;

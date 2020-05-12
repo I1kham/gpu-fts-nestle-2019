@@ -149,7 +149,7 @@ namespace cpubridge
 	u8			buildMsg_getStatoTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_startTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
-
+	u8			buildMsg_getMilkerVer(u8 *out_buffer, u8 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx
@@ -298,8 +298,10 @@ namespace cpubridge
 
 	void		notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 fase, u8 esito, u16 reportUP, u16 reportDOWN);
 	void		translateNotify_GET_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const rhea::thread::sMsg &msg, u8 *out_fase, u8 *out_esito, u16 *out_reportUP, u16 *out_reportDOWN);
+		
+	void		notify_CPU_MILKER_VER (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ver);
+	void		translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, char *out_ver, u32 sizeofOutVer);
 
-	
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -494,7 +496,11 @@ namespace cpubridge
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATUS_TEST_ASSORBIMENTO_GRUPPO
 
 	void		ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &from, u16 handlerID);
-	//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE
+
+	void        ask_CPU_MILKER_VER(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_MILKER_VER
+
 
 } // namespace cpubridge
 

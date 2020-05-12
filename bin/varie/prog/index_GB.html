@@ -134,7 +134,7 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DEVICES" data-onclick="pageDevices_show()"></div></td>						
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLOCK" data-onclick="pageClock_show()"></div></td>
-						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
@@ -492,39 +492,59 @@
 		<div id="pageMilker" class="UIWindow">
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
-					<tr>
-						<td style="width:400px">STEAM TEMPERATURE<br><span class="tip">max 128</span></td>
-						<td><div class="UINumber" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
+					<tr style='height:30px; border-bottom:none'>
+						<td style="width:424px">VERSION</td>
+						<td style="width:150px">STATUS</td>
 					</tr>
-					<tr>
-						<td>CLEANING PERIOD<br><span class="tip">max 900</span></td>
-						<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
-					</tr>
-					<tr>
-						<td>ENABLE CLEANING</td>
-						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7622"></div></td>
-					</tr>
-					<tr>
-						<td>CLEANING DELAY<br><span class="tip">max 10.0</span></td>
-						<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
-					</tr>
-					<tr>
-						<td>ENABLE MILK SENSOR</td>
-						<td><div class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
-					</tr>
-					<tr>
-						<td>SHOW CLEAN-MILKER<br>BUTTON AT STARTUP</td>
-						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7628"></div></td>
-					</tr>
-					<tr>
-						<td>AUTO CLEANING AT TIME</td>
-						<td colspan="3"><div id="pageMilker_time1" class="UITime24" data-da3="7468"></div></td>
-					</tr>
-					<tr>
-						<td>AUTO UPDATE CLEANING TIME</td>
-						<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7630"></div></td>
+					<tr style='height:50px;'>
+						<td><div id="pageMilker_ver" class="bigCaption15"></div></td>
+						<td><div id="pageMilker_status" class="bigCaption15">NOT CONNECTED or DISABLED</div></td>
 					</tr>
 				</table>
+
+				<table border='0' class='elenco'>
+					<tr>
+						<td>ENABLED</td>
+						<td><div id='pageMilker_enabled' class='UIOption' data-option='1|YES|0|NO' data-onclick="pageMilker_onEnabledYesNo()"></div></td>
+					</tr>
+				</table>
+				
+				<div id="pageMilker_params" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td style="width:400px">STEAM TEMPERATURE<br><span class="tip">max 128</span></td>
+							<td><div class="UINumber" id="pageMilker_temperature" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
+						</tr>
+						<tr>
+							<td>CLEANING PERIOD<br><span class="tip">max 900</span></td>
+							<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
+						</tr>
+						<tr>
+							<td>ENABLE CLEANING</td>
+							<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7622"></div></td>
+						</tr>
+						<tr>
+							<td>CLEANING DELAY<br><span class="tip">max 10.0</span></td>
+							<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
+						</tr>
+						<tr>
+							<td>ENABLE MILK SENSOR</td>
+							<td><div class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
+						</tr>
+						<tr>
+							<td>SHOW CLEAN-MILKER<br>BUTTON AT STARTUP</td>
+							<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7628"></div></td>
+						</tr>
+						<tr>
+							<td>AUTO CLEANING AT TIME</td>
+							<td colspan="3"><div id="pageMilker_time1" class="UITime24" data-da3="7468"></div></td>
+						</tr>
+						<tr>
+							<td>AUTO UPDATE CLEANING TIME</td>
+							<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7630"></div></td>
+						</tr>
+					</table>
+				</div>
 			</div>
 		</div><!-- page Milker -->
 		
@@ -1125,7 +1145,7 @@ function onRheaBootstrapFinished()
 										if ((flag16 & 0x04) == 0)
 										{
 											isMilkerAlive = 0;
-											rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+											//rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
 											rheaAddClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
 										}
 									}
@@ -1134,8 +1154,10 @@ function onRheaBootstrapFinished()
 										if ((flag16 & 0x04) != 0)
 										{
 											isMilkerAlive = 1;
-											rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+											//rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
 											rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
+											
+											rheaSetDivHTMLByName("pageMilker_status", "CONNECTED");
 										}
 									}
 									
@@ -1980,9 +2002,67 @@ function pageProductQty_getDecounterValues()
  */
 function pageMilker_show()
 {
-	showPage("pageMilker", "MILKER", 1,1);
+	if (showPage("pageMilker", "MILKER", 1,1))
+	{
+		//è la prima volta che visualizziamo la pagina
+		
+		//chiedo versione del milker
+		rhea.ajax ("milkver", "").then( function(result)
+		{
+			console.log ("milkver [" +result +"]");
+			rheaSetDivHTMLByName("pageMilker_ver", result);
+		})
+		.catch( function(result)
+		{
+			rheaSetDivHTMLByName("pageMilker_ver", "??");
+		});		
+	}
+	
+	btnSave_setCallback ("pageMilker_onBtnSave()");
+	
+	//se la temperatura del milker riportata nel DA3 è zero, allora il milker è disabled
+	var win = ui.getWindowByID("pageMilker");
+	var yesNo = win.getChildByID("pageMilker_enabled");
+	
+	var temperatureOnDA3 = da3.read8(7618);
+	console.log ("milker temperatura on DA3=[" +temperatureOnDA3 +"]");
+	if (temperatureOnDA3 == 0)
+		yesNo.selectOptionByValue(0);
+	else
+		yesNo.selectOptionByValue(1);
+	pageMilker_onEnabledYesNo();
 }
 
+function pageMilker_onEnabledYesNo()
+{
+	var win = ui.getWindowByID("pageMilker");
+	var yesNo = win.getChildByID("pageMilker_enabled");
+	var temperature = win.getChildByID("pageMilker_temperature");
+	
+	if (yesNo.getSelectedOptionValue() == 0)
+	{
+		rheaHideElem(rheaGetElemByID("pageMilker_params"));
+	}
+	else
+	{
+		if (da3.read8(7618) == 0)
+			temperature.setValue("125");
+		rheaShowElem(rheaGetElemByID("pageMilker_params"));
+	}
+	win.showHideScrollBar();
+}
+
+function pageMilker_onBtnSave()
+{
+	var win = ui.getWindowByID("pageMilker");
+	var yesNo = win.getChildByID("pageMilker_enabled");
+	var temperature = win.getChildByID("pageMilker_temperature");
+
+	if (yesNo.getSelectedOptionValue() == 0)
+		temperature.setValue("000");
+	
+	btnSave_defaultCallback();
+}
 
 
 /***************************************************************************

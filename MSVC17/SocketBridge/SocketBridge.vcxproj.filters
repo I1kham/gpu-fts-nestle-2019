@@ -255,6 +255,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_M_MilkerVer.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -482,6 +485,9 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqSetAperturaVGrind.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.h">
       <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_M_MilkerVer.h">
+      <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
