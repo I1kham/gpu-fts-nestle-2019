@@ -265,7 +265,7 @@ bool platform::socket_accept (const OSSocket &sok, OSSocket *out_clientSocket)
 
 
 //*************************************************
-i32 platform::socket_read (OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec, bool bPeekMS)
+i32 platform::socket_read (OSSocket &sok, void *buffer, u16 bufferSizeInBytes, u32 timeoutMSec, bool bPeekMSG)
 {
 	u32 readFLAG = 0;
 	if (bPeekMSG)
