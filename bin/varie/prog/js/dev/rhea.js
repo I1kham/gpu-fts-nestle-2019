@@ -754,7 +754,7 @@ Rhea.prototype.sendPartialDA3AndReturnAPromise = function(uno_di, num_tot, block
 	var me = this;
 	return new Promise( function(resolve, reject) 
 					{
-						var timeoutMs = 10000;
+						var timeoutMs = 5000;
 						var check = function()	{
 												if (me.partialDA3AckRcvd == blockOffset)
 												{

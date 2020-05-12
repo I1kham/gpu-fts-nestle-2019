@@ -450,7 +450,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[80];
 			const u16 nBytesToSend = cpubridge::buildMsg_writePartialVMCDataFile(block, blocco_n_di, tot_num_blocchi, blockNumOffset, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
+			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 5000))
 			{
 				//ok, la CPU ha ricevuto il blocco. A questo punto aggiorno anche il mio da3 file locale
 				priv_updateLocalDA3(block, blockNumOffset);

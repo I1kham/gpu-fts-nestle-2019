@@ -74,7 +74,9 @@ bool CPUChannelCom::open (const char *COMPORT, rhea::ISimpleLogger *logger)
 
 	logger->decIndent();
 
+	//C:/Users/gbrunelli/AppData/Roaming/rheaSMU/DUMP_CPUChannelCom.txt
 	DUMP_OPEN();
+
 	return ret;
 }
 
