@@ -1107,7 +1107,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 			//protocol version 7
 			if (CPU_REPORTED_PROTOCOL_VERSION >= 7)
 			{
-				bool isMilkerAlive = false;
+				bool isMilkerAlive = true;
 				bool isFreevend = false;
 				if (isMilkerAlive)	newFCPUFlag1 |= 0x04;
 				if (isFreevend)		newFCPUFlag1 |= 0x08;

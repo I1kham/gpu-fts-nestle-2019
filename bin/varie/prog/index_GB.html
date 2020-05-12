@@ -1145,8 +1145,9 @@ function onRheaBootstrapFinished()
 										if ((flag16 & 0x04) == 0)
 										{
 											isMilkerAlive = 0;
-											//rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
 											rheaAddClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
+											rheaSetDivHTMLByName("pageMilker_status", "NOT CONNECTED or DISABLED");
+											rheaSetDivHTMLByName("pageMilker_ver", "??");
 										}
 									}
 									else
@@ -1154,10 +1155,19 @@ function onRheaBootstrapFinished()
 										if ((flag16 & 0x04) != 0)
 										{
 											isMilkerAlive = 1;
-											//rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
 											rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
-											
 											rheaSetDivHTMLByName("pageMilker_status", "CONNECTED");
+
+											//chiedo versione del milker
+											rhea.ajax ("milkver", "").then( function(result)
+											{
+												rheaSetDivHTMLByName("pageMilker_ver", result);
+											})
+											.catch( function(result)
+											{
+												rheaSetDivHTMLByName("pageMilker_ver", "??");
+											});		
+											
 										}
 									}
 									
@@ -2005,17 +2015,6 @@ function pageMilker_show()
 	if (showPage("pageMilker", "MILKER", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
-		
-		//chiedo versione del milker
-		rhea.ajax ("milkver", "").then( function(result)
-		{
-			console.log ("milkver [" +result +"]");
-			rheaSetDivHTMLByName("pageMilker_ver", result);
-		})
-		.catch( function(result)
-		{
-			rheaSetDivHTMLByName("pageMilker_ver", "??");
-		});		
 	}
 	
 	btnSave_setCallback ("pageMilker_onBtnSave()");
