@@ -151,7 +151,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetAperturaVGrind.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.cpp
 
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -238,7 +239,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x10_getAperturaVGrind.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSetAperturaVGrind.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x10_GetPosizioneMacina.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.h
 
 unix {
     target.path = /usr/lib
