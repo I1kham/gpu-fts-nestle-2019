@@ -880,6 +880,12 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 //*****************************************************************
 void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {
+	bool CPUFLAG_isMilkerAlive = true;
+	bool CPUFLAG_isFreevend = false;
+	bool CPUFLAG_isTestvend = false;
+				
+				
+				
 	memset(out_answer, 0, *in_out_sizeOfAnswer);
 	//gestione fake del cleaning
 	if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
@@ -1107,10 +1113,9 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 			//protocol version 7
 			if (CPU_REPORTED_PROTOCOL_VERSION >= 7)
 			{
-				bool isMilkerAlive = true;
-				bool isFreevend = false;
-				if (isMilkerAlive)	newFCPUFlag1 |= 0x04;
-				if (isFreevend)		newFCPUFlag1 |= 0x08;
+				if (CPUFLAG_isMilkerAlive)	newFCPUFlag1 |= 0x04;
+				if (CPUFLAG_isFreevend)		newFCPUFlag1 |= 0x08;
+				if (CPUFLAG_isTestvend)		newFCPUFlag1 |= 0x10;
 			}
 
 			out_answer[ct++] = newFCPUFlag1;
