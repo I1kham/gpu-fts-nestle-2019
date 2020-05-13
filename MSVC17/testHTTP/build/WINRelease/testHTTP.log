@@ -1,5 +1,0 @@
-﻿  main.cpp
-  Generating code
-  Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
-  Finished generating code
-  testHTTP.vcxproj -> E:\rhea\gpu-fts-nestle-2019\MSVC17\..\lib\WINRelease_testHTTP.exe
