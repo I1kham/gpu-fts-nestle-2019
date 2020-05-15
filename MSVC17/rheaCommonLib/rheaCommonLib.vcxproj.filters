@@ -219,6 +219,9 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF16.cpp">
       <Filter>rhea\string\utf16</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheamd5.cpp">
+      <Filter>rhea\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h">
@@ -403,6 +406,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF16.h">
       <Filter>rhea\string\utf16</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheamd5.h">
+      <Filter>rhea\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

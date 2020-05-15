@@ -52,6 +52,7 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaLoggerContext.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaLogTargetConsole.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaLogTargetFile.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheamd5.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaMemory.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaMemoryTracker.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaSha1.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaLogger.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaLogTargetConsole.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaLogTargetFile.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheamd5.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaMemory.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaMemoryTracker.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaNetBufferView.h" />

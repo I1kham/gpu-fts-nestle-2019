@@ -3,7 +3,9 @@
 #endif
 #include "../rheaCommonLib/rhea.h"
 #include "../rheaCommonLib/rheaUTF8.h"
-
+#include "../rheaCommonLib/rheaUtils.h"
+#include "../rheaAlipayChina/AlypayChina.h"
+#include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 
 
 
@@ -102,6 +104,49 @@ void httpGET (OSSocket &sok, const char *sokIP, const char *url)
 }
 
 //*****************************************************
+void testMD5()
+{
+	const char machineName[] = {"C20190001"};
+	const char command[] = {"E11"};
+	const char timestamp[] = {"20191029223010"};
+	const char apiVersion[] = {"V1.6"};
+	const char key[] = {"1648339973B547DC8DE3D60787079B3D"};
+
+	char hashedKey[64];
+	char s[512];
+	sprintf_s (s, sizeof(s), "%s|%s|%s|%s%s", machineName, command, timestamp, apiVersion, key);
+	rhea::utils::md5 (hashedKey, sizeof(hashedKey), s, (u32)strlen(s));
+
+
+	sprintf_s (s, sizeof(s), "%s|%s|%s|%s|%s#", machineName, command, timestamp, apiVersion, hashedKey);
+	printf (s);
+}
+
+
+//*****************************************************
+void testAlipayChina()
+{
+#ifdef _DEBUG
+	rhea::StdoutLogger loggerSTD; 
+	rhea::ISimpleLogger *logger = &loggerSTD;
+#else
+	rhea::NullLogger loggerNULL;
+	rhea::ISimpleLogger *logger = &loggerNULL;
+#endif
+
+
+	rhea::AlipayChina server;
+	server.useLogger (logger);
+
+	HThreadMsgW hMsgQWrite;
+	if (server.setup("121.196.20.39", 6019, "C20190001", "1648339973B547DC8DE3D60787079B3D", &hMsgQWrite))
+	{
+		server.run();
+		server.close();
+	}
+}
+
+//*****************************************************
 int main()
 {
 #ifdef WIN32
@@ -110,8 +155,12 @@ int main()
 #else
 	rhea::init("testHTTP", NULL);
 #endif
+	
+	//testMD5(); waitKB(); 
 
-	//apertura socket
+	testAlipayChina();
+
+	/*apertura socket
 	const char serverIP[] = { "127.0.0.1" };
 	OSSocket sok;
 	{
@@ -128,6 +177,7 @@ int main()
 	httpGET (sok, serverIP, "/varie/rheaRESTtest/test.php?op=echo&what=pippo%20fa%20la%20pizza");
 	rhea::socket::close (sok);
 	waitKB();
+	*/
 
     rhea::deinit();
 	return 0;

@@ -45,3 +45,4 @@ MSVC17/testDB/x64/
 *.idb
 *.pdb
 MSVC17/testHTTP/build/
+MSVC17/rheaAlipayChina/build/

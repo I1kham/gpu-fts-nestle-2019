@@ -1,5 +1,6 @@
 #include "rheaUtils.h"
 #include "rheaString.h"
+#include "rheamd5.h"
 
 using namespace rhea;
 
@@ -38,4 +39,15 @@ void utils::dumpBufferInASCII (FILE *f, const u8 *buffer, u32 lenInBytes)
 			fprintf(f, "[%s]", hex);
 		}		
 	}
+}
+
+//******************************************************************************
+bool rhea::utils::md5 (char *out, size_t sizeOfOutInBytes, const void *in, u32 length)
+{
+    if (sizeOfOutInBytes < 32)
+        return false;
+
+    MD5 md5 = MD5(in, length);
+    md5.hexdigest(out, sizeOfOutInBytes);
+    return true;
 }

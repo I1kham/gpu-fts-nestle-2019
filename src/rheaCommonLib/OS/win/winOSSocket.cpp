@@ -92,18 +92,19 @@ eSocketError platform::socket_openAsTCPClient(OSSocket *sok, const char *connect
 		::closesocket(sok->socketID);
 		sok->socketID = -1;
 
-		int err = errno;
-		switch (errno)
+		//int err = errno;
+		int err = WSAGetLastError();
+		switch (err)
 		{
-		case EACCES:
-		case EPERM:         return eSocketError_addressProtected;
-		case EADDRINUSE:    return eSocketError_addressInUse;
-		case EINVAL:        return eSocketError_alreadyBound;
-		case ENOTSOCK:      return eSocketError_invalidDescriptor;
-		case ENOMEM:        return eSocketError_noMem;
-		case ECONNREFUSED:  return eSocketError_connRefused;
-		case ETIMEDOUT:     return eSocketError_timedOut;
-		default:            return eSocketError_unknown;
+		case WSA_INVALID_HANDLE:		return eSocketError_invalidDescriptor;
+		case WSA_NOT_ENOUGH_MEMORY:     return eSocketError_noMem;
+		case WSA_INVALID_PARAMETER:		return eSocketError_invalidParameter;
+		case WSAEACCES:					return eSocketError_addressProtected;
+		case WSAEADDRINUSE:				return eSocketError_addressInUse;
+		case WSAEINVAL:					return eSocketError_alreadyBound;
+		case WSAECONNREFUSED:			return eSocketError_connRefused;
+		case WSAETIMEDOUT:				return eSocketError_timedOut;
+		default:						return eSocketError_unknown;
 		}
 	}
 

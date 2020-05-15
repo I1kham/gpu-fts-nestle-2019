@@ -27,6 +27,7 @@ enum eSocketError
     eSocketError_no_such_host   = 12,
     eSocketError_connRefused = 13,
     eSocketError_timedOut = 14,
+    eSocketError_invalidParameter = 15,
     eSocketError_unknown = 0xff
 };
 

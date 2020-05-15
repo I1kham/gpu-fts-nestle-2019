@@ -28,6 +28,12 @@ namespace rhea
                      * out deve essere di almeno 20 bytes
                      */
 
+        bool        md5 (char *out, size_t sizeOfOutInBytes, const void *in, u32 sizeInBytesOfIn);
+                    /* Dato un buffer [in], mette in [out] un hash di 32 byte secondo l'algoritmo md5
+                     *
+                     * out deve essere di almeno 32 bytes
+                     */
+
 
         u8          simpleChecksum8_calc (const void *bufferIN, u32 lenInBytes);
                     /*  calcola un semplice checksum 8 bit */
