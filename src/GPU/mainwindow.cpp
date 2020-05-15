@@ -260,7 +260,7 @@ void MainWindow::timerInterrupt()
     if (nextForm != currentForm)
         priv_showForm(nextForm);
 
-    //se durante il form "preGUI" non sono riuscito a mandare il comando di reset decounter coffeew ground perchè la CPU
+    //se durante il form "preGUI" non sono riuscito a mandare il comando di reset decounter coffee ground perchè la CPU
     //non era pronta, lo mando adesso
     if (glob->sendASAP_resetCoffeeGroundDecounter != 0 && glob->bCPUEnteredInMainLoop)
     {
@@ -444,7 +444,10 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
             priv_addText (rhea::app::utils::verbose_eVMCState(syncWithCPU.vmcState));
             if (0 != (flag1 & cpubridge::sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT))
                 glob->bCPUEnteredInMainLoop=1;
-
+            if (0 != (flag1 & cpubridge::sCPUStatus::FLAG1_IS_MILKER_ALIVE))
+                glob->bIsMilkerAlive=1;
+            else
+                glob->bIsMilkerAlive=0;
         }
         break;
 
@@ -533,6 +536,10 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
 
             if (0 != (flag1 & cpubridge::sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT))
                 glob->bCPUEnteredInMainLoop=1;
+            if (0 != (flag1 & cpubridge::sCPUStatus::FLAG1_IS_MILKER_ALIVE))
+                glob->bIsMilkerAlive=1;
+            else
+                glob->bIsMilkerAlive=0;
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
             if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)

@@ -49,7 +49,7 @@
     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
    </property>
    <property name="text">
-    <string>START RINSING
+    <string>START CLEANING
 MILK MODULE</string>
    </property>
   </widget>

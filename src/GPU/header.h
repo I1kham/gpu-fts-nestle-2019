@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.2.15"
+#define GPU_VERSION     "2.2.16"
 
 
 //nome della porta seriale
@@ -46,6 +46,7 @@ struct sGlobal
     char    cpuVersion[128];
     cpubridge::sExtendedCPUInfo extendedCPUInfo;
     u8      bCPUEnteredInMainLoop;
+    u8      bIsMilkerAlive;
     u16     sendASAP_resetCoffeeGroundDecounter;        //se !=0, il relativo comando viene mandato alla CPU non appena questa è pronta a riceverlo
 
     char    *tempFolder;

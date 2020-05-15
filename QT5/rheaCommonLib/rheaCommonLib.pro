@@ -107,7 +107,8 @@ SOURCES += \
     ../../src/rheaCommonLib/rheaUTF8.cpp \
     ../../src/rheaCommonLib/rheaUTF8Char.cpp \
     ../../src/rheaCommonLib/rheaUTF8Parser.cpp \
-    ../../src/rheaCommonLib/rheaUTF16.cpp
+    ../../src/rheaCommonLib/rheaUTF16.cpp \
+    ../../src/rheaCommonLib/rheamd5.cpp
 
 
 HEADERS += \
@@ -171,7 +172,8 @@ HEADERS += \
     ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.h \
     ../../src/rheaCommonLib/rheaUTF8.h \
     ../../src/rheaCommonLib/rheaUTF8Char.h \
-    ../../src/rheaCommonLib/rheaUTF16.h
+    ../../src/rheaCommonLib/rheaUTF16.h \
+    ../../src/rheaCommonLib/rheamd5.h
     
 unix {
     target.path = /usr/lib

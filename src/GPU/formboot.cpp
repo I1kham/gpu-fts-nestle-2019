@@ -361,6 +361,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
                 priv_enableButton (ui->btnDownload_audit, true);
                 priv_enableButton(ui->btnDownload_diagnostic, true);
             }
+            if (0 != (flag1 & cpubridge::sCPUStatus::FLAG1_IS_MILKER_ALIVE))
+                glob->bIsMilkerAlive=1;
+            else
+                glob->bIsMilkerAlive=0;
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
             if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
