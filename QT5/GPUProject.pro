@@ -6,7 +6,8 @@ SUBDIRS = \
 	rheaDB \
 	SocketBridge \
 	rheaAppLib \
-	GPU
+	GPU\
+	rheaAlipayChina
 
 # build the project sequentially as listed in SUBDIRS !
 CONFIG += ordered

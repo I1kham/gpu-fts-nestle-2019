@@ -215,9 +215,6 @@ void Core::run ()
 				logger->log ("AlipayChinaCore::run(), unknown event origin: %d\n", waitableGrp.getEventOrigin(i));
 				break;
 
-			case OSWaitableGrp::evt_origin_deleted:
-				break;
-
 			case OSWaitableGrp::evt_origin_socket:
 				if (waitableGrp.getEventUserParamAsU32(i) == THIS_SOCKET_WAITID)
 				{

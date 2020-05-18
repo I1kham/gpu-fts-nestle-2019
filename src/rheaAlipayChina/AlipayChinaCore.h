@@ -26,9 +26,9 @@ namespace rhea
             //Se [bSelectionWasDelivered] == false, la selezione non è andata a buon fine
 
         private:
-            const u32               SIZE_OF_RCV_BUFFER = 4096;
-            const u32               TIMEOUT_FOR_PAYMENT_MSec = 60000; //tempo massimo che l'utente ha per pagare
-            const u32               PAYMENT_POLL_MSec = 2000; //posto che un ordine sia stato inizializzato, ogni quanto chiedo al server se il cliente ha pagato?
+            static const u32        SIZE_OF_RCV_BUFFER = 4096;
+            static const u32        TIMEOUT_FOR_PAYMENT_MSec = 60000; //tempo massimo che l'utente ha per pagare
+            static const u32        PAYMENT_POLL_MSec = 2000; //posto che un ordine sia stato inizializzato, ogni quanto chiedo al server se il cliente ha pagato?
 
         private:
             enum eResponseCommand
