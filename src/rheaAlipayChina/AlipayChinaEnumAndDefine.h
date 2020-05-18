@@ -17,14 +17,6 @@ namespace rhea
     {
 		class Core;
 
-		struct sSubscriber
-		{
-			HThreadMsgR	hFromThisToOtherR;
-			HThreadMsgW	hFromThisToOtherW;
-			HThreadMsgR	hFromOtherToThisR;
-			HThreadMsgW	hFromOtherToThisW;
-		};
-
 		struct Context
 		{
             HThread			hTread;

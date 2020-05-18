@@ -60,7 +60,7 @@ public:
                     DA3_GET_SET_U16(Milker_rinsingPeriod,7620)
                     DA3_GET_SET_U16(Milker_rinsingDelay,7624)
                     DA3_GET_SET_U16(Milker_enableSensor,7624)
-                    DA3_GET_SET_U8(Milker_RinseUserMsg,7628)
+                    DA3_GET_SET_U8(Milker_showCleanBtnAtStartup,7628)
 
 
 

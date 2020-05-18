@@ -469,12 +469,12 @@ void Server::run()
 {
     assert (server != NULL);
 
-	priv_module_alipayChina_setup();
+    priv_module_alipayChina_setup();
 
     bQuit = false;
     while (bQuit == false)
     {
-        //la wait() si sveglia se è in arrivo una nuova connessione, se un client già connesso invia dati oppure se la coda di msg con CPUBridge ha qualche msg pendente
+        //la wait() si sveglia se è in arrivo una nuova connessione, se un client gi�  connesso invia dati oppure se la coda di msg con CPUBridge ha qualche msg pendente
         u8 nEvents = server->wait (5000);
 
         //elimino eventuali handler rimasti pendenti
@@ -528,7 +528,7 @@ void Server::run()
                 break;
 
             case rhea::ProtocolSocketServer::evt_client_has_data_avail:
-				//uno dei clienti già connessi ha mandato qualcosa
+				//uno dei clienti gi�  connessi ha mandato qualcosa
                 priv_onClientHasDataAvail (i, timeNowMSec);
                 break;
 
@@ -538,26 +538,23 @@ void Server::run()
 					//Al momento la cosa significa solo che CPUBridge ha mandato un msg lungo la msgQ
 					//In futuro, potrebbero esserci anche altri eventi da monitorare.
 					const u32 fromWhom = server->getEventSrcUserParam(i);
+                    rhea::thread::sMsg msg;
 
 					switch (fromWhom)
 					{
 					case u32MAX:
 						//E' arrivato un msg da CPUBridge
-						{
-							rhea::thread::sMsg msg;
-							while (rhea::thread::popMsg(subscriber.hFromCpuToOtherR, &msg))
-							{
-								priv_onCPUBridgeNotification(msg);
-								rhea::thread::deleteMsg(msg);
-							}
-						}
+                        while (rhea::thread::popMsg(subscriber.hFromCpuToOtherR, &msg))
+                        {
+                            priv_onCPUBridgeNotification(msg);
+                            rhea::thread::deleteMsg(msg);
+                        }
 						break;
 
-					case Server::MSGQ_ALIPAY_CHINA:
+                    case Server::MSGQ_ALIPAY_CHINA:
 						//e' arrivato un msg dal thread che gestire alipay china
 						if (moduleAlipayChina.enabled)
 						{
-							rhea::thread::sMsg msg;
 							while (rhea::thread::popMsg(moduleAlipayChina.hMsgQR, &msg))
 							{
 								priv_onAlipayChinaNotification(msg);
@@ -612,8 +609,8 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 {
 	if (decoded.opcode == socketbridge::eOpcode_request_idCode && decoded.payloadLen == 4)
 	{
-		//il client mi sta chiedendo di inviargli un idCode univoco che lui userà da ora in avanti per indentificarsi.
-		//Mi sta anche già comunicando la sua clientVer, che rimarrà immutata di qui in avanti
+		//il client mi sta chiedendo di inviargli un idCode univoco che lui user�  da ora in avanti per indentificarsi.
+		//Mi sta anche gi�  comunicando la sua clientVer, che rimarr�  immutata di qui in avanti
 		SokBridgeClientVer clientVer;
 		clientVer.zero();
 		clientVer.apiVersion = decoded.payload[0];
@@ -651,7 +648,7 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 		idCode.data.buffer[2] = decoded.payload[6];
 		idCode.data.buffer[3] = decoded.payload[7];
 
-		//ho ricevuto un idCode e una clientVer; questa combinazione deve esistere di già nella mia lista di identifiedClient, altrimenti chiudo connession
+		//ho ricevuto un idCode e una clientVer; questa combinazione deve esistere di gi�  nella mia lista di identifiedClient, altrimenti chiudo connession
 		identifiedClient = identifiedClientList.isKnownIDCode(idCode);
 		if (NULL == identifiedClient)
 		{
@@ -705,7 +702,7 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 /**************************************************************************
  * onClientHasDataAvail
  *
- * Un client già collegato ha inviato dei dati lungo la socket
+ * Un client gi�  collegato ha inviato dei dati lungo la socket
  */
 void Server::priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec)
 {
@@ -757,7 +754,7 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 {
 	//se la socket in questione non è stata ancora bindata ad un client, allora il cliente mi deve per
 	//forza aver mandato un messaggio di tipo [eOpcode_request_idCode] oppure [eOpcode_identify_W], altrimenti killo la connessione.
-	//Se invece la socket è già bindata ad un identified-client, nessun problema, passo ad analizzare il messaggio perchè il client è stato già identificato ad 
+	//Se invece la socket è gi�  bindata ad un identified-client, nessun problema, passo ad analizzare il messaggio perchè il client è stato gi�  identificato ad 
 	//un giro precedente
 	if (NULL == identifiedClient)
 	{
@@ -776,7 +773,7 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 
 	case socketbridge::eOpcode_event_E:
 		/*ho ricevuto una richiesta di tipo "scatena un evento"
-		Istanzio un "handler" appropriato che possa gestire la richiesta. Se quest'handler esiste, allora ci sono 2 possibiità:
+		Istanzio un "handler" appropriato che possa gestire la richiesta. Se quest'handler esiste, allora ci sono 2 possibiit� :
 			1- la richiesta deve essere passata a CPUBridge (per es mi stanno chiedendo un aggiornamento sullo stati di disp delle selezioni)
 			2- la richiesta la gestisce direttamente this (per es mi stanno chiedendo una lista dei client connessi).
 		Caso 1:
@@ -857,7 +854,7 @@ void Server::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 
 	if (handlerID == 0)
 	{
-		//in queso caso, CPUBridge ha mandato una notifica di sua spontanea volontà, non è una risposta ad una mia specifica richiesta.
+		//in queso caso, CPUBridge ha mandato una notifica di sua spontanea volont� , non è una risposta ad una mia specifica richiesta.
 		//Questo vuol dire che devo diffondere la notifica a tutti i miei client connessi
 		rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
 

@@ -141,7 +141,7 @@ bool MainWindow::priv_shouldIShowFormPreGUI()
         bShowBtnResetGroundConter = (groundCounterLimit > 0);
 
     bool bShowBtnCleanMilker = false;
-    if (!da3->isInstant() && da3->getMilker_RinseUserMsg() > 0)
+    if (!da3->isInstant() && da3->getMilker_showCleanBtnAtStartup() > 0 && da3->getMilker_steamTemp()>0)
         bShowBtnCleanMilker = true;
 
     delete da3;

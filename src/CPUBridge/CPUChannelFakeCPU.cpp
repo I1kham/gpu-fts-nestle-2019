@@ -48,7 +48,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 		utf16_cpuMessage2[i++] = 0x00;
 	}
 
-	//你是从哪里来的？
+	//� 是从哪里来的？
 	{
 		u32 i = 0;
 		utf16_cpuMessage2[i++] = 0x4f60;
@@ -880,7 +880,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 //*****************************************************************
 void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {
-	bool CPUFLAG_isMilkerAlive = true;
+    bool CPUFLAG_isMilkerAlive = true;
 	bool CPUFLAG_isFreevend = false;
 	bool CPUFLAG_isTestvend = false;
 				
@@ -1031,7 +1031,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	}
 
 	/*
-	75		6 byte con lo stato di disponibilità delle 48 selezioni
+	75		6 byte con lo stato di disponibilit�  delle 48 selezioni
 	76		ATTENZIONE che il bit a zero significa che la selezione è disponibile, il bit
 	77		a 1 significa che NON è disponibile
 	78
