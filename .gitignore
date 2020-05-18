@@ -46,3 +46,5 @@ MSVC17/testDB/x64/
 *.pdb
 MSVC17/testHTTP/build/
 MSVC17/rheaAlipayChina/build/
+MSVC17/rheaAlipayChina/x64/Debug/rheaAlipayChina.Build.CppClean.log
+MSVC17/rheaAlipayChina/x64/

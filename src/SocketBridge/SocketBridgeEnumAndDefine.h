@@ -66,8 +66,6 @@ namespace socketbridge
         eEventType_unknown = 0xff
     };
 
-
-
 	struct sDecodedMessage
 	{
 		eOpcode	opcode;

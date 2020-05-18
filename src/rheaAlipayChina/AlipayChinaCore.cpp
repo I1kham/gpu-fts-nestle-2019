@@ -1,3 +1,4 @@
+#include "AlipayChinaEnumAndDefine.h"
 #include "AlipayChinaCore.h"
 #include "../rheaCommonLib/rheaString.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
@@ -6,11 +7,12 @@
 #include "../rheaCommonLib/rheaDateTime.h"
 
 using namespace rhea;
+using namespace rhea::AlipayChina;
 
 
 
 //***************************************************
-AlipayChinaCore::AlipayChinaCore()
+Core::Core()
 {
 	localAllocator = NULL;
 	logger = &nullLogger;
@@ -18,7 +20,7 @@ AlipayChinaCore::AlipayChinaCore()
 }
 
 //***************************************************
-void AlipayChinaCore::useLogger(rhea::ISimpleLogger *loggerIN)
+void Core::useLogger(rhea::ISimpleLogger *loggerIN)
 {
 	if (NULL == loggerIN)
 		logger = &nullLogger;
@@ -27,21 +29,7 @@ void AlipayChinaCore::useLogger(rhea::ISimpleLogger *loggerIN)
 }
 
 //***************************************************
-void AlipayChinaCore::close ()
-{
-	logger->log("AlipayChinaCore::close\n");
-	if (NULL == localAllocator)
-		return;
-
-	thread::deleteMsgQ (hMsgQRead, hMsgQWrite);
-	
-	RHEAFREE(localAllocator, rcvBuffer);
-	RHEADELETE (rhea::memory_getDefaultAllocator(), localAllocator);
-}
-
-
-//***************************************************
-bool AlipayChinaCore::setup (const char *serverIPIN, u16 serverPortIN, const char *machineIDIN, const char *cryptoKeyIN, HThreadMsgW *out_hWrite)
+bool Core::setup (const char *serverIPIN, u16 serverPortIN, const char *machineIDIN, const char *cryptoKeyIN, HThreadMsgW *out_hWrite)
 {
 	logger->log("AlipayChinaCore::setup\n");
 	logger->incIndent();
@@ -61,13 +49,15 @@ bool AlipayChinaCore::setup (const char *serverIPIN, u16 serverPortIN, const cha
 
 	rcvBuffer = (u8*)RHEAALLOC(localAllocator, SIZE_OF_RCV_BUFFER);
 
+	toBeNotifiedThreadList.setup (localAllocator, 4);
+
 	logger->log ("OK\n");
 	logger->decIndent();
 	return true;
 }
 
 //***************************************************
-bool AlipayChinaCore::priv_openSocket (OSSocket *sok)
+bool Core::priv_openSocket (OSSocket *sok)
 {
 	//apertura della socket
 	logger->log("opening socket at %s:%d\n", serverIP, serverPort);
@@ -82,7 +72,7 @@ bool AlipayChinaCore::priv_openSocket (OSSocket *sok)
 }
 
 //***************************************************
-void AlipayChinaCore::run ()
+void Core::run ()
 {
 	const u32 SEND_HEARTBEAT_EVERY_MSEC = 30000;
 	const u32 THIS_SOCKET_WAITID = 0x00000001;
@@ -110,7 +100,7 @@ void AlipayChinaCore::run ()
 			nextTimeSendHeartBeatMSec = 0;
 			nInRCVBuffer = 0;
 			lastTimeHeartBeatRCVMSec = 0;
-			theOrder.status = AlipayChinaCore::eOrderStatus_none;
+			theOrder.status = Core::eOrderStatus_none;
 			
 			bIsSocketConnected = priv_openSocket (&sok);
 			if (bIsSocketConnected)
@@ -138,7 +128,7 @@ void AlipayChinaCore::run ()
 			if (timeNowMSec >= nextTimeSendHeartBeatMSec)
 			{
 				nextTimeSendHeartBeatMSec = timeNowMSec + SEND_HEARTBEAT_EVERY_MSEC;
-				theOrder.status = AlipayChinaCore::eOrderStatus_none;
+				theOrder.status = Core::eOrderStatus_none;
 				priv_sendLogin(sok);
 			}
 		}
@@ -155,22 +145,25 @@ void AlipayChinaCore::run ()
 			if (lastTimeHeartBeatRCVMSec > 0 && timeNowMSec - lastTimeHeartBeatRCVMSec > 65000)
 			{
 				logger->log ("AlipayChinaCore::run() => last heartbeat was rcv more than [%d] ms ago, disconnecting\n", (u32)(timeNowMSec - lastTimeHeartBeatRCVMSec));
+				bIsLoggedIntoChinaServer = false;
 				bIsSocketConnected = false;
-				theOrder.status = AlipayChinaCore::eOrderStatus_none;
+				theOrder.status = Core::eOrderStatus_none;
 				waitableGrp.removeSocket(sok);
 				socket::close(sok);
+				
+				priv_notify_ONLINE_STATUS_CHANGED();
 			}
 
 
 			//se ho un ordine in attesa di pagamento, pollo il server
-			if (theOrder.status == AlipayChinaCore::eOrderStatus_pollingPaymentStatus)
+			if (theOrder.status == Core::eOrderStatus_pollingPaymentStatus)
 			{
 				if (timeNowMSec >= theOrder.timeoutMSec)
 				{
 					//l'utente non ha pagato nel tempo prestabilito, termino l'ordine
 					logger->log ("Order timed out, user did not pay in time, order aborted\n");
-					priv_orderClose (sok, AlipayChinaCore::eOrderCloseStatus_TIMEOUT);
-					theOrder.status = AlipayChinaCore::eOrderStatus_none;
+					priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
+					theOrder.status = Core::eOrderStatus_none;
 				}
 				else if (timeNowMSec >= theOrder.nextTimePollPaymentoMSec)
 				{
@@ -179,35 +172,35 @@ void AlipayChinaCore::run ()
 					theOrder.nextTimePollPaymentoMSec += PAYMENT_POLL_MSec;
 				}
 			}
-			else if (theOrder.status == AlipayChinaCore::eOrderStatus_paymentOK)
+			else if (theOrder.status == Core::eOrderStatus_paymentOK)
 			{
 				//l'utente ha pagato, ora aspetto che qualcuno mi comunichi se la bevanda è stata servita con successo
 				logger->log ("Order [%s] has been paid, now waiting to know when beverage has been delivered\n", theOrder.orderNumber);
-				theOrder.status = AlipayChinaCore::eOrderStatus_waitingBeverageEnd;
+				theOrder.status = Core::eOrderStatus_waitingBeverageEnd;
 				theOrder.timeoutMSec = rhea::getTimeNowMSec() + 120000;
 			}
-			else if (theOrder.status == AlipayChinaCore::eOrderStatus_waitingBeverageEnd)
+			else if (theOrder.status == Core::eOrderStatus_waitingBeverageEnd)
 			{
 				//sono in attesa che la selezione termini e che qualcuno mi dica il risultato dell'erogazione
 				if (timeNowMSec >= theOrder.timeoutMSec)
 				{
 					//la selezione ci ha messo troppo, qualcosa non va, abortisco l'ordine
 					logger->log ("Order timed out while waiting for beverage ends, order aborted\n");
-					priv_orderClose (sok, AlipayChinaCore::eOrderCloseStatus_TIMEOUT);
-					theOrder.status = AlipayChinaCore::eOrderStatus_none;
+					priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
+					theOrder.status = Core::eOrderStatus_none;
 				}
 			}
-			else if (theOrder.status == AlipayChinaCore::eOrderStatus_finishedOK)
+			else if (theOrder.status == Core::eOrderStatus_finishedOK)
 			{
 				logger->log ("Order [%s] finished, SUCCESS\n", theOrder.orderNumber);
-				priv_orderClose (sok, AlipayChinaCore::eOrderCloseStatus_SUCCESS);
-				theOrder.status = AlipayChinaCore::eOrderStatus_none;
+				priv_orderClose (sok, Core::eOrderCloseStatus_SUCCESS);
+				theOrder.status = Core::eOrderStatus_none;
 			}
-			else if (theOrder.status == AlipayChinaCore::eOrderStatus_finishedKO)
+			else if (theOrder.status == Core::eOrderStatus_finishedKO)
 			{
 				logger->log ("Order [%s] finished, FAIL\n", theOrder.orderNumber);
-				priv_orderClose (sok, AlipayChinaCore::eOrderCloseStatus_FAILED);
-				theOrder.status = AlipayChinaCore::eOrderStatus_none;
+				priv_orderClose (sok, Core::eOrderCloseStatus_FAILED);
+				theOrder.status = Core::eOrderStatus_none;
 			}
 		}
 	
@@ -259,12 +252,20 @@ void AlipayChinaCore::run ()
 	}
 
 
+	logger->log("AlipayChinaCore::die\n");
 	waitableGrp.removeEvent (hMsgQEvent);
 	waitableGrp.removeSocket(sok);
+
+	if (bIsSocketConnected)
+		rhea::socket::close (sok);
+	thread::deleteMsgQ (hMsgQRead, hMsgQWrite);
+	RHEAFREE(localAllocator, rcvBuffer);
+	toBeNotifiedThreadList.unsetup();
+	RHEADELETE (rhea::memory_getDefaultAllocator(), localAllocator);
 }
 
 //***************************************************
-bool AlipayChinaCore::priv_handleIncomingSocketMsg(OSSocket &sok)
+bool Core::priv_handleIncomingSocketMsg(OSSocket &sok)
 {
 	while (1)
 	{
@@ -305,37 +306,47 @@ bool AlipayChinaCore::priv_handleIncomingSocketMsg(OSSocket &sok)
 			//elaboro il comando
 			switch (response.command)
 			{
-			case AlipayChinaCore::eResponseCommand_none:
+			case Core::eResponseCommand_none:
 				break;
 
-			case AlipayChinaCore::eResponseCommand_E11:	//login
+			case Core::eResponseCommand_E11:	//login
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E11 response, status [%c]\n", response.asE11.status);
 				if (response.asE11.status == '0')
 				{
-					bIsLoggedIntoChinaServer = true;
+					if (!bIsLoggedIntoChinaServer)
+					{
+						bIsLoggedIntoChinaServer = true;
+						priv_notify_ONLINE_STATUS_CHANGED();
+					}
 					lastTimeHeartBeatRCVMSec = rhea::getTimeNowMSec();
+					priv_notify_ONLINE_STATUS_CHANGED();
 				}
 				else
 				{
 					logger->log ("login failed\n");
-					bIsLoggedIntoChinaServer = false;
-					theOrder.status = AlipayChinaCore::eOrderStatus_none;
+					if (bIsLoggedIntoChinaServer)
+					{
+						bIsLoggedIntoChinaServer = false;
+						priv_notify_ONLINE_STATUS_CHANGED();
+					}
+					
+					theOrder.status = Core::eOrderStatus_none;
 				}
 				break;
 
-			case AlipayChinaCore::eResponseCommand_E12:	//heartbeat
+			case Core::eResponseCommand_E12:	//heartbeat
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E12 response, status [%c]\n", response.asE12.status);
 				lastTimeHeartBeatRCVMSec = rhea::getTimeNowMSec();
 				break;
 
-			case AlipayChinaCore::eResponseCommand_E13: //risposta a priv_orderStart()
+			case Core::eResponseCommand_E13: //risposta a priv_orderStart()
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E13, [%s] [%s] [%s]\n", response.asE13.orderNumber, response.asE13.qrCodeURL, response.asE13.paymentMethod);
 
 				if (response.asE13.orderNumber[0] == 0x00)
 				{
 					//il server ha generato un errore, devo abortire l'ordine
 					logger->log ("Server error while generating QR, aborting order\n");
-					theOrder.status = AlipayChinaCore::eOrderStatus_none;
+					theOrder.status = Core::eOrderStatus_none;
 				}
 				else
 				{
@@ -345,19 +356,19 @@ bool AlipayChinaCore::priv_handleIncomingSocketMsg(OSSocket &sok)
 					strcpy_s (theOrder.acceptedPaymentMethods, sizeof(theOrder.acceptedPaymentMethods), response.asE13.paymentMethod);
 					theOrder.timeoutMSec = rhea::getTimeNowMSec() + TIMEOUT_FOR_PAYMENT_MSec;
 					theOrder.nextTimePollPaymentoMSec = rhea::getTimeNowMSec() + PAYMENT_POLL_MSec;
-					theOrder.status = AlipayChinaCore::eOrderStatus_pollingPaymentStatus;
+					theOrder.status = Core::eOrderStatus_pollingPaymentStatus;
 				}
 				break;
 
-			case AlipayChinaCore::eResponseCommand_E14: //risposta a priv_orderAskForPaymentStatus()
+			case Core::eResponseCommand_E14: //risposta a priv_orderAskForPaymentStatus()
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E14 response, status [%d], order [%s]\n", response.asE14.status, response.asE14.orderNumber);
 				if (response.asE14.status == '3')
-					theOrder.status = AlipayChinaCore::eOrderStatus_paymentOK;
+					theOrder.status = Core::eOrderStatus_paymentOK;
 				break;
 
-			case AlipayChinaCore::eResponseCommand_E15: //risposta a priv_orderClose()
+			case Core::eResponseCommand_E15: //risposta a priv_orderClose()
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E15 response, status [%d], order [%s]\n", response.asE15.status, response.asE15.orderNumber);
-				theOrder.status = AlipayChinaCore::eOrderStatus_none;
+				theOrder.status = Core::eOrderStatus_none;
 				break;
 			}
 		}
@@ -367,9 +378,9 @@ bool AlipayChinaCore::priv_handleIncomingSocketMsg(OSSocket &sok)
 }
 
 //***************************************************
-u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *out)
+u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *out)
 {
-	out->command = AlipayChinaCore::eResponseCommand_none;
+	out->command = Core::eResponseCommand_none;
 	
 	//La risposta del server inizia sempre con
 	// machineID|CCC|YYYYMMDDHHMMSS|....#
@@ -416,7 +427,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 		//C20190001 | E11 | 20191029223012 | 0 #
 		if (sizeOfBuffer < minSizeOfAMsg + 1)
 			return 0;
-		out->command = AlipayChinaCore::eResponseCommand_E11;
+		out->command = Core::eResponseCommand_E11;
 		out->asE11.status = buffer[n++];
 	}
 	else if (strncasecmp(command, "E12", 3) == 0)
@@ -424,7 +435,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 		//C20190001 | E12 | 20191029223012 | 0 #
 		if (sizeOfBuffer < minSizeOfAMsg + 1)
 			return 0;
-		out->command = AlipayChinaCore::eResponseCommand_E12;
+		out->command = Core::eResponseCommand_E12;
 		out->asE12.status = buffer[n++];
 	}
 	else if (strncasecmp(command, "E13", 3) == 0)
@@ -438,7 +449,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 		if (buffer[n] == 'E' && buffer[n + 1] == 'E' && buffer[n + 2] == '|')
 		{
 			//cerco # di fine messaggi e ritorno
-			out->command = AlipayChinaCore::eResponseCommand_E13;
+			out->command = Core::eResponseCommand_E13;
 			out->asE13.orderNumber[0] = 0x00;
 			while (n < sizeOfBuffer)
 			{
@@ -475,7 +486,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 			if (pipe2Found >= sharpFound)
 				return 0;
 
-			out->command = AlipayChinaCore::eResponseCommand_E13;
+			out->command = Core::eResponseCommand_E13;
 
 			memcpy (out->asE13.orderNumber, &buffer[n], pipe1Found - n);
 			out->asE13.orderNumber[pipe1Found - n] = 0x00;
@@ -519,7 +530,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 		if (pipeFound >= sharpFound)
 			return 0;
 
-		out->command = AlipayChinaCore::eResponseCommand_E14;
+		out->command = Core::eResponseCommand_E14;
 
 		memcpy (out->asE14.orderNumber, &buffer[n], pipeFound - n);
 		out->asE14.orderNumber[pipeFound - n] = 0x00;
@@ -554,7 +565,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 		if (pipeFound >= sharpFound)
 			return 0;
 
-		out->command = AlipayChinaCore::eResponseCommand_E15;
+		out->command = Core::eResponseCommand_E15;
 
 		memcpy (out->asE15.orderNumber, &buffer[n], pipeFound - n);
 		out->asE15.orderNumber[pipeFound - n] = 0x00;
@@ -566,7 +577,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 	{
 		//comando non riconosciuto
 		logger->log ("AlipayChinaCore::priv_parserRCVCommand() => command [%s] not handled\n", out->command);
-		out->command = AlipayChinaCore::eResponseCommand_none;
+		out->command = Core::eResponseCommand_none;
 		return minSizeOfAMsg;
 	}
 
@@ -586,13 +597,7 @@ u32 AlipayChinaCore::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, 
 }
 
 //***************************************************
-void AlipayChinaCore::priv_handleIncomingThreadMsg()
-{}
-
-
-
-//***************************************************
-void AlipayChinaCore::priv_sendLogin(OSSocket &sok)
+void Core::priv_sendLogin(OSSocket &sok)
 {
 	logger->log ("AlipayChinaCore::priv_sendLogin()\n");
 	const char API_VERSION[] = {"V1.6"};
@@ -612,7 +617,7 @@ void AlipayChinaCore::priv_sendLogin(OSSocket &sok)
 }
 
 //***************************************************
-void AlipayChinaCore::priv_sendHeartBeat(OSSocket &sok)
+void Core::priv_sendHeartBeat(OSSocket &sok)
 {
 	logger->log ("AlipayChinaCore::priv_sendHeartBeat()\n");
 	u8 buffer[128];
@@ -621,7 +626,7 @@ void AlipayChinaCore::priv_sendHeartBeat(OSSocket &sok)
 }
 
 //***************************************************
-void AlipayChinaCore::priv_getTimestamp(char *out, u32 sizeofOut) const
+void Core::priv_getTimestamp(char *out, u32 sizeofOut) const
 {
 	rhea::DateTime dt;
 	dt.setNow();
@@ -635,10 +640,10 @@ void AlipayChinaCore::priv_getTimestamp(char *out, u32 sizeofOut) const
  * Da li in poi, si polla il server con E14 per conoscere lo stato della scansione del QR code da parte dell'utente.
  * L'ordine infine si chiude con un E15 comunicando al server l'esito della selezione
  */
-bool AlipayChinaCore::priv_orderStart (OSSocket &sok, const u8 *selectionName, u8 selectionNum, const char *selectionPrice)
+bool Core::priv_orderStart (OSSocket &sok, const u8 *selectionName, u8 selectionNum, const char *selectionPrice)
 {
 	logger->log ("AlipayChinaCore::priv_orderStart()\n");
-	if (theOrder.status != AlipayChinaCore::eOrderStatus_none)
+	if (theOrder.status != Core::eOrderStatus_none)
 	{
 		logger->incIndent();
 		logger->log ("ERR: theOrder.status != none [status=%d]\n", (u8)theOrder.status);
@@ -650,7 +655,7 @@ bool AlipayChinaCore::priv_orderStart (OSSocket &sok, const u8 *selectionName, u
 	theOrder.param_selectionNumber = selectionNum;
 	sprintf_s (theOrder.param_selectionPrice, sizeof(theOrder.param_selectionPrice), "%s", selectionPrice);
 	theOrder.orderNumber[0] = 0x00;
-	theOrder.status = AlipayChinaCore::eOrderStatus_requestSent;
+	theOrder.status = Core::eOrderStatus_requestSent;
 
 	u8 buffer[512];
 	char s[256];
@@ -661,7 +666,7 @@ bool AlipayChinaCore::priv_orderStart (OSSocket &sok, const u8 *selectionName, u
 }
 
 //***************************************************
-void AlipayChinaCore::priv_orderAskForPaymentStatus (OSSocket &sok)
+void Core::priv_orderAskForPaymentStatus (OSSocket &sok)
 {
 	u8 buffer[128];
 	const u32 nBytesToSend = priv_buildCommand ("E14", (const u8*)theOrder.orderNumber, buffer, sizeof(buffer));
@@ -669,7 +674,7 @@ void AlipayChinaCore::priv_orderAskForPaymentStatus (OSSocket &sok)
 }
 
 //***************************************************
-void AlipayChinaCore::priv_orderClose (OSSocket &sok, eOrderCloseStatus status)
+void Core::priv_orderClose (OSSocket &sok, eOrderCloseStatus status)
 {
 	char s[128];
 	sprintf_s (s, sizeof(s), "%s|%d", theOrder.orderNumber, (u8)status);
@@ -678,13 +683,13 @@ void AlipayChinaCore::priv_orderClose (OSSocket &sok, eOrderCloseStatus status)
 	const u32 nBytesToSend = priv_buildCommand ("E15", (const u8*)s, buffer, sizeof(buffer));
 	priv_sendCommand (sok, buffer, nBytesToSend);
 
-	theOrder.status = AlipayChinaCore::eOrderStatus_none;
+	theOrder.status = Core::eOrderStatus_none;
 }
 
 //***************************************************
-void AlipayChinaCore::onSelectionFinished(bool bSelectionWasDelivered)
+void Core::onSelectionFinished(bool bSelectionWasDelivered)
 {
-	if (theOrder.status != AlipayChinaCore::eOrderStatus_waitingBeverageEnd)
+	if (theOrder.status != Core::eOrderStatus_waitingBeverageEnd)
 	{
 		logger->log ("AlipayChinaCore::onSelectionFinished() => error, order was in wrong status [%d]\n", (u8)theOrder.status);
 		return;
@@ -697,7 +702,7 @@ void AlipayChinaCore::onSelectionFinished(bool bSelectionWasDelivered)
 }
 
 //***************************************************
-u32 AlipayChinaCore::priv_buildCommand (const char *command, const u8 *optionalData, u8 *out_buffer, u32 sizeofOutBuffer) const
+u32 Core::priv_buildCommand (const char *command, const u8 *optionalData, u8 *out_buffer, u32 sizeofOutBuffer) const
 {
 	char timestamp[16];
 	priv_getTimestamp (timestamp, sizeof(timestamp));
@@ -714,7 +719,7 @@ u32 AlipayChinaCore::priv_buildCommand (const char *command, const u8 *optionalD
 }
 
 //***************************************************
-void AlipayChinaCore::priv_sendCommand (OSSocket &sok, const u8 *buffer, u32 nBytesToSend)
+void Core::priv_sendCommand (OSSocket &sok, const u8 *buffer, u32 nBytesToSend)
 {
 #ifdef _DEBUG
 	logger->log ("SND: ");
@@ -725,4 +730,61 @@ void AlipayChinaCore::priv_sendCommand (OSSocket &sok, const u8 *buffer, u32 nBy
 	
 	if (nBytesToSend > 0)
 		socket::write (sok, buffer, nBytesToSend);
+}
+
+//***************************************************
+void Core::priv_handleIncomingThreadMsg()
+{
+	rhea::thread::sMsg msg;
+	while (rhea::thread::popMsg(hMsgQRead, &msg))
+	{
+		switch (msg.what)
+		{
+		case ALIPAYCHINA_SUBSCRIPTION_ANSWER:
+			//qualcuno vuole iscriversi alla mia coda di notifiche	
+			{
+				logger->log("AlipayChinaCore::priv_handleIncomingThreadMsg() => new SUBSCRIPTION_REQUEST\n");
+				logger->incIndent();
+
+				//aggiungo la coda alla lista delle code da notificare
+				HThreadMsgW hToThreadW;
+				hToThreadW.initFromU32 (msg.paramU32);
+				toBeNotifiedThreadList.append(hToThreadW);
+
+				//segnalo che ho accettato la sua richiesta
+				thread::pushMsg (hToThreadW, ALIPAYCHINA_SUBSCRIPTION_ANSWER_ACCEPTED, (u32)0);
+
+				logger->log("OK");
+				logger->decIndent();
+			}
+			break;
+
+		case ALIPAYCHINA_DIE:
+			this->bQuit = true;
+			break;
+
+		case ALIPAYCHINA_ASK_ONLINE_STATUS:
+			//qualcuno vuole sapere se sono online con il server oppure no
+			priv_notify_ONLINE_STATUS_CHANGED();
+			break;
+		}
+		rhea::thread::deleteMsg(msg);
+	}
+}
+
+//***************************************************
+void Core::priv_doNotifyAll (u16 what, u32 paramU32)
+{
+	const u32 n = toBeNotifiedThreadList.getNElem();
+	for (u32 i = 0; i < n; i++)
+		thread::pushMsg (toBeNotifiedThreadList(i), what, paramU32);
+}
+
+//***************************************************
+void Core::priv_notify_ONLINE_STATUS_CHANGED()
+{
+	if (bIsLoggedIntoChinaServer)
+		priv_doNotifyAll (ALIPAYCHINA_NOTIFY_ONLINE_STATUS_CHANGED, 1);
+	else
+		priv_doNotifyAll (ALIPAYCHINA_NOTIFY_ONLINE_STATUS_CHANGED, 0);
 }

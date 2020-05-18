@@ -895,6 +895,7 @@
 					<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
 						<tr>
 							<td>
+								<!-- varigrind 1-->
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
 										<td style='width:155px;'>NUMERO<br>CAMPIONI</td>
@@ -950,17 +951,18 @@
 								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div>-->
 							</td>
 						</tr>
-						<tr><td>ABILITA REGOLAZIONE AUTOMATICA</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|SI' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
+						<tr><td>ABILITA REGOLAZIONE AUTOMATICA</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|SI' data-da3='7654' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
 					</table>
 					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
 						<tr>
 							<td>
+								<!-- varigrind 2-->
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
 										<td style='width:155px;'>NUMERO<br>CAMPIONI</td>
-										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7690" data-da3bit="16"></div></td>
+										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7658" data-da3bit="16"></div></td>
 										<td style='width:180px; padding-left:15px;'>SELEZIONE DI<br>RIFERIMENTO</td>
-										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7684" data-da3bit="8"></div></td>
+										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7652" data-da3bit="8"></div></td>
 										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='ESEGUI SELEZIONE' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
 									</tr>
 								</table>
@@ -972,7 +974,7 @@
 									<tr valign="middle" style='border:none'>
 										<td style='width:145px;'>FLUSSO DI<br>RIFERIMENTO</td>
 										<td style='width:320px; border-right:solid 1px #999'>
-											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div>
+											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7656" data-da3bit="16" data-um="cc/sec"></div>
 										</td>
 										<td style='width:175px; padding-left:10px'>POSIZIONE DI<br>RIFERIMENTO</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
@@ -2897,7 +2899,7 @@ function pageDevices_show()
 			rheaHideElem(rheaGetElemByID("pageDevices_boilerSize"));
 		
 		rheaSetDivHTMLByName("pageDevices_vgrind1_lastPos_caption", da3.read16(7596));
-		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7692));
+		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7660));
 		pageDevices_vgrind_setLastFluxAndPos(pageDevices_vgrind_lastFlux, pageDevices_vgrind_lastPos);
 	}
 
@@ -3023,7 +3025,7 @@ function pageDevices_vgrind_useLastFluxAndPos(whichVG)
 	if (whichVG==1)
 		da3.write16 (7596, pageDevices_vgrind_lastPos);
 	else
-		da3.write16 (7692, pageDevices_vgrind_lastPos);
+		da3.write16 (7660, pageDevices_vgrind_lastPos);
 	rheaSetDivHTMLByName("pageDevices_vgrind" +whichVG +"_lastPos_caption", pageDevices_vgrind_lastPos);
 	
 	//forzo un salvataggio dei dati

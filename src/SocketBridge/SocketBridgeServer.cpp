@@ -22,6 +22,8 @@ Server::Server()
 	eventSeqNumber = 0;
 	cpuBridgeVersion = 0x00;
 	rhea::event::setInvalid (hSubscriberEvent);
+
+	moduleAlipayChina.enabled = false;
 }
 
 
@@ -149,6 +151,75 @@ void Server::close()
 
     RHEADELETE(rhea::memory_getDefaultAllocator(), localAllocator);
     logger->log ("SocketBridgeServer::closed\n");
+}
+
+/***************************************************
+ *	Crea il thread per la gestione delle transazioni alipay cinesi.
+ *	I dati per la connessione (IP, porta e via dicendo) sono nel file alipaychina.ini in current/socketbridge
+ *	Se il file non esiste, si assume che il modulo non s'abbia da caricare
+ */
+bool Server::priv_module_alipayChina_setup ()
+{
+	return true;
+	/*
+	//rhea::fs::fileCopyInMemory (
+	//const char *serverIP, u16 serverPort, const char *machineID, const char *cryptoKey
+
+	if (moduleAlipayChina.enabled)
+	{
+		logger->log ("SocketBridgeServer::alipayChina_setup() => a module is already instanced\n");
+		return false;
+	}
+
+	//creazione thread
+	bool ret = rhea::AlipayChina::startThread (serverIP, serverPort, machineID, cryptoKey, this->logger, &moduleAlipayChina.ctx);
+	if (!ret)
+	{
+		logger->log ("SocketBridgeServer::alipayChina_setup() => error starting the thread\n");
+		return false;
+	}
+
+	//creo la msgQ tra me e il thread di alipay
+	rhea::thread::createMsgQ (&moduleAlipayChina.hMsgQR, &moduleAlipayChina.hMsgQW);
+	
+	//mi iscrivo alla sua coda di notifiche
+	rhea::AlipayChina::subscribe (moduleAlipayChina.ctx, moduleAlipayChina.hMsgQW);
+
+	//attendo risposta
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
+	do
+	{
+		rhea::thread::sleepMSec(50);
+
+		rhea::thread::sMsg msg;
+		if (rhea::thread::popMsg(moduleAlipayChina.hMsgQR, &msg))
+		{
+			//ok, ci siamo
+			if (msg.what == ALIPAYCHINA_SUBSCRIPTION_ANSWER_ACCEPTED)
+			{
+				OSEvent hEvent;
+				rhea::thread::getMsgQEvent(moduleAlipayChina.hMsgQR, &hEvent);
+				server->addOSEventToWaitList (hEvent, MSGQ_ALIPAY_CHINA);
+				rhea::thread::deleteMsg(msg);
+				moduleAlipayChina.enabled = true;
+				moduleAlipayChina.isOnline = false;
+				logger->log ("SocketBridgeServer::alipayChina_setup() => OK\n");
+
+				//chiedo lo stato di "Online" del servizio
+				rhea::AlipayChina::ask_ONLINE_STATUS (moduleAlipayChina.ctx);
+				return true;
+			}
+			rhea::thread::deleteMsg(msg);
+		}
+	} while (rhea::getTimeNowMSec() < timeToExitMSec);
+
+
+	//il thread alypay non ha risposto...
+	logger->log ("SocketBridgeServer::alipayChina_setup() => KO\n");
+	rhea::AlipayChina::kill(moduleAlipayChina.ctx);
+	rhea::thread::deleteMsgQ (moduleAlipayChina.hMsgQR, moduleAlipayChina.hMsgQW);
+	return false;
+	*/
 }
 
 //***************************************************
@@ -398,6 +469,8 @@ void Server::run()
 {
     assert (server != NULL);
 
+	priv_module_alipayChina_setup();
+
     bQuit = false;
     while (bQuit == false)
     {
@@ -470,11 +543,26 @@ void Server::run()
 					{
 					case u32MAX:
 						//E' arrivato un msg da CPUBridge
-						rhea::thread::sMsg msg;
-						while (rhea::thread::popMsg(subscriber.hFromCpuToOtherR, &msg))
 						{
-							priv_onCPUBridgeNotification(msg);
-							rhea::thread::deleteMsg(msg);
+							rhea::thread::sMsg msg;
+							while (rhea::thread::popMsg(subscriber.hFromCpuToOtherR, &msg))
+							{
+								priv_onCPUBridgeNotification(msg);
+								rhea::thread::deleteMsg(msg);
+							}
+						}
+						break;
+
+					case Server::MSGQ_ALIPAY_CHINA:
+						//e' arrivato un msg dal thread che gestire alipay china
+						if (moduleAlipayChina.enabled)
+						{
+							rhea::thread::sMsg msg;
+							while (rhea::thread::popMsg(moduleAlipayChina.hMsgQR, &msg))
+							{
+								priv_onAlipayChinaNotification(msg);
+								rhea::thread::deleteMsg(msg);
+							}
 						}
 						break;
 
@@ -489,6 +577,18 @@ void Server::run()
     }
 
     cmdHandlerList.purge (localAllocator, u64MAX);
+
+	//module alipay china
+	if (moduleAlipayChina.enabled)
+	{
+		moduleAlipayChina.enabled = 0;
+		
+		OSEvent hEvent;
+		rhea::thread::getMsgQEvent (moduleAlipayChina.hMsgQR, &hEvent);
+		server->removeOSEventFromWaitList (hEvent);
+		rhea::AlipayChina::kill(moduleAlipayChina.ctx);
+		rhea::thread::deleteMsgQ (moduleAlipayChina.hMsgQR, moduleAlipayChina.hMsgQW);
+	}
 }
 
 /**************************************************************************
@@ -869,4 +969,36 @@ bool Server::taskGetStatusAndMesssage (u32 taskID, TaskStatus::eStatus *out_stat
 		}
 	}
 	return false;
+}
+
+//**************************************************************************
+void Server::priv_onAlipayChinaNotification (rhea::thread::sMsg &msg)
+{
+	switch (msg.what)
+	{
+	case ALIPAYCHINA_NOTIFY_ONLINE_STATUS_CHANGED:
+		if (msg.paramU32 == 0)
+		{
+			if (moduleAlipayChina.isOnline)
+			{
+				//il modulo è andato offline
+				moduleAlipayChina.isOnline = false;
+				logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => offline\n");
+			}
+		}
+		else
+		{
+			if (!moduleAlipayChina.isOnline)
+			{
+				//il modulo è andato online
+				moduleAlipayChina.isOnline = true;
+				logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => online\n");
+			}
+		}
+		break;
+
+	default:
+		logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => unknown notification [%d]\n", msg.what);
+		break;
+	}
 }

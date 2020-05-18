@@ -17,6 +17,22 @@ static socketbridge::Server *serverInstance = NULL;
 i16     serverThreadFn (void *userParam);
 
 
+//****************************************************************************
+bool socketbridge_helper_folder_create (const char *folder, rhea::ISimpleLogger *logger)
+{
+    char s[512];
+    sprintf_s(s, sizeof(s), "%s/%s", rhea::getPhysicalPathToAppFolder(), folder);
+    if (!rhea::fs::folderCreate(s))
+    {
+        logger->log ("ERR: can't create folder [%s]\n", s);
+        return false;
+    }
+    else
+    {
+        logger->log ("CREATED folder [%s]\n", s);
+        return true;
+    }
+}
 
 /**************************************************************************
  * startServer
@@ -26,6 +42,10 @@ bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &
 {
     sServerInitParam    init;
 	
+	//creo la struttura di cartelle necessarie al corretto funzionamento
+    socketbridge_helper_folder_create("socketbridge", logger);
+
+
     //crea il thread del server
     init.logger = logger;
 	init.hCPUServiceChannelW = hCPUServiceChannelW;

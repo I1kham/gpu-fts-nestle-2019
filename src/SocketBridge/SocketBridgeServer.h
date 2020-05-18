@@ -4,6 +4,7 @@
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/Protocol/ProtocolSocketServer.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
+#include "../rheaAlipayChina/AlipayChina.h"
 #include "SocketBridgeEnumAndDefine.h"
 #include "CommandHandlerList.h"
 #include "IdentifiedClientList.h"
@@ -38,6 +39,7 @@ namespace socketbridge
 		const IdentifiedClientList*	getIdentifieidClientList() const							{ return &identifiedClientList; }
 
 
+								//============================== DB ===============================================
 		u16						DB_getOrCreateHandle (const char *fullFilePathAndName);
 								//ritorna 0 se non è possibile aprire il DB
 
@@ -49,14 +51,30 @@ namespace socketbridge
 		void					DB_closeByHandle(u16 dbHandle);
 
 
+								//============================== TASK ===============================================
 								template<class TTask>
 		void					taskAdd(const char *taskName) { taskFactory->add<TTask>(taskName);  }
 		bool					taskSpawnAndRun (const char *taskName, const char *params, u32 *out_taskID);
 		bool					taskGetStatusAndMesssage (u32 taskID, TaskStatus::eStatus *out_status, char *out_msg, u32 sizeofmsg);
 
+
+								//============================== ALIPAY China ===============================================
+		bool					priv_module_alipayChina_setup ();
+
     private:
         static const u16        RESERVED_HANDLE_RANGE = 1024;
+		static const u32		MSGQ_ALIPAY_CHINA = 0xFFFFFFFE;
 		
+	private:
+		struct sModuleAlipayChina
+		{
+			bool						enabled;
+			bool						isOnline;
+			HThreadMsgR					hMsgQR;
+			HThreadMsgW					hMsgQW;
+			rhea::AlipayChina::Context	ctx;
+		};
+
     private:
 		bool					priv_extractOneMessage (u8 *buffer, u16 nBytesInBuffer, sDecodedMessage *out, u16 *out_nBytesConsumed) const;
 
@@ -79,6 +97,7 @@ namespace socketbridge
 		void					priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo	*identifiedClient, socketbridge::sDecodedMessage &decoded);
         void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
 		void                    priv_handleIdentification (const HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded);
+		void					priv_onAlipayChinaNotification (rhea::thread::sMsg &msg);
 
 	private:
 		rhea::ProtocolSocketServer    *server;
@@ -107,6 +126,8 @@ namespace socketbridge
 
 		TaskFactory						*taskFactory;
 		rhea::FastArray<TaskStatus*>	runningTask;
+
+		sModuleAlipayChina		moduleAlipayChina;
     };
 
 } // namespace socketbridge

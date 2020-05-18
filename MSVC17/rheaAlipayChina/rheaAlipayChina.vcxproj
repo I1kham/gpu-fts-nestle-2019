@@ -25,6 +25,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaAlipayChina\AlipayChinaCore.h" />
     <ClInclude Include="..\..\src\rheaAlipayChina\AlipayChina.h" />
+    <ClInclude Include="..\..\src\rheaAlipayChina\AlipayChinaEnumAndDefine.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
