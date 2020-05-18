@@ -43,7 +43,7 @@ bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &
     sServerInitParam    init;
 	
 	//creo la struttura di cartelle necessarie al corretto funzionamento
-    socketbridge_helper_folder_create("socketbridge", logger);
+    socketbridge_helper_folder_create("current/socketbridge", logger);
 
 
     //crea il thread del server
