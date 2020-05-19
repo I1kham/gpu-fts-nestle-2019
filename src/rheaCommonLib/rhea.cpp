@@ -70,14 +70,14 @@ bool rhea::init (const char *appNameIN, void *platformSpecificInitData)
 	rheaGlobals.dateTimeStarted.setNow();
 
     //init sysLogger
-    sysLogger = RHEANEW(memory_getDefaultAllocator(), Logger)(true);
+    sysLogger = RHEANEW(rhea::getSysHeapAllocator(), Logger)(true);
 
     //aggiungo un file sysLogger
     {
         char logFileName[1024];
         sprintf_s (logFileName, sizeof(logFileName), "%s/log.txt", rhea::getPhysicalPathToAppFolder());
 
-        rheaGlobals.fileLogger = RHEANEW(memory_getDefaultAllocator(), rhea::LogTargetFile)();
+        rheaGlobals.fileLogger = RHEANEW(rhea::getSysHeapAllocator(), rhea::LogTargetFile)();
         if (!rheaGlobals.fileLogger->init (logFileName, true))
             return false;
         sysLogger->addTarget(rheaGlobals.fileLogger);
@@ -117,8 +117,8 @@ void rhea::deinit()
     thread::internal_deinit();
 
     sysLogger->log ("mem::Deinit  STARTED") << Logger::EOL;
-    RHEADELETE(memory_getDefaultAllocator(), sysLogger);
-    RHEADELETE(memory_getDefaultAllocator(), rheaGlobals.fileLogger);
+    RHEADELETE(rhea::getSysHeapAllocator(), sysLogger);
+    RHEADELETE(rhea::getSysHeapAllocator(), rheaGlobals.fileLogger);
     rhea::internal_memory_deinit();
 
 	platform::internal_deinit();

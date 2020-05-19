@@ -17,7 +17,7 @@ OSWaitableGrp::OSWaitableGrp()
 //***********************************************
 OSWaitableGrp::~OSWaitableGrp()
 {
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+	rhea::Allocator *allocator = rhea::memory_getSysHeapAllocator();
     while (base)
     {
         sRecord *p = base;
@@ -30,7 +30,7 @@ OSWaitableGrp::~OSWaitableGrp()
 //***********************************************
 OSWaitableGrp::sRecord* OSWaitableGrp::priv_newRecord ()
 {
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+    rhea::Allocator *allocator = rhea::memory_getSysHeapAllocator();
     sRecord *r = RHEAALLOCSTRUCT(allocator,sRecord);
     r->next = base;
     base = r;
@@ -60,7 +60,7 @@ void OSWaitableGrp::priv_removeHandle (HANDLE h)
 void OSWaitableGrp::removeSocket (OSSocket &sok)
 { 
 	assert (debug_bWaiting == 0);
-	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+	rhea::Allocator *allocator = rhea::memory_getSysHeapAllocator();
 
 	sRecord *q = NULL;
 	sRecord *p = base;
@@ -122,7 +122,7 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_addSocket (OSSocket &sok)
 void OSWaitableGrp::removeEvent (const OSEvent &evt)
 {
 	assert(debug_bWaiting == 0);
-	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+	rhea::Allocator *allocator = rhea::memory_getSysHeapAllocator();
 
 	sRecord *q = NULL;
 	sRecord *p = base;

@@ -24,20 +24,20 @@ namespace socketbridge
 		void				purge(u64 timeNowMSec);
 							//elimina i db aperti che non sono stati utilizzati negli ultimi 5 minuti
 
-		u16					getOrCreateDBHandle (u64 timeNowMSec, const char *fullFilePathAndName);
+		u16					getOrCreateDBHandle (u64 timeNowMSec, const u8* const utf8_fullFilePathAndName);
 							//ritorna 0 se non è possibile aprire il DB
 
-		bool				q (u16 dbHandle, u64 timeNowMSec, const char *sql, rhea::SQLRst *out_result);
-		bool				exec (u16 dbHandle, u64 timeNowMSec, const char *sql);
+		bool				q (u16 dbHandle, u64 timeNowMSec, const u8 * const utf8_sql, rhea::SQLRst *out_result);
+		bool				exec (u16 dbHandle, u64 timeNowMSec, const u8 * const utf8_sql);
 		
-		void				closeDBByPath (const char *fullFilePathAndName);
+		void				closeDBByPath (const u8 * const utf8_fullFilePathAndName);
 		void				closeDBByHandle(u16 dbHandle);
 
     private:
 		struct sEntry
 		{
 			rhea::SQLInterface	*db;
-			char				*fullFilePathAndName;
+			u8					*utf8_fullFilePathAndName;
 			u16					dbHandle;
 			u64					lastTimeUsedMSec;
 		};

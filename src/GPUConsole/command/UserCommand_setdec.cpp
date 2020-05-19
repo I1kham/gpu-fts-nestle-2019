@@ -9,10 +9,11 @@ const char*	UserCommand_setdec::getExplain() const
 //**********************************************************
 void UserCommand_setdec::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
 {
-	rhea::string::parser::Iter src, temp;
-	src.setup(command);
+	rhea::string::utf8::Iter src, temp;
+	src.setup((const u8*)command);
 
-	if (!rhea::string::parser::advanceUntil(src, " ", 1))
+	const rhea::UTF8Char cSpace(" ");
+	if (!rhea::string::utf8::advanceUntil(src, &cSpace, 1))
 	{
 		log->log("syntax error, expecting parameter [which]\n");
 		return;
@@ -20,8 +21,8 @@ void UserCommand_setdec::handle(const char *command, rhea::IProtocolChannell *ch
 	
 
 	i32 which = 0;
-	rhea::string::parser::toNextValidChar(src);
-	if (!rhea::string::parser::extractInteger(src, &which))
+	rhea::string::utf8::toNextValidChar(src);
+	if (!rhea::string::utf8::extractInteger(src, &which))
 	{
 		log->log("syntax error, expecting integer parameter [which]\n");
 		return;
@@ -29,8 +30,8 @@ void UserCommand_setdec::handle(const char *command, rhea::IProtocolChannell *ch
 
 
 	i32 value = 0;
-	rhea::string::parser::toNextValidChar(src);
-	if (!rhea::string::parser::extractInteger(src, &value))
+	rhea::string::utf8::toNextValidChar(src);
+	if (!rhea::string::utf8::extractInteger(src, &value))
 	{
 		log->log("syntax error, expecting integer parameter [value]\n");
 		return;

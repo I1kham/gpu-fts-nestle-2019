@@ -12,21 +12,21 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqStartImpulseCalc_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqStartImpulseCalc_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "m") == 0)
+	if (strcasecmp((const char*)fieldName, "m") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xff)
 			input->m = (u8)h;
 		else
 			input->m = 0;
 	}
-	if (strcasecmp(fieldName, "v") == 0)
+	if (strcasecmp((const char*)fieldName, "v") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xffff)
 			input->v = (u16)h;
 		else
@@ -39,7 +39,7 @@ bool ajaxReqStartImpulseCalc_jsonTrapFunction(const char *fieldName, const char 
 
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x0E_StartImpulseCalc::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params)
+void CmdHandler_ajaxReq_P0x0E_StartImpulseCalc::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqStartImpulseCalc_jsonTrapFunction, &data))
@@ -54,5 +54,5 @@ void CmdHandler_ajaxReq_P0x0E_StartImpulseCalc::passDownRequestToCPUBridge (cpub
 void CmdHandler_ajaxReq_P0x0E_StartImpulseCalc::onCPUBridgeNotification (socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 	char text[4] = { 'O', 'K', 0, 0 };
-    server->sendAjaxAnwer (hClient, ajaxRequestID, text, (u16)strlen(text));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)text, (u16)strlen(text));
 }

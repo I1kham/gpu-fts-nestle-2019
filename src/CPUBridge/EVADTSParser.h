@@ -31,17 +31,17 @@ public:
 		void					reset()														{ val_tot = num_tot = val_par = num_par = 0; }
 		void					valorizzaFromString_ValNumValNum(const TempStr128 *s)
 		{
-			val_tot = rhea::string::convert::toU32(s[0].s);
-			num_tot = rhea::string::convert::toU32(s[1].s);
-			val_par = rhea::string::convert::toU32(s[2].s);
-			num_par = rhea::string::convert::toU32(s[3].s);
+			val_tot = rhea::string::utf8::toU32((const u8*)s[0].s);
+			num_tot = rhea::string::utf8::toU32((const u8*)s[1].s);
+			val_par = rhea::string::utf8::toU32((const u8*)s[2].s);
+			num_par = rhea::string::utf8::toU32((const u8*)s[3].s);
 		}
 		void					valorizzaFromString_NumValNumVal(const TempStr128 *s)
 		{
-			num_tot = rhea::string::convert::toU32(s[0].s);
-			val_tot = rhea::string::convert::toU32(s[1].s);
-			num_par = rhea::string::convert::toU32(s[2].s);
-			val_par = rhea::string::convert::toU32(s[3].s);
+			num_tot = rhea::string::utf8::toU32((const u8*)s[0].s);
+			val_tot = rhea::string::utf8::toU32((const u8*)s[1].s);
+			num_par = rhea::string::utf8::toU32((const u8*)s[2].s);
+			val_par = rhea::string::utf8::toU32((const u8*)s[3].s);
 		}
 
 		ContatoreValNumValNum&	operator += (const ContatoreValNumValNum &b)
@@ -105,7 +105,7 @@ public:
 	public:
 										MatriceContatori()
 										{
-											allocator = rhea::memory_getDefaultAllocator();
+											allocator = rhea::getScrapAllocator();
 											m = (ContatoreValNumValNum**)RHEAALLOC(allocator, NUM_LISTE_PREZZI * NUM_PAYMENT_DEVICE * sizeof(ContatoreValNumValNum*));
 											for (u16 i = 0; i < NUM_LISTE_PREZZI * NUM_PAYMENT_DEVICE; i++)
 												m[i] = RHEANEW(allocator, ContatoreValNumValNum)();
@@ -253,7 +253,7 @@ public:
 						EVADTSParser();
 						~EVADTSParser();
 
-	bool				loadAndParse (const char *fullFilePathAndName);
+	bool				loadAndParse (const u8* const fullFilePathAndName);
 	bool				parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesToCheck);
 
 	u8*					createBufferWithPackedData(rhea::Allocator *allocator, u32 *out_bufferLen, u8 numDecimali) const;
@@ -273,7 +273,7 @@ public:
 
 private:
 	void				priv_reset();
-	bool				priv_checkTag(const char *s, const char *tagToFindAtStartOfTheLine, u16 numOfParamsToRead, TempStr128 *out) const;
+	bool				priv_checkTag(const u8 *s, const char *tagToFindAtStartOfTheLine, u16 numOfParamsToRead, TempStr128 *out) const;
 	int					priv_toInt(const char *s) const;
 	ePaymentDevice		priv_fromStringToPaymentDevice(const char *s) const;
 

@@ -49,8 +49,8 @@ namespace rhea
     bool            internal_memory_init();     //uso interno (usate da rhea::init())
     void            internal_memory_deinit();   //uso interno (usate da rhea::deinit())
 	
-    Allocator*      memory_getDefaultAllocator();
-	Allocator*      memory_getScrapAllocator();		//ritorna un allocatore specializzato per piccole e brevi (temporalmente parlando) allocazioni
+    Allocator*      memory_getSysHeapAllocator();
+	Allocator*      memory_getScrapAllocator2();		//ritorna un allocatore specializzato per piccole e brevi (temporalmente parlando) allocazioni
 
     size_t          memory_getSizeOfAPointer();
 

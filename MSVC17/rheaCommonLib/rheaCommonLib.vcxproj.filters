@@ -58,12 +58,6 @@
     <Filter Include="SimpleLogger">
       <UniqueIdentifier>{b6177456-7dcb-4536-84bb-3875fbf5fb03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="rhea\string\utf8">
-      <UniqueIdentifier>{884e277a-6945-4152-aee9-8c36f8d965c8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="rhea\string\utf16">
-      <UniqueIdentifier>{058ec8d1-1f1c-4c29-8f66-1a91c9697bf3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp">
@@ -141,21 +135,6 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaMemoryTracker.cpp">
       <Filter>rhea\memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaString.cpp">
-      <Filter>rhea\string</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringConvert.cpp">
-      <Filter>rhea\string</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringFormat.cpp">
-      <Filter>rhea\string</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringParser.cpp">
-      <Filter>rhea\string</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringParserIter.cpp">
-      <Filter>rhea\string</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\rheaCommonLib\rheaTime24.cpp">
       <Filter>rhea\data types</Filter>
     </ClCompile>
@@ -207,20 +186,35 @@
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSFS.cpp">
       <Filter>OS\linux</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8.cpp">
-      <Filter>rhea\string\utf8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8Char.cpp">
-      <Filter>rhea\string\utf8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8Parser.cpp">
-      <Filter>rhea\string\utf8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF16.cpp">
-      <Filter>rhea\string\utf16</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\rheaCommonLib\rheamd5.cpp">
       <Filter>rhea\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaString.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringANSI.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringIter.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8Char.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8String.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF16.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF32.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringFormat.cpp">
+      <Filter>rhea\string</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -341,9 +335,6 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaMemoryTracker.h">
       <Filter>rhea\memory</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\rheaString.h">
-      <Filter>rhea\string</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\rheaTime24.h">
       <Filter>rhea\data types</Filter>
     </ClInclude>
@@ -398,20 +389,20 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaCriticalSection.h">
       <Filter>rhea\thread</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF8.h">
-      <Filter>rhea\string\utf8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF8Char.h">
-      <Filter>rhea\string\utf8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF16.h">
-      <Filter>rhea\string\utf16</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\rheamd5.h">
       <Filter>rhea\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\rheaArray.h">
       <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaStringEnumAndDefine.h">
+      <Filter>rhea\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaUTF8String.h">
+      <Filter>rhea\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaString.h">
+      <Filter>rhea\string</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

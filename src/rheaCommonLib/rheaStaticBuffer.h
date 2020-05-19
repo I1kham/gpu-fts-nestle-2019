@@ -1,7 +1,7 @@
 #ifndef _rheaStaticBuffer_h_
 #define _rheaStaticBuffer_h_
 #include "rheaMemory.h"
-
+#include "OS/OS.h"
 
 namespace rhea
 {

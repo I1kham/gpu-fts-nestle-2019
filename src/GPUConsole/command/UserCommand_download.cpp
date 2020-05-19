@@ -9,24 +9,25 @@ const char*	UserCommand_download::getExplain() const
 //**********************************************************
 void UserCommand_download::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
 {
-	rhea::string::parser::Iter src, temp;
-	src.setup(command);
+	rhea::string::utf8::Iter src, temp;
+	src.setup((const u8*)command);
 
-	if (!rhea::string::parser::advanceUntil(src, " ", 1))
+	const rhea::UTF8Char cSpace(" ");
+	if (!rhea::string::utf8::advanceUntil(src, &cSpace, 1))
 	{
 		log->log("syntax error, expecting parameter [what]\n");
 		return;
 	}
-	rhea::string::parser::toNextValidChar(src);
+	rhea::string::utf8::toNextValidChar(src);
 
-	if (!rhea::string::parser::extractValue(src, &temp, " ", 1))
+	if (!rhea::string::utf8::extractValue(src, &temp, &cSpace, 1))
 	{
 		log->log("syntax error, expecting parameter [what]\n");
 		return;
 	}
 
-	char what[64];
-	temp.copyCurStr(what, sizeof(what));
+	u8 what[64];
+	temp.copyAllStr(what, sizeof(what));
 
 
 	rhea::app::FileTransfer::Handle handle;
@@ -35,15 +36,15 @@ void UserCommand_download::handle(const char *command, rhea::IProtocolChannell *
 
 	char downloadedFilePathAndName[512];
 	downloadedFilePathAndName[0] = 0x00;
-	if (strcasecmp(what, "test") == 0)
+	if (rhea::string::utf8::areEqual(what, (const u8*)"test", true))
 	{
 		sprintf_s(downloadedFilePathAndName, sizeof(downloadedFilePathAndName), "%s/file_downloadata_da_smu", rhea::getPhysicalPathToWritableFolder());
 	}
-	else if (strncasecmp(what, "audit", 5) == 0)
+	else if (rhea::string::utf8::areEqualWithLen(what, (const u8*)"audit", true, 5))
 	{
 		sprintf_s(downloadedFilePathAndName, sizeof(downloadedFilePathAndName), "%s/audit.txt", rhea::getPhysicalPathToWritableFolder());
 	}
-	else if (strncasecmp(what, "da3", 3) == 0)
+	else if (rhea::string::utf8::areEqualWithLen(what, (const u8*)"da3", true, 3))
 	{
 		sprintf_s(downloadedFilePathAndName, sizeof(downloadedFilePathAndName), "%s/vmcDataFile.da3", rhea::getPhysicalPathToWritableFolder());
 	}
@@ -58,7 +59,7 @@ void UserCommand_download::handle(const char *command, rhea::IProtocolChannell *
 	if (downloadedFilePathAndName[0] != 0x00)
 	{
 		log->outText(false, true, true, "dst file is: %s\n", downloadedFilePathAndName);
-		if (ftransf->startFileDownload(ch, proto, rhea::getTimeNowMSec(), what, downloadedFilePathAndName, &handle))
+		if (ftransf->startFileDownload(ch, proto, rhea::getTimeNowMSec(), (const char*)what, downloadedFilePathAndName, &handle))
 			log->log("file transfer started. Handle [0x%08X]\n", handle.asU32());
 		else
 			log->log("file transfer FAILED to start\n");

@@ -10,7 +10,7 @@
 #include "TaskImportExistingGUI.h"
 #include "varie.h"
 
-#define		RHEAMEDIA2_VERSIONE "2.0.2"
+#define		RHEAMEDIA2_VERSIONE L"2.0.2"
 
 
 char chromeFullPathAndName[256];
@@ -78,7 +78,7 @@ bool startCPUBridge()
 //*****************************************************
 bool findChrome (HKEY rootKey, char *out, u32 sizeofOut)
 {
-	#define CHROME_IN_REGISTRY "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"
+	#define CHROME_IN_REGISTRY L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"
 
 	out[0] = 0;
 
@@ -104,7 +104,7 @@ bool findChrome()
 	{
 		if (!findChrome(HKEY_LOCAL_MACHINE, chromeFullPathAndName, sizeof(chromeFullPathAndName)))
 		{
-			MessageBox(NULL, "Unable to find the Chrome browser.\nPlease install chrome browser and try again.", "rheaMedia2.0", MB_OK);
+			MessageBox(NULL, L"Unable to find the Chrome browser.\nPlease install chrome browser and try again.", L"rheaMedia2", MB_OK);
 			return false;
 		}
 	}
@@ -172,11 +172,11 @@ int main()
 
 
 
-	char nameAndVersion[128];
-	sprintf_s(nameAndVersion, sizeof(nameAndVersion), "RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - 2020/04/10");
+	wchar_t nameAndVersion[128];
+	swprintf_s(nameAndVersion, sizeof(nameAndVersion), L"RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - 2020/04/10");
 
 	SetConsoleTitle(nameAndVersion);
-	printf(nameAndVersion);
+	wprintf(nameAndVersion);
 	printf("\n\n");
 	if (findChrome())
 	{

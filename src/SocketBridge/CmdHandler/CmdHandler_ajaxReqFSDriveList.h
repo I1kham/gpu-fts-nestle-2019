@@ -29,16 +29,16 @@ namespace socketbridge
                                 { }
 
 		bool				needToPassDownToCPUBridge() const			{ return false; }
-		void				handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params);
+		void				handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params);
 
-        void                passDownRequestToCPUBridge(cpubridge::sSubscriber &from UNUSED_PARAM, const char *params UNUSED_PARAM) {}
+        void                passDownRequestToCPUBridge(cpubridge::sSubscriber &from UNUSED_PARAM, const u8 *params UNUSED_PARAM) {}
         void                onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM) {}
 
         static const char*  getCommandName()                            { return "FSDrvList"; }
 
 
 	private:
-		char*				reallocString(rhea::Allocator *allocator, char *cur, u32 curSize, u32 newSize) const;
+		u8*				    reallocString(rhea::Allocator *allocator, u8 *cur, u32 curSize, u32 newSize) const;
     };
 } // namespace socketbridge
 #endif // _CmdHandler_ajaxReqFSDriveList_

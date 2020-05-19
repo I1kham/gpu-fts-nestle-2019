@@ -4,14 +4,15 @@
 
 
 //*********************************************************************
-void TaskCopyFolderToFolder::run(socketbridge::TaskStatus *status, const char *params)
+void TaskCopyFolderToFolder::run(socketbridge::TaskStatus *status, const u8 *params)
 {
-	char src[512];
-	char dst[512];
+	u8 src[512];
+	u8 dst[512];
 	memset (dst, 0, sizeof(dst));
 
-	strcpy_s(src, sizeof(src), params);
-	for (u32 i = 0; i < strlen(src); i++)
+	rhea::string::utf8::copyStr (src, sizeof(src), params);
+	const u32 len = rhea::string::utf8::lengthInBytes(src);
+	for (u32 i = 0; i < len; i++)
 	{
 		if (src[i] == '§')
 		{

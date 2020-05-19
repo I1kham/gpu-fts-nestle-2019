@@ -36,7 +36,7 @@ u32 Date::formatAs_YYYYMMDD() const
 {
 	char s[16];
 	formatAs_YYYYMMDD(s, sizeof(s), 0x00);
-	return rhea::string::convert::toU32(s);
+	return rhea::string::utf8::toU32((const u8*)s);
 }
 
 //****************************

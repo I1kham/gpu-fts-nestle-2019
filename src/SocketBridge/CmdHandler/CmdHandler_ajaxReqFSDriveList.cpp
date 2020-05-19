@@ -8,9 +8,9 @@ using namespace socketbridge;
 
 
 //***********************************************************
-char* CmdHandler_ajaxReqFSDriveList::reallocString(rhea::Allocator *allocator, char *cur, u32 curSize, u32 newSize) const
+u8* CmdHandler_ajaxReqFSDriveList::reallocString(rhea::Allocator *allocator, u8 *cur, u32 curSize, u32 newSize) const
 {
-	char *s = (char*)RHEAALLOC(allocator, newSize);
+	u8 *s = (u8*)RHEAALLOC(allocator, newSize);
 	memcpy(s, cur, curSize);
 	RHEAFREE(allocator, cur);
 	return s;
@@ -18,18 +18,18 @@ char* CmdHandler_ajaxReqFSDriveList::reallocString(rhea::Allocator *allocator, c
 
 
 //***********************************************************
-void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params UNUSED_PARAM)
 {
-	rhea::Allocator *localAllocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *localAllocator = rhea::getScrapAllocator();
 
 	u32 drivePathMaxSize = 256;
 	u32 drivePathCurSize = 0;
-	char *drivePath = (char*)RHEAALLOC(localAllocator, drivePathMaxSize);
+	u8 *drivePath = (u8*)RHEAALLOC(localAllocator, drivePathMaxSize);
 	drivePath[0] = 0;
 
 	u32 driveLabelMaxSize = 2048;
 	u32 driveLabelCurSize = 0;
-	char *driveLabel = (char*)RHEAALLOC(localAllocator, driveLabelMaxSize);
+	u8 *driveLabel = (u8*)RHEAALLOC(localAllocator, driveLabelMaxSize);
 	driveLabel[0] = 0;
 
 	OSDriveEnumerator h;
@@ -38,11 +38,11 @@ void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::
 	{
 		do
 		{
-			u32 n = (u32)strlen(s.drivePath);
-			if (s.drivePath[n - 1] == '\\') 
+			u32 n = rhea::string::utf8::lengthInBytes(s.utf8_drivePath);
+			if (s.utf8_drivePath[n - 1] == '\\') 
 			{
 				n--;
-				s.drivePath[n] = 0;
+				s.utf8_drivePath[n] = 0;
 			}
 
 			n+=3;
@@ -52,21 +52,21 @@ void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::
 				drivePathMaxSize += 1024;
 			}
 			
-			strcat_s (drivePath, drivePathMaxSize, "\"");
-			strcat_s (drivePath, drivePathMaxSize, s.drivePath);
-			strcat_s (drivePath, drivePathMaxSize, "\",");
+			rhea::string::utf8::concatStr (drivePath, drivePathMaxSize, "\"");
+			rhea::string::utf8::concatStr (drivePath, drivePathMaxSize, s.utf8_drivePath);
+			rhea::string::utf8::concatStr (drivePath, drivePathMaxSize, "\",");
 			drivePathCurSize += n;
 
 
-			n = (u32)strlen(s.driveLabel) + 3;
+			n = rhea::string::utf8::lengthInBytes(s.utf8_driveLabel) + 3;
 			if (driveLabelCurSize + n >= driveLabelMaxSize)
 			{
 				driveLabel = reallocString(localAllocator, driveLabel, driveLabelMaxSize, driveLabelMaxSize + 1024);
 				driveLabelMaxSize += 1024;
 			}
-			strcat_s(driveLabel, driveLabelMaxSize, "\"");
-			strcat_s(driveLabel, driveLabelMaxSize, s.driveLabel);
-			strcat_s(driveLabel, driveLabelMaxSize, "\",");
+			rhea::string::utf8::concatStr(driveLabel, driveLabelMaxSize, "\"");
+			rhea::string::utf8::concatStr(driveLabel, driveLabelMaxSize, s.utf8_driveLabel);
+			rhea::string::utf8::concatStr(driveLabel, driveLabelMaxSize, "\",");
 			driveLabelCurSize += n;
 
 		} while (rhea::fs::findNextHardDrive(h, &s));
@@ -86,14 +86,14 @@ void CmdHandler_ajaxReqFSDriveList::handleRequestFromSocketBridge(socketbridge::
 	}
 
 
-	char desktopPath[256];
+	u8 desktopPath[256];
 	if (!rhea::fs::getDestkopPath(desktopPath, sizeof(desktopPath)))
 		desktopPath[0] = 0;
 
 	
-    char *resp = (char*)RHEAALLOC(localAllocator, 96 + drivePathCurSize + driveLabelCurSize +strlen(desktopPath));
-	sprintf(resp, "{\"drivePath\":[%s],\"driveLabel\":[%s],\"desktop\":\"%s\"}", drivePath, driveLabel, desktopPath);
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+    u8 *resp = (u8*)RHEAALLOC(localAllocator, 96 + drivePathCurSize + driveLabelCurSize +rhea::string::utf8::lengthInBytes(desktopPath));
+	sprintf((char*)resp, "{\"drivePath\":[%s],\"driveLabel\":[%s],\"desktop\":\"%s\"}", drivePath, driveLabel, desktopPath);
+	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)rhea::string::utf8::lengthInBytes(resp));
 
     RHEAFREE(localAllocator, drivePath);
 	RHEAFREE(localAllocator, driveLabel);

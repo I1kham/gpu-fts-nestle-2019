@@ -7,7 +7,6 @@
 #include "../rheaCommonLib/rheaMemory.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaLogTargetConsole.h"
-#include "../rheaCommonLib//rheaUTF16.h"
 #include "EVADTSParser.h"
 
 using namespace cpubridge;
@@ -52,7 +51,7 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	rhea::thread::getMsgQEvent (hServiceChR, &hMsgQEvent);
 	waitList.addEvent(hMsgQEvent, u32MAX);
 
-	localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
+	localAllocator = RHEANEW(rhea::getScrapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
 	subscriberList.setup(localAllocator, 8);
 
 	//apro il canale di comunicazione con la CPU fisica
@@ -93,7 +92,7 @@ void Server::close()
 		priv_deleteSubscriber(subscriberList.getElem(i), false);
 	subscriberList.unsetup();
 
-	RHEADELETE (rhea::memory_getDefaultAllocator(), localAllocator);
+	RHEADELETE (rhea::getScrapAllocator(), localAllocator);
 }
 
 //***************************************************
@@ -412,7 +411,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE:
 		{
-			char srcFullFileNameAndPath[512];
+			u8 srcFullFileNameAndPath[512];
 			translate_WRITE_VMCDATAFILE(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
             if (stato.get() == sStato::eStato_normal || stato.get() == sStato::eStato_CPUNotSupported)
 				priv_uploadVMCDataFile(&sub->q, handlerID, srcFullFileNameAndPath);
@@ -450,7 +449,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW:
 		{
-			char srcFullFileNameAndPath[512];
+			u8 srcFullFileNameAndPath[512];
 			translate_WRITE_CPUFW(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
 			priv_uploadCPUFW(&sub->q, handlerID, srcFullFileNameAndPath);
 		}
@@ -931,7 +930,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 								utf16_CPUMasterVersionString[i] = (u16)answerBuffer[5 + i];
 						}
 
-						rhea::utf16::rtrim(utf16_CPUMasterVersionString);
+						rhea::string::utf16::rtrim(utf16_CPUMasterVersionString);
 
 						if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL)
 						{
@@ -1078,10 +1077,10 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 //**********************************************
 void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
 {
-	char s[256];
-	sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	u8 s[256];
+	sprintf_s((char*)s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
 	
-	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	u32 fileSize = 0;
 	u8 *buffer = rhea::fs::fileCopyInMemory(s, allocator, &fileSize);
 	if (NULL == buffer)
@@ -1093,7 +1092,7 @@ void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
 		memcpy(&buffer[blockPosition], blockOf64Bytes, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
 
 		const u32 SIZE = 1024;
-		FILE *f = fopen(s, "wb");
+		FILE *f = rhea::fs::fileOpenForWriteBinary(s);
 		u32 ct = 0;
 		while (fileSize >= SIZE)
 		{
@@ -1110,8 +1109,8 @@ void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
     //salvo data e ora dell'ultima modifica
     rhea::DateTime dt;
     dt.setNow();
-    sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
-    FILE *f = fopen(s, "wb");
+    sprintf_s((char*)s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+    FILE *f = rhea::fs::fileOpenForWriteBinary(s);
     u64 u = dt.getInternalRappresentation();
     fwrite (&u, sizeof(u64), 1, f);
     fclose(f);
@@ -1185,7 +1184,7 @@ bool Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 u8 Server::priv_2DigitHexToInt(const u8 *buffer, u32 index) const
 {
 	u32 ret = 0;
-	rhea::string::convert::hexToInt((const char*)&buffer[index], &ret, 2);
+	rhea::string::ansi::hexToInt((const char*)&buffer[index], &ret, 2);
 	return (u8)ret;
 }
 
@@ -1225,21 +1224,21 @@ bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_buffe
  * Al termine dell'upload, se tutto è andato bene, il mhx sorgente viene copiato pari pari (compreso il suo nome originale) in
  *	app/last_installed/cpu/nomeFileSrc.mhx
  */
-eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath)
+eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath)
 {
-	char cpuFWFileNameOnly[256];
-	char tempFilePathAndName[512];
+	u8 cpuFWFileNameOnly[256];
+	u8 tempFilePathAndName[512];
 	rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, cpuFWFileNameOnly, sizeof(cpuFWFileNameOnly));
 
-	if (strncmp(srcFullFileNameAndPath, "APP:/temp/", 10) == 0)
+	if (rhea::string::utf8::areEqualWithLen (srcFullFileNameAndPath, (const u8*)"APP:/temp/", false, 10))
 	{
 		//il file si suppone già esistere nella mia cartella temp
-		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
+		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
 	}
 	else
 	{
 		//copio il file nella mia directory locale temp
-		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
+		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
 		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
 		{
 			if (NULL != subscriber)
@@ -1298,8 +1297,8 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	if (NULL != subscriber)
 		notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus_inProgress_erasingFlash, 0);
 
-	char s[512];
-	sprintf_s(s, sizeof(s), "%s/last_installed/cpu", rhea::getPhysicalPathToAppFolder());
+	u8 s[512];
+	sprintf_s((char*)s, sizeof(s), "%s/last_installed/cpu", rhea::getPhysicalPathToAppFolder());
 	rhea::fs::deleteAllFileInFolderRecursively(s, false);
 
 
@@ -1314,7 +1313,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 
 
 	//Carico il file mhx in memoria
-	rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	u32 fsize = 0;
 	u8 *fileInMemory = rhea::fs::fileCopyInMemory(tempFilePathAndName, allocator, &fsize);
 	
@@ -1405,7 +1404,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	//in caso di successo, copio il file mhx nella mia cartella app/last_installed/cpu/nomeFileSrc.mhx
 	if (ret == eWriteCPUFWFileStatus_finishedOK)
 	{
-		sprintf_s(s, sizeof(s), "%s/last_installed/cpu/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
+		sprintf_s((char*)s, sizeof(s), "%s/last_installed/cpu/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
 		rhea::fs::fileCopy(tempFilePathAndName, s);
 		rhea::fs::fileDelete(tempFilePathAndName);
 
@@ -1424,21 +1423,21 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
  *	app/last_installed/da3/nomeFileSrc.da3 e anche in  app/current/da3/vmcDataFile.da3
  * Al termine della copia, chiede a CPU il timestamp del da3 e lo salva in current/da3/vmcDataFile.timestamp
  */
-eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *subscriber, u16 handlerID, const char *srcFullFileNameAndPath)
+eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath)
 {
-	char fileName[256];
-	char tempFilePathAndName[512];
+	u8 fileName[256];
+	u8 tempFilePathAndName[512];
 	rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, fileName, sizeof(fileName));
 
-	if (strncmp(srcFullFileNameAndPath, "APP:/temp/", 10) == 0)
+	if (rhea::string::utf8::areEqualWithLen(srcFullFileNameAndPath, (const u8*)"APP:/temp/", false, 10))
 	{
 		//il file si suppone già esistere nella mia cartella temp
-		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
 	}
 	else
 	{
 		//copio il file nella mia directory locale temp
-		sprintf_s(tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
 		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
 		{
 			notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_unableToCopyFile, 0);
@@ -1446,7 +1445,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		}
 	}
 
-	FILE *f = fopen(tempFilePathAndName, "rb");
+	FILE *f = rhea::fs::fileOpenForReadBinary(tempFilePathAndName);
 	if (NULL == f)
 	{
 		notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_unableToOpenLocalFile, 0);
@@ -1514,7 +1513,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		memcpy (&tempBuffer[block*VMCDATAFILE_BLOCK_SIZE_IN_BYTE], &answerBuffer[5], VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
 
 		//sovrascrivo il file con le info
-		f = fopen(tempFilePathAndName, "wb");
+		f = rhea::fs::fileOpenForWriteBinary(tempFilePathAndName);
 		fwrite (tempBuffer, sizeOfBuffer, 1, f);
 		fclose(f);
 
@@ -1524,14 +1523,14 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 
 
 	//a questo punto, copio il file temporaneo nella mia cartella last_installed e nella cartella current (qui gli cambio anche il nome con quello di default)
-	char s[512];
-	sprintf_s(s, sizeof(s), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());
+	u8 s[512];
+	sprintf_s((char*)s, sizeof(s), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());
 	rhea::fs::deleteAllFileInFolderRecursively(s, false);
 
-	sprintf_s(s, sizeof(s), "%s/last_installed/da3/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+	sprintf_s((char*)s, sizeof(s), "%s/last_installed/da3/%s", rhea::getPhysicalPathToAppFolder(), fileName);
 	rhea::fs::fileCopy(tempFilePathAndName, s);
 
-    sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+    sprintf_s((char*)s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
 	rhea::fs::fileCopy(tempFilePathAndName, s);
 
 	rhea::fs::fileDelete(tempFilePathAndName);
@@ -1552,8 +1551,8 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
     //salvo data e ora dell'ultima modifica
     rhea::DateTime dt;
     dt.setNow();
-    sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
-    f = fopen(s, "wb");
+    sprintf_s((char*)s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+    f = rhea::fs::fileOpenForWriteBinary(s);
     u64 u = dt.getInternalRappresentation();
     fwrite (&u, sizeof(u64), 1, f);
     fclose(f);
@@ -1589,17 +1588,17 @@ u16 Server::priv_prepareAndSendMsg_readVMCDataFileBlock (u16 blockNum)
 eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID)
 {
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
-	char fullFilePathAndName[256];
+	u8 fullFilePathAndName[256];
 	u16 fileID = 0;
 	while (1)
 	{
-		sprintf_s(fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/vmcDataFile%d.da3", rhea::getPhysicalPathToAppFolder(), fileID);
+		sprintf_s((char*)fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/vmcDataFile%d.da3", rhea::getPhysicalPathToAppFolder(), fileID);
 		if (!rhea::fs::fileExists(fullFilePathAndName))
 			break;
 		fileID++;
 	}
 
-	FILE *f = fopen(fullFilePathAndName, "wb");
+	FILE *f = rhea::fs::fileOpenForWriteBinary(fullFilePathAndName);
 	if (NULL == f)
 	{
 		notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_unableToCreateFile, 0, fileID);
@@ -1688,11 +1687,11 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID)
 {
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
-	char fullFilePathAndName[256];
+	u8 fullFilePathAndName[256];
 	u16 fileID = 0;
 	while (1)
 	{
-		sprintf_s(fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/dataAudit%d.txt", rhea::getPhysicalPathToAppFolder(), fileID);
+		sprintf_s((char*)fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/dataAudit%d.txt", rhea::getPhysicalPathToAppFolder(), fileID);
 		if (!rhea::fs::fileExists(fullFilePathAndName))
 			break;
 		fileID++;
@@ -1702,8 +1701,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 #ifdef _DEBUG
 	//hack per velocizzare i test
 	{
-		char debug_src_eva[256];
-		sprintf_s(debug_src_eva, sizeof(debug_src_eva), "%s/last_installed/eva_test.log", rhea::getPhysicalPathToAppFolder());
+		u8 debug_src_eva[256];
+		sprintf_s((char*)debug_src_eva, sizeof(debug_src_eva), "%s/last_installed/eva_test.log", rhea::getPhysicalPathToAppFolder());
 		rhea::fs::fileCopy(debug_src_eva, fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)
@@ -1713,7 +1712,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	}
 #endif
 
-	FILE *f = fopen(fullFilePathAndName, "wb");
+	FILE *f = rhea::fs::fileOpenForWriteBinary(fullFilePathAndName);
 	if (NULL == f)
 	{
 		if (NULL != subscriber)
@@ -1776,7 +1775,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 }
 
 //***************************************************
-void Server::priv_downloadDataAudit_onFinishedOK(const char *fullFilePathAndName, u32 fileID)
+void Server::priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID)
 {
 	//parso il file ricevuto e genero un secondo file di nome "packedDataAudit%d.dat" contenente le info in versione "packed"
 	EVADTSParser *parser = RHEANEW(localAllocator, EVADTSParser)();
@@ -1784,7 +1783,7 @@ void Server::priv_downloadDataAudit_onFinishedOK(const char *fullFilePathAndName
 	{
 		priv_retreiveSomeDataFromLocalDA3();
 
-		rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+		rhea::Allocator *allocator = rhea::getScrapAllocator();
 		u32 bufferSize = 0;
 		u8 *buffer = parser->createBufferWithPackedData(allocator, &bufferSize, this->cpu_numDecimalsForPrices);
 		if (NULL != buffer)
@@ -1874,7 +1873,7 @@ void Server::priv_enterState_compatibilityCheck()
 	priv_resetInternalState(eVMCState_COMPATIBILITY_CHECK);
 
 	cpuStatus.LCDMsg.utf16LCDString[0] = 0x00;
-	rhea::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "COMPATIBILITY    CHECK");
+	rhea::string::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "COMPATIBILITY    CHECK");
 	cpuStatus.LCDMsg.importanceLevel = 123;
 
 	//segnalo ai miei subscriber lo stato corrente
@@ -1971,7 +1970,7 @@ void Server::priv_enterState_CPUNotSupported()
 	priv_resetInternalState(eVMCState_CPU_NOT_SUPPORTED);
 
 	cpuStatus.LCDMsg.utf16LCDString[0] = 0;
-	rhea::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "CPU NOT SUPPORTED");
+	rhea::string::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "CPU NOT SUPPORTED");
 	cpuStatus.LCDMsg.importanceLevel = 123;
 
 	//segnalo ai miei subscriber lo stato corrente
@@ -2021,8 +2020,8 @@ void Server::priv_handleState_DA3Sync()
 	loadVMCDataFileTimeStamp(&myTS);
 
 	//se il file da3 non esiste, invalido il mio ts
-	char s[256];
-	sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	u8 s[256];
+	sprintf_s((char*)s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
 	if (!rhea::fs::fileExists(s))
 		myTS.setInvalid();
 
@@ -2067,9 +2066,9 @@ void Server::priv_handleState_DA3Sync()
 			//tutto ok, il file è stato scaricato in temp/vmcDataFile%d.da3
 			//Lo copio in current/da3, aggiorno il timestamp, aggiorno la data di ultima modifica
 
-			char s1[256];
-			sprintf_s(s, sizeof(s), "%s/temp/vmcDataFile%d.da3", rhea::getPhysicalPathToAppFolder(), fileID);
-			sprintf_s(s1, sizeof(s1), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+			u8 s1[256];
+			sprintf_s((char*)s, sizeof(s), "%s/temp/vmcDataFile%d.da3", rhea::getPhysicalPathToAppFolder(), fileID);
+			sprintf_s((char*)s1, sizeof(s1), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
 			rhea::fs::fileDelete(s1);
 			rhea::fs::fileCopy(s, s1);
 
@@ -2082,9 +2081,9 @@ void Server::priv_handleState_DA3Sync()
 			char dstFilename[128];
 			sprintf_s(dstFilename, sizeof(dstFilename), "download_from_cpu.da3");
 
-			sprintf_s(s1, sizeof(s1), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());
+			sprintf_s((char*)s1, sizeof(s1), "%s/last_installed/da3", rhea::getPhysicalPathToAppFolder());
 			OSFileFind ff;
-			if (rhea::fs::findFirst(&ff, s1, "*.da3"))
+			if (rhea::fs::findFirst(&ff, s1, (const u8*)"*.da3"))
 			{
 				do
 				{
@@ -2099,14 +2098,14 @@ void Server::priv_handleState_DA3Sync()
 			rhea::fs::deleteAllFileInFolderRecursively(s1, false);
 
 			//copio anche in cartella last_installed
-			sprintf_s(s1, sizeof(s1), "%s/last_installed/da3/%s", rhea::getPhysicalPathToAppFolder(), dstFilename);
+			sprintf_s((char*)s1, sizeof(s1), "%s/last_installed/da3/%s", rhea::getPhysicalPathToAppFolder(), dstFilename);
 			rhea::fs::fileCopy(s, s1);
 
 			//aggiorno il file con data e ora di ultima modifica
 			rhea::DateTime dt;
 			dt.setNow();
-			sprintf_s(s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
-			FILE *f = fopen(s, "wb");
+			sprintf_s((char*)s, sizeof(s), "%s/last_installed/da3/dateUM.bin", rhea::getPhysicalPathToAppFolder());
+			FILE *f = rhea::fs::fileOpenForWriteBinary (s);
 			u64 u = dt.getInternalRappresentation();
 			fwrite(&u, sizeof(u64), 1, f);
 			fclose(f);
@@ -2138,7 +2137,7 @@ void Server::priv_enterState_comError()
 	priv_resetInternalState(eVMCState_COM_ERROR);
 
 	cpuStatus.LCDMsg.utf16LCDString[0] = 0;
-	rhea::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "COM ERROR");
+	rhea::string::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "COM ERROR");
     cpuStatus.LCDMsg.importanceLevel = 123;
 
     //segnalo ai miei subscriber che sono in com-error
@@ -2680,14 +2679,14 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	}
 	assert(msgLCD_len <= sCPULCDMessage::BUFFER_SIZE_IN_U16);
 	utf16_msgLCD[msgLCD_len] = 0;
-	rhea::utf16::rtrim(utf16_msgLCD);
+	rhea::string::utf16::rtrim(utf16_msgLCD);
 
 	//se la CPU ha alzato il bit di "telemetria in corso", devo fare un override del messaggio testuale
 	if ((cpuStatus.flag1 & sCPUStatus::FLAG1_TELEMETRY_RUNNING) != 0)
 	{
 		utf16_msgLCD[0] = 0;
-		rhea::utf16::concatFromASCII (utf16_msgLCD, sizeof(utf16_msgLCD), "TELEMETRY RUNNING...");
-		msgLCD_len = rhea::utf16::length(utf16_msgLCD);
+		rhea::string::utf16::concatFromASCII (utf16_msgLCD, sizeof(utf16_msgLCD), "TELEMETRY RUNNING...");
+		msgLCD_len = rhea::string::utf16::lengthInBytes(utf16_msgLCD) / 2;
 	}
 
 
@@ -2792,7 +2791,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 				while (utf16_lastCPUMsg[i] != 0x00)
 					cpuStatus.LCDMsg.utf16LCDString[t++] = utf16_lastCPUMsg[i++];
 				cpuStatus.LCDMsg.utf16LCDString[t] = 0x00;
-				t = rhea::utf16::rtrim(cpuStatus.LCDMsg.utf16LCDString);
+				t = rhea::string::utf16::rtrim(cpuStatus.LCDMsg.utf16LCDString);
 
 				if (t > 0)
 					t = lang_translate(&language, cpuStatus.LCDMsg.utf16LCDString, sCPULCDMessage::BUFFER_SIZE_IN_U16 - 1);
@@ -2806,7 +2805,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
     //Se sono nella modalità "mostra la stringa con cpu model and version", per tot secondi prependo il nome modello all'attuale msg di CPU
 	/*showCPUStringModelAndVersionUntil_msec = 10;
 	utf16_CPUMasterVersionString[0] = 0;
-	rhea::utf16::concatFromASCII(utf16_CPUMasterVersionString, sizeof(utf16_CPUMasterVersionString), "xxxxxxxxxTS30 02.03.00    GB-GB");
+	rhea::string::utf16::concatFromASCII(utf16_CPUMasterVersionString, sizeof(utf16_CPUMasterVersionString), "xxxxxxxxxTS30 02.03.00    GB-GB");
 	*/
 	if (showCPUStringModelAndVersionUntil_msec)
     {
@@ -2815,9 +2814,9 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		{
 			//e' arrivato un msg nuovo dalla CPU, devo prependere la stringa con il modello
 			if (cpuStatus.LCDMsg.utf16LCDString[0] != 0x0000)
-				rhea::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_spacer);
-			rhea::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_CPUMasterVersionString);
-            lastCPUMsg_len = rhea::utf16::length (cpuStatus.LCDMsg.utf16LCDString);
+				rhea::string::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_spacer);
+			rhea::string::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_CPUMasterVersionString);
+            lastCPUMsg_len = rhea::string::utf16::lengthInBytes (cpuStatus.LCDMsg.utf16LCDString) / 2;
             cpuStatus.LCDMsg.importanceLevel = 0xff;
 		}
 		else
@@ -2825,15 +2824,15 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			//rispetto all'ultima volta, CPU non ha mandato nuovi messaggi.
 			//A questo punto, se cpuStatus.LCDMsg.utf16LCDString inizia già con la stringa col modello, non devo fare nulla, altrimenti la devo prependere
 			//e notificare tutti
-			u32 n = rhea::utf16::length(utf16_CPUMasterVersionString);
+			u32 n = rhea::string::utf16::lengthInBytes(utf16_CPUMasterVersionString) / 2;
 			if (memcmp(cpuStatus.LCDMsg.utf16LCDString, utf16_CPUMasterVersionString, n * 2) != 0)
 			{
 				if (cpuStatus.LCDMsg.utf16LCDString[0] != 0x0000)
-					rhea::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_spacer);
-				rhea::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_CPUMasterVersionString);
+					rhea::string::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_spacer);
+				rhea::string::utf16::prepend(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), utf16_CPUMasterVersionString);
 				bDoNotifyNewLCDMessage = true;
 				cpuStatus.LCDMsg.importanceLevel = 0xff;
-                lastCPUMsg_len = rhea::utf16::length (cpuStatus.LCDMsg.utf16LCDString);
+                lastCPUMsg_len = rhea::string::utf16::lengthInBytes (cpuStatus.LCDMsg.utf16LCDString) / 2;
 			}
 		}
 		
@@ -3289,8 +3288,8 @@ bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCom
 //**********************************************
 void Server::priv_retreiveSomeDataFromLocalDA3()
 {
-	char s[256];
-	sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	u8 s[256];
+	sprintf_s((char*)s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
 	u32 sizeOfBuffer = 0;
 	u8 *da3 = rhea::fs::fileCopyInMemory(s, localAllocator, &sizeOfBuffer);
 	if (NULL == da3)

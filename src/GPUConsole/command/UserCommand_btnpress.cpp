@@ -9,18 +9,19 @@ const char*	UserCommand_btnpress::getExplain() const
 //**********************************************************
 void UserCommand_btnpress::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
 {
-	rhea::string::parser::Iter src, temp;
-	src.setup(command);
+	rhea::string::utf8::Iter src, temp;
+	src.setup((const u8*)command);
 
-	if (!rhea::string::parser::advanceUntil(src, " ", 1))
+	const rhea::UTF8Char cSpace(" ");
+	if (!rhea::string::utf8::advanceUntil(src, &cSpace, 1))
 	{
 		log->log("syntax error, expecting parameter [btnnum]\n");
 		return;
 	}
-	rhea::string::parser::toNextValidChar(src);
+	rhea::string::utf8::toNextValidChar(src);
 
 	i32 btnNum = 0;
-	if (!rhea::string::parser::extractInteger(src, &btnNum))
+	if (!rhea::string::utf8::extractInteger(src, &btnNum))
 	{
 		log->log("syntax error, expecting integer parameter [btnnum]\n");
 		return;

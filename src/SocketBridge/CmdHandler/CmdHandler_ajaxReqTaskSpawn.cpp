@@ -9,27 +9,26 @@ using namespace socketbridge;
 
 struct sInput
 {
-	char name[128];
-	char params[1024];
-
+	u8 name[128];
+	u8 params[1024];
 
 	sInput()					{ name[0] = params[0] = 0; }
 };
 
 //***********************************************************
-bool ajaxReqTaskSpawn_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqTaskSpawn_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "name") == 0)
+	if (strcasecmp((const char*)fieldName, "name") == 0)
 	{
-		strcpy_s(input->name, sizeof(input->name), fieldValue);
+		rhea::string::utf8::copyStr (input->name, sizeof(input->name), fieldValue);
 		return true;
 	}
-	else if (strcasecmp(fieldName, "params") == 0)
+	else if (strcasecmp((const char*)fieldName, "params") == 0)
 	{
 		if (fieldValue[0] != 0x00)
-			strcpy_s(input->params, sizeof(input->params), fieldValue);
+			rhea::string::utf8::copyStr (input->params, sizeof(input->params), fieldValue);
 		return false;
 	}
 
@@ -37,7 +36,7 @@ bool ajaxReqTaskSpawn_jsonTrapFunction(const char *fieldName, const char *fieldV
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqTaskSpawn::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+void CmdHandler_ajaxReqTaskSpawn::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params)
 {
 	sInput data;
 	if (!rhea::json::parse(params, ajaxReqTaskSpawn_jsonTrapFunction, &data))
@@ -45,7 +44,7 @@ void CmdHandler_ajaxReqTaskSpawn::handleRequestFromSocketBridge(socketbridge::Se
 
 	char resp[16];
 	u32 uid = 0;
-	server->taskSpawnAndRun(data.name, data.params, &uid);
+	server->taskSpawnAndRun((const char*)data.name, data.params, &uid);
 	sprintf_s(resp, sizeof(resp), "%d", uid);
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

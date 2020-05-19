@@ -20,8 +20,8 @@ i16     serverThreadFn (void *userParam);
 //*****************************************************************************
 bool socketbridge_helper_folder_create (const char *folder, rhea::ISimpleLogger *logger)
 {
-    char s[512];
-    sprintf_s(s, sizeof(s), "%s/%s", rhea::getPhysicalPathToAppFolder(), folder);
+    u8 s[512];
+    sprintf_s((char*)s, sizeof(s), "%s/%s", rhea::getPhysicalPathToAppFolder(), folder);
     if (!rhea::fs::folderCreate(s))
     {
         logger->log ("ERR: can't create folder [%s]\n", s);
@@ -67,7 +67,7 @@ i16 serverThreadFn (void *userParam)
     //sServerInitParam *init = (sServerInitParam*)userParam;
     sServerInitParam *init = static_cast<sServerInitParam*>(userParam);
 
-    serverInstance = RHEANEW(rhea::memory_getDefaultAllocator(), socketbridge::Server)();
+    serverInstance = RHEANEW(rhea::getScrapAllocator(), socketbridge::Server)();
     serverInstance->useLogger (init->logger);
     if (serverInstance->open (2280, init->hCPUServiceChannelW, init->bDieWhenNoClientConnected ))
 	{
@@ -76,7 +76,7 @@ i16 serverThreadFn (void *userParam)
         serverInstance->run();
 	}
     serverInstance->close();
-    RHEADELETE(rhea::memory_getDefaultAllocator(), serverInstance);
+    RHEADELETE(rhea::getScrapAllocator(), serverInstance);
 	return 1;
 }
 

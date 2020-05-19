@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x0B_StatoGruppo::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_P0x0B_StatoGruppo::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_GET_STATO_GRUPPO(from, getHandlerID());
 }
@@ -22,5 +22,5 @@ void CmdHandler_ajaxReq_P0x0B_StatoGruppo::onCPUBridgeNotification (socketbridge
 		sprintf_s(resp, sizeof(resp), "0");
 	else
 		sprintf_s(resp, sizeof(resp), "1");
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

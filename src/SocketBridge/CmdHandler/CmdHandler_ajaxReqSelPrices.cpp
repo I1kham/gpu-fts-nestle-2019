@@ -5,7 +5,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReqSelPrices::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReqSelPrices::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_QUERY_SEL_PRICES (from, getHandlerID());
 }
@@ -25,5 +25,5 @@ void CmdHandler_ajaxReqSelPrices::onCPUBridgeNotification (socketbridge::Server 
 	
 	char resp[512];
 	sprintf_s(resp, sizeof(resp), "{\"n\":%d,\"s\":\"%s\"}", numPrices, strPriceList);
-    server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

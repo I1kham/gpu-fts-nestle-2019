@@ -24,7 +24,7 @@ u32 Time24::formatAs_HHMMSS() const
 {
 	char s[8];
 	formatAs_HHMMSS(s, sizeof(s), 0x00);
-	return rhea::string::convert::toU32(s);
+	return rhea::string::utf8::toU32((const u8*)s);
 }
 
 //****************************

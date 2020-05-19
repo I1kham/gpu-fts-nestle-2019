@@ -49,17 +49,19 @@ bool handleCommandSyntax_connect (WinTerminal *logger, const char *s, char *out_
 	sprintf_s (out_ip, sizeofIP, "127.0.0.1");
 	*out_port = DEFAULT_PORT_NUMBER;
 
-	rhea::string::parser::Iter iter;
-	rhea::string::parser::Iter iter2;
+	rhea::string::utf8::Iter iter;
+	rhea::string::utf8::Iter iter2;
 	
-	iter.setup(s);
-	rhea::string::parser::advanceUntil(iter, " ", 1);
-	rhea::string::parser::toNextValidChar(iter);
+	iter.setup((const u8*)s);
+
+	const rhea::UTF8Char cSpace(" ");
+	rhea::string::utf8::advanceUntil(iter, &cSpace, 1);
+	rhea::string::utf8::toNextValidChar(iter);
 
 	//se c'è un ip
-	if (rhea::string::parser::extractValue(iter, &iter2, " ", 1))
+	if (rhea::string::utf8::extractValue(iter, &iter2, &cSpace, 1))
 	{
-		iter2.copyCurStr(out_ip, sizeofIP);
+		iter2.copyAllStr((u8*)out_ip, sizeofIP);
 
 		//ci devono essere 3 . e il resto solo numeri
 		u8 nPunti = 0;
@@ -84,10 +86,10 @@ bool handleCommandSyntax_connect (WinTerminal *logger, const char *s, char *out_
 		}
 
 
-		rhea::string::parser::toNextValidChar(iter);
+		rhea::string::utf8::toNextValidChar(iter);
 
 		i32 port;
-		if (rhea::string::parser::extractInteger(iter, &port))
+		if (rhea::string::utf8::extractInteger(iter, &port))
 		{
 			if (port > 0 && port < 65536)
 				*out_port = (u16)port;
@@ -232,7 +234,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		{
 			log->outText(true, true, false, "RCV [reqClientList]\n");
 			log->incIndent();
-			rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+			rhea::Allocator *allocator = rhea::getScrapAllocator();
 
 			rhea::DateTime dtCPUBridgeStarted;
 			socketbridge::sIdentifiedClientInfo *list = NULL;
@@ -655,7 +657,7 @@ bool run (const sThreadInitParam *init)
 	WinTerminal *logger = init->wt;
 
 	//allocatore locale
-	rhea::Allocator	*localAllocator = rhea::memory_getDefaultAllocator();
+	rhea::Allocator	*localAllocator = rhea::getScrapAllocator();
 
 	//canale di comunicazione
 	rhea::ProtocolChSocketTCP ch(localAllocator, 4096, 8192);
@@ -837,7 +839,7 @@ sIPAddressAndSubnetMask* scanNetworkAdaptersAndFindLocalIP (rhea::Allocator *all
 {
 	*out_nRecordFound = 0;
 
-	rhea::Allocator *tempAllocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *tempAllocator = rhea::getScrapAllocator();
 
 	// Before calling AddIPAddress we use GetIpAddrTable to get an adapter to which we can add the IP.
 	DWORD dwTableSize = sizeof(MIB_IPADDRTABLE);
@@ -879,11 +881,11 @@ sIPAddressAndSubnetMask* scanNetworkAdaptersAndFindLocalIP (rhea::Allocator *all
 		//printf("\n\tInterface Index[%d]:\t%ld\n", i, pIPAddrTable->table[i].dwIndex);
 		
 		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwAddr;
-		InetNtop(AF_INET, &IPAddr, ret[i].ip, sizeof(ret[i].ip));
+		InetNtopA(AF_INET, &IPAddr, ret[i].ip, sizeof(ret[i].ip));
 		printf("\tIP Address[%d]:     \t%s\n", i, ret[i].ip);
 		
 		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwMask;
-		InetNtop(AF_INET, &IPAddr, ret[i].subnetMask, sizeof(ret[i].subnetMask));
+		InetNtopA(AF_INET, &IPAddr, ret[i].subnetMask, sizeof(ret[i].subnetMask));
 		printf("\tSubnet Mask[%d]:    \t%s\n", i, ret[i].subnetMask);
 		
 		/*IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwBCastAddr;
@@ -922,7 +924,7 @@ int main()
 	rhea::init("rheaConsole", &hInst);
 
 	//elenco delle schede di rete e relativi ip/subnet mask. Serve per il broadcast su tutte le reti del comando hello
-	rhea::Allocator *localAllocator = rhea::memory_getDefaultAllocator();
+	rhea::Allocator *localAllocator = rhea::getScrapAllocator();
 	ipList = scanNetworkAdaptersAndFindLocalIP(localAllocator, &nIPList);
 
 	//version info

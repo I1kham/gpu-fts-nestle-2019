@@ -32,7 +32,7 @@ sGlob   glob;
 //**************************************************************
 bool thread::internal_init()
 {
-    glob.allocator = rhea::memory_getDefaultAllocator();
+    glob.allocator = rhea::getSysHeapAllocator();
     glob.handleArray.setup (glob.allocator, 1024);
     rhea::criticalsection::init (&glob.cs);
 

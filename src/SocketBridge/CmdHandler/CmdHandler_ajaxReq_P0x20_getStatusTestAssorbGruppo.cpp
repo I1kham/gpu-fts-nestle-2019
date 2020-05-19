@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_GRUPPO(from, getHandlerID());
 }
@@ -37,5 +37,5 @@ void CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo::onCPUBridgeNotification
 \"r5up\":\"%s\",\"r5down\":\"%s\",\
 \"r6up\":\"%s\",\"r6down\":\"%s\"}",\
 		fase, esito, results[0], results[1], results[2], results[3], results[4], results[5], results[6], results[7], results[8], results[9], results[10], results[11]);
-    server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

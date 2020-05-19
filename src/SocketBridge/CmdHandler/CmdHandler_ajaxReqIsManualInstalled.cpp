@@ -8,25 +8,25 @@ using namespace socketbridge;
 
 
 //***********************************************************
-void CmdHandler_ajaxReqIsManualInstalled::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReqIsManualInstalled::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params UNUSED_PARAM)
 {
-	char pathToManualFolder[256];
-	sprintf_s(pathToManualFolder, sizeof(pathToManualFolder), "%s/last_installed/manual", rhea::getPhysicalPathToAppFolder());
+	u8 pathToManualFolder[256];
+	sprintf_s((char*)pathToManualFolder, sizeof(pathToManualFolder), "%s/last_installed/manual", rhea::getPhysicalPathToAppFolder());
 
-	char manualFolderName[128];
+	u8 manualFolderName[128];
 	manualFolderName[0] = 0;
 
 	OSFileFind h;
-	if (rhea::fs::findFirst(&h, pathToManualFolder, "*.*"))
+	if (rhea::fs::findFirst(&h, pathToManualFolder, (const u8*)"*.*"))
 	{
 		do
 		{
 			if (!rhea::fs::findIsDirectory(h))
 				continue;
-			const char *folderName = rhea::fs::findGetFileName(h);
+			const u8 *folderName = rhea::fs::findGetFileName(h);
 			if (folderName[0] == '.')
 				continue;
-			sprintf_s(manualFolderName, sizeof(manualFolderName), "%s", folderName);
+			sprintf_s((char*)manualFolderName, sizeof(manualFolderName), "%s", folderName);
 			break;
 
 		} while (rhea::fs::findNext(h));
@@ -40,5 +40,5 @@ void CmdHandler_ajaxReqIsManualInstalled::handleRequestFromSocketBridge(socketbr
 		manualFolderName[2] = 0x00;
 	}
 
-	server->sendAjaxAnwer(hClient, ajaxRequestID, manualFolderName, (u16)strlen(manualFolderName));
+	server->sendAjaxAnwer(hClient, ajaxRequestID, manualFolderName, (u16)rhea::string::utf8::lengthInBytes(manualFolderName));
 }

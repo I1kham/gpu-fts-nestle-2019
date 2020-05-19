@@ -8,7 +8,7 @@ using namespace socketbridge;
 //***********************************************************
 void CmdHandler_eventReqWriteLocalVMCDataFile::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen UNUSED_PARAM)
 {
-	const char *localFileName = (const char*) &payload[1];
+	const u8 *localFileName = &payload[1];
 	cpubridge::ask_WRITE_VMCDATAFILE(from, getHandlerID(), localFileName);
 }
 

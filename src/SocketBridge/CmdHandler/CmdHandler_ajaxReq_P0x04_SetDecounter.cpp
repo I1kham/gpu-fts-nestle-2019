@@ -12,21 +12,21 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqResetDecounter_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqResetDecounter_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "d") == 0)
+	if (strcasecmp((const char*)fieldName, "d") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
 		if (h > 0 && h < 0xff)
 			input->d = (u8)h;
 		else
 			input->d = 0xff;
 	}
-	if (strcasecmp(fieldName, "v") == 0)
+	if (strcasecmp((const char*)fieldName, "v") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xffff)
 			input->v = (u16)h;
 		else
@@ -39,7 +39,7 @@ bool ajaxReqResetDecounter_jsonTrapFunction(const char *fieldName, const char *f
 
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x04_SetDecounter::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params)
+void CmdHandler_ajaxReq_P0x04_SetDecounter::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqResetDecounter_jsonTrapFunction, &data))
@@ -61,5 +61,5 @@ void CmdHandler_ajaxReq_P0x04_SetDecounter::onCPUBridgeNotification (socketbridg
 		text[0] = 'K';
 		text[1] = 'O';
 	}
-    server->sendAjaxAnwer (hClient, ajaxRequestID, text, (u16)strlen(text));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)text, (u16)strlen(text));
 }

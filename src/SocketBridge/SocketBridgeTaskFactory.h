@@ -26,11 +26,11 @@ namespace socketbridge
 						{
 							u32 i = list.getNElem();
 							list[i].spawnFn = TTask::spawn;
-							list[i].name = rhea::string::alloc(localAllocator, taskName);
+							list[i].name = (char*)rhea::string::utf8::allocStr(localAllocator, (const u8*)taskName);
 						}
 
 		Task*			spawn (rhea::Allocator *allocator, const char *taskName) const;
-		TaskStatus*		spawnAndRunTask(rhea::Allocator *allocator, const char *taskName, const char *params) const;
+		TaskStatus*		spawnAndRunTask (rhea::Allocator *allocator, const char *taskName, const u8* const params) const;
 
 	private:
 		struct sRecord

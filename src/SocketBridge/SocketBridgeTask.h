@@ -56,7 +56,7 @@ namespace socketbridge
 	public:
 		Task				*_task;
 		rhea::Allocator		*_localAllocator;
-		char				*params;
+		u8					*params;
 		
 		static void			FREE(TaskStatus *s)																		{ RHEADELETE(s->_localAllocator, s); }
 	};
@@ -75,7 +75,7 @@ namespace socketbridge
 	 *	Quando TaskStatus ritorna eFinished, allora è possibile fare il free anche dell'istanza di TaskStatus, usando l'apposita statica TaskStatus::FREE()
 	 *
 	 *	es:
-	 *		rhea::Allocator *allocator = rhea::rhea::memory_getDefaultAllocator();
+	 *		rhea::Allocator *allocator = rhea::rhea::getScrapAllocator();
 	 *		TaskStatus *ts = runTask<MyTask>(allocator);
 	 *		if (NULL == ts) return; //fallimento
 	 *		...
@@ -91,7 +91,7 @@ namespace socketbridge
 			}
 	 */
 					template<class TTask>
-	TaskStatus*		runTask (rhea::Allocator *localAllocator, const char *params)
+	TaskStatus*		runTask (rhea::Allocator *localAllocator, const u8* const params)
 	{
 		TaskStatus*	status = RHEANEW(localAllocator, TaskStatus)();
 		status->_localAllocator = localAllocator;
@@ -126,7 +126,7 @@ namespace socketbridge
 	public:
 							Task() { }
 		virtual				~Task() { }
-		virtual void		run (TaskStatus *status, const char *params) = 0;
+		virtual void		run (TaskStatus *status, const u8* const params) = 0;
 	};
 
 

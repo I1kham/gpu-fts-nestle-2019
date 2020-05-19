@@ -26,8 +26,8 @@ void DBList::unsetup()
 //*********************************************************
 void DBList::priv_freeResouce(sEntry *s)
 {
-	if (s->fullFilePathAndName)
-		RHEAFREE(list.getAllocator(), s->fullFilePathAndName);
+	if (s->utf8_fullFilePathAndName)
+		RHEAFREE(list.getAllocator(), s->utf8_fullFilePathAndName);
 	if (s->db)
 	{
 		s->db->closeDB();
@@ -64,12 +64,12 @@ void DBList::purge(u64 timeNowMSec UNUSED_PARAM)
 }
 
 //*********************************************************
-u16 DBList::getOrCreateDBHandle(u64 timeNowMSec, const char *fullFilePathAndName)
+u16 DBList::getOrCreateDBHandle(u64 timeNowMSec,  const u8* const utf8_fullFilePathAndName)
 {
 	u32 n = list.getNElem();
 	for (u32 i = 0; i < n; i++)
 	{
-		if (strcasecmp(fullFilePathAndName, list(i).fullFilePathAndName) == 0)
+		if (rhea::string::utf8::areEqual (utf8_fullFilePathAndName, list(i).utf8_fullFilePathAndName, true))
 		{
 			list[i].lastTimeUsedMSec = timeNowMSec;
 			return list(i).dbHandle;
@@ -79,10 +79,10 @@ u16 DBList::getOrCreateDBHandle(u64 timeNowMSec, const char *fullFilePathAndName
 	rhea::SQLInterface	*db = RHEANEW(list.getAllocator(), rhea::SQLInterface_SQLite)();
 	if (db)
 	{
-		if (db->openDB(fullFilePathAndName))
+		if (db->openDB(utf8_fullFilePathAndName))
 		{
 			list[n].lastTimeUsedMSec = timeNowMSec;
-			list[n].fullFilePathAndName = rhea::string::alloc(list.getAllocator(), fullFilePathAndName);
+			list[n].utf8_fullFilePathAndName = rhea::string::utf8::allocStr (list.getAllocator(), utf8_fullFilePathAndName);
 			list[n].dbHandle = nextHandle++;
 			list[n].db = db;
 			return list[n].dbHandle;
@@ -106,34 +106,34 @@ u32 DBList::priv_findByDBHandle(u16 dbHandle) const
 
 
 //*********************************************************
-bool DBList::q (u16 dbHandle, u64 timeNowMSec, const char *sql, rhea::SQLRst *out_result)
+bool DBList::q (u16 dbHandle, u64 timeNowMSec, const u8 * const utf8_sql, rhea::SQLRst *out_result)
 {
 	u32 index = priv_findByDBHandle(dbHandle);
 	if (u32MAX == index)
 		return false;
 	
 	list[index].lastTimeUsedMSec = timeNowMSec;
-	return list(index).db->q(sql, out_result);
+	return list(index).db->q(utf8_sql, out_result);
 }
 
 //*********************************************************
-bool DBList::exec(u16 dbHandle, u64 timeNowMSec, const char *sql)
+bool DBList::exec(u16 dbHandle, u64 timeNowMSec, const u8 * const utf8_sql)
 {
 	u32 index = priv_findByDBHandle(dbHandle);
 	if (u32MAX == index)
 		return false;
 
 	list[index].lastTimeUsedMSec = timeNowMSec;
-	return list(index).db->exec(sql);
+	return list(index).db->exec(utf8_sql);
 }
 
 //*********************************************************
-void DBList::closeDBByPath(const char *fullFilePathAndName)
+void DBList::closeDBByPath(const u8 * const utf8_fullFilePathAndName)
 {
 	u32 n = list.getNElem();
 	for (u32 i = 0; i < n; i++)
 	{
-		if (strcasecmp(fullFilePathAndName, list(i).fullFilePathAndName) == 0)
+		if (rhea::string::utf8::areEqual (utf8_fullFilePathAndName, list(i).utf8_fullFilePathAndName, false))
 		{
 			const u16 dbHandle = list(i).dbHandle;
 			closeDBByHandle(dbHandle);

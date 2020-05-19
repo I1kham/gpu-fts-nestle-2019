@@ -11,18 +11,19 @@ const char*	UserCommand_cpuprogcmd::getExplain() const
 //**********************************************************
 void UserCommand_cpuprogcmd::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
 {
-	rhea::string::parser::Iter src, temp;
-	src.setup(command);
+	rhea::string::utf8::Iter src, temp;
+	src.setup((const u8*)command);
 
-	if (!rhea::string::parser::advanceUntil(src, " ", 1))
+	const rhea::UTF8Char cSpace(" ");
+	if (!rhea::string::utf8::advanceUntil(src, &cSpace, 1))
 	{
 		log->log("syntax error, expecting parameter [cmd]\n");
 		return;
 	}
-	rhea::string::parser::toNextValidChar(src);
+	rhea::string::utf8::toNextValidChar(src);
 
 	i32 cmd = 0;
-	if (!rhea::string::parser::extractInteger(src, &cmd))
+	if (!rhea::string::utf8::extractInteger(src, &cmd))
 	{
 		log->log("syntax error, expecting integer parameter [cmd]\n");
 		return;
@@ -34,9 +35,9 @@ void UserCommand_cpuprogcmd::handle(const char *command, rhea::IProtocolChannell
 	u8 ct = 0;
 	while (ct < 4)
 	{
-		rhea::string::parser::toNextValidChar(src);
+		rhea::string::utf8::toNextValidChar(src);
 		i32 par;
-		if (!rhea::string::parser::extractInteger(src, &par))
+		if (!rhea::string::utf8::extractInteger(src, &par))
 			break;
 		params[ct++] = (u8)par;
 	}

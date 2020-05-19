@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x06_GetAllDecounterValues::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_P0x06_GetAllDecounterValues::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_GET_ALL_DECOUNTER_VALUES (from, getHandlerID());
 }
@@ -26,6 +26,5 @@ void CmdHandler_ajaxReq_P0x06_GetAllDecounterValues::onCPUBridgeNotification (so
 		strcat_s(resp, sizeof(resp), s);
 	}
 
-
-	server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
+	server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

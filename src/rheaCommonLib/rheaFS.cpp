@@ -5,33 +5,34 @@
 
 using namespace rhea;
 
-/****************************************************
- * rimuove eventuali . e .. e doppi /
- */
-void fs::sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSanitzed)
+//**************************************************************
+void fs::sanitizePath (const u8* const utf8_path, u8* out_utf8sanitizedPath, u32 sizeOfOutSanitzed)
 {
-	if (NULL == path)
+	if (NULL == utf8_path)
 	{
-		out_sanitizedPath[0] = 0;
+		out_utf8sanitizedPath[0] = 0;
 		return;
 	}
-	if (path[0] == 0x00)
+	if (utf8_path[0] == 0x00)
 	{
-		out_sanitizedPath[0] = 0;
+		out_utf8sanitizedPath[0] = 0;
 		return;
 	}
 
-    strcpy_s (out_sanitizedPath, sizeOfOutSanitzed, path);
-	sanitizePathInPlace(out_sanitizedPath);
+    strcpy_s ((char*)out_utf8sanitizedPath, sizeOfOutSanitzed, (const char*)utf8_path);
+	fs::sanitizePathInPlace(out_utf8sanitizedPath);
 }
 
-void fs::sanitizePathInPlace(char *path)
+//**************************************************************
+void fs::sanitizePathInPlace(u8 *utf8_path, u32 nBytesToCheck)
 {
-	u32 nBytesToCheck = (u32)strlen(path);
+	if (u32MAX == nBytesToCheck)
+		nBytesToCheck = (u32)strlen((const char*)utf8_path);
+
 	for (u32 i = 0; i < nBytesToCheck; i++)
 	{
-		if (path[i] == '\\')
-			path[i] = '/';
+		if (utf8_path[i] == '\\')
+			utf8_path[i] = '/';
 	}
 
 	//eventuali %20 li trasforma in blank
@@ -39,14 +40,14 @@ void fs::sanitizePathInPlace(char *path)
 	{
 		for (u32 i = 0; i < nBytesToCheck - 2; i++)
 		{
-			if (path[i] == '%')
+			if (utf8_path[i] == '%')
 			{
-				if (path[i + 1] == '2' && path[i + 2] == '0')
+				if (utf8_path[i + 1] == '2' && utf8_path[i + 2] == '0')
 				{
-					path[i] = ' ';
-					memcpy(&path[i + 1], &path[i + 3], nBytesToCheck - i - 3);
+					utf8_path[i] = ' ';
+					memcpy(&utf8_path[i + 1], &utf8_path[i + 3], nBytesToCheck - i - 3);
 					nBytesToCheck -= 2;
-					path[nBytesToCheck] = 0;
+					utf8_path[nBytesToCheck] = 0;
 				}
 			}
 		}
@@ -55,66 +56,100 @@ void fs::sanitizePathInPlace(char *path)
 	u32 i = 0, t = 0;
 	while (i < nBytesToCheck)
 	{
-		if (path[i] == '\\')
-			path[i] = '/';
-
-		if (path[i] == '/')
+		if (utf8_path[i] == '/')
 		{
-			path[t++] = path[i++];
-			while (path[i] == '/')
+			utf8_path[t++] = utf8_path[i++];
+			while (utf8_path[i] == '/')
 				++i;
 		}
-		else if (path[i] == '.')
+		else if (utf8_path[i] == '.')
 		{
 			//se xxx/./yyy
-			if (i > 0 && path[i - 1] == '/' && path[i + 1] == '/')
+			if (i > 0 && utf8_path[i - 1] == '/' && utf8_path[i + 1] == '/')
 				i += 2;
 			//se xxx/../yyy
-			else if (i > 0 && path[i - 1] == '/' && path[i + 1] == '.')
+			else if (i > 0 && utf8_path[i - 1] == '/' && utf8_path[i + 1] == '.')
 			{
 				i += 3;
 				if (t >= 2)
 					t -= 2;
-				while (t && path[t] != '/')
+				while (t && utf8_path[t] != '/')
 					--t;
-				if (path[t] == '/')
+				if (utf8_path[t] == '/')
 					++t;
 			}
 			else
-				path[t++] = path[i++];
+				utf8_path[t++] = utf8_path[i++];
 		}
 		else
-			path[t++] = path[i++];
+			utf8_path[t++] = utf8_path[i++];
 	}
-	path[t] = 0;
-	if (t > 1 && path[t - 1] == '/')
-		path[t - 1] = 0;
+	utf8_path[t] = 0;
+	if (t > 1 && utf8_path[t - 1] == '/')
+		utf8_path[t - 1] = 0;
 }
 
+//******************************************** 
+void fs::filePath_GoBack (const u8* const pathSenzaSlashIN, u8 *out, u32 sizeofout)
+{
+	assert (NULL != out && sizeofout > 1);
+	out[0] ='/'; 
+	out[1] = 0;
+	if (NULL == pathSenzaSlashIN || (NULL != pathSenzaSlashIN && pathSenzaSlashIN[0] == 0))
+		return;
+	if (pathSenzaSlashIN[1] == 0)
+	{
+		assert (pathSenzaSlashIN[0]=='/');
+		return;
+	}
+
+	const u32 MAXSIZE = 1024;
+	u8 pathSenzaSlash[MAXSIZE];
+	fs::sanitizePath(pathSenzaSlashIN, pathSenzaSlash, sizeof(pathSenzaSlash));
+
+	string::utf8::Iter parser;
+	parser.setup (pathSenzaSlash);
+	parser.toLast();
+
+	assert(parser.getCurChar() != '/');
+
+	while (parser.getCurChar() != '/')
+	{
+		if (!parser.backOneChar())
+			break;
+	}
+
+	if (parser.getCurChar() == '/')
+	{
+		if (parser.backOneChar())
+			parser.copyStrFromXToCurrentPosition (0, out, sizeofout, true);
+	}
+
+}
 
 //**************************************************************************
-void fs::extractFileExt(const char *filename, char *out, u32 sizeofout)
+void fs::extractFileExt (const u8* const utf8_filename, u8 *out, u32 sizeofout)
 {
-	assert(out && sizeofout >= 3);
+	assert (out && sizeofout >=3);
 	out[0] = 0;
 
-	u32 len = (u32)strlen(filename);
+	u32 len = (u32)strlen((const char*)utf8_filename);
 	if (len > 0)
 	{
 		u32 i = len;
 		while (i-- > 0)
 		{
-			if (filename[i] == '.')
+			if (utf8_filename[i] == '.')
 			{
 				if (i < len - 1)
 				{
 					u32 numBytesToCopy = len - i - 1;
-					if (numBytesToCopy >= sizeofout - 1)
+					if (numBytesToCopy >= sizeofout-1)
 					{
 						DBGBREAK;
-						numBytesToCopy = sizeofout - 2;
+						numBytesToCopy = sizeofout -2;
 					}
-					memcpy(out, &filename[i + 1], numBytesToCopy);
+					memcpy (out, &utf8_filename[i+1], numBytesToCopy);
 					out[numBytesToCopy] = 0;
 				}
 				return;
@@ -124,49 +159,49 @@ void fs::extractFileExt(const char *filename, char *out, u32 sizeofout)
 }
 
 //**************************************************************************
-void fs::extractFileNameWithExt(const char *filename, char *out, u32 sizeofout)
+void fs::extractFileNameWithExt (const u8* const utf8_filename, u8 *out, u32 sizeofout)
 {
-	assert(out && sizeofout >= 3);
+	assert (out && sizeofout >=3);
 	out[0] = 0;
 
-	u32 len = (u32)strlen(filename);
+	u32 len = (u32)strlen((const char*)utf8_filename);
 	if (len > 0)
 	{
 		u32 i = len;
 		while (i-- > 0)
 		{
-			if (filename[i] == '/' || filename[i] == '\\')
+			if (utf8_filename[i]=='/' || utf8_filename[i]=='\\')
 			{
 				u32 numBytesToCopy = len - i - 1;
-				if (numBytesToCopy >= sizeofout - 1)
+				if (numBytesToCopy >= sizeofout-1)
 				{
 					DBGBREAK;
-					numBytesToCopy = sizeofout - 2;
+					numBytesToCopy = sizeofout -2;
 				}
-				memcpy(out, &filename[i + 1], numBytesToCopy);
+				memcpy (out, &utf8_filename[i+1], numBytesToCopy);
 				out[numBytesToCopy] = 0;
 				return;
 			}
 		}
-
+		
 		u32 numBytesToCopy = len;
-		if (numBytesToCopy >= sizeofout - 1)
+		if (numBytesToCopy >= sizeofout-1)
 		{
 			DBGBREAK;
-			numBytesToCopy = sizeofout - 2;
+			numBytesToCopy = sizeofout -2;
 		}
-		memcpy(out, filename, numBytesToCopy);
+		memcpy (out, utf8_filename, numBytesToCopy);
 		out[numBytesToCopy] = 0;
 		return;
 	}
 }
 
 //**************************************************************************
-void fs::extractFileNameWithoutExt(const char *filename, char *out, u32 sizeofout)
+void fs::extractFileNameWithoutExt (const u8* const utf8_filename, u8 *out, u32 sizeofout)
 {
-	fs::extractFileNameWithExt(filename, out, sizeofout);
+	fs::extractFileNameWithExt (utf8_filename, out, sizeofout);
 
-	u32 len = (u32)strlen(out);
+	u32 len = (u32)strlen((const char*)out);
 	while (len--)
 	{
 		if (out[len] == '.')
@@ -178,82 +213,140 @@ void fs::extractFileNameWithoutExt(const char *filename, char *out, u32 sizeofou
 }
 
 //**************************************************************************
-void fs::extractFilePathWithSlash(const char *filename, char *out, u32 sizeofout)
+void fs::extractFilePathWithSlash (const u8* const utf8_filename, u8 *out, u32 sizeofout)
 {
-	assert(out && sizeofout >= 3);
+	assert (out && sizeofout >=3);
 	out[0] = 0;
 
-	u32 len = (u32)strlen(filename);
+	u32 len = (u32)strlen((const char*)utf8_filename);
 	while (len-- > 0)
 	{
-		if (filename[len] == '/' || filename[len] == '\\')
+		if (utf8_filename[len]=='/' || utf8_filename[len]=='\\')
 		{
-			u32 numBytesToCopy = len + 1;
+			u32 numBytesToCopy = len+1;
 			if (numBytesToCopy >= sizeofout)
 			{
 				DBGBREAK;
-				numBytesToCopy = sizeofout - 1;
+				numBytesToCopy = sizeofout -1;
 			}
-			memcpy(out, filename, numBytesToCopy);
+			memcpy (out, utf8_filename, numBytesToCopy);
 			out[numBytesToCopy] = 0;
-			fs::sanitizePathInPlace(out);
 			return;
 		}
 	}
 }
 
 //**************************************************************************
-void fs::extractFilePathWithOutSlash(const char *filename, char *out, u32 sizeofout)
+void fs::extractFilePathWithOutSlash (const u8* const utf8_filename, u8 *out, u32 sizeofout)
 {
-	assert(out && sizeofout >= 3);
+	assert (out && sizeofout >=3);
 	out[0] = 0;
 
-	u32 len = (u32)strlen(filename);
+	u32 len = (u32)strlen((const char*)utf8_filename);
 	while (len-- > 0)
 	{
-		if (filename[len] == '/' || filename[len] == '\\')
+		if (utf8_filename[len]=='/' || utf8_filename[len]=='\\')
 		{
 			u32 numBytesToCopy = len;
 			if (numBytesToCopy >= sizeofout)
 			{
 				DBGBREAK;
-				numBytesToCopy = sizeofout - 1;
+				numBytesToCopy = sizeofout -1;
 			}
-			memcpy(out, filename, numBytesToCopy);
+			memcpy (out, utf8_filename, numBytesToCopy);
 			out[numBytesToCopy] = 0;
-			fs::sanitizePathInPlace(out);
 			return;
 		}
 	}
 }
 
+//*********************************************
+bool fs::doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_strJolly)
+{
+    assert (NULL != utf8_filename && NULL != utf8_strJolly);
+
+	string::utf8::Iter parserFilename;
+	parserFilename.setup (utf8_filename);
+
+    string::utf8::Iter parserJolly;
+    parserJolly.setup (utf8_strJolly);
+
+    while (1)
+    {
+        if (parserJolly.getCurChar().isEOF() || parserFilename.getCurChar().isEOF())
+        {
+            if (parserJolly.getCurChar().isEOF() && parserFilename.getCurChar().isEOF())
+                return true;
+            return false;
+        }
+
+        if (parserJolly.getCurChar() == '?')
+        {
+            //il char jolly  ?, quindi va bene un char qualunque
+            parserFilename.advanceOneChar();
+            parserJolly.advanceOneChar();
+        }
+        else if (parserJolly.getCurChar() == '*')
+        {
+            //il char jolly  un *, quindi prendo il prox char jolly e lo cerco nel filename
+            parserJolly.advanceOneChar();
+            if (parserJolly.getCurChar().isEOF())
+                return true;
+
+            //cerco il char jolly
+            while (1)
+            {
+                parserFilename.advanceOneChar();
+                if (parserFilename.getCurChar().isEOF())
+                    return false;
+                if (parserFilename.getCurChar() == parserJolly.getCurChar())
+                {
+                    if (fs::doesFileNameMatchJolly (parserFilename.getPointerToCurrentPosition(), parserJolly.getPointerToCurrentPosition()))
+                        return true;
+                }
+            }
+        }
+        else
+        {
+            //il carattere jolly  un char normale, quindi deve essere uguale al char del filename
+            if (parserFilename.getCurChar() != parserJolly.getCurChar())
+                return false;
+            parserFilename.advanceOneChar();
+            parserJolly.advanceOneChar();
+        }
+
+    }
+    return true;
+}
+
+
 
 //**************************************************************************
-void fs::findComposeFullFilePathAndName(const OSFileFind &ff, const char *pathNoSlash, char *out, u32 sizeofOut)
+void fs::findComposeFullFilePathAndName(const OSFileFind &ff, const u8* const pathNoSlash, u8 *out, u32 sizeofOut)
 {
-	sprintf_s(out, sizeofOut, "%s/", pathNoSlash);
+	sprintf_s((char*)out, sizeofOut, "%s/", pathNoSlash);
 
-	const u32 n = strlen(out);
+	const u32 n = string::utf8::lengthInBytes(out);
 	fs::findGetFileName(ff, &out[n], sizeofOut - n);
 }
 
 //**************************************************************************
-void fs::deleteAllFileInFolderRecursively(const char *pathSenzaSlash, bool bAlsoRemoveFolder)
+void fs::deleteAllFileInFolderRecursively(const u8* const pathSenzaSlash, bool bAlsoRemoveFolder)
 {
 	if (!folderExists(pathSenzaSlash))
 		return;
 
 	OSFileFind ff;
-	if (fs::findFirst(&ff, pathSenzaSlash, "*.*"))
+	if (fs::findFirst(&ff, pathSenzaSlash, (const u8*)"*.*"))
 	{
 		do
 		{
-			char s[512];
+			u8 s[512];
 			findComposeFullFilePathAndName(ff, pathSenzaSlash, s, sizeof(s));
 
 			if (fs::findIsDirectory(ff))
 			{
-				const char *fname = fs::findGetFileName(ff);
+				const u8 *fname = fs::findGetFileName(ff);
 				if (fname[0] != '.')
 					fs::deleteAllFileInFolderRecursively(s, true);
 			}
@@ -278,13 +371,13 @@ u64 fs::filesize(FILE *fp)
 }
 
 //**************************************************************************
-bool fs_do_open_and_copy_fileCopy (const char *srcFullFileNameAndPath, const char *dstFullFileNameAndPath, void *buffer, u32 BUFFER_SIZE)
+bool fs_do_open_and_copy_fileCopy (const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath, void *buffer, u32 BUFFER_SIZE)
 {
-	FILE *fSRC = fopen(srcFullFileNameAndPath, "rb");
+	FILE *fSRC = fs::fileOpenForReadBinary (utf8_srcFullFileNameAndPath);
 	if (NULL == fSRC)
 		return false;
 
-	FILE *fDST = fopen(dstFullFileNameAndPath, "wb");
+	FILE *fDST = fs::fileOpenForWriteBinary(utf8_dstFullFileNameAndPath);
 	if (NULL == fDST)
 	{
 		fclose(fSRC);
@@ -319,44 +412,44 @@ bool fs_do_open_and_copy_fileCopy (const char *srcFullFileNameAndPath, const cha
 }
 
 //**************************************************************************
-bool fs::fileCopy (const char *srcFullFileNameAndPath, const char *dstFullFileNameAndPath)
+bool fs::fileCopy (const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath)
 {
     const u32 BUFFER_SIZE = 1024*1024;
-	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	void *buffer = RHEAALLOC(allocator, BUFFER_SIZE);
-	bool ret = fs_do_open_and_copy_fileCopy(srcFullFileNameAndPath, dstFullFileNameAndPath, buffer, BUFFER_SIZE);
+	bool ret = fs_do_open_and_copy_fileCopy(utf8_srcFullFileNameAndPath, utf8_dstFullFileNameAndPath, buffer, BUFFER_SIZE);
 	RHEAFREE(allocator, buffer);
 	return ret;
 }
 
 //**************************************************************************
-bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, void *buffer, u32 BUFFER_SIZE, const char* const*elencoPathDaEscludere)
+bool fs_folderCopy_with_buffer (const u8* const utf8_srcFullPathNoSlash, const u8* const utf8_dstFullPathNoSlash, void *buffer, u32 BUFFER_SIZE, const u8* const *elencoPathDaEscludere)
 {
-	if (!fs::folderCreate(dstFullPathNoSlash))
+	if (!fs::folderCreate(utf8_dstFullPathNoSlash))
 	{
 		DBGBREAK;
 		return false;
 	}
 
-	if (!fs::folderExists(srcFullPathNoSlash))
+	if (!fs::folderExists(utf8_srcFullPathNoSlash))
 		return false;
 
 	bool ret = true;
 	OSFileFind ff;
-	if (fs::findFirst(&ff, srcFullPathNoSlash, "*.*"))
+	if (fs::findFirst(&ff, utf8_srcFullPathNoSlash, (const u8*)"*.*"))
 	{
 		do
 		{
 			if (fs::findIsDirectory(ff))
 			{
-				const char *dirname = fs::findGetFileName(ff);
+				const u8 *dirname = fs::findGetFileName(ff);
 				if (dirname[0] != '.')
 				{
 					char src[1024], dst[1024];
-					sprintf_s(src, sizeof(src), "%s/%s", srcFullPathNoSlash, dirname);
+					sprintf_s(src, sizeof(src), "%s/%s", utf8_srcFullPathNoSlash, dirname);
 
 					bool bSkipFolder = false;
-					const char* const *p = elencoPathDaEscludere;
+					const char* const *p = (const char* const*)elencoPathDaEscludere;
 					while (p)
 					{
 						if (NULL == p[0])
@@ -371,20 +464,20 @@ bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstF
 
 					if (!bSkipFolder)
 					{
-						sprintf_s(dst, sizeof(dst), "%s/%s", dstFullPathNoSlash, dirname);
-						if (!fs_folderCopy_with_buffer(src, dst, buffer, BUFFER_SIZE, elencoPathDaEscludere))
+						sprintf_s(dst, sizeof(dst), "%s/%s", utf8_dstFullPathNoSlash, dirname);
+						if (!fs_folderCopy_with_buffer((const u8*)src, (const u8*)dst, buffer, BUFFER_SIZE, elencoPathDaEscludere))
 							ret = false;
 					}
 				}
 			}
 			else
 			{
-				const char *fname = fs::findGetFileName(ff);
+				const u8 *fname = fs::findGetFileName(ff);
 				
 				char src[1024], dst[1024];
-				sprintf_s(src, sizeof(src), "%s/%s", srcFullPathNoSlash, fname);
-				sprintf_s(dst, sizeof(dst), "%s/%s", dstFullPathNoSlash, fname);
-				fs_do_open_and_copy_fileCopy(src, dst, buffer, BUFFER_SIZE);
+				sprintf_s(src, sizeof(src), "%s/%s", utf8_srcFullPathNoSlash, fname);
+				sprintf_s(dst, sizeof(dst), "%s/%s", utf8_dstFullPathNoSlash, fname);
+				fs_do_open_and_copy_fileCopy((const u8*)src, (const u8*)dst, buffer, BUFFER_SIZE);
 			}
 		} while (fs::findNext(ff));
 		fs::findClose(ff);
@@ -395,15 +488,15 @@ bool fs_folderCopy_with_buffer (const char *srcFullPathNoSlash, const char *dstF
 
 
 //**************************************************************************
-bool fs::folderCopy(const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, const char* const*elencoPathDaEscludere)
+bool fs::folderCopy(const u8* const utf8_srcFullPathNoSlash, const u8* const utf8_dstFullPathNoSlash, const u8* const *elencoPathDaEscludere)
 {
 	//alloco un buffer per il file copy
     const u32 BUFFER_SIZE = 1024*1024;
-	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	
 	void *buffer = RHEAALLOC(allocator, BUFFER_SIZE);
 
-	bool ret = fs_folderCopy_with_buffer(srcFullPathNoSlash, dstFullPathNoSlash, buffer, BUFFER_SIZE, elencoPathDaEscludere);
+	bool ret = fs_folderCopy_with_buffer(utf8_srcFullPathNoSlash, utf8_dstFullPathNoSlash, buffer, BUFFER_SIZE, elencoPathDaEscludere);
 
 	RHEAFREE(allocator, buffer);
 	return ret;
@@ -411,69 +504,9 @@ bool fs::folderCopy(const char *srcFullPathNoSlash, const char *dstFullPathNoSla
 }
 
 //*********************************************
-bool fs::doesFileNameMatchJolly (const char *strFilename, const char *strJolly)
+u8* fs::fileCopyInMemory(const u8* const utf8_srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer)
 {
-    assert (NULL != strFilename && NULL != strJolly);
-    string::parser::Iter iterFilename;
-    iterFilename.setup (strFilename, 0, (u32)strlen(strFilename));
-
-    string::parser::Iter iterJolly;
-    iterJolly.setup (strJolly, 0, (u32)strlen(strJolly));
-
-    while (1)
-    {
-        if (iterJolly.getCurChar() == 0x00 || iterFilename.getCurChar() == 0x00)
-        {
-            if (iterJolly.getCurChar() == 0x00 && iterFilename.getCurChar() == 0x00)
-                return true;
-            return false;
-        }
-
-
-        if (iterJolly.getCurChar() == '?')
-        {
-            //il char jolly è ?, quindi va bene un char qualunque
-            iterFilename.next();
-            iterJolly.next();
-        }
-        else if (iterJolly.getCurChar() == '*')
-        {
-            //il char jolly è un *, quindi prendo il prox char jolly e lo cerco nel filename
-            iterJolly.next();
-            if (iterJolly.getCurChar() == 0x00)
-                return true;
-
-            //cerco il char jolly
-            while (1)
-            {
-                iterFilename.next();
-                if (iterFilename.getCurChar() == 0x00)
-                    return false;
-                if (iterFilename.getCurChar() == iterJolly.getCurChar())
-                {
-                    if (fs::doesFileNameMatchJolly (iterFilename.getCurStrPointer(), iterJolly.getCurStrPointer()))
-                        return true;
-                }
-            }
-        }
-        else
-        {
-            //il carattere jolly è un char normale, quindi deve essere uguale al char del filename
-            if (iterFilename.getCurChar() != iterJolly.getCurChar())
-                return false;
-            iterFilename.next();
-            iterJolly.next();
-        }
-
-    }
-    return true;
-}
-
-
-//*********************************************
-u8* fs::fileCopyInMemory(const char *srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer)
-{
-	FILE *f = fopen(srcFullFileNameAndPath, "rb");
+	FILE *f = fs::fileOpenForReadBinary(utf8_srcFullFileNameAndPath);
 	if (NULL == f)
 	{
 		*out_sizeOfAllocatedBuffer = 0;
@@ -516,37 +549,3 @@ u8* fs::fileCopyInMemory (FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAl
 }
 
 
-//******************************************** 
-void fs::filePath_GoBack (const char *pathSenzaSlashIN, char *out, u32 sizeofout)
-{
-	assert (NULL != out && sizeofout > 1);
-	out[0] = 0;
-	if (NULL == pathSenzaSlashIN || (NULL != pathSenzaSlashIN && pathSenzaSlashIN[0] == 0))
-		return;
-
-	const u32 MAXSIZE = 1024;
-	char pathSenzaSlash[MAXSIZE];
-	fs::sanitizePath(pathSenzaSlashIN, pathSenzaSlash, sizeof(pathSenzaSlash));
-
-	const u32 lenPath = (u32)strlen(pathSenzaSlash);
-	if (lenPath < sizeofout)
-		strcpy_s(out, sizeofout, pathSenzaSlash);
-	
-	rhea::string::parser::Iter src;
-	src.setup (pathSenzaSlash, 0, lenPath);
-	src.toLast();
-
-
-	assert(src.getCurChar() != '/');
-	const char cSlash = '/';
-	if (!rhea::string::parser::backUntil(src, &cSlash, 1))
-		return;
-
-	u32 n = src.cur();
-	if (n)
-	{
-		assert(sizeofout > n);
-		memcpy(out, pathSenzaSlash, n);
-		out[n] = 0;
-	}
-}

@@ -11,11 +11,11 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqSetLastUsedLangForProgMenu_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqSetLastUsedLangForProgMenu_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "lang") == 0)
+	if (strcasecmp((const char*)fieldName, "lang") == 0)
 	{
 		input->lang[0] = fieldValue[0];
 		input->lang[1] = fieldValue[1];
@@ -28,23 +28,23 @@ bool ajaxReqSetLastUsedLangForProgMenu_jsonTrapFunction(const char *fieldName, c
 
 
 //***********************************************************
-void CmdHandler_ajaxReq_setLastUsedLangForProgMenu::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+void CmdHandler_ajaxReq_setLastUsedLangForProgMenu::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqSetLastUsedLangForProgMenu_jsonTrapFunction, &data))
 	{
 		//devo creare o sovrascrivere il file varie/prog/lastUsedLang.txt e riempirlo con il codice della lingua
-		char s[512];
+		u8 s[512];
 
-		sprintf_s(s, sizeof(s), "%s/varie/prog", rhea::getPhysicalPathToAppFolder());
+		sprintf_s((char*)s, sizeof(s), "%s/varie/prog", rhea::getPhysicalPathToAppFolder());
 		rhea::fs::folderCreate (s);
 
-		strcat_s (s, sizeof(s), "/lastUsedLang.txt");
-		FILE *f = fopen(s, "wb");
+		strcat_s ((char*)s, sizeof(s), "/lastUsedLang.txt");
+		FILE *f = rhea::fs::fileOpenForWriteBinary(s);
 		fwrite(data.lang, 2, 1, f);
 		fclose(f);
 	}
 
 
-	server->sendAjaxAnwer(hClient, ajaxRequestID, "OK", 2);
+	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)"OK", 2);
 }

@@ -9,15 +9,15 @@
 
 namespace rhea
 {
-    bool                init (const char *appName, void *platformSpecificInitData);
+    bool                init (const char* appName, void *platformSpecificInitData);
     void                deinit();
 
     extern Logger       *sysLogger;
 
-    inline const char*  getPhysicalPathToAppFolder()													{ return platform::getAppPathNoSlash(); }
+    inline const u8*	getPhysicalPathToAppFolder()													{ return platform::getAppPathNoSlash(); }
 						//ritorna il path assoluto dell'applicazione, senza slash finale
 	
-	inline const char*	getPhysicalPathToWritableFolder()												{ return platform::getPhysicalPathToWritableFolder(); }
+	inline const u8*	getPhysicalPathToWritableFolder()												{ return platform::getPhysicalPathToWritableFolder(); }
 						//ritorna il path di una cartella nella quale è sicuramente possibile scrivere
 						//Sui sistemi windows per es, ritorna una cosa del tipo "C:\Users\NOME_UTENTE".
 						//Sui sistemi linux, ritorna generalmente lo stesso path dell'applicazione
@@ -36,9 +36,11 @@ namespace rhea
 	u32					randomU32(u32 iMax);
 							//ritorna un u32 compreso tra 0 e iMax incluso
 
+	inline Allocator*	getSysHeapAllocator()								{ return memory_getSysHeapAllocator(); }
+	inline Allocator*	getScrapAllocator()									{ return memory_getScrapAllocator2(); }
 
 
-    inline void         shell_runCommandNoWait(const char *cmd)											{ platform::runShellCommandNoWait(cmd); }
+    inline void         shell_runCommandNoWait(const char* cmd)										{ platform::runShellCommandNoWait(cmd); }
 						//esegue un comando di shall senza attenderne la terminazione
 
 	bool				isLittleEndian();
@@ -52,52 +54,62 @@ namespace rhea
 	 */
 	namespace fs
 	{
-		void				sanitizePath(const char *path, char *out_sanitizedPath, u32 sizeOfOutSanitzed);
-		void				sanitizePathInPlace (char *path);
-								//sostituisce \\ con /   rimuove eventuali . e .. e doppi /
+		void				sanitizePathInPlace (u8 *utf8_path, u32 nBytesToCheck=u32MAX);
+		void				sanitizePath (const u8* const utf8_path, u8* out_utf8sanitizedPath, u32 sizeOfOutSanitzed);
+								/* rimuove eventuali . e .. e doppi slash in favore del singolo slash alla unix (/) 
+								*/
 
-		void				filePath_GoBack(const char *pathSenzaSlashIN, char *out, u32 sizeofout);
+		void				filePath_GoBack (const u8* const utf8_pathSenzaSlashIN, u8 *utf8_out, u32 sizeofout);
 								// esegue un ".." sul filePathIN ritornando il nuovo path
 
-		inline bool			getDestkopPath (char* outPathNoSlash, u32 sizeOfOutPathNoSlash)						{ return platform::FS_getDestkopPath(outPathNoSlash, sizeOfOutPathNoSlash); }
+		inline bool			getDestkopPath (u8* out_path, u32 sizeof_out_path)						{ return platform::FS_getDestkopPath(out_path, sizeof_out_path); }
 
-		void				extractFileExt(const char *filename, char *ext, u32 sizeofext);
-		void				extractFileNameWithExt(const char *filename, char *out, u32 sizeofOut);
-		void				extractFileNameWithoutExt(const char *filename, char *out, u32 sizeofOut);
-		void				extractFilePathWithSlash(const char *filename, char *out, u32 sizeofOut);
-		void				extractFilePathWithOutSlash(const char *filename, char *out, u32 sizeofOut);
-        bool                doesFileNameMatchJolly (const char *strFilename, const char *strJolly);
+		void				extractFileExt (const u8* const utf8_filename, u8 *utf8_ext, u32 sizeofext);
+		void				extractFileNameWithExt (const u8* const utf8_filename, u8 *utf8_out, u32 sizeofOut);
+		void				extractFileNameWithoutExt (const u8* const utf8_filename, u8 *utf8_out, u32 sizeofOut);
+		void				extractFilePathWithSlash (const u8* const utf8_filename, u8 *utf8_out, u32 sizeofOut);
+		void				extractFilePathWithOutSlash (const u8* const utf8_filename, u8 *utf8_out, u32 sizeofOut);
 
-		inline bool			findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)				{ return platform::FS_findFirstHardDrive(h, out); }
-		inline bool			findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)				{ return platform::FS_findNextHardDrive(h, out); }
-		inline void			findCloseHardDrive(OSDriveEnumerator &h)											{ platform::FS_findCloseHardDrive(h); }
+        bool				doesFileNameMatchJolly (const u8* const utf8_strFilename, const u8 *utf8_strJolly);
+
+		inline bool			findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)						{ return platform::FS_findFirstHardDrive(h, out); }
+		inline bool			findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)						{ return platform::FS_findNextHardDrive(h, out); }
+		inline void			findCloseHardDrive(OSDriveEnumerator &h)													{ platform::FS_findCloseHardDrive(h); }
 
 
-		inline bool			fileExists(const char *fullFileNameAndPath)											{ return platform::FS_fileExists(fullFileNameAndPath); }
-		inline bool         fileDelete(const char *fullFileNameAndPath)											{ return platform::FS_fileDelete(fullFileNameAndPath); }
-		inline bool			fileRename(const char *oldFilename, const char *newFilename)						{ return platform::FS_fileRename(oldFilename, newFilename); }
+		inline bool			fileExists(const u8* const utf8_fullFileNameAndPath)										{ return platform::FS_fileExists(utf8_fullFileNameAndPath); }
+		inline bool         fileDelete(const u8* const utf8_fullFileNameAndPath)										{ return platform::FS_fileDelete(utf8_fullFileNameAndPath); }
+		inline bool			fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, const u8 *utf8_newFilename)		{ return platform::FS_fileRename(utf8_path, utf8_oldFilename, utf8_newFilename); }
+		
+		inline FILE*		fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPath)							{ return platform::FS_fileOpenForReadBinary(utf8_fullFileNameAndPath); }
+		inline FILE*		fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndPath)							{ return platform::FS_fileOpenForWriteBinary(utf8_fullFileNameAndPath); }
+		inline FILE*		fileOpenForReadText (const u8* const utf8_fullFileNameAndPath)								{ return platform::FS_fileOpenForReadText(utf8_fullFileNameAndPath); }
+		inline FILE*		fileOpenForWriteText (const u8* const utf8_fullFileNameAndPath)								{ return platform::FS_fileOpenForWriteText(utf8_fullFileNameAndPath); }
+		inline FILE*		fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath)							{ return platform::FS_fileOpenForAppendText(utf8_fullFileNameAndPath); }
+
+
 		u64					filesize(FILE *fp);
-		bool				fileCopy(const char *srcFullFileNameAndPath, const char *dstFullFileNameAndPath);
-		u8*					fileCopyInMemory(const char *srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
+		bool				fileCopy(const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath);
+		u8*					fileCopyInMemory(const u8* const srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 		u8*					fileCopyInMemory(FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 
-		inline bool			folderExists(const char *pathSenzaSlash)											{ return platform::FS_DirectoryExists(pathSenzaSlash); }
-		inline bool			folderCreate(const char *pathSenzaSlash)											{ return platform::FS_DirectoryCreate(pathSenzaSlash); }
+		inline bool			folderExists(const u8* const pathSenzaSlash)											{ return platform::FS_DirectoryExists(pathSenzaSlash); }
+		inline bool			folderCreate(const u8* const pathSenzaSlash)											{ return platform::FS_DirectoryCreate(pathSenzaSlash); }
 								//crea anche percorsi complessi. Es create("pippo/pluto/paperino), se necessario
 								//prima crea pippo, poi pippo/pluto e infine pippo/pluto/paperino
-		inline bool			folderDelete(const char *pathSenzaSlash)											{ return platform::FS_DirectoryDelete(pathSenzaSlash); }
-		bool				folderCopy (const char *srcFullPathNoSlash, const char *dstFullPathNoSlash, const char* const *elencoPathDaEscludere=NULL);
+		inline bool			folderDelete(const u8* const pathSenzaSlash)											{ return platform::FS_DirectoryDelete(pathSenzaSlash); }
+		bool				folderCopy (const u8* const utf8_srcFullPathNoSlash, const u8* const utf8_dstFullPathNoSlash, const u8* const *elencoPathDaEscludere=NULL);
 								//è ricorsiva, copia anche i sottofolder
 
-		void				deleteAllFileInFolderRecursively(const char *pathSenzaSlash, bool bAlsoRemoveFolder);
+		void				deleteAllFileInFolderRecursively(const u8* const pathSenzaSlash, bool bAlsoRemoveFolder);
 							//cancella tutti i file del folder ed eventuali sottofolder
 
-		inline bool			findFirst(OSFileFind *h, const char *strPathNoSlash, const char *strJolly)								{ return platform::FS_findFirst (h, strPathNoSlash, strJolly); }
+		inline bool			findFirst(OSFileFind *h, const u8* const utf8_path, const u8* const utf8_jolly)							{ return platform::FS_findFirst (h, utf8_path, utf8_jolly); }
 		inline bool			findNext (OSFileFind &h)																				{ return platform::FS_findNext(h); }
 		inline bool			findIsDirectory(const OSFileFind &h)																	{ return platform::FS_findIsDirectory(h); }
-		inline void			findGetFileName (const OSFileFind &h, char *out, u32 sizeofOut)											{ platform::FS_findGetFileName(h, out, sizeofOut); }
-		inline const char*	findGetFileName (const OSFileFind &h)																	{ return platform::FS_findGetFileName(h); }
-		void				findComposeFullFilePathAndName(const OSFileFind &h, const char *pathNoSlash, char *out, u32 sizeofOut);
+		inline void			findGetFileName (const OSFileFind &h, u8 *out, u32 sizeofOut)											{ platform::FS_findGetFileName(h, out, sizeofOut); }
+		inline const u8*	findGetFileName (const OSFileFind &h)																	{ return platform::FS_findGetFileName(h); }
+		void				findComposeFullFilePathAndName(const OSFileFind &h, const u8* const pathNoSlash, u8 *out, u32 sizeofOut);
 		inline void			findGetCreationTime(const OSFileFind &h, rhea::DateTime *out)											{ platform::FS_findGetCreationTime(h, out); }
 		inline void			findGetLastTimeModified(const OSFileFind &h, rhea::DateTime *out)										{ platform::FS_findGetLastTimeModified(h, out); }
 		inline void			findClose(OSFileFind &h)																				{ platform::FS_findClose(h); }
@@ -113,7 +125,7 @@ namespace rhea
 		//=============================== NETWORK ADDRESS
 		void				setFromSockAddr(OSNetAddr &me, const sockaddr_in &addrIN);
 		void				setFromAddr(OSNetAddr &me, const OSNetAddr &addrIN);
-		void				setIPv4(OSNetAddr &me, const char *ip);
+		void				setIPv4(OSNetAddr &me, const char* constip);
 		void				setPort(OSNetAddr &me, int port);
 		bool				compare(const OSNetAddr &a, const OSNetAddr &b);
 		void				getIPv4(const OSNetAddr &me, char *out);
@@ -128,7 +140,7 @@ namespace rhea
 
 		//=============================================== TCP
 		inline eSocketError         openAsTCPServer(OSSocket *out_sok, int portNumber)										{ return platform::socket_openAsTCPServer(out_sok, portNumber); }
-		inline eSocketError         openAsTCPClient(OSSocket *out_sok, const char *connectToIP, u32 portNumber)				{ return platform::socket_openAsTCPClient(out_sok, connectToIP, portNumber); }
+		inline eSocketError         openAsTCPClient(OSSocket *out_sok, const char* connectToIP, u32 portNumber)				{ return platform::socket_openAsTCPClient(out_sok, connectToIP, portNumber); }
 
 		inline void                 close(OSSocket &sok)																	{ platform::socket_close(sok); }
 
@@ -179,7 +191,7 @@ namespace rhea
 		inline	eSocketError		UDPbind(OSSocket &sok, int portNumber)													{ return platform::socket_UDPbind(sok, portNumber); }
 		inline	u32					UDPSendTo(OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const OSNetAddr &addrTo)	{ return platform::socket_UDPSendTo(sok, buffer, nBytesToSend, addrTo); }
 		inline	u32					UDPReceiveFrom(OSSocket &sok, u8 *buffer, u32 nMaxBytesToRead, OSNetAddr *out_from)		{ return platform::socket_UDPReceiveFrom(sok, buffer, nMaxBytesToRead, out_from); }
-		void						UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const char *ip, int portNumber, const char *subnetMask);
+		void						UDPSendBroadcast (OSSocket &sok, const u8 *buffer, u32 nBytesToSend, const char *ip, int portNumber, const char *constsubnetMask);
 	}
 	
 

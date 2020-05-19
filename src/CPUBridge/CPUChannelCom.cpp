@@ -24,10 +24,10 @@ using namespace cpubridge;
 	FILE *fDUMP_CPUChannelCom = NULL;
 
 	#define DUMP_OPEN()	{\
-							char dumpFileName[256];\
-							sprintf_s(dumpFileName, sizeof(dumpFileName), "%s/DUMP_CPUChannelCom.txt", rhea::getPhysicalPathToWritableFolder());\
+							u8 dumpFileName[256];\
+							sprintf_s((char*)dumpFileName, sizeof(dumpFileName), "%s/DUMP_CPUChannelCom.txt", rhea::getPhysicalPathToWritableFolder());\
 							rhea::fs::fileDelete(dumpFileName);\
-							fDUMP_CPUChannelCom = fopen(dumpFileName, "wt");\
+							fDUMP_CPUChannelCom = rhea::fs::fileOpenForWriteText(dumpFileName);\
 						}\
 
 

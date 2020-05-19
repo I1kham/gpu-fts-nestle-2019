@@ -1,7 +1,6 @@
 #include "CPUChannelFakeCPU.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/rheaDateTime.h"
-#include "../rheaCommonLib//rheaUTF16.h"
 
 using namespace cpubridge;
 
@@ -19,13 +18,13 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 
 	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
 	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
-	rhea::utf16::concatFromASCII (utf16_cpuMessage1, sizeof(utf16_cpuMessage1), "CPU msg example 1");
-	rhea::utf16::concatFromASCII (utf16_cpuMessage2, sizeof(utf16_cpuMessage2), "CPU msg example 1");
+	rhea::string::strUTF8toUTF16 ((const u8*)u8"CPU msg example 1", utf16_cpuMessage1, sizeof(utf16_cpuMessage1));
+	rhea::string::strUTF8toUTF16 ((const u8*)u8"CPU msg example 1", utf16_cpuMessage2, sizeof(utf16_cpuMessage2));
 
 	for (u8 i = 0; i < 32; i++)
 		decounterVari[i] = 1000 + i;
 
-	/*
+	
 	//Det gør ondt her
 	{
 		u32 i = 0;
@@ -48,6 +47,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 		utf16_cpuMessage2[i++] = 0x00;
 	}
 
+	/*
 	//� 是从哪里来的？
 	{
 		u32 i = 0;
@@ -105,7 +105,7 @@ void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
 	timeToSwapCPUMsgMesc = timeNowMSec + 5000; //20000;
 	if (utf16_curCPUMessage == utf16_cpuMessage1)
 	{
-		curCPUMessageImportanceLevel = 0;
+		curCPUMessageImportanceLevel = 1;
 		utf16_curCPUMessage = utf16_cpuMessage2;
 	}
 	else
@@ -489,7 +489,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					{
 						const u16 utf16Seq[] = { 0x05d4, 0x05d0, 0x05dc, 0x05e4, 0x05d1, 0x05d9, 0x05ea, 0x0020, 0x05d4, 0x05e2, 0x05d1, 0x05e8, 0x0000 };
 						i2 = startOfMsg1 + 64;
-						rhea::utf16::utf16SequenceToU8Buffer_LSB_MSB(utf16Seq, &out_answer[i2], 64, false);
+						rhea::string::utf16::utf16SequenceToU8Buffer_LSB_MSB(utf16Seq, &out_answer[i2], 64, false);
 					}
 				}
 
@@ -1009,7 +1009,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	if (out_answer[1] == 'B')
 	{
 		memset(&out_answer[ct], 0x00, 32);
-		u32 n = (u32)rhea::utf16::length(utf16_curCPUMessage);
+		u32 n = (u32)rhea::string::utf16::lengthInBytes(utf16_curCPUMessage);
 		for (u32 i=0;i<n;i++)
 			out_answer[ct+i] = (u8)utf16_curCPUMessage[i];
 		ct += 32;
@@ -1020,7 +1020,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 		assert(ct == 11);
 		memset(&out_answer[ct], 0x00, 64);
 
-		u32 n = (u32)rhea::utf16::length(utf16_curCPUMessage);
+		u32 n = (u32)rhea::string::utf16::lengthInBytes(utf16_curCPUMessage) / 2;
 		for (u8 i = 0; i < n; i++)
 		{
 			out_answer[ct++] = (u8)(utf16_curCPUMessage[i] & 0x00FF);

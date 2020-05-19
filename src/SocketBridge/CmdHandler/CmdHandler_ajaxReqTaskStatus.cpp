@@ -13,13 +13,13 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqTaskStatus_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqTaskStatus_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "id") == 0)
+	if (strcasecmp((const char*)fieldName, "id") == 0)
 	{
-		input->id = rhea::string::convert::toU32(fieldValue);
+		input->id = rhea::string::utf8::toU32(fieldValue);
 		return false;
 	}
 
@@ -27,7 +27,7 @@ bool ajaxReqTaskStatus_jsonTrapFunction(const char *fieldName, const char *field
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqTaskStatus::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+void CmdHandler_ajaxReqTaskStatus::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params)
 {
 	sInput data;
 	if (!rhea::json::parse(params, ajaxReqTaskStatus_jsonTrapFunction, &data))
@@ -46,5 +46,5 @@ void CmdHandler_ajaxReqTaskStatus::handleRequestFromSocketBridge(socketbridge::S
 		sprintf_s(resp, sizeof(resp), "{\"status\":%d,\"msg\":\"%s\"}", reportedStatus, taskMsg);
 	}
 
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

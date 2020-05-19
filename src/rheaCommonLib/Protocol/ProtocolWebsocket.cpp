@@ -136,8 +136,7 @@ bool ProtocolWebsocket::priv_server_isAValidHandshake(const void *bufferIN, u32 
 			ProtocolServer_handshake_copy_header(out->received_key, &token[strlen(HEADER_KEY)], sizeof(out->received_key));
 
 		else if (ProtocolServer_handshake_check_header(token, HEADER_VERSION))
-			out->version = rhea::string::convert::toU32(&token[strlen(HEADER_VERSION)]);
-
+			out->version = rhea::string::utf8::toU32((const u8*)&token[strlen(HEADER_VERSION)]);
 		else if (ProtocolServer_handshake_check_header(token, HEADER_EXTENSION))
 			ProtocolServer_handshake_copy_header(out->extension, &token[strlen(HEADER_EXTENSION)], sizeof(out->extension));
 

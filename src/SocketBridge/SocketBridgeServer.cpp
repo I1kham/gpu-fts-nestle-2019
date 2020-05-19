@@ -49,7 +49,7 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW, bool
 	if (bDieWhenNoClientConnected)
 		dieWhenNoClientConnected = 1;
 
-    localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("socketBridgeSrv");
+    localAllocator = RHEANEW(rhea::getScrapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("socketBridgeSrv");
 
     server = RHEANEW(localAllocator, rhea::ProtocolSocketServer)(8, localAllocator);
     server->useLogger(logger);
@@ -149,7 +149,7 @@ void Server::close()
 
     }
 
-    RHEADELETE(rhea::memory_getDefaultAllocator(), localAllocator);
+    RHEADELETE(rhea::getScrapAllocator(), localAllocator);
     logger->log ("SocketBridgeServer::closed\n");
 }
 
@@ -361,7 +361,7 @@ bool Server::priv_encodeMessageOfTypeEvent (eEventType eventType, const void *op
 }
 
 //*****************************************************************
-bool Server::priv_encodeMessageOfAjax(u8 requestID, const char *ajaxData, u16 lenOfAjaxData, u8 *out_buffer, u16 *in_out_bufferLength)
+bool Server::priv_encodeMessageOfAjax(u8 requestID, const u8 *ajaxData, u16 lenOfAjaxData, u8 *out_buffer, u16 *in_out_bufferLength)
 {
 	//calcola la dimensione minima necessaria in byte per il buffer
 	const u16 minSizeInBytes = 6 + lenOfAjaxData;
@@ -399,7 +399,7 @@ void Server::sendTo(const HSokServerClient &h, const u8 *buffer, u32 nBytesToSen
 }
 
 //*****************************************************************
-void Server::sendAjaxAnwer (const HSokServerClient &h, u8 requestID, const char *ajaxData, u16 lenOfAjaxData)
+void Server::sendAjaxAnwer (const HSokServerClient &h, u8 requestID, const u8 *ajaxData, u16 lenOfAjaxData)
 {
 	u16 n = SEND_BUFFER_SIZE;
 	if (priv_encodeMessageOfAjax (requestID, ajaxData, lenOfAjaxData, sendBuffer, &n))
@@ -816,7 +816,7 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 			Funziona allo stesso modo di cui sopra
 		*/
 		{
-			const char *params = NULL;
+			const u8 *params = NULL;
 			CmdHandler_ajaxReq *handler = CmdHandler_ajaxReqFactory::spawn(localAllocator, identifiedClient->handle, decoded.requestID, decoded.payload, decoded.payloadLen, priv_getANewHandlerID(), 10000, &params);
 			if (NULL != handler)
 			{
@@ -856,7 +856,7 @@ void Server::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 	{
 		//in queso caso, CPUBridge ha mandato una notifica di sua spontanea volont√ , non √® una risposta ad una mia specifica richiesta.
 		//Questo vuol dire che devo diffondere la notifica a tutti i miei client connessi
-		rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+		rhea::Allocator *allocator = rhea::getScrapAllocator();
 
 		const u16 notifyID = (u16)msg.what;
 		for (u32 i = 0; i < identifiedClientList.getCount(); i++)
@@ -902,29 +902,29 @@ void Server::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 }
 
 //**************************************************************************
-u16 Server::DB_getOrCreateHandle(const char *fullFilePathAndName)
+u16 Server::DB_getOrCreateHandle(const u8* const utf8_fullFilePathAndName)
 {
-	return dbList.getOrCreateDBHandle(rhea::getTimeNowMSec(), fullFilePathAndName);
+	return dbList.getOrCreateDBHandle(rhea::getTimeNowMSec(), utf8_fullFilePathAndName);
 }
 
 //**************************************************************************
-const rhea::SQLRst*	Server::DB_q(u16 dbHandle, const char *sql)
+const rhea::SQLRst*	Server::DB_q(u16 dbHandle, const u8* const utf8_sql)
 {
-	if (dbList.q(dbHandle, rhea::getTimeNowMSec(), sql, &rst))
+	if (dbList.q(dbHandle, rhea::getTimeNowMSec(), utf8_sql, &rst))
 		return &rst;
 	return NULL;
 }
 
 //**************************************************************************
-bool Server::DB_exec (u16 dbHandle, const char *sql)
+bool Server::DB_exec (u16 dbHandle, const u8* const utf8_sql)
 {
-	return dbList.exec(dbHandle, rhea::getTimeNowMSec(), sql);
+	return dbList.exec(dbHandle, rhea::getTimeNowMSec(), utf8_sql);
 }
 
 //**************************************************************************
-void Server::DB_closeByPath(const char *fullFilePathAndName)
+void Server::DB_closeByPath(const u8* const utf8_fullFilePathAndName)
 {
-	dbList.closeDBByPath(fullFilePathAndName);
+	dbList.closeDBByPath(utf8_fullFilePathAndName);
 }
 
 //**************************************************************************
@@ -934,7 +934,7 @@ void Server::DB_closeByHandle(u16 dbHandle)
 }
 
 //**************************************************************************
-bool Server::taskSpawnAndRun (const char *taskName, const char *params, u32 *out_taskID)
+bool Server::taskSpawnAndRun (const char *taskName, const u8* const params, u32 *out_taskID)
 {
 	TaskStatus *s = taskFactory->spawnAndRunTask(localAllocator, taskName, params);
 	if (NULL == s)

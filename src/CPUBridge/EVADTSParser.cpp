@@ -1,13 +1,15 @@
 #include "EVADTSParser.h"
 #include "../rheaCommonLib/rheaNetBufferView.h"
 
+using namespace rhea;
+
 EVADTSParser::ContatoreValNumValNum	EVADTSParser::MatriceContatori::contatoreAZero;
 
 
 //*******************************************************
 EVADTSParser::EVADTSParser()
 {
-	allocator = rhea::memory_getDefaultAllocator();
+	allocator = rhea::getScrapAllocator();
 	selezioni.setup(allocator, 64);
 }
 
@@ -33,13 +35,13 @@ void EVADTSParser::priv_reset()
 }
 
 //*******************************************************
-bool EVADTSParser::loadAndParse(const char *fullFilePathAndName)
+bool EVADTSParser::loadAndParse(const u8* const fullFilePathAndName)
 {
-	FILE *f = fopen(fullFilePathAndName, "rb");
+	FILE *f = rhea::fs::fileOpenForReadBinary(fullFilePathAndName);
 	if (NULL == f)
 		return false;
 
-	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	u32 bufferSize = 0;
 	u8 *buffer = rhea::fs::fileCopyInMemory(f, allocator, &bufferSize);
 	fclose(f);
@@ -53,20 +55,21 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 {
 	priv_reset();
 
-	rhea::string::parser::Iter iter1;
-	iter1.setup((const char*)buffer, firstByte, nBytesToCheck);
+	string::utf8::Iter iter1;
+	iter1.setup(buffer, firstByte, nBytesToCheck);
 
 	InfoSelezione *lastInfoSel = NULL;
 	TempStr128 par[8];
 	while (1)
 	{
-		rhea::string::parser::Iter iter2;
-		rhea::string::parser::extractLine (iter1, &iter2);
-		if (iter2.getNumByteLeft() == 0)
+		string::utf8::Iter iter2;
+		string::utf8::extractLine (iter1, &iter2);
+		if (iter2.getBytesLeft() == 0)
 			break;
 
-		char line[256];
-		iter2.copyCurStr(line, sizeof(line));
+		u8 line[256];
+		//iter2.copyCurStr(line, sizeof(line));
+		iter2.copyAllStr(line, sizeof(line));
 
 		if (priv_checkTag(line, "VA1", 4, par))
 		{
@@ -184,18 +187,18 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 *
 * E' responsabilità del chiamante assicurarsi che [out_params] sia un array in grado di contenere almeno [numOfParamsToRead] stringhe
 */
-bool EVADTSParser::priv_checkTag (const char *s, const char *tagToFindAtStartOfTheLine, u16 numOfParamsToRead, TempStr128 *out) const
+bool EVADTSParser::priv_checkTag (const u8 *s, const char *tagToFindAtStartOfTheLine, u16 numOfParamsToRead, TempStr128 *out) const
 {
 	if (NULL == s)
 		return false;
-	const u32 sLen = (u32)strlen(s);
+	const u32 sLen = string::utf8::lengthInBytes(s);
 	const u32 tagLen = (u32)strlen(tagToFindAtStartOfTheLine);
 
 	//se non c'è il tag ad inizio stringa, ho finito
 	if (sLen < tagLen + 1)
 		return false;
 
-	if (strncasecmp(tagToFindAtStartOfTheLine, s, tagLen) != 0)
+	if (strncasecmp(tagToFindAtStartOfTheLine, (const char*)s, tagLen) != 0)
 		return false;
 
 	//deve anche esserci * dopo il TAG
@@ -207,7 +210,7 @@ bool EVADTSParser::priv_checkTag (const char *s, const char *tagToFindAtStartOfT
 	if (sLen < tagLen + 2)
 		return false;
 
-	rhea::string::parser::Iter iter1;
+	string::utf8::Iter iter1;
 	iter1.setup(s, tagLen+1);
 
 	//ok, il tag c'è, recuperiamo i parametri
@@ -217,10 +220,11 @@ bool EVADTSParser::priv_checkTag (const char *s, const char *tagToFindAtStartOfT
 	u16 nFound = 0;
 	for (u16 i = 0; i < numOfParamsToRead; i++)
 	{
-		rhea::string::parser::Iter iter2;
-		if (!rhea::string::parser::extractValue(iter1, &iter2, "*", 1))
+		string::utf8::Iter iter2;
+		UTF8Char cStar("*");
+		if (!string::utf8::extractValue(iter1, &iter2, &cStar, 1))
 			break;
-		iter2.copyCurStr(out[i].s, sizeof(out[i]));
+		iter2.copyAllStr ((u8*)out[i].s, sizeof(out[i]));
 		nFound++;
 	}
 
@@ -245,7 +249,7 @@ int EVADTSParser::priv_toInt(const char *s) const
 			return 0;
 		}
 	}
-	return atoi(s);
+	return atoi((const char*)s);
 }
 
 //*******************************************************

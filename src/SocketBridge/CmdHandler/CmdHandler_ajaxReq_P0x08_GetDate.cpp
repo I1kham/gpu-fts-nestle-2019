@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x08_GetDate::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_P0x08_GetDate::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_GET_DATE (from, getHandlerID());
 }
@@ -21,5 +21,5 @@ void CmdHandler_ajaxReq_P0x08_GetDate::onCPUBridgeNotification (socketbridge::Se
 
 	char resp[64];
 	sprintf_s(resp, sizeof(resp), "{\"y\":%d,\"m\":%d,\"d\":%d}", year, month, day);
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

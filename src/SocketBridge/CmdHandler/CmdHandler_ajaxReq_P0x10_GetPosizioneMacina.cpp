@@ -11,13 +11,13 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqGetPosizioneMacina_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqGetPosizioneMacina_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "m") == 0)
+	if (strcasecmp((const char*)fieldName, "m") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h==1 || h==2)
 			input->m = (u8)h;
 		else
@@ -30,7 +30,7 @@ bool ajaxReqGetPosizioneMacina_jsonTrapFunction(const char *fieldName, const cha
 
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x10_GetPosizioneMacina::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params)
+void CmdHandler_ajaxReq_P0x10_GetPosizioneMacina::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqGetPosizioneMacina_jsonTrapFunction, &data))
@@ -49,5 +49,5 @@ void CmdHandler_ajaxReq_P0x10_GetPosizioneMacina::onCPUBridgeNotification (socke
 
 	char resp[64];
 	sprintf_s(resp, sizeof(resp), "{\"m\":%d,\"v\":%d}", macina, posizione);
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

@@ -1,7 +1,6 @@
 #include "CmdHandler_eventReqCPUMessage.h"
 #include "../SocketBridge.h"
 #include "../../CPUBridge/CPUBridge.h"
-#include "../../rheaCommonLib/rheaUTF16.h"
 
 using namespace socketbridge;
 
@@ -24,9 +23,9 @@ void CmdHandler_eventReqCPUMessage::onCPUBridgeNotification (socketbridge::Serve
 	cpubridge::sCPULCDMessage cpuMsg;
 	cpubridge::translateNotify_CPU_NEW_LCD_MESSAGE (msgFromCPUBridge, &cpuMsg);
 
-	const u16 msgLenInBytes = 2 * rhea::utf16::length(cpuMsg.utf16LCDString);
+	const u16 msgLenInBytes = rhea::string::utf16::lengthInBytes(cpuMsg.utf16LCDString);
 
-	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	u16	bufferSize = 3 + msgLenInBytes;
 	u8 *buffer = (u8*)RHEAALLOC(allocator, bufferSize);
 	buffer[0] = cpuMsg.importanceLevel;

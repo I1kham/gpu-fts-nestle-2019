@@ -7,14 +7,57 @@
 struct	sWin32PlatformData
 {
 	HINSTANCE			hInst;
-	char				applicationPathNoSlash[256];
-	char				writableFolderPathNoSlash[256];
+	u8					applicationPathNoSlash[256];
+	u8					writableFolderPathNoSlash[256];
 	u64					hiresTimerFreq;
 	uint64_t			timeStarted;
 	WSADATA				wsaData;
 };
 
 sWin32PlatformData	win32PlatformData;
+
+//********************************************* 
+bool platform::win32::utf8_towchar (const u8 *utf8_string, u32 nBytesToUse, wchar_t *out, u32 sizeInBytesOfOut)
+{
+	int n;
+	if (nBytesToUse == u32MAX)
+		n = -1;
+	else
+		n = (int)nBytesToUse;
+
+	int result = MultiByteToWideChar (CP_UTF8, 0, (const char*)utf8_string, n, out, (sizeInBytesOfOut >> 1));
+	if (0 == result)
+	{
+		DBGBREAK;
+		return false;
+	}
+
+	if (out[result] != 0x00)
+		out[result] = 0x00;
+
+	return true;
+}
+
+//********************************************* 
+bool platform::win32::wchar_to_utf8 (const wchar_t *wstring, u32 nBytesToUse, u8 *out, u32 sizeInBytesOfOut)
+{
+	int n;
+	if (nBytesToUse == u32MAX)
+		n = -1;
+	else
+		n = (int)nBytesToUse/2;
+
+	int bytesWriten = WideCharToMultiByte  (CP_UTF8, 0, wstring, n, (char*)out, sizeInBytesOfOut, 0, 0);
+	if (0 != bytesWriten)
+	{
+		if (n != -1)
+			out[bytesWriten] = 0;
+		return true;
+	}
+
+	DBGBREAK;
+	return false;
+}
 
 //**********************************************
 bool platform::internal_init (void *platformSpecificData, const char *appName)
@@ -31,35 +74,32 @@ bool platform::internal_init (void *platformSpecificData, const char *appName)
 	QueryPerformanceCounter((LARGE_INTEGER*)&win32PlatformData.timeStarted);
 
 	//application path
-	GetModuleFileName(win32PlatformData.hInst, win32PlatformData.applicationPathNoSlash, sizeof(win32PlatformData.applicationPathNoSlash));
-	size_t	n = _mbstrlen(win32PlatformData.applicationPathNoSlash) - 1;
-	for (size_t t = 0; t < n; t++)
-	{
-		if (win32PlatformData.applicationPathNoSlash[t] == '\\')
-			win32PlatformData.applicationPathNoSlash[t] = '/';
-	}
-	while (n && win32PlatformData.applicationPathNoSlash[n] != '/')
-		win32PlatformData.applicationPathNoSlash[n--] = 0x00;
-	win32PlatformData.applicationPathNoSlash[n--] = 0x00;
-	rhea::fs::sanitizePathInPlace(win32PlatformData.applicationPathNoSlash);
-
+	wchar_t wcString[MAX_PATH];
+	GetModuleFileName (win32PlatformData.hInst, wcString, MAX_PATH);
+	
+	u8 temp_utf8[512];
+	win32::wchar_to_utf8 (wcString, u32MAX, temp_utf8, sizeof(temp_utf8));
+	rhea::fs::sanitizePathInPlace (temp_utf8);
+	rhea::fs::extractFilePathWithOutSlash (temp_utf8, win32PlatformData.applicationPathNoSlash, sizeof(win32PlatformData.applicationPathNoSlash));
 
 
 	//writable folder path
-	memset (win32PlatformData.writableFolderPathNoSlash, 0, sizeof(win32PlatformData.writableFolderPathNoSlash));
-	SHGetFolderPath(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, win32PlatformData.writableFolderPathNoSlash);
-	_mbscat_s((unsigned char*)win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), (unsigned char*)"/");
-	n = _mbstrlen(win32PlatformData.writableFolderPathNoSlash) - 1;
-	for (size_t t = 0; t < n; t++)
+	SHGetFolderPath(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, wcString);
 	{
-		if (win32PlatformData.writableFolderPathNoSlash[t] == '\\')
-			win32PlatformData.writableFolderPathNoSlash[t] = '/';
+		size_t	n = wcslen(wcString);
+		for (size_t t = 0; t < n; t++)
+		{
+			if (wcString[t] == '\\')
+				wcString[t] = '/';
+		}
+
+		win32::wchar_to_utf8 (wcString, u32MAX, win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash));
+		rhea::fs::sanitizePathInPlace (win32PlatformData.writableFolderPathNoSlash); 
 	}
-	win32PlatformData.writableFolderPathNoSlash[_mbstrlen(win32PlatformData.writableFolderPathNoSlash) - 1] = 0;
-	strcat_s(win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), "/");
-	strcat_s(win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), appName);
-	CreateDirectory(win32PlatformData.writableFolderPathNoSlash, NULL);
-	rhea::fs::sanitizePathInPlace(win32PlatformData.writableFolderPathNoSlash);
+
+	strcat_s((char*)win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), "/");
+	strcat_s((char*)win32PlatformData.writableFolderPathNoSlash, sizeof(win32PlatformData.writableFolderPathNoSlash), appName);
+	rhea::fs::folderCreate(win32PlatformData.writableFolderPathNoSlash);
 
 
 	//initialize Winsock
@@ -85,8 +125,8 @@ void* platform::alignedAlloc(size_t alignment, size_t size)
 
 //**********************************************
 void platform::alignedFree(void *p)							{ _aligned_free(p);  }
-const char* platform::getAppPathNoSlash()					{ return win32PlatformData.applicationPathNoSlash; }
-const char* platform::getPhysicalPathToWritableFolder()		{ return win32PlatformData.writableFolderPathNoSlash; }
+const u8* platform::getAppPathNoSlash()						{ return win32PlatformData.applicationPathNoSlash; }
+const u8* platform::getPhysicalPathToWritableFolder()		{ return win32PlatformData.writableFolderPathNoSlash; }
 void platform::sleepMSec(size_t msec)						{ ::Sleep(msec); }
 
 //**********************************************

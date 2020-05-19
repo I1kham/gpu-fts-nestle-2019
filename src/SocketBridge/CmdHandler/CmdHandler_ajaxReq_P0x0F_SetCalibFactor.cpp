@@ -12,21 +12,21 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqSetCalibFactor_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqSetCalibFactor_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "m") == 0)
+	if (strcasecmp((const char*)fieldName, "m") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
 		if (h > 0 && h < 0xff)
 			input->m = (u8)h;
 		else
 			input->m = 0xff;
 	}
-	if (strcasecmp(fieldName, "v") == 0)
+	if (strcasecmp((const char*)fieldName, "v") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xffff)
 			input->v = (u16)h;
 		else
@@ -39,7 +39,7 @@ bool ajaxReqSetCalibFactor_jsonTrapFunction(const char *fieldName, const char *f
 
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x0F_SetCalibFactor::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params)
+void CmdHandler_ajaxReq_P0x0F_SetCalibFactor::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqSetCalibFactor_jsonTrapFunction, &data))
@@ -57,5 +57,5 @@ void CmdHandler_ajaxReq_P0x0F_SetCalibFactor::onCPUBridgeNotification (socketbri
 	cpubridge::translateNotify_SET_FATTORE_CALIB_MOTORE (msgFromCPUBridge, &motor, &valore);
 
 	char text[4] = { 'O', 'K', 0, 0 };
-    server->sendAjaxAnwer (hClient, ajaxRequestID, text, (u16)strlen(text));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)text, (u16)strlen(text));
 }

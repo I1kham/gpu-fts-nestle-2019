@@ -355,17 +355,17 @@ namespace cpubridge
 						Il da3 viene letto direttamente dalla CPU e salvato localmente nella cartella temp.
 						Vedi CPUBRidgeServer::priv_downloadVMCDataFile() per ulteriori info */
 
-	void        ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath);
+	void        ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath);
 					//alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_VMCDATAFILE_PROGRESS
-	void		translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut);
+	void		translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut);
 
 
 	void        ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_VMCDATAFILE_TIMESTAMP
 
-    void        ask_WRITE_CPUFW (const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath);
+    void        ask_WRITE_CPUFW (const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath);
                      //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
-    void		translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut);
+    void		translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut);
 
     void        ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData);
                     //invia un comando di tipo 'P' alla CPU

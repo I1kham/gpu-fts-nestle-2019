@@ -34,7 +34,7 @@ bool Core::setup (const char *serverIPIN, u16 serverPortIN, const char *machineI
 	logger->log("AlipayChinaCore::setup\n");
 	logger->incIndent();
 
-	localAllocator = RHEANEW(rhea::memory_getDefaultAllocator(), rhea::AllocatorSimpleWithMemTrack) ("AlipayChinaCore");
+	localAllocator = RHEANEW(rhea::getScrapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("AlipayChinaCore");
 
 	strcpy_s (serverIP, sizeof(serverIP), serverIPIN);
 	serverPort = serverPortIN;
@@ -258,7 +258,7 @@ void Core::run ()
 	thread::deleteMsgQ (hMsgQRead, hMsgQWrite);
 	RHEAFREE(localAllocator, rcvBuffer);
 	toBeNotifiedThreadList.unsetup();
-	RHEADELETE (rhea::memory_getDefaultAllocator(), localAllocator);
+	RHEADELETE (rhea::getScrapAllocator(), localAllocator);
 }
 
 //***************************************************

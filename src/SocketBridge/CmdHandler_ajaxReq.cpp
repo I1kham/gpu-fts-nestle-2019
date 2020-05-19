@@ -50,7 +50,7 @@ using namespace socketbridge;
  * Factory
  *
  */
-CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator, const HSokBridgeClient &identifiedClientHandle, u8 ajaxRequestID, u8 *payload, u16 payloadLenInBytes, u16 handlerID, u64 dieAfterHowManyMSec, const char **out_params)
+CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator, const HSokBridgeClient &identifiedClientHandle, u8 ajaxRequestID, u8 *payload, u16 payloadLenInBytes, u16 handlerID, u64 dieAfterHowManyMSec, const u8 **out_params)
 {
     if (payloadLenInBytes < 5)
         return NULL;
@@ -59,7 +59,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
     u16 paramLen = ((u16)payload[1 + commandLen] * 256) + (u16)payload[2 + commandLen];
 
     const char *command = (const char*) &payload[1];
-    *out_params = (const char*) &payload[3 + commandLen];
+    *out_params = &payload[3 + commandLen];
 
     payload[1+commandLen] = 0x00;
     payload[3+commandLen+paramLen] = 0x00;
@@ -68,7 +68,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 
     //ora che abbiamo il commandName e i params, cerchiamo la classe che gestisce questo evento
 #define CHECK(TClass) \
-    if (strcasecmp(command, TClass::getCommandName()) == 0)\
+    if (strcasecmp((const char*)command, TClass::getCommandName()) == 0)\
         return RHEANEW(allocator, TClass)(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID);\
     \
 

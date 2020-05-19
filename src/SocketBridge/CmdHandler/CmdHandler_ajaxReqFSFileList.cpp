@@ -9,23 +9,23 @@ using namespace socketbridge;
 
 struct sInput
 {
-	char path[512];
-	char jolly[128];
+	u8 path[512];
+	u8 jolly[128];
 };
 
 //***********************************************************
-bool ajaxReqFSFileList_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqFSFileList_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "path") == 0)
+	if (rhea::string::utf8::areEqual (fieldName, (const u8*)"path", true))
 	{
 		rhea::fs::sanitizePath(fieldValue, input->path, sizeof(input->path) - 1);
 		return true;
 	}
-	else if (strcasecmp(fieldName, "jolly") == 0)
+	else if (rhea::string::utf8::areEqual (fieldName, (const u8*)"jolly", true))
 	{
-		strncpy(input->jolly, fieldValue, sizeof(input->jolly) - 1);
+		rhea::string::utf8::copyStr (input->jolly, sizeof(input->jolly) - 1, fieldValue);
 		return false;
 	}
 
@@ -33,28 +33,28 @@ bool ajaxReqFSFileList_jsonTrapFunction(const char *fieldName, const char *field
 }
 
 //***********************************************************
-void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const char *params)
+void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params)
 {
 	sInput data;
 	if (!rhea::json::parse(params, ajaxReqFSFileList_jsonTrapFunction, &data))
 		return;
 
-	rhea::Allocator *localAllocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *localAllocator = rhea::getScrapAllocator();
 	u32 sizeForFolderStr = 0;
 	u32 sizeForFileStr = 0;
-	char *fileList = NULL;
-	char *folderList = NULL;
+	u8 *fileList = NULL;
+	u8 *folderList = NULL;
 	char canGoUpOneFolder = '0';
 	OSFileFind h;
 	if (rhea::fs::findFirst(&h, data.path, data.jolly))
 	{
 		do
 		{
-			const char *fname = rhea::fs::findGetFileName(h);
+			const u8 *fname = rhea::fs::findGetFileName(h);
 			if (rhea::fs::findIsDirectory(h))
 			{
 				if (fname[0] != '.' && fname[0] != '$')
-					sizeForFolderStr += strlen(fname) + 2;
+					sizeForFolderStr += rhea::string::utf8::lengthInBytes(fname) + 2;
 				else
 				{
 					if (fname[1] == '.')
@@ -62,41 +62,41 @@ void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::S
 				}
 			}
 			else
-				sizeForFileStr += strlen(fname) + 2;
+				sizeForFileStr += rhea::string::utf8::lengthInBytes(fname) + 2;
 		} while (rhea::fs::findNext(h));
 		rhea::fs::findClose(h);
 
 		if (sizeForFolderStr)
         {
             sizeForFolderStr+=2;
-			folderList = (char*)RHEAALLOC(localAllocator, sizeForFolderStr);
+			folderList = (u8*)RHEAALLOC(localAllocator, sizeForFolderStr);
             memset(folderList,0,sizeForFolderStr);
         }
 		if (sizeForFileStr)
         {
             sizeForFileStr+=2;
-			fileList = (char*)RHEAALLOC(localAllocator, sizeForFileStr);
+			fileList = (u8*)RHEAALLOC(localAllocator, sizeForFileStr);
             memset(fileList,0,sizeForFileStr);
         }
 
-		const char SEP[4] = { (char)0xc2, (char)0xa7, 0, 0 };
+		const u8 SEP[4] = { (u8)0xc2, (u8)0xa7, 0, 0 };
 
 		rhea::fs::findFirst(&h, data.path, data.jolly);
 		do
 		{
-			const char *fname = rhea::fs::findGetFileName(h);
+			const u8 *fname = rhea::fs::findGetFileName(h);
 			if (rhea::fs::findIsDirectory(h))
 			{
 				if (fname[0] != '.' && fname[0] != '$')
                 {
-                    if (folderList[0] != 0x00) strcat (folderList, SEP);
-                    strcat (folderList, fname);
+                    if (folderList[0] != 0x00) rhea::string::utf8::concatStr (folderList, sizeForFolderStr, SEP);
+					rhea::string::utf8::concatStr (folderList, sizeForFolderStr, fname);
                 }
 			}
 			else
             {
-                if (fileList[0] != 0x00) strcat (fileList, SEP);
-                strcat (fileList, fname);
+                if (fileList[0] != 0x00) rhea::string::utf8::concatStr (fileList, sizeForFileStr, SEP);
+                rhea::string::utf8::concatStr (fileList, sizeForFileStr, fname);
             }
         } while (rhea::fs::findNext(h));
 		rhea::fs::findClose(h);
@@ -105,7 +105,7 @@ void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::S
     if (0 == sizeForFolderStr)
     {
         sizeForFolderStr=2;
-        folderList = (char*)RHEAALLOC(localAllocator, sizeForFolderStr);
+        folderList = (u8*)RHEAALLOC(localAllocator, sizeForFolderStr);
         folderList[0] = 0x00;
         folderList[1] = 0x00;
     }
@@ -113,15 +113,15 @@ void CmdHandler_ajaxReqFSFileList::handleRequestFromSocketBridge(socketbridge::S
     if (0 == sizeForFileStr)
     {
         sizeForFileStr=2;
-        fileList = (char*)RHEAALLOC(localAllocator, sizeForFileStr);
+        fileList = (u8*)RHEAALLOC(localAllocator, sizeForFileStr);
         fileList[0] = 0x00;
         fileList[1] = 0x00;
     }
 
 
-    char *resp = (char*)RHEAALLOC(localAllocator, 64+strlen(data.path) +sizeForFolderStr +sizeForFileStr);
-    sprintf(resp, "{\"path\":\"%s\",\"up\":%c, \"folderList\":\"%s\",\"fileList\":\"%s\"}", data.path, canGoUpOneFolder, folderList, fileList);
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+    u8 *resp = (u8*)RHEAALLOC(localAllocator, 64 + rhea::string::utf8::lengthInBytes(data.path) +sizeForFolderStr +sizeForFileStr);
+    sprintf((char*)resp, "{\"path\":\"%s\",\"up\":%c, \"folderList\":\"%s\",\"fileList\":\"%s\"}", data.path, canGoUpOneFolder, folderList, fileList);
+	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)rhea::string::utf8::lengthInBytes(resp));
 
     RHEAFREE(localAllocator, folderList);
     RHEAFREE(localAllocator, fileList);

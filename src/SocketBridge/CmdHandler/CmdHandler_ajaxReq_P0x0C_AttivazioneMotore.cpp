@@ -14,37 +14,37 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqAttivazioneMotore_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqAttivazioneMotore_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "m") == 0)
+	if (strcasecmp((const char*)fieldName, "m") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xff)
 			input->m = (u8)h;
 		else
 			input->m = 0xff;
 	}
-	if (strcasecmp(fieldName, "d") == 0)
+	if (strcasecmp((const char*)fieldName, "d") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xff)
 			input->d = (u8)h;
 		else
 			input->d = 0;
 	}
-	if (strcasecmp(fieldName, "n") == 0)
+	if (strcasecmp((const char*)fieldName, "n") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xff)
 			input->n = (u8)h;
 		else
 			input->n = 1;
 	}
-	if (strcasecmp(fieldName, "p") == 0)
+	if (strcasecmp((const char*)fieldName, "p") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
         if (h <= 0xff)
 			input->p = (u8)h;
 		else
@@ -57,7 +57,7 @@ bool ajaxReqAttivazioneMotore_jsonTrapFunction(const char *fieldName, const char
 
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x0C_AttivazioneMotore::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params)
+void CmdHandler_ajaxReq_P0x0C_AttivazioneMotore::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqAttivazioneMotore_jsonTrapFunction, &data))
@@ -86,5 +86,5 @@ void CmdHandler_ajaxReq_P0x0C_AttivazioneMotore::onCPUBridgeNotification (socket
 		text[0] = 'K';
 		text[1] = 'O';
 	}
-    server->sendAjaxAnwer (hClient, ajaxRequestID, text, (u16)strlen(text));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)text, (u16)strlen(text));
 }

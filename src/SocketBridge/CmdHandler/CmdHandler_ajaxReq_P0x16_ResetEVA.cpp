@@ -5,7 +5,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x16_ResetEVA::passDownRequestToCPUBridge(cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_P0x16_ResetEVA::passDownRequestToCPUBridge(cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_EVA_RESET_PARTIALDATA(from, getHandlerID());
 }
@@ -21,6 +21,6 @@ void CmdHandler_ajaxReq_P0x16_ResetEVA::onCPUBridgeNotification(socketbridge::Se
 	else
 		sprintf(resp, "KO");
 
-	server->sendAjaxAnwer(hClient, ajaxRequestID, resp, (u16)strlen(resp));
+	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }
 

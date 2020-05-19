@@ -10,61 +10,66 @@
 
 using namespace rhea;
 
-//*****************************************************
-bool platform::FS_DirectoryCreate (const char *path)
+//********************************************* 
+bool win32_createFolderFromUTF8Path (const u8 *utf8_path, u32 nBytesToUseForPath)
 {
-	char	temp[1024];
-	string::parser::Iter src, value;
-	src.setup(path);
+	wchar_t temp[512];
+	if (!platform::win32::utf8_towchar(utf8_path, nBytesToUseForPath, temp, sizeof(temp)))
+		return false;
 
-	if (path[1] == ':')
+	BOOL ret = ::CreateDirectory (temp, NULL);
+	if (ret == 1)
+		return true;
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+		return true;
+	return false;
+}
+
+//*****************************************************
+bool platform::FS_DirectoryCreate (const u8* const utf8_path)
+{
+	if (NULL == utf8_path)
+		return false;
+	if (utf8_path[0] == 0x00)
+		return false;
+
+	if (utf8_path[1] != ':')
 	{
-		src.next();
-		src.next();
-		src.next();
+		DBGBREAK;
+		return false;
 	}
 
-	while (string::parser::advanceUntil(src, "/", 1))
+	u32 n = 3;
+	while (utf8_path[n] != 0x00)
 	{
-		src.prev();
-		const char *s2 = src.getCurStrPointer();
-		src.next();
-		src.next();
-
-		if (s2)
+		if (utf8_path[n]=='\\' || utf8_path[n]=='/')
 		{
-			u32 n = (u32)(s2 - path + 1);
-			memcpy_s(temp, sizeof(temp), path, n);
-			temp[n] = 0;
-
-			BOOL ret = ::CreateDirectory(temp, NULL);
-			if (ret == 1)
-				continue;
-			if (GetLastError() == ERROR_ALREADY_EXISTS)
-				continue;
-			return false;
+			if (!win32_createFolderFromUTF8Path(utf8_path,n))
+				return false;
 		}
+		n++;
 	}
 
-	BOOL ret = ::CreateDirectory(path, NULL);
-	if (ret != 1 && GetLastError() != ERROR_ALREADY_EXISTS)
-		return false;
-	return true;
+	return win32_createFolderFromUTF8Path(utf8_path, n);
 }
 
 //*****************************************************
-bool platform::FS_DirectoryDelete(const char *path)
+bool platform::FS_DirectoryDelete(const u8* const utf8_path)
 {
-	if (!::RemoveDirectory(path))
-		return false;
-	return true;
-
+	wchar_t temp[512];
+	if (win32::utf8_towchar(utf8_path, u32MAX, temp, sizeof(temp)))
+		return (::RemoveDirectory(temp) != 0); 
+	return false;
 }
 
 //*****************************************************
-bool platform::FS_DirectoryExists(const char *path)
+bool platform::FS_DirectoryExists(const u8* const utf8_path)
 {
-	DWORD ftyp = GetFileAttributes(path);
+	wchar_t temp[512];
+	if (!win32::utf8_towchar(utf8_path, u32MAX, temp, sizeof(temp)))
+		return false;
+
+	DWORD ftyp = GetFileAttributes(temp);
 	if (ftyp == INVALID_FILE_ATTRIBUTES)
 		return false;
 	if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
@@ -72,10 +77,95 @@ bool platform::FS_DirectoryExists(const char *path)
 	return false;
 }
 
-//*****************************************************
-bool platform::FS_fileExists(const char *filename)
+//**************************************************************************
+FILE* platform::FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPath)
 {
-	DWORD ftyp = GetFileAttributes(filename);
+	wchar_t filename[512];
+	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
+	{
+		DBGBREAK;
+		return false;
+	}
+
+	FILE *f = NULL;
+	if (0 == _wfopen_s (&f, filename, L"rb"))
+		return f;
+	return NULL;
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndPath)
+{
+	wchar_t filename[512];
+	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
+	{
+		DBGBREAK;
+		return false;
+	}
+
+	FILE *f = NULL;
+	if (0 == _wfopen_s (&f, filename, L"wb"))
+		return f;
+	return NULL;
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath)
+{
+	wchar_t filename[512];
+	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
+	{
+		DBGBREAK;
+		return false;
+	}
+
+	FILE *f = NULL;
+	if (0 == _wfopen_s (&f, filename, L"rt"))
+		return f;
+	return NULL;
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPath)
+{
+	wchar_t filename[512];
+	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
+	{
+		DBGBREAK;
+		return false;
+	}
+
+	FILE *f = NULL;
+	if (0 == _wfopen_s (&f, filename, L"wt"))
+		return f;
+	return NULL;
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath)
+{
+	wchar_t filename[512];
+	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
+	{
+		DBGBREAK;
+		return false;
+	}
+
+	FILE *f = NULL;
+	if (0 == _wfopen_s (&f, filename, L"at"))
+		return f;
+	return NULL;
+}
+
+//*****************************************************
+bool platform::FS_fileExists(const u8* const utf8_filename)
+{
+	wchar_t temp[512];
+	if (!win32::utf8_towchar(utf8_filename, u32MAX, temp, sizeof(temp)))
+		return false;
+
+	assert (sizeof(wchar_t) == sizeof(u16));
+	DWORD ftyp = GetFileAttributes(temp);
 	if (ftyp == INVALID_FILE_ATTRIBUTES)
 		return false;
 	if ((ftyp & FILE_ATTRIBUTE_DIRECTORY) == 0)
@@ -84,46 +174,61 @@ bool platform::FS_fileExists(const char *filename)
 }
 
 //*****************************************************
-bool platform::FS_fileDelete(const char *filename)
+bool platform::FS_fileDelete(const u8* const utf8_filename)
 {
-	return (::DeleteFile(filename) != 0);
+	wchar_t temp[512];
+	if (!win32::utf8_towchar(utf8_filename, u32MAX, temp, sizeof(temp)))
+		return false;
+	return (::DeleteFile (temp) != 0);
 }
 
 //*****************************************************
-bool platform::FS_fileRename(const char *oldFilename, const char *newFilename)
+bool platform::FS_fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, const u8 *utf8_newFilename)
 {
-	return (rename(oldFilename, newFilename) == 0);
+	u8 utf8_temp[512];
+
+	wchar_t temp1[512];
+	string::utf8::copyStr (utf8_temp, sizeof(utf8_temp), utf8_path);
+	string::utf8::concatStr (utf8_temp, sizeof(utf8_temp), utf8_oldFilename);
+	if (!win32::utf8_towchar(utf8_temp, u32MAX, temp1, sizeof(temp1)))
+		return false;
+
+	wchar_t temp2[512];
+	string::utf8::copyStr (utf8_temp, sizeof(utf8_temp), utf8_path);
+	string::utf8::concatStr (utf8_temp, sizeof(utf8_temp), utf8_newFilename);
+	if (!win32::utf8_towchar(utf8_temp, u32MAX, temp2, sizeof(temp2)))
+		return false;
+
+	return (::MoveFileEx (temp1, temp2, 0) != 0);
 }
 
-
 //*****************************************************
-bool platform::FS_findFirst(OSFileFind *ff, const char *strPathNoSlash, const char *strJolly)
+bool platform::FS_findFirst(OSFileFind *ff, const u8* const utf8_path, const u8* const utf8_jolly)
 {
 	assert(ff->h == INVALID_HANDLE_VALUE);
 
-	char filename[1024];
-	//sprintf_s(filename, sizeof(filename), "%s/%s", strPathNoSlash, strJolly);
-	sprintf_s(filename, sizeof(filename), "%s/*.*", strPathNoSlash);
-	ff->h = FindFirstFile(filename, &ff->findData);
+	wchar_t wctemp[512];
+	win32::utf8_towchar (utf8_path, u32MAX, wctemp, sizeof(wctemp));
+	wcscat_s (wctemp, _countof(wctemp), L"/*.*");
+
+	ff->h = ::FindFirstFile(wctemp, &ff->findData);
 	if (ff->h == INVALID_HANDLE_VALUE)
 		return false;
-	
-	strcpy_s(ff->strJolly, sizeof(ff->strJolly), strJolly);
+
+	strcpy_s ((char*)ff->utf8_jolly, sizeof(ff->utf8_jolly), (const char*)utf8_jolly);
 	do
 	{
 		if ((ff->findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0) continue;
 		if ((ff->findData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) continue;
 		if ((ff->findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM) != 0) continue;
-
-		const char *fname = FS_findGetFileName(*ff);
-		if (FS_findIsDirectory(*ff) || rhea::fs::doesFileNameMatchJolly(fname, strJolly))
+		
+		win32::wchar_to_utf8 (ff->findData.cFileName, u32MAX, ff->utf8_curFilename, sizeof(ff->utf8_curFilename));
+		if (FS_findIsDirectory(*ff) || fs::doesFileNameMatchJolly(ff->utf8_curFilename, utf8_jolly))
 			return true;
 	} while (FS_findNext(*ff));
 	
 	FS_findClose(*ff);
-	return false;
-
-	
+	return false;	
 }
 
 //*****************************************************
@@ -136,9 +241,8 @@ bool platform::FS_findNext(OSFileFind &ff)
 		if ((ff.findData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) continue;
 		if ((ff.findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM) != 0) continue;
 
-
-		const char *fname = FS_findGetFileName(ff);
-		if (FS_findIsDirectory(ff) || rhea::fs::doesFileNameMatchJolly(fname, ff.strJolly))
+		win32::wchar_to_utf8 (ff.findData.cFileName, u32MAX, ff.utf8_curFilename, sizeof(ff.utf8_curFilename));
+		if (FS_findIsDirectory(ff) || fs::doesFileNameMatchJolly(ff.utf8_curFilename, ff.utf8_jolly))
 			return true;
 	}
 	return false;
@@ -152,18 +256,19 @@ bool platform::FS_findIsDirectory(const OSFileFind &ff)
 }
 
 //*****************************************************
-const char* platform::FS_findGetFileName(const OSFileFind &ff)
+const u8* platform::FS_findGetFileName(const OSFileFind &ff)
 {
 	assert(ff.h != INVALID_HANDLE_VALUE);
-	return ff.findData.cFileName;
+	return ff.utf8_curFilename;
 }
 
 //*****************************************************
-void platform::FS_findGetFileName(const OSFileFind &ff, char *out, u32 sizeofOut)
+void platform::FS_findGetFileName(const OSFileFind &ff, u8 *out, u32 sizeofOut)
 {
 	assert(ff.h != INVALID_HANDLE_VALUE);
-	sprintf_s(out, sizeofOut, "%s", ff.findData.cFileName);
+	strcpy_s ((char*)out, sizeofOut, (const char*)ff.utf8_curFilename);
 }
+
 
 //*****************************************************
 void platform::FS_findGetCreationTime(const OSFileFind &ff, rhea::DateTime *out_dt)
@@ -219,21 +324,30 @@ bool platform::FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResul
 			continue;
 		}
 
-		out->drivePath[0] = 'A' + h.current;
-		out->drivePath[1] = ':';
-		out->drivePath[2] = '\\';
-		out->drivePath[3] = 0x00;
+		out->utf8_drivePath[0] = 'A' + h.current;
+		out->utf8_drivePath[1] = ':';
+		out->utf8_drivePath[2] = '\\';
+		out->utf8_drivePath[3] = 0x00;
 
-		char s2[256];
+		wchar_t drivePath[4];
+		drivePath[0] = 'A' + h.current;
+		drivePath[1] = ':';
+		drivePath[2] = '\\';
+		drivePath[3] = 0x00;
+
+		wchar_t s2[256];
+		wchar_t driveLabel[256];
 		DWORD volumeSerialNumber, maximumComponentLength, fileSystemFlags;
 
-		GetVolumeInformation(out->drivePath, out->driveLabel, sizeof(out->driveLabel),
+		::GetVolumeInformation(drivePath, driveLabel, _countof(driveLabel),
 			&volumeSerialNumber,
 			&maximumComponentLength,
 			&fileSystemFlags,
-			s2, sizeof(s2));
+			s2, _countof(s2));
 
 		h.current++;
+
+		win32::wchar_to_utf8 (driveLabel, u32MAX, out->utf8_driveLabel, sizeof(out->utf8_driveLabel));
 		return true;
 	}
 	return false;
@@ -246,23 +360,22 @@ void platform::FS_findCloseHardDrive(OSDriveEnumerator &h)
 	h.current = 0xff;
 }
 
-
 //********************************************* 
-bool platform::FS_getDestkopPath (char* outPathNoSlash, u32 sizeOfOutPathNoSlash)
+bool platform::FS_getDestkopPath (u8* out_path, u32 sizeof_out_path)
 {
-	char	tempPathToUserFolded[MAX_PATH];
-	if (0 == SHGetSpecialFolderPath(NULL, tempPathToUserFolded, CSIDL_DESKTOP, FALSE))
+	wchar_t	tempPathToUserFolded[MAX_PATH];
+	if (0 == SHGetSpecialFolderPath (NULL, tempPathToUserFolded, CSIDL_DESKTOP, FALSE))
 		return false;
 
-	_mbscpy_s((unsigned char*)outPathNoSlash, sizeOfOutPathNoSlash, (unsigned char*)tempPathToUserFolded);
-
-	size_t	n = _mbstrlen(outPathNoSlash) - 1;
+	size_t	n = wcslen(tempPathToUserFolded);
 	for (size_t t = 0; t < n; t++)
 	{
-		if (outPathNoSlash[t] == '\\')
-			outPathNoSlash[t] = '/';
+		if (tempPathToUserFolded[t] == '\\')
+			tempPathToUserFolded[t] = '/';
 	}
+
+	win32::wchar_to_utf8 (tempPathToUserFolded, u32MAX, out_path, sizeof_out_path);
+	fs::sanitizePathInPlace (out_path);
 	return true;
 }
-
 #endif //WIN32

@@ -1,14 +1,12 @@
 #include "CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer.h"
 #include "../SocketBridge.h"
 #include "../../CPUBridge/CPUBridge.h"
-#include "../../rheaCommonLib/rheaUTF8.h"
-#include "../../rheaCommonLib/rheaUTF16.h"
 
 
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer::passDownRequestToCPUBridge(cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer::passDownRequestToCPUBridge(cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(from, getHandlerID());
 }
@@ -22,14 +20,14 @@ void CmdHandler_ajaxReq_P0x1B_getCPUStringModelAndVer::onCPUBridgeNotification(s
 
 
 	u8 buffer[256];
-	u32 sizeOfBuffer = sizeof(buffer);
-	if (rhea::utf16::toUTF8(utf16_CPUMasterVersionString, buffer, &sizeOfBuffer))
-		server->sendAjaxAnwer(hClient, ajaxRequestID, (const char*)buffer, sizeOfBuffer);
+	
+	if (rhea::string::strUTF16toUTF8(utf16_CPUMasterVersionString, buffer, sizeof(buffer)))
+		server->sendAjaxAnwer(hClient, ajaxRequestID, buffer, rhea::string::utf8::lengthInBytes(buffer));
 	else
 	{
 		DBGBREAK;
 		sprintf_s((char*)buffer, sizeof(buffer), "ERR utf8 conversion");
-		server->sendAjaxAnwer(hClient, ajaxRequestID, (const char*)buffer, 1 + (u16)strlen((const char*)buffer));
+		server->sendAjaxAnwer(hClient, ajaxRequestID, buffer, 1 + (u16)strlen((const char*)buffer));
 	}
 }
 

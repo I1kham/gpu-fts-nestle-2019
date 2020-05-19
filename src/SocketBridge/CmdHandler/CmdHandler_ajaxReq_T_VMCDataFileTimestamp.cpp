@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_T_VMCDataFileTimestamp::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_T_VMCDataFileTimestamp::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(from, getHandlerID());
 }
@@ -34,5 +34,5 @@ void CmdHandler_ajaxReq_T_VMCDataFileTimestamp::onCPUBridgeNotification (socketb
 		strcat_s(text, sizeof(text), ss);
 	}
 
-    server->sendAjaxAnwer (hClient, ajaxRequestID, text, (u16)strlen(text));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)text, (u16)strlen(text));
 }

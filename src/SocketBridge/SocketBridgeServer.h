@@ -29,7 +29,7 @@ namespace socketbridge
 
 		void					sendTo (const HSokServerClient &h, const u8 *buffer, u32 nBytesToSend);
 		void					sendEvent (const HSokServerClient &h, eEventType eventType, const void *optionalData, u16 lenOfOptionalData);
-		void					sendAjaxAnwer(const HSokServerClient &h, u8 requestID, const char *ajaxData, u16 lenOfAjaxData);
+		void					sendAjaxAnwer(const HSokServerClient &h, u8 requestID, const u8 *ajaxData, u16 lenOfAjaxData);
 		
 		void					formatSinglePrice (u16 price, u8 numDecimals, char *out, u16 sizeofOut) const;
 		void					formatPriceList (const u16 *priceList, u16 nPricesInList, u8 numDecimals, char *out, u16 sizeofOut) const;
@@ -40,21 +40,21 @@ namespace socketbridge
 
 
 								//============================== DB ===============================================
-		u16						DB_getOrCreateHandle (const char *fullFilePathAndName);
+		u16						DB_getOrCreateHandle (const u8* const utf8_fullFilePathAndName);
 								//ritorna 0 se non è possibile aprire il DB
 
-		const rhea::SQLRst*		DB_q (u16 dbHandle, const char *sql);
+		const rhea::SQLRst*		DB_q (u16 dbHandle, const u8* const utf8_sql);
 								//NULL in caso di errore
 
-		bool					DB_exec (u16 dbHandle, const char *sql);
-		void					DB_closeByPath (const char *fullFilePathAndName);
+		bool					DB_exec (u16 dbHandle, const u8* const utf8_sql);
+		void					DB_closeByPath (const u8* const utf8_fullFilePathAndName);
 		void					DB_closeByHandle(u16 dbHandle);
 
 
 								//============================== TASK ===============================================
 								template<class TTask>
 		void					taskAdd(const char *taskName) { taskFactory->add<TTask>(taskName);  }
-		bool					taskSpawnAndRun (const char *taskName, const char *params, u32 *out_taskID);
+		bool					taskSpawnAndRun (const char *taskName, const u8* const params, u32 *out_taskID);
 		bool					taskGetStatusAndMesssage (u32 taskID, TaskStatus::eStatus *out_status, char *out_msg, u32 sizeofmsg);
 
 
@@ -87,7 +87,7 @@ namespace socketbridge
 								 *  Ritorna false se il buffer è troppo piccolo e, in questo caso, filla [in_out_bufferLength] con il numero minimo di byte necessari per [out_buffer]
 								 */
 
-		bool					priv_encodeMessageOfAjax(u8 requestID, const char *ajaxData, u16 lenOfAjaxData, u8 *out_buffer, u16 *in_out_bufferLength);
+		bool					priv_encodeMessageOfAjax(u8 requestID, const u8 *ajaxData, u16 lenOfAjaxData, u8 *out_buffer, u16 *in_out_bufferLength);
 								/* come sopra ma per i comandi di tipo "eOpcode_ajax_A"
 								*/
 

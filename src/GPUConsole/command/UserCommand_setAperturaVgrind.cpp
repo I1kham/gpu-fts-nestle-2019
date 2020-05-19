@@ -9,10 +9,11 @@ const char*	UserCommand_setAperturaVgrind::getExplain() const
 //**********************************************************
 void UserCommand_setAperturaVgrind::handle(const char *command, rhea::IProtocolChannell *ch, rhea::IProtocol *proto, WinTerminal *log, rhea::app::FileTransfer *ftransf) const
 {
-	rhea::string::parser::Iter src, temp;
-	src.setup(command);
+	rhea::string::utf8::Iter src, temp;
+	src.setup((const u8*)command);
 
-	if (!rhea::string::parser::advanceUntil(src, " ", 1))
+	const rhea::UTF8Char cSpace(" ");
+	if (!rhea::string::utf8::advanceUntil(src, &cSpace, 1))
 	{
 		log->log("syntax error, expecting parameter [macina_1o2]\n");
 		return;
@@ -20,8 +21,8 @@ void UserCommand_setAperturaVgrind::handle(const char *command, rhea::IProtocolC
 	
 
 	i32 macina_1o2 = 0;
-	rhea::string::parser::toNextValidChar(src);
-	if (!rhea::string::parser::extractInteger(src, &macina_1o2))
+	rhea::string::utf8::toNextValidChar(src);
+	if (!rhea::string::utf8::extractInteger(src, &macina_1o2))
 	{
 		log->log("syntax error, expecting integer parameter [macina_1o2]\n");
 		return;
@@ -29,8 +30,8 @@ void UserCommand_setAperturaVgrind::handle(const char *command, rhea::IProtocolC
 
 
 	i32 value = 0;
-	rhea::string::parser::toNextValidChar(src);
-	if (!rhea::string::parser::extractInteger(src, &value))
+	rhea::string::utf8::toNextValidChar(src);
+	if (!rhea::string::utf8::extractInteger(src, &value))
 	{
 		log->log("syntax error, expecting integer parameter [target]\n");
 		return;

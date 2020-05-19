@@ -16,7 +16,7 @@ OSWaitableGrp::OSWaitableGrp()
 //***********************************************
 OSWaitableGrp::~OSWaitableGrp()
 {
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+    rhea::Allocator *allocator = rhea::rhea::getSysHeapAllocator();
 
     while (base)
     {
@@ -31,7 +31,7 @@ OSWaitableGrp::~OSWaitableGrp()
 //***********************************************
 OSWaitableGrp::sRecord* OSWaitableGrp::priv_newRecord (u32 flags)
 {
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+    rhea::Allocator *allocator = rhea::rhea::getSysHeapAllocator();
     sRecord *r = RHEAALLOCSTRUCT(allocator,sRecord);
 
     r->next = base;
@@ -62,7 +62,7 @@ int OSWaitableGrp::priv_getFd (const sRecord *s) const
 //***********************************************
 void OSWaitableGrp::priv_findAndRemoveRecordByFD (int fd)
 {
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+    rhea::Allocator *allocator = rhea::rhea::getSysHeapAllocator();
 
     sRecord *q = NULL;
     sRecord *p = base;

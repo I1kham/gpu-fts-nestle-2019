@@ -75,8 +75,8 @@ enum eRS232FlowControl
 
 typedef struct sFindHardDriveResult
 {
-	char	drivePath[128];
-	char	driveLabel[256];
+	u8		utf8_drivePath[32];
+	u8		utf8_driveLabel[256];
 } rheaFindHardDriveResult;
 
 

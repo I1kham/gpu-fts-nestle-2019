@@ -17,7 +17,7 @@ void CmdHandler_eventReqClientList::handleRequestFromSocketBridge (socketbridge:
 	const IdentifiedClientList *list = server->getIdentifieidClientList();
 
 	//alloco un buffer grosso abbastanza per contenere tutte le info
-	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	
 
 

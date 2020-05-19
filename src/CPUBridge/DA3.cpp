@@ -27,16 +27,16 @@ void DA3::free()
 
 
 //*********************************************
-bool DA3::loadInMemory(rhea::Allocator *allocatorIN, const char *fullFilePathAndNameIN, cpubridge::eCPUMachineType machineType, u8 machineModel)
+bool DA3::loadInMemory(rhea::Allocator *allocatorIN, const u8* const utf8_fullFilePathAndNameIN, cpubridge::eCPUMachineType machineType, u8 machineModel)
 {
 	free();
 
 	sizeOfBlob = 0;
-	blob = rhea::fs::fileCopyInMemory (fullFilePathAndNameIN, allocatorIN, &sizeOfBlob);
+	blob = rhea::fs::fileCopyInMemory (utf8_fullFilePathAndNameIN, allocatorIN, &sizeOfBlob);
 	if (NULL == blob)
 		return false;
 	allocator = allocatorIN;
-    fullFilePathAndName = rhea::string::alloc(allocator, fullFilePathAndNameIN);
+    fullFilePathAndName = rhea::string::utf8::allocStr(allocator, utf8_fullFilePathAndNameIN);
     
     blob[LOC_MACHINE_TYPE] = (u8)machineType;
     blob[LOC_MACHINE_MODEL] = machineModel;
@@ -52,7 +52,7 @@ void DA3::reload()
     const u8 machineType = blob[LOC_MACHINE_TYPE];
     const u8 machineModel = blob[LOC_MACHINE_MODEL];
     
-    FILE *f = fopen(fullFilePathAndName, "rb");
+    FILE *f = rhea::fs::fileOpenForReadBinary (fullFilePathAndName);
     if (NULL == f)
         return;
     
@@ -76,13 +76,13 @@ void DA3::reload()
 
 
 //*********************************************
-void DA3::save(const char *fullFilePathAndName)
+void DA3::save(const u8* const utf8_fullFilePathAndName)
 {
 	if (NULL == blob)
 		return;
 
 	const u32 SIZE = 1024;
-	FILE *f = fopen(fullFilePathAndName, "wb");
+	FILE *f = rhea::fs::fileOpenForWriteBinary (utf8_fullFilePathAndName);
 	if (NULL == f)
 		return;
 

@@ -20,7 +20,7 @@ namespace rhea
         void			doLog	(u32 channel, const char *msg);
 
     private:
-        char			*filename;
+        u8			    *filename;
     };
 } //namespace rhea
 

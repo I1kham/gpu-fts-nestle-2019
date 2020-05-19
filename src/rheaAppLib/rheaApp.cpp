@@ -80,7 +80,7 @@ void priv_event_sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::IProtocol
 
 	sizeOSendfBuffer += 4;
 
-	rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	u8 *temp = (u8*)RHEAALLOC(allocator, sizeOSendfBuffer);
 	priv_prepareCommandBuffer(socketbridge::eOpcode_event_E, 0xff, optionalData, sizeoOfOptionalData, temp, &sizeOSendfBuffer);
 	proto->write(ch, temp, sizeOSendfBuffer, 1000);

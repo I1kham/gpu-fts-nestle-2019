@@ -6,7 +6,7 @@ using namespace socketbridge;
 //*********************************************
 TaskFactory::TaskFactory()
 {
-	localAllocator = rhea::memory_getDefaultAllocator();
+	localAllocator = rhea::getScrapAllocator();
 	list.setup(localAllocator, 64);
 }
 
@@ -36,7 +36,7 @@ Task* TaskFactory::spawn(rhea::Allocator *allocator, const char *taskName) const
 }
 
 //*********************************************
-TaskStatus*	TaskFactory::spawnAndRunTask(rhea::Allocator *allocator, const char *taskName, const char *params) const
+TaskStatus*	TaskFactory::spawnAndRunTask (rhea::Allocator *allocator, const char *taskName, const u8* const params) const
 {
 	Task *task = spawn (allocator, taskName);
 	if (NULL == task)
@@ -46,7 +46,7 @@ TaskStatus*	TaskFactory::spawnAndRunTask(rhea::Allocator *allocator, const char 
 	status->_localAllocator = allocator;
 	status->_task = task;
 	if (NULL != params)
-		status->params = rhea::string::alloc(allocator, params);
+		status->params = rhea::string::utf8::allocStr(allocator, params);
 
 	rhea::HThread hThread;
 	eThreadError err = rhea::thread::create(&hThread, socketbridge::SocketBridgeTaskThreadFn, status, 1024);

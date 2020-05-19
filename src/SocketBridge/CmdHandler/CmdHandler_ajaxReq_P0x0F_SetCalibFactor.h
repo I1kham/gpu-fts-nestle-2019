@@ -29,7 +29,7 @@ namespace socketbridge
                                 { }
 
 		bool				needToPassDownToCPUBridge() const { return true; }
-        void                passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params);
+        void                passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params);
         void                onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge);
 
         static const char*  getCommandName()                            { return "setFattoreCalib"; }

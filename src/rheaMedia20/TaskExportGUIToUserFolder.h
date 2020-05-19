@@ -15,7 +15,7 @@ class TaskExportGUIToUserFolder : public socketbridge::Task
 {
 public:
 									TaskExportGUIToUserFolder()				{ };
-	void							run (socketbridge::TaskStatus *status, const char *params);
+	void							run (socketbridge::TaskStatus *status, const u8 *params);
 
 	static socketbridge::Task*		spawn (rhea::Allocator *allocator) { return RHEANEW(allocator, TaskExportGUIToUserFolder); }
 

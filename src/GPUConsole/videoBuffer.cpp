@@ -4,7 +4,7 @@
 //**********************************************
 VideoBuffer::VideoBuffer()
 {
-	allocator = rhea::memory_getDefaultAllocator();
+	allocator = rhea::getScrapAllocator();
 
 	buffer = NULL;
 	dimx = dimy = 0;
@@ -32,7 +32,7 @@ void VideoBuffer::alloc (u16 numRows, u16 numCols)
 	{
 		for (u16 x = 0; x < dimx; x++)
 		{
-			buffer[ct].Char.AsciiChar = 0;
+			buffer[ct].Char.UnicodeChar = 0;
 			buffer[ct].Attributes = (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 			ct++;
 		}
@@ -44,7 +44,8 @@ void VideoBuffer::put (u16 x, u16 y, char c)
 {
 	assert(x < dimx && y < dimy);
 	const u32 ct = (y * dimx) + x;
-	buffer[ct].Char.AsciiChar = c;
+	//buffer[ct].Char.AsciiChar = c;
+	buffer[ct].Char.UnicodeChar = c;
 }
 
 //**********************************************
@@ -56,7 +57,8 @@ void VideoBuffer::put(u16 x, u16 y, const char *s)
 	u32 ct = (y * dimx) + x;
 	for (u32 i = 0; i < n; i++)
 	{
-		buffer[ct++].Char.AsciiChar = s[i];
+		//buffer[ct++].Char.AsciiChar = s[i];
+		buffer[ct++].Char.UnicodeChar = s[i];
 		if (s[i] == '\n')
 			ct += dimx;
 	}

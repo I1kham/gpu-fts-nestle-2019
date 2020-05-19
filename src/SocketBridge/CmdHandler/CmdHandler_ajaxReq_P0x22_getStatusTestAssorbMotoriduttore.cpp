@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE(from, getHandlerID());
 }
@@ -30,5 +30,5 @@ void CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore::onCPUBridgeNotif
 
     char resp[1024];
     sprintf_s (resp, sizeof(resp), "{\"fase\":%d,\"esito\":\"%d\",\"r1up\":\"%s\",\"r1down\":\"%s\"}", fase, esito, results[0], results[1]);
-    server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

@@ -9,9 +9,8 @@
 using namespace rhea;
 using namespace rhea::string;
 
-
 //*****************************************
-void handleExtractedJSONValue (const char *start, u32 len, bool bNeedToBeEscaped, char *out_value, u32 sizeOfOut)
+void handleExtractedJSONValue (const u8* const start, u32 len, bool bNeedToBeEscaped, u8 *out_value, u32 sizeOfOut)
 {
     if (len==0)
     {
@@ -48,10 +47,10 @@ void handleExtractedJSONValue (const char *start, u32 len, bool bNeedToBeEscaped
 }
 
 //*****************************************
-bool extractJSONValue (parser::Iter &srcIN, char *out_value, u32 sizeOfOut)
+bool extractJSONValue (utf8::Iter &srcIN, u8 *out_value, u32 sizeOfOut)
 {
-    parser::Iter src = srcIN;
-    const char *s1 = src.getCurStrPointer();
+    utf8::Iter src = srcIN;
+    const u8 *s1 = src.getPointerToCurrentPosition();
     if (NULL == s1)
         return false;
 
@@ -60,20 +59,21 @@ bool extractJSONValue (parser::Iter &srcIN, char *out_value, u32 sizeOfOut)
         bool hasEscapedDoubleQuote = false;
 
         //il value è racchiuso tra apici. Prendo tutto fino a che non trovo un'altro apice uguale all'apice di apertura
-        src.next();
+        src.advanceOneChar();
         ++s1;
 
+        UTF8Char cApiceDoppio("\"");
         while (1)
         {
-            if (!advanceUntil (src, "\"", 1))
+            if (!utf8::advanceUntil (src, &cApiceDoppio, 1))
                 //non ho trovato l'opening finale
                 return false;
 
             //ho trovato un apice. Se l'apice è preceduto dal carattere backslash, allora non è l'apice finale!
-            const char *p = src.getCurStrPointer();
+            const u8 *p = src.getPointerToCurrentPosition();
             p--;
 
-            src.next();
+            src.advanceOneChar();
             if (p[0] != '\\')
                 break;
 
@@ -82,44 +82,47 @@ bool extractJSONValue (parser::Iter &srcIN, char *out_value, u32 sizeOfOut)
 
         srcIN = src;
 
-        const char *s2 = src.getCurStrPointer();
+        const u8 *s2 = src.getPointerToCurrentPosition();
         assert (s2);
-        u32 numChar = (u32)(s2-s1) -1;
-        handleExtractedJSONValue (s1, numChar, hasEscapedDoubleQuote, out_value, sizeOfOut);
+        const u32 numBytes = (u32)(s2-s1) -1;
+        handleExtractedJSONValue (s1, numBytes, hasEscapedDoubleQuote, out_value, sizeOfOut);
         return true;
     }
     else
     {
         // l'identificatore non è racchiuso tra apici per cui prendo tutto fino a che non trovo un validClosingChars o fine buffer
+        UTF8Char cBNRT[4] = { UTF8Char(" "), UTF8Char("\r"), UTF8Char("\n"), UTF8Char("\t") };
 
         //il primo char però non deve essere uno spazio
-        if (parser::IsOneOfThis (src.getCurChar(), " \r\n\t", 4))
+        if (utf8::isOneOfThis (src.getCurChar(), cBNRT, 4))
             return false;
 
-        if (!advanceUntil (src, " },", 3))
+        //avanzo fino al primo spazio, graffa chiusa o virgola
+        UTF8Char cTerminators[3] = { UTF8Char(" "), UTF8Char("}"), UTF8Char(",") };;
+        if (!utf8::advanceUntil (src, cTerminators, 3))
             return false;
 
         srcIN = src;
 
-        src.prev();
-        const char *s2 = src.getCurStrPointer();
+        src.backOneChar();
+        const u8 *s2 = src.getPointerToCurrentPosition();
 
-        u32 numChar = 0;
+        u32 numBytes = 0;
         if (s2 >= s1)
-            numChar = (u32)(s2-s1) +1;
+            numBytes = (u32)(s2-s1) +1;
 
-        handleExtractedJSONValue (s1, numChar, false, out_value, sizeOfOut);
+        handleExtractedJSONValue (s1, numBytes, false, out_value, sizeOfOut);
 
-        if (numChar==0)
+        if (numBytes==0)
         {
             out_value[0] = 0x00;
         }
         else
         {
-            if (numChar >= sizeOfOut)
-                numChar = sizeOfOut-1;
-            memcpy (out_value, s1, numChar);
-            out_value[numChar] = 0;
+            if (numBytes >= sizeOfOut)
+                numBytes = sizeOfOut-1;
+            memcpy (out_value, s1, numBytes);
+            out_value[numBytes] = 0;
         }
 
         return true;
@@ -132,27 +135,27 @@ bool extractJSONValue (parser::Iter &srcIN, char *out_value, u32 sizeOfOut)
  * parse
  *
  */
-bool json::parse (const char *s, RheaJSonTrapFunction onValueFound, void *userValue)
+bool json::parse (const u8* const s, RheaJSonTrapFunction onValueFound, void *userValue)
 {
     const u8 MAX_SIZE_OF_FIELD_NAME = 64;
-    char fieldName[MAX_SIZE_OF_FIELD_NAME];
+    u8 fieldName[MAX_SIZE_OF_FIELD_NAME];
 
     const u16 MAX_SIZE_OF_FIELD_VALUE = 4096;
-    char fieldValue[MAX_SIZE_OF_FIELD_VALUE];
+    u8 fieldValue[MAX_SIZE_OF_FIELD_VALUE];
 
-    parser::Iter iter1;
+    utf8::Iter iter1;
     iter1.setup(s);
 
     //skippa spazi e cerca una graffa aperta
-    parser::toNextValidChar (iter1);
+    utf8::toNextValidChar(iter1);
     if (iter1.getCurChar() != '{')
         return false;
-    iter1.next();
+    iter1.advanceOneChar();
 
-    while (!iter1.isEOL())
+    while (!iter1.getCurChar().isEOF())
     {
         //skippa spazi e cerca il doppio apice
-        parser::toNextValidChar (iter1);
+        utf8::toNextValidChar(iter1);
         if (iter1.getCurChar() != '"')
             return false;
 
@@ -162,16 +165,16 @@ bool json::parse (const char *s, RheaJSonTrapFunction onValueFound, void *userVa
 
 
         //skippa spazi e cerca un ':'
-        parser::toNextValidChar (iter1);
+        utf8::toNextValidChar(iter1);
         if (iter1.getCurChar() != ':')
             return false;
-        iter1.next();
+        iter1.advanceOneChar();
 
         //skippa spazi
-        string::parser::skip (iter1, " ", 1);
+        utf8::toNextValidChar(iter1);
 
         //qui ci deve essere un "value"
-        if (!extractJSONValue (iter1,fieldValue, MAX_SIZE_OF_FIELD_VALUE))
+        if (!extractJSONValue (iter1, fieldValue, MAX_SIZE_OF_FIELD_VALUE))
             return false;
 
 
@@ -179,18 +182,18 @@ bool json::parse (const char *s, RheaJSonTrapFunction onValueFound, void *userVa
             return true;
 
         //skippa spazi
-        string::parser::skip (iter1, " ", 1);
+        utf8::toNextValidChar(iter1);
 
         //qui ci deve essere una "," oppure una "}"
         if (iter1.getCurChar() == ',')
         {
-            iter1.next();
+            iter1.advanceOneChar();
             continue;
         }
 
         if (iter1.getCurChar() == '}')
         {
-            iter1.next();
+            iter1.advanceOneChar();
             break;
         }
 

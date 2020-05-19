@@ -27,7 +27,9 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
 	}
 
 	//CreateFile(“\\\\.\\COM24”
-	out_serialPort->hComm = CreateFile (deviceName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	wchar_t wctemp[128];
+	win32::utf8_towchar ((const u8*)deviceName, u32MAX, wctemp, sizeof(wctemp));
+	out_serialPort->hComm = CreateFile (wctemp, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (out_serialPort->hComm == INVALID_HANDLE_VALUE)
 		return false;

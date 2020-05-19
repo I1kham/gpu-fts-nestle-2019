@@ -17,9 +17,9 @@ SQLInterface_SQLite::~SQLInterface_SQLite()
 }
 
 //*************************************************************** 
-bool SQLInterface_SQLite::openDB(const char *filename)
+bool SQLInterface_SQLite::openDB(const u8* const utf8_filename)
 {
-	int err = sqlite3_open(filename, &db);
+	int err = sqlite3_open((const char*)utf8_filename, &db);
 	if (SQLITE_OK == err)
 		return true;
 
@@ -37,24 +37,24 @@ void SQLInterface_SQLite::closeDB()
 }
 
 //*************************************************************** 
-bool SQLInterface_SQLite::exec(const char *sql)
+bool SQLInterface_SQLite::exec(const u8* const utf8_sql)
 {
 	if (NULL == db)
 		return false;
 
-	int err = sqlite3_exec(db, sql, NULL, NULL, NULL);
+	int err = sqlite3_exec(db, (const char*)utf8_sql, NULL, NULL, NULL);
 	return (err == 0);
 }
 
 //*************************************************************** 
-bool SQLInterface_SQLite::q(const char *query, SQLRst *out_result)
+bool SQLInterface_SQLite::q(const u8* const utf8_query, SQLRst *out_result)
 {
 	if (NULL == db)
 		return false;
 
 
     sqlite3_stmt *stmt = NULL;
-    int rc = sqlite3_prepare_v2 (db, query, strlen(query), &stmt, NULL);
+    int rc = sqlite3_prepare_v2 (db, (const char*)utf8_query, rhea::string::utf8::lengthInBytes(utf8_query), &stmt, NULL);
 	if (rc != SQLITE_OK) 
 	{
 		//printf("error: ", sqlite3_errmsg(db));

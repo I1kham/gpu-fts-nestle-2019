@@ -57,20 +57,20 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaMemoryTracker.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaSha1.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaStaticBuffer.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaString.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringConvert.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringFormat.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringParser.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaStringParserIter.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaThread.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaThreadMsgQ.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaTime24.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF16.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8Char.cpp" />
-    <ClCompile Include="..\..\src\rheaCommonLib\rheaUTF8Parser.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaUtils.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaString.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringANSI.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringFormat.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringIter.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF16.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF32.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8Char.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8String.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaCommonLib\mtrand.h" />
@@ -128,14 +128,13 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaThread.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaThreadSafePolicy.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaTime24.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF16.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF8.h" />
-    <ClInclude Include="..\..\src\rheaCommonLib\rheaUTF8Char.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaUtils.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaWaitableFIFO.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\ISimpleLogger.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\NullLogger.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaStringEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaUTF8String.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -149,14 +148,14 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>

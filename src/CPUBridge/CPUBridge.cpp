@@ -2,7 +2,6 @@
 #include "CPUBridgeServer.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/rheaNetBufferView.h"
-#include "../rheaCommonLib//rheaUTF16.h"
 
 struct sThreadInitParam
 {
@@ -22,7 +21,7 @@ bool cpubridge_helper_folder_create (const char *folder, rhea::ISimpleLogger *lo
 {
     char s[512];
     sprintf_s(s, sizeof(s), "%s/%s", rhea::getPhysicalPathToAppFolder(), folder);
-    if (!rhea::fs::folderCreate(s))
+    if (!rhea::fs::folderCreate((const u8*)s))
     {
         logger->log ("ERR: can't create folder [%s]\n", s);
         return false;
@@ -49,7 +48,7 @@ bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, r
 
     char s[512];
     sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());
-	rhea::fs::deleteAllFileInFolderRecursively(s, false);
+	rhea::fs::deleteAllFileInFolderRecursively((const u8*)s, false);
 
 	
 	
@@ -1321,7 +1320,7 @@ void cpubridge::notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 h
 {
 	logger->log("notify_CPU_STRING_VERSION_AND_MODEL\n");
 
-	u32 n = rhea::utf16::length(utf16_msg);
+	u32 n = rhea::string::utf16::lengthInBytes(utf16_msg);
 	if (n > 0)
 		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, utf16_msg, (n+1)*2);
 }
@@ -1332,7 +1331,7 @@ void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread:
 	assert(msg.what == CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER);
 	const u16 *p = (const u16*)msg.buffer;
 
-	const u32 n = rhea::utf16::length(p);
+	const u32 n = rhea::string::utf16::lengthInBytes(p);
 	const u32 nBytesNeeded = (n+1) * 2;
 	if (sizeOfOutUTF16MsgInBytes >= nBytesNeeded)
 		memcpy(out_utf16msg, p, nBytesNeeded);
@@ -1589,13 +1588,13 @@ void cpubridge::ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID)
 }
 
 //***************************************************
-void cpubridge::ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath)
+void cpubridge::ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE, handlerID, srcFullFileNameAndPath, strlen(srcFullFileNameAndPath)+1);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath)+1);
 }
 
 //***************************************************
-void cpubridge::translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut)
+void cpubridge::translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE);
 	u32 n = msg.bufferSize;
@@ -1640,13 +1639,13 @@ void cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handl
 
 
 //***************************************************
-void cpubridge::ask_WRITE_CPUFW(const sSubscriber &from, u16 handlerID, const char *srcFullFileNameAndPath)
+void cpubridge::ask_WRITE_CPUFW(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW, handlerID, srcFullFileNameAndPath, strlen(srcFullFileNameAndPath) + 1);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath) + 1);
 }
 
 //***************************************************
-void cpubridge::translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, char *out_srcFullFileNameAndPath, u32 sizeOfOut)
+void cpubridge::translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW);
 	u32 n = msg.bufferSize;

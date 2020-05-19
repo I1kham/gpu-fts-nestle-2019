@@ -82,14 +82,14 @@ bool platform::FS_fileDelete(const char *filename)
 }
 
 //*****************************************************
-bool platform::FS_fileRename(const char *oldFilename, const char *newFilename)
+bool platform::FS_fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, const u8 *utf8_newFilename)
 {
 	return (rename(oldFilename, newFilename) == 0);
 }
 
 
 //*****************************************************
-bool platform::FS_findFirst(OSFileFind *ff, const char *strPathNoSlash, const char *strJolly)
+bool platform::FS_findFirst(OSFileFind *ff, utf8_path, const u8* const utf8_jolly)
 {
     assert(ff->dirp == NULL);
 
@@ -195,7 +195,7 @@ void platform::FS_findCloseHardDrive(OSDriveEnumerator &h UNUSED_PARAM)
 }
 
 //*****************************************************
-bool platform::FS_getDestkopPath(char* outPathNoSlash, u32 sizeOfOutPathNoSlash)
+bool platform::FS_getDestkopPath(u8* out_path, u32 sizeof_out_path)
 {
 	//TODO
 	DBGBREAK;

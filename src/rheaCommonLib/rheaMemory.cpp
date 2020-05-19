@@ -53,13 +53,13 @@ size_t rhea::memory_getSizeOfAPointer()
 
 
 //**************************************
-rhea::Allocator* rhea::memory_getDefaultAllocator()
+rhea::Allocator* rhea::memory_getSysHeapAllocator()
 {
     return defaultAllocator;
 }
 
 //**************************************
-rhea::Allocator* rhea::memory_getScrapAllocator()
+rhea::Allocator* rhea::memory_getScrapAllocator2()
 {
 	return defaultAllocator;
 }

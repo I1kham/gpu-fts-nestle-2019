@@ -12,21 +12,21 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqTestSelection_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqTestSelection_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "s") == 0)
+	if (strcasecmp((const char*)fieldName, "s") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
 		if (h>=1 && h <= 64)
 			input->selNum = (u8)h;
 		else
 			input->selNum = 0;
 	}
-	else if (strcasecmp(fieldName, "d") == 0)
+	else if (strcasecmp((const char*)fieldName, "d") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
 		input->deviceID = (u8)h;
 		return false;
 	}
@@ -36,7 +36,7 @@ bool ajaxReqTestSelection_jsonTrapFunction(const char *fieldName, const char *fi
 
 
 //***********************************************************
-void CmdHandler_ajaxReqTestSelection::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params)
+void CmdHandler_ajaxReqTestSelection::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqTestSelection_jsonTrapFunction, &data))
@@ -59,5 +59,5 @@ void CmdHandler_ajaxReqTestSelection::onCPUBridgeNotification (socketbridge::Ser
 		text[0] = 'K';
 		text[1] = 'O';
 	}
-    server->sendAjaxAnwer (hClient, ajaxRequestID, text, (u16)strlen(text));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)text, (u16)strlen(text));
 }

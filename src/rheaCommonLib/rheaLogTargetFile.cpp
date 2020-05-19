@@ -1,7 +1,6 @@
 #include "rheaLogTargetFile.h"
 #include "rheaString.h"
-#include "rheaMemory.h"
-#include "OS/OS.h"
+#include "rhea.h"
 
 
 using namespace rhea;
@@ -10,17 +9,17 @@ using namespace rhea;
 //*********************************************
 LogTargetFile::~LogTargetFile()
 {
-    memory_getDefaultAllocator()->dealloc(filename);
+    rhea::getSysHeapAllocator()->dealloc(filename);
 }
 
 //*********************************************
 bool LogTargetFile::init (const char *filenameIN, bool bDeleteFileOnStartup)
 {
-    filename = string::alloc (memory_getDefaultAllocator(), filenameIN);
+    filename = string::utf8::allocStr (rhea::getSysHeapAllocator(), filenameIN);
     if (bDeleteFileOnStartup)
-        remove(filename);
+        rhea::fs::fileDelete (filename);
 
-    FILE *f = fopen(filename, "wt");
+    FILE *f = fs::fileOpenForWriteText(filename);
     if (NULL != f)
     {
         fclose(f);
@@ -35,7 +34,7 @@ bool LogTargetFile::init (const char *filenameIN, bool bDeleteFileOnStartup)
 //*********************************************
 void LogTargetFile::doLog	(u32 channel UNUSED_PARAM, const char *msg)
 {
-    FILE *f = fopen(filename, "at");
+    FILE *f = fs::fileOpenForAppendText(filename);
     if (NULL != f)
     {
         fprintf (f, "%s", msg);

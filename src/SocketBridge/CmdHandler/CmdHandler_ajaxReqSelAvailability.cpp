@@ -6,7 +6,7 @@
 using namespace socketbridge;
 
 //***********************************************************
-void CmdHandler_ajaxReqSelAvailability::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const char *params UNUSED_PARAM)
+void CmdHandler_ajaxReqSelAvailability::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params UNUSED_PARAM)
 {
 	cpubridge::ask_CPU_QUERY_SEL_AVAIL (from, getHandlerID());
 }
@@ -31,5 +31,5 @@ void CmdHandler_ajaxReqSelAvailability::onCPUBridgeNotification (socketbridge::S
 
     char resp[256];
 	sprintf_s(resp, sizeof(resp), "{\"n\":%d,\"s\":\"%s\"}", NUM_MAX_SELECTIONS, avail);
-    server->sendAjaxAnwer (hClient, ajaxRequestID, resp, (u16)strlen(resp));
+    server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

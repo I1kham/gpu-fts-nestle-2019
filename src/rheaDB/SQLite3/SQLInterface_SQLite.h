@@ -25,10 +25,10 @@ namespace rhea
 						SQLInterface_SQLite();
 						~SQLInterface_SQLite();
 
-		bool			openDB(const char *filename);
+		bool			openDB(const u8* const utf8_filename);
 		void			closeDB();
-		bool			q (const char *query, SQLRst *out_result);
-		bool			exec(const char *sql);
+		bool			q (const u8* const utf8_query, SQLRst *out_result);
+		bool			exec(const u8* const utf8_sql);
 
 	private:
 		sqlite3			*db;

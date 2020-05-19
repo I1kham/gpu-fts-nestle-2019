@@ -1,5 +1,5 @@
 #include "rheaLogger.h"
-#include "rheaMemory.h"
+#include "rhea.h"
 
 using namespace rhea;
 
@@ -9,13 +9,13 @@ LoggerContext::LoggerContext()
 {
     bufferSize = 0;
     bufferMaxSize = 1024;
-    buffer = (char*)RHEAALIGNEDALLOC(memory_getDefaultAllocator(), bufferMaxSize, __alignof(char*));
+    buffer = (char*)RHEAALIGNEDALLOC(rhea::getSysHeapAllocator(), bufferMaxSize, __alignof(char*));
 }
 
 //****************************************
 LoggerContext::~LoggerContext()
 {
-	RHEAFREE(memory_getDefaultAllocator(), buffer);
+	RHEAFREE(rhea::getSysHeapAllocator(), buffer);
 }
 
 //****************************************
@@ -46,8 +46,8 @@ LoggerContext& LoggerContext::append (const char *text, u32 lenInByte)
     {
         while (bufferSize + lenInByte >= bufferMaxSize)
             bufferMaxSize += 1024;
-        RHEAFREE(memory_getDefaultAllocator(), buffer);
-        buffer = (char*)RHEAALLOC(memory_getDefaultAllocator(), bufferMaxSize);
+        RHEAFREE(rhea::getSysHeapAllocator(), buffer);
+        buffer = (char*)RHEAALLOC(rhea::getSysHeapAllocator(), bufferMaxSize);
     }
 
     memcpy (&buffer[bufferSize], text, lenInByte);

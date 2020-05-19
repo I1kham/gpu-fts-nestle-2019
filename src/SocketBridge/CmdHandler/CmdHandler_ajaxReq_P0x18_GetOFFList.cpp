@@ -14,13 +14,13 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqGetOFFList_jsonTrapFunction(const char *fieldName, const char *fieldValue, void *userValue)
+bool ajaxReqGetOFFList_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 
-	if (strcasecmp(fieldName, "startIndex") == 0)
+	if (strcasecmp((const char*)fieldName, "startIndex") == 0)
 	{
-		const u32 h = rhea::string::convert::toU32(fieldValue);
+		const u32 h = rhea::string::utf8::toU32(fieldValue);
 		if (h < 0xff)
 			input->startIndex = (u8)h;
 		else
@@ -32,7 +32,7 @@ bool ajaxReqGetOFFList_jsonTrapFunction(const char *fieldName, const char *field
 }
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x18_GetOFFList::passDownRequestToCPUBridge(cpubridge::sSubscriber &from, const char *params)
+void CmdHandler_ajaxReq_P0x18_GetOFFList::passDownRequestToCPUBridge(cpubridge::sSubscriber &from, const u8 *params)
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqGetOFFList_jsonTrapFunction, &data))
@@ -53,7 +53,7 @@ void CmdHandler_ajaxReq_P0x18_GetOFFList::onCPUBridgeNotification(socketbridge::
 
 	if (numOffs > 0)
 	{
-		rhea::Allocator *allocator = rhea::memory_getScrapAllocator();
+		rhea::Allocator *allocator = rhea::getScrapAllocator();
 		const u32 sizeOfBuffer = (40 * numOffs) + 128;
 		u8 *buffer = (u8*)RHEAALLOC(allocator, sizeOfBuffer);
 
@@ -63,106 +63,106 @@ void CmdHandler_ajaxReq_P0x18_GetOFFList::onCPUBridgeNotification(socketbridge::
 		sprintf_s((char*)buffer, sizeOfBuffer, "{\"nextIndex\":%d,", nextIndex);
 
 		//"yyyy" : [2020, 2019]
-		rhea::string::append ((char*)buffer, sizeOfBuffer, "\"yyyy\":[");
-		rhea::string::append((char*)buffer, sizeOfBuffer, 2000 + offList[0].anno);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"yyyy\":[");
+		rhea::string::utf8::appendU32(buffer, sizeOfBuffer, 2000 + offList[0].anno);
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",");
-			rhea::string::append((char*)buffer, sizeOfBuffer, 2000 + offList[i].anno);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, 2000 + offList[i].anno);
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 				
 		//,"mm" : ["01", "02"]
-		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"mm\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, offList[0].mese, 2);
-		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"mm\":[\"");
+		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[0].mese, 2);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, offList[i].mese, 2);
-			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[i].mese, 2);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 		
 		//,"dd" : ["03", "04"]
-		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"dd\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, offList[0].giorno, 2);
-		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"dd\":[\"");
+		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[0].giorno, 2);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, offList[i].giorno, 2);
-			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[i].giorno, 2);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 		
 		//,"hh" : ["03", "04"]
-		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"hh\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, offList[0].ora, 2);
-		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"hh\":[\"");
+		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[0].ora, 2);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, offList[i].ora, 2);
-			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[i].ora, 2);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 		
 		//,"min" : ["03", "04"]
-		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"min\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, offList[0].minuto, 2);
-		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"min\":[\"");
+		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[0].minuto, 2);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, offList[i].minuto, 2);
-			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[i].minuto, 2);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 
 		
 		//,"codice" : ["8", "7"]
-		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"codice\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, offList[0].codice);
-		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"codice\":[\"");
+		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[0].codice);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, offList[i].codice);
-			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[i].codice);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 
 
 		//,"tipo" : ["A", " "]
-		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"tipo\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, (char)offList[0].tipo);
-		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"tipo\":[\"");
+		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, (char)offList[0].tipo);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, (char)offList[i].tipo);
-			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, (char)offList[i].tipo);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 
 		//,"stato" : ["0", "1"]
-		rhea::string::append((char*)buffer, sizeOfBuffer, ",\"stato\":[\"");
-		rhea::string::append((char*)buffer, sizeOfBuffer, offList[0].stato);
-		rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"stato\":[\"");
+		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[0].stato);
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
-			rhea::string::append((char*)buffer, sizeOfBuffer, ",\"");
-			rhea::string::append((char*)buffer, sizeOfBuffer, offList[i].stato);
-			rhea::string::append((char*)buffer, sizeOfBuffer, "\"");
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
+			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, offList[i].stato);
+			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
-		rhea::string::append((char*)buffer, sizeOfBuffer, "]");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");
 
 
-		rhea::string::append((char*)buffer, sizeOfBuffer, "}");
+		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "}");
 				
 		
-		server->sendAjaxAnwer(hClient, ajaxRequestID, (const char*)buffer, (u16)strlen((const char*)buffer));
+		server->sendAjaxAnwer(hClient, ajaxRequestID, buffer, (u16)rhea::string::utf8::lengthInBytes(buffer));
 		RHEAFREE(allocator, buffer);
 	}
 }

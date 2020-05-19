@@ -27,7 +27,7 @@ namespace rhea
     class Allocator
     {
     public:
-							Allocator(const char *nameIN)													{ myID = allocatorID++; rhea::string::copy_s(name, sizeof(name), nameIN); }
+							Allocator(const char *nameIN)													{ myID = allocatorID++; rhea::string::utf8::copyStr((u8*)name, sizeof(name), (const u8*)nameIN); }
         virtual             ~Allocator()																	{ }
 
 

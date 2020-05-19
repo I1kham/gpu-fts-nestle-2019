@@ -1,5 +1,5 @@
 #include "rheaLinearBuffer.h"
-#include "rheaMemory.h"
+#include "rhea.h"
 
 using namespace rhea;
 
