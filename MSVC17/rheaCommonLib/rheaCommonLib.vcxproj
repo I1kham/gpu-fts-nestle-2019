@@ -96,6 +96,7 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocator.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorSimple.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorTrackingPolicy.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaArray.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaBit.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaBufferView.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaCriticalSection.h" />

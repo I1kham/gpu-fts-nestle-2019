@@ -1,4 +1,4 @@
-#ifndef _rheaUTF8Char_h_
+ï»¿#ifndef _rheaUTF8Char_h_
 #define _rheaUTF8Char_h_
 #include "rheaDataTypes.h"
 #include <stdio.h>
@@ -29,11 +29,11 @@ namespace rhea
 			void		setFrom (u8 b)										{ assert ((b & 0x80)==0); memset(c,0,4); c[0]=b; }
 			u8			setFrom (const u8 *src, u32 srclenInByte);
 						/*	estrae il primo utf8char da *src.
-							Ritorna il num di byte della sequenza, oppure 0 se la seq è invalida
+							Ritorna il num di byte della sequenza, oppure 0 se la seq Ã¨ invalida
 						*/
 			u8			setFromRev (const u8 *src, u32 srclenInByte);
 						/*	parte da src[srclenInByte-1] e cerca all'indietro il primo utf8char.
-							Ritorna il num di byte della sequenza, oppure 0 se la seq è invalida
+							Ritorna il num di byte della sequenza, oppure 0 se la seq Ã¨ invalida
 						*/
 			void		setFromUTF32 (u32 u);
 

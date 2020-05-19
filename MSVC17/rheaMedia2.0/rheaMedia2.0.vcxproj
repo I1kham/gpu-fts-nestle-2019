@@ -95,7 +95,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_CPUBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_SocketBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaDB.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_CPUBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_SocketBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaDB.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAlipayChina.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -112,7 +112,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_CPUBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_SocketBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaDB.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_CPUBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_SocketBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaDB.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAlipayChina.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -410,5 +410,8 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheamd5.h">
       <Filter>rhea\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaArray.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
