@@ -44,9 +44,12 @@ namespace rhea
 #ifdef WIN32
             void				append (long c)																{ char buf[32]; sprintf_s (buf, sizeof(buf), "%d", c); append (buf, (u32)strlen(buf)); }
             void				append (unsigned long c)													{ char buf[32]; sprintf_s (buf, sizeof(buf), "%u", c); append (buf, (u32)strlen(buf)); }
-#endif
+			void				append(u64 i)																{ char buf[64]; sprintf_s(buf, sizeof(buf), "%I64u", i); append(buf, (u32)strlen(buf)); }
+			void				append(i64 i)																{ char buf[64]; sprintf_s(buf, sizeof(buf), "%I64i", i); append(buf, (u32)strlen(buf)); }
+#else
             void				append (u64 i)																{ char buf[64]; sprintf_s (buf, sizeof(buf),"%" PRIu64,i); append (buf, (u32)strlen(buf)); }
             void				append (i64 i)																{ char buf[64]; sprintf_s (buf, sizeof(buf),"%" PRIi64,i); append (buf, (u32)strlen(buf)); }
+#endif
 
 			friend	String&		operator<<  (String &me, const String &b)									{ me.append (b); return me; }
 			friend	String&		operator<<  (String &me, const u8 *b)										{ me.append (b); return me; }

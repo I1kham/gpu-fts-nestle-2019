@@ -2981,7 +2981,7 @@ void Server::priv_handleState_selection()
 					
 					const u16 nBytesToSend = cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (runningSel.params.asAlreadyPaid.selNum, runningSel.params.asAlreadyPaid.price, runningSel.params.asAlreadyPaid.paymentMode, runningSel.params.asAlreadyPaid.paymentType, bufferW, sizeof(bufferW));
 					u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-					if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+					if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 5000))
 					{
 						//cpu ha risposto, diamo per scontato che la risposta sia buona e procediamo.
 						//CPU dovrebbe già di suo essere entrata in "preparazione bevanda" per cui io non devo fare altre che continuare a mandare

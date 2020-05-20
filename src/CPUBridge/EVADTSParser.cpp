@@ -225,6 +225,7 @@ bool EVADTSParser::priv_checkTag (const u8 *s, const char *tagToFindAtStartOfThe
 		if (!string::utf8::extractValue(iter1, &iter2, &cStar, 1))
 			break;
 		iter2.copyAllStr ((u8*)out[i].s, sizeof(out[i]));
+		iter1.advanceOneChar();
 		nFound++;
 	}
 
