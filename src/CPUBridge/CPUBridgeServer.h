@@ -59,18 +59,65 @@ namespace cpubridge
 			sSubscriber	q;
 		};
 
-		struct sRunningSelection
-		{
-			u8						selNum;
-			const sSubscription		*sub;
-			u8	stopSelectionWasRequested;
-			eRunningSelStatus		status;
-		};
-
 		struct sRegolazioneAperturaMacina
 		{
 			u8 macina_1o2;
 			u16 target;
+		};
+
+		
+		enum eStartSelectionMode
+		{
+			eStartSelectionMode_default = 0,
+			eStartSelectionMode_alreadyPaid = 1,
+			eStartSelectionMode_invalid = 0xff
+		};
+
+		struct sStartSelectionParams1
+		{
+			u8	selNum;
+		};
+
+		struct sStartSelectionParams2
+		{
+			u8				selNum;
+			u16				price;
+			ePaymentMode	paymentMode;
+			eGPUPaymentType paymentType;
+		};
+
+		struct sStartSelectionParams
+		{
+		public:
+			eStartSelectionMode	how;
+			union
+			{
+				sStartSelectionParams1	asDefault;
+				sStartSelectionParams2	asAlreadyPaid;
+			};
+
+		public:
+			u8	getSelNum() const
+			{
+				switch (how)
+				{
+				case eStartSelectionMode_default:		return this->asDefault.selNum;
+				case eStartSelectionMode_alreadyPaid:	return this->asAlreadyPaid.selNum;
+				default:								return 0;
+				}			
+			}
+		};
+
+		struct sRunningSelection
+		{
+		public:
+			sStartSelectionParams	params;
+			const sSubscription		*sub;
+			u8						stopSelectionWasRequested;
+			eRunningSelStatus		status;
+
+		public:
+			u8						getSelNum() const					{ return params.getSelNum(); }
 		};
 
 	private:
@@ -110,7 +157,7 @@ namespace cpubridge
 		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
 		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1o2, u16 *out);
 
-		bool					priv_enterState_selection (u8 selNumber, const sSubscription *sub);
+		bool					priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub);
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 

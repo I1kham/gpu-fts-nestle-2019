@@ -28,6 +28,7 @@
 #include "CmdHandler/CmdHandler_eventReq_P0x14_StartDisintallation.h"
 #include "CmdHandler/CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h"
 #include "CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.h"
+#include "CmdHandler/CmdHandler_eventReq_V_StartSelAlreadyPaid.h"
 
 using namespace socketbridge;
 
@@ -70,6 +71,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReq_P0x14_StartDisintallation);
 	CHECK(CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV);
 	CHECK(CmdHandler_eventReqEnterDA3SyncStatus);
+	CHECK(CmdHandler_eventReq_V_StartSelAlreadyPaid);
 #undef CHECK
 
     return NULL;
@@ -110,6 +112,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromCPUBridgeEventID(rhea:
 	CHECK(CmdHandler_eventReq_P0x14_StartDisintallation);
 	CHECK(CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV);
 	CHECK(CmdHandler_eventReqEnterDA3SyncStatus);
+	CHECK(CmdHandler_eventReq_V_StartSelAlreadyPaid);
 #undef CHECK
 
 	return NULL;

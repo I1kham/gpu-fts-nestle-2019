@@ -13,13 +13,13 @@
 #define		RHEAMEDIA2_VERSIONE L"2.0.2"
 
 
-char chromeFullPathAndName[256];
-char chromeHome[256];
+wchar_t chromeFullPathAndName[256];
+wchar_t chromeHome[256];
 
 //*****************************************************
 void starChrome()
 {
-	_spawnl(_P_NOWAIT, chromeFullPathAndName, "chrome.exe", chromeHome, NULL);
+	_wspawnl(_P_NOWAIT, chromeFullPathAndName, L"chrome.exe", chromeHome, NULL);
 }
 
 //*****************************************************
@@ -76,7 +76,7 @@ bool startCPUBridge()
 }
 
 //*****************************************************
-bool findChrome (HKEY rootKey, char *out, u32 sizeofOut)
+bool findChrome (HKEY rootKey, wchar_t *out, u32 sizeofOut)
 {
 	#define CHROME_IN_REGISTRY L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"
 
@@ -110,7 +110,9 @@ bool findChrome()
 	}
 
 	//determino il path della home
-	sprintf_s(chromeHome, sizeof(chromeHome), "file:///%s/home/startup.html", rhea::getPhysicalPathToAppFolder());
+	wchar_t pathToAppFolder[512];
+	platform::win32::utf8_towchar (rhea::getPhysicalPathToAppFolder(), u32MAX, pathToAppFolder, sizeof(pathToAppFolder));
+	swprintf_s(chromeHome, _countof(chromeHome), L"file:///%s/home/startup.html", pathToAppFolder);
 
 	return true;
 }
@@ -173,7 +175,7 @@ int main()
 
 
 	wchar_t nameAndVersion[128];
-	swprintf_s(nameAndVersion, sizeof(nameAndVersion), L"RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - 2020/04/10");
+	swprintf_s(nameAndVersion, _countof(nameAndVersion), L"RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - 2020/04/10");
 
 	SetConsoleTitle(nameAndVersion);
 	wprintf(nameAndVersion);

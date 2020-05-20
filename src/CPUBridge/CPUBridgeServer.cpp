@@ -21,7 +21,8 @@ Server::Server()
 
 	memset(utf16_CPUMasterVersionString, 0, sizeof(utf16_CPUMasterVersionString));
 
-	runningSel.selNum = 0;
+	memset (&runningSel.params, 0, sizeof(runningSel.params));
+	runningSel.params.how = eStartSelectionMode_invalid;
 	runningSel.sub = NULL;
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.status = eRunningSelStatus_finished_OK;
@@ -295,11 +296,32 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION:
 		{
-			u8 selNumber = 0x00;
-			translate_CPU_START_SELECTION(msg, &selNumber);
-			priv_enterState_selection(selNumber, sub);
+			sStartSelectionParams params;
+			params.how = eStartSelectionMode_default;
+			params.asDefault.selNum = 0;
+			translate_CPU_START_SELECTION(msg, &params.asDefault.selNum);
+			priv_enterState_selection(params, sub);
 		}
 		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED:
+			{
+				sStartSelectionParams params;
+				params.how = eStartSelectionMode_alreadyPaid;
+				params.asAlreadyPaid.selNum = 0;
+				params.asAlreadyPaid.price = 0;
+				params.asAlreadyPaid.paymentType = eGPUPaymentType_invalid;
+				translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(msg, &params.asAlreadyPaid.selNum, &params.asAlreadyPaid.price, &params.asAlreadyPaid.paymentType);
+
+				params.asAlreadyPaid.paymentMode = ePaymentMode_normal;
+				if ((cpuStatus.flag1 & sCPUStatus::FLAG1_IS_FREEVEND) != 0)
+					params.asAlreadyPaid.paymentMode = ePaymentMode_freevend;
+				else if ((cpuStatus.flag1 & sCPUStatus::FLAG1_IS_TESTVEND) != 0)
+					params.asAlreadyPaid.paymentMode = ePaymentMode_testvend;
+
+				priv_enterState_selection(params, sub);
+			}
+			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC:
 			priv_enterState_DA3Sync();
@@ -2857,9 +2879,10 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
  *	ritorna true se ci sono le condizioni per iniziare una selezione. In questo caso, lo stato passa a stato = eStato_selection.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  */
-bool Server::priv_enterState_selection (u8 selNumber, const sSubscription *sub)
+bool Server::priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub)
 {
-	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [%d]\n", selNumber);
+	const u8 selNumber = params.getSelNum();
+	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d]\n", (u8)params.how, selNumber);
 
     if (stato.get() != sStato::eStato_normal)
 	{
@@ -2887,7 +2910,7 @@ bool Server::priv_enterState_selection (u8 selNumber, const sSubscription *sub)
 
 
     stato.set (sStato::eStato_selection);
-	runningSel.selNum = selNumber;
+	memcpy (&runningSel.params, &params, sizeof(sStartSelectionParams));
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.sub = sub;
 	runningSel.status = eRunningSelStatus_wait;
@@ -2920,9 +2943,7 @@ void Server::priv_handleState_selection()
     const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 6;
 	u8 nRetry = 0;
 
-	assert (runningSel.selNum >= 1 && runningSel.selNum <= NUM_MAX_SELECTIONS);
-
-
+	
 	u64	timeStartedMSec = rhea::getTimeNowMSec();
 	u8 bBevandaInPreparazione = 0;
 
@@ -2942,15 +2963,53 @@ void Server::priv_handleState_selection()
 
 		u8 selNumberToSend = 0;
 
-		//al primo giro, nella richiesta di stato includo il numero di selezione da erogare
+		//al primo giro, mando alla CPU la richiesta di iniziare la selezione
 		if (nextTimeSendCheckStatusMsgMSec == 0)
-			selNumberToSend = runningSel.selNum;
+		{
+			switch (runningSel.params.how)
+			{
+			case eStartSelectionMode_default:
+				//nel caso di default, devo inviare il numero di selezione da far partire direttamente dentro al comando B
+				selNumberToSend = runningSel.getSelNum();
+				break;
+
+			case eStartSelectionMode_alreadyPaid:
+				//in questo caso, devo inviare uno specifico comando alla CPU per fargli sapere che deve iniziare una selezione
+				//senza considerare il pagamento in quanto la GPU ha già provveduto a pagare
+				{
+					u8 bufferW[32];
+					
+					const u16 nBytesToSend = cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (runningSel.params.asAlreadyPaid.selNum, runningSel.params.asAlreadyPaid.price, runningSel.params.asAlreadyPaid.paymentMode, runningSel.params.asAlreadyPaid.paymentType, bufferW, sizeof(bufferW));
+					u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+					if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+					{
+						//cpu ha risposto, diamo per scontato che la risposta sia buona e procediamo.
+						//CPU dovrebbe già di suo essere entrata in "preparazione bevanda" per cui io non devo fare altre che continuare a mandare
+						//B e vedere come prosegue la selezione
+						selNumberToSend = 0;
+					}
+					else
+					{
+						logger->log("priv_handleState_selection() => aborting, CPU did not answer to command V\n");
+						priv_onSelezioneTerminataKO();
+						return;
+					}
+				}
+				break;
+
+			default:
+				//qui non ci si dovrebbe arrivare mai
+				logger->log("priv_handleState_selection() => aborting, invalid runningSel.params.how[%d]\n", runningSel.params.how);
+				priv_onSelezioneTerminataKO();
+				return;
+			}
+		}
 		else
 		{
-			//successivamente invio sempre 0 a meno che non sia stato premuto il btn stop selezione
+			//successivamente, il num sel inviato nel comando B è sempre 0 a meno che non sia stato premuto il btn stop selezione
 			if (runningSel.stopSelectionWasRequested)
 			{
-				selNumberToSend = runningSel.selNum;
+				selNumberToSend = runningSel.getSelNum();
 				runningSel.stopSelectionWasRequested = 0;
 			}
 		}

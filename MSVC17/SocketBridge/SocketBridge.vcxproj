@@ -91,6 +91,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_T_VMCDataFileTimestamp.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_V_StartSelAlreadyPaid.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler_eventReq.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\DBList.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqVMCDataFile.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_T_VMCDataFileTimestamp.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqWriteLocalVMCDataFile.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_V_StartSelAlreadyPaid.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler_ajaxReq.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler_eventReq.h" />
     <ClInclude Include="..\..\src\SocketBridge\CommandHandlerList.h" />

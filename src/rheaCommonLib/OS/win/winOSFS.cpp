@@ -87,10 +87,7 @@ FILE* platform::FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPa
 		return false;
 	}
 
-	FILE *f = NULL;
-	if (0 == _wfopen_s (&f, filename, L"rb"))
-		return f;
-	return NULL;
+	return _wfopen(filename, L"rb");
 }
 
 //**************************************************************************
@@ -103,10 +100,7 @@ FILE* platform::FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndP
 		return false;
 	}
 
-	FILE *f = NULL;
-	if (0 == _wfopen_s (&f, filename, L"wb"))
-		return f;
-	return NULL;
+	return _wfopen(filename, L"wb");
 }
 
 //**************************************************************************
@@ -119,10 +113,7 @@ FILE* platform::FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath
 		return false;
 	}
 
-	FILE *f = NULL;
-	if (0 == _wfopen_s (&f, filename, L"rt"))
-		return f;
-	return NULL;
+	return _wfopen(filename, L"rt");
 }
 
 //**************************************************************************
@@ -135,10 +126,7 @@ FILE* platform::FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPat
 		return false;
 	}
 
-	FILE *f = NULL;
-	if (0 == _wfopen_s (&f, filename, L"wt"))
-		return f;
-	return NULL;
+	return _wfopen(filename, L"wt");
 }
 
 //**************************************************************************
@@ -151,10 +139,7 @@ FILE* platform::FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPa
 		return false;
 	}
 
-	FILE *f = NULL;
-	if (0 == _wfopen_s (&f, filename, L"at"))
-		return f;
-	return NULL;
+	return _wfopen(filename, L"at");
 }
 
 //*****************************************************
@@ -316,7 +301,7 @@ bool platform::FS_findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResu
 //*****************************************************
 bool platform::FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)
 {
-	while (h.current < 32)
+	while (h.current < 26)
 	{
 		if ((h.logicalDrives & (0x0001 << h.current)) == 0)
 		{
@@ -339,14 +324,17 @@ bool platform::FS_findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResul
 		wchar_t driveLabel[256];
 		DWORD volumeSerialNumber, maximumComponentLength, fileSystemFlags;
 
+		driveLabel[0] = 0;
 		::GetVolumeInformation(drivePath, driveLabel, _countof(driveLabel),
 			&volumeSerialNumber,
 			&maximumComponentLength,
 			&fileSystemFlags,
 			s2, _countof(s2));
-
 		h.current++;
 
+		if ((fileSystemFlags & FILE_READ_ONLY_VOLUME) != 0)
+			continue;
+		
 		win32::wchar_to_utf8 (driveLabel, u32MAX, out->utf8_driveLabel, sizeof(out->utf8_driveLabel));
 		return true;
 	}

@@ -169,6 +169,21 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_b
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[8];
+	u8 ct = 0;
+	optionalData[ct++] = selNum;
+	rhea::utils::bufferWriteU16_LSB_MSB (&optionalData[ct], prezzo);
+	ct += 2;
+	optionalData[ct++] = (u8)paymentMode;
+	optionalData[ct++] = (u8)paymentType;
+
+	return cpubridge_buildMsg (cpubridge::eCPUCommand_startSelWithPaymentAlreadyHandled_V, optionalData, ct, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 u8 cpubridge::buildMsg_setDecounter (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[3];
@@ -1478,10 +1493,6 @@ void cpubridge::translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, ch
 
 
 
-
-
-
-
 //***************************************************
 void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
 {
@@ -2036,4 +2047,24 @@ void cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE(co
 void cpubridge::ask_CPU_MILKER_VER(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSubscriber &from, u8 selNum, u16 price, eGPUPaymentType paymentType)
+{
+	u8 otherData[8];
+	otherData[0] = selNum;
+	otherData[1] = (u8)paymentType;
+	rhea::utils::bufferWriteU16(&otherData[2], price);	
+
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED, (u32)0, otherData, 4);
+}
+//***************************************************
+void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_price, eGPUPaymentType *out_paymentType)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_selNum = p[0];
+	*out_paymentType = (eGPUPaymentType)p[1];
+	*out_price = rhea::utils::bufferReadU16 (&p[2]);
 }

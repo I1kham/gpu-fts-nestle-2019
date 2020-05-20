@@ -1,4 +1,4 @@
-#include "CPUChannelFakeCPU.h"
+﻿#include "CPUChannelFakeCPU.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/rheaDateTime.h"
 
@@ -48,7 +48,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	}
 
 	/*
-	//� 是从哪里来的？
+	//你是从哪里来的？
 	{
 		u32 i = 0;
 		utf16_cpuMessage2[i++] = 0x4f60;
@@ -60,8 +60,8 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 		utf16_cpuMessage2[i++] = 0x7684;
 		utf16_cpuMessage2[i++] = 0xff1f;
 		utf16_cpuMessage2[i++] = 0x00;
-	}
-	*/
+	}*/
+	
 	utf16_curCPUMessage = utf16_cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;
@@ -176,6 +176,30 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		break;
 
+	case eCPUCommand_startSelWithPaymentAlreadyHandled_V:
+		{
+			out_answer[ct++] = '#';
+			out_answer[ct++] = cpuCommand;
+			out_answer[ct++] = 0; //lunghezza
+			out_answer[ct++] = bufferToSend[3];
+			out_answer[ct++] = bufferToSend[4];
+			out_answer[ct++] = bufferToSend[5];
+			out_answer[ct++] = bufferToSend[6];
+			out_answer[ct++] = bufferToSend[7];
+			
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+
+			//hanno richiesto una selezione!!!
+			statoPreparazioneBevanda = eStatoPreparazioneBevanda_wait;
+			runningSel.selNum = bufferToSend[3];
+			runningSel.timeStartedMSec = rhea::getTimeNowMSec();
+			VMCState = eVMCState_PREPARAZIONE_BEVANDA;
+			return true;
+		}
+		break;
+
 	case eCPUCommand_checkStatus_B:
 		//ho ricevuto una richiesta di stato, rispondo in maniera appropriata
 		{
@@ -213,7 +237,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				else
 				{
-					//ok, è tempo di terminare la selezione
+					//ok, Ã¨ tempo di terminare la selezione
 					bFinished = true;
 				}
 
@@ -485,7 +509,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					out_answer[i2++] = 'N'; out_answer[i2++] = 0x00;
 					out_answer[i2++] = '1'; out_answer[i2++] = 0x00;
 
-					//האלפבית העבר
+					//×”××œ×¤×‘×™×ª ×”×¢×‘×¨
 					{
 						const u16 utf16Seq[] = { 0x05d4, 0x05d0, 0x05dc, 0x05e4, 0x05d1, 0x05d9, 0x05ea, 0x0020, 0x05d4, 0x05e2, 0x05d1, 0x05e8, 0x0000 };
 						i2 = startOfMsg1 + 64;
@@ -1031,9 +1055,9 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	}
 
 	/*
-	75		6 byte con lo stato di disponibilit�  delle 48 selezioni
-	76		ATTENZIONE che il bit a zero significa che la selezione è disponibile, il bit
-	77		a 1 significa che NON è disponibile
+	75		6 byte con lo stato di disponibilitÃ  delle 48 selezioni
+	76		ATTENZIONE che il bit a zero significa che la selezione Ã¨ disponibile, il bit
+	77		a 1 significa che NON Ã¨ disponibile
 	78
 	79
 	80
@@ -1090,7 +1114,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	if (CPU_REPORTED_PROTOCOL_VERSION >= 4)
 	{
 		//protocol version 4
-		//1 byte per indicare se btn prog è cliccato
+		//1 byte per indicare se btn prog Ã¨ cliccato
 		out_answer[ct++] = 0;
 
 		//protocol version 5
@@ -1100,14 +1124,14 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 			u8 newFCPUFlag1 = 0;
 			out_answer[ct] = 0;
 			
-			newFCPUFlag1 |= 0x01; //indica che CPU è pronta per fornire il data-audit
+			newFCPUFlag1 |= 0x01; //indica che CPU Ã¨ pronta per fornire il data-audit
 
 			//protocol version 6
 			if (CPU_REPORTED_PROTOCOL_VERSION >= 6)
 			{
 				bool bSimulaStatoTelemetria = false;
 				if (bSimulaStatoTelemetria)
-					newFCPUFlag1 |= 0x02; //indica se CPU è in telemetria oppure no (default: no)
+					newFCPUFlag1 |= 0x02; //indica se CPU Ã¨ in telemetria oppure no (default: no)
 			}
 
 			//protocol version 7

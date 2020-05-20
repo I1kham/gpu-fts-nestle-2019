@@ -24,6 +24,7 @@ void TaskExportGUIToUserFolder::run(socketbridge::TaskStatus *status, const u8 *
 		iter2.copyAllStr(srcTempFolderName, sizeof(srcTempFolderName));
 		rhea::fs::sanitizePathInPlace(srcTempFolderName);
 
+		iter.advanceOneChar();
 		if (!rhea::string::utf8::extractValue(iter, &iter2, &SEP, 1))
 			break;
 		iter2.copyAllStr(dstPath, sizeof(dstPath));

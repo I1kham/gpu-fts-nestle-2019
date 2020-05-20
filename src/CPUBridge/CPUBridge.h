@@ -119,6 +119,12 @@ namespace cpubridge
 
 						[blockNumOffset] parte da 0, [blocco_n_di] parte da 1
 					*/
+	u8			buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, u8 *out_buffer, u8 sizeOfOutBuffer);
+					/* informa la CPU di iniziare la seleciont [selNum] sapendo che la stessa è già stata pagata [prezzo] e che il pagamento è stato
+						fatto a carico della GPU. La CPU non deve quindi pretendere dei soldi, deve solo fidarsi e registrare il pagamento come se l'avesse
+						portato a termine lei stessa.
+					*/
+
 	u8			buildMsg_setDecounter  (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getAllDecounterValues (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
@@ -500,6 +506,11 @@ namespace cpubridge
 
 	void        ask_CPU_MILKER_VER(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_MILKER_VER
+
+
+	void		ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSubscriber &from, u8 selNumber, u16 price, eGPUPaymentType paymentType);
+				//funziona come ask_CPU_START_SELECTION, vedi i commenti di quella funzione per i dettagli
+	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType);
 
 
 } // namespace cpubridge

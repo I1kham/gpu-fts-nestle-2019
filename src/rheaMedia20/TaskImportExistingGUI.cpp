@@ -29,19 +29,23 @@ void TaskImportExistingGUI::run (socketbridge::TaskStatus *status, const u8 *par
 		if (!rhea::string::utf8::extractValue(iter, &iter2, &SEP, 1))
 			break;
 		iter2.copyAllStr(templateName, sizeof(templateName));
+		iter.advanceOneChar();
 
 		if (!rhea::string::utf8::extractValue(iter, &iter2, &SEP, 1))
 			break;
 		iter2.copyAllStr(templateVer, sizeof(templateVer));
+		iter.advanceOneChar();
 			
 		if (!rhea::string::utf8::extractValue(iter, &iter2, &SEP, 1))
 			break;
 		iter2.copyAllStr(templateSrcPath, sizeof(templateSrcPath));
+		iter.advanceOneChar();
 		rhea::fs::sanitizePathInPlace(templateSrcPath);
 
 		if (!rhea::string::utf8::extractValue(iter, &iter2, &SEP, 1))
 			break;
 		iter2.copyAllStr(userGUISrcPath, sizeof(userGUISrcPath));
+		iter.advanceOneChar();
 		rhea::fs::sanitizePathInPlace(userGUISrcPath);
 
 

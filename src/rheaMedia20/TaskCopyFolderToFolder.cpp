@@ -6,29 +6,23 @@
 //*********************************************************************
 void TaskCopyFolderToFolder::run(socketbridge::TaskStatus *status, const u8 *params)
 {
-	u8 src[512];
-	u8 dst[512];
-	memset (dst, 0, sizeof(dst));
+	const rhea::UTF8Char SEP("§");
+	rhea::string::utf8::Iter iter1;
+	iter1.setup (params);
 
-	rhea::string::utf8::copyStr (src, sizeof(src), params);
-	const u32 len = rhea::string::utf8::lengthInBytes(src);
-	for (u32 i = 0; i < len; i++)
-	{
-		if (src[i] == '§')
-		{
-			src[i] = 0x00;
-			rhea::fs::sanitizePath(&src[i + 1], dst, sizeof(dst));
-			rhea::fs::sanitizePathInPlace(src);
-			break;
-		}
-	}
-
-	if (dst[0] == 0x00)
+	if (!rhea::string::utf8::advanceUntil(iter1, &SEP, 1))
 	{
 		status->setMessage("Invalid path");
 		return;
 	}
-
+	u8 src[512];
+	u8 dst[512];
+	iter1.copyStrFromXToCurrentPosition (0, src, sizeof(src), false);
+	rhea::fs::sanitizePathInPlace (src);
+	iter1.advanceOneChar();
+	iter1.copyStrFromCurrentPositionToEnd (dst, sizeof(dst));
+	rhea::fs::sanitizePathInPlace (dst);
+	
 	//creo il folder temp
 	if (!rhea::fs::folderCreate(dst))
 	{
