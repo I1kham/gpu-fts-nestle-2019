@@ -12,7 +12,7 @@ void CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore::passDownRequestToCPU
 }
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 	char text[4] = { 'O', 'K', 0, 0 };
 	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)text, (u16)strlen(text));

@@ -1,6 +1,6 @@
 #ifndef _rheaUTF8String_h_
 #define _rheaUTF8String_h_
-#include <stdio.h>
+#include "../rhea.h"
 #include "../rheaString.h"
 #include "../rheaArray.h"
 
@@ -33,7 +33,7 @@ namespace rhea
 			String&				operator= (const char *b)													{ clear(); append(b); return *this; }
 
 								//================================================ append
-			void				append (const String &b, u32 lenInByte = u32MAX)							{ append(b.buffer, b.curSize); }
+            void				append (const String &b, u32 lenInByte = u32MAX);
 			void				append (const u8 *b, u32 lenInByte = u32MAX);
 			void				append (const char *b, u32 lenInByte = u32MAX)								{ append((const u8*)b, lenInByte); }
 			void				append (const UTF8Char &b)													{ append (b.data, b.length()); }
@@ -41,10 +41,12 @@ namespace rhea
 			void				append (unsigned char c)													{ char buf[4];  sprintf_s (buf, sizeof(buf), "%u", c); append (buf, (u32)strlen(buf)); }
 			void				append (int c)																{ char buf[32]; sprintf_s (buf, sizeof(buf), "%d", c); append (buf, (u32)strlen(buf)); }
 			void				append (unsigned int c)														{ char buf[32]; sprintf_s (buf, sizeof(buf), "%u", c); append (buf, (u32)strlen(buf)); }
-			void				append (long c)																{ char buf[32]; sprintf_s (buf, sizeof(buf), "%d", c); append (buf, (u32)strlen(buf)); }
-			void				append (unsigned long c)													{ char buf[32]; sprintf_s (buf, sizeof(buf), "%u", c); append (buf, (u32)strlen(buf)); }
-			void				append (u64 i)																{ char buf[64]; sprintf_s (buf, sizeof(buf),"%I64u",i); append (buf, (u32)strlen(buf)); }
-			void				append (i64 i)																{ char buf[64]; sprintf_s (buf, sizeof(buf),"%I64d",i); append (buf, (u32)strlen(buf)); }
+#ifdef WIN32
+            void				append (long c)																{ char buf[32]; sprintf_s (buf, sizeof(buf), "%d", c); append (buf, (u32)strlen(buf)); }
+            void				append (unsigned long c)													{ char buf[32]; sprintf_s (buf, sizeof(buf), "%u", c); append (buf, (u32)strlen(buf)); }
+#endif
+            void				append (u64 i)																{ char buf[64]; sprintf_s (buf, sizeof(buf),"%" PRIu64,i); append (buf, (u32)strlen(buf)); }
+            void				append (i64 i)																{ char buf[64]; sprintf_s (buf, sizeof(buf),"%" PRIi64,i); append (buf, (u32)strlen(buf)); }
 
 			friend	String&		operator<<  (String &me, const String &b)									{ me.append (b); return me; }
 			friend	String&		operator<<  (String &me, const u8 *b)										{ me.append (b); return me; }
@@ -54,8 +56,10 @@ namespace rhea
 			friend	String&		operator<<  (String &me, unsigned char b)									{ me.append (b); return me; }
 			friend	String&		operator<<  (String &me, int b)												{ me.append (b); return me; }
 			friend	String&		operator<<  (String &me, unsigned int b)									{ me.append (b); return me; }
+#ifdef WIN32
 			friend	String&		operator<<  (String &me, long b)											{ me.append (b); return me; }
 			friend	String&		operator<<  (String &me, unsigned long b)									{ me.append (b); return me; }
+#endif
 			friend	String&		operator<<  (String &me, u64 b)												{ me.append (b); return me; }
 			friend	String&		operator<<  (String &me, i64 b)												{ me.append (b); return me; }
 
@@ -68,9 +72,13 @@ namespace rhea
 			friend	String		operator&  (const String &a, unsigned char b)								{ String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
 			friend	String		operator&  (const String &a, int b)											{ String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
 			friend	String		operator&  (const String &a, unsigned int b)								{ String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
-			friend	String		operator&  (const String &a, long b)										{ String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
+#ifdef WIN32
+            friend	String		operator&  (const String &a, long b)										{ String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
 			friend	String		operator&  (const String &a, unsigned long b)								{ String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
-	
+#endif
+            friend	String		operator&  (const String &a, u64 b)                                         { String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
+            friend	String		operator&  (const String &a, i64 b)                                         { String ret; ret.prealloc (a.lengthInBytes() + 16); ret = a; ret.append(b); return ret; }
+
 
 								//================================================ query
 			u32					lengthInBytes() const														{ return curSize; }

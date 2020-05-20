@@ -61,6 +61,15 @@ void String::prealloc (u32 newSizeInByte)
 }
 
 //*******************************************
+void String::append (const String &b, u32 lenInByte)
+{
+    if (u32MAX == lenInByte)
+        append(b.buffer, b.curSize);
+    else
+        append(b.buffer, lenInByte);
+}
+
+//*******************************************
 void String::append (const u8 *b, u32 lenInBytes)
 {
 	if (lenInBytes == 0)

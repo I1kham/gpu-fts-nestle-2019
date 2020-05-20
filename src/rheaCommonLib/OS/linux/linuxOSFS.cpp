@@ -7,68 +7,63 @@
 
 using namespace rhea;
 
-//*****************************************************
-bool platform::FS_DirectoryCreate (const char *path)
+//*********************************************
+bool linux_createFolderFromUTF8Path (const u8 *utf8_path, u32 nBytesToUseForPath)
 {
-	char	temp[1024];
-	string::parser::Iter src, value;
-	src.setup(path);
-
-	if (path[1] == ':')
-	{
-		src.next();
-		src.next();
-		src.next();
-	}
-
-	while (string::parser::advanceUntil(src, "/", 1))
-	{
-		src.prev();
-		const char *s2 = src.getCurStrPointer();
-		src.next();
-		src.next();
-
-		if (s2)
-		{
-			u32 n = (u32)(s2 - path + 1);
-            memcpy(temp, path, n);
-			temp[n] = 0;
-
-            if (!FS_DirectoryExists(temp))
-            {
-                if (0 != mkdir(temp, 0777))
-                    return false;
-            }
-		}
-	}
+    char path[512];
+    memcpy (path, utf8_path, nBytesToUseForPath);
+    path[nBytesToUseForPath] = 0x00;
 
     if (0 == mkdir(path, 0777))
         return true;
 
     if (errno == EEXIST)
         return true;
-    return true;
+    return false;
 }
 
 //*****************************************************
-bool platform::FS_DirectoryDelete (const char *path)
+bool platform::FS_DirectoryCreate (const u8* const utf8_path)
 {
-    return (rmdir(path) == 0);
+    if (NULL == utf8_path)
+        return false;
+    if (utf8_path[0] == 0x00)
+        return false;
+
+
+    u32 n = 1;
+    while (utf8_path[n] != 0x00)
+    {
+        if (utf8_path[n]=='\\' || utf8_path[n]=='/')
+        {
+            if (!linux_createFolderFromUTF8Path(utf8_path,n))
+                return false;
+        }
+        n++;
+    }
+
+    return linux_createFolderFromUTF8Path(utf8_path, n);
 }
 
 //*****************************************************
-bool platform::FS_DirectoryExists(const char *path)
+bool platform::FS_DirectoryDelete (const u8* const path)
+{
+    return (rmdir((const char*)path) == 0);
+}
+
+//*****************************************************
+bool platform::FS_DirectoryExists(const u8* const path)
 {
     struct stat sb;
-    if (stat(path, &sb) == 0 && S_ISDIR(sb.st_mode))
+    if (stat((const char*)path, &sb) == 0 && S_ISDIR(sb.st_mode))
         return true;
     return false;
 }
 
 //*****************************************************
-bool platform::FS_fileExists(const char *filename)
+bool platform::FS_fileExists(const u8* const filename)
 {
-    FILE *f = fopen(filename, "r");
+    FILE *f = fopen((const char*)filename, "r");
     if (NULL == f)
         return false;
     fclose(f);
@@ -76,31 +71,36 @@ bool platform::FS_fileExists(const char *filename)
 }
 
 //*****************************************************
-bool platform::FS_fileDelete(const char *filename)
+bool platform::FS_fileDelete(const u8* const filename)
 {
-    return (remove(filename) == 0);
+    return (remove((const char*)filename) == 0);
 }
 
 //*****************************************************
 bool platform::FS_fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, const u8 *utf8_newFilename)
 {
-	return (rename(oldFilename, newFilename) == 0);
+    char temp1[512];
+    sprintf_s (temp1, sizeof(temp1), "%s/%s", utf8_path, utf8_oldFilename);
+
+    char temp2[512];
+    sprintf_s (temp2, sizeof(temp2), "%s/%s", utf8_path, utf8_newFilename);
+
+    return (rename(temp1, temp2) == 0);
 }
 
-
 //*****************************************************
-bool platform::FS_findFirst(OSFileFind *ff, utf8_path, const u8* const utf8_jolly)
+bool platform::FS_findFirst (OSFileFind *ff, const u8* const utf8_path, const u8* const utf8_jolly)
 {
     assert(ff->dirp == NULL);
 
     char filename[1024];
-    sprintf_s(filename, sizeof(filename), "%s/%s", strPathNoSlash, strJolly);
+    sprintf_s(filename, sizeof(filename), "%s/%s", utf8_path, utf8_jolly);
 
-    ff->dirp = opendir(strPathNoSlash);
+    ff->dirp = opendir((const char*)utf8_path);
     if (NULL == ff->dirp)
         return false;
 
-    strcpy_s (ff->strJolly, sizeof(ff->strJolly), strJolly);
+    strcpy_s (ff->strJolly, sizeof(ff->strJolly), (const char*)utf8_jolly);
     return FS_findNext(*ff);
 }
 
@@ -119,7 +119,7 @@ bool platform::FS_findNext (OSFileFind &ff)
         if (ff.dp->d_type == DT_DIR)
             return true;
 
-        if (rhea::fs::doesFileNameMatchJolly (ff.dp->d_name, ff.strJolly))
+        if (rhea::fs::doesFileNameMatchJolly ((const u8*)ff.dp->d_name, (const u8*)ff.strJolly))
             return true;
     }
 }
@@ -142,17 +142,17 @@ bool platform::FS_findIsDirectory(const OSFileFind &ff)
 }
 
 //*****************************************************
-const char* platform::FS_findGetFileName(const OSFileFind &ff)
+const u8* platform::FS_findGetFileName(const OSFileFind &ff)
 {
     assert(ff.dirp != NULL);
-    return ff.dp->d_name;
+    return (const u8*)ff.dp->d_name;
 }
 
 //*****************************************************
-void platform::FS_findGetFileName(const OSFileFind &ff, char *out, u32 sizeofOut)
+void platform::FS_findGetFileName (const OSFileFind &ff, u8 *out, u32 sizeofOut)
 {
     assert(ff.dirp != NULL);
-    sprintf_s(out, sizeofOut, "%s", ff.dp->d_name);
+    sprintf_s((char*)out, sizeofOut, "%s", ff.dp->d_name);
 }
 
 //*****************************************************
@@ -195,10 +195,40 @@ void platform::FS_findCloseHardDrive(OSDriveEnumerator &h UNUSED_PARAM)
 }
 
 //*****************************************************
-bool platform::FS_getDestkopPath(u8* out_path, u32 sizeof_out_path)
+bool platform::FS_getDestkopPath(u8* out_path UNUSED_PARAM, u32 sizeof_out_path UNUSED_PARAM)
 {
 	//TODO
 	DBGBREAK;
 	return false;
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPath)
+{
+    return fopen((const char*)utf8_fullFileNameAndPath, "rb");
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndPath)
+{
+    return fopen((const char*)utf8_fullFileNameAndPath, "wb");
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath)
+{
+    return fopen((const char*)utf8_fullFileNameAndPath, "rt");
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPath)
+{
+    return fopen((const char*)utf8_fullFileNameAndPath, "wt");
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath)
+{
+    return fopen((const char*)utf8_fullFileNameAndPath, "at");
 }
 #endif //LINUX

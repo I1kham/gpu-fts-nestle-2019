@@ -129,29 +129,29 @@ private:
     void                    priv_pleaseWaitSetOK (const char *message);
 
     void                    priv_fileListShow(eFileListMode mode);
-    void                    priv_fileListPopulate(const char *pathNoSlash, const char *jolly, bool bClearList);
+    void                    priv_fileListPopulate(const u8 *pathNoSlash, const u8 *jolly, bool bClearList);
     void                    priv_fileListHide();
 
     void                    priv_updateLabelInfo();
     void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
-    bool                    priv_langCopy (const char *srcFolder, const char *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec);
+    bool                    priv_langCopy (const u8 *srcFolder, const u8 *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec);
     void                    priv_foreverDisableBtnStartVMC();
-    void                    priv_on_btnInstall_DA3_onFileSelected (const char *srcFullFilePathAndName);
-    void                    priv_uploadManual (const char *srcFullFilePathAndName);
-    void                    priv_uploadGUI (const char *srcFullFolderPath);
-    void                    priv_on_btnInstall_CPU_onFileSelected (const char *fullFilePathAndName);
+    void                    priv_on_btnInstall_DA3_onFileSelected (const u8 *srcFullFilePathAndName);
+    void                    priv_uploadManual (const u8 *srcFullFilePathAndName);
+    void                    priv_uploadGUI (const u8 *srcFullFolderPath);
+    void                    priv_on_btnInstall_CPU_onFileSelected (const u8 *fullFilePathAndName);
     void                    priv_syncUSBFileSystem(u64 minTimeMSecToWaitMSec);
     void                    priv_enableButton (QPushButton *btn, bool bEnabled);
 
     void                    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode);
-    void                    priv_startUploadDA3 (eUploadDA3CallBack mode, const char *fullFilePathAndName);
-    void                    priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const char *fullFilePathAndName);
+    void                    priv_startUploadDA3 (eUploadDA3CallBack mode, const u8 *fullFilePathAndName);
+    void                    priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullFilePathAndName);
     void                    priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg);
     void                    priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::sMsg &msg);
     void                    priv_on_btnDownload_diagnostic_makeZip();
     void                    priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg);
     void                    priv_on_btnInstall_CPU_upload (rhea::thread::sMsg &msg);
-    bool                    priv_doInstallGUI (const char *srcFullFolderPath) const;
+    bool                    priv_doInstallGUI (const u8 *srcFullFolderPath) const;
 
     bool                    priv_autoupdate_exists();
     void                    priv_autoupdate_showForm();

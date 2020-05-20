@@ -1,4 +1,4 @@
-﻿#include "CPUChannelFakeCPU.h"
+#include "CPUChannelFakeCPU.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/rheaDateTime.h"
 
@@ -18,13 +18,14 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 
 	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
 	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
-	rhea::string::strUTF8toUTF16 ((const u8*)u8"CPU msg example 1", utf16_cpuMessage1, sizeof(utf16_cpuMessage1));
-	rhea::string::strUTF8toUTF16 ((const u8*)u8"CPU msg example 1", utf16_cpuMessage2, sizeof(utf16_cpuMessage2));
+
+    rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage1, sizeof(utf16_cpuMessage1));
+    rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage2, sizeof(utf16_cpuMessage2));
 
 	for (u8 i = 0; i < 32; i++)
 		decounterVari[i] = 1000 + i;
 
-	
+    /*
 	//Det gør ondt her
 	{
 		u32 i = 0;
@@ -46,6 +47,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 		utf16_cpuMessage2[i++] = 0x0072;
 		utf16_cpuMessage2[i++] = 0x00;
 	}
+    */
 
 	/*
 	//你是从哪里来的？

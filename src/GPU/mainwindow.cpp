@@ -105,7 +105,7 @@ void MainWindow::priv_loadURLMenuProg (const char *paramsInGet)
     //se esiste il file lastUsedLang.txt, allora dentro c'è l'ultima lingua usata per il menu di prog
     char s[256];
     sprintf_s (s, sizeof(s), "%s/lastUsedLang.txt", folder);
-    if (rhea::fs::fileExists(s))
+    if (rhea::fs::fileExists((const u8*)s))
     {
         FILE *f = fopen(s,"rt");
         fread (lang, 2, 1, f);
@@ -114,7 +114,7 @@ void MainWindow::priv_loadURLMenuProg (const char *paramsInGet)
     }
 
     sprintf_s (s, sizeof(s), "%s/index_%s.html", folder, lang);
-    if (!rhea::fs::fileExists(s))
+    if (!rhea::fs::fileExists((const u8*)s))
         sprintf_s (s, sizeof(s), "%s/index_GB.html", folder);
 
     if (NULL != paramsInGet)
@@ -133,7 +133,7 @@ bool MainWindow::priv_shouldIShowFormPreGUI()
     char s[256];
     sprintf_s (s, sizeof(s), "%s/vmcDataFile.da3", glob->current_da3);
     DA3 *da3 = new DA3();
-    da3->loadInMemory (rhea::memory_getDefaultAllocator(), s, glob->extendedCPUInfo.machineType, glob->extendedCPUInfo.machineModel);
+    da3->loadInMemory (rhea::getSysHeapAllocator(), (const u8*)s, glob->extendedCPUInfo.machineType, glob->extendedCPUInfo.machineModel);
 
     u16 groundCounterLimit = da3->getDecounterCoffeeGround();
     bool bShowBtnResetGroundConter = false;
@@ -207,7 +207,7 @@ void MainWindow::priv_showForm (eForm w)
         {
             char s[1024];
             sprintf_s (s, sizeof(s), "%s/web/startup.html", glob->current_GUI);
-            if (rhea::fs::fileExists(s))
+            if (rhea::fs::fileExists((const u8*)s))
                 sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
 
             else

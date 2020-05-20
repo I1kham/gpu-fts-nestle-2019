@@ -57,39 +57,15 @@ CONFIG(release, debug|release) {
 
 
 SOURCES += \
-    ../../src/rheaCommonLib/mtrand.cpp \
-    ../../src/rheaCommonLib/rhea.cpp \
-    ../../src/rheaCommonLib/rheaAllocator.cpp \
-    ../../src/rheaCommonLib/rheaBase64.cpp \
-    ../../src/rheaCommonLib/rheaBit.cpp \
-    ../../src/rheaCommonLib/rheaDate.cpp \
-    ../../src/rheaCommonLib/rheaDateTime.cpp \
-    ../../src/rheaCommonLib/rheaJSONParser.cpp \
-    ../../src/rheaCommonLib/rheaLinearBuffer.cpp \
-    ../../src/rheaCommonLib/rheaLogger.cpp \
-    ../../src/rheaCommonLib/rheaLoggerContext.cpp \
-    ../../src/rheaCommonLib/rheaLogTargetConsole.cpp \
-    ../../src/rheaCommonLib/rheaLogTargetFile.cpp \
-    ../../src/rheaCommonLib/rheaMemory.cpp \
-    ../../src/rheaCommonLib/rheaMemoryTracker.cpp \
-    ../../src/rheaCommonLib/rheaSha1.cpp \
-    ../../src/rheaCommonLib/rheaStaticBuffer.cpp \
-    ../../src/rheaCommonLib/rheaString.cpp \
-    ../../src/rheaCommonLib/rheaStringConvert.cpp \
-    ../../src/rheaCommonLib/rheaStringFormat.cpp \
-    ../../src/rheaCommonLib/rheaStringParser.cpp \
-    ../../src/rheaCommonLib/rheaStringParserIter.cpp \
-    ../../src/rheaCommonLib/rheaThread.cpp \
-    ../../src/rheaCommonLib/rheaThreadMsgQ.cpp \
-    ../../src/rheaCommonLib/rheaTime24.cpp \
-    ../../src/rheaCommonLib/rheaUtils.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOS.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOSEvent.cpp \
+    ../../src/rheaCommonLib/OS/linux/linuxOSFS.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOSSerialPort.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOSSocket.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOSThread.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOSWaitableGrp.cpp \
     ../../src/rheaCommonLib/OS/win/winOS.cpp \
+    ../../src/rheaCommonLib/OS/win/winOSFS.cpp \
     ../../src/rheaCommonLib/OS/win/winOSSerialPort.cpp \
     ../../src/rheaCommonLib/OS/win/winOSSocket.cpp \
     ../../src/rheaCommonLib/OS/win/winOSThread.cpp \
@@ -101,54 +77,41 @@ SOURCES += \
     ../../src/rheaCommonLib/Protocol/ProtocolSocketServer.cpp \
     ../../src/rheaCommonLib/Protocol/ProtocolWebsocket.cpp \
     ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.cpp \
-    ../../src/rheaCommonLib/OS/win/winOSFS.cpp \
+    ../../src/rheaCommonLib/string/rheaString.cpp \
+    ../../src/rheaCommonLib/string/rheaStringANSI.cpp \
+    ../../src/rheaCommonLib/string/rheaStringFormat.cpp \
+    ../../src/rheaCommonLib/string/rheaStringIter.cpp \
+    ../../src/rheaCommonLib/string/rheaUTF16.cpp \
+    ../../src/rheaCommonLib/string/rheaUTF32.cpp \
+    ../../src/rheaCommonLib/string/rheaUTF8.cpp \
+    ../../src/rheaCommonLib/string/rheaUTF8Char.cpp \
+    ../../src/rheaCommonLib/string/rheaUTF8String.cpp \
+    ../../src/rheaCommonLib/mtrand.cpp \
+    ../../src/rheaCommonLib/rhea.cpp \
+    ../../src/rheaCommonLib/rheaAllocator.cpp \
+    ../../src/rheaCommonLib/rheaBase64.cpp \
+    ../../src/rheaCommonLib/rheaBit.cpp \
+    ../../src/rheaCommonLib/rheaDate.cpp \
+    ../../src/rheaCommonLib/rheaDateTime.cpp \
     ../../src/rheaCommonLib/rheaFS.cpp \
-    ../../src/rheaCommonLib/OS/linux/linuxOSFS.cpp \
-    ../../src/rheaCommonLib/rheaUTF8.cpp \
-    ../../src/rheaCommonLib/rheaUTF8Char.cpp \
-    ../../src/rheaCommonLib/rheaUTF8Parser.cpp \
-    ../../src/rheaCommonLib/rheaUTF16.cpp \
-    ../../src/rheaCommonLib/rheamd5.cpp
+    ../../src/rheaCommonLib/rheaJSONParser.cpp \
+    ../../src/rheaCommonLib/rheaLinearBuffer.cpp \
+    ../../src/rheaCommonLib/rheaLogger.cpp \
+    ../../src/rheaCommonLib/rheaLoggerContext.cpp \
+    ../../src/rheaCommonLib/rheaLogTargetConsole.cpp \
+    ../../src/rheaCommonLib/rheaLogTargetFile.cpp \
+    ../../src/rheaCommonLib/rheamd5.cpp \
+    ../../src/rheaCommonLib/rheaMemory.cpp \
+    ../../src/rheaCommonLib/rheaMemoryTracker.cpp \
+    ../../src/rheaCommonLib/rheaSha1.cpp \
+    ../../src/rheaCommonLib/rheaStaticBuffer.cpp \
+    ../../src/rheaCommonLib/rheaThread.cpp \
+    ../../src/rheaCommonLib/rheaThreadMsgQ.cpp \
+    ../../src/rheaCommonLib/rheaTime24.cpp \
+    ../../src/rheaCommonLib/rheaUtils.cpp
 
 
 HEADERS += \
-    ../../src/rheaCommonLib/mtrand.h \
-    ../../src/rheaCommonLib/rhea.h \
-    ../../src/rheaCommonLib/rheaAllocator.h \
-    ../../src/rheaCommonLib/rheaAllocatorSimple.h \
-    ../../src/rheaCommonLib/rheaAllocatorTrackingPolicy.h \
-    ../../src/rheaCommonLib/rheaBit.h \
-    ../../src/rheaCommonLib/rheaBufferView.h \
-    ../../src/rheaCommonLib/rheaCriticalSection.h \
-    ../../src/rheaCommonLib/rheaDataTypes.h \
-    ../../src/rheaCommonLib/rheaDate.h \
-    ../../src/rheaCommonLib/rheaDateTime.h \
-    ../../src/rheaCommonLib/rheaEnumAndDefine.h \
-    ../../src/rheaCommonLib/rheaEvent.h \
-    ../../src/rheaCommonLib/rheaFastArray.h \
-    ../../src/rheaCommonLib/rheaFIFO.h \
-    ../../src/rheaCommonLib/rheaHandleArray.h \
-    ../../src/rheaCommonLib/rheaHandleBaseArray.h \
-    ../../src/rheaCommonLib/rheaHandleUID88.h \
-    ../../src/rheaCommonLib/rheaHandleUID040210.h \
-    ../../src/rheaCommonLib/rheaIntrusiveFreeList.h \
-    ../../src/rheaCommonLib/rheaJSONParser.h \
-    ../../src/rheaCommonLib/rheaLIFO.h \
-    ../../src/rheaCommonLib/rheaLinearBuffer.h \
-    ../../src/rheaCommonLib/rheaLogger.h \
-    ../../src/rheaCommonLib/rheaLogTargetConsole.h \
-    ../../src/rheaCommonLib/rheaLogTargetFile.h \
-    ../../src/rheaCommonLib/rheaMemory.h \
-    ../../src/rheaCommonLib/rheaMemoryTracker.h \
-    ../../src/rheaCommonLib/rheaNetBufferView.h \
-    ../../src/rheaCommonLib/rheaRandom.h \
-    ../../src/rheaCommonLib/rheaStaticBuffer.h \
-    ../../src/rheaCommonLib/rheaString.h \
-    ../../src/rheaCommonLib/rheaThread.h \
-    ../../src/rheaCommonLib/rheaThreadSafePolicy.h \
-    ../../src/rheaCommonLib/rheaTime24.h \
-    ../../src/rheaCommonLib/rheaUtils.h \
-    ../../src/rheaCommonLib/rheaWaitableFIFO.h \
     ../../src/rheaCommonLib/OS/linux/linuxOS.h \
     ../../src/rheaCommonLib/OS/linux/linuxOSInclude.h \
     ../../src/rheaCommonLib/OS/linux/linuxOSSerialPort.h \
@@ -170,10 +133,47 @@ HEADERS += \
     ../../src/rheaCommonLib/SimpleLogger/ISimpleLogger.h \
     ../../src/rheaCommonLib/SimpleLogger/NullLogger.h \
     ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.h \
-    ../../src/rheaCommonLib/rheaUTF8.h \
-    ../../src/rheaCommonLib/rheaUTF8Char.h \
-    ../../src/rheaCommonLib/rheaUTF16.h \
-    ../../src/rheaCommonLib/rheamd5.h
+    ../../src/rheaCommonLib/string/rheaStringEnumAndDefine.h \
+    ../../src/rheaCommonLib/string/rheaUTF8String.h \
+    ../../src/rheaCommonLib/mtrand.h \
+    ../../src/rheaCommonLib/rhea.h \
+    ../../src/rheaCommonLib/rheaAllocator.h \
+    ../../src/rheaCommonLib/rheaAllocatorSimple.h \
+    ../../src/rheaCommonLib/rheaAllocatorTrackingPolicy.h \
+    ../../src/rheaCommonLib/rheaArray.h \
+    ../../src/rheaCommonLib/rheaBit.h \
+    ../../src/rheaCommonLib/rheaBufferView.h \
+    ../../src/rheaCommonLib/rheaCriticalSection.h \
+    ../../src/rheaCommonLib/rheaDataTypes.h \
+    ../../src/rheaCommonLib/rheaDate.h \
+    ../../src/rheaCommonLib/rheaDateTime.h \
+    ../../src/rheaCommonLib/rheaEnumAndDefine.h \
+    ../../src/rheaCommonLib/rheaEvent.h \
+    ../../src/rheaCommonLib/rheaFastArray.h \
+    ../../src/rheaCommonLib/rheaFIFO.h \
+    ../../src/rheaCommonLib/rheaHandleArray.h \
+    ../../src/rheaCommonLib/rheaHandleBaseArray.h \
+    ../../src/rheaCommonLib/rheaHandleUID040210.h \
+    ../../src/rheaCommonLib/rheaHandleUID88.h \
+    ../../src/rheaCommonLib/rheaIntrusiveFreeList.h \
+    ../../src/rheaCommonLib/rheaJSONParser.h \
+    ../../src/rheaCommonLib/rheaLIFO.h \
+    ../../src/rheaCommonLib/rheaLinearBuffer.h \
+    ../../src/rheaCommonLib/rheaLogger.h \
+    ../../src/rheaCommonLib/rheaLogTargetConsole.h \
+    ../../src/rheaCommonLib/rheaLogTargetFile.h \
+    ../../src/rheaCommonLib/rheamd5.h \
+    ../../src/rheaCommonLib/rheaMemory.h \
+    ../../src/rheaCommonLib/rheaMemoryTracker.h \
+    ../../src/rheaCommonLib/rheaNetBufferView.h \
+    ../../src/rheaCommonLib/rheaRandom.h \
+    ../../src/rheaCommonLib/rheaStaticBuffer.h \
+    ../../src/rheaCommonLib/rheaString.h \
+    ../../src/rheaCommonLib/rheaThread.h \
+    ../../src/rheaCommonLib/rheaThreadSafePolicy.h \
+    ../../src/rheaCommonLib/rheaTime24.h \
+    ../../src/rheaCommonLib/rheaUtils.h \
+    ../../src/rheaCommonLib/rheaWaitableFIFO.h
     
 unix {
     target.path = /usr/lib

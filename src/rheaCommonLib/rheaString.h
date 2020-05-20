@@ -21,7 +21,7 @@ namespace rhea
 
 			inline	i32		toI32 (const char *s)														{ if (NULL==s) return 0; return (i32)atoi((const char*)s); }
 			inline	u32		toU32 (const char *s)														{ if (NULL==s) return 0; return (u32)atoi((const char*)s); }
-			inline	u64		toU64 (const char *s)														{ if (NULL==s) return 0; return (u64)_atoi64((const char*)s); }
+            inline	u64		toU64 (const char *s)														{ if (NULL==s) return 0; return (u64)atoll((const char*)s); }
 					f32		toF32 (const char *s, u32 lenOfS=u32MAX);
 			bool			hexToInt (const char *s, u32 *out, u32 nBytes = u32MAX);
 								/* s deve essere un hex valido, il che vuol dire:
@@ -276,7 +276,7 @@ namespace rhea
 									Un commento è valido se:
 										1- inizia con "//", allora è lungo fino alla fine della riga (\n\r o fine buffer)
 										oppure
-										2- inizia con /*, allora e finisce quando trova * /
+                                        2- inizia con / *, allora e finisce quando trova * /
 								*/
 		} //namespace utf8
 	} //namespace string

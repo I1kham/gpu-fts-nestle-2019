@@ -49,25 +49,25 @@ struct sGlobal
     u8      bIsMilkerAlive;
     u16     sendASAP_resetCoffeeGroundDecounter;        //se !=0, il relativo comando viene mandato alla CPU non appena questa è pronta a riceverlo
 
-    char    *tempFolder;
+    u8      *tempFolder;
 
-    char    *current;
-    char    *current_GUI;
-    char    *current_lang;
-    char    *current_da3;
-    char    *last_installed_da3;
-    char    *last_installed_cpu;
-    char    *last_installed_manual;
-    char    *last_installed_gui;
+    u8      *current;
+    u8      *current_GUI;
+    u8      *current_lang;
+    u8      *current_da3;
+    u8      *last_installed_da3;
+    u8      *last_installed_cpu;
+    u8      *last_installed_manual;
+    u8      *last_installed_gui;
 
-    char    *usbFolder;                    //path di base verso il folder rhea su chiavetta USB (NULL se la chiavetta USB non esiste)
-    char    *usbFolder_VMCSettings;        //folder su chiavetta USB per i da3
-    char    *usbFolder_CPUFW;              //folder su chiavetta USB per il fw di CPU
-    char    *usbFolder_GUI;                //folder su chiavetta USB per le GUI
-    char    *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
-    char    *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
-    char    *usbFolder_Manual;
-    char    *usbFolder_AutoF2;              //folder su chiavetta USB per l'auto update
+    u8      *usbFolder;                    //path di base verso il folder rhea su chiavetta USB (NULL se la chiavetta USB non esiste)
+    u8      *usbFolder_VMCSettings;        //folder su chiavetta USB per i da3
+    u8      *usbFolder_CPUFW;              //folder su chiavetta USB per il fw di CPU
+    u8      *usbFolder_GUI;                //folder su chiavetta USB per le GUI
+    u8      *usbFolder_Audit;              //folder su chiavetta USB per salvare i data audit
+    u8      *usbFolder_Lang;               //folder su chiavetta USB per il multilanguage
+    u8      *usbFolder_Manual;
+    u8      *usbFolder_AutoF2;              //folder su chiavetta USB per l'auto update
 
     rhea::ISimpleLogger *logger;
 };

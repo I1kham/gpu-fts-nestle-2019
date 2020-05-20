@@ -104,82 +104,82 @@ bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscrib
  */
 void setupFolderInformation (sGlobal *glob)
 {
-    char s[1024];
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+    u8 s[1024];
+    rhea::Allocator *allocator = rhea::getSysHeapAllocator();
 
     //local folders
-    const char *baseLocalFolder = rhea::getPhysicalPathToAppFolder();
+    const u8 *baseLocalFolder = rhea::getPhysicalPathToAppFolder();
 
-    sprintf_s (s, sizeof(s), "%s/temp", baseLocalFolder);
-    glob->tempFolder = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/temp", baseLocalFolder);
+    glob->tempFolder = rhea::string::utf8::allocStr(allocator, s);
 
 
-    sprintf_s (s, sizeof(s), "%s/current", baseLocalFolder);
-    glob->current = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/current", baseLocalFolder);
+    glob->current = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/gui", glob->current);
-    glob->current_GUI = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/gui", glob->current);
+    glob->current_GUI = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s (s, sizeof(s), "%s/lang", glob->current);
-    glob->current_lang = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/lang", glob->current);
+    glob->current_lang = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s (s, sizeof(s), "%s/da3", glob->current);
-    glob->current_da3 = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/da3", glob->current);
+    glob->current_da3 = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s (s, sizeof(s), "%s/last_installed/da3", baseLocalFolder);
-    glob->last_installed_da3 = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/da3", baseLocalFolder);
+    glob->last_installed_da3 = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s (s, sizeof(s), "%s/last_installed/cpu", baseLocalFolder);
-    glob->last_installed_cpu = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/cpu", baseLocalFolder);
+    glob->last_installed_cpu = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s (s, sizeof(s), "%s/last_installed/manual", baseLocalFolder);
-    glob->last_installed_manual = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/manual", baseLocalFolder);
+    glob->last_installed_manual = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s (s, sizeof(s), "%s/last_installed/gui", baseLocalFolder);
-    glob->last_installed_gui = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/gui", baseLocalFolder);
+    glob->last_installed_gui = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
 
 
 
     //USB folders
-    char baseUSBFolder[256];
+    u8 baseUSBFolder[256];
 #ifdef PLATFORM_YOCTO_EMBEDDED
-    sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
+    sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
 #else
-    sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
+    sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
     //sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/pippo", baseLocalFolder);
 #endif
 
-    sprintf_s (s, sizeof(s), "%s/rhea", baseUSBFolder);
-    glob->usbFolder = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/rhea", baseUSBFolder);
+    glob->usbFolder = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/rheaData", glob->usbFolder);
-    glob->usbFolder_VMCSettings = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/rheaData", glob->usbFolder);
+    glob->usbFolder_VMCSettings = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
-    glob->usbFolder_CPUFW = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
+    glob->usbFolder_CPUFW = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
-    glob->usbFolder_GUI = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
+    glob->usbFolder_GUI = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
-    glob->usbFolder_Audit = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
+    glob->usbFolder_Audit = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/lang", glob->usbFolder);
-    glob->usbFolder_Lang = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/lang", glob->usbFolder);
+    glob->usbFolder_Lang = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/rheaManual", glob->usbFolder);
-    glob->usbFolder_Manual = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/rheaManual", glob->usbFolder);
+    glob->usbFolder_Manual = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s (s, sizeof(s), "%s/AUTOF2", glob->usbFolder);
-    glob->usbFolder_AutoF2 = rhea::string::alloc(allocator, s);
+    sprintf_s ((char*)s, sizeof(s), "%s/AUTOF2", glob->usbFolder);
+    glob->usbFolder_AutoF2 = rhea::string::utf8::allocStr(allocator, s);
 
 
     //vediamo se il folder della USB esiste
@@ -193,7 +193,7 @@ void setupFolderInformation (sGlobal *glob)
 
 void unsetupFolderInformation (sGlobal *glob)
 {
-    rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
+    rhea::Allocator *allocator = rhea::getSysHeapAllocator();
 
     RHEAFREE(allocator, glob->tempFolder);
     RHEAFREE(allocator, glob->current);

@@ -11,7 +11,7 @@ void CmdHandler_ajaxReq_P0x1D_ResetEVATotals::passDownRequestToCPUBridge(cpubrid
 }
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x1D_ResetEVATotals::onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_ajaxReq_P0x1D_ResetEVATotals::onCPUBridgeNotification(socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 	char resp[8];
 	sprintf(resp, "OK");

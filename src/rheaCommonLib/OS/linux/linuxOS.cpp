@@ -8,8 +8,8 @@
 
 struct	sLinuxPlatformData
 {
-	char	*appPathNoSlash;
-	char	writableFolderPathNoSlash[256];
+    u8	*appPathNoSlash;
+    u8	writableFolderPathNoSlash[256];
 };
 sLinuxPlatformData	linuxPlatformData;
 
@@ -19,10 +19,10 @@ bool platform::internal_init(void *platformSpecificData UNUSED_PARAM, const char
 	memset (&linuxPlatformData, 0, sizeof(linuxPlatformData));
 
 	//usa la malloc per allocare il path
-	linuxPlatformData.appPathNoSlash = get_current_dir_name();
+    linuxPlatformData.appPathNoSlash = (u8*)get_current_dir_name();
 	rhea::fs::sanitizePathInPlace(linuxPlatformData.appPathNoSlash);
 	
-	sprintf_s(linuxPlatformData.writableFolderPathNoSlash, sizeof(linuxPlatformData.writableFolderPathNoSlash), "%s/%s", linuxPlatformData.appPathNoSlash, appName);
+    sprintf_s((char*)linuxPlatformData.writableFolderPathNoSlash, sizeof(linuxPlatformData.writableFolderPathNoSlash), "%s/%s", linuxPlatformData.appPathNoSlash, appName);
 	rhea::fs::sanitizePathInPlace(linuxPlatformData.writableFolderPathNoSlash);
 	return true;
 }
@@ -35,8 +35,8 @@ void platform::internal_deinit()
 }
 
 //**********************************************
-const char* platform::getAppPathNoSlash()							{ return linuxPlatformData.appPathNoSlash; }
-const char* platform::getPhysicalPathToWritableFolder()				{ return linuxPlatformData.writableFolderPathNoSlash; }
+const u8* platform::getAppPathNoSlash()                             { return linuxPlatformData.appPathNoSlash; }
+const u8* platform::getPhysicalPathToWritableFolder()				{ return linuxPlatformData.writableFolderPathNoSlash; }
 void* platform::alignedAlloc(size_t alignment, size_t size)			{ return aligned_alloc(alignment, size); }
 void platform::alignedFree (void *p)								{ ::free(p); }
 

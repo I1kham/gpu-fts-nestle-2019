@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <pthread.h>
 #include "../../rheaDataTypes.h"
 #include "../../rheaEnumAndDefine.h"

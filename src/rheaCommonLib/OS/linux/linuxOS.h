@@ -13,8 +13,8 @@ namespace platform
     void*           alignedAlloc (size_t alignment, size_t size);
     void            alignedFree (void *p);
 
-    const char*     getAppPathNoSlash ();
-    const char*     getPhysicalPathToWritableFolder();
+    const u8*       getAppPathNoSlash ();
+    const u8*       getPhysicalPathToWritableFolder();
 
     uint64_t        getTimeNowMSec();
     void            sleepMSec (size_t msec);
@@ -45,11 +45,13 @@ namespace platform
                     //====================================== file system
     bool			FS_DirectoryCreate(const u8* const utf8_path);
     bool			FS_DirectoryDelete(const u8* const utf8_path);
-    bool			FS_DirectoryExists(const     bool			FS_DirectoryDelete(const u8* const utf8_path);
-utf8_path);
+    bool			FS_DirectoryExists(const u8* const utf8_path);
     
     FILE*			FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPath);
     FILE*			FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath);
 
     bool			FS_fileExists(const u8* const utf8_filename);
     bool			FS_fileDelete(const u8* const utf8_filename);

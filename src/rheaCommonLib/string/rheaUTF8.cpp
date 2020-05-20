@@ -313,7 +313,7 @@ bool string::utf8::areEqualWithLen (const u8* const a, const u8* const b, bool b
 	if (bCaseSensitive) 
 		return (strncmp ((const char* const)a, (const char* const)b, numBytesToCompare) == 0); 
 
-	return (_strnicmp ((const char* const)a, (const char* const)b, numBytesToCompare) == 0); 
+    return (strncasecmp ((const char* const)a, (const char* const)b, numBytesToCompare) == 0);
 }
 
 //**************************************************
@@ -343,7 +343,7 @@ bool string::utf8::isANumber (const UTF8Char &c)
 //**************************************************
 bool string::utf8::isALetter (const UTF8Char &c)
 {
-	if (c.length() == 1 && (c.data[0] >= 'A' && c.data[0] <= 'Z') || (c.data[0] >= 'a' && c.data[0] <= 'z'))
+    if (c.length() == 1 && ((c.data[0] >= 'A' && c.data[0] <= 'Z') || (c.data[0] >= 'a' && c.data[0] <= 'z')))
 		return true;
 	return false;
 }
@@ -597,7 +597,7 @@ bool string::utf8::extractFloat (Iter &srcIN, f32 *out, const UTF8Char &sepDecim
 	//se arrivo qui vuol dire che la stringa conteneva un num valido e curChar() punta al separatore o a fine buffer
 	const u32 MAXTEMP = 64;
 	u8 temp[MAXTEMP];
-	u32 temp_len = src.copyStrFromXToCurrentPosition (srcIN.getCursorPos(), temp, MAXTEMP, false);
+    src.copyStrFromXToCurrentPosition (srcIN.getCursorPos(), temp, MAXTEMP, false);
 
 	//converto in float
 	*out = string::utf8::toF32 (temp);
@@ -686,7 +686,7 @@ bool string::utf8::extractInteger (Iter &srcIN, i32 *out, const UTF8Char *validC
 	//se arrivo qui vuol dire che la stringa conteneva un num valido e curChar() punta al separatore o a fine buffer
 	const u32 MAXTEMP = 64;
 	u8 temp[MAXTEMP];
-	u32 temp_len = src.copyStrFromXToCurrentPosition (srcIN.getCursorPos(), temp, MAXTEMP, false);
+    src.copyStrFromXToCurrentPosition (srcIN.getCursorPos(), temp, MAXTEMP, false);
 
 	//converto in float
 	*out = string::utf8::toI32 (temp);

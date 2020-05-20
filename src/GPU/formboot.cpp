@@ -139,7 +139,7 @@ void FormBoot::priv_updateLabelInfo()
 
     //Installed files: CPU
     ui->labInstalled_CPU->setText("CPU:");
-    if (rhea::fs::findFirst (&ff, glob->last_installed_cpu, "*.mhx"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_cpu, (const u8*)"*.mhx"))
     {
         do
         {
@@ -156,7 +156,7 @@ void FormBoot::priv_updateLabelInfo()
     //Installed files: DA3
     ui->labInstalled_DA3->setText("VMC SETTINGS:");
     ui->labInstalled_DA3_DataUM->setText("");
-    if (rhea::fs::findFirst (&ff, glob->last_installed_da3, "*.da3"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_da3, (const u8*)"*.da3"))
     {
         do
         {
@@ -187,13 +187,13 @@ void FormBoot::priv_updateLabelInfo()
 
     //Installed files: GUI
     ui->labInstalled_GUI->setText("GUI:");
-    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, "*.rheagui"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, (const u8*)"*.rheagui"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                char onlyFileName[256];
+                u8 onlyFileName[256];
                 rhea::fs::extractFileNameWithoutExt (rhea::fs::findGetFileName(ff), onlyFileName, sizeof(onlyFileName));
                 sprintf_s (s, sizeof(s), "<b>GUI</b>: <span style='color:#fff'>%s</span>", onlyFileName);
                 ui->labInstalled_GUI->setText(s);
@@ -206,13 +206,13 @@ void FormBoot::priv_updateLabelInfo()
 
     //Installed files: Manual (mi interessa solo il nome del primo folder valido)
     ui->labInstalled_Manual->setText("MANUAL:");
-    if (rhea::fs::findFirst (&ff, glob->last_installed_manual, "*.*"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_manual, (const u8*)"*.*"))
     {
         do
         {
             if (rhea::fs::findIsDirectory(ff))
             {
-                const char *folderName = rhea::fs::findGetFileName(ff);
+                const u8 *folderName = rhea::fs::findGetFileName(ff);
                 if (folderName[0] != '.')
                 {
                     sprintf_s (s, sizeof(s), "<b>MANUAL</b>: <span style='color:#fff'>%s</span>", folderName);
@@ -238,7 +238,7 @@ void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
     system(s);
 
     sprintf_s (s, sizeof(s), "%s/waitUSBSync.dat", glob->usbFolder);
-    rhea::fs::fileDelete(s);
+    rhea::fs::fileDelete((const u8*)s);
 
     FILE *f = fopen (s, "wb");
     fwrite (s, 1, sizeof(s), f);
@@ -272,7 +272,7 @@ void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
             break;
     }
 
-    rhea::fs::fileDelete(s);
+    rhea::fs::fileDelete((const u8*)s);
 }
 
 //*******************************************
@@ -452,13 +452,13 @@ void FormBoot::priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode)
     cpubridge::ask_READ_DATA_AUDIT (glob->subscriber, 0);
 }
 
-void FormBoot::priv_startUploadDA3 (eUploadDA3CallBack mode, const char *fullFilePathAndName)
+void FormBoot::priv_startUploadDA3 (eUploadDA3CallBack mode, const u8 *fullFilePathAndName)
 {
     upldDA3CallBack = mode;
     cpubridge::ask_WRITE_VMCDATAFILE (glob->subscriber, 0, fullFilePathAndName);
 }
 
-void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const char *fullFilePathAndName)
+void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullFilePathAndName)
 {
     upldCPUFWCallBack = mode;
     priv_foreverDisableBtnStartVMC();
@@ -472,8 +472,8 @@ void FormBoot::on_buttonStart_clicked()
         return;
 
     //verifico che ci sia una GUI installata
-    char s[256];
-    sprintf_s (s, sizeof(s), "%s/current/gui/template.rheagui", rhea::getPhysicalPathToAppFolder());
+    u8 s[256];
+    sprintf_s ((char*)s, sizeof(s), "%s/current/gui/template.rheagui", rhea::getPhysicalPathToAppFolder());
     if (!rhea::fs::fileExists(s))
     {
         priv_pleaseWaitShow("");
@@ -485,8 +485,8 @@ void FormBoot::on_buttonStart_clicked()
     priv_pleaseWaitShow("Starting VMC...");
 
 #ifdef PLATFORM_YOCTO_EMBEDDED
-    sprintf_s (s, sizeof(s), "umount -f %s", USB_MOUNTPOINT);
-    system(s);
+    sprintf_s ((char*)s, sizeof(s), "umount -f %s", USB_MOUNTPOINT);
+    system((const char*)s);
 #endif
 
     retCode = eRetCode_gotoFormBrowser;
@@ -562,7 +562,7 @@ void FormBoot::priv_fileListHide()
 }
 
 //**********************************************************************
-void FormBoot::priv_fileListPopulate(const char *pathNoSlash, const char *jolly, bool bClearList)
+void FormBoot::priv_fileListPopulate(const u8 *pathNoSlash, const u8 *jolly, bool bClearList)
 {
     if (bClearList)
         ui->lbFileList->clear();
@@ -575,7 +575,8 @@ void FormBoot::priv_fileListPopulate(const char *pathNoSlash, const char *jolly,
         {
             if (rhea::fs::findIsDirectory(ff))
                 continue;
-            ui->lbFileList->addItem(rhea::fs::findGetFileName(ff));
+            const char *fname = (const char*)rhea::fs::findGetFileName(ff);
+            ui->lbFileList->addItem(fname);
         } while (rhea::fs::findNext(ff));
         rhea::fs::findClose(ff);
 
@@ -606,25 +607,25 @@ void FormBoot::on_btnOK_clicked()
     case eFileListMode_DA3:
         sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_VMCSettings, srcFilename.toStdString().c_str());
         priv_fileListHide();
-        priv_on_btnInstall_DA3_onFileSelected(src);
+        priv_on_btnInstall_DA3_onFileSelected((const u8*)src);
         break;
 
     case eFileListMode_Manual:
         sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_Manual, srcFilename.toStdString().c_str());
         priv_fileListHide();
-        priv_uploadManual(src);
+        priv_uploadManual((const u8*)src);
         break;
 
     case eFileListMode_GUI:
         sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_GUI, srcFilename.toStdString().c_str());
         priv_fileListHide();
-        priv_uploadGUI(src);
+        priv_uploadGUI((const u8*)src);
         break;
 
     case eFileListMode_CPU:
         sprintf_s (src, sizeof(src), "%s/%s", glob->usbFolder_CPUFW, srcFilename.toStdString().c_str());
         priv_fileListHide();
-        priv_on_btnInstall_CPU_onFileSelected(src);
+        priv_on_btnInstall_CPU_onFileSelected((const u8*)src);
         break;
     }
 
@@ -643,7 +644,7 @@ void FormBoot::on_btnInstall_languages_clicked()
 }
 
 //**********************************************************************
-bool FormBoot::priv_langCopy (const char *srcFolder, const char *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec)
+bool FormBoot::priv_langCopy (const u8 *srcFolder, const u8 *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec)
 {
     priv_pleaseWaitShow("copying files...");
 
@@ -651,7 +652,7 @@ bool FormBoot::priv_langCopy (const char *srcFolder, const char *dstFolder, u32 
 
     //se la directory dst non esiste, la creo, se esiste, la svuoto
     {
-        QDir root_dir(dstFolder);
+        QDir root_dir((const char*)dstFolder);
         if (root_dir.exists())
             root_dir.removeRecursively();
         root_dir.mkpath(".");
@@ -687,18 +688,18 @@ void FormBoot::on_btnInstall_manual_clicked()
     ui->lbFileList->clear();
     OSFileFind ff;
     char s[512];
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_Manual, "*.*"))
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_Manual, (const u8*)"*.*"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
                 continue;
-            const char *dirName = rhea::fs::findGetFileName(ff);
+            const char *dirName = (const char*)rhea::fs::findGetFileName(ff);
             if (dirName[0] == '.')
                 continue;
 
             sprintf_s (s, sizeof(s), "%s/%s/index.html", glob->usbFolder_Manual, dirName);
-            if (rhea::fs::fileExists(s))
+            if (rhea::fs::fileExists((const u8*)s))
             {
                 ui->lbFileList->addItem(dirName);
             }
@@ -712,12 +713,12 @@ void FormBoot::on_btnInstall_manual_clicked()
     }
 }
 
-void FormBoot::priv_uploadManual (const char *srcFullFolderPath)
+void FormBoot::priv_uploadManual (const u8 *srcFullFolderPath)
 {
-    char srcOnlyFolderName[256];
-    char s[256];
+    u8 srcOnlyFolderName[256];
+    u8 s[256];
     rhea::fs::extractFileNameWithoutExt (srcFullFolderPath, srcOnlyFolderName, sizeof(srcOnlyFolderName));
-    if (strcmp(srcOnlyFolderName,"REMOVE_MANUAL") == 0)
+    if (strcmp((const char*)srcOnlyFolderName,"REMOVE_MANUAL") == 0)
     {
         priv_pleaseWaitShow("Removing manual...");
         //elimino la roba attualmente installata
@@ -732,7 +733,7 @@ void FormBoot::priv_uploadManual (const char *srcFullFolderPath)
         rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_manual, false);
 
 
-        sprintf_s (s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
+        sprintf_s ((char*)s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
         rhea::fs::folderCreate (s);
 
         //copio tutto il folder src nel folder in macchina
@@ -755,10 +756,10 @@ void FormBoot::on_btnInstall_DA3_clicked()
 {
     //chiedo all'utente quale file vuole uppare...
     priv_fileListShow(eFileListMode_DA3);
-    priv_fileListPopulate(glob->usbFolder_VMCSettings, "*.da3", true);
+    priv_fileListPopulate(glob->usbFolder_VMCSettings, (const u8*)"*.da3", true);
 }
 
-void FormBoot::priv_on_btnInstall_DA3_onFileSelected (const char *fullFilePathAndName)
+void FormBoot::priv_on_btnInstall_DA3_onFileSelected (const u8 *fullFilePathAndName)
 {
     priv_pleaseWaitShow("Installing VMC Settings...");
     priv_startUploadDA3 (eUploadDA3CallBack_btn, fullFilePathAndName);
@@ -809,18 +810,18 @@ void FormBoot::on_btnInstall_GUI_clicked()
     ui->lbFileList->clear();
     OSFileFind ff;
     char s[512];
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_GUI, "*.*"))
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_GUI, (const u8*)"*.*"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
                 continue;
-            const char *dirName = rhea::fs::findGetFileName(ff);
+            const char *dirName = (const char*)rhea::fs::findGetFileName(ff);
             if (dirName[0] == '.')
                 continue;
 
             sprintf_s (s, sizeof(s), "%s/%s/template.rheagui", glob->usbFolder_GUI, dirName);
-            if (rhea::fs::fileExists(s))
+            if (rhea::fs::fileExists((const u8*)s))
             {
                 ui->lbFileList->addItem(dirName);
             }
@@ -834,7 +835,7 @@ void FormBoot::on_btnInstall_GUI_clicked()
     }
 }
 
-void FormBoot::priv_uploadGUI (const char *srcFullFolderPath)
+void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
 {
     priv_pleaseWaitShow("Installing GUI...");
 
@@ -847,14 +848,14 @@ void FormBoot::priv_uploadGUI (const char *srcFullFolderPath)
     priv_updateLabelInfo();
 }
 
-bool FormBoot::priv_doInstallGUI (const char *srcFullFolderPath) const
+bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
 {
     //elimino la roba attualmente installata
     rhea::fs::deleteAllFileInFolderRecursively(glob->current_GUI, false);
     rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_gui, false);
 
     //copio la GUI nella cartella locale
-    char srcOnlyFolderName[256];
+    u8 srcOnlyFolderName[256];
     rhea::fs::extractFileNameWithoutExt (srcFullFolderPath, srcOnlyFolderName, sizeof(srcOnlyFolderName));
     if (!rhea::fs::folderCopy(srcFullFolderPath, glob->current_GUI))
         return false;
@@ -881,10 +882,10 @@ void FormBoot::on_btnInstall_CPU_clicked()
 {
     //chiedo all'utente di scegliere il file
     priv_fileListShow(eFileListMode_CPU);
-    priv_fileListPopulate(glob->usbFolder_CPUFW, "*.mhx", true);
+    priv_fileListPopulate(glob->usbFolder_CPUFW, (const u8*)"*.mhx", true);
 }
 
-void FormBoot::priv_on_btnInstall_CPU_onFileSelected (const char *fullFilePathAndName)
+void FormBoot::priv_on_btnInstall_CPU_onFileSelected (const u8 *fullFilePathAndName)
 {
     priv_pleaseWaitShow("Installing CPU FW...");
     priv_startUploadCPUFW (eUploadCPUFWCallBack_btn, fullFilePathAndName);
@@ -936,13 +937,13 @@ void FormBoot::on_btnDownload_DA3_clicked()
     char lastInstalledDa3FileName[256];
     lastInstalledDa3FileName[0] = 0x00;
     OSFileFind ff;
-    if (rhea::fs::findFirst (&ff, glob->last_installed_da3, "*.da3"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_da3, (const u8*)"*.da3"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                strcpy (lastInstalledDa3FileName, rhea::fs::findGetFileName(ff));
+                strcpy (lastInstalledDa3FileName, (const char*)rhea::fs::findGetFileName(ff));
                 break;
             }
         } while (rhea::fs::findNext(ff));
@@ -957,7 +958,7 @@ void FormBoot::on_btnDownload_DA3_clicked()
 
     //se il file dst esiste già , aggiungo data e ora al nome file
     sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_VMCSettings, lastInstalledDa3FileName);
-    if (rhea::fs::fileExists(dst))
+    if (rhea::fs::fileExists((const u8*)dst))
     {
         rhea::DateTime dt;
         char data[64];
@@ -972,7 +973,7 @@ void FormBoot::on_btnDownload_DA3_clicked()
     sprintf_s (src, sizeof(src), "%s/vmcDataFile.da3", glob->current_da3);
 
     //copio
-    if (!rhea::fs::fileCopy(src, dst))
+    if (!rhea::fs::fileCopy((const u8*)src, (const u8*)dst))
     {
         priv_pleaseWaitSetError("Error copying file to USB");
     }
@@ -981,7 +982,7 @@ void FormBoot::on_btnDownload_DA3_clicked()
         priv_pleaseWaitSetText("Finalizing copy...");
         priv_syncUSBFileSystem(5000);
 
-        rhea::fs::extractFileNameWithExt(dst, src, sizeof(src));
+        rhea::fs::extractFileNameWithExt((const u8*)dst, (u8*)src, sizeof(src));
         sprintf_s (dst, sizeof(dst), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive in the folder rhea/rheaData", src);
         priv_pleaseWaitSetOK (dst);
     }
@@ -1002,13 +1003,13 @@ void FormBoot::on_btnDownload_GUI_clicked()
     char lastInstalledGUIName[256];
     lastInstalledGUIName[0] = 0x00;
     OSFileFind ff;
-    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, "*.rheagui"))
+    if (rhea::fs::findFirst (&ff, glob->last_installed_gui, (const u8*)"*.rheagui"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
             {
-                rhea::fs::extractFileNameWithoutExt (rhea::fs::findGetFileName(ff), lastInstalledGUIName, sizeof(lastInstalledGUIName));
+                rhea::fs::extractFileNameWithoutExt (rhea::fs::findGetFileName(ff), (u8*)lastInstalledGUIName, sizeof(lastInstalledGUIName));
                 break;
             }
         } while (rhea::fs::findNext(ff));
@@ -1024,19 +1025,19 @@ void FormBoot::on_btnDownload_GUI_clicked()
 
     char dst[512];
     sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_GUI, lastInstalledGUIName);
-    if (rhea::fs::folderExists(dst))
+    if (rhea::fs::folderExists((const u8*)dst))
     {
         rhea::DateTime dt;
         char data[64];
         dt.setNow();
         dt.formatAs_YYYYMMDDHHMMSS (data, sizeof(data), '-', 0x00, 0x00);
         sprintf_s (dst, sizeof(dst), "%s/%s-%s", glob->usbFolder_GUI, data, lastInstalledGUIName);
-        rhea::fs::folderCreate(dst);
+        rhea::fs::folderCreate((const u8*)dst);
     }
 
 
     char s[512];
-    if (!rhea::fs::folderCopy(glob->current_GUI, dst))
+    if (!rhea::fs::folderCopy(glob->current_GUI, (const u8*)dst))
     {
         sprintf_s (s, sizeof(s), "ERROR copying files to [%s]", dst);
         priv_pleaseWaitSetError(s);
@@ -1046,7 +1047,7 @@ void FormBoot::on_btnDownload_GUI_clicked()
         priv_pleaseWaitSetText("Finalizing copy...");
         priv_syncUSBFileSystem(10000);
 
-        rhea::fs::extractFileNameWithoutExt(dst, s, sizeof(s));
+        rhea::fs::extractFileNameWithoutExt((const u8*)dst, (u8*)s, sizeof(s));
         sprintf_s (dst, sizeof(dst), "SUCCESS.<br>GUI <b>%s</b> have been copied to your USB pendrive in folder rhea/rheaGUI", s);
         priv_pleaseWaitSetOK(dst);
     }
@@ -1098,7 +1099,7 @@ void FormBoot::priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg)
 
         char dst[256];
         sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_Audit, dstFilename);
-        if (!rhea::fs::fileCopy(src, dst))
+        if (!rhea::fs::fileCopy((const u8*)src, (const u8*)dst))
         {
             priv_pleaseWaitSetError("Error copying file to USB");
         }
@@ -1134,7 +1135,7 @@ void FormBoot::on_btnDownload_diagnostic_clicked()
     priv_pleaseWaitShow("Preparing service zip file (it may takes up to 2 minutes)...");
 
     sprintf_s (s, sizeof(s), "%s/RHEA_ServicePack.tar.gz", rhea::getPhysicalPathToAppFolder());
-    rhea::fs::fileDelete(s);
+    rhea::fs::fileDelete((const u8*)s);
 
     //download del data audit. Al termine del download, la procedura riprende con la fn priv_on_btnDownload_diagnostic_makeZip()
     priv_startDownloadDataAudit (eDwnloadDataAuditCallBack_service);
@@ -1169,7 +1170,7 @@ void FormBoot::priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::s
 
         char dst[256];
         sprintf_s (dst, sizeof(dst), "%s/%s", glob->current, dstFilename);
-        rhea::fs::fileCopy(src, dst);
+        rhea::fs::fileCopy((const u8*)src, (const u8*)dst);
 
         //passo alla fase successiva
         priv_on_btnDownload_diagnostic_makeZip();
@@ -1208,7 +1209,7 @@ void FormBoot::priv_on_btnDownload_diagnostic_makeZip()
     sprintf_s (s, sizeof(s), "%s/RHEA_ServicePack.tar.gz", rhea::getPhysicalPathToAppFolder());
     sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder, dstFileName);
 
-    if (!rhea::fs::fileCopy (s, dst))
+    if (!rhea::fs::fileCopy ((const u8*)s, (const u8*)dst))
         priv_pleaseWaitSetError("ERROR copying file to USB pendrive");
     else
     {
@@ -1249,7 +1250,7 @@ bool FormBoot::priv_autoupdate_exists()
     OSFileFind ff;
 
     //dentro la cartella, c'è un file per la CPU?
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, "*.mhx"))
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, (const u8*)"*.mhx"))
     {
         do
         {
@@ -1257,7 +1258,7 @@ bool FormBoot::priv_autoupdate_exists()
                 continue;
 
             ret = true;
-            rhea::fs::findGetFileName (ff, autoupdate.cpuFileName, sizeof(autoupdate.cpuFileName));
+            rhea::fs::findGetFileName (ff, (u8*)autoupdate.cpuFileName, sizeof(autoupdate.cpuFileName));
             ui->labFileFound_cpuFW->setText(QString("CPU: ") +autoupdate.cpuFileName);
             break;
 
@@ -1266,7 +1267,7 @@ bool FormBoot::priv_autoupdate_exists()
     }
 
     //dentro la cartella, c'è un file da3?
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, "*.da3"))
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, (const u8*)"*.da3"))
     {
         do
         {
@@ -1274,7 +1275,7 @@ bool FormBoot::priv_autoupdate_exists()
                 continue;
 
             ret = true;
-            rhea::fs::findGetFileName (ff, autoupdate.da3FileName, sizeof(autoupdate.da3FileName));
+            rhea::fs::findGetFileName (ff, (u8*)autoupdate.da3FileName, sizeof(autoupdate.da3FileName));
             ui->labFileFound_da3->setText(QString("VMC datafile: ") +autoupdate.da3FileName);
             break;
 
@@ -1283,23 +1284,23 @@ bool FormBoot::priv_autoupdate_exists()
     }
 
     //dentro la cartella, c'è una cartella con una valida gui
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, "*.*"))
+    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, (const u8*)"*.*"))
     {
         do
         {
             if (!rhea::fs::findIsDirectory(ff))
                 continue;
 
-            const char *dirName = rhea::fs::findGetFileName(ff);
+            const char *dirName = (const char*)rhea::fs::findGetFileName(ff);
             if (dirName[0] == '.')
                 continue;
 
             char s[512];
             sprintf_s (s, sizeof(s), "%s/%s/template.rheagui", glob->usbFolder_AutoF2, dirName);
-            if (rhea::fs::fileExists(s))
+            if (rhea::fs::fileExists((const u8*)s))
             {
                 ret = true;
-                rhea::fs::findGetFileName (ff, autoupdate.guiFolderName, sizeof(autoupdate.guiFolderName));
+                rhea::fs::findGetFileName (ff, (u8*)autoupdate.guiFolderName, sizeof(autoupdate.guiFolderName));
                 ui->labFileFound_gui->setText(QString("GUI: ") +autoupdate.guiFolderName);
                 break;
             }
@@ -1432,7 +1433,7 @@ void FormBoot::priv_autoupdate_onTick()
         autoupdate.fase = eAutoUpdateFase_cpu_upload_wait;
         priv_autoupdate_setText(ui->labStatus_cpuFW, "Installing CPU FW...");
         sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.cpuFileName);
-        priv_startUploadCPUFW (eUploadCPUFWCallBack_auto, s);
+        priv_startUploadCPUFW (eUploadCPUFWCallBack_auto, (const u8*)s);
         break;
 
     case eAutoUpdateFase_cpu_upload_wait:
@@ -1490,7 +1491,7 @@ void FormBoot::priv_autoupdate_onTick()
 
     case eAutoUpdateFase_gui_upload_copy:
         sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.guiFolderName);
-        if (priv_doInstallGUI (s))
+        if (priv_doInstallGUI ((const u8*)s))
         {
             priv_autoupdate_setOK (ui->labStatus_gui, "SUCCESS, GUI installed");
             autoupdate.fase = eAutoUpdateFase_da3_start;
@@ -1545,7 +1546,7 @@ void FormBoot::priv_autoupdate_onTick()
     case eAutoUpdateFase_da3_upload:
         priv_autoupdate_setText (ui->labStatus_da3, "Installing VMC Settings...");
         sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.da3FileName);
-        priv_startUploadDA3 (eUploadDA3CallBack_auto, s);
+        priv_startUploadDA3 (eUploadDA3CallBack_auto, (const u8*)s);
         autoupdate.fase = eAutoUpdateFase_da3_upload_wait;
         break;
 

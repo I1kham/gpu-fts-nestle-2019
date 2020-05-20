@@ -6,14 +6,14 @@ using namespace rhea;
 //**************************************************
 bool string::ansi::toUTF8 (const ANSIChar& in, UTF8Char* out)
 {
-	if (in.data < 128)
+    if ((u8)in.data < 128)
 	{
 		out->data[0] = in.data;
 		out->data[1] = out->data[2] = out->data[3] = 0;
 	}
     else
 	{
-		out->data[0] = 0xc2 + (in.data > 0xbf);
+        out->data[0] = 0xc2 + ((u8)in.data > 0xbf);
 		out->data[1] =(in.data & 0x3f) + 0x80;
 		out->data[2] = out->data[3] = 0;
 	}
@@ -30,21 +30,21 @@ bool string::ansi::toUTF32  (const ANSIChar& in, UTF32Char* out)		{ UTF8Char tem
 //**************************************************
 u32 string::ansi::lengthInBytes (const char* p)
 {
-	if (NULL == p)
-		return 0;
+    if (NULL == p)
+        return 0;
 
-		//il primo 0x00 che trovo...
-		u32 i = 0;
-		while (p[i] != 0x00)
-		{
-			i++;
+    //il primo 0x00 che trovo...
+    u32 i = 0;
+    while (p[i] != 0x00)
+    {
+        i++;
 #ifdef _DEBUG
-			//se siamo arrivati così avanti, prob è un errore
-			if (i >= 16384)
-				DBGBREAK;
+        //se siamo arrivati così avanti, prob è un errore
+        if (i >= 16384)
+            DBGBREAK;
 #endif
-		}
-		return i;
+    }
+    return i;
 }
 
 //**************************************************
@@ -123,7 +123,7 @@ f32 string::ansi::toF32  (const char *s, u32 lenOfS)
 	if (NULL==s || lenOfS==0) 
 		return 0; 
 
-	if (lenOfS=u32MAX)
+    if (lenOfS == u32MAX)
 		return (f32)atof(s); 
 
 	char temp[64];
