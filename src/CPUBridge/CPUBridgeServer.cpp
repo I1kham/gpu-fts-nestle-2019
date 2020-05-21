@@ -52,7 +52,7 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	rhea::thread::getMsgQEvent (hServiceChR, &hMsgQEvent);
 	waitList.addEvent(hMsgQEvent, u32MAX);
 
-	localAllocator = RHEANEW(rhea::getScrapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
+	localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
 	subscriberList.setup(localAllocator, 8);
 
 	//apro il canale di comunicazione con la CPU fisica
@@ -93,7 +93,7 @@ void Server::close()
 		priv_deleteSubscriber(subscriberList.getElem(i), false);
 	subscriberList.unsetup();
 
-	RHEADELETE (rhea::getScrapAllocator(), localAllocator);
+	RHEADELETE (rhea::getSysHeapAllocator(), localAllocator);
 }
 
 //***************************************************

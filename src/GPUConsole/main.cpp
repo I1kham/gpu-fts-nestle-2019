@@ -657,7 +657,7 @@ bool run (const sThreadInitParam *init)
 	WinTerminal *logger = init->wt;
 
 	//allocatore locale
-	rhea::Allocator	*localAllocator = rhea::getScrapAllocator();
+	rhea::Allocator	*localAllocator = rhea::getSysHeapAllocator();
 
 	//canale di comunicazione
 	rhea::ProtocolChSocketTCP ch(localAllocator, 4096, 8192);
@@ -924,7 +924,7 @@ int main()
 	rhea::init("rheaConsole", &hInst);
 
 	//elenco delle schede di rete e relativi ip/subnet mask. Serve per il broadcast su tutte le reti del comando hello
-	rhea::Allocator *localAllocator = rhea::getScrapAllocator();
+	rhea::Allocator *localAllocator = rhea::getSysHeapAllocator();
 	ipList = scanNetworkAdaptersAndFindLocalIP(localAllocator, &nIPList);
 
 	//version info

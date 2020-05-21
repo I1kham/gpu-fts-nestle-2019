@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\rasPI\main.cpp" />
+    <ClCompile Include="..\..\src\rasPI\socketListener.cpp" />
+    <ClCompile Include="..\..\src\rasPI\socketListenerCore.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIIdentifiedClientList.cpp" />
+    <ClCompile Include="..\..\src\rasPI\CmdHandler.cpp" />
+    <ClCompile Include="..\..\src\rasPI\CmdHandler_ajaxReq.cpp" />
+    <ClCompile Include="..\..\src\rasPI\CmdHandler_eventReq.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\rasPI\socketListener.h" />
+    <ClInclude Include="..\..\src\rasPI\socketListenerCore.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIIdentifiedClientList.h" />
+    <ClInclude Include="..\..\src\rasPI\CmdHandler.h" />
+    <ClInclude Include="..\..\src\rasPI\CmdHandler_ajaxReq.h" />
+    <ClInclude Include="..\..\src\rasPI\CmdHandler_eventReq.h" />
+    <ClInclude Include="..\..\src\rasPI\CommandHandlerList.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIEnumAndDefine.h" />
+  </ItemGroup>
+</Project>

@@ -4,7 +4,7 @@
 //**********************************************
 VideoBuffer::VideoBuffer()
 {
-	allocator = rhea::getScrapAllocator();
+	allocator = rhea::getSysHeapAllocator();
 
 	buffer = NULL;
 	dimx = dimy = 0;

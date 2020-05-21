@@ -119,12 +119,12 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
     if (n == 0)
         return 0;
 
-    //scanno gli eventi perchÃ¨ non tutti vanno ritornati, ce ne sono alcuni che devo gesire da me
+    //scanno gli eventi perchè non tutti vanno ritornati, ce ne sono alcuni che devo gesire da me
     for (u8 i=0; i<n; i++)
     {
         if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_osevent)
         {
-            //un OSEvent Ã¨ stato fired(), lo segnalo negli eventi che ritorno
+            //un OSEvent è stato fired(), lo segnalo negli eventi che ritorno
             eventList[nEvents].evtType = ProtocolSocketServer::evt_osevent_fired;
 			eventList[nEvents].data.if_event.osEvent = &waitableGrp.getEventSrcAsOSEvent(i);
 			eventList[nEvents++].data.if_event.userParam = waitableGrp.getEventUserParamAsU32(i);
@@ -133,10 +133,10 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
 
         else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
         {
-            //l'evento Ã¨ stato generato da una socket
+            //l'evento è stato generato da una socket
             if (waitableGrp.getEventUserParamAsU32(i) == u32MAX)
             {
-                //se la socket Ã¨ quella del server, allora gestiamo l'eventuale incoming connection
+                //se la socket è quella del server, allora gestiamo l'eventuale incoming connection
                 HSokServerClient clientHandle;
                 if (priv_checkIncomingConnection (&clientHandle))
                 {
@@ -172,7 +172,7 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
 			}
 			else
             {
-                //altimenti la socket che si Ã¨ svegliata deve essere una dei miei client giÃ  connessi, segnalo
+                //altimenti la socket che si è svegliata deve essere una dei miei client già  connessi, segnalo
                 //e ritorno l'evento
                 const u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
                 eventList[nEvents].evtType = ProtocolSocketServer::evt_client_has_data_avail;
@@ -192,7 +192,7 @@ void ProtocolSocketServer::client_sendClose (const HSokServerClient hClient)
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
     {
-        //l'handle Ã¨ invalido!
+        //l'handle è invalido!
         return;
     }
 
@@ -312,7 +312,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
 	IProtocol *protocol = NULL;
     while (1)
     {
-        //Se Ã¨ un client websocket, gestiamo il suo handshake
+        //Se è un client websocket, gestiamo il suo handshake
         if (ProtocolWebsocket::server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
         {
             //logger->log ("it's a websocket\n");
@@ -320,7 +320,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
             break;
         }
 
-        //Se Ã¨ un client console, abbiamo un semplice handshake
+        //Se è un client console, abbiamo un semplice handshake
         if (ProtocolConsole::server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
         {
             //logger->log ("it's a console\n");
@@ -381,7 +381,7 @@ i32 ProtocolSocketServer::client_read (const HSokServerClient hClient, rhea::Lin
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
     {
-        //l'handle Ã¨ invalido!
+        //l'handle è invalido!
         return 0;
     }
 
@@ -403,7 +403,7 @@ i32 ProtocolSocketServer::client_writeBuffer (const HSokServerClient hClient, co
     sRecord *r = NULL;
     if (!handleArray.fromHandleToPointer(hClient, &r))
     {
-        //l'handle Ã¨ invalido!
+        //l'handle è invalido!
         return 0;
     }
     

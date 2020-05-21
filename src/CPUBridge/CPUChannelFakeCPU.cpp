@@ -239,7 +239,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				else
 				{
-					//ok, Ã¨ tempo di terminare la selezione
+					//ok, à¨ tempo di terminare la selezione
 					bFinished = true;
 				}
 
@@ -1057,9 +1057,9 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	}
 
 	/*
-	75		6 byte con lo stato di disponibilitÃ  delle 48 selezioni
-	76		ATTENZIONE che il bit a zero significa che la selezione Ã¨ disponibile, il bit
-	77		a 1 significa che NON Ã¨ disponibile
+	75		6 byte con lo stato di disponibilità  delle 48 selezioni
+	76		ATTENZIONE che il bit a zero significa che la selezione à¨ disponibile, il bit
+	77		a 1 significa che NON à¨ disponibile
 	78
 	79
 	80
@@ -1116,7 +1116,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	if (CPU_REPORTED_PROTOCOL_VERSION >= 4)
 	{
 		//protocol version 4
-		//1 byte per indicare se btn prog Ã¨ cliccato
+		//1 byte per indicare se btn prog à¨ cliccato
 		out_answer[ct++] = 0;
 
 		//protocol version 5
@@ -1126,14 +1126,14 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 			u8 newFCPUFlag1 = 0;
 			out_answer[ct] = 0;
 			
-			newFCPUFlag1 |= 0x01; //indica che CPU Ã¨ pronta per fornire il data-audit
+			newFCPUFlag1 |= 0x01; //indica che CPU à¨ pronta per fornire il data-audit
 
 			//protocol version 6
 			if (CPU_REPORTED_PROTOCOL_VERSION >= 6)
 			{
 				bool bSimulaStatoTelemetria = false;
 				if (bSimulaStatoTelemetria)
-					newFCPUFlag1 |= 0x02; //indica se CPU Ã¨ in telemetria oppure no (default: no)
+					newFCPUFlag1 |= 0x02; //indica se CPU à¨ in telemetria oppure no (default: no)
 			}
 
 			//protocol version 7

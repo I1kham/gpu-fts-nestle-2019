@@ -14,7 +14,7 @@ i16     AlipayChinaThreadFn (void *userParam);
 //****************************************************
 bool AlipayChina::startThread (const char *serverIP, u16 serverPort, const char *machineID, const char *cryptoKey, rhea::ISimpleLogger *logger, AlipayChina::Context *out_context)
 {
-	Allocator *allocator = rhea::getScrapAllocator();
+	Allocator *allocator = rhea::getSysHeapAllocator();
 	out_context->core = RHEANEW(allocator, AlipayChina::Core)();
 	out_context->core->useLogger (logger);
 	bool ret = out_context->core->setup (serverIP, serverPort, machineID, cryptoKey, &out_context->hMsgQW);

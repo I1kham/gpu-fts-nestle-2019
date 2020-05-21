@@ -67,7 +67,7 @@ i16 serverThreadFn (void *userParam)
     //sServerInitParam *init = (sServerInitParam*)userParam;
     sServerInitParam *init = static_cast<sServerInitParam*>(userParam);
 
-    serverInstance = RHEANEW(rhea::getScrapAllocator(), socketbridge::Server)();
+    serverInstance = RHEANEW(rhea::getSysHeapAllocator(), socketbridge::Server)();
     serverInstance->useLogger (init->logger);
     if (serverInstance->open (2280, init->hCPUServiceChannelW, init->bDieWhenNoClientConnected ))
 	{
@@ -76,7 +76,7 @@ i16 serverThreadFn (void *userParam)
         serverInstance->run();
 	}
     serverInstance->close();
-    RHEADELETE(rhea::getScrapAllocator(), serverInstance);
+    RHEADELETE(rhea::getSysHeapAllocator(), serverInstance);
 	return 1;
 }
 
