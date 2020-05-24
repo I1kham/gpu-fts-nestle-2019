@@ -45,7 +45,7 @@ bool startCPUBridge()
 	
 	//apro un canale con la CPU fisica
     //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
-	cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM4", logger);
+	cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM7", logger);
 
 #endif
 
