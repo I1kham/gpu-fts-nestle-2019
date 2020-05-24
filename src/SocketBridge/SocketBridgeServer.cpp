@@ -271,7 +271,7 @@ bool Server::priv_extractOneMessage(u8 *bufferPt, u16 nBytesInBuffer, sDecodedMe
 	//deve essere lungo almeno 7 byte e iniziare con #
 	if (nBytesInBuffer < 7)
 	{
-		//scarta il messaggio perchè non puà² essere un msg valido
+		//scarta il messaggio perchè non può essere un msg valido
 		DBGBREAK;
 		*out_nBytesConsumed = nBytesInBuffer;
 		return false;

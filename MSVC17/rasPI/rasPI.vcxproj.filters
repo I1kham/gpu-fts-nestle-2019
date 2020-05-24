@@ -8,6 +8,8 @@
     <ClCompile Include="..\..\src\rasPI\CmdHandler.cpp" />
     <ClCompile Include="..\..\src\rasPI\CmdHandler_ajaxReq.cpp" />
     <ClCompile Include="..\..\src\rasPI\CmdHandler_eventReq.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIMITMCore.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIMITM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rasPI\socketListener.h" />
@@ -18,5 +20,8 @@
     <ClInclude Include="..\..\src\rasPI\CmdHandler_eventReq.h" />
     <ClInclude Include="..\..\src\rasPI\CommandHandlerList.h" />
     <ClInclude Include="..\..\src\rasPI\rasPIEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITM.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITMCore.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITMCoreEnumAndDefine.h" />
   </ItemGroup>
 </Project>

@@ -10,7 +10,7 @@ namespace rasPI
 {
 	namespace socketListener
 	{
-		bool        start (rhea::ISimpleLogger *logger, rhea::HThread *out_hThread);
+		bool        start (rhea::ISimpleLogger *logger, const HThreadMsgW &msgQW_toMITM, rhea::HThread *out_hThread);
 					/*	crea il thread che monitora e gestisce la socket. */
 	} //socketListener
 } //namespace rasPI

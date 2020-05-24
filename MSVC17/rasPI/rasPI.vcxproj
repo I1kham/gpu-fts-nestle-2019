@@ -135,6 +135,8 @@
     <ClCompile Include="..\..\src\rasPI\CmdHandler_eventReq.cpp" />
     <ClCompile Include="..\..\src\rasPI\rasPIIdentifiedClientList.cpp" />
     <ClCompile Include="..\..\src\rasPI\main.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIMITM.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIMITMCore.cpp" />
     <ClCompile Include="..\..\src\rasPI\socketListener.cpp" />
     <ClCompile Include="..\..\src\rasPI\socketListenerCore.cpp" />
   </ItemGroup>
@@ -144,6 +146,9 @@
     <ClInclude Include="..\..\src\rasPI\CmdHandler_eventReq.h" />
     <ClInclude Include="..\..\src\rasPI\CommandHandlerList.h" />
     <ClInclude Include="..\..\src\rasPI\rasPIIdentifiedClientList.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITM.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITMCore.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITMCoreEnumAndDefine.h" />
     <ClInclude Include="..\..\src\rasPI\socketListener.h" />
     <ClInclude Include="..\..\src\rasPI\socketListenerCore.h" />
     <ClInclude Include="..\..\src\rasPI\rasPIEnumAndDefine.h" />

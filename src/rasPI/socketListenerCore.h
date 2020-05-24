@@ -19,7 +19,7 @@ namespace rasPI
 									~Core()															{ }
 
 			void					useLogger (rhea::ISimpleLogger *loggerIN);
-			bool					open (u16 tcpPortNumber);
+			bool					open (u16 tcpPortNumber, const HThreadMsgW &msgQW_toMITM);
 			void					run();
 		
 			void					sendTo (const HSokServerClient &h, const u8 *buffer, u32 nBytesToSend);
@@ -32,6 +32,7 @@ namespace rasPI
 			bool					priv_extractOneMessage(u8 *bufferPt, u16 nBytesInBuffer, socketbridge::sDecodedMessage *out, u16 *out_nBytesConsumed) const;
 			void					priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec);
 			void					priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const socketbridge::sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded);
+			void					priv_passWebSokcetDataToMITM(const void *buffer, u32 nBytesToSend);
 
 		private:
 			static const u16        RESERVED_HANDLE_RANGE = 1024;
@@ -41,6 +42,7 @@ namespace rasPI
 			rhea::ISimpleLogger     *logger;
 			rhea::NullLogger        nullLogger;
 			rhea::ProtocolSocketServer    *server;
+			HThreadMsgW				msgQW_toMITM;
 			u16						SEND_BUFFER_SIZE;
 			u8						*sendBuffer;
 			rhea::LinearBuffer      buffer;

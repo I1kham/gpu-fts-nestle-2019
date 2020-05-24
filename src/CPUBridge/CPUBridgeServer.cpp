@@ -249,6 +249,36 @@ void Server::priv_handleMsgFromServiceMsgQ()
 	}
 }
 
+//***************************************************
+bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec)
+{
+	bool ret = chToCPU->sendAndWaitAnswer(bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
+
+	//quando mando un msg, la risposta potrebbe includere msg addizionali provenienti dal rasPI
+	const u8 n = chToCPU->getNumRisposteScartate();
+	if (n)
+	{
+		const u8 *p = chToCPU->getBufferOfRisposteScartate();
+		u32 ct = 0;
+		for (u8 i = 0; i < n; i++)
+		{
+			const u8 commandChar  = p[ct + 1];
+			const u8 msgLen = p[ct + 2];
+			if (commandChar == 'W')
+			{
+				logger->log ("rasPI:[W] ");
+				for (u8 t = 0; t < msgLen; t++)
+					logger->log ("%c ", p[ct + t]);
+				logger->log("\n");
+			}
+
+			ct += msgLen;
+		}
+	}
+
+	return ret;
+}
+
 /***************************************************
  * Uno dei miei subscriber mi ha inviato una richiesta
  */
@@ -342,7 +372,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[32];
 			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(btnToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
 		}
 		break;
@@ -356,7 +386,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[32];
 			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(keepOnSendingThisButtonNum, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
 		}
 		break;
@@ -376,7 +406,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 			{
 				priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 				notify_CPU_INI_PARAM(sub->q, handlerID, logger, &cpuParamIniziali);
@@ -394,7 +424,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 			{
 				priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 				const u8 numPrices = NUM_MAX_SELECTIONS;
@@ -459,7 +489,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 			//invio richiesta a CPU
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1500))
 			{
 				//la CPU risponde con [#] [M] [len] [ASCII 1] [..] [ASCII n] [ck]
 				answerBuffer[sizeOfAnswerBuffer - 1] = 0;
@@ -488,7 +518,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[80];
 			const u16 nBytesToSend = cpubridge::buildMsg_writePartialVMCDataFile(block, blocco_n_di, tot_num_blocchi, blockNumOffset, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 5000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 5000))
 			{
 				//ok, la CPU ha ricevuto il blocco. A questo punto aggiorno anche il mio da3 file locale
 				priv_updateLocalDA3(block, blockNumOffset);
@@ -532,7 +562,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[32];
 			const u16 nBytesToSend = cpubridge::buildMsg_setDecounter(which, valore, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 			{
 				which = (eCPUProgrammingCommand_decounter)answerBuffer[4];
 				valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
@@ -548,7 +578,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 			{
 				u16 decounters[14];
 				for (u8 i = 0; i < 14; i++)
@@ -574,7 +604,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_attivazioneMotore(motore_1_10, durata_dSec, numRipetizioni, pausaTraRipetizioni_dSec, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 				notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, answerBuffer[4], answerBuffer[5], answerBuffer[6], answerBuffer[7]);
 			else
 				notify_ATTIVAZIONE_MOTORE(sub->q, handlerID, logger, 0xff, 0, 0, 0);
@@ -590,7 +620,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo(macina_1o2, totalePesata_dgram, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 				notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, logger);
 		}
 		break;
@@ -600,7 +630,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				u8 stato = answerBuffer[4];
 				u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
@@ -620,7 +650,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_setFattoreCalibMotore(motore, valore, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				eCPUProgrammingCommand_motor motore = (eCPUProgrammingCommand_motor)answerBuffer[4];
 				u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
@@ -634,7 +664,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getStatoGruppo(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				eCPUProgrammingCommand_statoGruppo stato;
 				switch (answerBuffer[4])
@@ -652,7 +682,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getTime(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				const u8 hh = answerBuffer[4];
 				const u8 mm = answerBuffer[5];
@@ -668,7 +698,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getDate(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				const u16 yy = 2000 + answerBuffer[4];
 				const u8 mm = answerBuffer[5];
@@ -689,7 +719,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_setDate(bufferW, sizeof(bufferW), year, month, day);
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				const u16 y = 2000 + answerBuffer[4];
 				const u8 m = answerBuffer[5];
@@ -709,7 +739,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_setTime(bufferW, sizeof(bufferW), hh, mm, ss);
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				const u8 hh = answerBuffer[4];
 				const u8 mm = answerBuffer[5];
@@ -727,7 +757,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				macina_1o2 = answerBuffer[4];
 				if (macina_1o2 == 11) macina_1o2 = 1;
@@ -773,7 +803,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_testSelection(bufferW, sizeof(bufferW), selNum, m);
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 			{
 				selNum = answerBuffer[4];
 				m = (eCPUProgrammingCommand_testSelectionDevice)answerBuffer[5];
@@ -789,7 +819,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getNomiLingueCPU(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 			{
 				u16 strLingua1UTF16[33];
 				u16 strLingua2UTF16[33];
@@ -829,7 +859,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_disintallazione(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000);
+				priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
 			}
 			break;
 
@@ -838,7 +868,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_ricaricaFasciaOrariaFreevend(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000);
+				priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
 			}
 			break;
 
@@ -847,7 +877,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_EVAresetPartial(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 					notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, true);
 				else
 					notify_EVA_RESET_PARTIALDATA(sub->q, handlerID, logger, false);
@@ -859,7 +889,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_EVAresetTotals(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 					notify_CPU_EVA_RESET_TOTALS(sub->q, handlerID, logger);
 			}
 			break;
@@ -869,7 +899,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_getVoltAndTemp(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 				{
 					const u8 tCamera = answerBuffer[4];
 					const u8 tBollitore = answerBuffer[5];
@@ -888,7 +918,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_getCPUOFFReportDetails(bufferW, sizeof(bufferW), indexNum);
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 				{
 					const u8 lastIndexNum = answerBuffer[5];
 					const u8 numOffs = (u8) ((sizeOfAnswerBuffer - 7) / 8);
@@ -920,7 +950,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_getLastFluxInformation(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 				{
 					const u16 lastFlux = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4]);
 					const u16 lastGrinderPos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[6]);
@@ -935,7 +965,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_getCPUStringVersionAndModel(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 				{
 					if (sizeOfAnswerBuffer > 30)
 					{
@@ -974,7 +1004,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_startModemTest(bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 					notify_CPU_START_MODEM_TEST(sub->q, handlerID, logger);
 			}
 			break;
@@ -984,7 +1014,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getTimeNextLavaggioSanCappuccinatore(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 4000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
 				if (sizeOfAnswerBuffer == 7)
 				{
@@ -1003,7 +1033,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_startTestAssorbimentoGruppo(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 				notify_START_TEST_ASSORBIMENTO_GRUPPO(sub->q, handlerID, logger);
 		}
 		break;
@@ -1013,7 +1043,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getStatoTestAssorbimentoGruppo(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 			{
 				//[fase] [esito] [report1up LSB MSB]  [report1down LSB MSB] ... [report6up LSB MSB] [report6down LSB MSB]
 				const u8 fase = answerBuffer[4];
@@ -1031,7 +1061,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_startTestAssorbimentoMotoriduttore(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 				notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(sub->q, handlerID, logger);
 		}
 		break;
@@ -1041,7 +1071,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u8 bufferW[16];
 			const u16 nBytesToSend = cpubridge::buildMsg_getStatoTestAssorbimentoMotoriduttore(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 			{
 				//[fase] [esito] [report_up LSB MSB]  [report_down LSB MSB]
 				const u8 fase = answerBuffer[4];
@@ -1063,7 +1093,7 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	u8 bufferW[16];
 	const u16 nBytesToSend = cpubridge::buildMsg_getExtendedConfigInfo(bufferW, sizeof(bufferW));
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1000))
+	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 		return false;
 
 	//parsing della risposta
@@ -1176,7 +1206,7 @@ bool Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 	if (nBytesToSend)
 	{
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 1500))
+		if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1500))
 		{
 			logger->log("ERR sending P[%d] command to CPU\n", cmd);
 		}
@@ -1492,7 +1522,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		
 		//invio
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (!chToCPU->sendAndWaitAnswer(bufferCPUMsg, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+		if (!priv_sendAndWaitAnswerFromCPU(bufferCPUMsg, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 		{
 			//errore, la CPU non ha risposto, abortisco l'operazione
 			if (NULL != subscriber)
@@ -1596,7 +1626,7 @@ u16 Server::priv_prepareAndSendMsg_readVMCDataFileBlock (u16 blockNum)
 	const u16 nBytesToSend = buildMsg_readVMCDataFile((u8)blockNum, bufferW, sizeof(bufferW));
 
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 		return 0;
 	return sizeOfAnswerBuffer;
 }
@@ -1635,11 +1665,6 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 	u16 lastKbReadSent = u16MAX;
 	while (1)
 	{
-		/*u16 nBytesToSend = buildMsg_readVMCDataFile(nPacketSoFar++, bufferW, sizeof(bufferW));
-		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
-		*/
-
 		u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_readVMCDataFileBlock(nPacketSoFar++);
 		if (0 == sizeOfAnswerBuffer)
 		{
@@ -1752,7 +1777,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
     while (1)
     {
         u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-        if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+        if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
         {
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
@@ -1829,7 +1854,7 @@ bool Server::priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp 
 
 	//invio richiesta a CPU
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, timeoutMSec))
+	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, timeoutMSec))
 	{
 		//errore, la CPU non ha risposto, abortisco l'operazione
 		return false;
@@ -1859,7 +1884,7 @@ u16 Server::priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend)
     u8 bufferW[32];
     u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnNumberToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
     u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-    if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 500))
+    if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
         return 0;
     return sizeOfAnswerBuffer;
 }
@@ -1923,7 +1948,7 @@ void Server::priv_handleState_compatibilityCheck()
 		//invio comando initalParam
 		const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 200))
+		if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 200))
 		{
 			priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 			if (strcmp(cpuParamIniziali.CPU_version, "FAKE CPU") == 0)
@@ -2190,7 +2215,7 @@ void Server::priv_handleState_comError()
 
 		//invio comando initalParam
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 2000))
+		if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 		{
 			//la CPU ha risposto, elaboro la risposta e passo in stato "normal"
 			priv_parseAnswer_initialParam (answerBuffer, sizeOfAnswerBuffer);
@@ -2981,7 +3006,7 @@ void Server::priv_handleState_selection()
 					
 					const u16 nBytesToSend = cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (runningSel.params.asAlreadyPaid.selNum, runningSel.params.asAlreadyPaid.price, runningSel.params.asAlreadyPaid.paymentMode, runningSel.params.asAlreadyPaid.paymentType, bufferW, sizeof(bufferW));
 					u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-					if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 5000))
+					if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 5000))
 					{
 						//cpu ha risposto, diamo per scontato che la risposta sia buona e procediamo.
 						//CPU dovrebbe già di suo essere entrata in "preparazione bevanda" per cui io non devo fare altre che continuare a mandare
@@ -3318,7 +3343,7 @@ bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1o2, u16 *out)
 	u8 bufferW[16];
 	const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (!chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
+	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 400))
 		return false;
 
 	*out = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
@@ -3335,7 +3360,7 @@ bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCom
 	u8 nRetry = 8;
 	while (nRetry--)
 	{
-		if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 400))
+		if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 400))
 		{
 			rhea::thread::sleepMSec(100);
 			return true;

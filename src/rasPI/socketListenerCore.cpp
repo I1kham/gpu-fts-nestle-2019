@@ -1,4 +1,5 @@
 #include "socketListenerCore.h"
+#include "rasPIMITMCoreEnumAndDefine.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "CmdHandler_ajaxReq.h"
@@ -28,11 +29,12 @@ void Core::useLogger (rhea::ISimpleLogger *loggerIN)
 
 
 //********************************************
-bool Core::open (u16 tcpPortNumber)
+bool Core::open (u16 tcpPortNumber, const HThreadMsgW &msgQW_toMITM)
 {
     logger->log ("socketListenerCore::open [port=%d]\n", tcpPortNumber);
     logger->incIndent();
 
+	this->msgQW_toMITM = msgQW_toMITM;
     localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("sokListenerCore");
 
     server = RHEANEW(localAllocator, rhea::ProtocolSocketServer)(8, localAllocator);
@@ -110,7 +112,19 @@ void Core::run()
 
             case rhea::ProtocolSocketServer::evt_client_has_data_avail:
 				//uno dei clienti già  connessi ha mandato qualcosa
-                priv_onClientHasDataAvail (i, timeNowMSec);
+				{
+					//priv_onClientHasDataAvail (i, timeNowMSec);
+					HSokServerClient h = server->getEventSrcAsClientHandle(i);
+					i32 nBytesLetti = server->client_read(h, buffer);
+					if (nBytesLetti == -1)
+					{
+						logger->log("connection [0x%08X] closed\n", h.asU32());
+					}
+					else
+					{
+						priv_passWebSokcetDataToMITM (buffer._getPointer(0), (u32)nBytesLetti);
+					}
+				}
                 break;
 
             case rhea::ProtocolSocketServer::evt_osevent_fired:
@@ -134,12 +148,18 @@ void Core::run()
 }
 
 //*****************************************************************
+void Core::priv_passWebSokcetDataToMITM (const void *buffer, u32 nBytesToSend)
+{
+	rhea::thread::pushMsg (msgQW_toMITM, eRASPI_MITM_MSGQ_SEND_BUFFER_TO_GPU, buffer, nBytesToSend);
+}
+
+//*****************************************************************
 bool Core::priv_extractOneMessage(u8 *bufferPt, u16 nBytesInBuffer, socketbridge::sDecodedMessage *out, u16 *out_nBytesConsumed) const
 {
 	//deve essere lungo almeno 7 byte e iniziare con #
 	if (nBytesInBuffer < 7)
 	{
-		//scarta il messaggio perchè non puà² essere un msg valido
+		//scarta il messaggio perchè non può essere un msg valido
 		DBGBREAK;
 		*out_nBytesConsumed = nBytesInBuffer;
 		return false;

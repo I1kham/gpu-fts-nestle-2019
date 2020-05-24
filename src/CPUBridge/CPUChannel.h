@@ -27,6 +27,10 @@ namespace cpubridge
 									in uscita, contiene il num di bytes inseriti in out_answer (ovvero la risposta della CPU)
 								*/
 
+		virtual u8				getNumRisposteScartate() const									{ return 0; }
+		virtual const u8*		getBufferOfRisposteScartate() const								{ return NULL; }
+
+
 		virtual bool			isOpen() const = 0;
 
 

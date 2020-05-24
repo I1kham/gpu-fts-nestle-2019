@@ -19,13 +19,6 @@ bool platform::serialPort_isInvalid(const OSSerialPort &sp)
 bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *deviceName, eRS232BaudRate baudRate, bool RST_on, bool DTR_on, eRS232DataBits dataBits,
                         eRS232Parity parity, eRS232StopBits stopBits, eRS232FlowControl flowCtrl, bool bBlocking)
 {
-	//per ora l'implementazione della porta NON BLOCCANTE non la faccio
-	if (!bBlocking)
-	{
-		DBGBREAK;
-		return false;
-	}
-
 	//CreateFile(“\\\\.\\COM24”
 	wchar_t wctemp[128];
 	win32::utf8_towchar ((const u8*)deviceName, u32MAX, wctemp, sizeof(wctemp));
@@ -77,12 +70,23 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
 
 
 	COMMTIMEOUTS timeouts = { 0 };
-	timeouts.ReadIntervalTimeout = 50; // in milliseconds
-	timeouts.ReadTotalTimeoutConstant = 50; // in milliseconds
-	timeouts.ReadTotalTimeoutMultiplier = 10; // in milliseconds
-	timeouts.WriteTotalTimeoutConstant = 50; // in milliseconds
-	timeouts.WriteTotalTimeoutMultiplier = 10; // in milliseconds
-
+	//per ora l'implementazione della porta NON BLOCCANTE non la faccio
+	if (!bBlocking)
+	{
+		timeouts.ReadIntervalTimeout = MAXDWORD;
+		timeouts.ReadTotalTimeoutConstant = 0;
+		timeouts.ReadTotalTimeoutMultiplier = 0;
+		timeouts.WriteTotalTimeoutConstant = 50; // in milliseconds
+		timeouts.WriteTotalTimeoutMultiplier = 10; // in milliseconds
+	}
+	else
+	{
+		timeouts.ReadIntervalTimeout = 50; // in milliseconds
+		timeouts.ReadTotalTimeoutConstant = 50; // in milliseconds
+		timeouts.ReadTotalTimeoutMultiplier = 10; // in milliseconds
+		timeouts.WriteTotalTimeoutConstant = 50; // in milliseconds
+		timeouts.WriteTotalTimeoutMultiplier = 10; // in milliseconds
+	}
 	if (!SetCommTimeouts(out_serialPort->hComm, &timeouts))
 		return false;
 

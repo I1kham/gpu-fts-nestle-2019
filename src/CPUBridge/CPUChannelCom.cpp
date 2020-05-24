@@ -48,12 +48,15 @@ using namespace cpubridge;
 CPUChannelCom::CPUChannelCom()
 {
 	rhea::rs232::setInvalid(comPort);
+	bufferRisposteScartate = (u8*)RHEAALLOC(rhea::getSysHeapAllocator(), SIZE_OF_BUFFER_RISPOSTE_SCARTATE);
+	nRisposteScartate = 0;
 }
 
 //*****************************************************************
 CPUChannelCom::~CPUChannelCom()
 {
 	DUMP_CLOSE();
+	RHEAFREE(rhea::getSysHeapAllocator(), bufferRisposteScartate);
 }
 
 //*****************************************************************
@@ -139,147 +142,40 @@ bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhe
 }
 
 //***************************************************
-bool CPUChannelCom::priv_handleMsg_rcv (u8 commandCharIN, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
+bool CPUChannelCom::priv_handleMsg_rcv (u8 commandChar, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
 {
 	DUMPMSG("RCV: ");
+	bufferRisposteScartate[0] = 0x00;
+	nRisposteScartate = 0;
+
 	const u16 sizeOfBuffer = *in_out_sizeOfAnswer;
 	*in_out_sizeOfAnswer = 0;
-
-	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutRCVMsec;
-	u16 nBytesRcv = 0;
-	u8	commandChar = 0x00;
-	u8	msgLen = 0x00;
-	bool bIgnoreIf_B_or_Z = false;
-	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	u32 ctBufferRisposteScartate = 0;
+	while (1)
 	{
-		//aspetto di riceve un #
-		if (nBytesRcv == 0)
+		const u32 nRead = priv_extractFirstValidMessage (out_answer, sizeOfBuffer, logger, timeoutRCVMsec);;
+		if (0 == nRead)
+			return false;
+		*in_out_sizeOfAnswer = (u16)nRead;
+
+		//se la risposta di CPU è consona al [commandChar] che ho inviato, tutto bene
+		const u8 rcvCommandChar = out_answer[1];
+		if (commandChar == rcvCommandChar)
+			return true;
+
+		//se ho inviato un comando "B" (ovvero richiesta di stato), la risposta di CPU potrebbe anche essere 'Z'
+		if (commandChar == 'B' && rcvCommandChar == 'Z')
+			return true;
+
+		//qui siamo nel caso in cui ho mandato il comando [commandChar] e mi è ritornata una valida risposta ma con un command char != da quello che ho inviato
+		//Copio questa risposta in una lista di comandi ricevuti, e poi proseguo nella speranza di ricevere la risposta corretta al
+		//comando che ho mandato
+		if (ctBufferRisposteScartate + nRead <= SIZE_OF_BUFFER_RISPOSTE_SCARTATE)
 		{
-			u8 b = 0x00;
-			if (0 == rhea::rs232::readBuffer(comPort, &b, 1))
-				continue;
-
-			DUMP(&b, 1);
-
-			if (b != (u8)'#')
-				continue;
-			nBytesRcv++;
-		}
-
-		//aspetto di riceve un carattere qualunque subito dopo il #
-		if (nBytesRcv == 1)
-		{
-			if (0 == rhea::rs232::readBuffer(comPort, &commandChar, 1))
-				continue;
-			nBytesRcv++;
-
-			DUMP(&commandChar, 1);
-
-			bool bFail = false;
-			if (commandCharIN == 'B')
-			{
-				//se ho inviato un comando "B" (ovvero richiesta di stato), mi aspetto per forza in risposta un comando "B" o "Z"
-				if (commandChar!='B' && commandChar!='Z')
-					bFail = true;
-			}
-			else
-			{
-				//se ho inviato un comando != "B", ovviamente mi aspetto una risposta consona al comando che ho inviato, ma potrebbe anche
-				//essere che nel mezzo mi arrivi una risposta ad un comando "B" o "Z".
-				//Questo accade perchè il comando "B" purtroppo ha la "proprietà" di poter non ricevere risposte. Se mando "B" e non ricevo risposta,
-				//non è un errore. Se non ricevo risposta a 5 "B" consecutivi, allora è un errore.
-				//Il problema potrebbe essere che mando un "B", non ricevo risposta (e lo accetto come dato di fatto), poi mando un "X" e mentre aspetto la risposta
-				//a "X" ricevo la risposta a "B" che è arrivata molto in ritardo rispetto a quando l'avevo chiesta.
-				//Questa situazione fa fallire il comando "X" anche se probabilmente la risposta a "X" arriverà fra poco, dopo la risposta a "B" arrivata in ritardo.
-				//Per ovviare a questo problema, se durante l'attesa della risposta di un comando != "B" ricevo una risposta "B", la parso e poi la scarto senza 
-				//segnalare errori, vado avanti come se non l'avessi mai ricevuta.
-				if (commandCharIN != commandChar)
-				{
-					if (commandChar == 'B' || commandChar == 'Z')
-						bIgnoreIf_B_or_Z = true;
-					else
-						bFail = true;
-				}
-			}
-
-			if (bFail == true)
-			{
-				//non è la risposta che mi aspettavo
-				commandChar = 0x00;
-				nBytesRcv = 0;
-				continue;
-			}
-		}
-
-		//aspetto di riceve la lunghezza totale del messaggio
-		if (nBytesRcv == 2)
-		{
-			if (0 == rhea::rs232::readBuffer(comPort, &msgLen, 1))
-				continue;
-			nBytesRcv++;
-
-			DUMP(&msgLen, 1);
-
-			if (sizeOfBuffer < msgLen)
-			{
-				logger->log("CPUChannelCom::priv_handleMsg_rcv() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOfBuffer);
-				return false;
-			}
-			if (msgLen < 4)
-			{
-				logger->log("CPUChannelCom::priv_handleMsg_rcv() => ERR invalid msg len [%d]\n", msgLen);
-				return false;
-			}
-
-			out_answer[0] = '#';
-			out_answer[1] = commandChar;
-			out_answer[2] = msgLen;
-			*in_out_sizeOfAnswer = msgLen;
-		}
-
-		//cerco di recuperare tutto il resto del msg
-		if (nBytesRcv >= 3)
-		{
-			const u16 nMissing = msgLen - nBytesRcv;
-			const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
-			DUMP(&out_answer[nBytesRcv], nLetti);
-
-			nBytesRcv += nLetti;
-			if (nBytesRcv >= msgLen)
-			{
-				DUMPMSG("\n");
-				//eval checksum
-				if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
-				{
-					//ok, ho in mano una valida risposta della CPU.
-					//Dovrei ritornare true e terminare, ma c'è il caso speciale "bIgnoreIf_B_or_Z" da considerare
-					if (!bIgnoreIf_B_or_Z)
-						return true;
-
-					*in_out_sizeOfAnswer = sizeOfBuffer;
-					return priv_handleMsg_rcv (commandCharIN, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
-				}
-
-
-				/*HACK: le versioni non beta della CPU calcolano male il CK del msg C
-				if (out_answer[1] == 'C')
-				{
-					logger->log("CPUChannelCom::priv_handleMsg_rcv() => HACK. messaggio C con ck invalida, lo accetto lo stesso\n");
-					return true;
-				}
-				*/
-
-
-				logger->log("CPUChannelCom::priv_handleMsg_rcv() => ERR, invalid checksum\n", msgLen, sizeOfBuffer);
-				DUMPMSG("\nERR, invalid checksum\n");
-
-				return false;
-			}
+			memcpy (&bufferRisposteScartate[ctBufferRisposteScartate], out_answer, nRead);
+			++nRisposteScartate;
 		}
 	}
-
-	DUMPMSG("\nERR, timeout rcv\n\n");
-	return false;
 }
 
 //***************************************************
@@ -311,4 +207,90 @@ bool CPUChannelCom::waitForASpecificChar(u8 expectedChar, u64 timeoutMSec)
 	}
 
 	return false;
+}
+
+
+//***************************************************
+u32 CPUChannelCom::priv_extractFirstValidMessage (u8 *out_answer, u16 sizeOf_outAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
+{
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutRCVMsec;
+	u16 nBytesRcv = 0;
+	u8	commandChar = 0x00;
+	u8	msgLen = 0x00;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	{
+		//aspetto di riceve un #
+		if (nBytesRcv == 0)
+		{
+			u8 b = 0x00;
+			if (0 == rhea::rs232::readBuffer(comPort, &b, 1))
+				continue;
+
+			DUMP(&b, 1);
+
+			if (b != (u8)'#')
+				continue;
+			nBytesRcv++;
+		}
+
+		//aspetto di riceve un carattere qualunque subito dopo il #
+		if (nBytesRcv == 1)
+		{
+			if (0 == rhea::rs232::readBuffer(comPort, &commandChar, 1))
+				continue;
+			nBytesRcv++;
+
+			DUMP(&commandChar, 1);
+		}
+
+		//aspetto di riceve la lunghezza totale del messaggio
+		if (nBytesRcv == 2)
+		{
+			if (0 == rhea::rs232::readBuffer(comPort, &msgLen, 1))
+				continue;
+			nBytesRcv++;
+
+			DUMP(&msgLen, 1);
+
+			if (sizeOf_outAnswer < msgLen)
+			{
+				logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOf_outAnswer);
+				return 0;
+			}
+			if (msgLen < 4)
+			{
+				logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR invalid msg len [%d]\n", msgLen);
+				return 0;
+			}
+
+			out_answer[0] = '#';
+			out_answer[1] = commandChar;
+			out_answer[2] = msgLen;
+		}
+
+		//cerco di recuperare tutto il resto del msg
+		if (nBytesRcv >= 3)
+		{
+			const u16 nMissing = msgLen - nBytesRcv;
+			const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
+			DUMP(&out_answer[nBytesRcv], nLetti);
+
+			nBytesRcv += nLetti;
+			if (nBytesRcv >= msgLen)
+			{
+				DUMPMSG("\n");
+				//eval checksum
+				if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
+					return out_answer[2];
+
+				logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR, invalid checksum\n", msgLen, sizeOf_outAnswer);
+				DUMPMSG("\nERR, invalid checksum\n");
+
+				return 0;
+			}
+		}
+	}
+
+	DUMPMSG("\nERR, timeout rcv\n\n");
+	return 0;
 }

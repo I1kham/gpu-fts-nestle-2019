@@ -1,12 +1,13 @@
 #include "socketListener.h"
+#include "rasPIMITM.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 
 
 //*****************************************************
-bool startSokListener()
+bool startMITM()
 {
 #ifdef _DEBUG
-	rhea::StdoutLogger loggerSTD; 
+	rhea::StdoutLogger loggerSTD;
 	rhea::ISimpleLogger *logger = &loggerSTD;
 #else
 	rhea::NullLogger loggerNULL;
@@ -14,17 +15,29 @@ bool startSokListener()
 #endif
 
 
-    //creo il thread
-    rhea::HThread hSokListenerThread;
-    if (!rasPI::socketListener::start(logger, &hSokListenerThread))
+	//creo il thread MITM
+	const char serialPortToCPU[] = {"COM4"};
+	const char serialPortToGPU[] = {"COM3"};
+    rhea::HThread hMITMThread;
+	HThreadMsgW msgQW_toMITM;
+    if (!rasPI::MITM::start (logger, serialPortToGPU, serialPortToCPU, &hMITMThread, &msgQW_toMITM))
 		return false;
 
 
-	//attendo che il thread termini
-	rhea::thread::waitEnd (hSokListenerThread);
+    //creo il thread socketListener
+    rhea::HThread hSokListenerThread;
+    if (!rasPI::socketListener::start(logger, msgQW_toMITM, &hSokListenerThread))
+		return false;
+
+
+
+	//attendo che MITM termini
+	rhea::thread::waitEnd (hMITMThread);
 
 	return true;
 }
+
+
 
 //*****************************************************
 int main()
@@ -36,7 +49,7 @@ int main()
 	rhea::init("rheaRasPI", NULL);
 #endif
 
-	startSokListener();
+	startMITM();
 
     rhea::deinit();
     return 0;
