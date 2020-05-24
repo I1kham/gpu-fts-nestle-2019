@@ -271,10 +271,15 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 		//qui c'è l'elenco delle NOTIFY_ che this ha generato a seguito delle richieste provenienti da rasPI
 		//le serializzo e le spedisco via seriale al rasPI
 		rhea::thread::sMsg msg;
-		while (rhea::thread::popMsg (rasPISubscription->q.hFromOtherToCpuR, &msg))
+		while (rhea::thread::popMsg (rasPISubscription->q.hFromCpuToOtherR, &msg))
 		{
-			const u32 nBytesToSend = rhea::thread::serializeMsg (msg, answerBuffer, sizeof(answerBuffer));
-			chToCPU->sendOnlyAndDoNotWait(answerBuffer, (u16)nBytesToSend, logger);
+			answerBuffer[0] = '#';
+			answerBuffer[1] = 'W';
+			answerBuffer[2] = 0; //len
+			const u32 nBytesToSend = rhea::thread::serializeMsg (msg, &answerBuffer[3], sizeof(answerBuffer)-4);
+			answerBuffer[2] = (u8)nBytesToSend+4;
+			answerBuffer[nBytesToSend + 3] = rhea::utils::simpleChecksum16_calc(answerBuffer, nBytesToSend + 3);
+			chToCPU->sendOnlyAndDoNotWait(answerBuffer, (u16)(nBytesToSend+4), logger);
 			rhea::thread::deleteMsg (msg);
 		}
 	}
@@ -294,17 +299,12 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 			const u8 msgLen = p[ct + 2];
 			if (commandChar == 'W')
 			{
-				logger->log ("rasPI:[W] ");
-				for (u8 t = 0; t < msgLen; t++)
-					logger->log ("%c ", p[ct + t]);
-				logger->log("\n");
-
 				//le pusho come se arrivassero da un subscriber qualunque
 				u16         what = 0;
 				u32         paramU32 = 0;
 				u32         bufferSize = 0;
 				const u8	*bufferPt = NULL;
-				rhea::thread::deserializMsg (&p[ct], msgLen, &what, &paramU32, &bufferSize, &bufferPt);
+				rhea::thread::deserializMsg (&p[ct+3], msgLen-4, &what, &paramU32, &bufferSize, &bufferPt);
 				rhea::thread::pushMsg (rasPISubscription->q.hFromOtherToCpuW, what, paramU32, bufferPt, bufferSize);
 			}
 
