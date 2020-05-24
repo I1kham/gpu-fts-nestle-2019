@@ -5,7 +5,7 @@
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
-
+#include "../CPUBridge/CPUBridgeEnumAndDefine.h"
 
 namespace rasPI
 {
@@ -21,7 +21,7 @@ namespace rasPI
 			bool				open (const char *serialPortGPU, const char *serialPortCPU);
 			void				run();
 
-			HThreadMsgW			getMsgQW()						const { return msqQW; }
+			HThreadMsgW			getMsgQW()						const { return subscriberSocketListener.hFromOtherToCpuW; }
 
 		private:
 			static const u32	TIMEOUT_CPU_ANSWER_MSec = 5000;
@@ -104,11 +104,9 @@ namespace rasPI
 			char					comCPUName[32];
 			bool					bQuit;
 			OSWaitableGrp           waitableGrp;
-			HThreadMsgR				msqQR;
-			HThreadMsgW				msqQW;
 			sBuffer					bufferGPU;
 			sBuffer					bufferSpontaneousMsgForGPU;
-			
+			cpubridge::sSubscriber	subscriberSocketListener;
 		};
 	} //namespace MITM
 } // namespace rasPI

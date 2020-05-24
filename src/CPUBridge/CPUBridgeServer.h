@@ -178,7 +178,7 @@ namespace cpubridge
 		void					priv_retreiveSomeDataFromLocalDA3();
 
 		bool					priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
-
+		sSubscription*			priv_newSubscription();
 	private:
 		rhea::Allocator         *localAllocator;
 		rhea::ISimpleLogger     *logger;
@@ -187,12 +187,13 @@ namespace cpubridge
 		rhea::NullLogger        nullLogger;
 		HThreadMsgR             hServiceChR;
         sStato					stato;
-		u8						answerBuffer[256];
+		u8						answerBuffer[2048];
 		sCPUParamIniziali		cpuParamIniziali;
 		sCPUStatus				cpuStatus;
 		sRunningSelection		runningSel;
 		u8						cpu_numDecimalsForPrices;
 		rhea::FastArray<sSubscription*>	subscriberList;
+		sSubscription			*rasPISubscription;
 		sLanguage				language;
 		u16						utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
 		u16						lastCPUMsg_len;

@@ -1,7 +1,6 @@
-#include "socketListener.h"
 #include "rasPIMITM.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
-
+#include "../SocketBridge/SocketBridge.h"
 
 //*****************************************************
 bool startMITM()
@@ -24,10 +23,9 @@ bool startMITM()
 		return false;
 
 
-    //creo il thread socketListener
-    rhea::HThread hSokListenerThread;
-    if (!rasPI::socketListener::start(logger, msgQW_toMITM, &hSokListenerThread))
-		return false;
+	//starto socketBridge che a sua volta siiscriverà a MITM
+	rhea::HThread hSocketBridgeThread;
+	socketbridge::startServer(logger, msgQW_toMITM, false, &hSocketBridgeThread);
 
 
 

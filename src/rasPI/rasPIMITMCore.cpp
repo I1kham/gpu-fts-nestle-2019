@@ -33,10 +33,11 @@ void Core::priv_close ()
     if (localAllocator)
     {
         OSEvent h;
-        rhea::thread::getMsgQEvent(msqQR, &h);
+        rhea::thread::getMsgQEvent(subscriberSocketListener.hFromOtherToCpuR, &h);
         waitableGrp.removeEvent (h);
 
-        rhea::thread::deleteMsgQ (msqQR, msqQW);
+        rhea::thread::deleteMsgQ (subscriberSocketListener.hFromOtherToCpuR, subscriberSocketListener.hFromOtherToCpuW);
+		rhea::thread::deleteMsgQ (subscriberSocketListener.hFromCpuToOtherR, subscriberSocketListener.hFromCpuToOtherW);
 		
 		priv_freeBuffer(bufferGPU);
 		priv_freeBuffer(bufferSpontaneousMsgForGPU);
@@ -78,12 +79,13 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
     localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("mitm");
 
     //crea la msgq per questo thread
-    rhea::thread::createMsgQ (&msqQR, &msqQW);
+    rhea::thread::createMsgQ (&subscriberSocketListener.hFromOtherToCpuR, &subscriberSocketListener.hFromOtherToCpuW);
+	rhea::thread::createMsgQ (&subscriberSocketListener.hFromCpuToOtherR, &subscriberSocketListener.hFromCpuToOtherW);
 
     //aggiungo l'OSEvent della msgQ alla waitList
     {
         OSEvent h;
-        rhea::thread::getMsgQEvent(msqQR, &h);
+        rhea::thread::getMsgQEvent(subscriberSocketListener.hFromOtherToCpuR, &h);
         waitableGrp.addEvent (h, WAITLIST_EVENT_FROM_THREAD_MSGQ);
     }
 
@@ -177,7 +179,16 @@ void Core::priv_handleIncomingGPUMsg (OSSerialPort &comPort, sBuffer &b)
 		switch ((char)msg[1])
 		{
 		case 'W':
-			//messaggio speciale, indirizzato a rasPI, non lo devo passare alla CPU
+			//messaggio speciale, indirizzato a rasPI, non lo devo passare alla CPU, ma direttamente a socketBridge
+			//# W [len] .... [ck]
+			{
+				u16         what = 0;
+				u32         paramU32 = 0;
+				u32         bufferSize = 0;
+				const u8	*bufferPt = NULL;
+				rhea::thread::deserializMsg (&msg[3], msgLen-4, &what, &paramU32, &bufferSize, &bufferPt);
+				rhea::thread::pushMsg (subscriberSocketListener.hFromCpuToOtherW, what, paramU32, bufferPt, bufferSize);
+			}
 			break;
 
 		default:
@@ -364,31 +375,46 @@ bool Core::priv_handleMsg_rcv (OSSerialPort &comPort, u8 *out_answer, u16 *in_ou
 void Core::Core::priv_handleIncomingMsgFromThreadQ()
 {
 	rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg (msqQR, &msg))
+    while (rhea::thread::popMsg (subscriberSocketListener.hFromOtherToCpuR, &msg))
     {
-		switch ((eRASPI_MITM_MSGQ)msg.what)
+		switch (msg.what)
 		{
-		case eRASPI_MITM_MSGQ_QUIT:
-			bQuit = true;
-			break;
-
-		case eRASPI_MITM_MSGQ_SEND_BUFFER_TO_GPU:
+		case CPUBRIDGE_SERVICECH_SUBSCRIPTION_REQUEST:
+			//rispondo al thread richiedente
 			{
-				//creo un msg "W" ad hoc
-				assert (msg.bufferSize <= (0xff-4));
-				const u32 startOfMsg = bufferSpontaneousMsgForGPU.numBytesInBuffer;
-				bufferSpontaneousMsgForGPU.appendU8 ((u8)'#');
-				bufferSpontaneousMsgForGPU.appendU8 ((u8)'W');
-				bufferSpontaneousMsgForGPU.appendU8 ((u8)(msg.bufferSize +4));
-				bufferSpontaneousMsgForGPU.append (msg.buffer, msg.bufferSize);
-
-				const u8 ck = rhea::utils::simpleChecksum8_calc (&bufferSpontaneousMsgForGPU.buffer[startOfMsg], msg.bufferSize + 3);
-				bufferSpontaneousMsgForGPU.appendU8 (ck);
+				HThreadMsgW hToThreadW;
+				hToThreadW.initFromU32 (msg.paramU32);
+				rhea::thread::pushMsg (hToThreadW, CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER, (u32)0x01, &subscriberSocketListener, sizeof(subscriberSocketListener));
 			}
 			break;
 
 		default:
-			logger->log ("rasPI::MITM::priv_handleIncomingMsgFromThreadQ() => unhandled msg from thread msgQ [what=%d]\n", msg.what);
+			if (msg.what >= CPUBRIDGE_NOTIFY_DYING && msg.what <= 0x8ff)
+			{
+				//è un messaggio di tipo "CPUBRIDGE_SUBSCRIBER_ASK_.." inviato ad socketBridge e che devo inviare alla GPU
+				//lungo la seriale. Creo quindi un msg "W" ad hoc
+				u8 tempBuffer[1024];
+				const u32 msgLen = rhea::thread::serializeMsg (msg, tempBuffer, sizeof(tempBuffer));
+				if (msgLen)
+				{
+					assert (msgLen <= (0xff - 4));
+					const u32 startOfMsg = bufferSpontaneousMsgForGPU.numBytesInBuffer;
+					bufferSpontaneousMsgForGPU.appendU8 ((u8)'#');
+					bufferSpontaneousMsgForGPU.appendU8 ((u8)'W');
+					bufferSpontaneousMsgForGPU.appendU8 ((u8)(msgLen + 4));
+					bufferSpontaneousMsgForGPU.append (tempBuffer, msgLen);
+
+					const u8 ck = rhea::utils::simpleChecksum8_calc (&bufferSpontaneousMsgForGPU.buffer[startOfMsg], msgLen + 3);
+					bufferSpontaneousMsgForGPU.appendU8 (ck);
+				}
+				else
+				{
+					DBGBREAK;
+				}
+			}
+			else
+				logger->log ("rasPI::MITM::priv_handleIncomingMsgFromThreadQ() => unhandled msg from thread msgQ [what=%d]\n", msg.what);
+			break;
 		}
 		
 		

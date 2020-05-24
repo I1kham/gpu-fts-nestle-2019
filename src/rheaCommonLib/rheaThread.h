@@ -74,7 +74,8 @@ namespace rhea
          */
         bool            createMsgQ (HThreadMsgR *out_handleR, HThreadMsgW *out_handleW);
         void            deleteMsgQ (HThreadMsgR &handleR, HThreadMsgW &handleW);
-
+        u32             serializeMsg (const sMsg &msg, u8 *out_buffer, u32 sizeof_out_buffer);
+        u32             deserializMsg (const u8 *buffer, u32 nBytesToUse, u16 *out_what, u32 *out_paramU32, u32 *out_bufferSize, const u8 **out_bufferPt);
                         //read
         bool            getMsgQEvent (const HThreadMsgR &h, OSEvent *out_hEvent);
         bool            popMsg (const HThreadMsgR &h, sMsg *out_msg);

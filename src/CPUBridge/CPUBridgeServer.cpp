@@ -28,6 +28,7 @@ Server::Server()
 	runningSel.status = eRunningSelStatus_finished_OK;
 
 	showCPUStringModelAndVersionUntil_msec = 0;
+	rasPISubscription = NULL;
 }
 
 //***************************************************
@@ -66,6 +67,10 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	//init language
 	lang_init(&language);
 	lang_open(&language, "GB");
+
+
+	//Creo il subscripber per il rasPI
+	rasPISubscription = priv_newSubscription();
 
 	return ret;
 }
@@ -208,6 +213,22 @@ bool Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 }
 
 //***************************************************
+Server::sSubscription* Server::priv_newSubscription()
+{
+	//creo le msgQ
+	sSubscription *sub = RHEAALLOCSTRUCT(localAllocator, sSubscription);
+	rhea::thread::createMsgQ (&sub->q.hFromCpuToOtherR, &sub->q.hFromCpuToOtherW);
+	rhea::thread::createMsgQ (&sub->q.hFromOtherToCpuR, &sub->q.hFromOtherToCpuW);
+	subscriberList.append (sub);
+
+	//aggiungo la msqQ alla mia waitList
+	rhea::thread::getMsgQEvent(sub->q.hFromOtherToCpuR, &sub->hEvent);
+	waitList.addEvent(sub->hEvent, 0x0001);
+
+	return sub;
+}
+
+//***************************************************
 void Server::priv_handleMsgFromServiceMsgQ()
 {
 	rhea::thread::sMsg msg;
@@ -221,15 +242,8 @@ void Server::priv_handleMsgFromServiceMsgQ()
 				logger->log("CPUBridgeServer => new SUBSCRIPTION_REQUEST\n");
 				logger->incIndent();
 
-				//creo le msgQ
-				sSubscription *sub = RHEAALLOCSTRUCT(localAllocator, sSubscription);
-				rhea::thread::createMsgQ (&sub->q.hFromCpuToOtherR, &sub->q.hFromCpuToOtherW);
-				rhea::thread::createMsgQ (&sub->q.hFromOtherToCpuR, &sub->q.hFromOtherToCpuW);
-				subscriberList.append (sub);
-
-				//aggiungo la msqQ alla mia waitList
-				rhea::thread::getMsgQEvent(sub->q.hFromOtherToCpuR, &sub->hEvent);
-				waitList.addEvent(sub->hEvent, 0x0001);
+				//creo la subscription
+				sSubscription *sub = priv_newSubscription();
 
 				//rispondo al thread richiedente
 				HThreadMsgW hToThreadW;
@@ -252,6 +266,20 @@ void Server::priv_handleMsgFromServiceMsgQ()
 //***************************************************
 bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec)
 {
+	if (NULL != rasPISubscription)
+	{
+		//qui c'è l'elenco delle NOTIFY_ che this ha generato a seguito delle richieste provenienti da rasPI
+		//le serializzo e le spedisco via seriale al rasPI
+		rhea::thread::sMsg msg;
+		while (rhea::thread::popMsg (rasPISubscription->q.hFromOtherToCpuR, &msg))
+		{
+			const u32 nBytesToSend = rhea::thread::serializeMsg (msg, answerBuffer, sizeof(answerBuffer));
+			chToCPU->sendOnlyAndDoNotWait(answerBuffer, (u16)nBytesToSend, logger);
+			rhea::thread::deleteMsg (msg);
+		}
+	}
+
+	//invio msg a CPU
 	bool ret = chToCPU->sendAndWaitAnswer(bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
 
 	//quando mando un msg, la risposta potrebbe includere msg addizionali provenienti dal rasPI
@@ -270,6 +298,14 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 				for (u8 t = 0; t < msgLen; t++)
 					logger->log ("%c ", p[ct + t]);
 				logger->log("\n");
+
+				//le pusho come se arrivassero da un subscriber qualunque
+				u16         what = 0;
+				u32         paramU32 = 0;
+				u32         bufferSize = 0;
+				const u8	*bufferPt = NULL;
+				rhea::thread::deserializMsg (&p[ct], msgLen, &what, &paramU32, &bufferSize, &bufferPt);
+				rhea::thread::pushMsg (rasPISubscription->q.hFromOtherToCpuW, what, paramU32, bufferPt, bufferSize);
 			}
 
 			ct += msgLen;
