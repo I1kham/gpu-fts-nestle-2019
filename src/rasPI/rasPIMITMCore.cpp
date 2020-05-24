@@ -203,14 +203,15 @@ void Core::priv_handleIncomingGPUMsg (OSSerialPort &comPort, sBuffer &b)
 					//Questo è il momento di mandare eventuali messaggi specifici per la GPU che avevo in coda
 					if (bufferSpontaneousMsgForGPU.numBytesInBuffer)
 					{
+						logger->log ("sending [bufferSpontaneousMsgForGPU]\n");
 						u32 ct = 0;
 						while (bufferSpontaneousMsgForGPU.numBytesInBuffer)
 						{
 							const u32 n = priv_isAValidMessage (&bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.numBytesInBuffer);
 							assert (n <= bufferSpontaneousMsgForGPU.numBytesInBuffer);
+							priv_handleMsg_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], n);
 							ct += n;
 							bufferSpontaneousMsgForGPU.numBytesInBuffer -= n;
-							priv_handleMsg_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], n);
 						}
 						bufferSpontaneousMsgForGPU.numBytesInBuffer = 0;
 					}
@@ -406,6 +407,8 @@ void Core::Core::priv_handleIncomingMsgFromThreadQ()
 
 					const u8 ck = rhea::utils::simpleChecksum8_calc (&bufferSpontaneousMsgForGPU.buffer[startOfMsg], msgLen + 3);
 					bufferSpontaneousMsgForGPU.appendU8 (ck);
+
+					logger->log ("adding [bufferSpontaneousMsgForGPU]\n");
 				}
 				else
 				{
