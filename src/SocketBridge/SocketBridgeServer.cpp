@@ -78,6 +78,7 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW, bool
 			RHEADELETE(localAllocator, server);
 			return false;
 		}
+		logger->log("OK\n");
 	}
 
 
