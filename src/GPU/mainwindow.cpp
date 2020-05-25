@@ -368,7 +368,7 @@ void MainWindow::priv_syncWithCPU_onTick()
             }
 
 
-            //Se siamo in com_error, probabilmente non c'era nemmeno un FW CPU in gradi di rispondere, per cui funziona come sopra
+            //Se siamo in com_error, probabilmente non c'era nemmeno un FW CPU in grado di rispondere, per cui funziona come sopra
             if (syncWithCPU.vmcState == cpubridge::eVMCState_COM_ERROR)
             {
                 //CPU non supportata, andiamo direttamente in form boot dove mostriamo il msg di errore e chiediamo di uppare un nuovo FW
@@ -385,20 +385,30 @@ void MainWindow::priv_syncWithCPU_onTick()
             cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
         }
     }
-    else
+    else if (syncWithCPU.stato == 3)
     {
-        if (syncWithCPU.stato == 3)
+        //GIX 2020/05/25
+        //abbiamo tutte le info, potremmo partire ma abbiamo aggiunto il supporto per il modulo rasPI per
+        //cui aggiungo uno step per detectare o meno la presenza del modulo
+        //non possiamo partire :) Bisogna verificare
+        syncWithCPU.stato = 4;
+        cpubridge::ask_CPU_RASPI_MITM_ARE_YOU_THERE(glob->subscriber);
+    }
+    else if (syncWithCPU.stato == 5)
+    {
+        //Ora abbiamo tutte le info, possiamo partire
+        //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
+        if (rhea::fs::folderExists(glob->usbFolder))
+            priv_scheduleFormChange (eForm_boot);
+        else
         {
-            //abbiamo tutte le info, possiamo partire
-            syncWithCPU.stato = 4;
+            //se rasPI::MITM esiste, attivo la sua interfaccia web
+            if (glob->rasPI.version)
+                cpubridge::ask_CPU_RASPI_MITM_START_SOCKETBRIDGE(glob->subscriber);
 
-            //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
-             if (rhea::fs::folderExists(glob->usbFolder))
-                 priv_scheduleFormChange (eForm_boot);
-             else
-                 priv_scheduleFormChange (eForm_specialActionBeforeGUI);
-             return;
+            priv_scheduleFormChange (eForm_specialActionBeforeGUI);
         }
+        return;
     }
 }
 
@@ -476,6 +486,11 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
             }
 
         }
+        break;
+
+    case CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_ARE_YOU_THERE:
+        cpubridge::translateNotify_CPU_RASPI_MITM_ARE_YOU_THERE (msg, &glob->rasPI.version, &glob->rasPI.futureUse1, &glob->rasPI.futureUse2, &glob->rasPI.futureUse3);
+        syncWithCPU.stato = 5;
         break;
     }
 }

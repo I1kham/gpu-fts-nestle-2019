@@ -166,10 +166,10 @@ u32 thread::serializeMsg (const sMsg &msg, u8 *out_buffer, u32 sizeof_out_buffer
 }
 
 //**************************************************************
-u32 thread::deserializMsg (const u8 *buffer, u32 nBytesToUse, u16 *out_what, u32 *out_paramU32, u32 *out_bufferSize, const u8 **out_bufferPt)
+u32 thread::deserializMsg (const u8 *buffer, u16 *out_what, u32 *out_paramU32, u32 *out_bufferSize, const u8 **out_bufferPt)
 {
     u32 ct = 0;
-    const u16 bytesNeeded = rhea::utils::bufferReadU16 (&buffer[ct]);
+    //const u16 bytesNeeded = rhea::utils::bufferReadU16 (&buffer[ct]);
     ct += 2;
 
     *out_what = rhea::utils::bufferReadU16 (&buffer[ct]);

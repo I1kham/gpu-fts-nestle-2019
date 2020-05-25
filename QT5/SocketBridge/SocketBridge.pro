@@ -250,6 +250,7 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
     ../../src/SocketBridge/SocketBridgeVersion.h
 
+
 unix {
     target.path = /usr/lib
     INSTALLS += target

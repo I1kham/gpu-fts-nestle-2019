@@ -67,7 +67,7 @@
 #define		CPUBRIDGE_NOTIFY_MILKER_VER						0x012D
 
 
-#define		CPUBRIDGE_NOTIFY_CPU_RASPI_START_SOCKETBRIDGE		0x01FD
+
 #define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_ARE_YOU_THERE		0x01FE
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
@@ -158,7 +158,8 @@ namespace cpubridge
 		eCPUCommand_writePartialVMCDataFile = 'X',
 		eCPUCommand_getExtendedConfigInfo = 'c',
 		eCPUCommand_getMilkerVer = 'M',
-		eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V'
+        eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V',
+        eCPUCommand_rasPI_MITM = 'W'
 	};
 
 	enum eRunningSelStatus

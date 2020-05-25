@@ -57,7 +57,7 @@ namespace rhea
          * comunicazione tra thread
          *
          * createMsgQ() crea una FIFO thread safe e ritorna 2 handle, uno da usare per scrivere sulla FIFO (HandleW), l'altro per leggere (HandleR).
-         * Un thread(1) ricever√† HandleR e sar√† solo in grado di leggere da quella FIFO.
+         * Un thread(1) ricever√  HandleR e sar√  solo in grado di leggere da quella FIFO.
          * Gli altri thread, eventualmente, riceverannno l'HandleW e saranno solo in grado di scrivere su quella FIFO, notificando cosi' il thread(1).
          *
          * Ogni volta che qualcuno scrive sulla FIFO (vedi push..), un OSEvent dedicato alla FIFO viene fired(). Il thread(1), pu√≤ quindi stare in attesa
@@ -75,7 +75,7 @@ namespace rhea
         bool            createMsgQ (HThreadMsgR *out_handleR, HThreadMsgW *out_handleW);
         void            deleteMsgQ (HThreadMsgR &handleR, HThreadMsgW &handleW);
         u32             serializeMsg (const sMsg &msg, u8 *out_buffer, u32 sizeof_out_buffer);
-        u32             deserializMsg (const u8 *buffer, u32 nBytesToUse, u16 *out_what, u32 *out_paramU32, u32 *out_bufferSize, const u8 **out_bufferPt);
+        u32             deserializMsg (const u8 *buffer, u16 *out_what, u32 *out_paramU32, u32 *out_bufferSize, const u8 **out_bufferPt);
                         //read
         bool            getMsgQEvent (const HThreadMsgR &h, OSEvent *out_hEvent);
         bool            popMsg (const HThreadMsgR &h, sMsg *out_msg);
