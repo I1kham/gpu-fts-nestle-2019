@@ -35,6 +35,13 @@ enum eRetCode
     eRetCode_gotoNewMenuProg_lavaggioMilker = 6
 };
 
+struct sModuleRasPI
+{
+    u8  version;
+    u8  futureUse1;
+    u8  futureUse2;
+    u8  futureUse3;
+};
 /****************************************************+
  *
  */
@@ -42,11 +49,13 @@ struct sGlobal
 {
     cpubridge::sSubscriber subscriber;
 
-    bool    bSyncWithCPUResult;
-    char    cpuVersion[128];
+    bool            bSyncWithCPUResult;
+    char            cpuVersion[128];
     cpubridge::sExtendedCPUInfo extendedCPUInfo;
-    u8      bCPUEnteredInMainLoop;
-    u8      bIsMilkerAlive;
+    u8              bCPUEnteredInMainLoop;
+    u8              bIsMilkerAlive;
+    sModuleRasPI    rasPI;
+
     u16     sendASAP_resetCoffeeGroundDecounter;        //se !=0, il relativo comando viene mandato alla CPU non appena questa è pronta a riceverlo
 
     u8      *tempFolder;

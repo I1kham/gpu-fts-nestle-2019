@@ -155,7 +155,10 @@ namespace cpubridge
 	u8			buildMsg_getStatoTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_startTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_getMilkerVer(u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_getMilkerVer (u8 *out_buffer, u8 sizeOfOutBuffer);
+
+    u8			buildMsg_rasPI_MITM_AreYouThere (u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_rasPI_MITM_START_SOCKETBRIDGE (u8 *out_buffer, u8 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx
@@ -521,12 +524,11 @@ namespace cpubridge
 	********************************************************************/
 	void		ask_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &from);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RASPI_MITM_ARE_YOU_THERE
-	void		notify_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 isMITMThere);
-	void		translateNotify_CPU_RASPI_MITM_ARE_YOU_THERE(const rhea::thread::sMsg &msg, u8 *isMITMThere);
+    void		notify_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 version, u8 futureUse1, u8 futureUse2, u8 futureUse3);
+    void		translateNotify_CPU_RASPI_MITM_ARE_YOU_THERE(const rhea::thread::sMsg &msg, u8 *out_version, u8 *out_futureUse1, u8 *out_futureUse2, u8 *out_futureUse3);
 
 	void		ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from);
-					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RASPI_MITM_START_SOCKETBRIDGE
-	void		notify_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+                    //alla ricezione di questo msg, CPUBridge non risponderà alcunchè
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

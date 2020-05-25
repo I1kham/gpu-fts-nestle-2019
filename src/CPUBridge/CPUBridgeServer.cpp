@@ -1118,6 +1118,34 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 		}
 		break;
+
+        case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE:
+        {
+            u8 bufferW[16];
+            const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_AreYouThere(bufferW, sizeof(bufferW));
+            u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+            if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+            {
+                //ok, il modulo rasPI esiste
+                const u8 *payload = &answerBuffer[7];
+                notify_CPU_RASPI_MITM_ARE_YOU_THERE (sub->q, handlerID, logger, payload[0], payload[1], payload[2], payload[3]);
+            }
+            else
+            {
+                //timeout, vuol dire che il modulo rasPI non esiste
+                notify_CPU_RASPI_MITM_ARE_YOU_THERE (sub->q, handlerID, logger, 0, 0, 0, 0);
+            }
+        }
+        break;
+
+        case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE:
+            {
+                u8 bufferW[16];
+                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_START_SOCKETBRIDGE(bufferW, sizeof(bufferW));
+                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+                priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
+            }
+            break;
 		} //switch
 	} //while
 }

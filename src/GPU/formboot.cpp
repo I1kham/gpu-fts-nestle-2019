@@ -52,6 +52,9 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labVersion_protocol->setText("");
     ui->labGPU_buildDate->setText ("Build date: " __DATE__ " " __TIME__);
 
+    //modulo rasPI MITM
+    ui->labRasPI->setText ("WiFi module: not connected");
+
     //Bottoni
     ui->btnInstall_languages->setVisible(false);
 
@@ -223,6 +226,15 @@ void FormBoot::priv_updateLabelInfo()
         } while (rhea::fs::findNext(ff));
         rhea::fs::findClose(ff);
     }
+
+    //modulo rasPI
+    if (glob->rasPI.version != 0x00)
+    {
+        sprintf_s (s, sizeof(s), "WiFi module: <span style='color:#fff'>v %03d</span>", glob->rasPI.version);
+        ui->labRasPI->setText (s);
+    }
+    else
+        ui->labRasPI->setText ("WiFi module: not connected");
 }
 
 //*******************************************
@@ -279,7 +291,13 @@ void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
 eRetCode FormBoot::onTick()
 {
     if (retCode != eRetCode_none)
+    {
+        //se il modulo rasPI::MITM esiste, gli dico di attivare la sua intefaccia web
+        if (glob->rasPI.version)
+            cpubridge::ask_CPU_RASPI_MITM_START_SOCKETBRIDGE(glob->subscriber);
+
         return retCode;
+    }
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;

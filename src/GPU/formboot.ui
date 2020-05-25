@@ -259,7 +259,7 @@ VMC</string>
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>237</y>
+     <y>247</y>
      <width>1051</width>
      <height>120</height>
     </rect>
@@ -277,7 +277,7 @@ VMC</string>
     <property name="geometry">
      <rect>
       <x>44</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -302,7 +302,7 @@ CPU FW</string>
     <property name="geometry">
      <rect>
       <x>288</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -327,7 +327,7 @@ VMC settings</string>
     <property name="geometry">
      <rect>
       <x>532</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -352,7 +352,7 @@ GUI</string>
     <property name="geometry">
      <rect>
       <x>776</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -395,7 +395,7 @@ Languages</string>
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>361</y>
+     <y>371</y>
      <width>1051</width>
      <height>110</height>
     </rect>
@@ -413,7 +413,7 @@ Languages</string>
     <property name="geometry">
      <rect>
       <x>776</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -438,7 +438,7 @@ Data Audit</string>
     <property name="geometry">
      <rect>
       <x>44</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -463,7 +463,7 @@ Service zip file</string>
     <property name="geometry">
      <rect>
       <x>532</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -488,7 +488,7 @@ GUI</string>
     <property name="geometry">
      <rect>
       <x>288</x>
-      <y>10</y>
+      <y>20</y>
       <width>200</width>
       <height>90</height>
      </rect>
@@ -514,7 +514,7 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>880</x>
-     <y>190</y>
+     <y>180</y>
      <width>131</width>
      <height>25</height>
     </rect>
@@ -801,7 +801,7 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>236</y>
+     <y>246</y>
      <width>1024</width>
      <height>1</height>
     </rect>
@@ -817,7 +817,7 @@ VMC settings</string>
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>360</y>
+     <y>370</y>
      <width>1024</width>
      <height>1</height>
     </rect>
@@ -1299,6 +1299,31 @@ Click on SKIP if you do not want to auto update this machine.</string>
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
+  <widget class="QLabel" name="labRasPI">
+   <property name="geometry">
+    <rect>
+     <x>790</x>
+     <y>210</y>
+     <width>221</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Roboto</family>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:#000</string>
+   </property>
+   <property name="text">
+    <string>WiFi module: not connected</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
   <zorder>labVersion_CPU</zorder>
   <zorder>buttonStart</zorder>
   <zorder>labCPUMessage</zorder>
@@ -1325,6 +1350,7 @@ Click on SKIP if you do not want to auto update this machine.</string>
   <zorder>frameAutoUpdate</zorder>
   <zorder>labVersion_CPUMasterName</zorder>
   <zorder>labVersion_protocol</zorder>
+  <zorder>labRasPI</zorder>
  </widget>
  <resources/>
  <connections/>
