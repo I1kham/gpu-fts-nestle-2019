@@ -304,7 +304,7 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 				u32         paramU32 = 0;
 				u32         bufferSize = 0;
 				const u8	*bufferPt = NULL;
-				rhea::thread::deserializMsg (&p[ct+3], msgLen-4, &what, &paramU32, &bufferSize, &bufferPt);
+                rhea::thread::deserializMsg (&p[ct+3], &what, &paramU32, &bufferSize, &bufferPt);
 				rhea::thread::pushMsg (rasPISubscription->q.hFromOtherToCpuW, what, paramU32, bufferPt, bufferSize);
 			}
 

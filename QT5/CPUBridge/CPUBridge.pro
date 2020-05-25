@@ -62,6 +62,7 @@ CONFIG(release, debug|release) {
 
 SOURCES += \
     ../../src/CPUBridge/CPUBridge.cpp \
+    ../../src/CPUBridge/CPUBridgeRasPIMITM.cpp \
     ../../src/CPUBridge/CPUBridgeServer.cpp \
     ../../src/CPUBridge/CPUChannelCom.cpp \
     ../../src/CPUBridge/CPUChannelFakeCPU.cpp \
@@ -69,7 +70,9 @@ SOURCES += \
     ../../src/CPUBridge/EVADTSParser.cpp \
     ../../src/CPUBridge/lang.cpp
 
+
 HEADERS += \
+unix { \
     ../../src/CPUBridge/CPUBridge.h \
     ../../src/CPUBridge/CPUBridgeEnumAndDefine.h \
     ../../src/CPUBridge/CPUBridgeServer.h \
@@ -82,6 +85,6 @@ HEADERS += \
     ../../src/CPUBridge/lang.h
 
 unix {
-    target.path = /usr/lib
-    INSTALLS += target
+	target.path = /usr/lib
+	INSTALLS += target
 }

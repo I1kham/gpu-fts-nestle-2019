@@ -93,7 +93,7 @@ void TaskStatus::setStatusAndMessage(eStatus s, const char *format, ...)
 }
 
 //***********************************************************
-void TaskStatus::getStatusAndMesssage (eStatus *out_status, char *out_msg, u32 sizeofmsg)
+void TaskStatus::getStatusAndMesssage (eStatus *out_status, char *out_msg, u32 sizeofmsg UNUSED_PARAM)
 {
 	rhea::criticalsection::enter(cs);
 	{
