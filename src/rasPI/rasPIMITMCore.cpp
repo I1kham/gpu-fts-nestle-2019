@@ -201,7 +201,7 @@ void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 				u32         paramU32 = 0;
 				u32         bufferSize = 0;
 				const u8	*bufferPt = NULL;
-				rhea::thread::deserializMsg (&msg[3], msgLen-4, &what, &paramU32, &bufferSize, &bufferPt);
+				rhea::thread::deserializMsg (&msg[3], &what, &paramU32, &bufferSize, &bufferPt);
 				rhea::thread::pushMsg (subscriberSocketListener.hFromCpuToOtherW, what, paramU32, bufferPt, bufferSize);
 			}
 			break;

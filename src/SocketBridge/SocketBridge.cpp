@@ -41,29 +41,30 @@ bool socketbridge_helper_folder_create (const char *folder, rhea::ISimpleLogger 
  */
 bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &hCPUServiceChannelW, bool bDieWhenNoClientConnected, bool bWaitUntilThreadIsStarted, rhea::HThread *out_hThread)
 {
-    sServerInitParam    init;
+    sServerInitParam *init = (sServerInitParam*)RHEAALLOC(rhea::getScrapAllocator(), sizeof(sServerInitParam));
 	
 	//creo la struttura di cartelle necessarie al corretto funzionamento
     //socketbridge_helper_folder_create("current/socketbridge", logger);
 
 
     //crea il thread del server
-    init.logger = logger;
-	init.hCPUServiceChannelW = hCPUServiceChannelW;
-	init.bDieWhenNoClientConnected = bDieWhenNoClientConnected;
+    init->logger = logger;
+	init->hCPUServiceChannelW = hCPUServiceChannelW;
+	init->bDieWhenNoClientConnected = bDieWhenNoClientConnected;
 	
     if (bWaitUntilThreadIsStarted)
-        rhea::event::open (&init.hEvThreadStarted);
+        rhea::event::open (&init->hEvThreadStarted);
     else
-        rhea::event::setInvalid(init.hEvThreadStarted);
+        rhea::event::setInvalid(init->hEvThreadStarted);
 
-    rhea::thread::create (out_hThread, serverThreadFn, &init);
+    rhea::thread::create (out_hThread, serverThreadFn, init);
 
 	//attendo che il thread del server sia partito
     if (bWaitUntilThreadIsStarted)
     {
-        bool bStarted = rhea::event::wait(init.hEvThreadStarted, 3000);
-        rhea::event::close(init.hEvThreadStarted);
+        bool bStarted = rhea::event::wait(init->hEvThreadStarted, 3000);
+        rhea::event::close(init->hEvThreadStarted);
+        RHEAFREE(rhea::getScrapAllocator(), init);
         return bStarted;
     }
     
@@ -83,6 +84,8 @@ i16 serverThreadFn (void *userParam)
         //segnalo che il thread e' partito con successo
         if (rhea::event::isValid(init->hEvThreadStarted))
 		    rhea::event::fire(init->hEvThreadStarted);
+        else
+            RHEAFREE(rhea::getScrapAllocator(), init);
         serverInstance->run();
 	}
     serverInstance->close();
