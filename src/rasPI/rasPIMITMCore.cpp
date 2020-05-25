@@ -1,6 +1,7 @@
 #include "rasPIMITMCore.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaUtils.h"
+#include "../SocketBridge/SocketBridge.h"
 
 using namespace rasPI;
 using namespace rasPI::MITM;
@@ -14,6 +15,7 @@ Core::Core()
     comGPUName[0] = comCPUName[0] = 0x00;
     rhea::rs232::setInvalid (comGPU);
     rhea::rs232::setInvalid (comCPU);
+	bDoIHaveASubscriber = false;
 }
 
 //*********************************************************
@@ -50,14 +52,14 @@ void Core::priv_close ()
 //*********************************************************
 bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 {
-	const bool SERIAL_IS_BLOCING = false;
+	const bool SERIAL_IS_BLOCKING = false;
 
 	logger->log ("rasPI::MITM::open\n");
     logger->incIndent();
 
 	logger->log ("comGPU=%s   ", serialPortGPU);
     sprintf_s (comGPUName, sizeof(comGPUName), "%s", serialPortGPU);
-    if (!rhea::rs232::open(&comGPU, comGPUName, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCING))
+    if (!rhea::rs232::open(&comGPU, comGPUName, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCKING))
     {
         logger->log ("FAILED. unable to open port [%s]\n", comGPUName);
         logger->decIndent();
@@ -67,7 +69,7 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 
 	logger->log ("comCPU=%s   ", serialPortCPU);
     sprintf_s (comCPUName, sizeof(comCPUName), "%s", serialPortCPU);
-    if (!rhea::rs232::open(&comCPU, comCPUName, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCING))
+    if (!rhea::rs232::open(&comCPU, comCPUName, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCKING))
     {
         rhea::rs232::close (comGPU);
         logger->log ("FAILED. unable to open port [%s]\n", comCPUName);
@@ -78,15 +80,17 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 
     localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("mitm");
 
-    //crea la msgq per questo thread
+    //crea le msgq per questo thread
+	// [hFromOtherToCpuR, hFromOtherToCpuW] è la msgQ sulla quale "subscriber" può postare messaggi per comunicare a MITM
+	// [hFromCpuToOtherR, hFromCpuToOtherW] è la msgQ sulla quale MITM posta messaggi per comunicare con subscriber
     rhea::thread::createMsgQ (&subscriberSocketListener.hFromOtherToCpuR, &subscriberSocketListener.hFromOtherToCpuW);
 	rhea::thread::createMsgQ (&subscriberSocketListener.hFromCpuToOtherR, &subscriberSocketListener.hFromCpuToOtherW);
 
-    //aggiungo l'OSEvent della msgQ alla waitList
+    //aggiungo l'OSEvent della msgQ alla waitList in modo da essere notificato quando subscriber invia un msg
     {
         OSEvent h;
         rhea::thread::getMsgQEvent(subscriberSocketListener.hFromOtherToCpuR, &h);
-        waitableGrp.addEvent (h, WAITLIST_EVENT_FROM_THREAD_MSGQ);
+        waitableGrp.addEvent (h, WAITLIST_EVENT_FROM_SUBSCRIBER_MSGQ);
     }
 
 	//buffer vari
@@ -122,6 +126,9 @@ void Core::run()
     bQuit = false;
     while (bQuit == false)
     {
+		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei 
+		//dati in input.
+		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
         const u8 nEvents = waitableGrp.wait(100);
 
 		for (u8 i = 0; i < nEvents; i++)
@@ -130,10 +137,9 @@ void Core::run()
 			{
 			case OSWaitableGrp::evt_origin_osevent:
 				{
-					if (WAITLIST_EVENT_FROM_THREAD_MSGQ == waitableGrp.getEventUserParamAsU32(i))
+					if (WAITLIST_EVENT_FROM_SUBSCRIBER_MSGQ == waitableGrp.getEventUserParamAsU32(i))
 					{
-						//ho un messaggio nella mia msgQ
-						priv_handleIncomingMsgFromThreadQ();
+						priv_handleIncomingMsgFromSubscriber();
 					}
 					else
 					{
@@ -149,17 +155,19 @@ void Core::run()
 			}
 		}
 
-		priv_handleIncomingGPUMsg (comGPU, bufferGPU);
+		//gestione comunicazione seriale
+		priv_handleSerialCommunication (comGPU, bufferGPU);
     }
 
     priv_close();
 }
 
 //*********************************************************
-void Core::priv_handleIncomingGPUMsg (OSSerialPort &comPort, sBuffer &b)
+void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 {
 	while (1)
 	{
+		//leggo tutto quello che posso dalla seriale e bufferizzo in [b]
 		const u16 nBytesAvailInBuffer = b.SIZE - b.numBytesInBuffer;
 		if (nBytesAvailInBuffer > 0)
 		{
@@ -167,20 +175,27 @@ void Core::priv_handleIncomingGPUMsg (OSSerialPort &comPort, sBuffer &b)
 			b.numBytesInBuffer += (u16)nRead;
 		}
 
+		//provo ad estrarre un msg GPU/CPU dal mio buffer
 		u8 msg[256];
 		const u16 msgLen = priv_extractMessage (b, msg, sizeof(msg));
 		if (0 == msgLen)
 			return;
 
-		//ho un valido messaggio in msg, shifto il buffer per eliminare il msg dalla coda
+		//ho un valido messaggio in msg, shifto il buffer per eliminarlo dalla coda
 		b.removeFirstNBytes(msgLen);
 
 		//gestisco il messaggio
 		switch ((char)msg[1])
 		{
 		case 'W':
-			//messaggio speciale, indirizzato a rasPI, non lo devo passare alla CPU, ma direttamente a socketBridge
+			//messaggio speciale, da decodificare e passare al mio attuale subscriber, oppure da gestire direttamente in MITM.
+			//Se i primi 2 byte del payload sono 0xFF 0xFF, allora è un msg per MITM, atrimenti è per il subscriber
 			//# W [len] .... [ck]
+			if (msg[3] == 0xff && msg[4] == 0xff)
+			{
+				priv_handleInternalWMessages(msg);
+			}
+			else if (bDoIHaveASubscriber)
 			{
 				u16         what = 0;
 				u32         paramU32 = 0;
@@ -197,28 +212,28 @@ void Core::priv_handleIncomingGPUMsg (OSSerialPort &comPort, sBuffer &b)
 			{
 				priv_handleMsg_send (comCPU, msg, msgLen);
 				u16 answerLen = (u16)sizeof(msg);
-				if (priv_handleMsg_rcv (comCPU, msg, &answerLen, TIMEOUT_CPU_ANSWER_MSec))
-				{
-					//rigiro la risposta a GPU
-					//Questo è il momento di mandare eventuali messaggi specifici per la GPU che avevo in coda
-					if (bufferSpontaneousMsgForGPU.numBytesInBuffer)
-					{
-						logger->log ("sending [bufferSpontaneousMsgForGPU]\n");
-						u32 ct = 0;
-						while (bufferSpontaneousMsgForGPU.numBytesInBuffer)
-						{
-							const u32 n = priv_isAValidMessage (&bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.numBytesInBuffer);
-							assert (n <= bufferSpontaneousMsgForGPU.numBytesInBuffer);
-							priv_handleMsg_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], n);
-							ct += n;
-							bufferSpontaneousMsgForGPU.numBytesInBuffer -= n;
-						}
-						bufferSpontaneousMsgForGPU.numBytesInBuffer = 0;
-					}
+				const bool answerReceived = priv_handleMsg_rcv (comCPU, msg, &answerLen, TIMEOUT_CPU_ANSWER_MSec);
 
-					//mando a GPU la risposta di CPU
-					priv_handleMsg_send (comGPU, msg, answerLen);
+				//Questo è il momento di mandare a GPU eventuali messaggio che il mio subscriber mi aveva chiesto di inviare
+				//Prima mando questi messaggio e poi, per ultimo, mando il msg di risposta della CPU
+				if (bufferSpontaneousMsgForGPU.numBytesInBuffer)
+				{
+					logger->log ("sending [bufferSpontaneousMsgForGPU]\n");
+					u32 ct = 0;
+					while (bufferSpontaneousMsgForGPU.numBytesInBuffer)
+					{
+						const u32 n = priv_isAValidMessage (&bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.numBytesInBuffer);
+						assert (n <= bufferSpontaneousMsgForGPU.numBytesInBuffer);
+						priv_handleMsg_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], n);
+						ct += n;
+						bufferSpontaneousMsgForGPU.numBytesInBuffer -= n;
+					}
+					bufferSpontaneousMsgForGPU.numBytesInBuffer = 0;
 				}
+
+				//mando a GPU la risposta di CPU
+				if (answerReceived)
+					priv_handleMsg_send (comGPU, msg, answerLen);
 			}
 			break;
 		}
@@ -373,7 +388,7 @@ bool Core::priv_handleMsg_rcv (OSSerialPort &comPort, u8 *out_answer, u16 *in_ou
 }
 
 //*********************************************************
-void Core::Core::priv_handleIncomingMsgFromThreadQ()
+void Core::priv_handleIncomingMsgFromSubscriber()
 {
 	rhea::thread::sMsg msg;
     while (rhea::thread::popMsg (subscriberSocketListener.hFromOtherToCpuR, &msg))
@@ -383,6 +398,7 @@ void Core::Core::priv_handleIncomingMsgFromThreadQ()
 		case CPUBRIDGE_SERVICECH_SUBSCRIPTION_REQUEST:
 			//rispondo al thread richiedente
 			{
+				bDoIHaveASubscriber = true;
 				HThreadMsgW hToThreadW;
 				hToThreadW.initFromU32 (msg.paramU32);
 				rhea::thread::pushMsg (hToThreadW, CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER, (u32)0x01, &subscriberSocketListener, sizeof(subscriberSocketListener));
@@ -390,9 +406,9 @@ void Core::Core::priv_handleIncomingMsgFromThreadQ()
 			break;
 
 		default:
-			if (msg.what >= CPUBRIDGE_NOTIFY_DYING && msg.what <= 0x8ff)
+			if (msg.what >= CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION && msg.what <= 0x8ff)
 			{
-				//è un messaggio di tipo "CPUBRIDGE_SUBSCRIBER_ASK_.." inviato ad socketBridge e che devo inviare alla GPU
+				//è un messaggio di tipo "CPUBRIDGE_SUBSCRIBER_ASK_.." inviato dal mio subscriber e che devo inviare alla GPU
 				//lungo la seriale. Creo quindi un msg "W" ad hoc
 				u8 tempBuffer[1024];
 				const u32 msgLen = rhea::thread::serializeMsg (msg, tempBuffer, sizeof(tempBuffer));
@@ -423,4 +439,76 @@ void Core::Core::priv_handleIncomingMsgFromThreadQ()
 		
 		rhea::thread::deleteMsg(msg);
     }
+}
+
+//*********************************************************
+bool Core::priv_buildAndSendMsgWToGPU (u8 command, const u8 *optionalData, u16 sizeOfOptionaData)
+{
+	u8 msg[256];
+
+	//calcolo della dimensione totale
+	//# W [len] [0xff] [0xff] [command] .... [ck]
+	if (sizeof(msg) < 7 + sizeOfOptionaData)
+	{
+		DBGBREAK;
+		return false;
+	}
+
+	u8 ct = 0;
+	msg[ct++] = '#';
+	msg[ct++] = 'W';
+	msg[ct++] = 0; //length
+	msg[ct++] = 0xff;
+	msg[ct++] = 0xff;
+	msg[ct++] = command;
+
+	if (optionalData && sizeOfOptionaData)
+	{
+		memcpy(&msg[ct], optionalData, sizeOfOptionaData);
+		ct += sizeOfOptionaData;
+	}
+
+	msg[2] = (ct+1);	//length
+	msg[ct] = rhea::utils::simpleChecksum8_calc(msg, ct);
+	ct++;
+	
+	priv_handleMsg_send (comGPU, msg, ct);
+	return true;
+}
+
+//*********************************************************
+void Core::priv_handleInternalWMessages(const u8 *msg)
+{
+	//Ho ricevuto un msg 'W' da GPU.
+	//Questo msg è speficico per MITM, non va inoltrato al mio subscriber
+	//# W [len] [0xff] [0xff] [command] .... [ck]
+	switch (msg[5])
+	{
+	default:
+		logger->log ("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", msg[5]);
+		break;
+
+	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE:
+		//E' una sorta di ping che GPU invia per sapere se il modulo MITM esiste
+		//Rispondo con lo stesso msg e aggiungo 3 byte per usi futuri
+		{
+			const u8 optionalData[3] = { 0,0,0 };
+			priv_buildAndSendMsgWToGPU (msg[5], optionalData, 3);
+		}
+		break;
+
+
+	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE:
+		//GPU mi comunica che posso uscire dalla fase di "boot" e lanciare socketbridge in modo da
+		//permettere agli utenti web di accedere all'interfaccia
+		{
+			rhea::HThread hSocketBridgeThread;
+			socketbridge::startServer(logger, subscriberSocketListener.hFromOtherToCpuW, false, &hSocketBridgeThread);
+
+			//rispondo con lo stesso msg indicando 0x01 per dire che tutto ok
+			const u8 optionalData = 0x01;
+			priv_buildAndSendMsgWToGPU (msg[5], &optionalData, 1);
+		}
+		break;
+	}
 }

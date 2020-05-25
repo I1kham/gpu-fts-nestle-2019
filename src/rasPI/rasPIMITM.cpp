@@ -58,3 +58,51 @@ i16 rasPIMITMThreadFn (void *userParam)
     RHEADELETE(rhea::getSysHeapAllocator(), rasPIMITMCore);
 	return 1;
 }
+
+/****************************************************
+ * é lo stesso identico meccanismo usato da socketBridge per iscriversi a CPUBridge.
+ * Vedi socketBridgeServer::priv_subsribeToCPU()
+ */
+bool MITM::subscribe(const HThreadMsgW &msgQW_toMITM, cpubridge::sSubscriber *out)
+{
+	//creo una msgQ temporanea per ricevere da MITM la risposta alla mia richiesta di iscrizione
+	HThreadMsgR hMsgQR;
+	HThreadMsgW hMsgQW;
+	rhea::thread::createMsgQ (&hMsgQR, &hMsgQW);
+
+	//invio la richiesta a MITM
+	//cpubridge::subscribe (hCPUServiceChannelW, hMsgQW);
+	u32 param32 = hMsgQW.asU32();
+	rhea::thread::pushMsg (msgQW_toMITM, CPUBRIDGE_SERVICECH_SUBSCRIPTION_REQUEST, param32);
+
+	//attendo risposta
+	bool ret = false;
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
+	do
+	{
+		rhea::thread::sleepMSec(50);
+
+		rhea::thread::sMsg msg;
+		if (rhea::thread::popMsg(hMsgQR, &msg))
+		{
+			//ok, ci siamo
+			if (msg.what == CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER)
+			{
+				//cpubridge::translate_SUBSCRIPTION_ANSWER (msg, &subscriber, &cpuBridgeVersion);
+				assert(msg.what == CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER);
+				memcpy(out, msg.buffer, sizeof(cpubridge::sSubscriber));
+
+				rhea::thread::deleteMsg(msg);
+				ret = true;
+				break;
+			}
+
+			rhea::thread::deleteMsg(msg);
+		}
+	} while (rhea::getTimeNowMSec() < timeToExitMSec);
+	
+	//delete della msgQ
+	rhea::thread::deleteMsgQ (hMsgQR, hMsgQW);
+	
+	return ret;
+}

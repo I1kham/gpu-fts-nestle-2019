@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\CPUBridge\CPUBridge.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\CPUBridgeRasPIMITM.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUBridgeServer.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelCom.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelFakeCPU.cpp" />

@@ -26,7 +26,7 @@ namespace rasPI
 		private:
 			static const u32	TIMEOUT_CPU_ANSWER_MSec = 5000;
 			static const u32	SIZE_OF_BUFFER_GPU = 1024;
-			static const u32	WAITLIST_EVENT_FROM_THREAD_MSGQ = 0x00000008;
+			static const u32	WAITLIST_EVENT_FROM_SUBSCRIBER_MSGQ = 0x00000008;
 
 		private:
 			struct sBuffer
@@ -89,10 +89,12 @@ namespace rasPI
 			void				priv_freeBuffer (sBuffer &b);
 			bool				priv_handleMsg_send (OSSerialPort &comPort, const u8 *buffer, u16 nBytesToSend);
 			bool				priv_handleMsg_rcv (OSSerialPort &comPort, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
-			void				priv_handleIncomingGPUMsg (OSSerialPort &comPort, sBuffer &b);
+			void				priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b);
 			u32					priv_extractMessage (sBuffer &b, u8 *out, u32 sizeOfOut);
 			u32					priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const;
-			void				priv_handleIncomingMsgFromThreadQ();
+			void				priv_handleIncomingMsgFromSubscriber();
+			void				priv_handleInternalWMessages(const u8 *msg);
+			bool				priv_buildAndSendMsgWToGPU (u8 command, const u8 *optionalData, u16 sizeOfOptionaData);
 
 		private:
 			rhea::Allocator         *localAllocator;
@@ -107,6 +109,7 @@ namespace rasPI
 			sBuffer					bufferGPU;
 			sBuffer					bufferSpontaneousMsgForGPU;
 			cpubridge::sSubscriber	subscriberSocketListener;
+			bool					bDoIHaveASubscriber;
 		};
 	} //namespace MITM
 } // namespace rasPI

@@ -513,6 +513,20 @@ namespace cpubridge
 	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType);
 
 
+
+
+
+	/*******************************************************************
+		sezione dedicata ai msg inviabili al modulo rasPI MITM
+	********************************************************************/
+	void		ask_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &from);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RASPI_MITM_ARE_YOU_THERE
+	void		notify_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 isMITMThere);
+	void		translateNotify_CPU_RASPI_MITM_ARE_YOU_THERE(const rhea::thread::sMsg &msg, u8 *isMITMThere);
+
+	void		ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RASPI_MITM_START_SOCKETBRIDGE
+	void		notify_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

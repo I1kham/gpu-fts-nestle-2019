@@ -23,10 +23,10 @@ bool startMITM()
 		return false;
 
 
-	//starto socketBridge che a sua volta siiscriverà a MITM
+	/*starto socketBridge che a sua volta si iscriverà a MITM
 	rhea::HThread hSocketBridgeThread;
 	socketbridge::startServer(logger, msgQW_toMITM, false, &hSocketBridgeThread);
-
+	*/
 
 
 	//attendo che MITM termini

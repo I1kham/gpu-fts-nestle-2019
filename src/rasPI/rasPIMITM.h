@@ -2,36 +2,39 @@
 	Modulo M.I.T.M (Man In The Middle)
 
 	GPU <---> MITM <---> CPU
+				^
+				|
+			subscriber
 
 	MITM riceve msg da GPU nel formato classico dei msg GPU CPU.
-	Analizza il messaggio. Se il messaggio è specifico per MITM (comando W nel protocollo GPU/CPU), allora processa tale messaggio
-	e risponde direttamente a GPU con un messaggio W, altrimenti passa il messaggio a CPU e si mette in attesa di una risposta
-	con un timeout di 5 secondi (vedi rasPI::MITM::Core::TIMEOUT_CPU_ANSWER_MSec).
+	Analizza il messaggio. Se il messaggio è specifico per MITM (comando W nel protocollo GPU/CPU), allora decodifica il messaggio (vedi
+	rhea::thread::deserializMsg()) e lo passa al suo attuale subscriber.
+	Se il msg letto non è 'W', allora lo passa pari pari a CPU e si mette in attesa di una risposta con un timeout di 5 secondi (vedi rasPI::MITM::Core::TIMEOUT_CPU_ANSWER_MSec).
+	Alla ricezione della risposta da parte di CPU, passa il msg pari pari a GPU.
 	
 	NB: I 5 secondi sono una sovrastima del tempo massimo di risposta della CPU.
 		Nel funzionamento normale GPU/CPU, la GPU generalmente usa un timeout di 1/1.5 secondi, a seconda del tipo di comando. In certe situazioni
 		il timeout arriva anche a 3 o 5 secondi. Dato che il rasPI non ha modo di sapere il timeout di GPU per lo specifico comando,
 		sono costretto a farne una sovrastima.
 
-	A volte MITM ha bisogno di chiedere cose alla GPU e lo può fare solo tramite il canale seriale.
-	Per evitare di incasinare la trasmissione, MITM attende che GPU invii un qualunque comando (cosa che di solito avviene ogni 300 ms).
-	Alla ricezione di "un qualunque comando", MITM procede come al solito (quindi invia a CPU e aspetta risposta) e poi, nel riportare la risposta
-	di CPU a GPU, appende in testa tutti i "suoi comandi" che aveva temporaneamente bufferizzato.
-
-	GPU quindi, quando manda un generico comando a CPU, si aspetta o di ricevere la risposta di CPU, o di ricevere n comandi W dal MITM seguiti dalla risposta
-	di CPU al comando che aveva inviato.
+	Il subscriber di MITM può comunicare direttamente con la GPU (in particolare, comunica con CPUBridge) inviando a MITM dei messagi sMsg
+	usando la msgQ del thread di MITM.
+	MITM infila questi messaggi nella comunicazione CPU/GPU un maniera trasparente.
+	Dal punto di vista del subscriber, è come se fosse direttamente collegato a CPUBridge.
 */
 #ifndef _rasPIMITM_h_
 #define _rasPIMITM_h_
 #include "../rheaCommonLib/rhea.h"
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
+#include "../CPUBridge/CPUBridgeEnumAndDefine.h"
 
 namespace rasPI
 {
 	namespace MITM
 	{
 		bool        start (rhea::ISimpleLogger *logger, const char *serialPortGPU, const char *serialPortCPU, rhea::HThread *out_hThread, HThreadMsgW *out_msgQW_toMITM);
+		bool		subscribe(const HThreadMsgW &msgQW_toMITM, cpubridge::sSubscriber *out);
 	} //namespace MITM
 } // namespace rasPI
 #endif // _rasPIMITM_h_

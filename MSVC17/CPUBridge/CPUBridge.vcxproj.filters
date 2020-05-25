@@ -18,6 +18,7 @@
     <ClCompile Include="..\..\src\CPUBridge\EVADTSParser.cpp">
       <Filter>varie</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\CPUBridge\CPUBridgeRasPIMITM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
