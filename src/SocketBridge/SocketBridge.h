@@ -62,7 +62,7 @@
 
 namespace socketbridge
 {
-	bool        startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &hCPUServiceChannelW, bool bDieWhenNoClientConnected, rhea::HThread *out_hThread);
+	bool        startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &hCPUServiceChannelW, bool bDieWhenNoClientConnected, bool bWaitUntilThreadIsStarted, rhea::HThread *out_hThread);
 				/*	crea il thread che monitora e gestisce la socket.
 					Se hCPUServiceChannelW è valido, allora il thread in questione si "subscribe()" al thread della CPU in modo da riceverne le notifiche
 				*/

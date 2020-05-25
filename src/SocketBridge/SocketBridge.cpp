@@ -39,7 +39,7 @@ bool socketbridge_helper_folder_create (const char *folder, rhea::ISimpleLogger 
  * startServer
  *
  */
-bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &hCPUServiceChannelW, bool bDieWhenNoClientConnected, rhea::HThread *out_hThread)
+bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &hCPUServiceChannelW, bool bDieWhenNoClientConnected, bool bWaitUntilThreadIsStarted, rhea::HThread *out_hThread)
 {
     sServerInitParam    init;
 	
@@ -51,14 +51,23 @@ bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &
     init.logger = logger;
 	init.hCPUServiceChannelW = hCPUServiceChannelW;
 	init.bDieWhenNoClientConnected = bDieWhenNoClientConnected;
-	rhea::event::open (&init.hEvThreadStarted);
+	
+    if (bWaitUntilThreadIsStarted)
+        rhea::event::open (&init.hEvThreadStarted);
+    else
+        rhea::event::setInvalid(init.hEvThreadStarted);
+
     rhea::thread::create (out_hThread, serverThreadFn, &init);
 
 	//attendo che il thread del server sia partito
-	bool bStarted = rhea::event::wait(init.hEvThreadStarted, 3000);
-	rhea::event::close(init.hEvThreadStarted);
-
-	return bStarted;
+    if (bWaitUntilThreadIsStarted)
+    {
+        bool bStarted = rhea::event::wait(init.hEvThreadStarted, 3000);
+        rhea::event::close(init.hEvThreadStarted);
+        return bStarted;
+    }
+    
+    return true;
 }
 
 //*****************************************************************
@@ -72,7 +81,8 @@ i16 serverThreadFn (void *userParam)
     if (serverInstance->open (2280, init->hCPUServiceChannelW, init->bDieWhenNoClientConnected ))
 	{
         //segnalo che il thread e' partito con successo
-		rhea::event::fire(init->hEvThreadStarted);
+        if (rhea::event::isValid(init->hEvThreadStarted))
+		    rhea::event::fire(init->hEvThreadStarted);
         serverInstance->run();
 	}
     serverInstance->close();

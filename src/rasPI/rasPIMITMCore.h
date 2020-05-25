@@ -94,7 +94,7 @@ namespace rasPI
 			u32					priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const;
 			void				priv_handleIncomingMsgFromSubscriber();
 			void				priv_handleInternalWMessages(const u8 *msg);
-			bool				priv_buildAndSendMsgWToGPU (u8 command, const u8 *optionalData, u16 sizeOfOptionaData);
+			bool				priv_buildAndSendMsgWToGPU (u16 command, const u8 *optionalData, u16 sizeOfOptionaData);
 
 		private:
 			rhea::Allocator         *localAllocator;

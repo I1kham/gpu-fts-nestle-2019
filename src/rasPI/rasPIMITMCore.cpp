@@ -442,7 +442,7 @@ void Core::priv_handleIncomingMsgFromSubscriber()
 }
 
 //*********************************************************
-bool Core::priv_buildAndSendMsgWToGPU (u8 command, const u8 *optionalData, u16 sizeOfOptionaData)
+bool Core::priv_buildAndSendMsgWToGPU (u16 command, const u8 *optionalData, u16 sizeOfOptionaData)
 {
 	u8 msg[256];
 
@@ -460,7 +460,8 @@ bool Core::priv_buildAndSendMsgWToGPU (u8 command, const u8 *optionalData, u16 s
 	msg[ct++] = 0; //length
 	msg[ct++] = 0xff;
 	msg[ct++] = 0xff;
-	msg[ct++] = command;
+	rhea::utils::bufferWriteU16 (&msg[ct], command);
+	ct += 2;
 
 	if (optionalData && sizeOfOptionaData)
 	{
@@ -482,7 +483,8 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 	//Ho ricevuto un msg 'W' da GPU.
 	//Questo msg è speficico per MITM, non va inoltrato al mio subscriber
 	//# W [len] [0xff] [0xff] [command] .... [ck]
-	switch (msg[5])
+	const u16 command = rhea::utils::bufferReadU16 (&msg[5]);
+	switch (command)
 	{
 	default:
 		logger->log ("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", msg[5]);
@@ -490,10 +492,10 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 
 	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE:
 		//E' una sorta di ping che GPU invia per sapere se il modulo MITM esiste
-		//Rispondo con lo stesso msg e aggiungo 3 byte per usi futuri
+		//Rispondo con lo stesso msg includendo versione e 3 byte per usi futuri
 		{
-			const u8 optionalData[3] = { 0,0,0 };
-			priv_buildAndSendMsgWToGPU (msg[5], optionalData, 3);
+			const u8 optionalData[4] = { RASPI_MODULE_VERSION, 0,0,0 };
+			priv_buildAndSendMsgWToGPU (command, optionalData, 4);
 		}
 		break;
 
@@ -503,11 +505,11 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		//permettere agli utenti web di accedere all'interfaccia
 		{
 			rhea::HThread hSocketBridgeThread;
-			socketbridge::startServer(logger, subscriberSocketListener.hFromOtherToCpuW, false, &hSocketBridgeThread);
+			socketbridge::startServer(logger, subscriberSocketListener.hFromOtherToCpuW, false, false, &hSocketBridgeThread);
 
 			//rispondo con lo stesso msg indicando 0x01 per dire che tutto ok
 			const u8 optionalData = 0x01;
-			priv_buildAndSendMsgWToGPU (msg[5], &optionalData, 1);
+			priv_buildAndSendMsgWToGPU (command, &optionalData, 1);
 		}
 		break;
 	}
