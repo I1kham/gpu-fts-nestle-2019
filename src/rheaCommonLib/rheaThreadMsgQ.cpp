@@ -228,6 +228,42 @@ void thread::pushMsg (const HThreadMsgW &h, u16 what, u32 paramU32, const void *
 }
 
 //**************************************************************
+void thread::pushMsg2Buffer (const HThreadMsgW &h, u16 what, u32 paramU32, const void *src1, u32 sizeInBytes1, const void *src2, u32 sizeInBytes2)
+{
+    sThreadMsgQ *s = thread_fromHandleToPointer(h);
+
+    if (NULL == s)
+        return;
+
+    thread::sMsg msg;
+    memset (&msg, 0x00, sizeof(msg));
+    msg.what = what;
+    msg.paramU32 = paramU32;
+    msg.buffer = NULL;
+    msg.bufferSize = 0;
+
+    if (sizeInBytes1 && NULL != src1)
+    {
+        msg.bufferSize += sizeInBytes1;
+        if (sizeInBytes2 && NULL != src2)
+            msg.bufferSize += sizeInBytes2;
+        
+        msg.buffer = RHEAALLOC(glob.allocator, msg.bufferSize);
+        memcpy (msg.buffer, src1, sizeInBytes1);
+        if (NULL != src2)
+        {
+            u8 *p = (u8*)msg.buffer;
+            memcpy (&p[sizeInBytes1], src2, sizeInBytes2);
+        }
+    }
+
+    rhea::criticalsection::enter(s->cs);
+        s->fifo->push(msg);
+		rhea::event::fire(s->osEvent);
+    rhea::criticalsection::leave(s->cs);
+}
+
+//**************************************************************
 bool thread::getMsgQEvent (const HThreadMsgR &h, OSEvent *out_hEvent)
 {
     sThreadMsgQ *s = thread_fromHandleToPointer(h);

@@ -124,13 +124,17 @@ void Core::priv_freeBuffer (sBuffer &b)
 //*********************************************************
 void Core::run()
 {
+	static const u32 MAX_WAIT_TIME_MSec = 100;
+
+	u32 throttle = 0;
+	u32 waitTimeMSec = MAX_WAIT_TIME_MSec;
     bQuit = false;
     while (bQuit == false)
     {
 		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei 
 		//dati in input.
 		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
-        const u8 nEvents = waitableGrp.wait(100);
+        const u8 nEvents = waitableGrp.wait(waitTimeMSec);
 
 		for (u8 i = 0; i < nEvents; i++)
 		{
@@ -157,29 +161,65 @@ void Core::run()
 		}
 
 		//gestione comunicazione seriale
-		priv_handleSerialCommunication (comGPU, bufferGPU);
+		u32 newWaitTime = 0;
+		if (priv_handleSerialCommunication (comGPU, bufferGPU))
+		{
+			//ho ricevuto qualche msg da parte della GPU
+			//Provo ad aggiustare il tempo di wait, l'idea è che se ricevo tanti msg di seguito, non sto
+			//ad aspettare 100 ms tra un check e l'altro
+			if (throttle >= 10)
+				throttle-=10;
+			else
+				throttle = 0;
+		}
+		else
+		{
+			throttle++;
+			newWaitTime = throttle / 5;
+			if (newWaitTime > MAX_WAIT_TIME_MSec)
+			{
+				newWaitTime = MAX_WAIT_TIME_MSec;
+				throttle--;
+			}
+		}
+		
+		if (newWaitTime != waitTimeMSec)
+		{
+			waitTimeMSec = newWaitTime;
+			//logger->log ("WAIT TIME: %d\n", waitTimeMSec);
+		}
     }
 
     priv_close();
 }
 
 //*********************************************************
-void Core::priv_utils_printMsg (const u8 *buffer, u32 nBytes)
+void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes)
 {
+#ifdef _DEBUG
+	logger->log (prefix);
+	if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
+		logger->log ("GPU: "); 
+	else
+		logger->log ("CPU: ");
+
 	for (u32 i = 0; i < nBytes; i++)
 	{
 		const u8 c = buffer[i];
 		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '#')
-			logger->log ("%c ", c);
+			logger->log ("%c   ", c);
 		else
 			logger->log ("%03d ", c);
 	}
 	logger->log ("\n");
+#else
+#endif
 }
 
 //*********************************************************
-void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
+bool Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 {
+	bool ret = false;
 	while (1)
 	{
 		//leggo tutto quello che posso dalla seriale e bufferizzo in [b]
@@ -188,21 +228,17 @@ void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 		{
 			const u32 nRead = rhea::rs232::readBuffer(comPort, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
 			b.numBytesInBuffer += (u16)nRead;
+			//if (nRead)	logger->log ("read %d bytes from serial port: buffer size %d\n", nRead, b.numBytesInBuffer);
 		}
 
 		//provo ad estrarre un msg GPU/CPU dal mio buffer
-		u8 msg[256];
+		u8 msg[1024];
 		const u16 msgLen = priv_extractMessage (b, msg, sizeof(msg));
 		if (0 == msgLen)
-			return;
+			return ret;
+		ret = true;
 
 		//ho un valido messaggio in msg, shifto il buffer per eliminarlo dalla coda
-		if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
-			logger->log ("rcv from GPU: "); 
-		else
-			logger->log ("rcv from CPU: "); 
-		priv_utils_printMsg(msg, msgLen);
-		
 		b.removeFirstNBytes(msgLen);
 
 		//gestisco il messaggio
@@ -210,6 +246,7 @@ void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 		{
 		case 'W':
 			//messaggio speciale diretto a me, da non passare alla CPU
+			priv_utils_printMsg("rcv from ", comPort, msg, msgLen);
 			priv_handleInternalWMessages(msg);
 			break;
 
@@ -218,8 +255,23 @@ void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 			//Lo giro pari pari alla CPU e attendo risposta
 			{
 				priv_serial_send (comCPU, msg, msgLen);
+
 				u16 answerLen = (u16)sizeof(msg);
-				const bool answerReceived = priv_serial_waitMsg (comCPU, msg, &answerLen, TIMEOUT_CPU_ANSWER_MSec);
+				u32 timeoutMSec = TIMEOUT_CPU_ANSWER_MSec;
+				switch (msg[1])
+				{
+				case 'C':
+					//il comando C deve rispondere in fretta perchè è usato massicciamente all'avvio della GPU, non posso stare
+					//5 secondi in attesa di risposta se dall'altro lato non ci fosse la CPU
+					timeoutMSec = 200;
+					break;
+
+				case 'c':
+					timeoutMSec = 1000;
+					break;
+				}
+
+				const bool answerReceived = priv_serial_waitMsg (comCPU, msg, &answerLen, timeoutMSec);
 
 				//Questo è il momento di mandare a GPU eventuali messaggio che il mio subscriber mi aveva chiesto di inviare
 				//Prima mando questi messaggio e poi, per ultimo, mando il msg di risposta della CPU
@@ -245,6 +297,8 @@ void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 			break;
 		}
 	}
+
+	return ret;
 }
 
 //*********************************************************
@@ -316,11 +370,8 @@ bool Core::priv_serial_send (OSSerialPort &comPort, const u8 *buffer, u16 nBytes
 	if (0 == nBytesToSend)
 		return true;
 
-	if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
-		logger->log ("snd to GPU: "); 
-	else
-		logger->log ("snd to CPU: "); 
-	priv_utils_printMsg(buffer, nBytesToSend);
+	if (buffer[1] == 'W')
+		priv_utils_printMsg("snd to ", comPort, buffer, nBytesToSend);
 
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesSent = 0;

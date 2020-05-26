@@ -88,6 +88,9 @@ namespace rhea
         void            pushMsg (const HThreadMsgW &h, u16 what, u32 paramU32, const void *src, u32 sizeInBytes);
         inline void     pushMsg (const HThreadMsgW &h, u16 what, u32 paramU32)                                           { pushMsg(h, what, paramU32, NULL, 0); }
         inline void     pushMsg (const HThreadMsgW &h, u16 what, const void *src, u32 sizeInBytes)                       { pushMsg(h, what, 0, src, sizeInBytes); }
+        void            pushMsg2Buffer (const HThreadMsgW &h, u16 what, u32 paramU32, const void *src1, u32 sizeInBytes1, const void *src2, u32 sizeInBytes2);
+                            //appende src2 subito dopo src1. Il msg.bufferSize diventa size1+size2.
+                            //E' solo una fn di comodo
 
 
 		/**********************************************************

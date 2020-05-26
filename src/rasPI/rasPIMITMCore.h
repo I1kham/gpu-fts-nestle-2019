@@ -91,13 +91,13 @@ namespace rasPI
 			bool				priv_serial_waitMsg (OSSerialPort &comPort, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
 			bool				priv_serial_waitChar(OSSerialPort &comPort, u64 timeoutMSec, u8 *out_char);
 
-			void				priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b);
+			bool				priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b);
 			u32					priv_extractMessage (sBuffer &b, u8 *out, u32 sizeOfOut);
 			u32					priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const;
 			void				priv_handleIncomingMsgFromSubscriber();
 			void				priv_handleInternalWMessages(const u8 *msg);
 
-			void				priv_utils_printMsg (const u8 *buffer, u32 nBytes);
+			void				priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes);
 		private:
 			rhea::Allocator         *localAllocator;
 			rhea::ISimpleLogger     *logger;

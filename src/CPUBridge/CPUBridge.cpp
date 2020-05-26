@@ -577,14 +577,30 @@ void cpubridge::translateNotify_CPU_CREDIT_CHANGED(const rhea::thread::sMsg &msg
 void cpubridge::notify_CPU_NEW_LCD_MESSAGE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPULCDMessage *msg)
 {
 	logger->log("notify_CPU_NEW_LCD_MESSAGE\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, handlerID, msg, sizeof(sCPULCDMessage));
+
+	for (u32 i = 0; i < sCPULCDMessage::BUFFER_SIZE_IN_U16; i++)
+	{
+		if (msg->utf16LCDString[i] == 0)
+		{
+			//rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, handlerID, msg, sizeof(sCPULCDMessage));
+			rhea::thread::pushMsg2Buffer(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, handlerID, &msg->importanceLevel, 1, msg, i*2);
+			return;
+		}
+	}
 }
 
 //***************************************************
 void cpubridge::translateNotify_CPU_NEW_LCD_MESSAGE (const rhea::thread::sMsg &msg, sCPULCDMessage *out_msg)
 {
 	assert (msg.what == CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE);
-	memcpy(out_msg, msg.buffer, msg.bufferSize);
+	//memcpy(out_msg, msg.buffer, msg.bufferSize);
+
+	const u8 *p = (const u8*)msg.buffer;
+	out_msg->importanceLevel = p[0];
+	
+	memset (out_msg->utf16LCDString, 0, sizeof(out_msg->utf16LCDString));
+	if (msg.bufferSize > 1)
+		memcpy(out_msg->utf16LCDString, &p[1], msg.bufferSize-1);
 }
 
 //***************************************************
