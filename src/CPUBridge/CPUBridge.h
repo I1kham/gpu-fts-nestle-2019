@@ -157,6 +157,7 @@ namespace cpubridge
 	u8			buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_getMilkerVer (u8 *out_buffer, u8 sizeOfOutBuffer);
 
+	u8			buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_rasPI_MITM_AreYouThere (u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_rasPI_MITM_START_SOCKETBRIDGE (u8 *out_buffer, u8 sizeOfOutBuffer);
 

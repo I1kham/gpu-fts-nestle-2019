@@ -50,7 +50,7 @@ bool startCPUBridge()
 
 	//starto socketBridge che a sua volta si iscriverà a CPUBridge
 	rhea::HThread hSocketBridgeThread;
-	if (!socketbridge::startServer(logger, hCPUServiceChannelW, true , &hSocketBridgeThread))
+	if (!socketbridge::startServer(logger, hCPUServiceChannelW, true, true, &hSocketBridgeThread))
 	{
 		printf("ERROR: can't open socket\n.");
 		return false;

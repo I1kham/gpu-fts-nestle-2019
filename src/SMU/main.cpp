@@ -17,7 +17,7 @@
 //*****************************************************
 bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)
 {
-	return socketbridge::startServer(logger, hCPUServiceChannelW, false, out_hThread);
+	return socketbridge::startServer(logger, hCPUServiceChannelW, false, true, out_hThread);
 }
 
 

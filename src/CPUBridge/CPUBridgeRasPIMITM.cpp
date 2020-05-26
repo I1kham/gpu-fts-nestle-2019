@@ -6,7 +6,7 @@
  * ritorna 0 se out_buffer non è abbastanza grande da contenere il messaggio.
  * altrimenti ritorna il num di byte inseriti in out_buffer
  */
-u8 cpubridge_buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
     //calcolo della dimensione totale
     if (sizeOfOutBuffer < 4 + sizeOfOptionaData)
@@ -37,13 +37,13 @@ u8 cpubridge_buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 sizeO
 //***************************************************
 u8 cpubridge::buildMsg_rasPI_MITM_AreYouThere (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-    return cpubridge_buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE, NULL, 0, out_buffer, sizeOfOutBuffer);
+    return cpubridge::buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_rasPI_MITM_START_SOCKETBRIDGE (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-    return cpubridge_buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE, NULL, 0, out_buffer, sizeOfOutBuffer);
+    return cpubridge::buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************

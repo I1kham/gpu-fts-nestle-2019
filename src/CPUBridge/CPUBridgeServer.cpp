@@ -1304,11 +1304,46 @@ u8 Server::priv_2DigitHexToInt(const u8 *buffer, u32 index) const
 	return (u8)ret;
 }
 
+//***************************************************
+bool Server::priv_CPUFWUpdate_waitForASpecificChar(u8 expectedChar, u64 timeoutMSec, bool bRasPIExists)
+{
+	if (!bRasPIExists)
+		return chToCPU->waitForASpecificChar(expectedChar, timeoutMSec);
+	else
+	{
+		u8 optionalData[8];
+		rhea::utils::bufferWriteU32 (optionalData, (u32)timeoutMSec);
+		optionalData[4] = expectedChar;
+
+		u8 bufferW[32];
+		const u32 nBytesToSend = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WAIT_SPECIFIC_CHAR, optionalData, 5, bufferW, sizeof(bufferW));
+		chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
+		
+		u8 rcvChar = 0x00;
+		if (!chToCPU->waitChar(timeoutMSec + 100, &rcvChar))
+			return false;
+		return (rcvChar == expectedChar);
+	}
+}
+
+//***************************************************
+void Server::priv_CPUFWUpdate_sendAndDoNotWait(const u8 *buffer, u32 nBytesToSend, bool bRasPIExists)
+{
+	if (!bRasPIExists)
+		chToCPU->sendOnlyAndDoNotWait(buffer, nBytesToSend, logger);
+	else
+	{
+		const u32 n = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT, buffer, nBytesToSend, answerBuffer, sizeof(answerBuffer));
+		chToCPU->sendOnlyAndDoNotWait(answerBuffer, n, logger);
+	}
+}
+
+
 /**********************************************
  * copiato da codice originale e lievemente ripulito, sorry.
  *	Ritorna 0 se tutto OK
  */
-bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT) const
+bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT, bool bRasPIExists)
 {
 	if (!isLastFlag)
 	{
@@ -1317,7 +1352,8 @@ bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_buffe
 			return true;
 	}
 
-	chToCPU->sendOnlyAndDoNotWait(out_bufferW, in_out_bufferCT, logger);
+	//chToCPU->sendOnlyAndDoNotWait(out_bufferW, in_out_bufferCT, logger);
+	priv_CPUFWUpdate_sendAndDoNotWait(out_bufferW, in_out_bufferCT, bRasPIExists);
 
 	u8 checksum_counter = 0;
 	for (u32 i = 0; i < in_out_bufferCT; i++)
@@ -1326,7 +1362,8 @@ bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_buffe
 	if (isLastFlag) 
 		return true;
 
-	if (!chToCPU->waitForASpecificChar(checksum_counter, 90))
+	//if (!chToCPU->waitForASpecificChar(checksum_counter, 90))
+	if (!priv_CPUFWUpdate_waitForASpecificChar(checksum_counter, 90, bRasPIExists))
 		return false;
 
 	in_out_bufferCT = 0;
@@ -1371,6 +1408,24 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		return eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile;
 	}
 
+	//E' necessario a questo punto verificare la presenza del modulo rasPI
+	//Se il modulo rasPI non è in mezzo tra CPU e GPU, tutto bene, altrimenti bisogna prendere degli 
+	//accorgimenti perchè non posso banalmente spedire dati sulla seriale e aspettare risposta dalla CPU dato che in mezzo c'è il rasPI
+	//il quale si aspetta di ricevere da me messaggi ben formattati nel formato classico dei comandi GPU-CPU e non un flusso di dati raw
+	//Se c'è il rasPI in mezzo quindi, tutta la comunicazione va impacchettata in speciali messaggi W
+	bool bRasPIExists = false;
+	{
+		u8 bufferW[16];
+		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_AreYouThere(bufferW, sizeof(bufferW));
+		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+		if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+		{
+			logger->log ("rasPI is in the middle...\n");
+			bRasPIExists = true;
+		}
+	}
+
+
 
 	//invalido il timestamp del mio da3 locale in modo che al termine dell'operazione di upload
 	//del FW CPU, la GPU attivi una fase di sincronizzazione da3
@@ -1384,11 +1439,12 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	//per prima cosa si fa fare il reboot alla CPU
 	u8 bufferW[CPUFW_BLOCK_SIZE+16];
 	u8 nBytesToSend = cpubridge::buildMsg_restart_U(bufferW, 64);
-	chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
+	priv_CPUFWUpdate_sendAndDoNotWait(bufferW, nBytesToSend, bRasPIExists);
 	//chToCPU->closeAndReopen();
 
 	//aspetto di leggere 'k' dal canale
-    if (!chToCPU->waitForASpecificChar('k', 10000))
+    //if (!chToCPU->waitForASpecificChar('k', 10000))
+	if (!priv_CPUFWUpdate_waitForASpecificChar('k', 10000, bRasPIExists))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_k_notReceived, 0);
@@ -1396,13 +1452,16 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	}
 
 	bufferW[0] = 'k';
-	chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
+	//chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
+	priv_CPUFWUpdate_sendAndDoNotWait(bufferW, 1, bRasPIExists);
 
 	bufferW[0] = 'M';
-	chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
+	//chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
+	priv_CPUFWUpdate_sendAndDoNotWait(bufferW, 1, bRasPIExists);
 
 	//aspetto di leggere 'M' dal canale
-	if (!chToCPU->waitForASpecificChar('M', 10000))
+	//if (!chToCPU->waitForASpecificChar('M', 10000))
+	if (!priv_CPUFWUpdate_waitForASpecificChar('M', 10000, bRasPIExists))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_M_notReceived, 0);
@@ -1419,7 +1478,8 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 
 
 	//aspetto di leggere 'h' dal canale
-	if (!chToCPU->waitForASpecificChar('h', 15000))
+	//if (!chToCPU->waitForASpecificChar('h', 15000))
+	if (!priv_CPUFWUpdate_waitForASpecificChar('h', 15000, bRasPIExists))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_h_notReceived, 0);
@@ -1461,7 +1521,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 			continue;
 		}
 
-		if (!priv_WriteByteMasterNext(numByte, false, bufferW, bufferWCT))
+		if (!priv_WriteByteMasterNext(numByte, false, bufferW, bufferWCT, bRasPIExists))
 		{
 			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
 			if (NULL != subscriber)
@@ -1473,7 +1533,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		{
 			const u8 dato8 = priv_2DigitHexToInt(fileInMemory, ct);
 			ct += 2;
-			if (!priv_WriteByteMasterNext(dato8, false, bufferW, bufferWCT))
+			if (!priv_WriteByteMasterNext(dato8, false, bufferW, bufferWCT, bRasPIExists))
 			{
 				ret = eWriteCPUFWFileStatus_finishedKO_generalError;
 				if (NULL != subscriber)
@@ -1497,13 +1557,14 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	
 	if (ret == eWriteCPUFWFileStatus_finishedOK)
 	{
-		priv_WriteByteMasterNext(4, false, bufferW, bufferWCT);
-		priv_WriteByteMasterNext(0, true, bufferW, bufferWCT);
+		priv_WriteByteMasterNext(4, false, bufferW, bufferWCT, bRasPIExists);
+		priv_WriteByteMasterNext(0, true, bufferW, bufferWCT, bRasPIExists);
 
 		u8 ck = 0;
 		for (u32 i = 0; i < bufferWCT; i++)
 			ck += bufferW[i];
-		if (!chToCPU->waitForASpecificChar(ck, 90))
+		//if (!chToCPU->waitForASpecificChar(ck, 90))
+		if (!priv_CPUFWUpdate_waitForASpecificChar(ck, 90, bRasPIExists))
 		{
 			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
 			if (NULL != subscriber)
