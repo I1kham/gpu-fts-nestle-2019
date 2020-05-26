@@ -6,10 +6,10 @@
  * ritorna 0 se out_buffer non è abbastanza grande da contenere il messaggio.
  * altrimenti ritorna il num di byte inseriti in out_buffer
  */
-u8 cpubridge::buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
     //calcolo della dimensione totale
-    if (sizeOfOutBuffer < 4 + sizeOfOptionaData)
+    if (sizeOfOutBuffer < (u32)(4 + sizeOfOptionaData))
         return 0;
 
     u8 ct = 0;

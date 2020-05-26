@@ -1333,7 +1333,8 @@ void Server::priv_CPUFWUpdate_sendAndDoNotWait(const u8 *buffer, u32 nBytesToSen
 		chToCPU->sendOnlyAndDoNotWait(buffer, nBytesToSend, logger);
 	else
 	{
-		const u32 n = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT, buffer, nBytesToSend, answerBuffer, sizeof(answerBuffer));
+        assert (nBytesToSend < 245);
+        const u8 n = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT, buffer, (u16)nBytesToSend, answerBuffer, sizeof(answerBuffer));
 		chToCPU->sendOnlyAndDoNotWait(answerBuffer, n, logger);
 	}
 }
