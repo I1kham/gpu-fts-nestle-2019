@@ -159,11 +159,11 @@ namespace cpubridge
 
 				//messaggio per il rasPI. Attenzione che a differenza dei normali msg CPU/GPU, questi supportano una lunghezza fino a 0xffff 
     u16			buildMsg_rasPI_MITM (u8 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer);
-    u16			buildMsg_rasPI_MITM_areYouThere (u8 *out_buffer, u8 sizeOfOutBuffer);
-    u16			buildMsg_rasPI_MITM_startSocketBridge (u8 *out_buffer, u8 sizeOfOutBuffer);
-	u16			buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u8 sizeOfOutBuffer);
-	u16			buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u8 sizeOfOutBuffer);
-	u16			buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u8 sizeOfOutBuffer);
+    u16			buildMsg_rasPI_MITM_areYouThere (u8 *out_buffer, u32 sizeOfOutBuffer);
+    u16			buildMsg_rasPI_MITM_startSocketBridge (u8 *out_buffer, u32 sizeOfOutBuffer);
+    u16			buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u32 sizeOfOutBuffer);
+    u16			buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u32 sizeOfOutBuffer);
+    u16			buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 
 

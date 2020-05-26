@@ -124,6 +124,9 @@ bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhe
 {
 	DUMPMSG("SND: "); DUMP(buffer, nBytesToSend);	DUMPMSG("\n");
 
+    if (buffer[0]=='#' && buffer[1]=='W')
+        DBGBREAK;
+
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesSent = 0;
 	
