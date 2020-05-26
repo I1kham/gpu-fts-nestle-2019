@@ -533,11 +533,27 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		break;
 
 	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT:
-		//la gpu vuole che io mandi il payload direttamente a CPU e che poi non aspetti alcuna risposta
+		//la gpu vuole che io mandi un tot di dati direttamente a CPU e che poi non aspetti alcuna risposta
+		//Il trucco di questo msg è che nel messaggio W non ho il payload, ho solo l'indicazione della dimensione dei dati
+		//da inviare. Subito in coda al messaggio W, ho il payload, non formattato come messaggio ma come un semplice stream di dati
 		{
-			const u8 *payload = &msg[7];
-			const u8 sizeOfPayload = (msg[2] - 8);
-			priv_serial_send (comCPU, payload, sizeOfPayload);
+			u32 nLeftToBeRead = rhea::utils::bufferReadU32(&msg[7]);
+
+			u8 tempBuffer[128];
+			const u64 timeToExitMSec = rhea::getTimeNowMSec() + 4000;
+			while (nLeftToBeRead>0 && rhea::getTimeNowMSec() < timeToExitMSec)
+			{
+				u32 maxToRead = nLeftToBeRead;
+				if (maxToRead > sizeof(tempBuffer))
+					maxToRead = sizeof(tempBuffer);
+				u32 nLetti = rhea::rs232::readBuffer(comGPU, tempBuffer, maxToRead);
+				if (nLetti)
+				{
+					priv_serial_send (comCPU, tempBuffer, nLetti);
+					assert (nLetti <= nLeftToBeRead);
+					nLeftToBeRead -= nLetti;
+				}
+			}
 		}
 		break;
 

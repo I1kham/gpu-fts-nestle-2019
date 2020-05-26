@@ -1333,9 +1333,14 @@ void Server::priv_CPUFWUpdate_sendAndDoNotWait(const u8 *buffer, u32 nBytesToSen
 		chToCPU->sendOnlyAndDoNotWait(buffer, nBytesToSend, logger);
 	else
 	{
-        assert (nBytesToSend < 245);
-        const u8 n = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT, buffer, (u16)nBytesToSend, answerBuffer, sizeof(answerBuffer));
+		//devo supportare l'invio di un payload che potrebbe essere > 255 bytes, cosa che non è fattibile coi normali messaggi CPU/GPU
+		//Invio quindi un primo msg 'W' che contiene la lunghezza in byte del payload da inviare. Subito in coda al mssg W, invio
+		//tutti i byte del payload.
+		u8 optionalData[4];
+		rhea::utils::bufferWriteU32(optionalData, nBytesToSend);
+        const u8 n = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT, optionalData, 4, answerBuffer, sizeof(answerBuffer));
 		chToCPU->sendOnlyAndDoNotWait(answerBuffer, n, logger);
+		chToCPU->sendOnlyAndDoNotWait(buffer, nBytesToSend, logger);
 	}
 }
 
