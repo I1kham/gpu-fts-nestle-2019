@@ -11,8 +11,8 @@ CONFIG += staticlib
 CONFIG += create_prl link_prl
 
 
-##message("rheaCommonLib: define: $$DEFINES")
-##message("rheaCommonLib: config: $$CONFIG")
+message("rheaCommonLib: define: $$DEFINES")
+message("rheaCommonLib: config: $$CONFIG")
 
 
 #direttive specifiche per quando compilo per yocto embedded
