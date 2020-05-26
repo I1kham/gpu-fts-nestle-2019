@@ -124,9 +124,6 @@ bool CPUChannelCom::priv_handleMsg_send (const u8 *buffer, u16 nBytesToSend, rhe
 {
 	DUMPMSG("SND: "); DUMP(buffer, nBytesToSend);	DUMPMSG("\n");
 
-    if (buffer[0]=='#' && buffer[1]=='W')
-        DBGBREAK;
-
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesSent = 0;
 	
@@ -156,7 +153,7 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandChar, u8 *out_answer, u16 *in_
 	u32 ctBufferRisposteScartate = 0;
 	while (1)
 	{
-		const u32 nRead = priv_extractFirstValidMessage (out_answer, sizeOfBuffer, logger, timeoutRCVMsec);;
+        const u32 nRead = waitForAMessage (out_answer, sizeOfBuffer, logger, timeoutRCVMsec);;
 		if (0 == nRead)
 			return false;
 		*in_out_sizeOfAnswer = (u16)nRead;
@@ -213,7 +210,7 @@ bool CPUChannelCom::waitForASpecificChar(u8 expectedChar, u64 timeoutMSec)
 }
 
 //***************************************************
-u32 CPUChannelCom::priv_extractFirstValidMessage (u8 *out_answer, u16 sizeOf_outAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
+u32 CPUChannelCom::waitForAMessage (u8 *out_answer, u32 sizeOf_outAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
 {
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutRCVMsec;
 	u16 nBytesRcv = 0;

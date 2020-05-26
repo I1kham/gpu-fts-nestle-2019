@@ -1428,8 +1428,10 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		u8 bufferW[16];
 		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-        if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 5000))
+        chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
+        if (chToCPU->getNumRisposteScartate() > 0)
         {
+            //mi aspetto che la risposa W sia tra quelle "scartate"
 			logger->log ("rasPI is in the middle...\n");
 			bRasPIExists = true;
 		}

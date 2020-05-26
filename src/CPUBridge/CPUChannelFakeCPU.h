@@ -24,16 +24,13 @@ namespace cpubridge
 		void					closeAndReopen()										{ }
 
 		bool					sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
-								/*
-									in ingresso, [in_out_sizeOfAnswer] contiene la dimensione di out_answer
-									in uscita, contiene il num di bytes inseriti in out_answer (ovvero la risposta della CPU)
-								*/
 
 		bool					isOpen() const																						{ return true; }
 
         bool					sendOnlyAndDoNotWait(const u8 *bufferToSend UNUSED_PARAM, u16 nBytesToSend UNUSED_PARAM, rhea::ISimpleLogger *logger UNUSED_PARAM)  { return false; }
         bool					waitChar(u64 timeoutMSec UNUSED_PARAM, u8 *out_char UNUSED_PARAM)                                                                   { return false; }
         bool					waitForASpecificChar(u8 expectedChar UNUSED_PARAM, u64 timeoutMSec UNUSED_PARAM)                                                    { return false;  }
+        u32                     waitForAMessage (u8 *out_answer, u32 sizeOf_outAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
 
 	private:
 		struct sRunningSel

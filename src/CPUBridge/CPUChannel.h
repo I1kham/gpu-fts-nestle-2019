@@ -22,10 +22,17 @@ namespace cpubridge
 		virtual void            closeAndReopen() = 0;
 
 		virtual bool			sendAndWaitAnswer (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec) = 0;
-								/*
-									in ingresso, [in_out_sizeOfAnswer] contiene la dimensione di out_answer
-									in uscita, contiene il num di bytes inseriti in out_answer (ovvero la risposta della CPU)
-								*/
+                                /*
+                                    in ingresso, [in_out_sizeOfAnswer] contiene la dimensione di out_answer
+                                    in uscita, contiene il num di bytes inseriti in out_answer (ovvero la risposta della CPU)
+
+                                    Questa fn si aspetta che in [bufferToSend] ci sia un valido msg formattato nel classico protocollo
+                                    CPU-GPU, ovvero # [comando] [len] .. [ck]
+                                    La fn rimane in attesa di una risposta da parte di CPU. La risposta "valida" è quella che a sua
+                                    volta riporta lo stesso [comando] che io ho inviato.
+                                    Eventuali risposte ben formattate ma con comando != da [comando], vengono memorizzate e sono accessibili
+                                    all'uscita della funzione usando getNumRisposteScartate() e  getBufferOfRisposteScartate()
+                                */
 
 		virtual u8				getNumRisposteScartate() const									{ return 0; }
 		virtual const u8*		getBufferOfRisposteScartate() const								{ return NULL; }
@@ -47,6 +54,12 @@ namespace cpubridge
 									/* legge un carattere. Se questo è == a [expectedChar], allora termina con true, altrimenti prova a leggere un altro char.
 										Se entro il timeout non è arrivato il ch desiderato, termina con false
 									*/
+
+        virtual u32             waitForAMessage (u8 *out_answer, u32 sizeOf_outAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec) = 0;
+                                    /*  attende la ricezione di un valido messaggio nel formato CPU-GPU
+                                        Ritorna il num di byte letti e infilati in out_buffer
+                                    */
+
     };
 
 } // namespace cpubridge

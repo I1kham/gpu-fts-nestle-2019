@@ -50,7 +50,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
     */
 
 	/*
-	//你是从哪里来的？
+	//� 是从哪里来的？
 	{
 		u32 i = 0;
 		utf16_cpuMessage2[i++] = 0x4f60;
@@ -239,7 +239,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				else
 				{
-					//ok, à¨ tempo di terminare la selezione
+					//ok, � ¨ tempo di terminare la selezione
 					bFinished = true;
 				}
 
@@ -904,6 +904,12 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 }
 
 //*****************************************************************
+u32 CPUChannelFakeCPU::waitForAMessage (u8 *out_answer UNUSED_PARAM, u32 sizeOf_outAnswer UNUSED_PARAM, rhea::ISimpleLogger *logger UNUSED_PARAM, u64 timeoutRCVMsec UNUSED_PARAM)
+{
+    return 0;
+}
+
+//*****************************************************************
 void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {
     bool CPUFLAG_isMilkerAlive = true;
@@ -1057,9 +1063,9 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	}
 
 	/*
-	75		6 byte con lo stato di disponibilità  delle 48 selezioni
-	76		ATTENZIONE che il bit a zero significa che la selezione à¨ disponibile, il bit
-	77		a 1 significa che NON à¨ disponibile
+	75		6 byte con lo stato di disponibilit�   delle 48 selezioni
+	76		ATTENZIONE che il bit a zero significa che la selezione � ¨ disponibile, il bit
+	77		a 1 significa che NON � ¨ disponibile
 	78
 	79
 	80
@@ -1116,7 +1122,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	if (CPU_REPORTED_PROTOCOL_VERSION >= 4)
 	{
 		//protocol version 4
-		//1 byte per indicare se btn prog à¨ cliccato
+		//1 byte per indicare se btn prog � ¨ cliccato
 		out_answer[ct++] = 0;
 
 		//protocol version 5
@@ -1126,14 +1132,14 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 			u8 newFCPUFlag1 = 0;
 			out_answer[ct] = 0;
 			
-			newFCPUFlag1 |= 0x01; //indica che CPU à¨ pronta per fornire il data-audit
+			newFCPUFlag1 |= 0x01; //indica che CPU � ¨ pronta per fornire il data-audit
 
 			//protocol version 6
 			if (CPU_REPORTED_PROTOCOL_VERSION >= 6)
 			{
 				bool bSimulaStatoTelemetria = false;
 				if (bSimulaStatoTelemetria)
-					newFCPUFlag1 |= 0x02; //indica se CPU à¨ in telemetria oppure no (default: no)
+					newFCPUFlag1 |= 0x02; //indica se CPU � ¨ in telemetria oppure no (default: no)
 			}
 
 			//protocol version 7
