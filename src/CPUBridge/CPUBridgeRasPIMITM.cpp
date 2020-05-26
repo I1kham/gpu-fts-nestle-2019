@@ -7,7 +7,7 @@
  * altrimenti ritorna il num di byte inseriti in out_buffer
  *
  *  normale messaggio cpu-gpu   [#] [W] [len] [...] [ck]
- *  messaggio rasPI             [#] [W] [len1] [len2] [command] [...] [ck]
+ *  messaggio rasPI             [#] [W] [len_LSB] [len_MSB] [command] [...] [ck]
  */
 u16 cpubridge::buildMsg_rasPI_MITM (u8 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
@@ -31,7 +31,7 @@ u16 cpubridge::buildMsg_rasPI_MITM (u8 command, const u8 *optionalData, u16 size
         ct += sizeOfOptionaData;
     }
 
-    rhea::utils::bufferWriteU16 (&out_buffer[2], ct+1);	//length
+    rhea::utils::bufferWriteU16_LSB_MSB(&out_buffer[2], ct+1);	//length
     out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
     ct++;
 
@@ -78,7 +78,7 @@ u16 cpubridge::buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg
 
     ct += rhea::thread::serializeMsg (msg, &out_buffer[ct], sizeOfOutBuffer - ct);
 
-    rhea::utils::bufferWriteU16 (&out_buffer[2], ct+1);	//length
+    rhea::utils::bufferWriteU16_LSB_MSB (&out_buffer[2], ct+1);	//length
     out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
     ct++;
 

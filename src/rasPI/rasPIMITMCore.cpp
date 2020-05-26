@@ -209,22 +209,8 @@ void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 		switch ((char)msg[1])
 		{
 		case 'W':
-			//messaggio speciale, da decodificare e passare al mio attuale subscriber, oppure da gestire direttamente in MITM.
-			//Se i primi 2 byte del payload sono 0xFF 0xFF, allora è un msg per MITM, atrimenti è per il subscriber
-			//# W [len] .... [ck]
-			if (msg[3] == 0xff && msg[4] == 0xff)
-			{
-				priv_handleInternalWMessages(msg);
-			}
-			else if (bDoIHaveASubscriber)
-			{
-				u16         what = 0;
-				u32         paramU32 = 0;
-				u32         bufferSize = 0;
-				const u8	*bufferPt = NULL;
-				rhea::thread::deserializMsg (&msg[3], &what, &paramU32, &bufferSize, &bufferPt);
-				rhea::thread::pushMsg (subscriberSocketListener.hFromCpuToOtherW, what, paramU32, bufferPt, bufferSize);
-			}
+			//messaggio speciale diretto a me, da non passare alla CPU
+			priv_handleInternalWMessages(msg);
 			break;
 
 		default:
@@ -298,7 +284,7 @@ u32 Core::priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const
 	if (command == 'W')
 	{
 		//è un messaggio speciale del protocollo rasPI, supporta una lunghezza max di 0xffff
-		expectedMsgLen = rhea::utils::bufferReadU16(&p[2]);
+		expectedMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&p[2]);
 	}
 	else
 	{
@@ -490,14 +476,29 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 {
 	//Ho ricevuto un msg 'W' da GPU.
 	//Questo msg è speficico per MITM, non va inoltrato al mio subscriber
-	//# W [len] [0xff] [0xff] [command] .... [ck]
+	//# W [len1] [len2] [subcommand] .... [ck]
 	const u8 subcommand = msg[4];
+	const u8 *payload = &msg[5];
+	const u16 totalMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&msg[2]);
 	switch (subcommand)
 	{
 	default:
 		DBGBREAK;
 		logger->log ("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", subcommand);
 		break;
+
+	case RASPI_MITM_COMMANDW_SERIALIZED_sMSG:
+		if (bDoIHaveASubscriber)
+		{
+			u16         what = 0;
+			u32         paramU32 = 0;
+			u32         bufferSize = 0;
+			const u8	*bufferPt = NULL;
+			rhea::thread::deserializMsg (&msg[3], &what, &paramU32, &bufferSize, &bufferPt);
+			rhea::thread::pushMsg (subscriberSocketListener.hFromCpuToOtherW, what, paramU32, bufferPt, bufferSize);
+		}
+		break;
+
 
 	case RASPI_MITM_COMMANDW_ARE_YOU_THERE:
 		//E' una sorta di ping che GPU invia per sapere se il modulo MITM esiste
@@ -521,7 +522,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 			//rispondo con lo stesso msg indicando 0x01 per dire che tutto ok
 			u8 bufferW[16];
 			const u8 optionalData = 0x01;
-			const u16	nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, &optionalData, 1, bufferW, sizeof(bufferW));
+			const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, &optionalData, 1, bufferW, sizeof(bufferW));
 			priv_serial_send (comGPU, bufferW, nToSend);
 		}
 		break;
@@ -529,8 +530,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 	case RASPI_MITM_COMMANDW_SEND_AND_DO_NOT_WAIT:
 		//la gpu vuole che io mandi un tot di dati direttamente a CPU e che poi non aspetti alcuna risposta
 		{
-			const u8 *payload = &msg[5];
-			const u16 payloadLen = rhea::utils::bufferReadU16(&msg[2]) - 6;
+			const u16 payloadLen = totalMsgLen - 6;
 			priv_serial_send (comCPU, payload, payloadLen);
 		}
 		break;
@@ -540,7 +540,6 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		//Il char in questione deve essere precisamente quello indicato dal payload, eventuali altri char in arrivo da CPU sono 
 		//scartati. Se il char in questione arriva entro il timeout, rispondo alla GPU, altrimenti niente
 		{
-			const u8 *payload = &msg[5];
 			const u32 timeoutMSec = rhea::utils::bufferReadU32(payload);
 			const u8 specificChar = payload[4];
 

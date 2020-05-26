@@ -267,7 +267,7 @@ u32 CPUChannelCom::priv_extractFirstValidMessage (u8 *out_answer, u16 sizeOf_out
 			}
 			else if (nBytesRcv > 3)
 			{
-				const u16 totalMsgLen = (u16)msgLen * 256 + msgLen2;
+				const u16 totalMsgLen = (u16)msgLen  + (u16)msgLen2 * 256;
 				const u16 nMissing = totalMsgLen - nBytesRcv;
 				const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
 				DUMP(&out_answer[nBytesRcv], nLetti);

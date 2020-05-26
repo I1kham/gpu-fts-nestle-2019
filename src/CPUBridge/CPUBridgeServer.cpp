@@ -293,7 +293,7 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 			const u8 commandChar  = p[ct + 1];
 			if (commandChar == 'W')
 			{
-				const u16 msgLen = rhea::utils::bufferReadU16 (&p[ct + 2]);
+				const u16 msgLen = rhea::utils::bufferReadU16_LSB_MSB (&p[ct + 2]);
 				const u8 subcommand = p[ct + 4];
 
 				switch (subcommand)
