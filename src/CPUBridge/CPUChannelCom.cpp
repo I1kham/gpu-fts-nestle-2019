@@ -256,17 +256,24 @@ u32 CPUChannelCom::waitForAMessage (u8 *out_answer, u32 sizeOf_outAnswer, rhea::
 					continue;
 				nBytesRcv++;
 			}
-			else if (nBytesRcv == 3)
+
+            if (nBytesRcv == 3)
 			{
 				if (0 == rhea::rs232::readBuffer(comPort, &msgLen2, 1))
 					continue;
 				nBytesRcv++;
 			}
-			else if (nBytesRcv > 3)
+
+            if (nBytesRcv > 3)
 			{
 				const u16 totalMsgLen = (u16)msgLen  + (u16)msgLen2 * 256;
 				const u16 nMissing = totalMsgLen - nBytesRcv;
-				const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
+
+                out_answer[0] = '#';
+                out_answer[1] = commandChar;
+                out_answer[2] = msgLen;
+                out_answer[3] = msgLen2;
+                const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
 				DUMP(&out_answer[nBytesRcv], nLetti);
 
 				nBytesRcv += nLetti;
