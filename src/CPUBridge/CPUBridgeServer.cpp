@@ -277,7 +277,8 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 			answerBuffer[1] = 'W';
 			answerBuffer[2] = 0; //len
 			const u32 nBytesToSend = rhea::thread::serializeMsg (msg, &answerBuffer[3], sizeof(answerBuffer)-4);
-			answerBuffer[2] = (u8)nBytesToSend+4;
+            assert (nBytesToSend+4 < 0xff);
+            answerBuffer[2] = (u8)nBytesToSend+4;
 			answerBuffer[nBytesToSend + 3] = rhea::utils::simpleChecksum16_calc(answerBuffer, nBytesToSend + 3);
 			chToCPU->sendOnlyAndDoNotWait(answerBuffer, (u16)(nBytesToSend+4), logger);
 			rhea::thread::deleteMsg (msg);
@@ -1424,8 +1425,8 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		u8 bufferW[16];
 		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_AreYouThere(bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
-		{
+        if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 5000))
+        {
 			logger->log ("rasPI is in the middle...\n");
 			bRasPIExists = true;
 		}
