@@ -138,8 +138,16 @@
   */
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE						0x0A00
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE					0x0A01
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT				0x0A02
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WAIT_SPECIFIC_CHAR					0x0A03
+
+
+ /**********************************************************************
+  * comandi supportati dal msg 'W' usato per comunicare con rasPI
+  */
+#define		RASPI_MITM_COMMANDW_SEND_AND_DO_NOT_WAIT				0x01
+#define		RASPI_MITM_COMMANDW_MITM_WAIT_SPECIFIC_CHAR				0x02
+#define		RASPI_MITM_COMMANDW_ARE_YOU_THERE						0x03
+#define		RASPI_MITM_COMMANDW_START_SOCKETBRIDGE					0x04
+#define		RASPI_MITM_COMMANDW_SERIALIZED_sMSG						0x05
 
 namespace cpubridge
 {

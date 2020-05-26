@@ -5,21 +5,25 @@
 /***************************************************
  * ritorna 0 se out_buffer non è abbastanza grande da contenere il messaggio.
  * altrimenti ritorna il num di byte inseriti in out_buffer
+ *
+ *  normale messaggio cpu-gpu   [#] [W] [len] [...] [ck]
+ *  messaggio rasPI             [#] [W] [len1] [len2] [command] [...] [ck]
  */
-u8 cpubridge::buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer)
+u16 cpubridge::buildMsg_rasPI_MITM (u8 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
     //calcolo della dimensione totale
-    if (sizeOfOutBuffer < (u32)(4 + sizeOfOptionaData))
+    if (sizeOfOutBuffer < (u32)(6 + sizeOfOptionaData))
+    {
+        DBGBREAK;
         return 0;
+    }
 
-    u8 ct = 0;
+    u32 ct = 0;
     out_buffer[ct++] = '#';
     out_buffer[ct++] = 'W';
-    out_buffer[ct++] = 0;	//length
-    out_buffer[ct++] = 0xff;
-    out_buffer[ct++] = 0xff;
-    rhea::utils::bufferWriteU16 (&out_buffer[ct], command);
-    ct+=2;
+    out_buffer[ct++] = 0;	//len1
+    out_buffer[ct++] = 0;	//len2
+    out_buffer[ct++] = command;
 
     if (optionalData && sizeOfOptionaData)
     {
@@ -27,24 +31,72 @@ u8 cpubridge::buildMsg_rasPI_MITM (u16 command, const u8 *optionalData, u16 size
         ct += sizeOfOptionaData;
     }
 
-    out_buffer[2] = (ct+1);	//length
+    rhea::utils::bufferWriteU32 (&out_buffer[2], ct+1);	//length
     out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
     ct++;
 
-    return ct;
+    assert(ct <= 0xffff);
+    return (u16)ct;
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_rasPI_MITM_AreYouThere (u8 *out_buffer, u8 sizeOfOutBuffer)
+u16 cpubridge::buildMsg_rasPI_MITM_areYouThere (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-    return cpubridge::buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE, NULL, 0, out_buffer, sizeOfOutBuffer);
+    return cpubridge::buildMsg_rasPI_MITM (RASPI_MITM_COMMANDW_ARE_YOU_THERE, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_rasPI_MITM_START_SOCKETBRIDGE (u8 *out_buffer, u8 sizeOfOutBuffer)
+u16 cpubridge::buildMsg_rasPI_MITM_startSocketBridge (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-    return cpubridge::buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE, NULL, 0, out_buffer, sizeOfOutBuffer);
+    return cpubridge::buildMsg_rasPI_MITM (RASPI_MITM_COMMANDW_START_SOCKETBRIDGE, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
+
+//***************************************************
+u16 cpubridge::buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+    return cpubridge::buildMsg_rasPI_MITM (RASPI_MITM_COMMANDW_SEND_AND_DO_NOT_WAIT, bufferToSend, nBytesToSend, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u16 cpubridge::buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+    const u32 nBytesForSerializedMsg = rhea::thread::calcSizeNeededToSerializeMsg(msg);
+
+   //calcolo della dimensione totale
+    if (sizeOfOutBuffer < (u32)(6 + nBytesForSerializedMsg))
+    {
+        DBGBREAK;
+        return 0;
+    }
+
+    u32 ct = 0;
+    out_buffer[ct++] = '#';
+    out_buffer[ct++] = 'W';
+    out_buffer[ct++] = 0;	//len1
+    out_buffer[ct++] = 0;	//len2
+    out_buffer[ct++] = RASPI_MITM_COMMANDW_SERIALIZED_sMSG;
+
+    ct += rhea::thread::serializeMsg (msg, &out_buffer[ct], sizeOfOutBuffer - ct);
+
+    rhea::utils::bufferWriteU32 (&out_buffer[2], ct+1);	//length
+    out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
+    ct++;
+
+    assert(ct <= 0xffff);
+    return (u16)ct;
+}
+
+//***************************************************
+u16 cpubridge::buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+    assert (timeoutMSec < u32MAX);
+    u8 optionalData[8];
+    rhea::utils::bufferWriteU32(optionalData, (u32)timeoutMSec);
+    optionalData[4] = expectedChar;
+
+    return cpubridge::buildMsg_rasPI_MITM (RASPI_MITM_COMMANDW_MITM_WAIT_SPECIFIC_CHAR, optionalData, 5, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 void cpubridge::ask_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &from)

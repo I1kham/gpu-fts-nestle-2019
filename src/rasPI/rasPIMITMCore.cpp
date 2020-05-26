@@ -1,4 +1,5 @@
 #include "rasPIMITMCore.h"
+#include "../CPUBridge/CPUBridge.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../SocketBridge/SocketBridge.h"
@@ -163,6 +164,20 @@ void Core::run()
 }
 
 //*********************************************************
+void Core::priv_utils_printMsg (const u8 *buffer, u32 nBytes)
+{
+	for (u32 i = 0; i < nBytes; i++)
+	{
+		const u8 c = buffer[i];
+		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '#')
+			logger->log ("%c ", c);
+		else
+			logger->log ("%03d ", c);
+	}
+	logger->log ("\n");
+}
+
+//*********************************************************
 void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 {
 	while (1)
@@ -182,6 +197,12 @@ void Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 			return;
 
 		//ho un valido messaggio in msg, shifto il buffer per eliminarlo dalla coda
+		if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
+			logger->log ("rcv from GPU: "); 
+		else
+			logger->log ("rcv from CPU: "); 
+		priv_utils_printMsg(msg, msgLen);
+		
 		b.removeFirstNBytes(msgLen);
 
 		//gestisco il messaggio
@@ -272,7 +293,18 @@ u32 Core::priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const
 		return 0;
 
 	const char command = (const char)p[1];
-	const u8 expectedMsgLen = p[2];
+
+	u16 expectedMsgLen;
+	if (command == 'W')
+	{
+		//è un messaggio speciale del protocollo rasPI, supporta una lunghezza max di 0xffff
+		expectedMsgLen = rhea::utils::bufferReadU16(&p[2]);
+	}
+	else
+	{
+		//è un classico msg CPU-GPU
+		expectedMsgLen = p[2];
+	}
 
 	if (expectedMsgLen < 4)
 		return 0;
@@ -295,6 +327,15 @@ u32 Core::priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const
  */
 bool Core::priv_serial_send (OSSerialPort &comPort, const u8 *buffer, u16 nBytesToSend)
 {
+	if (0 == nBytesToSend)
+		return true;
+
+	if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
+		logger->log ("snd to GPU: "); 
+	else
+		logger->log ("snd to CPU: "); 
+	priv_utils_printMsg(buffer, nBytesToSend);
+
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
 	u16 nBytesSent = 0;
 	
@@ -354,12 +395,12 @@ bool Core::priv_serial_waitMsg (OSSerialPort &comPort, u8 *out_answer, u16 *in_o
 
 			if (sizeOfBuffer < msgLen)
 			{
-				logger->log("Core::priv_handleMsg_rcv() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOfBuffer);
+				logger->log("Core::priv_serial_waitMsg() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOfBuffer);
 				return false;
 			}
 			if (msgLen < 4)
 			{
-				logger->log("Core::priv_handleMsg_rcv() => ERR invalid msg len [%d]\n", msgLen);
+				logger->log("Core::priv_serial_waitMsg() => ERR invalid msg len [%d]\n", msgLen);
 				return false;
 			}
 
@@ -382,13 +423,13 @@ bool Core::priv_serial_waitMsg (OSSerialPort &comPort, u8 *out_answer, u16 *in_o
 				if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
 					return true;
 
-				logger->log("Core::priv_handleMsg_rcv() => ERR, invalid checksum\n", msgLen, sizeOfBuffer);
+				logger->log("Core::priv_serial_waitMsg() => ERR, invalid checksum\n", msgLen, sizeOfBuffer);
 				return false;
 			}
 		}
 	}
 
-	logger->log("Core::priv_handleMsg_rcv() => ERR, timeout rcv\n\n");
+	logger->log("Core::priv_serial_waitMsg() => ERR, timeout rcv\n\n");
 	return false;
 }
 
@@ -429,26 +470,10 @@ void Core::priv_handleIncomingMsgFromSubscriber()
 			{
 				//è un messaggio di tipo "CPUBRIDGE_SUBSCRIBER_ASK_.." inviato dal mio subscriber e che devo inviare alla GPU
 				//lungo la seriale. Creo quindi un msg "W" ad hoc
-				u8 tempBuffer[1024];
-				const u32 msgLen = rhea::thread::serializeMsg (msg, tempBuffer, sizeof(tempBuffer));
-				if (msgLen)
-				{
-					assert (msgLen <= (0xff - 4));
-					const u32 startOfMsg = bufferSpontaneousMsgForGPU.numBytesInBuffer;
-					bufferSpontaneousMsgForGPU.appendU8 ((u8)'#');
-					bufferSpontaneousMsgForGPU.appendU8 ((u8)'W');
-					bufferSpontaneousMsgForGPU.appendU8 ((u8)(msgLen + 4));
-					bufferSpontaneousMsgForGPU.append (tempBuffer, msgLen);
-
-					const u8 ck = rhea::utils::simpleChecksum8_calc (&bufferSpontaneousMsgForGPU.buffer[startOfMsg], msgLen + 3);
-					bufferSpontaneousMsgForGPU.appendU8 (ck);
-
-					logger->log ("adding [bufferSpontaneousMsgForGPU]\n");
-				}
-				else
-				{
-					DBGBREAK;
-				}
+				const u32 ct = bufferSpontaneousMsgForGPU.numBytesInBuffer;
+				const u16 n = cpubridge::buildMsg_rasPI_MITM_serializedSMsg (msg, &bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.SIZE - ct);
+				bufferSpontaneousMsgForGPU.numBytesInBuffer += n;
+				logger->log ("adding [bufferSpontaneousMsgForGPU]\n");
 			}
 			else
 				logger->log ("rasPI::MITM::priv_handleIncomingMsgFromThreadQ() => unhandled msg from thread msgQ [what=%d]\n", msg.what);
@@ -461,65 +486,32 @@ void Core::priv_handleIncomingMsgFromSubscriber()
 }
 
 //*********************************************************
-bool Core::priv_buildAndSendMsgWToGPU (u16 command, const u8 *optionalData, u16 sizeOfOptionaData)
-{
-	u8 msg[256];
-
-	//calcolo della dimensione totale
-	//# W [len] [0xff] [0xff] [command] .... [ck]
-	if (sizeof(msg) < 7 + sizeOfOptionaData)
-	{
-		DBGBREAK;
-		return false;
-	}
-
-	u8 ct = 0;
-	msg[ct++] = '#';
-	msg[ct++] = 'W';
-	msg[ct++] = 0; //length
-	msg[ct++] = 0xff;
-	msg[ct++] = 0xff;
-	rhea::utils::bufferWriteU16 (&msg[ct], command);
-	ct += 2;
-
-	if (optionalData && sizeOfOptionaData)
-	{
-		memcpy(&msg[ct], optionalData, sizeOfOptionaData);
-		ct += sizeOfOptionaData;
-	}
-
-	msg[2] = (ct+1);	//length
-	msg[ct] = rhea::utils::simpleChecksum8_calc(msg, ct);
-	ct++;
-	
-	priv_serial_send (comGPU, msg, ct);
-	return true;
-}
-
-//*********************************************************
 void Core::priv_handleInternalWMessages(const u8 *msg)
 {
 	//Ho ricevuto un msg 'W' da GPU.
 	//Questo msg è speficico per MITM, non va inoltrato al mio subscriber
 	//# W [len] [0xff] [0xff] [command] .... [ck]
-	const u16 command = rhea::utils::bufferReadU16 (&msg[5]);
-	switch (command)
+	const u8 subcommand = msg[4];
+	switch (subcommand)
 	{
 	default:
-		logger->log ("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", msg[5]);
+		DBGBREAK;
+		logger->log ("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", subcommand);
 		break;
 
-	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE:
+	case RASPI_MITM_COMMANDW_ARE_YOU_THERE:
 		//E' una sorta di ping che GPU invia per sapere se il modulo MITM esiste
 		//Rispondo con lo stesso msg includendo versione e 3 byte per usi futuri
 		{
+			u8 bufferW[32];
 			const u8 optionalData[4] = { RASPI_MODULE_VERSION, 0,0,0 };
-			priv_buildAndSendMsgWToGPU (command, optionalData, 4);
+			const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, optionalData, 4, bufferW, sizeof(bufferW));
+			priv_serial_send (comGPU, bufferW, nToSend);
 		}
 		break;
 
 
-	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE:
+	case RASPI_MITM_COMMANDW_START_SOCKETBRIDGE:
 		//GPU mi comunica che posso uscire dalla fase di "boot" e lanciare socketbridge in modo da
 		//permettere agli utenti web di accedere all'interfaccia
 		{
@@ -527,42 +519,28 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 			socketbridge::startServer(logger, subscriberSocketListener.hFromOtherToCpuW, false, false, &hSocketBridgeThread);
 
 			//rispondo con lo stesso msg indicando 0x01 per dire che tutto ok
+			u8 bufferW[16];
 			const u8 optionalData = 0x01;
-			priv_buildAndSendMsgWToGPU (command, &optionalData, 1);
+			const u16	nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, &optionalData, 1, bufferW, sizeof(bufferW));
+			priv_serial_send (comGPU, bufferW, nToSend);
 		}
 		break;
 
-	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT:
+	case RASPI_MITM_COMMANDW_SEND_AND_DO_NOT_WAIT:
 		//la gpu vuole che io mandi un tot di dati direttamente a CPU e che poi non aspetti alcuna risposta
-		//Il trucco di questo msg è che nel messaggio W non ho il payload, ho solo l'indicazione della dimensione dei dati
-		//da inviare. Subito in coda al messaggio W, ho il payload, non formattato come messaggio ma come un semplice stream di dati
 		{
-			u32 nLeftToBeRead = rhea::utils::bufferReadU32(&msg[7]);
-
-			u8 tempBuffer[128];
-			const u64 timeToExitMSec = rhea::getTimeNowMSec() + 4000;
-			while (nLeftToBeRead>0 && rhea::getTimeNowMSec() < timeToExitMSec)
-			{
-				u32 maxToRead = nLeftToBeRead;
-				if (maxToRead > sizeof(tempBuffer))
-					maxToRead = sizeof(tempBuffer);
-				u32 nLetti = rhea::rs232::readBuffer(comGPU, tempBuffer, maxToRead);
-				if (nLetti)
-				{
-					priv_serial_send (comCPU, tempBuffer, nLetti);
-					assert (nLetti <= nLeftToBeRead);
-					nLeftToBeRead -= nLetti;
-				}
-			}
+			const u8 *payload = &msg[5];
+			const u16 payloadLen = rhea::utils::bufferReadU16(&msg[2]) - 6;
+			priv_serial_send (comCPU, payload, payloadLen);
 		}
 		break;
 
-	case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WAIT_SPECIFIC_CHAR:
+	case RASPI_MITM_COMMANDW_MITM_WAIT_SPECIFIC_CHAR:
 		//GPU vuole che io stia in attesa di un singolo char in arrivo dalla CPU
 		//Il char in questione deve essere precisamente quello indicato dal payload, eventuali altri char in arrivo da CPU sono 
 		//scartati. Se il char in questione arriva entro il timeout, rispondo alla GPU, altrimenti niente
 		{
-			const u8 *payload = &msg[7];
+			const u8 *payload = &msg[5];
 			const u32 timeoutMSec = rhea::utils::bufferReadU32(payload);
 			const u8 specificChar = payload[4];
 

@@ -209,7 +209,6 @@ bool CPUChannelCom::waitForASpecificChar(u8 expectedChar, u64 timeoutMSec)
 	return false;
 }
 
-
 //***************************************************
 u32 CPUChannelCom::priv_extractFirstValidMessage (u8 *out_answer, u16 sizeOf_outAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
 {
@@ -217,6 +216,7 @@ u32 CPUChannelCom::priv_extractFirstValidMessage (u8 *out_answer, u16 sizeOf_out
 	u16 nBytesRcv = 0;
 	u8	commandChar = 0x00;
 	u8	msgLen = 0x00;
+	u8	msgLen2 = 0x00;
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		//aspetto di riceve un #
@@ -243,50 +243,96 @@ u32 CPUChannelCom::priv_extractFirstValidMessage (u8 *out_answer, u16 sizeOf_out
 			DUMP(&commandChar, 1);
 		}
 
-		//aspetto di riceve la lunghezza totale del messaggio
-		if (nBytesRcv == 2)
+
+		if (commandChar == 'W')
 		{
-			if (0 == rhea::rs232::readBuffer(comPort, &msgLen, 1))
-				continue;
-			nBytesRcv++;
+			//comando speciale per la gestione del rasPI.
+			//La sua sintassi è diversa dal classico comandi cpu-gpu in quanto supporta una lungheza fino a 0xffff 
 
-			DUMP(&msgLen, 1);
-
-			if (sizeOf_outAnswer < msgLen)
+			//aspetto di riceve la lunghezza totale del messaggio
+			if (nBytesRcv == 2)
 			{
-				logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOf_outAnswer);
-				return 0;
+				if (0 == rhea::rs232::readBuffer(comPort, &msgLen, 1))
+					continue;
+				nBytesRcv++;
 			}
-			if (msgLen < 4)
+			else if (nBytesRcv == 3)
 			{
-				logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR invalid msg len [%d]\n", msgLen);
-				return 0;
+				if (0 == rhea::rs232::readBuffer(comPort, &msgLen2, 1))
+					continue;
+				nBytesRcv++;
 			}
+			else if (nBytesRcv > 3)
+			{
+				const u16 totalMsgLen = (u16)msgLen * 256 + msgLen2;
+				const u16 nMissing = totalMsgLen - nBytesRcv;
+				const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
+				DUMP(&out_answer[nBytesRcv], nLetti);
 
-			out_answer[0] = '#';
-			out_answer[1] = commandChar;
-			out_answer[2] = msgLen;
+				nBytesRcv += nLetti;
+				if (nBytesRcv >= totalMsgLen)
+				{
+					DUMPMSG("\n");
+					//eval checksum
+					if (out_answer[totalMsgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, totalMsgLen - 1))
+						return totalMsgLen;
+
+					logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR, invalid checksum\n", totalMsgLen, sizeOf_outAnswer);
+					DUMPMSG("\nERR, invalid checksum\n");
+
+					return 0;
+				}
+			}
 		}
-
-		//cerco di recuperare tutto il resto del msg
-		if (nBytesRcv >= 3)
+		else
 		{
-			const u16 nMissing = msgLen - nBytesRcv;
-			const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
-			DUMP(&out_answer[nBytesRcv], nLetti);
+			//classico messaggio cpu-cpu
 
-			nBytesRcv += nLetti;
-			if (nBytesRcv >= msgLen)
+			//aspetto di riceve la lunghezza totale del messaggio
+			if (nBytesRcv == 2)
 			{
-				DUMPMSG("\n");
-				//eval checksum
-				if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
-					return out_answer[2];
+				if (0 == rhea::rs232::readBuffer(comPort, &msgLen, 1))
+					continue;
+				nBytesRcv++;
 
-				logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR, invalid checksum\n", msgLen, sizeOf_outAnswer);
-				DUMPMSG("\nERR, invalid checksum\n");
+				DUMP(&msgLen, 1);
 
-				return 0;
+				if (sizeOf_outAnswer < msgLen)
+				{
+					logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOf_outAnswer);
+					return 0;
+				}
+				if (msgLen < 4)
+				{
+					logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR invalid msg len [%d]\n", msgLen);
+					return 0;
+				}
+
+				out_answer[0] = '#';
+				out_answer[1] = commandChar;
+				out_answer[2] = msgLen;
+			}
+
+			//cerco di recuperare tutto il resto del msg
+			if (nBytesRcv >= 3)
+			{
+				const u16 nMissing = msgLen - nBytesRcv;
+				const u16 nLetti = (u16)rhea::rs232::readBuffer(comPort, &out_answer[nBytesRcv], nMissing);
+				DUMP(&out_answer[nBytesRcv], nLetti);
+
+				nBytesRcv += nLetti;
+				if (nBytesRcv >= msgLen)
+				{
+					DUMPMSG("\n");
+					//eval checksum
+					if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
+						return out_answer[2];
+
+					logger->log("CPUChannelCom::priv_extractFirstValidMessage() => ERR, invalid checksum\n", msgLen, sizeOf_outAnswer);
+					DUMPMSG("\nERR, invalid checksum\n");
+
+					return 0;
+				}
 			}
 		}
 	}

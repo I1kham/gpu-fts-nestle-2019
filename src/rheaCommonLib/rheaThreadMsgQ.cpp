@@ -135,19 +135,23 @@ void thread::deleteMsgQ (HThreadMsgR &handleR, HThreadMsgW &handleW UNUSED_PARAM
 }
 
 //**************************************************************
+u32 thread::calcSizeNeededToSerializeMsg (const sMsg &msg)
+{
+    return sizeof(msg.what) + sizeof(msg.paramU32) + sizeof(msg.bufferSize) + msg.bufferSize;
+}
+
+//**************************************************************
 u32 thread::serializeMsg (const sMsg &msg, u8 *out_buffer, u32 sizeof_out_buffer)
 {
-    const u32 bytesNeeded = 2 + sizeof(msg.what) + sizeof(msg.paramU32) + sizeof(msg.bufferSize) + msg.bufferSize;
+    const u32 bytesNeeded = calcSizeNeededToSerializeMsg(msg);
     assert (bytesNeeded < 0xffff);
     if (sizeof_out_buffer < bytesNeeded)
     {
         DBGBREAK;
         return 0;
     }
-    u32 ct = 0;
-    rhea::utils::bufferWriteU16 (&out_buffer[ct], (u16)bytesNeeded);
-    ct += 2;
 
+    u32 ct = 0;
     rhea::utils::bufferWriteU16 (&out_buffer[ct], msg.what);
     ct += 2;
 
@@ -162,6 +166,8 @@ u32 thread::serializeMsg (const sMsg &msg, u8 *out_buffer, u32 sizeof_out_buffer
         memcpy (&out_buffer[ct], msg.buffer, msg.bufferSize);
         ct += msg.bufferSize;
     }
+
+    assert (ct == bytesNeeded);
     return ct;
 }
 
@@ -169,8 +175,6 @@ u32 thread::serializeMsg (const sMsg &msg, u8 *out_buffer, u32 sizeof_out_buffer
 u32 thread::deserializMsg (const u8 *buffer, u16 *out_what, u32 *out_paramU32, u32 *out_bufferSize, const u8 **out_bufferPt)
 {
     u32 ct = 0;
-    //const u16 bytesNeeded = rhea::utils::bufferReadU16 (&buffer[ct]);
-    ct += 2;
 
     *out_what = rhea::utils::bufferReadU16 (&buffer[ct]);
     ct += 2;

@@ -273,14 +273,8 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 		rhea::thread::sMsg msg;
 		while (rhea::thread::popMsg (rasPISubscription->q.hFromCpuToOtherR, &msg))
 		{
-			answerBuffer[0] = '#';
-			answerBuffer[1] = 'W';
-			answerBuffer[2] = 0; //len
-			const u32 nBytesToSend = rhea::thread::serializeMsg (msg, &answerBuffer[3], sizeof(answerBuffer)-4);
-            assert (nBytesToSend+4 < 0xff);
-            answerBuffer[2] = (u8)nBytesToSend+4;
-			answerBuffer[nBytesToSend + 3] = rhea::utils::simpleChecksum16_calc(answerBuffer, nBytesToSend + 3);
-			chToCPU->sendOnlyAndDoNotWait(answerBuffer, (u16)(nBytesToSend+4), logger);
+			const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_serializedSMsg (msg, answerBuffer, sizeof(answerBuffer));
+			chToCPU->sendOnlyAndDoNotWait(answerBuffer, nBytesToSend, logger);
 			rhea::thread::deleteMsg (msg);
 		}
 	}
@@ -297,19 +291,34 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 		for (u8 i = 0; i < n; i++)
 		{
 			const u8 commandChar  = p[ct + 1];
-			const u8 msgLen = p[ct + 2];
 			if (commandChar == 'W')
 			{
-				//le pusho come se arrivassero da un subscriber qualunque
-				u16         what = 0;
-				u32         paramU32 = 0;
-				u32         bufferSize = 0;
-				const u8	*bufferPt = NULL;
-                rhea::thread::deserializMsg (&p[ct+3], &what, &paramU32, &bufferSize, &bufferPt);
-				rhea::thread::pushMsg (rasPISubscription->q.hFromOtherToCpuW, what, paramU32, bufferPt, bufferSize);
-			}
+				const u16 msgLen = rhea::utils::bufferReadU16 (&p[ct + 2]);
+				const u8 subcommand = p[ct + 4];
 
-			ct += msgLen;
+				switch (subcommand)
+				{
+				case RASPI_MITM_COMMANDW_SERIALIZED_sMSG:
+					//le pusho come se arrivassero da un subscriber qualunque
+					{
+						u16         what = 0;
+						u32         paramU32 = 0;
+						u32         bufferSize = 0;
+						const u8	*bufferPt = NULL;
+						rhea::thread::deserializMsg (&p[ct + 5], &what, &paramU32, &bufferSize, &bufferPt);
+						rhea::thread::pushMsg (rasPISubscription->q.hFromOtherToCpuW, what, paramU32, bufferPt, bufferSize);
+					}
+					break;
+
+				default:
+					DBGBREAK;
+					break;
+				}
+
+				ct += msgLen;
+			}
+			else
+				ct += p[ct + 2];
 		}
 	}
 
@@ -1123,7 +1132,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
         case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE:
         {
             u8 bufferW[16];
-            const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_AreYouThere(bufferW, sizeof(bufferW));
+            const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
             u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
             if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
             {
@@ -1142,7 +1151,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
         case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE:
             {
                 u8 bufferW[16];
-                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_START_SOCKETBRIDGE(bufferW, sizeof(bufferW));
+                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_startSocketBridge(bufferW, sizeof(bufferW));
                 u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
                 priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
             }
@@ -1317,7 +1326,7 @@ bool Server::priv_CPUFWUpdate_waitForASpecificChar(u8 expectedChar, u64 timeoutM
 		optionalData[4] = expectedChar;
 
 		u8 bufferW[32];
-		const u32 nBytesToSend = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WAIT_SPECIFIC_CHAR, optionalData, 5, bufferW, sizeof(bufferW));
+		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_waitSpecificChar (expectedChar, timeoutMSec, bufferW, sizeof(bufferW));
 		chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
 		
 		u8 rcvChar = 0x00;
@@ -1334,14 +1343,8 @@ void Server::priv_CPUFWUpdate_sendAndDoNotWait(const u8 *buffer, u32 nBytesToSen
 		chToCPU->sendOnlyAndDoNotWait(buffer, nBytesToSend, logger);
 	else
 	{
-		//devo supportare l'invio di un payload che potrebbe essere > 255 bytes, cosa che non è fattibile coi normali messaggi CPU/GPU
-		//Invio quindi un primo msg 'W' che contiene la lunghezza in byte del payload da inviare. Subito in coda al mssg W, invio
-		//tutti i byte del payload.
-		u8 optionalData[4];
-		rhea::utils::bufferWriteU32(optionalData, nBytesToSend);
-        const u8 n = buildMsg_rasPI_MITM (CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_SEND_AND_DO_NOT_WAIT, optionalData, 4, answerBuffer, sizeof(answerBuffer));
+		const u16 n = cpubridge::buildMsg_rasPI_MITM_sendAndDoNotWait (buffer, nBytesToSend, answerBuffer, sizeof(answerBuffer));
 		chToCPU->sendOnlyAndDoNotWait(answerBuffer, n, logger);
-		chToCPU->sendOnlyAndDoNotWait(buffer, nBytesToSend, logger);
 	}
 }
 
@@ -1423,7 +1426,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	bool bRasPIExists = false;
 	{
 		u8 bufferW[16];
-		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_AreYouThere(bufferW, sizeof(bufferW));
+		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
         if (chToCPU->sendAndWaitAnswer(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, logger, 5000))
         {
