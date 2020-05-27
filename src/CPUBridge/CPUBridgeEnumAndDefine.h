@@ -67,9 +67,10 @@
 #define		CPUBRIDGE_NOTIFY_MILKER_VER						0x012D
 
 
-
+#define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_GET_WIFI_IP			0x01FD
 #define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_ARE_YOU_THERE		0x01FE
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
+
 
 
  /**********************************************************************
@@ -138,16 +139,21 @@
   */
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE						0x0A00
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE					0x0A01
+#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP								0x0A02
 
 
  /**********************************************************************
   * comandi supportati dal msg 'W' usato per comunicare con rasPI
   */
-#define		RASPI_MITM_COMMANDW_SEND_AND_DO_NOT_WAIT				0x01
-#define		RASPI_MITM_COMMANDW_MITM_WAIT_SPECIFIC_CHAR				0x02
-#define		RASPI_MITM_COMMANDW_ARE_YOU_THERE						0x03
-#define		RASPI_MITM_COMMANDW_START_SOCKETBRIDGE					0x04
-#define		RASPI_MITM_COMMANDW_SERIALIZED_sMSG						0x05
+enum eRasPISubcommand
+{
+	eRasPISubcommand_SEND_AND_DO_NOT_WAIT	= 0x01,
+	eRasPISubcommand_WAIT_SPECIFIC_CHAR		= 0x02,
+	eRasPISubcommand_ARE_YOU_THERE			= 0x03,
+	eRasPISubcommand_START_SOCKETBRIDGE		= 0x04,
+	eRasPISubcommand_SERIALIZED_sMSG		= 0x05,
+	eRasPISubcommand_GET_WIFI_IP			= 0x06
+};
 
 namespace cpubridge
 {
@@ -466,6 +472,7 @@ namespace cpubridge
 		
 		static const u16 FLAG1_CUP_ABSENT					= 0x0100;
 		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0200;
+		static const u16 FLAG1_RASPI_MITM_EXISTS			= 0x0400;
 
 		char							userCurrentCredit[16];
 		char							curLangISO[4];

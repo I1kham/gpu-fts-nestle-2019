@@ -4,6 +4,7 @@
 #include "rheaThread.h"
 #include "rheaLogTargetFile.h"
 #include "rheaRandom.h"
+#include "rheaString.h"
 
 namespace rhea
 {
@@ -135,6 +136,34 @@ u32 rhea::randomU32(u32 iMax)									{ return rheaGlobals.rnd.getU32(iMax); }
 
 
 //***************************************************
+void rhea::netaddr::ipstrTo4bytes (const char *ip, u8 *out_b1, u8 *out_b2, u8 *out_b3, u8 *out_b4)
+{
+	*out_b1 = *out_b2 = *out_b3 = *out_b4 = 0;
+
+	rhea::string::utf8::Iter iter;
+	iter.setup ((const u8*)ip);
+
+	const UTF8Char chPunto(".");
+	i32 n = 0;
+	if (string::utf8::extractInteger (iter, &n, &chPunto, 1))
+	{
+		*out_b1 = (u8)n;
+		iter.advanceOneChar();
+		if (string::utf8::extractInteger (iter, &n, &chPunto, 1))
+		{
+			*out_b2 = (u8)n;
+			iter.advanceOneChar();
+			if (string::utf8::extractInteger (iter, &n, &chPunto, 1))
+			{
+				*out_b3 = (u8)n;
+				iter.advanceOneChar();
+				if (string::utf8::extractInteger (iter, &n, &chPunto, 1))
+					*out_b4 = (u8)n;
+			}
+		}
+	}
+}
+
 void rhea::netaddr::setFromSockAddr(OSNetAddr &me, const sockaddr_in &addrIN)			{ memcpy(&me.addr, &addrIN, sizeof(sockaddr_in)); }
 void rhea::netaddr::setFromAddr(OSNetAddr &me, const OSNetAddr &addrIN)					{ memcpy(&me.addr, &addrIN.addr, sizeof(sockaddr_in)); }
 void rhea::netaddr::setIPv4(OSNetAddr &me, const char *ip)								{ me.addr.sin_family = AF_INET; me.addr.sin_addr.s_addr = inet_addr(ip); }

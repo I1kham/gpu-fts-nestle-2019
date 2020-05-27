@@ -224,11 +224,11 @@ sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea:
 		
 		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwAddr;
 		InetNtopA(AF_INET, &IPAddr, ret[i].ip, sizeof(ret[i].ip));
-		printf("\tIP Address[%d]:     \t%s\n", i, ret[i].ip);
+		//printf("\tIP Address[%d]:     \t%s\n", i, ret[i].ip);
 		
 		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwMask;
 		InetNtopA(AF_INET, &IPAddr, ret[i].subnetMask, sizeof(ret[i].subnetMask));
-		printf("\tSubnet Mask[%d]:    \t%s\n", i, ret[i].subnetMask);
+		//printf("\tSubnet Mask[%d]:    \t%s\n", i, ret[i].subnetMask);
 		
 		/*IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwBCastAddr;
 		printf("\tBroadCast[%d]:      \t%s (%ld)\n", i, InetNtop(AF_INET, &IPAddr, sAddr, sizeof(sAddr)), pIPAddrTable->table[i].dwBCastAddr);

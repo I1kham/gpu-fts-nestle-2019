@@ -294,11 +294,11 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 			if (commandChar == 'W')
 			{
 				const u16 msgLen = rhea::utils::bufferReadU16_LSB_MSB (&p[ct + 2]);
-				const u8 subcommand = p[ct + 4];
+				const eRasPISubcommand subcommand = (eRasPISubcommand)p[ct + 4];
 
 				switch (subcommand)
 				{
-				case RASPI_MITM_COMMANDW_SERIALIZED_sMSG:
+				case eRasPISubcommand_SERIALIZED_sMSG:
 					//le pusho come se arrivassero da un subscriber qualunque
 					{
 						u16         what = 0;
@@ -1154,6 +1154,19 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                 const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_startSocketBridge(bufferW, sizeof(bufferW));
                 u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
                 priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
+            }
+            break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP:
+            {
+                u8 bufferW[16];
+                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_getWifiIP(bufferW, sizeof(bufferW));
+                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				{
+					const u8 *payload = &answerBuffer[5];
+					notify_CPU_RASPI_MITM_GET_WIFI_IP (sub->q, handlerID, logger, payload[0], payload[1], payload[2], payload[3]);
+				}
             }
             break;
 		} //switch
@@ -2072,9 +2085,15 @@ void Server::priv_enterState_compatibilityCheck()
 //***************************************************
 void Server::priv_handleState_compatibilityCheck()
 {
-	//preparo il msg da mandare alla CPU
 	u8 bufferW[64];
-	
+
+
+	//per prima cosa mi informo sulla presenza del modulo rasPI
+    const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
+    u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+    if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+		cpuStatus.flag1 |= sCPUStatus::FLAG1_RASPI_MITM_EXISTS;
+
 
 	//mando il comando "C" una decina di volte per vedere se la CPU esiste
 	u8 nRetry = 10;

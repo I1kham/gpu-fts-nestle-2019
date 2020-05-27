@@ -112,6 +112,7 @@ namespace rasPI
 			sBuffer					bufferSpontaneousMsgForGPU;
 			cpubridge::sSubscriber	subscriberSocketListener;
 			bool					bDoIHaveASubscriber;
+			u8						wifiIP[4];
 		};
 	} //namespace MITM
 } // namespace rasPI

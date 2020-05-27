@@ -98,6 +98,35 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 	priv_allocBuffer (&bufferGPU, SIZE_OF_BUFFER_GPU);
 	priv_allocBuffer (&bufferSpontaneousMsgForGPU, 4096);
 	
+
+	//recupero il mio IP di rete wifi
+	memset (wifiIP, 0, sizeof(wifiIP));
+	{
+		u32 n = 0;
+		sNetworkAdapterInfo *ipList = rhea::netaddr::getListOfAllNerworkAdpaterIPAndNetmask (rhea::getScrapAllocator(), &n);
+		if (n)
+		{
+			for (u32 i = 0; i < n; i++)
+			{
+				if (strcasecmp (ipList[i].name, "wlan0") == 0)
+				{
+					rhea::netaddr::ipstrTo4bytes (ipList[i].ip, &wifiIP[0], &wifiIP[1], &wifiIP[2], &wifiIP[3]);
+					break;
+				}
+			}
+			
+			if (wifiIP[0] == 0)
+			{
+				//questo è per la versione win, che non ha wlan0
+				rhea::netaddr::ipstrTo4bytes (ipList[0].ip, &wifiIP[0], &wifiIP[1], &wifiIP[2], &wifiIP[3]);
+			}
+
+			RHEAFREE(rhea::getScrapAllocator(), ipList);
+			logger->log ("WIFI IP: %d.%d.%d.%d\n", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
+		}
+	}
+
+
 	logger->log ("OK\n");
 	logger->decIndent();
     return true;
@@ -528,7 +557,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 	//Ho ricevuto un msg 'W' da GPU.
 	//Questo msg è speficico per MITM, non va inoltrato al mio subscriber
 	//# W [len1] [len2] [subcommand] .... [ck]
-	const u8 subcommand = msg[4];
+	const eRasPISubcommand subcommand = (eRasPISubcommand)msg[4];
 	const u8 *payload = &msg[5];
 	const u16 totalMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&msg[2]);
 	switch (subcommand)
@@ -538,7 +567,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		logger->log ("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", subcommand);
 		break;
 
-	case RASPI_MITM_COMMANDW_SERIALIZED_sMSG:
+	case eRasPISubcommand_SERIALIZED_sMSG:
 		if (bDoIHaveASubscriber)
 		{
 			u16         what = 0;
@@ -551,7 +580,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		break;
 
 
-	case RASPI_MITM_COMMANDW_ARE_YOU_THERE:
+	case eRasPISubcommand_ARE_YOU_THERE:
 		//E' una sorta di ping che GPU invia per sapere se il modulo MITM esiste
 		//Rispondo con lo stesso msg includendo versione e 3 byte per usi futuri
 		{
@@ -563,7 +592,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		break;
 
 
-	case RASPI_MITM_COMMANDW_START_SOCKETBRIDGE:
+	case eRasPISubcommand_START_SOCKETBRIDGE:
 		//GPU mi comunica che posso uscire dalla fase di "boot" e lanciare socketbridge in modo da
 		//permettere agli utenti web di accedere all'interfaccia
 		{
@@ -578,7 +607,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		}
 		break;
 
-	case RASPI_MITM_COMMANDW_SEND_AND_DO_NOT_WAIT:
+	case eRasPISubcommand_SEND_AND_DO_NOT_WAIT:
 		//la gpu vuole che io mandi un tot di dati direttamente a CPU e che poi non aspetti alcuna risposta
 		{
 			const u16 payloadLen = totalMsgLen - 6;
@@ -586,7 +615,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		}
 		break;
 
-	case RASPI_MITM_COMMANDW_MITM_WAIT_SPECIFIC_CHAR:
+	case eRasPISubcommand_WAIT_SPECIFIC_CHAR:
 		//GPU vuole che io stia in attesa di un singolo char in arrivo dalla CPU
 		//Il char in questione deve essere precisamente quello indicato dal payload, eventuali altri char in arrivo da CPU sono 
 		//scartati. Se il char in questione arriva entro il timeout, rispondo alla GPU, altrimenti niente
@@ -609,5 +638,14 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 			}
 		}
 		break;
-	}
+
+	case eRasPISubcommand_GET_WIFI_IP:
+		{
+			//rispondo con lo stesso msg indicando 4 byte dell'IP
+			u8 bufferW[16];
+			const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, wifiIP, 4, bufferW, sizeof(bufferW));
+			priv_serial_send (comGPU, bufferW, nToSend);
+		}
+		break;
+	} //switch
 }

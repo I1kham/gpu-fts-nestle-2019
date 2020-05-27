@@ -158,12 +158,13 @@ namespace cpubridge
     u8			buildMsg_getMilkerVer (u8 *out_buffer, u8 sizeOfOutBuffer);
 
 				//messaggio per il rasPI. Attenzione che a differenza dei normali msg CPU/GPU, questi supportano una lunghezza fino a 0xffff 
-    u16			buildMsg_rasPI_MITM (u8 command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer);
+    u16			buildMsg_rasPI_MITM (eRasPISubcommand command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_areYouThere (u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_startSocketBridge (u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u16			buildMsg_rasPI_MITM_getWifiIP (u8 *out_buffer, u32 sizeOfOutBuffer);
 
 
 
@@ -537,6 +538,13 @@ namespace cpubridge
 
 	void		ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from);
                     //alla ricezione di questo msg, CPUBridge non risponderà alcunchè
+
+	void		ask_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &from);
+                    //alla ricezione di questo msg, CPUBridge non risponderà con notify_CPU_RASPI_MITM_GET_WIFI_IP
+    void		notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress);
+	void		notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3);
+    void		translateNotify_CPU_RASPI_MITM_GET_WIFI_IP(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress);
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_
