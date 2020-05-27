@@ -58,6 +58,19 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
     if (out_serialPort->fd == -1)
     {
         DBGBREAK;
+        switch (errno)
+        {
+        case ENOENT:    return false; //the named file does not exist;
+        case EACCES:    return false;
+        case EEXIST:    return false;
+        case EINTR:     return false;
+        case EINVAL:    return false;
+        case EIO:       return false;
+        case EISDIR:       return false;
+        case ELOOP:     return false;
+        case EMFILE:    return false;
+        default:        return false;
+        }
         return false;
     }
 

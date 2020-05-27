@@ -15,8 +15,13 @@ bool startMITM()
 
 
 	//creo il thread MITM
-	const char serialPortToCPU[] = {"COM4"};
-	const char serialPortToGPU[] = {"COM3"};
+#ifdef LINUX
+    const char serialPortToCPU[] = {"/dev/ttyUSB0"};
+    const char serialPortToGPU[] = {"/dev/ttyUSB1"};
+#else
+    const char serialPortToCPU[] = {"COM4"};\
+    const char serialPortToGPU[] = {"COM3"};
+#endif
     rhea::HThread hMITMThread;
 	HThreadMsgW msgQW_toMITM;
     if (!rasPI::MITM::start (logger, serialPortToGPU, serialPortToCPU, &hMITMThread, &msgQW_toMITM))

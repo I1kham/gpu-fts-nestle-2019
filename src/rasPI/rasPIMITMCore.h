@@ -25,7 +25,7 @@ namespace rasPI
 
 		private:
 			static const u32	TIMEOUT_CPU_ANSWER_MSec = 5000;
-			static const u32	SIZE_OF_BUFFER_GPU = 1024;
+            static const u32	SIZE_OF_BUFFER_GPU = 4096;
 			static const u32	WAITLIST_EVENT_FROM_SUBSCRIBER_MSGQ = 0x00000008;
 
 		private:
