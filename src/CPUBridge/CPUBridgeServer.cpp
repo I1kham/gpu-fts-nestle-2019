@@ -1137,7 +1137,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
             if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
             {
                 //ok, il modulo rasPI esiste
-                const u8 *payload = &answerBuffer[7];
+                const u8 *payload = &answerBuffer[5];
                 notify_CPU_RASPI_MITM_ARE_YOU_THERE (sub->q, handlerID, logger, payload[0], payload[1], payload[2], payload[3]);
             }
             else

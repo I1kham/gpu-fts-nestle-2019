@@ -363,7 +363,8 @@ void MainWindow::priv_syncWithCPU_onTick()
             {
                 //CPU non supportata, andiamo direttamente in form boot dove mostriamo il msg di errore e chiediamo di uppare un nuovo FW
                 this->glob->bSyncWithCPUResult = false;
-                priv_scheduleFormChange (eForm_boot);
+                //priv_scheduleFormChange (eForm_boot);
+                syncWithCPU.stato = 3;
                 return;
             }
 
@@ -373,7 +374,8 @@ void MainWindow::priv_syncWithCPU_onTick()
             {
                 //CPU non supportata, andiamo direttamente in form boot dove mostriamo il msg di errore e chiediamo di uppare un nuovo FW
                 this->glob->bSyncWithCPUResult = false;
-                priv_scheduleFormChange (eForm_boot);
+                //priv_scheduleFormChange (eForm_boot);
+                syncWithCPU.stato = 3;
                 return;
             }
 
@@ -398,7 +400,7 @@ void MainWindow::priv_syncWithCPU_onTick()
     {
         //Ora abbiamo tutte le info, possiamo partire
         //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
-        if (rhea::fs::folderExists(glob->usbFolder))
+        if (this->glob->bSyncWithCPUResult == false || rhea::fs::folderExists(glob->usbFolder))
             priv_scheduleFormChange (eForm_boot);
         else
         {
