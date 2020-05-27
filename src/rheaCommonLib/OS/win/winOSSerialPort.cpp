@@ -70,7 +70,6 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
 
 
 	COMMTIMEOUTS timeouts = { 0 };
-	//per ora l'implementazione della porta NON BLOCCANTE non la faccio
 	if (!bBlocking)
 	{
 		timeouts.ReadIntervalTimeout = MAXDWORD;
