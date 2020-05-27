@@ -4,6 +4,10 @@
 #include "linuxOSInclude.h"
 #include "../../rheaDateTime.h"
 
+namespace rhea
+{
+    class Allocator;
+}
 
 namespace platform
 {

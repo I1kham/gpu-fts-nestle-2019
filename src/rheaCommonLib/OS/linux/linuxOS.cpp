@@ -152,7 +152,7 @@ sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea:
         if (!ifa->ifa_addr)
             continue;
         if (ifa->ifa_addr->sa_family == AF_INET)
-            (*out_nRecordFound)++
+            (*out_nRecordFound)++;
     }
 
 
@@ -170,12 +170,12 @@ sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea:
 
         if (ifa->ifa_addr->sa_family == AF_INET)
         {
-            sprintf_s (ret[ct].name, sizeof(ret[ct].name), "%s", ifa_name);
+            sprintf_s (ret[ct].name, sizeof(ret[ct].name), "%s", ifa->ifa_name);
             void *tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             inet_ntop(AF_INET, tmpAddrPtr, ret[ct].ip, INET_ADDRSTRLEN);
 
             tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_netmask)->sin_addr;
-            inet_ntop(AF_INET, tmpAddrPtr, ret[ct].netmask, INET_ADDRSTRLEN);
+            inet_ntop(AF_INET, tmpAddrPtr, ret[ct].subnetMask, INET_ADDRSTRLEN);
 
             //printf("%s IP Address %s %s\n", ifa->ifa_name, ip, netmask);
             ct++;
@@ -192,6 +192,6 @@ sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea:
     }
     if (ifAddrStruct!=NULL)
         freeifaddrs(ifAddrStruct);
-    return 0;
+    return ret;
 }
 #endif
