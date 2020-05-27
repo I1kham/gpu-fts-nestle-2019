@@ -1386,7 +1386,7 @@ bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_buffe
 		return true;
 
 	//if (!chToCPU->waitForASpecificChar(checksum_counter, 90))
-	if (!priv_CPUFWUpdate_waitForASpecificChar(checksum_counter, 90, bRasPIExists))
+    if (!priv_CPUFWUpdate_waitForASpecificChar(checksum_counter, 190, bRasPIExists))
 		return false;
 
 	in_out_bufferCT = 0;

@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.2.16_rasPI"
+#define GPU_VERSION     "2.2.18_rasPI"
 
 
 //nome della porta seriale
