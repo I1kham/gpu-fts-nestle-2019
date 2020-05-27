@@ -539,7 +539,7 @@ namespace cpubridge
 	void		ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from);
                     //alla ricezione di questo msg, CPUBridge non risponderà alcunchè
 
-	void		ask_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &from);
+	void		ask_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &from, u16 handlerID);
                     //alla ricezione di questo msg, CPUBridge non risponderà con notify_CPU_RASPI_MITM_GET_WIFI_IP
     void		notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress);
 	void		notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3);

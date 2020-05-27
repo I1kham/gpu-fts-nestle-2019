@@ -145,9 +145,9 @@ void cpubridge::ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from)
 }
 
 //***************************************************
-void cpubridge::ask_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &from)
+void cpubridge::ask_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP, (u32)0);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP, handlerID);
 }
 
 //***************************************************
