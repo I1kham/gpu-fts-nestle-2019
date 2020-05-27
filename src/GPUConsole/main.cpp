@@ -16,8 +16,8 @@ socketbridge::SokBridgeIDCode		idCode;
 UserCommandFactory					userCommandFactory;
 u32									SMUVersion = 0;
 bool								bQuitMainThread;
-sIPAddressAndSubnetMask				*ipList = NULL;
-u8									nIPList = 0;
+sNetworkAdapterInfo					*ipList = NULL;
+u32									nIPList = 0;
 
 struct sThreadInitParam
 {
@@ -830,93 +830,6 @@ void go()
 	rhea::thread::deleteMsgQ(handleR, handleW);
 }
 
-
-//*****************************************************
-#include "Iphlpapi.h"
-#include "ws2tcpip.h"
-#pragma comment(lib, "IPHLPAPI.lib")
-sIPAddressAndSubnetMask* scanNetworkAdaptersAndFindLocalIP (rhea::Allocator *allocator, u8 *out_nRecordFound)
-{
-	*out_nRecordFound = 0;
-
-	rhea::Allocator *tempAllocator = rhea::getScrapAllocator();
-
-	// Before calling AddIPAddress we use GetIpAddrTable to get an adapter to which we can add the IP.
-	DWORD dwTableSize = sizeof(MIB_IPADDRTABLE);
-	PMIB_IPADDRTABLE pIPAddrTable = (MIB_IPADDRTABLE *)RHEAALLOC(tempAllocator,dwTableSize);
-	if (GetIpAddrTable(pIPAddrTable, &dwTableSize, 0) == ERROR_INSUFFICIENT_BUFFER)
-	{
-		RHEAFREE(tempAllocator, pIPAddrTable);
-		pIPAddrTable = (MIB_IPADDRTABLE *)RHEAALLOC(tempAllocator, dwTableSize);
-	}
-
-	// Make a second call to GetIpAddrTable to get the actual data we want
-	DWORD err = GetIpAddrTable(pIPAddrTable, &dwTableSize, 0);
-	if (err != NO_ERROR) 
-	{
-		/*
-		LPVOID lpMsgBuf;
-		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)& lpMsgBuf, 0, NULL))
-		{
-			printf("\tError: %s", (const char*)lpMsgBuf);
-			LocalFree(lpMsgBuf);
-		}
-		*/
-		return NULL;
-	}
-
-	if (pIPAddrTable->dwNumEntries == 0)
-		return NULL;
-	if (pIPAddrTable->dwNumEntries > 250)
-		*out_nRecordFound = 250;
-	else
-		*out_nRecordFound = (u8)pIPAddrTable->dwNumEntries;
-	
-	sIPAddressAndSubnetMask *ret = (sIPAddressAndSubnetMask*)RHEAALLOC(allocator, sizeof(sIPAddressAndSubnetMask) * (*out_nRecordFound));
-	memset(ret, 0, sizeof(sIPAddressAndSubnetMask) * (*out_nRecordFound));
-	for (u8 i = 0; i < (*out_nRecordFound); i++)
-	{
-		IN_ADDR IPAddr;
-
-		//printf("\n\tInterface Index[%d]:\t%ld\n", i, pIPAddrTable->table[i].dwIndex);
-		
-		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwAddr;
-		InetNtopA(AF_INET, &IPAddr, ret[i].ip, sizeof(ret[i].ip));
-		printf("\tIP Address[%d]:     \t%s\n", i, ret[i].ip);
-		
-		IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwMask;
-		InetNtopA(AF_INET, &IPAddr, ret[i].subnetMask, sizeof(ret[i].subnetMask));
-		printf("\tSubnet Mask[%d]:    \t%s\n", i, ret[i].subnetMask);
-		
-		/*IPAddr.S_un.S_addr = (u_long)pIPAddrTable->table[i].dwBCastAddr;
-		printf("\tBroadCast[%d]:      \t%s (%ld)\n", i, InetNtop(AF_INET, &IPAddr, sAddr, sizeof(sAddr)), pIPAddrTable->table[i].dwBCastAddr);
-		
-		printf("\tReassembly size[%d]:\t%ld\n", i, pIPAddrTable->table[i].dwReasmSize);
-		
-		printf("\tType and State[%d]:", i);
-		if (pIPAddrTable->table[i].wType & MIB_IPADDR_PRIMARY)
-			printf("\tPrimary IP Address");
-		
-		if (pIPAddrTable->table[i].wType & MIB_IPADDR_DYNAMIC)
-			printf("\tDynamic IP Address");
-		
-		if (pIPAddrTable->table[i].wType & MIB_IPADDR_DISCONNECTED)
-			printf("\tAddress is on disconnected interface");
-		
-		if (pIPAddrTable->table[i].wType & MIB_IPADDR_DELETED)
-			printf("\tAddress is being deleted");
-		
-		if (pIPAddrTable->table[i].wType & MIB_IPADDR_TRANSIENT)
-			printf("\tTransient address");*/
-		//printf("\n");
-	}
-
-	if (pIPAddrTable) 
-		RHEAFREE(tempAllocator, pIPAddrTable);
-
-	return ret;
-}
-
 //*****************************************************
 int main()
 {
@@ -925,7 +838,9 @@ int main()
 
 	//elenco delle schede di rete e relativi ip/subnet mask. Serve per il broadcast su tutte le reti del comando hello
 	rhea::Allocator *localAllocator = rhea::getSysHeapAllocator();
-	ipList = scanNetworkAdaptersAndFindLocalIP(localAllocator, &nIPList);
+	ipList = rhea::netaddr::getListOfAllNerworkAdpaterIPAndNetmask (localAllocator, &nIPList);
+
+	_getch();
 
 	//version info
 	version.apiVersion = 0x01;

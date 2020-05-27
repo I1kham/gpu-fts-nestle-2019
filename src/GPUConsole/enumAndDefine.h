@@ -6,10 +6,4 @@
 #define		MSGQ_DIE			0x02
 
 
-struct sIPAddressAndSubnetMask
-{
-	char	ip[16];
-	char	subnetMask[16];
-};
-
 #endif // _enumAndDefine_h_

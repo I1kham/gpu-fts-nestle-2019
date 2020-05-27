@@ -80,5 +80,12 @@ typedef struct sFindHardDriveResult
 } rheaFindHardDriveResult;
 
 
+
+struct sNetworkAdapterInfo
+{
+    char    name[32];
+	char	ip[16];
+	char	subnetMask[16];
+};
 #endif // _rheaEnumAndDefine_h_
 

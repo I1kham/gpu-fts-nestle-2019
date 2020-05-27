@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <time.h>
+#include <ifaddrs.h>
 #include "../../rhea.h"
 
 struct	sLinuxPlatformData
@@ -138,5 +139,59 @@ void platform::runShellCommandNoWait(const char *cmdIN)
     execvp(cmd, (char* const*)argv);
 }
 
+//*******************************************************************
+sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_nRecordFound)
+{
+    struct ifaddrs * ifAddrStruct=NULL;
+    struct ifaddrs * ifa=NULL;
 
+    *out_nRecordFound = 0;
+    getifaddrs(&ifAddrStruct);
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        if (!ifa->ifa_addr)
+            continue;
+        if (ifa->ifa_addr->sa_family == AF_INET)
+            (*out_nRecordFound)++
+    }
+
+
+    if (0 == (*out_nRecordFound))
+        return NULL;
+
+    u32 ct = 0;
+	sNetworkAdapterInfo *ret = (sNetworkAdapterInfo*)RHEAALLOC(allocator, sizeof(sNetworkAdapterInfo) * (*out_nRecordFound));
+	memset(ret, 0, sizeof(sNetworkAdapterInfo) * (*out_nRecordFound));
+
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        if (!ifa->ifa_addr)
+            continue;
+
+        if (ifa->ifa_addr->sa_family == AF_INET)
+        {
+            sprintf_s (ret[ct].name, sizeof(ret[ct].name), "%s", ifa_name);
+            void *tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+            inet_ntop(AF_INET, tmpAddrPtr, ret[ct].ip, INET_ADDRSTRLEN);
+
+            tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_netmask)->sin_addr;
+            inet_ntop(AF_INET, tmpAddrPtr, ret[ct].netmask, INET_ADDRSTRLEN);
+
+            //printf("%s IP Address %s %s\n", ifa->ifa_name, ip, netmask);
+            ct++;
+        }
+        /*else if (ifa->ifa_addr->sa_family == AF_INET6)
+        { 	// check it is IP6
+            // is a valid IP6 Address
+            tmpAddrPtr=&((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr;
+            char addressBuffer[INET6_ADDRSTRLEN];
+            inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer, INET6_ADDRSTRLEN);
+            printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer);
+        }
+        */
+    }
+    if (ifAddrStruct!=NULL)
+        freeifaddrs(ifAddrStruct);
+    return 0;
+}
 #endif

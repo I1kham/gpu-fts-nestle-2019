@@ -4,6 +4,11 @@
 #include "winOSInclude.h"
 #include "../../rheaDateTime.h"
 
+namespace rhea
+{
+	class Allocator;
+}
+
 namespace platform
 {
 	namespace win32
@@ -77,6 +82,8 @@ namespace platform
 
 	bool			FS_getDestkopPath(u8* out_path, u32 sizeof_out_path);
 
+					//====================================== networking
+	sNetworkAdapterInfo* NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_numFound);
 }   //namespace platform
 
 #include "winOSSocket.h"

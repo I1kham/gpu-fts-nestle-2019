@@ -71,6 +71,9 @@ namespace platform
 	void			FS_findCloseHardDrive(OSDriveEnumerator &h);
 
 	bool			FS_getDestkopPath(u8* out_path, u32 sizeof_out_path);
+
+					//====================================== networking
+	sNetworkAdapterInfo* NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_numFound);
 }   //namespace platform
 
 #include "linuxOSSocket.h"

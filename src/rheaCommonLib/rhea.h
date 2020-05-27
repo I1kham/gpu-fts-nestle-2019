@@ -122,6 +122,10 @@ namespace rhea
 	 */
 	namespace netaddr
 	{
+		inline  sNetworkAdapterInfo*	getListOfAllNerworkAdpaterIPAndNetmask(rhea::Allocator *allocator, u32 *out_numFound)		{ return platform::NET_getListOfAllNerworkAdpaterIPAndNetmask(allocator, out_numFound); }
+									//alloca un array di [sNetworkAdapterInfo] e lo ritorna.
+									//L'array contiene le info su nome, IP e netmask degli adattaotri di rete disponibili al sistema
+		
 		//=============================== NETWORK ADDRESS
 		void				setFromSockAddr(OSNetAddr &me, const sockaddr_in &addrIN);
 		void				setFromAddr(OSNetAddr &me, const OSNetAddr &addrIN);
