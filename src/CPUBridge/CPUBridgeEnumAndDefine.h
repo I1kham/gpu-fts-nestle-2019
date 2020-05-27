@@ -132,14 +132,14 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE			0x0834
 #define		CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER										0x0835
 #define		CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED	0x0836
-
+#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP								0x0837
 
  /**********************************************************************
   * msg che CPUBridge e il modulo MITM di rasPI possono scambiarsi
   */
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE						0x0A00
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE					0x0A01
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP								0x0A02
+
 
 
  /**********************************************************************
