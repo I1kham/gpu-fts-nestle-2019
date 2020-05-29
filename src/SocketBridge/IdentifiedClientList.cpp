@@ -230,7 +230,7 @@ bool IdentifiedClientList::bindSocket (const HSokBridgeClient &handle, const HSo
 		return true;
 	}
 
-	DBGBREAK;
+	//DBGBREAK;
 	return false;
 }
 

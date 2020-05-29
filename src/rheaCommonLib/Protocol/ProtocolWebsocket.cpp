@@ -42,7 +42,7 @@ bool ProtocolWebsocket::handshake_clientSend (IProtocolChannell *ch UNUSED_PARAM
 //****************************************************
 bool ProtocolServer_handshake_check_header (const char *src, const char *header)
 {
-    return (strncmp(src, header, strlen(header)) == 0);
+    return (strncasecmp(src, header, strlen(header)) == 0);
 }
 
 //****************************************************

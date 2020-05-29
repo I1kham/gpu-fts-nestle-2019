@@ -140,6 +140,12 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		return false;
 		break;
 
+	case eCPUCommand_rasPI_MITM:
+		//cpu non risponde a questo comando 'W'
+		*in_out_sizeOfAnswer = 0;
+		return false;
+		break;
+
 	case eCPUCommand_writePartialVMCDataFile:
 		{
             //const u8 packet_uno_di = bufferToSend[3];
@@ -239,7 +245,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				else
 				{
-					//ok, Ã Â¨ tempo di terminare la selezione
+					//ok, è tempo di terminare la selezione
 					bFinished = true;
 				}
 
