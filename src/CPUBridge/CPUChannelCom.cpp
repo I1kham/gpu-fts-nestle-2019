@@ -174,6 +174,7 @@ bool CPUChannelCom::priv_handleMsg_rcv (u8 commandChar, u8 *out_answer, u16 *in_
 		{
 			memcpy (&bufferRisposteScartate[ctBufferRisposteScartate], out_answer, nRead);
 			++nRisposteScartate;
+            ctBufferRisposteScartate+=nRead;
 		}
 	}
 }
