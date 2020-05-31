@@ -2,5 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\testHTTP\main.cpp" />
+    <ClCompile Include="..\..\src\testHTTP\miniz.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\testHTTP\miniz.h" />
   </ItemGroup>
 </Project>

@@ -88,10 +88,14 @@ namespace rhea
 		inline FILE*		fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath)							{ return platform::FS_fileOpenForAppendText(utf8_fullFileNameAndPath); }
 
 
+		u64					filesize(const u8* const utf8_srcFullFileNameAndPath);
 		u64					filesize(FILE *fp);
 		bool				fileCopy(const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath);
+		void				fileCopyInChunkWithPreallocatedBuffer (FILE *fSRC, u32 numBytesToCopy, FILE *fDST, void *buffer, u32 BUFFER_SIZE);
 		u8*					fileCopyInMemory(const u8* const srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 		u8*					fileCopyInMemory(FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
+		u32					fileRead (FILE *f, u8 *out_buffer, u32 numBytesToRead);
+		u32					fileWrite (FILE *f, const u8 *buffer, u32 numBytesToWrite);
 
 		inline bool			folderExists(const u8* const pathSenzaSlash)											{ return platform::FS_DirectoryExists(pathSenzaSlash); }
 		inline bool			folderCreate(const u8* const pathSenzaSlash)											{ return platform::FS_DirectoryCreate(pathSenzaSlash); }

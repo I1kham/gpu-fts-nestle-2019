@@ -97,12 +97,13 @@ namespace rhea
 			void				trim()																		{ trimR(); trimL(); }
 			void				trimL();
 			void				trimR();
+			void				sanitizePath();
 
 		private:
 			void				priv_constructor();
 
 		private:
-			Allocator	*allocator;
+			Allocator		*allocator;
 			u8				*buffer;
 			u32				allocatedSize;
 			u32				curSize;

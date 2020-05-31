@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\miniz.c" />
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompress.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompressUtility.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\mtrand.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSEvent.cpp" />
@@ -73,6 +76,8 @@
     <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8String.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\miniz.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\rheaCompress.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\mtrand.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSInclude.h" />

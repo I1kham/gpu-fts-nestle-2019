@@ -361,6 +361,19 @@ void fs::deleteAllFileInFolderRecursively(const u8* const pathSenzaSlash, bool b
 }
 
 //**************************************************************************
+u64 fs::filesize(const u8* const utf8_srcFullFileNameAndPath)
+{
+	u64 ret = 0;
+	FILE *f = fileOpenForReadBinary(utf8_srcFullFileNameAndPath);
+	if (f)
+	{
+		ret = filesize(f);
+		fclose(f);
+	}
+	return ret;
+}
+
+//**************************************************************************
 u64 fs::filesize(FILE *fp)
 {
 	long prev = ftell(fp);
@@ -368,6 +381,22 @@ u64 fs::filesize(FILE *fp)
 	long sz = ftell(fp);
 	fseek(fp, prev, SEEK_SET);
 	return sz;
+}
+
+//**************************************************************************
+void fs::fileCopyInChunkWithPreallocatedBuffer (FILE *fSRC, u32 numBytesToCopy, FILE *fDST, void *buffer, u32 BUFFER_SIZE)
+{
+	while (numBytesToCopy >= BUFFER_SIZE)
+	{
+		fread (buffer, BUFFER_SIZE, 1, fSRC);
+		fwrite(buffer, BUFFER_SIZE, 1, fDST);
+		numBytesToCopy -= BUFFER_SIZE;
+	}
+	if (numBytesToCopy)
+	{
+		fread (buffer, (size_t)numBytesToCopy, 1, fSRC);
+		fwrite(buffer, (size_t)numBytesToCopy, 1, fDST);
+	}
 }
 
 //**************************************************************************
@@ -384,21 +413,10 @@ bool fs_do_open_and_copy_fileCopy (const u8* const utf8_srcFullFileNameAndPath, 
 		return false;
 	}
 
-	u64 fLen = fs::filesize(fSRC);
-	while (fLen >= BUFFER_SIZE)
-	{
-		fread(buffer, BUFFER_SIZE, 1, fSRC);
-		fwrite(buffer, BUFFER_SIZE, 1, fDST);
-		fLen -= BUFFER_SIZE;
-	}
-	if (fLen)
-	{
-		fread (buffer, (size_t)fLen, 1, fSRC);
-		fwrite(buffer, (size_t)fLen, 1, fDST);
-	}
+	fs::fileCopyInChunkWithPreallocatedBuffer (fSRC, (u32)fs::filesize(fSRC), fDST, buffer, BUFFER_SIZE);
 	fclose(fSRC);
-
     fflush(fDST);
+
 #ifdef LINUX
 	fsync (fileno(fDST));
 #endif
@@ -548,4 +566,48 @@ u8* fs::fileCopyInMemory (FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAl
 
 }
 
+//*********************************************
+u32 fs::fileRead (FILE *f, u8 *out_buffer, u32 numBytesToRead)
+{
+	const u32 CHUNK_SIZE = 1024;
 
+	u32 ct = 0;
+	while (numBytesToRead >= CHUNK_SIZE)
+	{
+		const u32 n = fread(&out_buffer[ct], CHUNK_SIZE, 1, f);
+		if (n == 0)
+			return ct;
+		numBytesToRead -= CHUNK_SIZE;
+		ct += CHUNK_SIZE;
+	}
+	if (numBytesToRead)
+	{
+		fread(&out_buffer[ct], numBytesToRead, 1, f);
+		ct += numBytesToRead;
+	}
+
+	return ct;
+}
+
+//*********************************************
+u32 fs::fileWrite (FILE *f, const u8 *buffer, u32 numBytesToWrite)
+{
+	const u32 CHUNK_SIZE = 1024;
+
+	u32 ct = 0;
+	while (numBytesToWrite >= CHUNK_SIZE)
+	{
+		const u32 n = fwrite(&buffer[ct], CHUNK_SIZE, 1, f);
+		if (n == 0)
+			return ct;
+		numBytesToWrite -= CHUNK_SIZE;
+		ct += CHUNK_SIZE;
+	}
+	if (numBytesToWrite)
+	{
+		fwrite(&buffer[ct], numBytesToWrite, 1, f);
+		ct += numBytesToWrite;
+	}
+
+	return ct;
+}
