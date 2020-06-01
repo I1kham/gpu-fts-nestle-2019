@@ -226,8 +226,8 @@ void Core::run()
 //*********************************************************
 void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes)
 {
-	return;
 #ifdef _DEBUG
+#if 0
 	logger->log (prefix);
 	if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
 		logger->log ("GPU: "); 
@@ -243,6 +243,7 @@ void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort,
 			logger->log ("%03d ", c);
 	}
 	logger->log ("\n");
+#endif
 #else
 #endif
 }
@@ -254,7 +255,7 @@ bool Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 	while (1)
 	{
 		//leggo tutto quello che posso dalla seriale e bufferizzo in [b]
-		const u16 nBytesAvailInBuffer = b.SIZE - b.numBytesInBuffer;
+        const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
 		if (nBytesAvailInBuffer > 0)
 		{
 			const u32 nRead = rhea::rs232::readBuffer(comPort, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
@@ -318,7 +319,7 @@ bool Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 							priv_isAValidMessage (&bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.numBytesInBuffer, &n);
 							assert (n <= bufferSpontaneousMsgForGPU.numBytesInBuffer);
 							logger->log ("sending [bufferSpontaneousMsgForGPU]\n");
-							priv_serial_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], n);
+                            priv_serial_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], (u16)n);
 							ct += n;
 							bufferSpontaneousMsgForGPU.numBytesInBuffer -= n;
                         }
@@ -700,9 +701,9 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 #ifdef PLATFORM_UBUNTU_DESKTOP
 			//unzippo in temp/filenameSenzaExt/
 			rhea::fs::extractFileNameWithoutExt (payload, src, sizeof(src));
-			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/%s", rhea::getPhysicalPathToAppFolder(), payload);
+            sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), payload);
 #else
-			sprintf_s ((char*)dst, sizeof(dst), "/var/www/html/GUITS");
+            sprintf_s ((char*)dst, sizeof(dst), "/var/www/html/rhea/GUITS");
 #endif
 #else
 			//unzippo in temp/filenameSenzaExt/
@@ -733,9 +734,9 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 bool Core::priv_handleFileUpload(const u8 *msg)
 {
 	const u32 TIMEOU_MSEC = 3000;
-	const eRasPISubcommand subcommand = (eRasPISubcommand)msg[4];
+    //const eRasPISubcommand subcommand = (eRasPISubcommand)msg[4];
 	const u8 *payload = &msg[5];
-	const u16 totalMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&msg[2]);
+    //const u16 totalMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&msg[2]);
 
 	u32 fileLenInBytes = rhea::utils::bufferReadU32(payload);
 	const u16 packetSize = rhea::utils::bufferReadU16(&payload[4]);
@@ -861,7 +862,7 @@ void Core::priv_finalizeGUITSInstall (const u8* const pathToGUIFolder)
 		const u8 toFind[] = { "127.0.0.1" };
 		const u32 toFindLen = rhea::string::utf8::lengthInBytes(toFind);
 
-		if (filesize >= toFindLen);
+        if (filesize >= toFindLen)
 		{
 			for (u32 i = 0; i < filesize-toFindLen; i++)
 			{
