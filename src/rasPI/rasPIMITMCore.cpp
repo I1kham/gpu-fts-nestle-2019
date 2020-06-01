@@ -405,7 +405,7 @@ bool Core::priv_serial_send (OSSerialPort &comPort, const u8 *buffer, u16 nBytes
 	if (0 == nBytesToSend)
 		return true;
 
-    //if (buffer[1] == 'W')
+    if (buffer[1] == 'W')
 		priv_utils_printMsg("snd to ", comPort, buffer, nBytesToSend);
 
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
