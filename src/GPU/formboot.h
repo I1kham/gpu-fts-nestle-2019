@@ -76,7 +76,8 @@ private:
     {
         eUploadCPUFWCallBack_none = 0,
         eUploadCPUFWCallBack_btn = 1,
-        eUploadCPUFWCallBack_auto = 2
+        eUploadCPUFWCallBack_auto = 2,
+        eUploadCPUFWCallBack_rasPIGUI = 3
     };
 
     enum eAutoUpdateFase
@@ -152,6 +153,8 @@ private:
     void                    priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg);
     void                    priv_on_btnInstall_CPU_upload (rhea::thread::sMsg &msg);
     bool                    priv_doInstallGUI (const u8 *srcFullFolderPath) const;
+    void                    priv_uploadRasPI_GUI (rhea::thread::sMsg &msg);
+    void                    priv_uploadRasPI_GUI_unzipped(rhea::thread::sMsg &msg);
 
     bool                    priv_autoupdate_exists();
     void                    priv_autoupdate_showForm();
@@ -176,6 +179,7 @@ private:
     eUploadDA3CallBack      upldDA3CallBack;
     eUploadCPUFWCallBack    upldCPUFWCallBack;
     sAutoupdate             autoupdate;
+    u32                     sizeInBytesOfCurrentFileUnpload;
 
 };
 

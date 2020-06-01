@@ -229,7 +229,7 @@ void cpubridge::notify_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &to, u16 
     u8 data[4];
     data[0] = 0;
     if (bSuccess)
-        data[0] = 0x02;
+        data[0] = 0x01;
     rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS, handlerID, data, 1);
 }
 
@@ -237,7 +237,7 @@ void cpubridge::notify_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &to, u16 
 void cpubridge::translateNotify_CPU_RASPI_MITM_Upload_GUI_TS(const rhea::thread::sMsg &msg, bool *out_bSuccess)
 {
 	assert (msg.what == CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS);
-	const u16 *p = (const u16*)msg.buffer;
+    const u8 *p = (const u8*)msg.buffer;
     *out_bSuccess = false;
     if (p[0] == 0x01)
         *out_bSuccess = true;
