@@ -1,0 +1,160 @@
+* {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-Regular.ttf) format("truetype"); font-weight: normal;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-Bold.ttf) format("truetype"); font-weight: bold;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-Italic.ttf) format("truetype"); font-weight: normal; font-style: italic;}
+@font-face { font-family: "MyFont"; src: url(./fonts/Roboto-BoldItalic.ttf) format("truetype"); font-weight: bold; font-style: italic;}
+    
+
+
+*		{ font-family: "MyFont", "Roboto-Light", "Noto Sans CJK SC", "DejaVu Sans"; }
+html	{ background-color:#bbb; }
+body 	{ font-size:15px; background-color:#bbb; color:#fff; margin:0; padding:0;}
+form, div, input, h1, h2, h3, h4, h5	{ margin:0; padding:0; }
+table { font-size:1.0em; }
+h1		{ font-size:1.3em; }	
+h2		{ font-size:1.2em; }
+h3		{ font-size:1.1em; }
+input 	{ font-size:14px;}
+a		{ color: #fff; text-decoration:none; outline: 0;}
+a:hover	{ text-decoration:none; outline: 0; }
+
+.clear 	{ float:none; clear:both; }
+
+#pagePleaseWait { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+#pagePleaseWait_header_left  { float:left; height:50px; line-height:50px; width:250px; background-color:#000; text-align:center; }
+#pagePleaseWait_header_right { float:left; height:50px; line-height:50px; width:774px; background-color:#000; text-align:center;  }
+#pagePleaseWait_freeText { position:absolute; top:40px; left:10px; width:984px; height:500px; font-size:0.8em; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px; }
+
+.wrapper1024x600 	{ font-size:22px; background-color:#000; color:#fff; width:1024px; height:600px; margin:0 auto; overflow:hidden; position:relative; }
+.header	{ height:49px; width:100%; overflow:hidden; border-bottom:solid 1px #fff; line-height:50px;}
+	.header_C { float:left; margin-left:10px; width:854px; text-align:left; font-size:1.4em; }
+	.header_R { float:left; margin-right:10px; width:150px; text-align:right; font-size:16px; }
+.footer	{ height:49px; width:1004px; overflow:hidden; border-top:solid 1px #fff; line-height:50px; padding:0 10px 0 10px; }
+#footer_L { float:left; min-width:270px; width:250px; height:100%; overflow:hidden; }
+#footer_C { float:left; min-width:460px; width:480px; height:100%; margin:0; overflow:hidden; text-align:center; color:#888 }
+#footer_R { float:right;min-width:250px; width:250px; height:100%; overflow:hidden; }
+
+.page { position:relative; top:0; left:0; width:100%; padding:0; margin:0; height:500px; }
+.UIWindow { position:absolute; top:5px; left:10px; width:1004px; height:495px; display:none; overflow:hidden;}
+.UIWindowContent  { position:absolute; top:0; left:0; width:100%;}
+
+.page-scrollable-wrapper { position:relative; height:500px; width:1024px; overflow:hidden; padding:0; margin:0; }
+.page-scrollable { position:absolute; top:0; left:0; width:100%;}
+
+.bigScrollArrowDown { position:absolute; width:147px; left:0; height:50px; background-image: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)); z-index:30; }
+.bigScrollArrowUp   { position:absolute; width:147px; left:0; height:50px; background-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.1)); z-index:30; }
+
+
+.UIButton 		{ cursor:pointer; display:table; overflow:hidden; background-color:#656565; color:#000; margin:0; padding:0; text-align:center;}
+.UIButton 		{ padding:0; margin:3px 0 3px 0; border-radius:5px;  font-size:1.0em; line-height:auto; }
+.UIButton p 	{ display: table-cell; vertical-align:middle; margin:0; padding:3px; }
+
+.bigButton3x4 	{ border-radius:10px; font-size:1.4em; width:322px; max-width:322px; height:93px; min-height:93px; max-height:93px; }
+.bigButton3x4 p { padding:10px; max-width:302px; }
+
+.bigButton4x4 	{ border-radius:10px; font-size:1.3em; width:241px; height:106px; min-height:106px; max-height:106px; }
+
+.bigButton60 	{ border-radius:10px; font-size:1.3em; width:241px; height:60px; min-height:60px; max-height:60px; }
+
+.actionButton   { border-collapse: separate; border:solid 2px #656565; color:#fff; background-image:linear-gradient(#000,#444,#000); }
+
+.UIButtonSel 	{ cursor:pointer; display:table; overflow:hidden; background-color:#656565; color:#000; margin:0; padding:0; text-align:center; padding:0; margin:3px 0 3px 0; 
+					border-radius:10px; font-size:1.0em; width:322px; height:96px; min-height:96px; max-height:96px; }
+.UIButtonSel table	{ margin:0; padding:0; }
+.UIButtonSel table td { vertical-align:top; color:#000; font-size:1.0em;}
+.UIButtonSel table td img { margin-bottom:6px;}
+
+
+
+
+
+.UIButton:active { background-color:#858585; color:#000; }
+.UIButton.UIdisabled:active {background-color:#222; color:#181818; }
+
+
+
+.tip { font-size:0.8em; font-style:italic; color:#555; }
+.bigCaption25 { color:#fff; font-size:2.5em; }
+.bigCaption15 { color:#fff; font-size:1.55em; }
+.bigCaption10 { color:#fff; font-size:1.0em; }
+
+table.elenco { border:0; border-collapse:collapse; font-size:1.1em; width:100%; font-family: "MyFont"; color:#999999; }
+table.elenco tr { border-bottom: solid 1px #999999; padding:0; margin:0; height:100px; vertical-align:middle;}
+table.elenco tr.smallHeightNoBorder { border-bottom: none; height:20px; vertical-align:middle;}
+table.elenco th, table.elenco td { margin:0; padding:0;  }
+table.elenco th {color:#fff; }
+table.elenco td.description { width:400px; padding-right:10px;}
+
+table.UIOption { border:0; border-collapse:collapse; font-size:1.0em; width:100%; font-family: "MyFont"; color:#999999; }
+table.UIOption tr { border:0; vertical-align:middle;}
+table.UIOption td { margin:0; padding:0; text-align:center; }
+table.UIOption td div.UIButton { width:98%; border-radius:10px; font-size:1.3em;  }
+table.UIOption td div.UIButton p { padding:20px 0 20px 0; }
+table.UIOption.bigCaption10 td div.UIButton { width:98%; border-radius:10px; font-size:1.0em;  }
+
+
+table.UIOptionSmall { border:0; border-collapse:collapse; font-size:1.0em; width:100%; font-family: "MyFont"; color:#999999; }
+table.UIOptionSmall tr { border:0; vertical-align:middle;}
+table.UIOptionSmall td { margin:0; padding:0; text-align:center; border-right:solid 1px #fff; }
+table.UIOptionSmall td div.UIButton { width:100%; border-radius:0; font-size:1.0em;  }
+table.UIOptionSmall td div.UIButton p { padding:10px 0 10px 0; }
+
+.UINumber2Container 	{ display:inline-block; width:60px; height:85px; position:relative; z-index:10; margin-right:5px;}
+.UINumber2Inner 		{ display:inline-block; width:60px; height:75px; position:relative; top:6px; overflow:hidden; }
+.UINumber2Strip 		{ position: absolute; top:15px; left:0; width:60px; text-align:center; background-color:rgba(0,0,0,0.7); }
+.UINumber2Strip p 		{ margin:0;  line-height:56px; padding:0; max-height:56px; overflow:hidden; height:56px; font-size:2.7em; color:#fff }
+.UINumber2Mask			{ width:100%; height:100%; position:absolute; top:0; left:0; background-image:url(img/fader85.png); background-repeat:repeat-x; z-index:20; }
+.UINumber2Border		{ width:56px; height:71px; position:absolute; top:6px; left:0; border:solid 2px #555; border-radius:10px; z-index:21; }
+.UINumber2Clicker 		{ display:inline-block; position:absolute; top:0; left:0; width:100%; height:100%; z-index:30;}
+
+.UINumber3Container 	{ display:inline-block; width:60px; height:85px; position:relative; z-index:10; margin-right:5px; overflow:hidden; background-color:#000}
+.UINumber3Strip 		{ position: absolute; top:0; left:0; width:60px; height:85px; text-align:center; }
+.UINumber3DecimalPoint 	{ position: absolute; top:12px; left:0; height:80px; font-size:3.0em; text-align:center;}
+.UINumber3Strip p 		{ margin:3px 0 0 0;  padding:0; font-size:2.7em; color:#fff }
+.UINumber3Border		{ width:56px; height:81px; position:absolute; top:0; left:0; border:solid 2px #555; border-radius:10px; z-index:21; }
+.UINumber3Clicker 		{ display:inline-block; position:absolute; top:0; left:0; width:100%; height:100%; z-index:30;}
+
+
+.UISelect 			{ cursor:pointer; }
+.UISelectBtn		{ display:inline-block; background-color:#656565; color:#000; border:0; height:56px; width:40px; padding:0; line-height:56px; text-align:center; }
+table.tselect 		{ width:100%; border:solid 1px #656565; font-size:1.0em; color:#fff; }
+table.tselect tr 	{ height:50px; }
+table.tselect tr td { padding: 0 10px 0 10px; }
+
+table.dataAudit { border:solid 1px #666; border-collapse:collapse; }
+table.dataAudit tr:nth-child(odd) { background-color:#222; }
+table.dataAudit th,
+table.dataAudit td { border:solid 1px #666; padding: 5px 2px 5px 2px; color:#ddd; }
+
+table.dataAudit th { background-color:#fff; color:#000; font-size:0.9em;}
+table.dataAudit td { text-align:right; }
+
+table.dataAudit tr.rowTot {background-color:#005f00; }
+table.dataAudit tr.rowTot td { color:#fff; }
+table.dataAudit tr.rowAllZero td { color:#666; font-size:0.7em; padding:2px; }
+
+#UISelectFullPage { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+#UISelectFullPage ul { list-style-type:none; margin:0; padding:0;}
+#UISelectFullPage ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }
+
+#divMenuLang { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+#divMenuLang ul { list-style-type:none; margin:0; padding:0;}
+#divMenuLang ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }
+
+.colorGrey 		{ color:#999999; }
+.UIlit 			{ background-color:#cc5f29; color:#fff; }
+.UIdisabled  	{ background-color:#222; color:#181818; }
+
+
+#manualViewBox {position:absolute; top:0; left:0; background-color:rgba(80,80,80,0.9); width:100%; height:100%; text-align:center; display:none; z-index:100;}
+.manualViewBox_close 	{position:absolute; top:10px; right:10px; cursor:pointer;}
+.manualViewBox_frame  { border:0; width:1024px; height:600px;}
