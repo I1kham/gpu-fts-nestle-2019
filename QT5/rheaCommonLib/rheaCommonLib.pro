@@ -39,6 +39,18 @@ contains(DEFINES, PLATFORM_UBUNTU_DESKTOP) {
 	}
 }
 
+#direttive specifiche per quando compilo su rasPI
+contains(DEFINES, PLATFORM_RASPI) {
+
+        CONFIG(debug, debug|release) {
+                CONFIG_NAME="RASPI_DEBUG"
+        }
+
+        CONFIG(release, debug|release) {
+                CONFIG_NAME="RASPI_RELEASE"
+        }
+}
+
 THIS_LIBRARY_NAME="rheaCommonLib"
 
 message ("$${THIS_LIBRARY_NAME}: configuration is $${CONFIG_NAME}")
@@ -57,6 +69,8 @@ CONFIG(release, debug|release) {
 
 
 SOURCES += \
+    ../../src/rheaCommonLib/compress/rheaCompress.cpp \
+    ../../src/rheaCommonLib/compress/rheaCompressUtility.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOS.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOSEvent.cpp \
     ../../src/rheaCommonLib/OS/linux/linuxOSFS.cpp \
@@ -108,10 +122,13 @@ SOURCES += \
     ../../src/rheaCommonLib/rheaThread.cpp \
     ../../src/rheaCommonLib/rheaThreadMsgQ.cpp \
     ../../src/rheaCommonLib/rheaTime24.cpp \
-    ../../src/rheaCommonLib/rheaUtils.cpp
+    ../../src/rheaCommonLib/rheaUtils.cpp \
+    ../../src/rheaCommonLib/compress/miniz.c
 
 
 HEADERS += \
+    ../../src/rheaCommonLib/compress/miniz.h \
+    ../../src/rheaCommonLib/compress/rheaCompress.h \
     ../../src/rheaCommonLib/OS/linux/linuxOS.h \
     ../../src/rheaCommonLib/OS/linux/linuxOSInclude.h \
     ../../src/rheaCommonLib/OS/linux/linuxOSSerialPort.h \
@@ -174,7 +191,8 @@ HEADERS += \
     ../../src/rheaCommonLib/rheaTime24.h \
     ../../src/rheaCommonLib/rheaUtils.h \
     ../../src/rheaCommonLib/rheaWaitableFIFO.h
-    
+
+
 unix {
     target.path = /usr/lib
     INSTALLS += target

@@ -35,6 +35,17 @@ contains(DEFINES, PLATFORM_UBUNTU_DESKTOP) {
 	}
 }
 
+#direttive specifiche per quando compilo su rasPI
+contains(DEFINES, PLATFORM_RASPI) {
+
+        CONFIG(debug, debug|release) {
+                CONFIG_NAME="RASPI_DEBUG"
+        }
+
+        CONFIG(release, debug|release) {
+                CONFIG_NAME="RASPI_RELEASE"
+        }
+}
 
 THIS_LIBRARY_NAME="rheaAlipayChina"
 
