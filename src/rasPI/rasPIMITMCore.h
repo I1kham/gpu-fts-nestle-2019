@@ -29,6 +29,14 @@ namespace rasPI
 			static const u32	WAITLIST_EVENT_FROM_SUBSCRIBER_MSGQ = 0x00000008;
 
 		private:
+			enum eValid
+			{
+				eValid_no = 0,
+				eValid_yes = 1,
+				eValid_notEnoughtData = 2,
+				eValid_wrongCK = 3
+			};
+
 			struct sBuffer
 			{
 			public:
@@ -93,12 +101,13 @@ namespace rasPI
 
 			bool				priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b);
 			u32					priv_extractMessage (sBuffer &b, u8 *out, u32 sizeOfOut);
-			u32					priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const;
+			eValid				priv_isAValidMessage (const u8 *p, u32 nBytesToCheck, u32 *out_nBytesConsumed) const;
 			void				priv_handleIncomingMsgFromSubscriber();
 			void				priv_handleInternalWMessages(const u8 *msg);
 
 			void				priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes);
 			bool				priv_handleFileUpload(const u8 *msg);
+			void				priv_finalizeGUITSInstall(const u8* const pathToGUIFolder);
 
 		private:
 			rhea::Allocator         *localAllocator;
