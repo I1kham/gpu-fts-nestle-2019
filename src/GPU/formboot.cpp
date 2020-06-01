@@ -481,6 +481,7 @@ void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullF
     upldCPUFWCallBack = mode;
     priv_foreverDisableBtnStartVMC();
     cpubridge::ask_WRITE_CPUFW (glob->subscriber, 0, fullFilePathAndName);
+    //cpubridge::ask_CPU_RASPI_MITM_FileUpload (glob->subscriber, 0, fullFilePathAndName);
 }
 
 //*******************************************

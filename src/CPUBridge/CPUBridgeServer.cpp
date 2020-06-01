@@ -276,7 +276,7 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 			const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_serializedSMsg (msg, answerBuffer, sizeof(answerBuffer));
 			chToCPU->sendOnlyAndDoNotWait(answerBuffer, nBytesToSend, logger);
 			rhea::thread::deleteMsg (msg);
-		}
+            }
 	}
 
 	//invio msg a CPU
@@ -3557,13 +3557,14 @@ eWriteCPUFWFileStatus Server::priv_uploadFileToRasPI_sendChunck (FILE *fSRC, u8 
 	chToCPU->sendOnlyAndDoNotWait (bufferW, chunkSize, logger);
 	const u16 ck = rhea::utils::simpleChecksum16_calc (bufferW, chunkSize);
 
-	u8 ckLSB = 0;
-	if (chToCPU->waitChar(500, &ckLSB))
+    u8 ckMSB = 0;
+    if (!chToCPU->waitChar(500, &ckMSB))
+        return eWriteCPUFWFileStatus_finishedKO_generalError;
+
+    u8 ckLSB = 0;
+    if (!chToCPU->waitChar(500, &ckLSB))
 		return eWriteCPUFWFileStatus_finishedKO_generalError;
 	
-	u8 ckMSB = 0;
-	if (chToCPU->waitChar(500, &ckMSB))
-		return eWriteCPUFWFileStatus_finishedKO_generalError;
 
 	const u16 rcvCK = ((u16)ckMSB) * 256 + (u16)ckLSB;
 	if (ck != rcvCK)
@@ -3635,7 +3636,7 @@ eWriteCPUFWFileStatus Server::priv_uploadFileToRasPI (cpubridge::sSubscriber *su
 	eWriteCPUFWFileStatus ret = eWriteCPUFWFileStatus_finishedOK;
 	while (fileLengthInBytes >= PACKET_SIZE)
 	{
-		eWriteCPUFWFileStatus ret = priv_uploadFileToRasPI_sendChunck (fSRC, buffer, PACKET_SIZE);
+        ret = priv_uploadFileToRasPI_sendChunck (fSRC, buffer, PACKET_SIZE);
 		if (ret != eWriteCPUFWFileStatus_finishedOK)
 			break;
 
