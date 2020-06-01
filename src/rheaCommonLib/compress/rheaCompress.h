@@ -53,7 +53,7 @@ namespace rhea
 		void			end();
 
 
-		static bool		decompresAll (const u8* const utf8_fullDstFileNameAndPath, const u8* const pathDestNoSlash);
+		static bool		decompresAll (const u8* const utf8_fullSRCFileNameAndPath, const u8* const pathDestNoSlash);
 						/* prende un arhivio generato da begin() add..() end() e lo decomprime interamente nella
 							directory di destinazione
 						*/

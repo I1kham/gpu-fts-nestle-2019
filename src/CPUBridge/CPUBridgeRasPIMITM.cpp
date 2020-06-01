@@ -63,6 +63,12 @@ u16 cpubridge::buildMsg_rasPI_MITM_getWifiIP (u8 *out_buffer, u32 sizeOfOutBuffe
     return cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_GET_WIFI_IP, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u16 cpubridge::buildMsg_rasPI_MITM_unzipTouchscreenGUI (const u8* const srcFilename, u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+    return cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UNZIP_TS_GUI, srcFilename, rhea::string::utf8::lengthInBytes(srcFilename)+1, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 u16 cpubridge::buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u32 sizeOfOutBuffer)

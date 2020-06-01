@@ -252,9 +252,9 @@ bool CompressUtility::addFilesInFolder (const u8* const utf8_fullSRCFolderPathNo
 }
 
 //********************************************
-bool CompressUtility::decompresAll (const u8* const utf8_fullDstFileNameAndPath, const u8* const pathDestNoSlash)
+bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath, const u8* const pathDestNoSlash)
 {
-	FILE *f = fs::fileOpenForReadBinary (utf8_fullDstFileNameAndPath);
+	FILE *f = fs::fileOpenForReadBinary (utf8_fullSRCFileNameAndPath);
 	if (NULL == f)
 		return false;
 

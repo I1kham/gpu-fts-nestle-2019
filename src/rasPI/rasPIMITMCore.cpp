@@ -3,6 +3,7 @@
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../SocketBridge/SocketBridge.h"
+#include "../rheaCommonLib/compress/rheaCompress.h"
 
 using namespace rasPI;
 using namespace rasPI::MITM;
@@ -225,6 +226,7 @@ void Core::run()
 //*********************************************************
 void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes)
 {
+	return;
 #ifdef _DEBUG
 	logger->log (prefix);
 	if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
@@ -665,12 +667,45 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		//Entro in un loop fino alla fine del trasferimento
 		priv_handleFileUpload(msg);
 		break;
+
+	case eRasPISubcommand_UNZIP_TS_GUI:
+		//GPU vuole che io unzippi un file che ho nella mia cartella temp e lo metta
+		//nella cartella dedicata alle GUI TS
+		{
+			u8 src[512];
+			u8 dst[512];
+#ifdef LINUX
+#ifdef PLATFORM_UBUNTU_DESKTOP
+			rhea::fs::extractFileNameWithoutExt (payload, src, sizeof(src));
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/%s", rhea::getPhysicalPathToAppFolder(), src, payload);
+#else
+			sprintf_s ((char*)dst, sizeof(dst), "/var/www/html/GUITS");
+#endif
+#else
+			rhea::fs::extractFileNameWithoutExt (payload, src, sizeof(src));
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/%s", rhea::getPhysicalPathToAppFolder(), src, payload);
+#endif
+			u8 bufferW[16];
+			sprintf_s ((char*)src, sizeof(src), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), payload);
+			if (rhea::CompressUtility::decompresAll (src, dst))
+				src[0] = 0x01;
+			else
+				src[0] = 0x00;
+
+			//rispondo
+			src[1] = 0x00;
+			const u16 n = cpubridge::buildMsg_rasPI_MITM_unzipTouchscreenGUI (src, bufferW, sizeof(bufferW));
+			priv_serial_send (comGPU, bufferW, n);
+		}
+		break;
+
 	} //switch
 }
 
 //*********************************************************
 void Core::priv_handleFileUpload(const u8 *msg)
 {
+	const u32 TIMEOU_MSEC = 3000;
 	const eRasPISubcommand subcommand = (eRasPISubcommand)msg[4];
 	const u8 *payload = &msg[5];
 	const u16 totalMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&msg[2]);
@@ -680,6 +715,7 @@ void Core::priv_handleFileUpload(const u8 *msg)
 	const u16 packetSize = rhea::utils::bufferReadU16(&payload[4]);
 	const u8* fileName = (const u8*)&payload[6];
 
+	logger->log ("priv_handleFileUpload() => starting upload of [%s] [size:%d] [pcktsize:%d]\n", fileName, fileLenInBytes, packetSize);
 	u32 BUFFER_SIZE = 2048;
 	if (packetSize*2 > BUFFER_SIZE)
 		BUFFER_SIZE = packetSize*2;
@@ -696,6 +732,7 @@ void Core::priv_handleFileUpload(const u8 *msg)
 		const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UPLOAD_BEGIN, data, 1, buffer, BUFFER_SIZE);
 		priv_serial_send (comGPU, buffer, nToSend);
 		RHEAFREE(rhea::getScrapAllocator(), buffer);
+		logger->log ("priv_handleFileUpload() => ERR: unable to open file for write [%s]\n", buffer);
 		return;
 	}
 
@@ -710,13 +747,14 @@ void Core::priv_handleFileUpload(const u8 *msg)
 	//rimango in attesa dei pacchetti
 	u32 numPacketOfSizeEqualToPacketSize = fileLenInBytes / packetSize;
 	u32 nBytesInBuffer = 0;
-	u64 timeoutMSec = rhea::getTimeNowMSec() + 3000;
+	u64 timeoutMSec = rhea::getTimeNowMSec() + TIMEOU_MSEC;
 	while (numPacketOfSizeEqualToPacketSize && rhea::getTimeNowMSec() < timeoutMSec)
 	{
 		const u32 nRead = rhea::rs232::readBuffer(comGPU, &buffer[nBytesInBuffer], BUFFER_SIZE - nBytesInBuffer);
 		nBytesInBuffer += nRead;
 		while (nBytesInBuffer >= packetSize)
 		{
+			logger->log ("priv_handleFileUpload() => packet rcv [%d]\n", numPacketOfSizeEqualToPacketSize);
 			fileLenInBytes -= packetSize;
 			numPacketOfSizeEqualToPacketSize--;
 			rhea::fs::fileWrite (fDST, buffer, packetSize);
@@ -725,7 +763,9 @@ void Core::priv_handleFileUpload(const u8 *msg)
 			const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, packetSize);
 			buffer[0] = (u8)((ck & 0xff00) >> 8);
 			buffer[1] = (u8)(ck & 0x00ff);
+			logger->log ("priv_handleFileUpload() => snd ck=%d\n", ck);
 			priv_serial_send (comGPU, buffer, 2);
+
 
 			//shifto il buffer per vedere se ho altri packet bufferizzati
 			nBytesInBuffer -= packetSize;
@@ -733,20 +773,22 @@ void Core::priv_handleFileUpload(const u8 *msg)
 				memcpy (buffer, &buffer[packetSize], nBytesInBuffer);
 
 			//aggiorno timeout
-			timeoutMSec = rhea::getTimeNowMSec() + 3000;
+			timeoutMSec = rhea::getTimeNowMSec() + TIMEOU_MSEC;
 		}
 	}
 
 	const u32 sizeOfLastPacket = fileLenInBytes;
-	if (sizeOfLastPacket)
+	if (sizeOfLastPacket && fileLenInBytes < packetSize)
 	{
-		timeoutMSec = rhea::getTimeNowMSec() + 3000;
+		logger->log ("priv_handleFileUpload() => waiting last packet\n");
+		timeoutMSec = rhea::getTimeNowMSec() + TIMEOU_MSEC;
 		while (rhea::getTimeNowMSec() < timeoutMSec)
 		{
 			const u32 nRead = rhea::rs232::readBuffer(comGPU, &buffer[nBytesInBuffer], BUFFER_SIZE - nBytesInBuffer);
 			nBytesInBuffer += nRead;
 			if (nBytesInBuffer >= sizeOfLastPacket)
 			{
+				logger->log ("priv_handleFileUpload() => last packet rcv\n");
 				fileLenInBytes -= sizeOfLastPacket;
 				rhea::fs::fileWrite (fDST, buffer, sizeOfLastPacket);
 
@@ -754,14 +796,19 @@ void Core::priv_handleFileUpload(const u8 *msg)
 				const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, sizeOfLastPacket);
 				buffer[0] = (u8)((ck & 0xff00) >> 8);
 				buffer[1] = (u8)(ck & 0x00ff);
+				logger->log ("priv_handleFileUpload() => snd ck=%d\n", ck);
 				priv_serial_send (comGPU, buffer, 2);
 				break;
 			}
 		}
 	}
 
-
 	fclose(fDST);
 	RHEAFREE(rhea::getScrapAllocator(), buffer);
+
+	if (0 == fileLenInBytes)
+		logger->log ("priv_handleFileUpload() => finished OK\n");
+	else
+		logger->log ("priv_handleFileUpload() => finished KO\n");
 
 }

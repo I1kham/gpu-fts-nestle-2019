@@ -165,6 +165,7 @@ namespace cpubridge
     u16			buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u16			buildMsg_rasPI_MITM_getWifiIP (u8 *out_buffer, u32 sizeOfOutBuffer);
+	u16			buildMsg_rasPI_MITM_unzipTouchscreenGUI (const u8* const srcFilename, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 
 

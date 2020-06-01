@@ -68,6 +68,9 @@ void zip_test2()
 
 void zip_test3()
 {
+	rhea::CompressUtility::decompresAll ((const u8*)"C:\\Users\\giallanon\\Desktop\\aaa\\web\\mobile.rheazip", (const u8*)"c:\\vuota\\aaa");
+	return;
+
 	rhea::CompressUtility cu;
 
 	cu.begin ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\zip3.rheazip", 8);
@@ -77,6 +80,8 @@ void zip_test3()
 	cu.end();
 
 	rhea::CompressUtility::decompresAll ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\zip3.rheazip", (const u8*)"c:\\vuota\\zip3");
+
+	
 }
 
 //*****************************************************

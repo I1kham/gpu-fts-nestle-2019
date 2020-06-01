@@ -155,6 +155,7 @@ enum eRasPISubcommand
 	eRasPISubcommand_SERIALIZED_sMSG		= 0x05,
 	eRasPISubcommand_GET_WIFI_IP			= 0x06,
 	eRasPISubcommand_UPLOAD_BEGIN			= 0x07,
+	eRasPISubcommand_UNZIP_TS_GUI			= 0x08,
 
 	eRasPISubcommand_INVALID				= 0xff
 };
