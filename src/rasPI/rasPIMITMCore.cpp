@@ -3,6 +3,7 @@
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../SocketBridge/SocketBridge.h"
+#include "../rheaCommonLib/compress/rheaCompress.h"
 
 using namespace rasPI;
 using namespace rasPI::MITM;
@@ -225,6 +226,7 @@ void Core::run()
 //*********************************************************
 void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes)
 {
+	return;
 #ifdef _DEBUG
 	logger->log (prefix);
 	if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
@@ -309,15 +311,16 @@ bool Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
                     //Prima mando questi messaggio e poi, per ultimo, mando il msg di risposta della CPU
                     if (bufferSpontaneousMsgForGPU.numBytesInBuffer)
                     {
-                        logger->log ("sending [bufferSpontaneousMsgForGPU]\n");
                         u32 ct = 0;
                         while (bufferSpontaneousMsgForGPU.numBytesInBuffer)
                         {
-                            const u32 n = priv_isAValidMessage (&bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.numBytesInBuffer);
-                            assert (n <= bufferSpontaneousMsgForGPU.numBytesInBuffer);
-                            priv_serial_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], n);
-                            ct += n;
-                            bufferSpontaneousMsgForGPU.numBytesInBuffer -= n;
+							u32 n = 0;
+							priv_isAValidMessage (&bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.numBytesInBuffer, &n);
+							assert (n <= bufferSpontaneousMsgForGPU.numBytesInBuffer);
+							logger->log ("sending [bufferSpontaneousMsgForGPU]\n");
+							priv_serial_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], n);
+							ct += n;
+							bufferSpontaneousMsgForGPU.numBytesInBuffer -= n;
                         }
                         bufferSpontaneousMsgForGPU.numBytesInBuffer = 0;
                     }
@@ -341,33 +344,52 @@ u32 Core::priv_extractMessage (sBuffer &b, u8 *out, u32 sizeOfOut)
 	if (b.numBytesInBuffer < 4)
 		return 0;
 
-	for (u32 i = 0; i < b.numBytesInBuffer; i++)
+	u32 i = 0;
+	while (i < b.numBytesInBuffer)
 	{
 		if (b.buffer[i] == (u8)'#')
 		{
-			const u32 nBytesUsed = priv_isAValidMessage(&b.buffer[i], b.numBytesInBuffer - i);
-			if (nBytesUsed)
+			u32 nBytesUsed = 0;
+			switch (priv_isAValidMessage(&b.buffer[i], b.numBytesInBuffer - i, &nBytesUsed))
 			{
+			case eValid_yes:
 				assert (sizeOfOut >= nBytesUsed);
 				memcpy (out, &b.buffer[i], nBytesUsed);
-                return i + nBytesUsed;
+				return i + nBytesUsed;
+
+			case eValid_notEnoughtData:
+				return 0;
+
+			case eValid_wrongCK:
+				i += nBytesUsed;
+				break;
+
+			default:
+				++i;
+				break;
 			}
-            return i;
 		}
+		else
+			++i;
 	}
 
     return b.numBytesInBuffer;
 }
 
 //*********************************************************
-u32 Core::priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const
+Core::eValid Core::priv_isAValidMessage (const u8 *p, u32 nBytesToCheck, u32 *out_nBytesConsumed) const
 {
+	*out_nBytesConsumed = 0;
 	if (nBytesToCheck < 4)
-		return 0;
+		return eValid_notEnoughtData;
+
 	if (p[0] != (u8)'#')
-		return 0;
+		return eValid_no;
 
 	const char command = (const char)p[1];
+	const bool isValidCommandChar = ((command >= 'a' && command <= 'z') || (command >= 'A' && command <= 'Z'));
+	if (!isValidCommandChar)
+		return eValid_no;
 
 	u16 expectedMsgLen;
 	if (command == 'W')
@@ -382,15 +404,18 @@ u32 Core::priv_isAValidMessage (const u8 *p, u32 nBytesToCheck) const
 	}
 
 	if (expectedMsgLen < 4)
-		return 0;
+		return eValid_no;
+
 	if (nBytesToCheck < expectedMsgLen)
-		return 0;
+		return eValid_notEnoughtData;
 
 	const u8 receivedCK = p[expectedMsgLen - 1];
 	const u8 calculateCK = rhea::utils::simpleChecksum8_calc(p, expectedMsgLen - 1);
+
+	*out_nBytesConsumed = expectedMsgLen;
 	if (receivedCK == calculateCK)
-		return expectedMsgLen;
-	return 0;
+		return eValid_yes;
+	return eValid_wrongCK;
 }
 
 
@@ -659,5 +684,211 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 			priv_serial_send (comGPU, bufferW, nToSend);
 		}
 		break;
+
+	case eRasPISubcommand_UPLOAD_BEGIN:
+		//GPU vuole inziare un file-upload
+		//Entro in un loop fino alla fine del trasferimento
+		priv_handleFileUpload(msg);
+		break;
+
+	case eRasPISubcommand_UNZIP_TS_GUI:
+		//GPU vuole unzippare un file che ho nella mia cartella temp e metterlo nella cartella dell GUI TS
+		{
+			u8 src[512];
+			u8 dst[512];
+#ifdef LINUX
+#ifdef PLATFORM_UBUNTU_DESKTOP
+			//unzippo in temp/filenameSenzaExt/
+			rhea::fs::extractFileNameWithoutExt (payload, src, sizeof(src));
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/%s", rhea::getPhysicalPathToAppFolder(), payload);
+#else
+			sprintf_s ((char*)dst, sizeof(dst), "/var/www/html/GUITS");
+#endif
+#else
+			//unzippo in temp/filenameSenzaExt/
+			rhea::fs::extractFileNameWithoutExt (payload, src, sizeof(src));
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), src);
+#endif
+			sprintf_s ((char*)src, sizeof(src), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), payload);
+			if (rhea::CompressUtility::decompresAll (src, dst))
+			{
+				//rispondo
+				src[0] = 'k';
+				priv_serial_send (comGPU, src, 1);
+				priv_finalizeGUITSInstall(dst);
+			}
+			else
+			{
+				//rispondo
+				src[0] = 'n';
+				priv_serial_send (comGPU, src, 1);
+			}
+		}
+		break;
+
 	} //switch
+}
+
+//*********************************************************
+bool Core::priv_handleFileUpload(const u8 *msg)
+{
+	const u32 TIMEOU_MSEC = 3000;
+	const eRasPISubcommand subcommand = (eRasPISubcommand)msg[4];
+	const u8 *payload = &msg[5];
+	const u16 totalMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&msg[2]);
+
+	u32 fileLenInBytes = rhea::utils::bufferReadU32(payload);
+	const u16 packetSize = rhea::utils::bufferReadU16(&payload[4]);
+	const u8* fileName = (const u8*)&payload[6];
+
+	logger->log ("priv_handleFileUpload() => starting upload of [%s] [size:%d] [pcktsize:%d]\n", fileName, fileLenInBytes, packetSize);
+	u32 BUFFER_SIZE = 2048;
+	if (packetSize*2 > BUFFER_SIZE)
+		BUFFER_SIZE = packetSize*2;
+	u8 *buffer = (u8*)RHEAALLOC (rhea::getScrapAllocator(), BUFFER_SIZE);
+	
+	
+	sprintf_s ((char*)buffer , BUFFER_SIZE, "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+	FILE *fDST = rhea::fs::fileOpenForWriteBinary(buffer);
+	if (NULL == fDST)
+	{
+		//rispondo KO
+		u8 data[4];
+		data[0] = 0;
+		const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UPLOAD_BEGIN, data, 1, buffer, BUFFER_SIZE);
+		priv_serial_send (comGPU, buffer, nToSend);
+		RHEAFREE(rhea::getScrapAllocator(), buffer);
+		logger->log ("priv_handleFileUpload() => ERR: unable to open file for write [%s]\n", buffer);
+		return false;
+	}
+
+	//rispondo OK
+	{
+		u8 data[4];
+		data[0] = 1;
+		const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UPLOAD_BEGIN, data, 1, buffer, BUFFER_SIZE);
+		priv_serial_send (comGPU, buffer, nToSend);
+	}
+
+	//rimango in attesa dei pacchetti
+	u32 numPacketOfSizeEqualToPacketSize = fileLenInBytes / packetSize;
+	u32 nBytesInBuffer = 0;
+	u64 timeoutMSec = rhea::getTimeNowMSec() + TIMEOU_MSEC;
+	while (numPacketOfSizeEqualToPacketSize && rhea::getTimeNowMSec() < timeoutMSec)
+	{
+		const u32 nRead = rhea::rs232::readBuffer(comGPU, &buffer[nBytesInBuffer], BUFFER_SIZE - nBytesInBuffer);
+		nBytesInBuffer += nRead;
+		while (nBytesInBuffer >= packetSize)
+		{
+			logger->log ("priv_handleFileUpload() => packet rcv [%d]\n", numPacketOfSizeEqualToPacketSize);
+			fileLenInBytes -= packetSize;
+			numPacketOfSizeEqualToPacketSize--;
+			rhea::fs::fileWrite (fDST, buffer, packetSize);
+
+			//invio conferma ricezione
+			const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, packetSize);
+			buffer[0] = (u8)((ck & 0xff00) >> 8);
+			buffer[1] = (u8)(ck & 0x00ff);
+			logger->log ("priv_handleFileUpload() => snd ck=%d\n", ck);
+			priv_serial_send (comGPU, buffer, 2);
+
+
+			//shifto il buffer per vedere se ho altri packet bufferizzati
+			nBytesInBuffer -= packetSize;
+			if (nBytesInBuffer)
+				memcpy (buffer, &buffer[packetSize], nBytesInBuffer);
+
+			//aggiorno timeout
+			timeoutMSec = rhea::getTimeNowMSec() + TIMEOU_MSEC;
+		}
+	}
+
+	const u32 sizeOfLastPacket = fileLenInBytes;
+	if (sizeOfLastPacket && fileLenInBytes < packetSize)
+	{
+		logger->log ("priv_handleFileUpload() => waiting last packet\n");
+		timeoutMSec = rhea::getTimeNowMSec() + TIMEOU_MSEC;
+		while (rhea::getTimeNowMSec() < timeoutMSec)
+		{
+			const u32 nRead = rhea::rs232::readBuffer(comGPU, &buffer[nBytesInBuffer], BUFFER_SIZE - nBytesInBuffer);
+			nBytesInBuffer += nRead;
+			if (nBytesInBuffer >= sizeOfLastPacket)
+			{
+				logger->log ("priv_handleFileUpload() => last packet rcv\n");
+				fileLenInBytes -= sizeOfLastPacket;
+				rhea::fs::fileWrite (fDST, buffer, sizeOfLastPacket);
+
+				//invio conferma ricezione
+				const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, sizeOfLastPacket);
+				buffer[0] = (u8)((ck & 0xff00) >> 8);
+				buffer[1] = (u8)(ck & 0x00ff);
+				logger->log ("priv_handleFileUpload() => snd ck=%d\n", ck);
+				priv_serial_send (comGPU, buffer, 2);
+				break;
+			}
+		}
+	}
+
+	fclose(fDST);
+	RHEAFREE(rhea::getScrapAllocator(), buffer);
+
+	if (0 == fileLenInBytes)
+	{
+		logger->log ("priv_handleFileUpload() => finished OK\n");
+		return true;
+	}
+	
+	logger->log ("priv_handleFileUpload() => finished KO\n");
+	return false;
+}
+
+//*********************************************************
+void Core::priv_finalizeGUITSInstall (const u8* const pathToGUIFolder)
+{
+	//per prima cosa devo cambiare l'IP usato dalla websocket per collegarsi al server.
+	//Al posto di 127.0.0.1 ci devo mettere l'IP di questa macchina
+	//L'ip si trova all'interno del file js/rhea_final.min.js
+	u8 s[512];
+	u32 filesize = 0;
+	sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
+	u8 *pSRC = rhea::fs::fileCopyInMemory (s, rhea::getScrapAllocator(), &filesize);
+	if (pSRC)
+	{
+		char myIP[16];
+		sprintf_s (myIP, sizeof(myIP), "%d.%d.%d.%d", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
+		const u32 myIPLen = strlen(myIP);
+
+		const u8 toFind[] = { "127.0.0.1" };
+		const u32 toFindLen = rhea::string::utf8::lengthInBytes(toFind);
+
+		if (filesize >= toFindLen);
+		{
+			for (u32 i = 0; i < filesize-toFindLen; i++)
+			{
+				if (memcmp (&pSRC[i], toFind, toFindLen) == 0)
+				{
+					u8 *buffer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), filesize + 32);
+					memcpy (buffer, pSRC, i);
+					memcpy (&buffer[i], myIP, myIPLen);
+					memcpy (&buffer[i+myIPLen], &pSRC[i+toFindLen], filesize - i - toFindLen);
+					
+					sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
+					FILE *f = rhea::fs::fileOpenForWriteBinary(s);
+					rhea::fs::fileWrite (f, buffer, filesize - toFindLen + myIPLen);
+					fclose(f);
+					
+					RHEAFREE(rhea::getScrapAllocator(), buffer);
+					i = u32MAX-1;
+				}
+			}
+		}
+
+		RHEAFREE(rhea::getScrapAllocator(), pSRC);
+	}
+
+	//Poi devo copiare la cartella coi font
+	u8 s2[512];
+	sprintf_s ((char*)s, sizeof(s), "%s/gui_parts/fonts", rhea::getPhysicalPathToAppFolder());
+	sprintf_s ((char*)s2, sizeof(s2), "%s/fonts", pathToGUIFolder);
+	rhea::fs::folderCopy (s, s2, NULL);
 }

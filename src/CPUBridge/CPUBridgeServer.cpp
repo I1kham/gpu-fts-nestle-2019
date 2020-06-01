@@ -276,7 +276,7 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 			const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_serializedSMsg (msg, answerBuffer, sizeof(answerBuffer));
 			chToCPU->sendOnlyAndDoNotWait(answerBuffer, nBytesToSend, logger);
 			rhea::thread::deleteMsg (msg);
-		}
+            }
 	}
 
 	//invio msg a CPU
@@ -1169,6 +1169,43 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				}
             }
             break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD:
+		{
+			u8 srcFullFileNameAndPath[512];
+			translate_CPU_RASPI_MITM_FileUpload(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+			priv_uploadFileToRasPI(&sub->q, handlerID, srcFullFileNameAndPath);
+		}
+		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_GUI_TS_UPLOAD:
+		{
+			u8 srcFullFileNameAndPath[512];
+			translate_CPU_RASPI_MITM_Upload_GUI_TS(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+			if (eWriteCPUFWFileStatus_finishedOK != priv_uploadFileToRasPI(&sub->q, handlerID, srcFullFileNameAndPath))
+			{
+				//upload terminato con errore
+				notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, false);
+			}
+			else
+			{
+				//l'upload è terminato con successo. Chiedo di unzippare
+				u8 filenameOnly[128];
+				rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, filenameOnly, sizeof(filenameOnly));
+				const u32 n = cpubridge::buildMsg_rasPI_MITM_unzipTSGUI (filenameOnly, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+				chToCPU->sendOnlyAndDoNotWait(srcFullFileNameAndPath, n, logger);
+
+				//aspetto conferma
+				u8 ch = 0;
+				chToCPU->waitChar (10000, &ch);
+				if (ch =='k')
+					notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, true);
+				else
+					notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, false);
+			}
+		}
+		break;
+
 		} //switch
 	} //while
 }
@@ -2086,7 +2123,6 @@ void Server::priv_enterState_compatibilityCheck()
 void Server::priv_handleState_compatibilityCheck()
 {
 	u8 bufferW[64];
-
 
 	//per prima cosa mi informo sulla presenza del modulo rasPI
     const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
@@ -3540,3 +3576,128 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 
 	RHEAFREE(localAllocator, da3);
 }
+
+
+//***************************************************
+eWriteCPUFWFileStatus Server::priv_uploadFileToRasPI_sendChunck (FILE *fSRC, u8 *bufferW, u16 chunkSize)
+{
+	rhea::fs::fileRead (fSRC, bufferW, chunkSize);
+	chToCPU->sendOnlyAndDoNotWait (bufferW, chunkSize, logger);
+	const u16 ck = rhea::utils::simpleChecksum16_calc (bufferW, chunkSize);
+
+    u8 ckMSB = 0;
+    if (!chToCPU->waitChar(500, &ckMSB))
+        return eWriteCPUFWFileStatus_finishedKO_generalError;
+
+    u8 ckLSB = 0;
+    if (!chToCPU->waitChar(500, &ckLSB))
+		return eWriteCPUFWFileStatus_finishedKO_generalError;
+	
+
+	const u16 rcvCK = ((u16)ckMSB) * 256 + (u16)ckLSB;
+	if (ck != rcvCK)
+		return eWriteCPUFWFileStatus_finishedKO_generalError;
+
+	return eWriteCPUFWFileStatus_finishedOK;
+}
+
+/***************************************************
+ * Dato un file localmente accessibile, lo invia al rasPI
+ * Periodicamente emette un notify_WRITE_CPUFW_PROGRESS() con lo stato dell'upload.
+ * Al termine dell'upload, se tutto è andato bene, il mhx sorgente viene copiato pari pari (compreso il suo nome originale) in
+ *	app/last_installed/cpu/nomeFileSrc.mhx
+ */
+eWriteCPUFWFileStatus Server::priv_uploadFileToRasPI (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath)
+{
+	u8 fileNameOnly[256];
+	u8 tempFilePathAndName[512];
+	rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, fileNameOnly, sizeof(fileNameOnly));
+
+	//copio il file nella mia directory locale temp
+	sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileNameOnly);
+	if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToCopyFile, 0);
+		return eWriteCPUFWFileStatus_finishedKO_unableToCopyFile;
+	}
+
+	if (!rhea::fs::fileExists(tempFilePathAndName))
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS (*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile, 0);
+		return eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile;
+	}
+
+
+	const u16 PACKET_SIZE = 1024;
+	const u32 BUFFER_SIZE = 2048;
+	u8 *buffer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), BUFFER_SIZE);
+	FILE *fSRC = rhea::fs::fileOpenForReadBinary (tempFilePathAndName);
+	u32 fileLengthInBytes = rhea::fs::filesize(fSRC);
+
+
+	//dico al rasPI che voglio iniziare un upload
+	{
+		const u16 fileNameLen = (u16)rhea::string::utf8::lengthInBytes(fileNameOnly);
+		rhea::utils::bufferWriteU32(answerBuffer, fileLengthInBytes);
+		rhea::utils::bufferWriteU16 (&answerBuffer[4], PACKET_SIZE);
+		memcpy (&answerBuffer[6], fileNameOnly, fileNameLen);
+		answerBuffer[6 + fileNameLen] = 0;
+
+		u32 n = cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UPLOAD_BEGIN, answerBuffer, 7+fileNameLen, buffer, BUFFER_SIZE);
+		chToCPU->sendOnlyAndDoNotWait (buffer, n, logger);
+		n = chToCPU->waitForAMessage (answerBuffer, sizeof(answerBuffer), logger, 1000);
+		if (n == 0)
+		{
+			//timeout
+			fclose(fSRC);
+			RHEAFREE(rhea::getScrapAllocator(), buffer);
+			if (NULL != subscriber)
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_generalError, 1);
+			return eWriteCPUFWFileStatus_finishedKO_M_notReceived;
+		}
+	}
+
+	//tutto ok, procedo con la spedizione dei blocchi di dati
+	u32 bytesWrittenSoFar = 0;
+	eWriteCPUFWFileStatus ret = eWriteCPUFWFileStatus_finishedOK;
+	while (fileLengthInBytes >= PACKET_SIZE)
+	{
+        ret = priv_uploadFileToRasPI_sendChunck (fSRC, buffer, PACKET_SIZE);
+		if (ret != eWriteCPUFWFileStatus_finishedOK)
+			break;
+
+		bytesWrittenSoFar += PACKET_SIZE;
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus_inProgress, (bytesWrittenSoFar>>10));
+		fileLengthInBytes -= PACKET_SIZE;
+	}
+
+	if (ret == eWriteCPUFWFileStatus_finishedOK)
+	{
+		if (fileLengthInBytes)
+		{
+			ret = priv_uploadFileToRasPI_sendChunck (fSRC, buffer, fileLengthInBytes);
+			if (ret == eWriteCPUFWFileStatus_finishedOK)
+				bytesWrittenSoFar += fileLengthInBytes;
+		}
+	}
+	fclose(fSRC);
+	RHEAFREE(rhea::getScrapAllocator(), buffer);
+
+
+	if (ret == eWriteCPUFWFileStatus_finishedOK)
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedOK, (bytesWrittenSoFar >> 10));
+	}
+	else
+	{
+		if (NULL != subscriber)
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_generalError, 8);	
+	}
+
+	return ret;
+}
+

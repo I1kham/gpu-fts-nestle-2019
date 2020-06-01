@@ -135,6 +135,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\testHTTP\main.cpp" />
+    <ClCompile Include="..\..\src\testHTTP\miniz.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\testHTTP\miniz.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

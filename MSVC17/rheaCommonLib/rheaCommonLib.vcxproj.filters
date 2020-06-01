@@ -58,6 +58,9 @@
     <Filter Include="SimpleLogger">
       <UniqueIdentifier>{b6177456-7dcb-4536-84bb-3875fbf5fb03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rhea\utils\compress">
+      <UniqueIdentifier>{86d51767-cd39-4cb7-9200-97f204f25b86}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp">
@@ -215,6 +218,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringFormat.cpp">
       <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\miniz.c">
+      <Filter>rhea\utils\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompress.cpp">
+      <Filter>rhea\utils\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompressUtility.cpp">
+      <Filter>rhea\utils\compress</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -403,6 +415,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\rheaString.h">
       <Filter>rhea\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\miniz.h">
+      <Filter>rhea\utils\compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\rheaCompress.h">
+      <Filter>rhea\utils\compress</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

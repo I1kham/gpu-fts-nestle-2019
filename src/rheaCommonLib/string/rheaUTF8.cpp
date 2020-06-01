@@ -773,6 +773,8 @@ bool string::utf8::extractCPPComment (Iter &srcIN, Iter *result)
 	return false;
 }
 
+
+
 //*******************************************************************
 u32 string::utf8::decodeURIinPlace (u8 *s)
 {

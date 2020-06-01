@@ -2,11 +2,8 @@
 #include <conio.h>
 #endif
 #include "../rheaCommonLib/rhea.h"
-#include "../rheaCommonLib/rheaUTF8.h"
-#include "../rheaCommonLib/rheaUtils.h"
-#include "../rheaAlipayChina/AlypayChina.h"
-#include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
-
+#include "miniz.h"
+#include "../rheaCommonLib/compress/rheaCompress.h"
 
 
 //*****************************************************
@@ -15,135 +12,76 @@ void waitKB()
 	_getch();
 }
 
-/*****************************************************
- * Fa il peek() dalla socket e cerca di recuperare l'header della risposta HTTP
- * Ritorna il num di byte letti e messi in [out_buffer].
- * Se ritorna >0, vuol dire che in [out_buffer] c'è un valido header http di risposta
- */
-u32 httpExtractResponseHeader (OSSocket &sok, u32 timeoutMSec, u8 *out_buffer, u32 sizeofOutBuffer)
+
+//**********************************
+void zip_test1()
 {
-	//peek socket per vedere se c'è una risposta in coda
-	i32 nRead = rhea::socket::read (sok, out_buffer, sizeofOutBuffer, timeoutMSec, true);
-	if (nRead <= 0)
-		return 0;
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
 
-	rhea::utf8::parser::Source iter;
-	iter.setup (out_buffer);
-	if (!rhea::utf8::parser::find_NoCaseSens (iter, (const u8*)"\r\n\r\n"))
-	{
-		printf ("httpParseResponse() => \r\n\r\n not found");
-		return -1;
-	}
+	const char pSrc[] = { "Good morning Dr. Chandra. This is Hal. I am ready for my first lesson." \
+	  "Good morning Dr. Chandra. This is Hal. I am ready for my first lesson." \
+	  "Good morning Dr. Chandra. This is Hal. I am ready for my first lesson." \
+	  "Good morning Dr. Chandra. This is Hal. I am ready for my first lesson." \
+	  "Good morning Dr. Chandra. This is Hal. I am ready for my first lesson." \
+	  "Good morning Dr. Chandra. This is Hal. I am ready for my first lesson." \
+	  "Good morning Dr. Chandra. This is Hal. I am ready for my first lesson." };
 
-	iter.advance(4);
-	const u32 headerSize = iter.iNow ;
+	const u8 COMPRESSION_LEVEL = 8;
+	mz_ulong	compressedSize = 4 * 1024 * 1024;
+	u8 *pCompressed = (u8*)RHEAALLOC (allocator, compressedSize);
+	if (Z_OK != mz_compress2 (pCompressed, &compressedSize, (const u8*)pSrc, strlen((const char*)pSrc), COMPRESSION_LEVEL))
+    {
+		printf("compress() failed!\n");
+		return;
+    }
+	printf("Compressed from %d to %d bytes\n", strlen((const char*)pSrc), (mz_uint32)compressedSize);
 
-	//ok, ho trovato un valido header http, lo tolgo dalla socket
-	rhea::socket::read (sok, out_buffer, headerSize, timeoutMSec);
-	out_buffer[headerSize] = 0;
 
-	return headerSize;
+	mz_ulong	decompressedSize = 4 * 1024 * 1024;
+	u8 *pDecompressed = (u8*)RHEAALLOC (allocator, decompressedSize);
+	if (Z_OK != mz_uncompress (pDecompressed,&decompressedSize, pCompressed, compressedSize))
+    {
+		printf("decompress() failed!\n");
+		return;
+    }
+	printf("Decompressed from %d to %d bytes\n", compressedSize, decompressedSize);
+
+	if (memcmp (pSrc, pDecompressed, strlen((const char*)pSrc)) != 0)
+		printf("ERROR: decompressed and src does not match\n");
+
+	RHEAFREE(allocator, pCompressed);
+	RHEAFREE(allocator, pDecompressed);
 }
 
-//*****************************************************
-i32 httpExtractHeaderValueAsIntOrDefault (const u8 *header, const char *fieldName, i32 defaultValue)
+void zip_test2()
 {
-	rhea::utf8::parser::Source iter;
-	iter.setup (header);
-	if (!rhea::utf8::parser::find_NoCaseSens (iter, (const u8*)fieldName))
-		return defaultValue;
+	rhea::CompressUtility cu;
 
-	iter.advance(strlen(fieldName));
+	cu.begin ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\zipt.rheazip", 8);
+	cu.addFile ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\current\\gui\\web\\img\\animationRound.gif", (const u8*)"aa_animationRound.gif");
+	cu.addFile ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\current\\gui\\web\\upload\\Drink_direct_water.png", (const u8*)"pippo\\pluto\\aa_Drink_direct_water.png");
+	cu.end();
 
-	//ora dovrebbe essere un carattere ":"
-	if (iter.getCurChar() != ':')
-		return defaultValue;
-	iter.advance(1);
 
-	rhea::utf8::parser::toNextValidChar(iter);
-	i32 ret = defaultValue;
-	rhea::utf8::parser::extractInteger(iter, &ret);
-	return ret;
+	rhea::CompressUtility::decompresAll ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\zipt.rheazip", (const u8*)"c:\\vuota");
 }
 
-//*****************************************************
-void httpGET (OSSocket &sok, const char *sokIP, const char *url)
+void zip_test3()
 {
-	char buf_request[1024];
+	rhea::CompressUtility::decompresAll ((const u8*)"C:\\Users\\giallanon\\Desktop\\aaa\\web\\mobile.rheazip", (const u8*)"c:\\vuota\\aaa");
+	return;
 
-	//invio la richiesta HTTP al server
-	sprintf(buf_request, "GET %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", url, sokIP);
-	const i32 nWritten = rhea::socket::write(sok, buf_request, (int)strlen(buf_request));
+	rhea::CompressUtility cu;
 
-	//aspetto risposta
-	u8 responseHeader[1024];
-	const u32 sizeOfResponseHeader = httpExtractResponseHeader (sok, 1000, responseHeader, sizeof(responseHeader));
-	printf ("%s\n\n", responseHeader);
+	cu.begin ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\zip3.rheazip", 8);
+
+	cu.excludeFolder ((const u8*)"E:\\wwwroot\\rhea\\Fusion2\\web\\mobile\\fonts");
+	cu.addFilesInFolder ((const u8*)"E:\\wwwroot\\rhea\\Fusion2\\web\\mobile", (const u8*)"", true);
+	cu.end();
+
+	rhea::CompressUtility::decompresAll ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\zip3.rheazip", (const u8*)"c:\\vuota\\zip3");
+
 	
-	const i32 contentLength = httpExtractHeaderValueAsIntOrDefault (responseHeader, "Content-Length", 0);
-
-	if (contentLength > 0)
-	{
-		rhea::Allocator *allocator = rhea::memory_getDefaultAllocator();
-		u8 *body = (u8*)RHEAALLOC(allocator, contentLength + 4);
-
-		u32 nTotRead = 0;
-		while (nTotRead < contentLength)
-		{
-			const i32 nRead = rhea::socket::read (sok, &body[nTotRead], contentLength - nTotRead, 2000);
-			if (nRead > 0)
-				nTotRead += (u32)nRead;
-		}
-
-		body[nTotRead] = 0;
-		printf ("%s\n\n", body);
-		
-		RHEAFREE(allocator, body);
-	}
-
-}
-
-//*****************************************************
-void testMD5()
-{
-	const char machineName[] = {"C20190001"};
-	const char command[] = {"E11"};
-	const char timestamp[] = {"20191029223010"};
-	const char apiVersion[] = {"V1.6"};
-	const char key[] = {"1648339973B547DC8DE3D60787079B3D"};
-
-	char hashedKey[64];
-	char s[512];
-	sprintf_s (s, sizeof(s), "%s|%s|%s|%s%s", machineName, command, timestamp, apiVersion, key);
-	rhea::utils::md5 (hashedKey, sizeof(hashedKey), s, (u32)strlen(s));
-
-
-	sprintf_s (s, sizeof(s), "%s|%s|%s|%s|%s#", machineName, command, timestamp, apiVersion, hashedKey);
-	printf (s);
-}
-
-
-//*****************************************************
-void testAlipayChina()
-{
-#ifdef _DEBUG
-	rhea::StdoutLogger loggerSTD; 
-	rhea::ISimpleLogger *logger = &loggerSTD;
-#else
-	rhea::NullLogger loggerNULL;
-	rhea::ISimpleLogger *logger = &loggerNULL;
-#endif
-
-
-	rhea::AlipayChina server;
-	server.useLogger (logger);
-
-	HThreadMsgW hMsgQWrite;
-	if (server.setup("121.196.20.39", 6019, "C20190001", "1648339973B547DC8DE3D60787079B3D", &hMsgQWrite))
-	{
-		server.run();
-		server.close();
-	}
 }
 
 //*****************************************************
@@ -156,28 +94,9 @@ int main()
 	rhea::init("testHTTP", NULL);
 #endif
 	
-	//testMD5(); waitKB(); 
-
-	testAlipayChina();
-
-	/*apertura socket
-	const char serverIP[] = { "127.0.0.1" };
-	OSSocket sok;
-	{
-		eSocketError err = rhea::socket::openAsTCPClient(&sok, serverIP, 80);
-		if (err != eSocketError_none)
-		{
-			printf ("errore in apertura socket [%d]\n", (u32)err);
-			waitKB();
-			return 0;
-		}
-	}
-
-	//httpGET (sok, serverIP, "/varie/rheaRESTtest/index.php");
-	httpGET (sok, serverIP, "/varie/rheaRESTtest/test.php?op=echo&what=pippo%20fa%20la%20pizza");
-	rhea::socket::close (sok);
-	waitKB();
-	*/
+	//zip_test1(); waitKB();
+	//zip_test2(); waitKB();
+	zip_test3();
 
     rhea::deinit();
 	return 0;

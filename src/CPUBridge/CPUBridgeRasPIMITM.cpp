@@ -64,6 +64,13 @@ u16 cpubridge::buildMsg_rasPI_MITM_getWifiIP (u8 *out_buffer, u32 sizeOfOutBuffe
 }
 
 //***************************************************
+u16 cpubridge::buildMsg_rasPI_MITM_unzipTSGUI (const u8* const srcZipFilename, u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+    return cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UNZIP_TS_GUI, srcZipFilename, rhea::string::utf8::lengthInBytes(srcZipFilename)+1, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 u16 cpubridge::buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
     const u32 nBytesForSerializedMsg = rhea::thread::calcSizeNeededToSerializeMsg(msg);
@@ -175,4 +182,63 @@ void cpubridge::translateNotify_CPU_RASPI_MITM_GET_WIFI_IP(const rhea::thread::s
     sprintf_s (out_ipAddress, sizeof_outIpAddress, "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
 }
 
+//***************************************************
+void cpubridge::ask_CPU_RASPI_MITM_FileUpload (const sSubscriber &from, u16 handlerID, const u8* const fullFilePathAndName)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD, handlerID, fullFilePathAndName, rhea::string::utf8::lengthInBytes(fullFilePathAndName) + 1);
+}
 
+//***************************************************
+void cpubridge::translate_CPU_RASPI_MITM_FileUpload(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD);
+	u32 n = msg.bufferSize;
+	if (n > sizeOfOut)
+	{
+		DBGBREAK;
+		n = sizeOfOut;
+	}
+
+	memcpy(out_srcFullFileNameAndPath, msg.buffer, n);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &from, u16 handlerID, const u8* const fullRheaZipFilePathAndName)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_GUI_TS_UPLOAD, handlerID, fullRheaZipFilePathAndName, rhea::string::utf8::lengthInBytes(fullRheaZipFilePathAndName) + 1);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_RASPI_MITM_Upload_GUI_TS(const rhea::thread::sMsg &msg, u8 *out_fullRheaZipFilePathAndName, u32 sizeOfOut)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_GUI_TS_UPLOAD);
+	u32 n = msg.bufferSize;
+	if (n > sizeOfOut)
+	{
+		DBGBREAK;
+		n = sizeOfOut;
+	}
+	memcpy(out_fullRheaZipFilePathAndName, msg.buffer, n);
+}
+
+//***************************************************
+void cpubridge::notify_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bSuccess)
+{
+	logger->log("notify_CPU_RASPI_MITM_Upload_GUI_TS\n");
+
+    u8 data[4];
+    data[0] = 0;
+    if (bSuccess)
+        data[0] = 0x01;
+    rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS, handlerID, data, 1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_RASPI_MITM_Upload_GUI_TS(const rhea::thread::sMsg &msg, bool *out_bSuccess)
+{
+	assert (msg.what == CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS);
+    const u8 *p = (const u8*)msg.buffer;
+    *out_bSuccess = false;
+    if (p[0] == 0x01)
+        *out_bSuccess = true;
+}

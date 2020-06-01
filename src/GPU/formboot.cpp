@@ -27,6 +27,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     upldDA3CallBack = eUploadDA3CallBack_none;
     upldCPUFWCallBack = eUploadCPUFWCallBack_none;
     bBtnStartVMCEnabled = true;
+    sizeInBytesOfCurrentFileUnpload = 0;
 
     autoupdate.isRunning = false;
     memset (autoupdate.cpuFileName, 0, sizeof(autoupdate.cpuFileName));
@@ -446,7 +447,12 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         default: break;
         case eUploadCPUFWCallBack_btn: priv_on_btnInstall_CPU_upload(msg); break;
         case eUploadCPUFWCallBack_auto: priv_autoupdate_onCPU_upload(msg); break;
+        case eUploadCPUFWCallBack_rasPIGUI: priv_uploadRasPI_GUI(msg); break;
         }
+        break;
+
+    case CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS:
+        priv_uploadRasPI_GUI_unzipped(msg);
         break;
     }
 }
@@ -480,6 +486,7 @@ void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullF
 {
     upldCPUFWCallBack = mode;
     priv_foreverDisableBtnStartVMC();
+    sizeInBytesOfCurrentFileUnpload = rhea::fs::filesize(fullFilePathAndName);
     cpubridge::ask_WRITE_CPUFW (glob->subscriber, 0, fullFilePathAndName);
 }
 
@@ -792,7 +799,7 @@ void FormBoot::priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg)
     char s[512];
     if (status == cpubridge::eWriteDataFileStatus_inProgress)
     {
-        sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d Kb", totKbSoFar);
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d KB", totKbSoFar);
         priv_pleaseWaitSetText (s);
     }
     else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
@@ -857,13 +864,39 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
 {
     priv_pleaseWaitShow("Installing GUI...");
 
-    if (priv_doInstallGUI (srcFullFolderPath))
-        priv_pleaseWaitSetOK("SUCCESS.<br>GUI installed");
-    else
+    if (!priv_doInstallGUI (srcFullFolderPath))
+    {
         priv_pleaseWaitSetError("ERROR copying files");
+        priv_pleaseWaitHide();
+        priv_updateLabelInfo();
+        return;
+    }
 
-    priv_pleaseWaitHide();
-    priv_updateLabelInfo();
+    //se c'è collegato il rasPI e se la GUI importata ha una versione "mobile", devo uppare anche quella
+    u8 fullMobileGUIPathAndName[1024];
+    sizeInBytesOfCurrentFileUnpload = 0;
+    if (glob->rasPI.version)
+    {
+        sprintf_s ((char*)fullMobileGUIPathAndName, sizeof(fullMobileGUIPathAndName), "%s/web/mobile.rheazip", glob->current_GUI);
+        if (rhea::fs::fileExists(fullMobileGUIPathAndName))
+            sizeInBytesOfCurrentFileUnpload = rhea::fs::filesize(fullMobileGUIPathAndName);
+        else
+            fullMobileGUIPathAndName[0] = 0;
+    }
+
+    if (0 == sizeInBytesOfCurrentFileUnpload)
+    {
+        priv_pleaseWaitSetOK("SUCCESS.<br>GUI installed");
+        priv_pleaseWaitHide();
+        priv_updateLabelInfo();
+        return;
+    }
+
+
+    priv_pleaseWaitShow("Uploading mobile GUI to wifi module...");
+    upldCPUFWCallBack = eUploadCPUFWCallBack_rasPIGUI;
+    priv_foreverDisableBtnStartVMC();
+    cpubridge::ask_CPU_RASPI_MITM_Upload_GUI_TS (glob->subscriber, 0, fullMobileGUIPathAndName);
 }
 
 bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
@@ -892,6 +925,47 @@ bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
 
     return true;
 }
+
+void FormBoot::priv_uploadRasPI_GUI (rhea::thread::sMsg &msg)
+{
+    cpubridge::eWriteCPUFWFileStatus status;
+    u16 param = 0;
+    cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
+
+    char s[512];
+    if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
+    {
+        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... %d/%d KB", param, (sizeInBytesOfCurrentFileUnpload>>10));
+        priv_pleaseWaitSetText (s);
+    }
+    else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
+    {
+        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
+        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... file upload SUCCESS, now waiting for unzip");
+        priv_pleaseWaitSetText (s);
+    }
+    else
+    {
+        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
+        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... ERROR: %s [%d]", rhea::app::utils::verbose_WriteCPUFWFileStatus(status), param);
+        priv_pleaseWaitSetError(s);
+        priv_pleaseWaitHide();
+        priv_updateLabelInfo();
+    }
+}
+
+void FormBoot::priv_uploadRasPI_GUI_unzipped(rhea::thread::sMsg &msg)
+{
+    bool bSuccess=false;
+    cpubridge::translateNotify_CPU_RASPI_MITM_Upload_GUI_TS (msg, &bSuccess);
+    if (bSuccess)
+        priv_pleaseWaitSetOK ("Installing GUI on WIFI module... SUCCESS");
+    else
+        priv_pleaseWaitSetError ("Installing GUI on WIFI module... Error while unzipping");
+    priv_pleaseWaitHide();
+    priv_updateLabelInfo();
+}
+
 
 /************************************************************+
  * Install CPU FW
@@ -922,7 +996,7 @@ void FormBoot::priv_on_btnInstall_CPU_upload (rhea::thread::sMsg &msg)
     }
     else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
     {
-        sprintf_s (s, sizeof(s), "Installing CPU FW... %d Kb", param);
+        sprintf_s (s, sizeof(s), "Installing CPU FW... %d/%d KB", param, (sizeInBytesOfCurrentFileUnpload>>10));
         priv_pleaseWaitSetText (s);
     }
     else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
@@ -1094,7 +1168,7 @@ void FormBoot::priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg)
     char s[512];
     if (status == cpubridge::eReadDataFileStatus_inProgress)
     {
-        sprintf_s (s, sizeof(s), "Downloading data audit... %d Kb", totKbSoFar);
+        sprintf_s (s, sizeof(s), "Downloading data audit... %d KB", totKbSoFar);
         priv_pleaseWaitSetText (s);
     }
     else if (status == cpubridge::eReadDataFileStatus_finishedOK)
@@ -1169,7 +1243,7 @@ void FormBoot::priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::s
     char s[512];
     if (status == cpubridge::eReadDataFileStatus_inProgress)
     {
-        sprintf_s (s, sizeof(s), "Preparing service zip file (it may takes up to 2 minutes)...<br>Downloading data audit... %d Kb", totKbSoFar);
+        sprintf_s (s, sizeof(s), "Preparing service zip file (it may takes up to 2 minutes)...<br>Downloading data audit... %d KB", totKbSoFar);
         priv_pleaseWaitSetText (s);
     }
     else if (status == cpubridge::eReadDataFileStatus_finishedOK)
@@ -1651,7 +1725,7 @@ void FormBoot::priv_autoupdate_onCPU_upload (rhea::thread::sMsg &msg)
     }
     else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
     {
-        sprintf_s (s, sizeof(s), "Installing CPU FW... %d Kb", param);
+        sprintf_s (s, sizeof(s), "Installing CPU FW... %d KB", param);
         priv_autoupdate_setText(ui->labStatus_cpuFW, s);
     }
     else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
@@ -1682,7 +1756,7 @@ void FormBoot::priv_autoupdate_onDA3_upload (rhea::thread::sMsg &msg)
     char s[512];
     if (status == cpubridge::eWriteDataFileStatus_inProgress)
     {
-        sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d Kb", totKbSoFar);
+        sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d KB", totKbSoFar);
         priv_autoupdate_setText (ui->labStatus_da3, s);
     }
     else if (status == cpubridge::eWriteDataFileStatus_finishedOK)

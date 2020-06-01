@@ -67,6 +67,7 @@
 #define		CPUBRIDGE_NOTIFY_MILKER_VER						0x012D
 
 
+#define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS		0x01FC
 #define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_GET_WIFI_IP			0x01FD
 #define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_ARE_YOU_THERE		0x01FE
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
@@ -133,6 +134,8 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER										0x0835
 #define		CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED	0x0836
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP								0x0837
+#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD							0x0838
+#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_GUI_TS_UPLOAD						0x0839
 
  /**********************************************************************
   * msg che CPUBridge e il modulo MITM di rasPI possono scambiarsi
@@ -152,7 +155,11 @@ enum eRasPISubcommand
 	eRasPISubcommand_ARE_YOU_THERE			= 0x03,
 	eRasPISubcommand_START_SOCKETBRIDGE		= 0x04,
 	eRasPISubcommand_SERIALIZED_sMSG		= 0x05,
-	eRasPISubcommand_GET_WIFI_IP			= 0x06
+	eRasPISubcommand_GET_WIFI_IP			= 0x06,
+	eRasPISubcommand_UPLOAD_BEGIN			= 0x07,
+	eRasPISubcommand_UNZIP_TS_GUI			= 0x08,
+
+	eRasPISubcommand_INVALID				= 0xff
 };
 
 namespace cpubridge

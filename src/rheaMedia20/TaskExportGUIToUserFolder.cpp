@@ -1,5 +1,5 @@
 #include "TaskExportGUIToUserFolder.h"
-
+#include "../rheaCommonLib/compress/rheaCompress.h"
 
 
 
@@ -30,6 +30,8 @@ void TaskExportGUIToUserFolder::run(socketbridge::TaskStatus *status, const u8 *
 		iter2.copyAllStr(dstPath, sizeof(dstPath));
 		rhea::fs::sanitizePathInPlace(dstPath);
 
+		u8 folderMobile[256];
+		sprintf_s((char*)folderMobile, sizeof(folderMobile), "%s/temp/%s/web/mobile", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
 		u8 src[512];
 		{
 			u8 folderToSkip1[256];
@@ -38,7 +40,7 @@ void TaskExportGUIToUserFolder::run(socketbridge::TaskStatus *status, const u8 *
 			u8 folderToSkip2[256];
 			sprintf_s((char*)folderToSkip2, sizeof(folderToSkip2), "%s/temp/%s/web/js/dev", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
 
-			u8 *folderToSkip[4] = { folderToSkip1 , folderToSkip2, NULL, NULL };
+			u8 *folderToSkip[4] = { folderToSkip1 , folderToSkip2, folderMobile, NULL };
 
 			sprintf_s((char*)src, sizeof(src), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
 			rhea::fs::folderCopy(src, dstPath, folderToSkip);
@@ -55,6 +57,41 @@ void TaskExportGUIToUserFolder::run(socketbridge::TaskStatus *status, const u8 *
 			sprintf_s((char*)src, sizeof(src), "%s/temp/%s/web/backoffice/guidb.db3", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
 			rhea::fs::fileCopy(src, dstBackoffice);
 		}
+
+
+		//se il template ha la cartella mobile...
+		if (rhea::fs::folderExists(folderMobile))
+		{
+			u8 dst[1024];
+
+			//nella cartella mobile ci devo copia le cartelle js, upload e config
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/web/mobile/config", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
+			rhea::fs::folderDelete (dst);
+			sprintf_s((char*)src, sizeof(src), "%s/web/config", dstPath);
+			rhea::fs::folderCopy (src, dst, NULL);
+
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/web/mobile/upload", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
+			rhea::fs::folderDelete (dst);
+			sprintf_s((char*)src, sizeof(src), "%s/web/upload", dstPath);
+			rhea::fs::folderCopy (src, dst, NULL);
+
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/web/mobile/js", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
+			rhea::fs::folderDelete (dst);
+			sprintf_s((char*)src, sizeof(src), "%s/web/js", dstPath);
+			rhea::fs::folderCopy (src, dst, NULL);
+
+			//zippo la cartella mobile
+			rhea::CompressUtility cu;
+			sprintf_s((char*)dst, sizeof(dst), "%s/web/mobile.rheazip", dstPath);
+			cu.begin (dst, 8);
+				sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/web/mobile", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
+				cu.addFilesInFolder (dst, (const u8*)"", true);
+			cu.end();
+
+		}
+
+
+
 
 		status->setMessage("OK");
 		return;

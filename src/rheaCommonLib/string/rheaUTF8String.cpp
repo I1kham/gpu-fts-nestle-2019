@@ -228,3 +228,12 @@ void String::trimR()
 		curSize = i+1;
 	buffer[curSize] = 0;
 }
+
+//*******************************
+void String::sanitizePath()
+{
+	if (curSize == 0)
+		return;
+	rhea::fs::sanitizePathInPlace (this->buffer, curSize);
+	curSize = rhea::string::utf8::lengthInBytes(this->buffer);	
+}

@@ -2084,3 +2084,4 @@ void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const
 	*out_paymentType = (eGPUPaymentType)p[1];
 	*out_price = rhea::utils::bufferReadU16 (&p[2]);
 }
+
