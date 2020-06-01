@@ -545,6 +545,10 @@ namespace cpubridge
 	void		notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3);
     void		translateNotify_CPU_RASPI_MITM_GET_WIFI_IP(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress);
 
+	void		ask_CPU_RASPI_MITM_FileUpload (const sSubscriber &from, u16 handlerID, const u8* const fullFilePathAndName);
+                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
+	void		translate_CPU_RASPI_MITM_FileUpload(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut);
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

@@ -24,6 +24,12 @@ bool MITM::start (rhea::ISimpleLogger *logger, const char *serialPortGPU, const 
 {
     sRasPIMITIMInitParam    init;
 	
+	//creo una cartella temp se non esiste già (e la svuoto)
+    char s[512];
+    sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());
+	rhea::fs::folderCreate((const u8*)s);
+	rhea::fs::deleteAllFileInFolderRecursively((const u8*)s, false);
+
     //crea il thread del Core
     init.logger = logger;
     init.serialPortGPU = serialPortGPU;

@@ -659,5 +659,109 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 			priv_serial_send (comGPU, bufferW, nToSend);
 		}
 		break;
+
+	case eRasPISubcommand_UPLOAD_BEGIN:
+		//GPU vuole inziare un file-upload
+		//Entro in un loop fino alla fine del trasferimento
+		priv_handleFileUpload(msg);
+		break;
 	} //switch
+}
+
+//*********************************************************
+void Core::priv_handleFileUpload(const u8 *msg)
+{
+	const eRasPISubcommand subcommand = (eRasPISubcommand)msg[4];
+	const u8 *payload = &msg[5];
+	const u16 totalMsgLen = rhea::utils::bufferReadU16_LSB_MSB(&msg[2]);
+
+	assert (subcommand == eRasPISubcommand_UPLOAD_BEGIN);
+	u32 fileLenInBytes = rhea::utils::bufferReadU32(payload);
+	const u16 packetSize = rhea::utils::bufferReadU16(&payload[4]);
+	const u8* fileName = (const u8*)&payload[6];
+
+	u32 BUFFER_SIZE = 2048;
+	if (packetSize*2 > BUFFER_SIZE)
+		BUFFER_SIZE = packetSize*2;
+	u8 *buffer = (u8*)RHEAALLOC (rhea::getScrapAllocator(), BUFFER_SIZE);
+	
+	
+	sprintf_s ((char*)buffer , BUFFER_SIZE, "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
+	FILE *fDST = rhea::fs::fileOpenForWriteBinary(buffer);
+	if (NULL == fDST)
+	{
+		//rispondo KO
+		u8 data[4];
+		data[0] = 0;
+		const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UPLOAD_BEGIN, data, 1, buffer, BUFFER_SIZE);
+		priv_serial_send (comGPU, buffer, nToSend);
+		RHEAFREE(rhea::getScrapAllocator(), buffer);
+		return;
+	}
+
+	//rispondo OK
+	{
+		u8 data[4];
+		data[0] = 1;
+		const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UPLOAD_BEGIN, data, 1, buffer, BUFFER_SIZE);
+		priv_serial_send (comGPU, buffer, nToSend);
+	}
+
+	//rimango in attesa dei pacchetti
+	u32 numPacketOfSizeEqualToPacketSize = fileLenInBytes / packetSize;
+	u32 nBytesInBuffer = 0;
+	u64 timeoutMSec = rhea::getTimeNowMSec() + 3000;
+	while (numPacketOfSizeEqualToPacketSize && rhea::getTimeNowMSec() < timeoutMSec)
+	{
+		const u32 nRead = rhea::rs232::readBuffer(comGPU, &buffer[nBytesInBuffer], BUFFER_SIZE - nBytesInBuffer);
+		nBytesInBuffer += nRead;
+		while (nBytesInBuffer >= packetSize)
+		{
+			fileLenInBytes -= packetSize;
+			numPacketOfSizeEqualToPacketSize--;
+			rhea::fs::fileWrite (fDST, buffer, packetSize);
+
+			//invio conferma ricezione
+			const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, packetSize);
+			buffer[0] = (u8)((ck & 0xff00) >> 8);
+			buffer[1] = (u8)(ck & 0x00ff);
+			priv_serial_send (comGPU, buffer, 2);
+
+			//shifto il buffer per vedere se ho altri packet bufferizzati
+			nBytesInBuffer -= packetSize;
+			if (nBytesInBuffer)
+				memcpy (buffer, &buffer[packetSize], nBytesInBuffer);
+
+			//aggiorno timeout
+			timeoutMSec = rhea::getTimeNowMSec() + 3000;
+		}
+	}
+
+	const u32 sizeOfLastPacket = fileLenInBytes;
+	if (sizeOfLastPacket)
+	{
+		timeoutMSec = rhea::getTimeNowMSec() + 3000;
+		while (rhea::getTimeNowMSec() < timeoutMSec)
+		{
+			const u32 nRead = rhea::rs232::readBuffer(comGPU, &buffer[nBytesInBuffer], BUFFER_SIZE - nBytesInBuffer);
+			nBytesInBuffer += nRead;
+			if (nBytesInBuffer >= sizeOfLastPacket)
+			{
+				fileLenInBytes -= sizeOfLastPacket;
+				rhea::fs::fileWrite (fDST, buffer, sizeOfLastPacket);
+
+				//invio conferma ricezione
+				const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, sizeOfLastPacket);
+				buffer[0] = (u8)((ck & 0xff00) >> 8);
+				buffer[1] = (u8)(ck & 0x00ff);
+				priv_serial_send (comGPU, buffer, 2);
+				break;
+			}
+		}
+	}
+
+
+	fclose(fDST);
+	RHEAFREE(rhea::getScrapAllocator(), buffer);
+
 }

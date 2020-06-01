@@ -170,6 +170,8 @@ namespace cpubridge
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
 		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
+		eWriteCPUFWFileStatus	priv_uploadFileToRasPI(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
+		eWriteCPUFWFileStatus	priv_uploadFileToRasPI_sendChunck (FILE *fSRC, u8 *bufferW, u16 chunkSize);
 		bool                    priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out);
         u16                     priv_prepareAndSendMsg_readVMCDataFileBlock (u16 blockNum);
 		
