@@ -98,7 +98,8 @@ namespace rasPI
 			void				priv_handleInternalWMessages(const u8 *msg);
 
 			void				priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes);
-			void				priv_handleFileUpload(const u8 *msg);
+			bool				priv_handleFileUpload(const u8 *msg);
+
 		private:
 			rhea::Allocator         *localAllocator;
 			rhea::ISimpleLogger     *logger;

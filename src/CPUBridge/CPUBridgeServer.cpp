@@ -1178,6 +1178,34 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		}
 		break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_GUI_TS_UPLOAD:
+		{
+			u8 srcFullFileNameAndPath[512];
+			translate_CPU_RASPI_MITM_Upload_GUI_TS(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+			if (eWriteCPUFWFileStatus_finishedOK != priv_uploadFileToRasPI(&sub->q, handlerID, srcFullFileNameAndPath))
+			{
+				//upload terminato con errore
+				notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, false);
+			}
+			else
+			{
+				//l'upload è terminato con successo. Chiedo di unzippare
+				u8 filenameOnly[128];
+				rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, filenameOnly, sizeof(filenameOnly));
+				const u32 n = cpubridge::buildMsg_rasPI_MITM_unzipTSGUI (filenameOnly, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
+				chToCPU->sendOnlyAndDoNotWait(srcFullFileNameAndPath, n, logger);
+
+				//aspetto conferma
+				u8 ch = 0;
+				chToCPU->waitChar (10000, &ch);
+				if (ch =='k')
+					notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, true);
+				else
+					notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, false);
+			}
+		}
+		break;
+
 		} //switch
 	} //while
 }

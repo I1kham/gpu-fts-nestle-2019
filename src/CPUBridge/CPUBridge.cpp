@@ -2085,22 +2085,3 @@ void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const
 	*out_price = rhea::utils::bufferReadU16 (&p[2]);
 }
 
-//***************************************************
-void cpubridge::ask_CPU_RASPI_MITM_FileUpload (const sSubscriber &from, u16 handlerID, const u8* const fullFilePathAndName)
-{
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD, handlerID, fullFilePathAndName, rhea::string::utf8::lengthInBytes(fullFilePathAndName) + 1);
-}
-
-//***************************************************
-void cpubridge::translate_CPU_RASPI_MITM_FileUpload(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut)
-{
-	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD);
-	u32 n = msg.bufferSize;
-	if (n > sizeOfOut)
-	{
-		DBGBREAK;
-		n = sizeOfOut;
-	}
-
-	memcpy(out_srcFullFileNameAndPath, msg.buffer, n);
-}

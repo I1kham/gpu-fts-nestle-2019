@@ -669,33 +669,32 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		break;
 
 	case eRasPISubcommand_UNZIP_TS_GUI:
-		//GPU vuole che io unzippi un file che ho nella mia cartella temp e lo metta
-		//nella cartella dedicata alle GUI TS
+		//GPU vuole unzippare un file che ho nella mia cartella temp e metterlo nella cartella dell GUI TS
+		if (priv_handleFileUpload(msg))
 		{
 			u8 src[512];
 			u8 dst[512];
 #ifdef LINUX
 #ifdef PLATFORM_UBUNTU_DESKTOP
+			//unzippo in temp/filenameSenzaExt/
 			rhea::fs::extractFileNameWithoutExt (payload, src, sizeof(src));
-			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/%s", rhea::getPhysicalPathToAppFolder(), src, payload);
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/%s", rhea::getPhysicalPathToAppFolder(), payload);
 #else
 			sprintf_s ((char*)dst, sizeof(dst), "/var/www/html/GUITS");
 #endif
 #else
+			//unzippo in temp/filenameSenzaExt/
 			rhea::fs::extractFileNameWithoutExt (payload, src, sizeof(src));
-			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/%s", rhea::getPhysicalPathToAppFolder(), src, payload);
+			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), src);
 #endif
-			u8 bufferW[16];
 			sprintf_s ((char*)src, sizeof(src), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), payload);
 			if (rhea::CompressUtility::decompresAll (src, dst))
-				src[0] = 0x01;
+				src[0] = 'k';
 			else
-				src[0] = 0x00;
-
+				src[0] = 'n';
+				
 			//rispondo
-			src[1] = 0x00;
-			const u16 n = cpubridge::buildMsg_rasPI_MITM_unzipTouchscreenGUI (src, bufferW, sizeof(bufferW));
-			priv_serial_send (comGPU, bufferW, n);
+			priv_serial_send (comGPU, src, 1);
 		}
 		break;
 
@@ -703,7 +702,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 }
 
 //*********************************************************
-void Core::priv_handleFileUpload(const u8 *msg)
+bool Core::priv_handleFileUpload(const u8 *msg)
 {
 	const u32 TIMEOU_MSEC = 3000;
 	const eRasPISubcommand subcommand = (eRasPISubcommand)msg[4];
@@ -733,7 +732,7 @@ void Core::priv_handleFileUpload(const u8 *msg)
 		priv_serial_send (comGPU, buffer, nToSend);
 		RHEAFREE(rhea::getScrapAllocator(), buffer);
 		logger->log ("priv_handleFileUpload() => ERR: unable to open file for write [%s]\n", buffer);
-		return;
+		return false;
 	}
 
 	//rispondo OK
@@ -807,8 +806,11 @@ void Core::priv_handleFileUpload(const u8 *msg)
 	RHEAFREE(rhea::getScrapAllocator(), buffer);
 
 	if (0 == fileLenInBytes)
+	{
 		logger->log ("priv_handleFileUpload() => finished OK\n");
-	else
-		logger->log ("priv_handleFileUpload() => finished KO\n");
-
+		return true;
+	}
+	
+	logger->log ("priv_handleFileUpload() => finished KO\n");
+	return false;
 }

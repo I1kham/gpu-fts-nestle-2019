@@ -165,7 +165,7 @@ namespace cpubridge
     u16			buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u16			buildMsg_rasPI_MITM_getWifiIP (u8 *out_buffer, u32 sizeOfOutBuffer);
-	u16			buildMsg_rasPI_MITM_unzipTouchscreenGUI (const u8* const srcFilename, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u16			buildMsg_rasPI_MITM_unzipTSGUI (const u8* const srcZipFilename, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 
 
@@ -550,6 +550,12 @@ namespace cpubridge
                      //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
 	void		translate_CPU_RASPI_MITM_FileUpload(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut);
 
+	void		ask_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &from, u16 handlerID, const u8* const fullRheaZipFilePathAndName);
+                    //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS per indicare lo stato dell'upload.
+					//Al termine della procedura, CPUBridge rispnde con un notify_CPU_RASPI_MITM_Upload_GUI_TS() per indicare lo stato finale dell'operazione					
+	void		translate_CPU_RASPI_MITM_Upload_GUI_TS(const rhea::thread::sMsg &msg, u8 *out_fullRheaZipFilePathAndName, u32 sizeOfOut);
+	void		notify_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bSuccess);
+	void		translateNotify_CPU_RASPI_MITM_Upload_GUI_TS(const rhea::thread::sMsg &msg, bool *out_bSuccess);
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_
