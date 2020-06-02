@@ -127,6 +127,25 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 		}
 	}
 
+    //recupero il nome dell'hotspot
+    //Uno script python parte allo startup del rasPI e crea un file di testo di nome "hotspotname.txt" che contiene il nome dell'hotspot
+    memset (hospotName, 0, sizeof(hospotName));
+    {
+        u8 fname[256];
+        sprintf_s ((char*)fname, sizeof(fname), "%s/hotspotname.txt", rhea::getPhysicalPathToAppFolder());
+        FILE *f = rhea::fs::fileOpenForReadBinary(fname);
+        if (NULL != f)
+        {
+            fread (hospotName, sizeof(hospotName), 1, f);
+            fclose(f);
+        }
+        else
+        {
+            sprintf_s ((char*)hospotName, sizeof(hospotName), "unknown")    ;
+        }
+    }
+    logger->log ("Hotspot name:%s\n", hospotName);
+
 
 	logger->log ("OK\n");
 	logger->decIndent();

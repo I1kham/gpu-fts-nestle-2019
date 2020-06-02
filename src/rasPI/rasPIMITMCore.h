@@ -124,6 +124,7 @@ namespace rasPI
 			cpubridge::sSubscriber	subscriberSocketListener;
 			bool					bDoIHaveASubscriber;
 			u8						wifiIP[4];
+            u8                      hospotName[32];
 		};
 	} //namespace MITM
 } // namespace rasPI
