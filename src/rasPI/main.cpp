@@ -6,11 +6,13 @@
 bool startMITM()
 {
 #ifdef _DEBUG
-	rhea::StdoutLogger loggerSTD;
-	rhea::ISimpleLogger *logger = &loggerSTD;
+    rhea::StdoutLogger loggerSTD;
+    rhea::ISimpleLogger *logger = &loggerSTD;
 #else
-	rhea::NullLogger loggerNULL;
-	rhea::ISimpleLogger *logger = &loggerNULL;
+    //rhea::NullLogger loggerNULL;
+    //rhea::ISimpleLogger *logger = &loggerNULL;
+    rhea::StdoutLogger loggerSTD;
+    rhea::ISimpleLogger *logger = &loggerSTD;
 #endif
 
 

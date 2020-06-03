@@ -8,6 +8,12 @@
 using namespace rasPI;
 using namespace rasPI::MITM;
 
+#ifdef _DEBUG
+#define DEBUGLOG(...) logger->log(__VA_ARGS__);
+#else
+#define DEBUGLOG(...)
+#endif
+
 
 //*********************************************************
 Core::Core()
@@ -101,7 +107,14 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 	
 
 	//recupero il mio IP di rete wifi
-	memset (wifiIP, 0, sizeof(wifiIP));
+    //NOTA: il seguente codice va bene ed è funzionante MA dato che devo fare in modo che questo prg sia attivo il prima possibile, lo metto
+    //in autostart subito dopo che il SO ha reso disponibili le socket (il che avviene circa 5 secondi dopo l'accensione della macchina).
+    //In quel momento, i servizi di rete non sono ancora attivi quindi il seguente codice non è in grado di recuperare l'IP della macchina
+    //dato che la macchina al momento ancora non ha un IP.
+    //Per aggirare il problema, leggo l'IP da un file che viene creato da uno script python che è lo stesso che crea il file che leggo più sotto
+    //per recuperare il nome dell'hotspot wifi
+#if 0
+    memset (wifiIP, 0, sizeof(wifiIP));
 	{
 		u32 n = 0;
 		sNetworkAdapterInfo *ipList = rhea::netaddr::getListOfAllNerworkAdpaterIPAndNetmask (rhea::getScrapAllocator(), &n);
@@ -123,25 +136,46 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 			}
 
 			RHEAFREE(rhea::getScrapAllocator(), ipList);
-			logger->log ("WIFI IP: %d.%d.%d.%d\n", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
+            logger->log ("WIFI IP: %d.%d.%d.%d\n", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
 		}
 	}
+#endif
+    memset (wifiIP, 0, sizeof(wifiIP));
+    {
+        u8 s[128];
+        sprintf_s ((char*)s, sizeof(s), "%s/ip.txt", rhea::getPhysicalPathToAppFolder());
+        FILE *f = rhea::fs::fileOpenForReadBinary(s);
+        if (NULL == f)
+        {
+            logger->log ("ERR: unable to open file [%s]\n", s);
+        }
+        else
+        {
+            memset (s,0,sizeof(s));
+            fread (s, 32, 1, f);
+            fclose(f);
+
+            rhea::netaddr::ipstrTo4bytes((const char*)s, &wifiIP[0], &wifiIP[1], &wifiIP[2], &wifiIP[3]);
+        }
+    }
+    logger->log ("WIFI IP: %d.%d.%d.%d\n", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
 
     //recupero il nome dell'hotspot
     //Uno script python parte allo startup del rasPI e crea un file di testo di nome "hotspotname.txt" che contiene il nome dell'hotspot
     memset (hospotName, 0, sizeof(hospotName));
     {
-        u8 fname[256];
-        sprintf_s ((char*)fname, sizeof(fname), "%s/hotspotname.txt", rhea::getPhysicalPathToAppFolder());
-        FILE *f = rhea::fs::fileOpenForReadBinary(fname);
-        if (NULL != f)
+        u8 s[128];
+        sprintf_s ((char*)s, sizeof(s), "%s/hotspotname.txt", rhea::getPhysicalPathToAppFolder());
+        FILE *f = rhea::fs::fileOpenForReadBinary(s);
+        if (NULL == f)
         {
-            fread (hospotName, sizeof(hospotName), 1, f);
-            fclose(f);
+            logger->log ("ERR: unable to open file [%s]\n", s);
+            sprintf_s ((char*)hospotName, sizeof(hospotName), "unknown");
         }
         else
         {
-            sprintf_s ((char*)hospotName, sizeof(hospotName), "unknown")    ;
+            fread (hospotName, sizeof(hospotName), 1, f);
+            fclose(f);
         }
     }
     logger->log ("Hotspot name:%s\n", hospotName);
@@ -198,13 +232,13 @@ void Core::run()
 					else
 					{
 						DBGBREAK;
-						logger->log ("rasPI::MITM::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
+                        DEBUGLOG("rasPI::MITM::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
 					}
 				}
 				break;
 
 			default:
-				logger->log ("rasPI::MITM::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
+                DEBUGLOG("rasPI::MITM::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
 				break;
 			}
 		}
@@ -284,7 +318,7 @@ bool Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 
 		//provo ad estrarre un msg GPU/CPU dal mio buffer
         u8 msg[1024];
-        const u16 bytesConsumed = priv_extractMessage (b, msg, sizeof(msg));
+        const u16 bytesConsumed = (u16)priv_extractMessage (b, msg, sizeof(msg));
         if (0 == bytesConsumed)
 			return ret;
 		ret = true;
@@ -337,7 +371,7 @@ bool Core::priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b)
 							u32 n = 0;
 							priv_isAValidMessage (&bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.numBytesInBuffer, &n);
 							assert (n <= bufferSpontaneousMsgForGPU.numBytesInBuffer);
-							logger->log ("sending [bufferSpontaneousMsgForGPU]\n");
+                            DEBUGLOG("sending [bufferSpontaneousMsgForGPU]\n");
                             priv_serial_send (comGPU, &bufferSpontaneousMsgForGPU.buffer[ct], (u16)n);
 							ct += n;
 							bufferSpontaneousMsgForGPU.numBytesInBuffer -= n;
@@ -514,7 +548,7 @@ bool Core::priv_serial_waitMsg (OSSerialPort &comPort, u8 *out_answer, u16 *in_o
 
 			if (sizeOfBuffer < msgLen)
 			{
-				logger->log("Core::priv_serial_waitMsg() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOfBuffer);
+                logger->log("Core::priv_serial_waitMsg() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOfBuffer);
 				return false;
 			}
 			if (msgLen < 4)
@@ -592,10 +626,10 @@ void Core::priv_handleIncomingMsgFromSubscriber()
 				const u32 ct = bufferSpontaneousMsgForGPU.numBytesInBuffer;
 				const u16 n = cpubridge::buildMsg_rasPI_MITM_serializedSMsg (msg, &bufferSpontaneousMsgForGPU.buffer[ct], bufferSpontaneousMsgForGPU.SIZE - ct);
 				bufferSpontaneousMsgForGPU.numBytesInBuffer += n;
-				logger->log ("adding [bufferSpontaneousMsgForGPU]\n");
+                DEBUGLOG("adding [bufferSpontaneousMsgForGPU]\n");
 			}
 			else
-				logger->log ("rasPI::MITM::priv_handleIncomingMsgFromThreadQ() => unhandled msg from thread msgQ [what=%d]\n", msg.what);
+                DEBUGLOG("rasPI::MITM::priv_handleIncomingMsgFromThreadQ() => unhandled msg from thread msgQ [what=%d]\n", msg.what);
 			break;
 		}
 		
@@ -617,7 +651,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 	{
 	default:
 		DBGBREAK;
-		logger->log ("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", subcommand);
+        DEBUGLOG("ERR MITM::priv_handleInternalWMessages() => invalid msg [%d]\n", subcommand);
 		break;
 
 	case eRasPISubcommand_SERIALIZED_sMSG:
@@ -663,7 +697,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 	case eRasPISubcommand_SEND_AND_DO_NOT_WAIT:
 		//la gpu vuole che io mandi un tot di dati direttamente a CPU e che poi non aspetti alcuna risposta
 		{
-            logger->log ("SEND_AND_DO_NOT_WAIT\n");
+            DEBUGLOG("SEND_AND_DO_NOT_WAIT\n");
 			const u16 payloadLen = totalMsgLen - 6;
 			priv_serial_send (comCPU, payload, payloadLen);
 		}
@@ -677,7 +711,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 			const u32 timeoutMSec = rhea::utils::bufferReadU32(payload);
 			const u8 specificChar = payload[4];
 
-            logger->log ("WAIT_SPECIFIC_CHAR [c=%d, timeout=%dms\n", specificChar, timeoutMSec);
+            DEBUGLOG("WAIT_SPECIFIC_CHAR [c=%d, timeout=%dms\n", specificChar, timeoutMSec);
 
             const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
 			while (rhea::getTimeNowMSec() < timeToExitMSec)
@@ -688,7 +722,7 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 					if (c == specificChar)
 					{
 						rhea::rs232::writeBuffer (comGPU, &specificChar, 1);
-                        logger->log ("specific char was sent to GPU\n");
+                        DEBUGLOG("specific char was sent to GPU\n");
 						break;
 					}
 				}
@@ -761,7 +795,7 @@ bool Core::priv_handleFileUpload(const u8 *msg)
 	const u16 packetSize = rhea::utils::bufferReadU16(&payload[4]);
 	const u8* fileName = (const u8*)&payload[6];
 
-	logger->log ("priv_handleFileUpload() => starting upload of [%s] [size:%d] [pcktsize:%d]\n", fileName, fileLenInBytes, packetSize);
+    logger->log ("priv_handleFileUpload() => starting upload of [%s] [size:%d] [pcktsize:%d]\n", fileName, fileLenInBytes, packetSize);
 	u32 BUFFER_SIZE = 2048;
 	if (packetSize*2 > BUFFER_SIZE)
 		BUFFER_SIZE = packetSize*2;
@@ -800,7 +834,7 @@ bool Core::priv_handleFileUpload(const u8 *msg)
 		nBytesInBuffer += nRead;
 		while (nBytesInBuffer >= packetSize)
 		{
-			logger->log ("priv_handleFileUpload() => packet rcv [%d]\n", numPacketOfSizeEqualToPacketSize);
+            DEBUGLOG("priv_handleFileUpload() => packet rcv [%d]\n", numPacketOfSizeEqualToPacketSize);
 			fileLenInBytes -= packetSize;
 			numPacketOfSizeEqualToPacketSize--;
 			rhea::fs::fileWrite (fDST, buffer, packetSize);
@@ -809,7 +843,7 @@ bool Core::priv_handleFileUpload(const u8 *msg)
 			const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, packetSize);
 			buffer[0] = (u8)((ck & 0xff00) >> 8);
 			buffer[1] = (u8)(ck & 0x00ff);
-			logger->log ("priv_handleFileUpload() => snd ck=%d\n", ck);
+            DEBUGLOG("priv_handleFileUpload() => snd ck=%d\n", ck);
 			priv_serial_send (comGPU, buffer, 2);
 
 
@@ -842,7 +876,7 @@ bool Core::priv_handleFileUpload(const u8 *msg)
 				const u32 ck = rhea::utils::simpleChecksum16_calc (buffer, sizeOfLastPacket);
 				buffer[0] = (u8)((ck & 0xff00) >> 8);
 				buffer[1] = (u8)(ck & 0x00ff);
-				logger->log ("priv_handleFileUpload() => snd ck=%d\n", ck);
+                DEBUGLOG("priv_handleFileUpload() => snd ck=%d\n", ck);
 				priv_serial_send (comGPU, buffer, 2);
 				break;
 			}
@@ -865,6 +899,9 @@ bool Core::priv_handleFileUpload(const u8 *msg)
 //*********************************************************
 void Core::priv_finalizeGUITSInstall (const u8* const pathToGUIFolder)
 {
+    logger->log("priv_finalizeGUITSInstall []\n", pathToGUIFolder);
+    logger->incIndent();
+
 	//per prima cosa devo cambiare l'IP usato dalla websocket per collegarsi al server.
 	//Al posto di 127.0.0.1 ci devo mettere l'IP di questa macchina
 	//L'ip si trova all'interno del file js/rhea_final.min.js
@@ -872,7 +909,11 @@ void Core::priv_finalizeGUITSInstall (const u8* const pathToGUIFolder)
 	u32 filesize = 0;
 	sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
 	u8 *pSRC = rhea::fs::fileCopyInMemory (s, rhea::getScrapAllocator(), &filesize);
-	if (pSRC)
+    if (NULL == pSRC)
+    {
+        logger->log ("ERR: unable to load file [%s] in memory\n", s);
+    }
+    else
 	{
 		char myIP[16];
 		sprintf_s (myIP, sizeof(myIP), "%d.%d.%d.%d", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
@@ -887,15 +928,24 @@ void Core::priv_finalizeGUITSInstall (const u8* const pathToGUIFolder)
 			{
 				if (memcmp (&pSRC[i], toFind, toFindLen) == 0)
 				{
+                    logger->log ("found [%s]\n", toFind);
 					u8 *buffer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), filesize + 32);
 					memcpy (buffer, pSRC, i);
 					memcpy (&buffer[i], myIP, myIPLen);
 					memcpy (&buffer[i+myIPLen], &pSRC[i+toFindLen], filesize - i - toFindLen);
 					
+
 					sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
 					FILE *f = rhea::fs::fileOpenForWriteBinary(s);
-					rhea::fs::fileWrite (f, buffer, filesize - toFindLen + myIPLen);
-					fclose(f);
+                    if (NULL == f)
+                    {
+                        logger->log ("ERR: unable to write to file  [%s]\n", s);
+                    }
+                    else
+                    {
+                        rhea::fs::fileWrite (f, buffer, filesize - toFindLen + myIPLen);
+                        fclose(f);
+                    }
 					
 					RHEAFREE(rhea::getScrapAllocator(), buffer);
 					i = u32MAX-1;
@@ -907,8 +957,12 @@ void Core::priv_finalizeGUITSInstall (const u8* const pathToGUIFolder)
 	}
 
 	//Poi devo copiare la cartella coi font
-	u8 s2[512];
+    u8 s2[512];
 	sprintf_s ((char*)s, sizeof(s), "%s/gui_parts/fonts", rhea::getPhysicalPathToAppFolder());
 	sprintf_s ((char*)s2, sizeof(s2), "%s/fonts", pathToGUIFolder);
-	rhea::fs::folderCopy (s, s2, NULL);
+    logger->log ("copying folder [%s] into [%s]\n", s, s2);
+    rhea::fs::folderCopy (s, s2, NULL);
+
+    logger->log ("end\n");
+    logger->decIndent();
 }
