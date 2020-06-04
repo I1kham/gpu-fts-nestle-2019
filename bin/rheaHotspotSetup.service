@@ -1,0 +1,11 @@
+[Unit]
+Description=modifica le impostazioni dell'hotspot wifi cambiandone il nome e la pwd eseguendo uno script py
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/home/pi/rhea
+User=pi
+ExecStart=/usr/bin/python2 /home/pi/rhea/rasPI_rheaBoot.py
+
+[Install]
+WantedBy=multi-user.target
