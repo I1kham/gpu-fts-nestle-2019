@@ -27,10 +27,11 @@ hotspotPassw = "fertysnd7789"
 #creo il QR code per le macchine TP e lo salvo in una png
 qrCodeForTPMachine = hotspotName + "|||" +wlan0IP +"/rhea/GUITP/startup.html"
 qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
-qr.add_data(hotspotName)
+qr.add_data(qrCodeForTPMachine)
 qr.make(fit=True)
 img = qr.make_image(fill_color="black", back_color="white")
 img.save('/home/pi/rhea/qrcodeTP.png')
+print "QRCODE:" +qrCodeForTPMachine
 
 
 #creo il file di configurazione per dare un nome e una pwd all'hotspot wifi

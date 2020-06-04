@@ -62,11 +62,12 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 {
 	const bool SERIAL_IS_BLOCKING = false;
 
-	logger->log ("rasPI::MITM::open\n");
+    logger->log ("rasPI::MITM::open\n");
     logger->incIndent();
 
 	logger->log ("comGPU=%s   ", serialPortGPU);
     sprintf_s (comGPUName, sizeof(comGPUName), "%s", serialPortGPU);
+    sprintf_s (debug_comGPUName, sizeof(debug_comGPUName), "GPU[%s]", comGPUName);
     if (!rhea::rs232::open(&comGPU, comGPUName, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCKING))
     {
         logger->log ("FAILED. unable to open port [%s]\n", comGPUName);
@@ -77,6 +78,7 @@ bool Core::open (const char *serialPortGPU, const char *serialPortCPU)
 
 	logger->log ("comCPU=%s   ", serialPortCPU);
     sprintf_s (comCPUName, sizeof(comCPUName), "%s", serialPortCPU);
+    sprintf_s (debug_comCPUName, sizeof(debug_comCPUName), "CPU[%s]", comCPUName);
     if (!rhea::rs232::open(&comCPU, comCPUName, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCKING))
     {
         rhea::rs232::close (comGPU);
@@ -277,15 +279,21 @@ void Core::run()
 }
 
 //*********************************************************
+const char* Core::priv_utils_getComFriendlyName (const OSSerialPort &comPort) const
+{
+    if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
+        return debug_comGPUName;
+    else
+        return debug_comCPUName;
+}
+
+//*********************************************************
 void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes)
 {
 #ifdef _DEBUG
 #if 0
 	logger->log (prefix);
-	if (memcmp(&comPort, &comGPU, sizeof(OSSerialPort)) == 0)
-		logger->log ("GPU: "); 
-	else
-        logger->log ("CPU: ");
+    logger->log (priv_utils_getComFriendlyName(comPort));
 
 	for (u32 i = 0; i < nBytes; i++)
 	{
@@ -498,7 +506,7 @@ bool Core::priv_serial_send (OSSerialPort &comPort, const u8 *buffer, u16 nBytes
 			return true;
 	}
 
-    logger->log ("Core::priv_serial_send() ERROR snd\n");
+    logger->log ("Core::priv_serial_send(%s) ERROR snd\n", priv_utils_getComFriendlyName(comPort));
 	return false;
 }
 
@@ -548,12 +556,12 @@ bool Core::priv_serial_waitMsg (OSSerialPort &comPort, u8 *out_answer, u16 *in_o
 
 			if (sizeOfBuffer < msgLen)
 			{
-                logger->log("Core::priv_serial_waitMsg() => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", msgLen, sizeOfBuffer);
+                logger->log("Core::priv_serial_waitMsg(%s) => ERR answer len is [%d], out_buffer len is only [%d] bytes\n", priv_utils_getComFriendlyName(comPort), msgLen, sizeOfBuffer);
 				return false;
 			}
 			if (msgLen < 4)
 			{
-				logger->log("Core::priv_serial_waitMsg() => ERR invalid msg len [%d]\n", msgLen);
+                logger->log("Core::priv_serial_waitMsg(%s) => ERR invalid msg len [%d]\n", priv_utils_getComFriendlyName(comPort), msgLen);
 				return false;
 			}
 
@@ -576,13 +584,13 @@ bool Core::priv_serial_waitMsg (OSSerialPort &comPort, u8 *out_answer, u16 *in_o
 				if (out_answer[msgLen - 1] == rhea::utils::simpleChecksum8_calc(out_answer, msgLen - 1))
 					return true;
 
-				logger->log("Core::priv_serial_waitMsg() => ERR, invalid checksum\n", msgLen, sizeOfBuffer);
+                logger->log("Core::priv_serial_waitMsg(%s) => ERR, invalid checksum\n", priv_utils_getComFriendlyName(comPort), msgLen, sizeOfBuffer);
 				return false;
 			}
 		}
 	}
 
-    logger->log("Core::priv_serial_waitMsg() => ERR, timeout rcv {timeout was %d ms]\n\n", (u32)timeoutRCVMsec);
+    logger->log("Core::priv_serial_waitMsg(%s) => ERR, timeout rcv {timeout was %d ms]\n\n", priv_utils_getComFriendlyName(comPort), (u32)timeoutRCVMsec);
 	return false;
 }
 

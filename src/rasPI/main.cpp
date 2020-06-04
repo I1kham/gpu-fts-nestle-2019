@@ -18,8 +18,10 @@ bool startMITM()
 
 	//creo il thread MITM
 #ifdef LINUX
-    const char serialPortToCPU[] = {"/dev/ttyUSB0"};
-    const char serialPortToGPU[] = {"/dev/ttyUSB1"};
+    //const char serialPortToCPU[] = {"/dev/ttyUSB0"};
+    //const char serialPortToGPU[] = {"/dev/ttyUSB1"};
+    const char serialPortToCPU[] = {"/dev/ttyAMA0"};
+    const char serialPortToGPU[] = {"/dev/ttyAMA1"};
 #else
     const char serialPortToCPU[] = {"COM4"};\
     const char serialPortToGPU[] = {"COM3"};

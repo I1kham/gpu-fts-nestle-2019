@@ -23,6 +23,17 @@ DEFATUL Wifi hotspot + lighttpd
 		python /home/pi/Desktop/gpu-fts-nestle-2019/bin/rasPI_rheaBoot.py 
 
 ////////////////////////////////////////////////////////////////////
+GPIO
+	Elenco dei GPIO e loro possibile utilizzo:	raspi-gpio funcs
+	GPIO per le seriali: dtoverlay -h uart4	
+
+////////////////////////////////////////////////////////////////////
+UART4
+	in /boot/config.txt aggiungere:
+	dtoverlay=uart4
+	
+
+////////////////////////////////////////////////////////////////////
 QTCreator
 	sudo apt-get install qt4-dev-tools
 	sudo apt-get install qtcreator

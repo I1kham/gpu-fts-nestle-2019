@@ -52,7 +52,7 @@ namespace rasPI
 								DBGBREAK;
 								return false;
 							}
-							buffer[numBytesInBuffer++] = d;
+                            buffer[numBytesInBuffer++] = d;
 							return true;
 						}
 				bool	appendU16 (u16 d)
@@ -105,7 +105,8 @@ namespace rasPI
 			void				priv_handleIncomingMsgFromSubscriber();
 			void				priv_handleInternalWMessages(const u8 *msg);
 
-			void				priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes);
+            const char*         priv_utils_getComFriendlyName (const OSSerialPort &comPort) const;
+            void				priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes);
 			bool				priv_handleFileUpload(const u8 *msg);
 			void				priv_finalizeGUITSInstall(const u8* const pathToGUIFolder);
 
@@ -117,7 +118,9 @@ namespace rasPI
 			OSSerialPort			comCPU;
 			char					comGPUName[32];
 			char					comCPUName[32];
-			bool					bQuit;
+            char					debug_comGPUName[32];
+            char					debug_comCPUName[32];
+            bool					bQuit;
 			OSWaitableGrp           waitableGrp;
 			sBuffer					bufferGPU;
 			sBuffer					bufferSpontaneousMsgForGPU;
