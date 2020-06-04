@@ -1,12 +1,12 @@
-#ifndef _CmdHandler_eventReqRasPI_getIP_h_
-#define _CmdHandler_eventReqRasPI_getIP_h_
+#ifndef _CmdHandler_eventReqRasPI_getIPandSSID_h_
+#define _CmdHandler_eventReqRasPI_getIPandSSID_h_
 #include "../CmdHandler_ajaxReq.h"
 
 
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_eventReqRasPI_getIP
+     * CmdHandler_eventReqRasPI_getIPandSSID
      *
      * Il client ha mandato una richiesta AJAX per conosce l'IP del modulo rasPI
      *
@@ -15,14 +15,18 @@ namespace socketbridge
             params:  none
 
         Output
-            stringa con indirizzo a cui puntare per accedere all'interfaccia via wifi
+        json
+        {
+            ip: xxx.yyy.zz.kkk
+            ssid: stringa con ssid
+        }
      */
 
 
-    class CmdHandler_eventReqRasPI_getIP : public CmdHandler_ajaxReq
+    class CmdHandler_eventReqRasPI_getIPandSSID : public CmdHandler_ajaxReq
     {
     public:
-                            CmdHandler_eventReqRasPI_getIP (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
+                            CmdHandler_eventReqRasPI_getIPandSSID (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec, u8 ajaxRequestID) :
                                 CmdHandler_ajaxReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec, ajaxRequestID)
                                 { }
 
@@ -30,9 +34,9 @@ namespace socketbridge
         void                passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *params);
         void                onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge);
 
-        static const char*  getCommandName()                            { return "rasPIgetIP"; }
+        static const char*  getCommandName()                            { return "rasPIgetIPandSSID"; }
     };
 
 } // namespace socketbridge
 
-#endif // _CmdHandler_eventReqRasPI_getIP_h_
+#endif // _CmdHandler_eventReqRasPI_getIPandSSID_h_

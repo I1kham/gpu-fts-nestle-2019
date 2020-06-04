@@ -164,7 +164,7 @@ namespace cpubridge
     u16			buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u32 sizeOfOutBuffer);
     u16			buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u32 sizeOfOutBuffer);
-	u16			buildMsg_rasPI_MITM_getWifiIP (u8 *out_buffer, u32 sizeOfOutBuffer);
+	u16			buildMsg_rasPI_MITM_getWifiIPandSSID (u8 *out_buffer, u32 sizeOfOutBuffer);
 	u16			buildMsg_rasPI_MITM_unzipTSGUI (const u8* const srcZipFilename, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 
@@ -540,11 +540,11 @@ namespace cpubridge
 	void		ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from);
                     //alla ricezione di questo msg, CPUBridge non risponderà alcunchè
 
-	void		ask_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &from, u16 handlerID);
-                    //alla ricezione di questo msg, CPUBridge non risponderà con notify_CPU_RASPI_MITM_GET_WIFI_IP
-    void		notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress);
-	void		notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3);
-    void		translateNotify_CPU_RASPI_MITM_GET_WIFI_IP(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress);
+	void		ask_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &from, u16 handlerID);
+                    //alla ricezione di questo msg, CPUBridge non risponderà con notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID
+    void		notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress, const char *ssid);
+	void		notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid);
+    void		translateNotify_CPU_RASPI_MITM_GET_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid);
 
 	void		ask_CPU_RASPI_MITM_FileUpload (const sSubscriber &from, u16 handlerID, const u8* const fullFilePathAndName);
                      //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS

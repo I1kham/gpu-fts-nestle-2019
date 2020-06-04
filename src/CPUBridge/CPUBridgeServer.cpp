@@ -1157,15 +1157,15 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
             }
             break;
 
-		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP:
+		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IPandSSID:
             {
                 u8 bufferW[16];
-                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_getWifiIP(bufferW, sizeof(bufferW));
+                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_getWifiIPandSSID(bufferW, sizeof(bufferW));
                 u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 				{
 					const u8 *payload = &answerBuffer[5];
-					notify_CPU_RASPI_MITM_GET_WIFI_IP (sub->q, handlerID, logger, payload[0], payload[1], payload[2], payload[3]);
+					notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (sub->q, handlerID, logger, payload[0], payload[1], payload[2], payload[3], (const char*)&payload[4]);
 				}
             }
             break;

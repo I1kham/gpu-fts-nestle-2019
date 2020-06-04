@@ -261,7 +261,7 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_V_StartSelAlreadyPaid.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRasPI_getIP.cpp">
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRasPI_getIPandSSID.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
   </ItemGroup>
@@ -498,7 +498,7 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_V_StartSelAlreadyPaid.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRasPI_getIP.h">
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqRasPI_getIPandSSID.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>

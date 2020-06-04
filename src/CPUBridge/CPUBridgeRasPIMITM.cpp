@@ -58,9 +58,9 @@ u16 cpubridge::buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16
 }
 
 //***************************************************
-u16 cpubridge::buildMsg_rasPI_MITM_getWifiIP (u8 *out_buffer, u32 sizeOfOutBuffer)
+u16 cpubridge::buildMsg_rasPI_MITM_getWifiIPandSSID (u8 *out_buffer, u32 sizeOfOutBuffer)
 {
-    return cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_GET_WIFI_IP, NULL, 0, out_buffer, sizeOfOutBuffer);
+    return cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_GET_WIFI_IPandSSID, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -152,34 +152,50 @@ void cpubridge::ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from)
 }
 
 //***************************************************
-void cpubridge::ask_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &from, u16 handlerID)
+void cpubridge::ask_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IP, handlerID);
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IPandSSID, handlerID);
 }
 
 //***************************************************
-void cpubridge::notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress)
+void cpubridge::notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress, const char *ssid)
 {
     u8 ipPart[4];
     rhea::netaddr::ipstrTo4bytes (ipAddress, &ipPart[0], &ipPart[1], &ipPart[2], &ipPart[3]);
-    notify_CPU_RASPI_MITM_GET_WIFI_IP (to, handlerID, logger, ipPart[0], ipPart[1], ipPart[2], ipPart[3]);
+    notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (to, handlerID, logger, ipPart[0], ipPart[1], ipPart[2], ipPart[3], ssid);
 }
 
 //***************************************************
-void cpubridge::notify_CPU_RASPI_MITM_GET_WIFI_IP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3)
+void cpubridge::notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid)
 {
-	logger->log("notify_CPU_RASPI_MITM_GET_WIFI_IP\n");
+	logger->log("notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID\n");
 
-    const u8 state[4] = { ipPart0, ipPart1, ipPart2, ipPart3 };
-    rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_GET_WIFI_IP, handlerID, state, 4);
+    u8 data[256];
+    data[0] = ipPart0;
+    data[1] = ipPart1;
+    data[2] = ipPart2;
+    data[3] = ipPart3;
+    sprintf_s ((char*)&data[4], sizeof(data) - 4, "%s", ssid);
+    const u32 len = strlen(ssid);
+    data[4 + len] = 0;
+    rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_GET_WIFI_IPandSSID, handlerID, data, 5+len);
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_RASPI_MITM_GET_WIFI_IP(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress)
+void cpubridge::translateNotify_CPU_RASPI_MITM_GET_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid)
 {
-	assert (msg.what == CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_GET_WIFI_IP);
+	assert (msg.what == CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_GET_WIFI_IPandSSID);
 	const u8 *p = (const u8*)msg.buffer;
     sprintf_s (out_ipAddress, sizeof_outIpAddress, "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
+
+    const u32 nToCopy = msg.bufferSize - 4;
+    if (sizeof_outssid >= nToCopy)
+        memcpy (out_ssid, &p[4], nToCopy);
+    else
+    {
+        DBGBREAK;
+        out_ssid[0] = 0;
+    }
 }
 
 //***************************************************

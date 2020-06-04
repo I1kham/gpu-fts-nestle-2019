@@ -738,11 +738,18 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 		}
 		break;
 
-	case eRasPISubcommand_GET_WIFI_IP:
+	case eRasPISubcommand_GET_WIFI_IPandSSID:
 		{
-			//rispondo con lo stesso msg indicando 4 byte dell'IP
-			u8 bufferW[16];
-			const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, wifiIP, 4, bufferW, sizeof(bufferW));
+			//rispondo con lo stesso msg indicando 4 byte dell'IP e la stringa dell'SSID
+			u8 answer[256];
+			answer[0] = wifiIP[0];
+			answer[1] = wifiIP[1];
+			answer[2] = wifiIP[2];
+			answer[3] = wifiIP[3];
+			sprintf_s ((char*)&answer[4], sizeof(answer) - 4, "%s", hospotName);
+			
+			u8 bufferW[256];
+			const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, answer, 5+rhea::string::utf8::lengthInBytes(hospotName), bufferW, sizeof(bufferW));
 			priv_serial_send (comGPU, bufferW, nToSend);
 		}
 		break;
