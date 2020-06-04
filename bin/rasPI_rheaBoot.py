@@ -11,6 +11,7 @@ def getMAC(interface='wlan0'):
 
 
 #recupero il mac address ma gli tolgo i ":"
+wlan0IP="10.3.141.1"
 macAddress = getMAC('wlan0')
 cleanMACAddress = ""
 for i in range(0, len(macAddress)):
@@ -24,12 +25,12 @@ hotspotPassw = "fertysnd7789"
 
 
 #creo il QR code per le macchine TP e lo salvo in una png
-qrCodeForTPMachine = hotspotName + "|||10.3.141.1/rhea/GUITP/startup.html"
+qrCodeForTPMachine = hotspotName + "|||" +wlan0IP +"/rhea/GUITP/startup.html"
 qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
 qr.add_data(hotspotName)
 qr.make(fit=True)
 img = qr.make_image(fill_color="black", back_color="white")
-img.save('/home/pi/qrcodeTP.png')
+img.save('/home/pi/rhea/qrcodeTP.png')
 
 
 #creo il file di configurazione per dare un nome e una pwd all'hotspot wifi
@@ -54,13 +55,18 @@ wpa_pairwise=CCMP
 country_code=AF
 ignore_broadcast_ssid=0"""
 
-f = open ("/home/pi/Desktop/gpu-fts-nestle-2019/bin/hotspotname.txt", "w")
-f.write (hotspotName)
+f = open ("/etc/hostapd/hostapd.conf", "w")
+f.write (hotspotConfig)
 f.close()
 
 #salvo un file contenente il nome dell'hotspot in modo che il prg rasPI conosca il nome dell'hotspot e lo possa comunicare
 #alla GPU
-f = open ("/etc/hostapd/hostapd.conf", "w")
-f.write (hotspotConfig)
+f = open ("/home/pi/rhea/hotspotname.txt", "w")
+f.write (hotspotName)
+f.close()
+
+#salvo un file con l'IP in modo che il prg rasPI lo possa conoscere dato che parte prima che i servizi di rete siano stati caricati e non puo' interrogare il sistema per conoscere l'IP
+f = open ("/home/pi/rhea/ip.txt", "w")
+f.write (wlan0IP)
 f.close()
 
