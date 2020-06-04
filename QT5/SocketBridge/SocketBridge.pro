@@ -175,6 +175,7 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
 
 
+
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -263,6 +264,7 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeTask.h \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
     ../../src/SocketBridge/SocketBridgeVersion.h
+
 
 
 unix {
