@@ -31,7 +31,7 @@ u16 cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand command, const u8 *optional
         ct += sizeOfOptionaData;
     }
 
-    rhea::utils::bufferWriteU16_LSB_MSB(&out_buffer[2], ct+1);	//length
+    rhea::utils::bufferWriteU16_LSB_MSB(&out_buffer[2], (u16)(ct+1));	//length
     out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
     ct++;
 

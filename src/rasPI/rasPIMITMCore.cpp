@@ -11,7 +11,7 @@ using namespace rasPI::MITM;
 #ifdef _DEBUG
 #define DEBUGLOG(...) logger->log(__VA_ARGS__);
 #else
-#define DEBUGLOG(...)
+#define DEBUGLOG(...)   {}
 #endif
 
 
@@ -291,7 +291,6 @@ const char* Core::priv_utils_getComFriendlyName (const OSSerialPort &comPort) co
 void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort, const u8 *buffer, u32 nBytes)
 {
 #ifdef _DEBUG
-#if 0
 	logger->log (prefix);
     logger->log (priv_utils_getComFriendlyName(comPort));
 
@@ -303,8 +302,7 @@ void Core::priv_utils_printMsg (const char *prefix, const OSSerialPort &comPort,
 		else
 			logger->log ("%03d ", c);
 	}
-	logger->log ("\n");
-#endif
+    logger->log (" \n");
 #else
 #endif
 }
@@ -748,8 +746,9 @@ void Core::priv_handleInternalWMessages(const u8 *msg)
 			answer[3] = wifiIP[3];
 			sprintf_s ((char*)&answer[4], sizeof(answer) - 4, "%s", hospotName);
 			
+            const u16 lenOfHotSpotName = (u16)rhea::string::utf8::lengthInBytes(hospotName);
 			u8 bufferW[256];
-			const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, answer, 5+rhea::string::utf8::lengthInBytes(hospotName), bufferW, sizeof(bufferW));
+            const u16 nToSend = cpubridge::buildMsg_rasPI_MITM (subcommand, answer, 5+lenOfHotSpotName, bufferW, sizeof(bufferW));
 			priv_serial_send (comGPU, bufferW, nToSend);
 		}
 		break;
