@@ -309,7 +309,7 @@
 							<td>CANISTER DE SUCRE</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7086" data-da3bit="8"></div></td>
 						</tr>			
-						<tr><td>FMILK TOPPING SWITCH</td><td><div class='UIOption' data-option='1|OUI|0|NO' data-da3='7096' data-da3bit='8'></div></td></tr>
+						<tr id="pageMiscellaneous_fmilkTopping"><td>FMILK TOPPING SWITCH</td><td><div class='UIOption' data-option='1|OUI|0|NO' data-da3='7096' data-da3bit='8'></div></td></tr>
 						<tr>
 							<td>ENABLE DATA-AUDIT BEFORE</td>
 							<td><div id="pageMiscellaneous_gs_auditBefore" class='UIOption' data-option='1|OUI|0|NO' data-da3='7106' data-da3bit='8'></div></td>
@@ -852,8 +852,8 @@
 						<tr id="pageDevices_boilerSize"><td>BOUILLOIRE</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startModemTest()"></div></td></tr>
-						<tr><td>GROUP TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
-						<tr><td>MOTOR TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
+						<tr id="pageDevices_grpTest"><td>GROUP TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
+						<tr id="pageDevices_motorTest"><td>MOTOR TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
 					</table>
 				</div>
 
@@ -1651,10 +1651,14 @@ function pageMiscellaneous_show()
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
 		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
 		
-		if (!da3.isInstant())
+		if (da3.isEspresso())
 		{
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r1"));
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r2"));
+		}
+		else
+		{
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		}
 		
 		var objDataAuditBefore = win.getChildByID("pageMiscellaneous_gs_auditBefore");
@@ -2893,6 +2897,8 @@ function pageDevices_show()
 			win.getChildByID("pageDevices_selector").selectOptionByValue(0);
 			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
 			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
+			rheaHideElem(rheaGetElemByID("pageDevices_grpTest"));
+			rheaHideElem(rheaGetElemByID("pageDevices_motorTest"));
 		}
 		
 		if (da3.isInduzione())
