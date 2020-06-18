@@ -17,10 +17,10 @@
 		il timeout arriva anche a 3 o 5 secondi. Dato che il rasPI non ha modo di sapere il timeout di GPU per lo specifico comando,
 		sono costretto a farne una sovrastima.
 
-	Il subscriber di MITM può comunicare direttamente con la GPU (in particolare, comunica con CPUBridge) inviando a MITM dei messagi sMsg
-	usando la msgQ del thread di MITM.
+	Il subscriber di MITM (ovvero socketBridge) crede di comunicare direttamente con la GPU (in particolare, crede di comunicare con CPUBridge di GPU come avviene
+	normalmente nel codice di GPU) inviando i suoi soliti sMsg. Il punto è che questi sMsg vengono in realtà ricevuti da MITM il quale a sua volta li manda a GPU.
 	MITM infila questi messaggi nella comunicazione CPU/GPU un maniera trasparente.
-	Dal punto di vista del subscriber, è come se fosse direttamente collegato a CPUBridge.
+	Dal punto di vista del subscriber quindi, è come se fosse direttamente collegato a CPUBridge.
 */
 #ifndef _rasPIMITM_h_
 #define _rasPIMITM_h_

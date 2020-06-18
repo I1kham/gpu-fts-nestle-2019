@@ -110,7 +110,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_SocketBridge.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_CPUBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_SocketBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaDB.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAlipayChina.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
