@@ -31,7 +31,16 @@ qr.add_data(qrCodeForTPMachine)
 qr.make(fit=True)
 img = qr.make_image(fill_color="black", back_color="white")
 img.save(saveToFolder +"/qrcodeTP.png")
-#print "QRCODE:" +qrCodeForTPMachine
+#print "QRCODE(TP):" +qrCodeForTPMachine
+
+#creo il QR code per le macchine TS e lo salvo in una png
+qrCodeForTSMachine = hotspotName + "|||" +wlan0IP +"/rhea/GUITS/startup.html"
+qr2 = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+qr2.add_data(qrCodeForTSMachine)
+qr2.make(fit=True)
+img = qr2.make_image(fill_color="black", back_color="white")
+img.save(saveToFolder +"/qrcodeTS.png")
+#print "QRCODE(TS):" +qrCodeForTSMachine
 
 
 #creo il file di configurazione per dare un nome e una pwd all'hotspot wifi
