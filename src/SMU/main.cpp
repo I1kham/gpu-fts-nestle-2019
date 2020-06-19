@@ -4,6 +4,7 @@
 #include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 #include "../CPUBridge/EVADTSParser.h"
+#include "../rheaExternalSerialAPI/ESAPI.h"
 
 //nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
@@ -13,13 +14,6 @@
 #else
 	#define CPU_COMPORT  "COM5"
 #endif
-
-//*****************************************************
-bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)
-{
-	return socketbridge::startServer(logger, hCPUServiceChannelW, false, true, out_hThread);
-}
-
 
 //*****************************************************
 bool startCPUBridge()
@@ -41,11 +35,11 @@ bool startCPUBridge()
     bool b = chToCPU->open("/dev/ttymxc3", logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 	
 	//apro un canale con la CPU fisica
     //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
-	//cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM7", logger);
+	cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM4", logger);
 
 #endif
 
@@ -62,10 +56,14 @@ bool startCPUBridge()
     if (!cpubridge::startServer(chToCPU, logger, &hCPUThread, &hCPUServiceChannelW))
 		return false;
 
-	//starto socketBridge che a sua volta siiscriverà a CPUBridge
+	//starto socketBridge che a sua volta si iscriverà a CPUBridge
 	rhea::HThread hSocketBridgeThread;
-	startSocketBridge(hCPUServiceChannelW, logger, &hSocketBridgeThread);
+	socketbridge::startServer(logger, hCPUServiceChannelW, false, true, &hSocketBridgeThread);
 
+
+	//starto il thread che gestisce le richieste dall'esterno via seriale
+	rhea::HThread hESAPIThread;	
+	esapi::startThread ("COM3", hCPUServiceChannelW, logger, &hESAPIThread);
 
 
 

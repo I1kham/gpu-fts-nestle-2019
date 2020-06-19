@@ -840,8 +840,7 @@ int main()
 	rhea::Allocator *localAllocator = rhea::getSysHeapAllocator();
 	ipList = rhea::netaddr::getListOfAllNerworkAdpaterIPAndNetmask (localAllocator, &nIPList);
 
-	_getch();
-
+	
 	//version info
 	version.apiVersion = 0x01;
 	version.appType = socketbridge::SokBridgeClientVer::APP_TYPE_CONSOLE;

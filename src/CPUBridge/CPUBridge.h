@@ -157,18 +157,6 @@ namespace cpubridge
 	u8			buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_getMilkerVer (u8 *out_buffer, u8 sizeOfOutBuffer);
 
-				//messaggio per il rasPI. Attenzione che a differenza dei normali msg CPU/GPU, questi supportano una lunghezza fino a 0xffff 
-    u16			buildMsg_rasPI_MITM (eRasPISubcommand command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer);
-    u16			buildMsg_rasPI_MITM_areYouThere (u8 *out_buffer, u32 sizeOfOutBuffer);
-    u16			buildMsg_rasPI_MITM_startSocketBridge (u8 *out_buffer, u32 sizeOfOutBuffer);
-    u16			buildMsg_rasPI_MITM_serializedSMsg (const rhea::thread::sMsg &msg, u8 *out_buffer, u32 sizeOfOutBuffer);
-    u16			buildMsg_rasPI_MITM_sendAndDoNotWait (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_buffer, u32 sizeOfOutBuffer);
-    u16			buildMsg_rasPI_MITM_waitSpecificChar (u8 expectedChar, u64 timeoutMSec, u8 *out_buffer, u32 sizeOfOutBuffer);
-	u16			buildMsg_rasPI_MITM_getWifiIPandSSID (u8 *out_buffer, u32 sizeOfOutBuffer);
-	u16			buildMsg_rasPI_MITM_unzipTSGUI (const u8* const srcZipFilename, u8 *out_buffer, u32 sizeOfOutBuffer);
-
-
-
 
 	/***********************************************
 		notify_xxxx
@@ -522,40 +510,9 @@ namespace cpubridge
 
 
 	void		ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSubscriber &from, u8 selNumber, u16 price, eGPUPaymentType paymentType);
-				//funziona come ask_CPU_START_SELECTION, vedi i commenti di quella funzione per i dettagli
+					//funziona come ask_CPU_START_SELECTION, vedi i commenti di quella funzione per i dettagli
+					//NB: se price==0xffff, allora la CPU si prende comunque in carico il pagamento, a discapito del nome di questa fn
 	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType);
-
-
-
-
-
-	/*******************************************************************
-		sezione dedicata ai msg inviabili al modulo rasPI MITM
-	********************************************************************/
-	void		ask_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &from);
-					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RASPI_MITM_ARE_YOU_THERE
-    void		notify_CPU_RASPI_MITM_ARE_YOU_THERE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 version, u8 futureUse1, u8 futureUse2, u8 futureUse3);
-    void		translateNotify_CPU_RASPI_MITM_ARE_YOU_THERE(const rhea::thread::sMsg &msg, u8 *out_version, u8 *out_futureUse1, u8 *out_futureUse2, u8 *out_futureUse3);
-
-	void		ask_CPU_RASPI_MITM_START_SOCKETBRIDGE (const sSubscriber &from);
-                    //alla ricezione di questo msg, CPUBridge non risponderà alcunchè
-
-	void		ask_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &from, u16 handlerID);
-                    //alla ricezione di questo msg, CPUBridge non risponderà con notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID
-    void		notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress, const char *ssid);
-	void		notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid);
-    void		translateNotify_CPU_RASPI_MITM_GET_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid);
-
-	void		ask_CPU_RASPI_MITM_FileUpload (const sSubscriber &from, u16 handlerID, const u8* const fullFilePathAndName);
-                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
-	void		translate_CPU_RASPI_MITM_FileUpload(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut);
-
-	void		ask_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &from, u16 handlerID, const u8* const fullRheaZipFilePathAndName);
-                    //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS per indicare lo stato dell'upload.
-					//Al termine della procedura, CPUBridge rispnde con un notify_CPU_RASPI_MITM_Upload_GUI_TS() per indicare lo stato finale dell'operazione					
-	void		translate_CPU_RASPI_MITM_Upload_GUI_TS(const rhea::thread::sMsg &msg, u8 *out_fullRheaZipFilePathAndName, u32 sizeOfOut);
-	void		notify_CPU_RASPI_MITM_Upload_GUI_TS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bSuccess);
-	void		translateNotify_CPU_RASPI_MITM_Upload_GUI_TS(const rhea::thread::sMsg &msg, bool *out_bSuccess);
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

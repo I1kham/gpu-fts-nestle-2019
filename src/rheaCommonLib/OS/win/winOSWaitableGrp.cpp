@@ -228,12 +228,18 @@ u8 OSWaitableGrp::priv_wait(u32 timeoutMSec)
 		n = MAX_EVENTS_HANDLE_PER_CALL;
 	}
 	
-
-
 	//timeout per la wait
 	DWORD dwMilliseconds = (DWORD)timeoutMSec;
 	if (timeoutMSec == u32MAX)
 		dwMilliseconds = INFINITE;
+
+	if (n == 0)
+	{
+		assert (dwMilliseconds != INFINITE);
+		::Sleep(dwMilliseconds);
+		return 0;
+	}
+
 
 
 	DEBUG_PRINTF("\n\nOSWaitableGrp::wait\n");

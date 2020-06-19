@@ -51,3 +51,4 @@ MSVC17/rheaAlipayChina/x64/
 *.obj
 MSVC17/rasPI/build/
 MSVC17/rasPISerial/build/
+MSVC17/rheaExternalSerialAPI/build/

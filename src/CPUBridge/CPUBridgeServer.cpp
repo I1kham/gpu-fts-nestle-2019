@@ -28,7 +28,6 @@ Server::Server()
 	runningSel.status = eRunningSelStatus_finished_OK;
 
 	showCPUStringModelAndVersionUntil_msec = 0;
-	rasPISubscription = NULL;
 }
 
 //***************************************************
@@ -67,10 +66,6 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	//init language
 	lang_init(&language);
 	lang_open(&language, "GB");
-
-
-	//Creo il subscripber per il rasPI
-	rasPISubscription = priv_newSubscription();
 
 	return ret;
 }
@@ -266,62 +261,8 @@ void Server::priv_handleMsgFromServiceMsgQ()
 //***************************************************
 bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec)
 {
-	if (NULL != rasPISubscription)
-	{
-		//qui c'è l'elenco delle NOTIFY_ che this ha generato a seguito delle richieste provenienti da rasPI
-		//le serializzo e le spedisco via seriale al rasPI
-		rhea::thread::sMsg msg;
-		while (rhea::thread::popMsg (rasPISubscription->q.hFromCpuToOtherR, &msg))
-		{
-			const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_serializedSMsg (msg, answerBuffer, sizeof(answerBuffer));
-			chToCPU->sendOnlyAndDoNotWait(answerBuffer, nBytesToSend, logger);
-			rhea::thread::deleteMsg (msg);
-            }
-	}
-
 	//invio msg a CPU
 	bool ret = chToCPU->sendAndWaitAnswer(bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
-
-	//quando mando un msg, la risposta potrebbe includere msg addizionali provenienti dal rasPI
-	const u8 n = chToCPU->getNumRisposteScartate();
-	if (n)
-	{
-		const u8 *p = chToCPU->getBufferOfRisposteScartate();
-		u32 ct = 0;
-		for (u8 i = 0; i < n; i++)
-		{
-			const u8 commandChar  = p[ct + 1];
-			if (commandChar == 'W')
-			{
-				const u16 msgLen = rhea::utils::bufferReadU16_LSB_MSB (&p[ct + 2]);
-				const eRasPISubcommand subcommand = (eRasPISubcommand)p[ct + 4];
-
-				switch (subcommand)
-				{
-				case eRasPISubcommand_SERIALIZED_sMSG:
-					//le pusho come se arrivassero da un subscriber qualunque
-					{
-						u16         what = 0;
-						u32         paramU32 = 0;
-						u32         bufferSize = 0;
-						const u8	*bufferPt = NULL;
-						rhea::thread::deserializMsg (&p[ct + 5], &what, &paramU32, &bufferSize, &bufferPt);
-						rhea::thread::pushMsg (rasPISubscription->q.hFromOtherToCpuW, what, paramU32, bufferPt, bufferSize);
-					}
-					break;
-
-				default:
-					DBGBREAK;
-					break;
-				}
-
-				ct += msgLen;
-			}
-			else
-				ct += p[ct + 2];
-		}
-	}
-
 	return ret;
 }
 
@@ -1128,84 +1069,6 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 		}
 		break;
-
-        case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE:
-        {
-            u8 bufferW[16];
-            const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
-            u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-            if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
-            {
-                //ok, il modulo rasPI esiste
-                const u8 *payload = &answerBuffer[5];
-                notify_CPU_RASPI_MITM_ARE_YOU_THERE (sub->q, handlerID, logger, payload[0], payload[1], payload[2], payload[3]);
-            }
-            else
-            {
-                //timeout, vuol dire che il modulo rasPI non esiste
-                notify_CPU_RASPI_MITM_ARE_YOU_THERE (sub->q, handlerID, logger, 0, 0, 0, 0);
-            }
-        }
-        break;
-
-        case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE:
-            {
-                u8 bufferW[16];
-                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_startSocketBridge(bufferW, sizeof(bufferW));
-                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-                priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
-            }
-            break;
-
-		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IPandSSID:
-            {
-                u8 bufferW[16];
-                const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_getWifiIPandSSID(bufferW, sizeof(bufferW));
-                u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
-				{
-					const u8 *payload = &answerBuffer[5];
-					notify_CPU_RASPI_MITM_GET_WIFI_IPandSSID (sub->q, handlerID, logger, payload[0], payload[1], payload[2], payload[3], (const char*)&payload[4]);
-				}
-            }
-            break;
-
-		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD:
-		{
-			u8 srcFullFileNameAndPath[512];
-			translate_CPU_RASPI_MITM_FileUpload(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-			priv_uploadFileToRasPI(&sub->q, handlerID, srcFullFileNameAndPath);
-		}
-		break;
-
-		case CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_GUI_TS_UPLOAD:
-		{
-			u8 srcFullFileNameAndPath[512];
-			translate_CPU_RASPI_MITM_Upload_GUI_TS(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-			if (eWriteCPUFWFileStatus_finishedOK != priv_uploadFileToRasPI(&sub->q, handlerID, srcFullFileNameAndPath))
-			{
-				//upload terminato con errore
-				notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, false);
-			}
-			else
-			{
-				//l'upload è terminato con successo. Chiedo di unzippare
-				u8 filenameOnly[128];
-				rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, filenameOnly, sizeof(filenameOnly));
-				const u32 n = cpubridge::buildMsg_rasPI_MITM_unzipTSGUI (filenameOnly, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-				chToCPU->sendOnlyAndDoNotWait(srcFullFileNameAndPath, n, logger);
-
-				//aspetto conferma
-				u8 ch = 0;
-				chToCPU->waitChar (10000, &ch);
-				if (ch =='k')
-					notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, true);
-				else
-					notify_CPU_RASPI_MITM_Upload_GUI_TS (sub->q, handlerID, logger, false);
-			}
-		}
-		break;
-
 		} //switch
 	} //while
 }
@@ -1364,46 +1227,12 @@ u8 Server::priv_2DigitHexToInt(const u8 *buffer, u32 index) const
 	return (u8)ret;
 }
 
-//***************************************************
-bool Server::priv_CPUFWUpdate_waitForASpecificChar(u8 expectedChar, u64 timeoutMSec, bool bRasPIExists)
-{
-	if (!bRasPIExists)
-		return chToCPU->waitForASpecificChar(expectedChar, timeoutMSec);
-	else
-	{
-		u8 optionalData[8];
-		rhea::utils::bufferWriteU32 (optionalData, (u32)timeoutMSec);
-		optionalData[4] = expectedChar;
-
-		u8 bufferW[32];
-		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_waitSpecificChar (expectedChar, timeoutMSec, bufferW, sizeof(bufferW));
-		chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
-		
-		u8 rcvChar = 0x00;
-		if (!chToCPU->waitChar(timeoutMSec + 100, &rcvChar))
-			return false;
-		return (rcvChar == expectedChar);
-	}
-}
-
-//***************************************************
-void Server::priv_CPUFWUpdate_sendAndDoNotWait(const u8 *buffer, u32 nBytesToSend, bool bRasPIExists)
-{
-	if (!bRasPIExists)
-		chToCPU->sendOnlyAndDoNotWait(buffer, nBytesToSend, logger);
-	else
-	{
-		const u16 n = cpubridge::buildMsg_rasPI_MITM_sendAndDoNotWait (buffer, nBytesToSend, answerBuffer, sizeof(answerBuffer));
-		chToCPU->sendOnlyAndDoNotWait(answerBuffer, n, logger);
-	}
-}
-
 
 /**********************************************
  * copiato da codice originale e lievemente ripulito, sorry.
  *	Ritorna 0 se tutto OK
  */
-bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT, bool bRasPIExists)
+bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT)
 {
 	if (!isLastFlag)
 	{
@@ -1412,8 +1241,7 @@ bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_buffe
 			return true;
 	}
 
-	//chToCPU->sendOnlyAndDoNotWait(out_bufferW, in_out_bufferCT, logger);
-	priv_CPUFWUpdate_sendAndDoNotWait(out_bufferW, in_out_bufferCT, bRasPIExists);
+	chToCPU->sendOnlyAndDoNotWait(out_bufferW, in_out_bufferCT, logger);
 
 	u8 checksum_counter = 0;
 	for (u32 i = 0; i < in_out_bufferCT; i++)
@@ -1422,8 +1250,7 @@ bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_buffe
 	if (isLastFlag) 
 		return true;
 
-	//if (!chToCPU->waitForASpecificChar(checksum_counter, 90))
-    if (!priv_CPUFWUpdate_waitForASpecificChar(checksum_counter, 190, bRasPIExists))
+	if (!chToCPU->waitForASpecificChar(checksum_counter, 190))
 		return false;
 
 	in_out_bufferCT = 0;
@@ -1468,27 +1295,6 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		return eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile;
 	}
 
-	//E' necessario a questo punto verificare la presenza del modulo rasPI
-	//Se il modulo rasPI non è in mezzo tra CPU e GPU, tutto bene, altrimenti bisogna prendere degli 
-	//accorgimenti perchè non posso banalmente spedire dati sulla seriale e aspettare risposta dalla CPU dato che in mezzo c'è il rasPI
-	//il quale si aspetta di ricevere da me messaggi ben formattati nel formato classico dei comandi GPU-CPU e non un flusso di dati raw
-	//Se c'è il rasPI in mezzo quindi, tutta la comunicazione va impacchettata in speciali messaggi W
-	bool bRasPIExists = false;
-	{
-		u8 bufferW[16];
-		const u32 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
-        chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
-
-        if (chToCPU->waitForAMessage(answerBuffer, sizeof(answerBuffer), logger, 1000))
-        {
-            //mi aspetto che la risposa W sia tra quelle "scartate"
-			logger->log ("rasPI is in the middle...\n");
-			bRasPIExists = true;
-		}
-	}
-
-
-
 	//invalido il timestamp del mio da3 locale in modo che al termine dell'operazione di upload
 	//del FW CPU, la GPU attivi una fase di sincronizzazione da3
 	{
@@ -1501,12 +1307,11 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	//per prima cosa si fa fare il reboot alla CPU
 	u8 bufferW[CPUFW_BLOCK_SIZE+16];
 	u8 nBytesToSend = cpubridge::buildMsg_restart_U(bufferW, 64);
-	priv_CPUFWUpdate_sendAndDoNotWait(bufferW, nBytesToSend, bRasPIExists);
+	chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
 	//chToCPU->closeAndReopen();
 
 	//aspetto di leggere 'k' dal canale
-    //if (!chToCPU->waitForASpecificChar('k', 10000))
-	if (!priv_CPUFWUpdate_waitForASpecificChar('k', 10000, bRasPIExists))
+    if (!chToCPU->waitForASpecificChar('k', 10000))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_k_notReceived, 0);
@@ -1514,16 +1319,13 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	}
 
 	bufferW[0] = 'k';
-	//chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
-	priv_CPUFWUpdate_sendAndDoNotWait(bufferW, 1, bRasPIExists);
+	chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
 
 	bufferW[0] = 'M';
-	//chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
-	priv_CPUFWUpdate_sendAndDoNotWait(bufferW, 1, bRasPIExists);
+	chToCPU->sendOnlyAndDoNotWait(bufferW, 1, logger);
 
 	//aspetto di leggere 'M' dal canale
-	//if (!chToCPU->waitForASpecificChar('M', 10000))
-	if (!priv_CPUFWUpdate_waitForASpecificChar('M', 10000, bRasPIExists))
+	if (!chToCPU->waitForASpecificChar('M', 10000))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_M_notReceived, 0);
@@ -1540,8 +1342,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 
 
 	//aspetto di leggere 'h' dal canale
-	//if (!chToCPU->waitForASpecificChar('h', 15000))
-	if (!priv_CPUFWUpdate_waitForASpecificChar('h', 15000, bRasPIExists))
+	if (!chToCPU->waitForASpecificChar('h', 15000))
 	{
 		if (NULL != subscriber)
 			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_h_notReceived, 0);
@@ -1583,7 +1384,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 			continue;
 		}
 
-		if (!priv_WriteByteMasterNext(numByte, false, bufferW, bufferWCT, bRasPIExists))
+		if (!priv_WriteByteMasterNext(numByte, false, bufferW, bufferWCT))
 		{
 			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
 			if (NULL != subscriber)
@@ -1595,7 +1396,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		{
 			const u8 dato8 = priv_2DigitHexToInt(fileInMemory, ct);
 			ct += 2;
-			if (!priv_WriteByteMasterNext(dato8, false, bufferW, bufferWCT, bRasPIExists))
+			if (!priv_WriteByteMasterNext(dato8, false, bufferW, bufferWCT))
 			{
 				ret = eWriteCPUFWFileStatus_finishedKO_generalError;
 				if (NULL != subscriber)
@@ -1619,14 +1420,13 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	
 	if (ret == eWriteCPUFWFileStatus_finishedOK)
 	{
-		priv_WriteByteMasterNext(4, false, bufferW, bufferWCT, bRasPIExists);
-		priv_WriteByteMasterNext(0, true, bufferW, bufferWCT, bRasPIExists);
+		priv_WriteByteMasterNext(4, false, bufferW, bufferWCT);
+		priv_WriteByteMasterNext(0, true, bufferW, bufferWCT);
 
 		u8 ck = 0;
 		for (u32 i = 0; i < bufferWCT; i++)
 			ck += bufferW[i];
-		//if (!chToCPU->waitForASpecificChar(ck, 90))
-		if (!priv_CPUFWUpdate_waitForASpecificChar(ck, 90, bRasPIExists))
+		if (!chToCPU->waitForASpecificChar(ck, 90))
 		{
 			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
 			if (NULL != subscriber)
@@ -2123,13 +1923,6 @@ void Server::priv_enterState_compatibilityCheck()
 void Server::priv_handleState_compatibilityCheck()
 {
 	u8 bufferW[64];
-
-	//per prima cosa mi informo sulla presenza del modulo rasPI
-    const u16 nBytesToSend = cpubridge::buildMsg_rasPI_MITM_areYouThere(bufferW, sizeof(bufferW));
-    u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-    if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
-		cpuStatus.flag1 |= sCPUStatus::FLAG1_RASPI_MITM_EXISTS;
-
 
 	//mando il comando "C" una decina di volte per vedere se la CPU esiste
 	u8 nRetry = 10;
@@ -3576,128 +3369,3 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 
 	RHEAFREE(localAllocator, da3);
 }
-
-
-//***************************************************
-eWriteCPUFWFileStatus Server::priv_uploadFileToRasPI_sendChunck (FILE *fSRC, u8 *bufferW, u16 chunkSize)
-{
-	rhea::fs::fileRead (fSRC, bufferW, chunkSize);
-	chToCPU->sendOnlyAndDoNotWait (bufferW, chunkSize, logger);
-	const u16 ck = rhea::utils::simpleChecksum16_calc (bufferW, chunkSize);
-
-    u8 ckMSB = 0;
-    if (!chToCPU->waitChar(500, &ckMSB))
-        return eWriteCPUFWFileStatus_finishedKO_generalError;
-
-    u8 ckLSB = 0;
-    if (!chToCPU->waitChar(500, &ckLSB))
-		return eWriteCPUFWFileStatus_finishedKO_generalError;
-	
-
-	const u16 rcvCK = ((u16)ckMSB) * 256 + (u16)ckLSB;
-	if (ck != rcvCK)
-		return eWriteCPUFWFileStatus_finishedKO_generalError;
-
-	return eWriteCPUFWFileStatus_finishedOK;
-}
-
-/***************************************************
- * Dato un file localmente accessibile, lo invia al rasPI
- * Periodicamente emette un notify_WRITE_CPUFW_PROGRESS() con lo stato dell'upload.
- * Al termine dell'upload, se tutto è andato bene, il mhx sorgente viene copiato pari pari (compreso il suo nome originale) in
- *	app/last_installed/cpu/nomeFileSrc.mhx
- */
-eWriteCPUFWFileStatus Server::priv_uploadFileToRasPI (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath)
-{
-	u8 fileNameOnly[256];
-	u8 tempFilePathAndName[512];
-	rhea::fs::extractFileNameWithExt(srcFullFileNameAndPath, fileNameOnly, sizeof(fileNameOnly));
-
-	//copio il file nella mia directory locale temp
-	sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileNameOnly);
-	if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
-	{
-		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToCopyFile, 0);
-		return eWriteCPUFWFileStatus_finishedKO_unableToCopyFile;
-	}
-
-	if (!rhea::fs::fileExists(tempFilePathAndName))
-	{
-		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS (*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile, 0);
-		return eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile;
-	}
-
-
-	const u16 PACKET_SIZE = 1024;
-	const u32 BUFFER_SIZE = 2048;
-	u8 *buffer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), BUFFER_SIZE);
-	FILE *fSRC = rhea::fs::fileOpenForReadBinary (tempFilePathAndName);
-	u32 fileLengthInBytes = rhea::fs::filesize(fSRC);
-
-
-	//dico al rasPI che voglio iniziare un upload
-	{
-		const u16 fileNameLen = (u16)rhea::string::utf8::lengthInBytes(fileNameOnly);
-		rhea::utils::bufferWriteU32(answerBuffer, fileLengthInBytes);
-		rhea::utils::bufferWriteU16 (&answerBuffer[4], PACKET_SIZE);
-		memcpy (&answerBuffer[6], fileNameOnly, fileNameLen);
-		answerBuffer[6 + fileNameLen] = 0;
-
-		u32 n = cpubridge::buildMsg_rasPI_MITM (eRasPISubcommand_UPLOAD_BEGIN, answerBuffer, 7+fileNameLen, buffer, BUFFER_SIZE);
-		chToCPU->sendOnlyAndDoNotWait (buffer, n, logger);
-		n = chToCPU->waitForAMessage (answerBuffer, sizeof(answerBuffer), logger, 1000);
-		if (n == 0)
-		{
-			//timeout
-			fclose(fSRC);
-			RHEAFREE(rhea::getScrapAllocator(), buffer);
-			if (NULL != subscriber)
-				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_generalError, 1);
-			return eWriteCPUFWFileStatus_finishedKO_M_notReceived;
-		}
-	}
-
-	//tutto ok, procedo con la spedizione dei blocchi di dati
-	u32 bytesWrittenSoFar = 0;
-	eWriteCPUFWFileStatus ret = eWriteCPUFWFileStatus_finishedOK;
-	while (fileLengthInBytes >= PACKET_SIZE)
-	{
-        ret = priv_uploadFileToRasPI_sendChunck (fSRC, buffer, PACKET_SIZE);
-		if (ret != eWriteCPUFWFileStatus_finishedOK)
-			break;
-
-		bytesWrittenSoFar += PACKET_SIZE;
-		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus_inProgress, (bytesWrittenSoFar>>10));
-		fileLengthInBytes -= PACKET_SIZE;
-	}
-
-	if (ret == eWriteCPUFWFileStatus_finishedOK)
-	{
-		if (fileLengthInBytes)
-		{
-			ret = priv_uploadFileToRasPI_sendChunck (fSRC, buffer, fileLengthInBytes);
-			if (ret == eWriteCPUFWFileStatus_finishedOK)
-				bytesWrittenSoFar += fileLengthInBytes;
-		}
-	}
-	fclose(fSRC);
-	RHEAFREE(rhea::getScrapAllocator(), buffer);
-
-
-	if (ret == eWriteCPUFWFileStatus_finishedOK)
-	{
-		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedOK, (bytesWrittenSoFar >> 10));
-	}
-	else
-	{
-		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_generalError, 8);	
-	}
-
-	return ret;
-}
-

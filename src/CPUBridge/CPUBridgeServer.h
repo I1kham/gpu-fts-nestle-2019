@@ -170,16 +170,12 @@ namespace cpubridge
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
 		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
-		eWriteCPUFWFileStatus	priv_uploadFileToRasPI(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
-		eWriteCPUFWFileStatus	priv_uploadFileToRasPI_sendChunck (FILE *fSRC, u8 *bufferW, u16 chunkSize);
 		bool                    priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out);
         u16                     priv_prepareAndSendMsg_readVMCDataFileBlock (u16 blockNum);
 		
 		u8						priv_2DigitHexToInt(const u8 *buffer, u32 index) const;
-		bool					priv_WriteByteMasterNext(u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT, bool bRasPIExists);
+		bool					priv_WriteByteMasterNext(u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT);
 		void					priv_retreiveSomeDataFromLocalDA3();
-		void					priv_CPUFWUpdate_sendAndDoNotWait(const u8 *buffer, u32 nBytesToSend, bool bRasPIExists);
-		bool					priv_CPUFWUpdate_waitForASpecificChar(u8 expectedChar, u64 timeoutMSec, bool bRasPIExists);
 
 		bool					priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
 		sSubscription*			priv_newSubscription();
@@ -197,7 +193,6 @@ namespace cpubridge
 		sRunningSelection		runningSel;
 		u8						cpu_numDecimalsForPrices;
 		rhea::FastArray<sSubscription*>	subscriberList;
-		sSubscription			*rasPISubscription;
 		sLanguage				language;
 		u16						utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
 		u16						lastCPUMsg_len;

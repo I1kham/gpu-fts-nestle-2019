@@ -67,9 +67,6 @@
 #define		CPUBRIDGE_NOTIFY_MILKER_VER						0x012D
 
 
-#define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS		0x01FC
-#define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_GET_WIFI_IPandSSID	0x01FD
-#define		CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_ARE_YOU_THERE		0x01FE
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
 
@@ -133,34 +130,8 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE			0x0834
 #define		CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER										0x0835
 #define		CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED	0x0836
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_WIFI_IPandSSID						0x0837
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_FILE_UPLOAD							0x0838
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_GUI_TS_UPLOAD						0x0839
-
- /**********************************************************************
-  * msg che CPUBridge e il modulo MITM di rasPI possono scambiarsi
-  */
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_ARE_YOU_THERE						0x0A00
-#define		CPUBRIDGE_SUBSCRIBER_ASK_RASPI_MITM_START_SOCKETBRIDGE					0x0A01
 
 
-
- /**********************************************************************
-  * comandi supportati dal msg 'W' usato per comunicare con rasPI
-  */
-enum eRasPISubcommand
-{
-	eRasPISubcommand_SEND_AND_DO_NOT_WAIT	= 0x01,
-	eRasPISubcommand_WAIT_SPECIFIC_CHAR		= 0x02,
-	eRasPISubcommand_ARE_YOU_THERE			= 0x03,
-	eRasPISubcommand_START_SOCKETBRIDGE		= 0x04,
-	eRasPISubcommand_SERIALIZED_sMSG		= 0x05,
-	eRasPISubcommand_GET_WIFI_IPandSSID		= 0x06,
-	eRasPISubcommand_UPLOAD_BEGIN			= 0x07,
-	eRasPISubcommand_UNZIP_TS_GUI			= 0x08,
-
-	eRasPISubcommand_INVALID				= 0xff
-};
 
 namespace cpubridge
 {
@@ -180,8 +151,7 @@ namespace cpubridge
 		eCPUCommand_writePartialVMCDataFile = 'X',
 		eCPUCommand_getExtendedConfigInfo = 'c',
 		eCPUCommand_getMilkerVer = 'M',
-        eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V',
-        eCPUCommand_rasPI_MITM = 'W'
+        eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V'
 	};
 
 	enum eRunningSelStatus
@@ -479,7 +449,6 @@ namespace cpubridge
 		
 		static const u16 FLAG1_CUP_ABSENT					= 0x0100;
 		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0200;
-		static const u16 FLAG1_RASPI_MITM_EXISTS			= 0x0400;
 
 		char							userCurrentCredit[16];
 		char							curLangISO[4];
