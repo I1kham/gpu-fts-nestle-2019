@@ -1,0 +1,130 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+	<style>
+		ul.elenco { list-style-type: none; margin: 0; padding: 0; }
+		ul.elenco li { float:left; padding:0; margin:20px; }
+	</style>
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<div id="divBtnBackToHome" style="float:left; width:50%; text-align:left"></div>
+			<div style="float:left; width:50%;"><h1>INDEX</h1></div>
+			<div class="clear"></div>
+		</div>
+
+		<div class="page">
+			<div id="page-content" style="display:block;">
+				<div class="box" style="position:relative">
+					<div class="box-content" style="min-height:100px">
+						<ul class="elenco">
+							<li><a class="buttonbig azzurro" href="langSettings.html?his=1">Language settings<br>&nbsp;</a></li>
+							<li><a class="buttonbig azzurro" href="messages.html?his=1">Various messages translations</a></li>
+						</ul>
+						<div class="clear"></div>
+					</div>
+					
+					<div class="box-content" style="min-height:100px">
+						<ul class="elenco">
+							<li><a class="buttonbig azzurro" href="pageStandby.html?his=1">Page<br>standby</a></li>
+							<li><a class="buttonbig azzurro" href="pageLearnMore.html?his=1">Page<br>learn more</a></li>
+							<li><a class="buttonbig azzurro" href="pageMainMenu.html?his=1">Page<br>main menu</a></li>
+							<li><a class="buttonbig azzurro" href="pageSelInProgress.html?his=1">Page selection in progress</a></li>
+							<li><a class="buttonbig azzurro" href="pageSelFinished.html?his=1">Page selection<br>finished</a></li>
+						</ul>
+						<div class="clear"></div>
+					</div>
+					
+					<div class="box-content">
+						<ul class="elenco">
+							<li><a class="buttonbig azzurro" href="cupCustomOptions.html?his=1">Default cup customization appearance</a></li>
+						</ul>
+						<div class="clear"></div>
+					</div>
+
+					<div class="box">
+						<div class="box-content" style="padding:10px">
+							<div style="float:left; margin-bottom:10px"><h3>TEMPLATE DESCRIPTION</h3></div>
+							<div style="float:right">nestle-2.0-template-001</div>
+							<div class="clear"></div>
+							This is the default GUI used for Fusion2 machines.<br>
+							This GUI does provide <b>cup customization</b> options for every beverage.<br>
+						</div>
+					</div>
+					<br>
+					
+					<div style="position:absolute; top:25px; right:5px"><a class="buttonbig verde" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = 1;
+var db = null;
+
+function dataOra_getYYYYMMDD(sep)
+{
+	var d = new Date();
+	var mm = (1 + d.getMonth()).toString();
+	if (mm.length<2) mm = "0"+mm;
+	
+	var gg = d.getDate().toString();
+	if (gg.length<2) gg = "0"+gg;
+	
+	return d.getFullYear() +sep +mm +sep +gg;
+}
+
+function onRheaBootstrapFinished()
+{
+	//cerca di capire se il patth attuale contiente /temp/yyyymmddhhmmss/web
+	var yyyymmddhhmmss = isATemporaryPath()
+	if (yyyymmddhhmmss!="")
+	{
+		//mostro il btn "back to home"
+		rheaSetDivHTMLByName("divBtnBackToHome", "<a href='javascript:backToHome(\"" +yyyymmddhhmmss +"\")' class='button giallo'><< BACK TO HOME</a>");
+	}
+}
+
+function backToHome(yyyymmddhhmmss)
+{
+	rhea.ajax ("DBClose", { "path" : rheaGetAbsolutePhysicalPath() +"/guidb.db3"})
+				.then( function(result)
+				{
+					window.location = "../../../../home/index.html?from=" +yyyymmddhhmmss;
+				})
+				.catch ( function(result)
+				{
+				});
+}
+
+
+</script>
+</html>

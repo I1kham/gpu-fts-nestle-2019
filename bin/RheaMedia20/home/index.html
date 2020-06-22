@@ -1,0 +1,419 @@
+<html>
+<html>
+<head>
+	<title>RheaMedia2 - v2.3</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/fileBrowser.css" rel="stylesheet" type="text/css">
+	<style>
+		ul.elenco { list-style-type: none; margin: 0; padding: 0; }
+		ul.elenco li { float:left; padding:0; margin:20px; }
+		
+		.boxTemplate { margin:0 0 0 0; cursor:pointer; text-align:center; padding:10px 0 30px 0;}
+		.boxTemplate h3 { margin:0 auto;}
+		
+		.boxTemplate:hover { background-color:#55a0da;}
+		.boxTemplate:hover h3 { color:#fff}
+
+		ul.prefabs { margin:0; padding:0; list-style-type:none; font-size:1.4em;}
+		ul.prefabs li { margin:10px 0 10px 0; padding: 5px; cursor:pointer; background-color:#fff; }
+		ul.prefabs li:hover { background-color:#55a0da; color:#fff}
+
+	</style>	
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>RheaMedia2 - v2.3</h1>
+		</div>
+
+		<div class="page">
+			<div id="page-content" style="display:block; overflow:hidden">
+			
+				<div id="multiBoxContainer" style="width:10000px; position:relative; top:0; left:0">
+					<div class="wrapper" style="float:left;">
+						<div class="box">
+							<div class="box-content" style="min-height:300px">
+								<ul class="elenco">
+									<li><a class="buttonbig azzurro" href="javascript:scrollToPage(1)">Create a new GUI</a></li>
+									<li><a class="buttonbig azzurro" href="javascript:existingGUI_openFileBrowser()">Edit an existing GUI</a></li>
+								</ul>
+								<div class="clear"></div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="wrapper" style="float:left;">
+						<div class="box " style="float:left;">
+							<div class="box-content" style="min-height:300px">
+								<div style="float:left; width:12%"><a href="javascript:scrollToPage(0)" class="button giallo"><< BACK</a></div>
+								<div style="float:left; margin-top:6px; width:88%"><h2>Please select a template</h2></div>
+								<div class="clear"></div>
+								<br>
+								<div id="page1TemplateList"></div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="wrapper" style="float:left;">
+						<div class="box " style="float:left;">
+							<div class="box-content" style="min-height:300px">
+								<div style="float:left; width:12%"><a href="javascript:scrollToPage(1)" class="button giallo"><< BACK</a></div>
+								<div style="float:left; margin-top:6px; width:88%"><h2>Please choose a starting point...</h2></div>
+								<div class="clear"></div>
+								<br>
+								<div id="page2PrefabsList"></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="clear"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+	
+	<div id="fileBrowser1" class="fileBrowser"></div>
+	<div id="fileSaveAs1" class="fileBrowser"></div>
+</div>
+
+<script src="js/rheaBootstrap.js"></script>
+<script src="js/fileBrowser.js"></script>
+<script src="js/fileSaveAs.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/rheaDB.js"></script>
+<script language="javascript">
+var fileBrowser1 = null;
+var fileSaveAs1 = null;
+async function onRheaBootstrapFinished()
+{
+	fileBrowser1 = new FileBrowser("fileBrowser1");
+	fileSaveAs1 = new FileSaveAs("fileSaveAs1");
+	pleaseWait(1);	
+	
+	var from = rheaGetURLParamOrDefault("from", "");
+	if (from != "")
+	{
+		var folderToDelete = rheaGetAbsolutePhysicalPath() +"/../temp/" +from;
+		//console.log ("delete [" +folderToDelete +"]");
+		rhea.ajax ("taskSpawn", { "name" : "deleteFolder", "params":folderToDelete})
+					.then( function(result)
+					{
+					})
+					.catch ( function(result)
+					{
+					});
+		
+	}
+	
+	
+	
+	//elenco dei template
+	await templateList_load();
+	
+	pleaseWait(0);	
+}
+
+function scrollToPage (i)
+{
+	//$("#multiBoxContainer").css("left", -i*1000);
+	var dest = -i*1000;
+	$("#multiBoxContainer").animate(
+		{ left: dest }, 
+		400, 
+		function() 
+		{ 
+		} 
+	);
+}
+
+function getATempFolderName()	{ return dataOra_getYYYYMMDD("") +dataOra_getHHMMSS(""); }
+
+
+
+/*****************************************************
+ *
+ * task copyFolderToFolder
+ * 
+ */
+function copyFolderToFolder (srcPath, dstPath, fnToCallAtEnd)
+{
+	console.log ("copyFolderToFolder [" +srcPath +"] [" +dstPath +"]");
+	rhea.ajax ("taskSpawn", { "name" : "copyFolderToFolder", "params":srcPath+"§"+dstPath})
+				.then( function(result)
+				{
+					var taskID = parseInt(result);
+					//console.log ("new task id[" +taskID +"]");
+					setTimeout (function(){ copyFolderToFolder_query(taskID, fnToCallAtEnd);}, 400);
+						
+				});
+}
+
+function copyFolderToFolder_query (taskID, fnToCallAtEnd)
+{
+	rhea.ajax ("taskStatus", { "id" : taskID})
+				.then( function(result)
+				{
+					var obj = JSON.parse(result);
+					console.log ("[" +taskID +"] status[" +obj.status +"], msg[" +obj.msg +"]");
+					
+					pleaseWait_addMessage (obj.msg);
+					if (obj.status == "0")
+						fnToCallAtEnd(obj.msg);
+					else
+						setTimeout (function(){ copyFolderToFolder_query(taskID, fnToCallAtEnd);}, 1000);
+				});
+}
+
+
+
+/*****************************************************
+ *
+ * task importExistingGUI
+ * 
+ */
+function importExistingGUI (templateName, templateVer, templateSrcPath, userGUISrcPath, dstPath, fnToCallAtEnd)
+{
+	console.log ("importExistingGUI [" +templateName +"][" +templateVer +"] [" +templateSrcPath +"] [" +userGUISrcPath +"] [" +dstPath +"]");
+	rhea.ajax ("taskSpawn", { "name" : "importExistingGUI", "params":templateName +"§" +templateVer +"§" +templateSrcPath +"§" +userGUISrcPath +"§" +dstPath})
+				.then( function(result)
+				{
+					var taskID = parseInt(result);
+					console.log ("new task id[" +taskID +"]");
+					setTimeout (function(){ importExistingGUI_query(taskID, fnToCallAtEnd);}, 400);
+						
+				});
+}
+
+function importExistingGUI_query (taskID, fnToCallAtEnd)
+{
+	rhea.ajax ("taskStatus", { "id" : taskID})
+				.then( function(result)
+				{
+					var obj = JSON.parse(result);
+					console.log ("[" +taskID +"] status[" +obj.status +"], msg[" +obj.msg +"]");
+					
+					pleaseWait_addMessage (obj.msg);
+					if (obj.status == "0")
+						fnToCallAtEnd(obj.msg);
+					else
+						setTimeout (function(){ importExistingGUI_query(taskID, fnToCallAtEnd);}, 1000);
+				});
+}
+
+
+/*****************************************************
+ *
+ * templateList
+ * filla la var templateList[] con l'elenco dei template disponibili. Per ogni template, recuper anche i suoi prefabs
+ */
+var templateList = [];
+async function templateList_load()
+{
+	await templateList_load1();
+	for (var i=0; i<templateList.length; i++)
+		await templateList_load2(i);
+		
+	var html = "";	
+	for (var i=0; i<templateList.length; i++)
+	{
+		html += "<div class='boxTemplate' onclick='templateList_showPrefabs(" +i +")'><h3>TEMPLATE: " +templateList[i].name +"</h3>"
+					+"<img src='../template/" +templateList[i].name +"/templateImage.jpg'>"
+				+"</div>";
+	}
+	$("#page1TemplateList").html(html);
+}		
+	
+function templateList_load1()
+{
+	var path = rheaGetAbsolutePhysicalPath() +"/../template";
+	return rhea.ajax ("FSList", { "path" : path, "jolly":"*.*"})
+				.then( function(result)
+				{
+					var obj = JSON.parse(result);
+					var e = obj.folderList.split("§");
+					for (var i=0; i<e.length; i++)
+						templateList[i] = { "name":e[i], "prefabs":[] };
+						
+						
+				});
+}
+
+function templateList_load2(index)
+{
+	var path = rheaGetAbsolutePhysicalPath() +"/../template/" +templateList[index].name +"/prefabs";
+	return rhea.ajax ("FSList", { "path" : path, "jolly":"*.db3"})
+				.then( function(result)
+				{
+					var obj = JSON.parse(result);
+					var e = obj.folderList.split("§");
+					for (var i=0; i<e.length; i++)
+						templateList[index].prefabs[i] = e[i];
+				});
+}
+
+function templateList_showPrefabs (index)
+{
+	var html = "<ul class='prefabs'>";
+	for (var i=0; i<templateList[index].prefabs.length; i++)
+	{
+		var folderName = templateList[index].prefabs[i];
+		html += "<li onclick='createNewGUI(" +index +"," +i +")'>" +folderName +"</li>";
+	}
+	html += "</ul>";
+	$("#page2PrefabsList").html(html);
+	scrollToPage(2);
+}
+
+
+/*********************************************************
+ *
+ * create new
+ *
+ */
+var templateSrcFolder = "";
+var prefabsSrcFolder  = "";
+var tempFolderName = "";
+var absTempFolderPath = "";
+function createNewGUI (iTemplate, iPrefabs)
+{
+	templateSrcFolder = rheaGetAbsolutePhysicalPath() +"/../template/" +templateList[iTemplate].name +"/gui";
+	prefabsSrcFolder  = rheaGetAbsolutePhysicalPath() +"/../template/" +templateList[iTemplate].name +"/prefabs/" +templateList[iTemplate].prefabs[iPrefabs];
+	tempFolderName = getATempFolderName();
+	absTempFolderPath = rheaGetAbsolutePhysicalPath() +"/../temp/" +tempFolderName;
+	
+	pleaseWait(1);
+	copyFolderToFolder (templateSrcFolder, absTempFolderPath, createNewGUI_onFinishTemplateCopy);
+}
+
+function createNewGUI_onFinishTemplateCopy(taskFinalMsg)
+{
+	if (taskFinalMsg != "OK")
+	{
+		alert (taskFinalMsg);
+		pleaseWait(0);
+		return;
+	}
+	
+	//copio il prefabs
+	copyFolderToFolder (prefabsSrcFolder, absTempFolderPath +"/web", createNewGUI_onFinishPrefabsCopy);
+}
+
+function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
+{
+	if (taskFinalMsg != "OK")
+	{
+		alert (taskFinalMsg);
+		pleaseWait(0);
+		return;
+	}
+
+	window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
+	
+	pleaseWait(0);
+}
+
+
+
+/*****************************************************
+ *
+ * load existing
+ * 
+ */
+function existingGUI_openFileBrowser()
+{
+	fileBrowser1.openFile("c:", "*.rheagui", existingGUI_onFileOpenFinished, "Browse to locate a GUI folder. Look for a file by the name of <b>template.rheagui</b> and click on it");
+}
+
+async function existingGUI_onFileOpenFinished(fileName, path)
+{
+	console.log ("[" +fileName +"][" +path +"]");
+	if (fileName == "")
+		return;
+	var userGUISrcPath = path;
+		
+	pleaseWait(1);
+	
+	//devo verificare che la GUI selezionata corrisponda ad un template valido
+	var pathDB = path +"/web/backoffice/guidb.db3";
+	db = new RheaDB (pathDB);
+	let rst = await db.q("SELECT Template,TemplateVer FROM history WHERE 1");
+	
+	//chiudo il DB
+	rhea.ajax ("DBClose", { "path" : pathDB}).then( function(result){}).catch ( function(result) {});	
+	
+	if (rst.hasError() != "")
+	{
+		alert ("Error opening the GUI. The GUI is invalid or not supported");
+		pleaseWait(0);
+		return;
+	}
+	
+	var templateName = "";
+	var templateVer ="";
+	console.log ("num rows[" +rst.getNumRows() +"]");
+	if (rst.getNumRows() > 0)
+	{
+		if (rst.fromColNameToColIndex("Template") >= 0 && rst.fromColNameToColIndex("TemplateVer") >= 0)
+		{
+			templateName = rst.valByColName(0, "Template");
+			templateVer = rst.valByColName(0, "TemplateVer");
+		}
+	}
+	
+	if (templateName == "")
+	{
+		templateName = "nestle-2.0-template-001";
+		templateVer = 0;
+		/*alert ("WARN: the selected GUI uses a template that it's not supported by this version of rheaMedia");
+		pleaseWait(0);
+		return;*/
+	}
+	
+	//vediamo se ho il template richiesto
+	for (var iTemplate=0; iTemplate<templateList.length; iTemplate++)
+	{
+		if (templateList[iTemplate].name == templateName)
+		{
+			//ok, tutto bene. Copio il mio template in una cartella temporanea e poi lo sovrascrivo con parte della GUI selezionata
+			var templateSrcPath = rheaGetAbsolutePhysicalPath() +"/../template/" +templateList[iTemplate].name +"/gui";
+			tempFolderName = getATempFolderName();
+			var dstPath = rheaGetAbsolutePhysicalPath() +"/../temp/" +tempFolderName;
+			importExistingGUI (templateName, templateVer, templateSrcPath, userGUISrcPath, dstPath, existingGUI_onFinished)
+			return;
+		}
+	}
+	
+	//Errore, il template della GUI non corrisponde a nessuno di quelli installati
+	alert ("Error. Your GUI is based on a template named '" +templateName +"' which is not one of the available templates");
+	pleaseWait(0);
+}
+
+function existingGUI_onFinished(taskFinalMsg)
+{
+	if (taskFinalMsg != "OK")
+	{
+		alert (taskFinalMsg);
+		pleaseWait(0);
+		return;
+	}
+
+	window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
+	
+	pleaseWait(0);
+}
+
+</script>
+</html>

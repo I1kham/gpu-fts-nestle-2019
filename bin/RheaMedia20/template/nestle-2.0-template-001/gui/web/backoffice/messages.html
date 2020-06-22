@@ -1,0 +1,138 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Various messages</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>			
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<div class="box-content">
+						<table border='0' cellspacing='0' cellpadding='2'>
+							<tr valign="top"><td><b>BTN_START_SELECTION</b><br><div id="ml_BTN_START_SELECTION"></div></td></tr>
+							
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>BTN_START_SELECTION_NOT_AVAIL</b> (message that replace the START BTN when the selection is not available)<br><div id="ml_BTN_START_SELECTION_NOT_AVAIL"></div></td></tr>
+
+							<!--<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>BTN_STOP</b><br><div id="ml_BTN_STOP"></div></td></tr>
+							-->
+							
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>YOUR_DRINK_IS_BEING_PREPARED</b><br><div id="ml_LAB_YOUR_DRINK_IS_BEING_PREPARED"></div></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>YOUR_DRINK_IS_READY</b><br><div id="ml_LAB_YOUR_DRINK_IS_READY"></div></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>CURRENCY_SIMBOL</b><br><div id="ml_LAB_CURRENCY_SIMBOL"></div></td></tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="js/multilangElem.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var db = null;
+//var ml_BTN_STOP = null;
+var ml_BTN_START_SELECTION = null;
+var ml_BTN_START_SELECTION_NOT_AVAIL = null;
+var ml_LAB_CURRENCY_SIMBOL = null;
+var ml_LAB_YOUR_DRINK_IS_READY = null;
+var ml_LAB_YOUR_DRINK_IS_BEING_PREPARED = null;
+
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+	
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+
+	//carico e creo i controlli per il messaggio in ML	
+	//ml_BTN_STOP = new MultilangElem("ml_BTN_STOP", "BTN_STOP", "MSG", "EDIT", "700px", allLang);
+	//await ml_BTN_STOP.load(db);
+	
+	ml_BTN_START_SELECTION = new MultilangElem("ml_BTN_START_SELECTION", "BTN_START_SELECTION", "MSG", "EDIT", "700px", allLang);
+	await ml_BTN_START_SELECTION.load(db);
+
+	ml_BTN_START_SELECTION_NOT_AVAIL = new MultilangElem("ml_BTN_START_SELECTION_NOT_AVAIL", "BTN_START_SELECTION_NOT_AVAIL", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_BTN_START_SELECTION_NOT_AVAIL.load(db);
+
+	ml_LAB_CURRENCY_SIMBOL = new MultilangElem("ml_LAB_CURRENCY_SIMBOL", "LAB_CURRENCY_SIMBOL", "MSG", "EDIT", "70px", allLang);
+	await ml_LAB_CURRENCY_SIMBOL.load(db);
+
+	ml_LAB_YOUR_DRINK_IS_READY = new MultilangElem("ml_LAB_YOUR_DRINK_IS_READY", "LAB_YOUR_DRINK_IS_READY", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_LAB_YOUR_DRINK_IS_READY.load(db);
+
+	ml_LAB_YOUR_DRINK_IS_BEING_PREPARED = new MultilangElem("ml_LAB_YOUR_DRINK_IS_BEING_PREPARED", "LAB_YOUR_DRINK_IS_BEING_PREPARED", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_LAB_YOUR_DRINK_IS_BEING_PREPARED.load(db);
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+}
+
+
+
+async function saveAll()
+{
+	pleaseWait(1);
+
+	//salvataggio del "messaggio" in multilingua
+	//await ml_BTN_STOP.save(db);
+	await ml_BTN_START_SELECTION.save(db);
+	await ml_BTN_START_SELECTION_NOT_AVAIL.save(db);
+	await ml_LAB_CURRENCY_SIMBOL.save(db);
+	await ml_LAB_YOUR_DRINK_IS_READY.save(db);
+	await ml_LAB_YOUR_DRINK_IS_BEING_PREPARED.save(db);
+
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+</script>
+</html>

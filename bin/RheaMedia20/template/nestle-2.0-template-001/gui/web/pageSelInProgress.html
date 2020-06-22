@@ -1,0 +1,195 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<style>
+		#selText p { margin:0; padding:0; }
+	</style>
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div id="mainWrapper" class="wrapper1024x600">
+	<div id="divGalleryWindow" class="pageSelInProgress_galleryContainer_window">
+		<div id="divGallery" class="pageSelInProgress_galleryContainer">
+		</div>
+	</div>
+	<div id="divContent" style="height:300px; width:100%; overflow:hidden">
+	
+		<div style="float:left; width:400px; text-align:center; margin-top:30px"><img draggable="false" id="selImage" src=""></div>
+		<div style="float:left; width:614px; color:#cdcdcd; font-weight:bold">
+			<div style="width:100%; height:180px; overflow:hidden; margin-top:40px;">
+				<div id="selName" class="pageConfirm_bigFont"></div>
+				<div id="selText"></div>
+			</div>
+			
+			<div id="divTextAtBottom" style="width:100%; height:80px; overflow:hidden; font-style:italic; font-size:0.9em"></div>
+		</div>
+		<div class="clear"></div>
+	</div>
+	
+	<div id="btnStop"></div>
+	
+	<div id="divCPUMessage" style="position:absolute; top:0; left:0; padding:5px 0 3px 0;width:100%; text-align:center; display:none; background-color:rgba(0,0,0,0.8); color:#fff"></div>
+</div>
+
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/MMI.js"></script>
+<script src="config/pageSelInProgress.js"></script>
+<script src="config/pageSelFinished.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+var iconNum = 0;
+var selNum = 0;
+function onRheaBootstrapFinished() 
+{
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
+}
+
+function onAfterLangLoaded()
+{
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		//status=3 => aborted
+		//status=4 => finished
+		if (status == 3 || status == 4)
+			gotoSelFinished();
+	}
+	
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		if (importanceLevel == 0)
+			rheaHideElem(dCPU);
+		else
+		{
+			rheaSetElemHTML(dCPU, msg);
+			rheaShowElem(dCPU);
+		}
+	}
+	
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+	
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+	selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+	var showBtnStop  = parseInt(rheaGetURLParamOrDefault("btnStop", 0));
+	/*if (showBtnStop != 1)
+	{
+		showBtnStop = 0;
+		rheaShowElem(rheaGetElemByID("divSpacerWhenNoBtnStop"));
+	}*/
+	
+	var iconDisplayName = MMI_getDisplayName(iconNum);
+	rheaSetDivHTMLByName("selName", iconDisplayName);
+	
+	document.getElementById("selImage").src = MMI_getImgForPageConfirm(iconNum);
+	rheaSetDivHTMLByName("divTextAtBottom", rheaLang.LAB_YOUR_DRINK_IS_BEING_PREPARED);
+	setupGallery();
+	
+	
+	//carica i contenuti in lingua di questa pagina
+	lang_loadJS ("mainMenuIconsInfo")
+		.then ( function()
+		{
+			rheaSetDivHTMLByName("selText", rheaMainMenuIconsInfo[iconNum]);
+		});	
+}
+	
+
+function onBtnStopSelection()
+{
+	var d = rheaGetElemByID("btnStop");
+	rheaHideElem(d);
+
+	rhea.selection_stop();
+}
+
+
+function gotoSelFinished()
+{
+	var d = rheaGetElemByID("btnStop");
+	rheaHideElem(d);
+	
+	if (selFinishedPageOptions.timeToGoBack > 0)
+		window.location = "pageSelFinished.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+	else
+	window.location = "pageMenu.html";
+}
+
+
+var numImages = rheaPageOptions.gallery_images.length;
+var curImage = 0;
+function setupGallery()
+{
+	var d = rheaGetElemByID("divGalleryWindow");
+	var imageW = rheaGetElemWidth(d);
+	
+	var html = "";
+	for (var i=0; i<numImages; i++)
+	{
+		var imgTag = "<img id='slide" +i +"' draggable='false' ";
+		if (i==0)
+			imgTag += "src='upload/" +rheaPageOptions.gallery_images[i] +"'>";
+		else
+			imgTag += "src=''>";
+		html += "<div class='pageSelInProgress_galleryContainer_foto'>" +imgTag +"</div>";
+	}
+	
+	d = rheaGetElemByID("divGallery");
+	if (numImages < 2)
+	{
+		rheaSetElemWidth(d, imageW);
+		rheaSetElemHTML(d, html);
+	}
+	else
+	{
+		//appendo la prima immagine in fondo in modo da scrollare dalla ultima immagina alla prima senza effetti strani a video
+		numImages++;
+		html += "<div class='pageSelInProgress_galleryContainer_foto'><img draggable='false' src='upload/" +rheaPageOptions.gallery_images[0] +"'></div>";
+		rheaSetElemWidth(d, imageW * numImages);
+		rheaSetElemHTML(d, html);
+		setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
+
+		//schedulo il load dinamico delle slide successive alla prima
+		setTimeout ("loadSlide(1)", 300);
+	}
+	
+}
+
+function loadSlide(i)
+{
+	if (i>=numImages-1)
+		return;
+
+	var downloadingImage = new Image();
+	downloadingImage.onload = function() { 
+											document.getElementById("slide" +i).src = this.src; 
+											setTimeout ("loadSlide(" +(i+1) +")", 300);
+										  };
+	downloadingImage.src = "upload/" +rheaPageOptions.gallery_images[i];
+}
+
+function scrollToNextImage()
+{
+	var d = rheaGetElemByID("divGallery");
+	
+	curImage++;
+	if (curImage >= numImages)
+	{
+		curImage = 1;
+		rheaSetElemLeft(d, 0);
+	}
+
+	rheaSmoothScrollElemLeft(d, -curImage*1024, 500);
+	
+	setTimeout ("scrollToNextImage()", rheaPageOptions.gallery_timeToNextImageMSec);
+}
+</script>
+
+
+</html>

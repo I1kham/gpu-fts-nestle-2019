@@ -1,0 +1,102 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper1024x600">
+	<br><br><br><br><br><br>
+	<center><img src="img/animationRound.gif"></center>
+</div>
+
+<script src="config/allowedLang.js"></script>
+<script src="config/lang.js"></script>
+<script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
+<script language="javascript">
+
+function onRheaBootstrapFinished()
+{
+	console.log ("onRheaBootstrapFinished");
+	
+	querySelectionPrice()
+		.then ( function() { return querySelectionAvail(); } )
+		.then ( function() { return lang_loadLang(defaultLang); })
+		.then ( function() { 
+			window.location = "pageStandby.html";
+		})
+		.catch ( function(result)
+		{
+			console.log ("startup.html => onRheaBootstrapFinished::error => " +result);
+			setTimeout(function() { window.location = "startup.html"; }, 200);
+		});
+}
+
+
+function querySelectionPrice()
+{
+	console.log ("querySelectionPrice");
+		
+	return rhea.ajax ("selPrice", "")
+		.then( function(result) 
+		{
+			//rheaLog ("querySelectionPrice::success => " +result);
+		
+			//aggiorno i prezzi delle selezioni e memorizzo nel DB
+			var obj = JSON.parse(result);
+			var price = obj.s.split("§");
+			for (var i=1; i<=obj.n; i++)
+				rhea.selection_getBySelNumber(i).price = price[i-1];
+			rhea.selection_sessionStore();
+			
+			
+			return new Promise( function(resolve, reject) { resolve("ok"); })
+		})
+		.catch( function(result)
+		{
+			rheaLog ("querySelectionPrice::error => " +result);
+			return new Promise( function(resolve, reject) { reject(result); })
+		});
+	
+}
+
+function querySelectionAvail()
+{
+	console.log ("querySelectionAvail");
+		
+	return rhea.ajax ("selAvail", "")
+		.then( function(result) 
+		{
+			//rheaLog ("querySelectionAvail::success => " +result);
+		
+				//aggiorno la disponibilità delle selezioni e memorizzo nel DB
+				var obj = JSON.parse(result);
+				var price = obj.s.split("§");
+				for (var i=1; i<=obj.n; i++)
+				{
+					if (obj.s.charAt(i-1) == '1')
+						rhea.selection_getBySelNumber(i).enabled = 1;
+					else
+						rhea.selection_getBySelNumber(i).enabled = 0;
+				}
+				rhea.selection_sessionStore();
+			
+			return new Promise( function(resolve, reject) { resolve("ok"); })
+		})
+		.catch( function(result)
+		{
+			rheaLog ("querySelectionAvail::error => " +result);
+			return new Promise( function(resolve, reject) { reject(result); })
+		});
+}
+
+
+
+
+</script>
+
+
+</html>

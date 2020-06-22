@@ -1,0 +1,1 @@
+var rheaPageOptions={gallery_timeToNextImageMSec:5000,gallery_images:["../upload/GR_1_1024_300.jpg","../upload/GR_2_1024_300.jpg","../upload/GR_3_1024_300.jpg","../upload/GR_4_1024_300.jpg","../upload/GR_5_1024_300.jpg","../upload/GR_6_1024_300.jpg"]};

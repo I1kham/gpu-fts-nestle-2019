@@ -1,0 +1,228 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../styleOptionButtons.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>DEFAULT CUP CUSTOMIZATION APPEARANCE</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>		
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box" id="divBoxLanguages">
+					<h2>Default appearance for "OPTION A/B" buttons</h2>	
+					<div class="box-content">
+						<table border="0" cellspacing="0" cellpadding="10" style="">
+							<tr valign="middle" id="divOption1">
+								<td style="width:180px; background-color:#000" align="center">
+									<div id="divOption1-0" class="pageConfirm_iconOptionA"><p style="font-size:21px">TEXT EXAMPLE</p></div>
+								</td>
+								<td style="width:180px; background-color:#000" align="center">
+									<div id="divOption1-1" class="pageConfirm_iconOptionA"><p style="font-size:21px">TEXT EXAMPLE</p></div>
+								</td>
+								
+								<td style="width:40px">&nbsp;</td>
+								<td>
+									Select button appearance for option A <select id="comboAppearanceA" class="combo" onchange="comboAppearance_onChange('A')">
+										<option value="A">Small buttons</option>
+										<option value="B">Big buttons</option>
+										<option value="C">Big buttons with coffee icons</option>
+									</select>
+								</td>
+							</tr>
+							
+							<tr valign="middle" id="divSeparator1">
+								<td colspan="2" align="center" style="background-color:#000">&nbsp;</td>
+								<td colspan="2"></td>
+							</tr>
+						
+							<!-- option B -->					
+							<tr valign="middle" id="divOption2">
+								<td align="center" style="background-color:#000">
+									<div id="divOption2-0" class="pageConfirm_iconOptionC"><p style="font-size:20px">TEXT EXAMPLE</p></div>
+								</td>
+								<td align="center" style="background-color:#000">
+									<div id="divOption2-1" class="pageConfirm_iconOptionD"><p style="font-size:20px">TEXT EXAMPLE</p></div>
+								</td>
+								<td></td>
+								<td>
+									Select button appearance for option B <select id="comboAppearanceB" class="combo" onchange="comboAppearance_onChange('B')">
+										<option value="A">Small buttons</option>
+										<option value="B">Big buttons</option>
+										<option value="C">Big buttons with coffee icons</option>
+									</select>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				
+				<div class="box" id="divBoxLanguages">
+					<h2>Default text for "OPTION A" buttons</h2>	
+					<div class="box-content">
+						<table border='0' cellspacing='0' cellpadding='2' align="center">
+							<tr valign="top">
+								<td>Default text for left button</td>
+								<td style="width:200px">&nbsp;</td>
+								<td>Default text for right button</td>
+							</tr>
+							<tr valign="top">
+								<td><div id="textAL"></div></td>
+								<td></td>
+								<td><div id="textAR"></div></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				
+				<div class="box" id="divBoxLanguages">
+					<h2>Default text for "OPTION B" buttons</h2>	
+					<div class="box-content">
+						<table border='0' cellspacing='0' cellpadding='2' align="center">
+							<tr valign="top">
+								<td>Default text for left button</td>
+								<td style="width:200px">&nbsp;</td>
+								<td>Default text for right button</td>
+							</tr>
+							<tr valign="top">
+								<td><div id="textBL"></div></td>
+								<td></td>
+								<td><div id="textBR"></div></td>
+							</tr>
+						</table>
+					</div>
+				</div>				
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+
+<script src="js/buildConfigFile.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/multilangElem.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var db = null;
+var mlAL = null;
+var mlAR = null;
+var mlBL = null;
+var mlBR = null;
+
+
+//***********************************************************
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+	
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+
+	let rst = await db.q("SELECT AppearanceA,AppearanceB FROM cupcustombtn WHERE HIS_ID=" +historyID +" AND MMI=-1");
+	if (rst.getNumRows() == 0)
+	{
+		await db.exec ("INSERT INTO cupcustombtn(HIS_ID,MMI,AppearanceA,AppearanceB) VALUES(" +historyID +",-1,'A','C')");
+		rheaSelectComboOptionByValue(rheaGetElemByID("comboAppearanceA"),"A");
+		rheaSelectComboOptionByValue(rheaGetElemByID("comboAppearanceB"),"C");
+	}
+	else
+	{
+		rheaSelectComboOptionByValue(rheaGetElemByID("comboAppearanceA"),rst.valByColName(0,"AppearanceA"));
+		rheaSelectComboOptionByValue(rheaGetElemByID("comboAppearanceB"),rst.valByColName(0,"AppearanceB"));
+	}
+	comboAppearance_onChange("A");
+	comboAppearance_onChange("B");
+
+	mlAL = new MultilangElem("textAL", "CUP_OPTAL", -1, "EDIT", "180px", allLang);
+	await mlAL.load(db);
+	mlAR = new MultilangElem("textAR", "CUP_OPTAR", -1, "EDIT", "180px", allLang);
+	await mlAR.load(db);
+	mlBL = new MultilangElem("textBL", "CUP_OPTBL", -1, "EDIT", "180px", allLang);
+	await mlBL.load(db);
+	mlBR = new MultilangElem("textBR", "CUP_OPTBR", -1, "EDIT", "180px", allLang);
+	await mlBR.load(db);
+
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+}
+
+async function saveAll()
+{
+	pleaseWait(1);
+
+	var appearanceA = rheaGetComboSelectedOptionValue(rheaGetElemByID("comboAppearanceA"));
+	var appearanceB = rheaGetComboSelectedOptionValue(rheaGetElemByID("comboAppearanceB"));
+	await db.exec ("UPDATE cupcustombtn SET  AppearanceA='" +appearanceA +"', AppearanceB='" +appearanceB +"' WHERE HIS_ID=" +historyID +" AND MMI=-1");
+	
+	await mlAL.save(db);
+	await mlAR.save(db);
+	await mlBL.save(db);
+	await mlBR.save(db);
+	
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+
+function comboAppearance_onChange(which)
+{
+	var elemCombo;
+	var divID;
+	if (which=="A")
+	{
+		elemCombo = rheaGetElemByID("comboAppearanceA");
+		divID = "divOption1-";
+	}
+	else
+	{
+		elemCombo = rheaGetElemByID("comboAppearanceB");
+		divID = "divOption2-";
+	}
+	
+	var selectedOption = rheaGetComboSelectedOptionValue(elemCombo);
+	var cssL = "pageConfirm_iconOption" +selectedOption +"L";
+	var cssR = "pageConfirm_iconOption" +selectedOption +"R selected";
+	
+	document.getElementById(divID+"0").classList = cssL;
+	document.getElementById(divID+"1").classList = cssR;
+}
+</script>
+</html>

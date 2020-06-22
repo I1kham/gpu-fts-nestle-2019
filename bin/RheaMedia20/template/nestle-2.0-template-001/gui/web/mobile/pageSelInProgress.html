@@ -1,0 +1,88 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<style>
+		#selText p { margin:0; padding:0; }
+	</style>
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div class="header-sticky">
+		<div id="divCPUMessage" style="display:none;"></div>	
+	</div>
+	
+	<div id="beverageName" class="pageConfirm_beverageTitle pageConfirm_bigFont"></div>
+	<div id="beveragePhoto" class="pageConfirm_beveragePhoto"></div>
+	<div id="beverageDesc" class="pageConfirm_bigFont" style="text-align:center"></div>
+	<div id="divTextAtBottom" class="pageInprogress_finalText pageConfirm_bigFont"></div>
+</div>
+
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/MMI.js"></script>
+<script src="config/pageSelInProgress.js"></script>
+<script src="config/pageSelFinished.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+var iconNum = 0;
+var selNum = 0;
+function onRheaBootstrapFinished() 	{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
+function onAfterLangLoaded()
+{
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		//status=3 => aborted
+		//status=4 => finished
+		if (status == 3 || status == 4)
+			gotoSelFinished();
+	}
+	
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		if (importanceLevel == 0)
+			rheaHideElem(dCPU);
+		else
+		{
+			rheaSetElemHTML(dCPU, msg);
+			rheaShowElem(dCPU);
+		}
+	}
+	
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+	
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+	selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+	
+	var iconDisplayName = MMI_getDisplayName(iconNum);
+	rheaSetDivHTMLByName("beverageName", iconDisplayName);
+	
+	var html = "<img draggable='false'src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
+	rheaSetDivHTMLByName("beveragePhoto", html);
+	
+	rheaSetDivHTMLByName("divTextAtBottom", rheaLang.LAB_YOUR_DRINK_IS_BEING_PREPARED);
+	
+	
+	//carica i contenuti in lingua di questa pagina
+	lang_loadJS ("mainMenuIconsInfo")
+		.then ( function()
+		{
+			rheaSetDivHTMLByName("beverageDesc", rheaMainMenuIconsInfo[iconNum]);
+		});	
+}
+	
+function gotoSelFinished()
+{
+	window.location = "pageSelFinished.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+}
+
+</script>
+
+
+</html>

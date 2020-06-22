@@ -1,0 +1,24 @@
+.fileBrowser { display:none; position:fixed; text-align:left; top:0; left:0; z-index:100; width:100%; height:100%; background-color:rgba(0,0,0,0.95); color:#bbb;  }
+.fileBrowser_container { padding:10px; height:90%; overflow:auto;}
+.fileBrowser_driveList { margin:0 0 10px 0; padding-bottom:10px; border-bottom:solid 1px #fff; }
+.fileBrowser_driveList b { color:#fff; }
+.fileBrowser_fileList { margin:10px 0 0 0; }
+.fileBrowser_closeBtn { position:absolute; top:5px; right:25px; cursor:pointer; background-repeat: no-repeat; background-image:url(../img/close32x32.png); min-width:32px; min-height:32px;}
+
+.fileBrowser_saveBtn 	{ cursor:pointer; background-color:#e81c19; padding:8px; color:#fff; border-radius:6px; font-weight:bold;}
+.fileBrowser_saveBtn:hover { background-color:#ff201c; }
+
+.fileBrowser_customTextAtTop { margin: 10px 0 30px 0; padding:15px; background-color:#aaa; color:#fff; }
+.fileBrowser ul.FSFileList { margin:0; padding:0; list-style-type:none; }
+.fileBrowser ul.FSFileList li { cursor: pointer; }
+.fileBrowser ul.FSFileList li:hover { background-color:#444; color:#fff; }
+.fileBrowser ul.FSFileList li img { float:left; margin:0 2px 0 0; padding:0;}
+.fileBrowser ul.FSFileList li p { display:inline-block; margin:0; padding:0;}
+
+.fileBrowser ul.FSDriveList { margin:0; padding:0; list-style-type:none;}
+.fileBrowser ul.FSDriveList li { cursor: pointer; }
+.fileBrowser ul.FSDriveList li:hover { background-color:#444; color:#fff; }
+.fileBrowser ul.FSDriveList li { display:inline-block; margin:0 20px 0 0; padding:0;}
+
+span.fileBrowser_folderIcon { display:inline-block; background-repeat: no-repeat; background-image:url(../img/FSIconFolder16.png); min-width:16px;}
+span.fileBrowser_fileIcon { display:inline-block; background-repeat: no-repeat; background-image:url(../img/FSIconFile16.png); min-width:16px;}

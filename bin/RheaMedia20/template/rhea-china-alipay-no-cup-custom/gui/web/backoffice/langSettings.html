@@ -1,0 +1,208 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+	<style>
+		ul.langList    { list-style-type:none; margin:0; padding: 0;}
+		ul.langList li { display:inline-block; margin:0; padding:0; width:160px; }
+	</style>
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Language settings</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>		
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<h2>Languages</h2>	
+					
+					<div class="box-content">
+						<div class="tip">Select which languages will be available to the final user</div>
+						<div id="divLanguages"></div>
+						
+						<hr>
+						Select the default language <select class="combo" id="defaultLang"></select>
+					</div>
+				</div>				
+				
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+
+<script src="js/buildConfigFile.js"></script>
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/multilangElem.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var db = null;
+
+var allLang = [];
+	
+//***********************************************************
+function setupLangBox()
+{
+	var comboDefLang = document.getElementById("defaultLang");
+	var html = "<ul class='langList'>";
+	for (var i=0; i<allLang.length; i++)
+	{
+		var iso = allLang[i].iso;
+		var descr = allLang[i].lngDescription;
+		html += "<li><div class='checkboxFive' data-input-id='lang" +iso +"'></div><img src='img/flags/" +iso +".svg' style='height:20px'> " +descr +"</li>";
+		
+		
+		var opt = document.createElement("option");
+			opt.value = iso;
+			opt.innerHTML = descr;
+			comboDefLang.appendChild(opt);		
+	}
+	html += "</ul>";
+	$("#divLanguages").html (html);
+}
+
+//***********************************************************
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+	
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+
+	//load elenco delle lingue disponibili
+	let rst = await db.q("SELECT ISO,LocalName FROM allLanguages ORDER BY IndexVis");
+	if (rst.hasError() != "")
+	{
+		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
+		return;
+	}
+	
+	for (var r=0; r<rst.getNumRows(); r++)
+	{
+		var iso = rst.valByColName(r, "ISO");
+		var s = rst.valByColName(r, "LocalName");
+		
+		var o = {"iso": iso, "lngDescription":s};
+		allLang.push (o);
+	}
+	
+	
+	//setup del box dei linguaggi
+	setupLangBox();
+	setupCheckboxes();
+
+
+	//load dei general settings
+	rst = await db.q("SELECT * FROM generalset WHERE HIS_ID=" +historyID);
+	if (rst.hasError() != "")
+	{
+		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
+		return;
+	}
+	
+	$("#defaultLang").val(rst.valByColName(0, "defaultLang"));
+	
+	var s = rst.valByColName(0, "allowedLang").split(",");
+	for (var i=0; i<s.length;i++)
+	{
+		$("#lang" +s[i]).prop("checked", true);
+	}
+	
+	//carico e creo i controlli per il messaggio in ML	
+	//ml_message = new MultilangElem("txtMessage", "STDBY_MSG", "700px", "EN,FR,IT,ES,DE,NL,JP,CN,HE");
+	//await ml_message.load(db);
+	
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+}
+
+async function saveAll()
+{
+	var defaultLang = $("#defaultLang").val();
+	
+	//elenco delle lingue supportate (voglio che la lingua di default sia sempre la prima della lista)
+	var bDefaultLangSelected = 0;
+	var allowedLang= defaultLang;
+	for (var i=0; i<allLang.length; i++)
+	{
+		var iso = allLang[i].iso;
+		if ($("#lang" +iso).prop("checked") == true)
+		{
+			if (iso == defaultLang)
+				bDefaultLangSelected = 1;
+			else
+				allowedLang += "," +iso;
+		}
+	}
+	
+	if (allowedLang=="")
+	{
+		alert ("WARN: You need to choose at least one language.");
+		return;
+	}
+	if (allowedLang.split(",").length > 8)
+	{
+		alert ("WARN: You can't choose more than 8 different languages.");
+		return;
+	}
+	
+	if (!bDefaultLangSelected)
+	{
+		alert ("WARN: Your default language (" +defaultLang +") must be one of the allowed languages.");
+		return;
+	}
+	
+	//*** overlay text & slide show duration
+	var sql = "UPDATE generalset SET"
+			+ " allowedLang='" +allowedLang +"'"
+			+ ",defaultLang='" +defaultLang +"'"
+			+ " WHERE HIS_ID=" +historyID;
+			
+	
+	pleaseWait(1);
+
+	await db.exec (sql);
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	await buildConfigFile_allowedLang(db, historyID);	
+	pleaseWait(0);
+}
+
+</script>
+</html>

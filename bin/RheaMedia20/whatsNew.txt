@@ -1,0 +1,30 @@
+================================================================================================
+ver 2.3 2020/06/10
+	release
+	
+================================================================================================
+ver 2.0.1 2020/04/10
+	Bug fixing
+		-	Template "nestle-2.0-template-001"
+			- 	Fixed "language names" in page "Language settings". Some language names where not the right one.
+			-	Fixed a bug in page "MMI edit". 
+				Advanced cup customization info where not saved correctly when inserted during the creation of a new MMI, while editing an already existing MMI was already working as intended.
+			-	Configuration "AAA Empty" now has default (not empty) labels for cup customization  buttons
+			
+
+================================================================================================
+ver 2.0, 2020/03/31
+	Features
+		- 	Added version number and release date to the console window (the black one that opens when clicking on rheaMedia2.0 program)
+	
+		-	Template "nestle-2.0-template-001"
+				- added a button for "milker washing" in the shorcut window (3 click on top left corner when in main menu page to show the shortcut window)
+				- in "page confirm", if there's no nutritional info, the icon is now hidden
+				- in "page confirm", for selection with no cup customization, the selection description is now shown on the right
+				- removed the ability to customize the message for the stop button from rheaMedia "Various messages" page
+				
+	Bug fixing
+		-	Template "nestle-2.0-template-001"
+			- 	When editing a selection (page MMI edit), inserting text with one or more "new line" in the "SELECTION DESCRIPTION" field could cause the text not be shown in the "sel in progress page".
+				The same problem, could also cause the "nutritional info" image not to be shown.
+				

@@ -1,0 +1,13 @@
+var rheaMainMenuIcons = [{selNum:1,size:"100",pageMenuImg:"Drink_espresso.png",pageConfirmImg:"Drink_espresso.png"},
+{selNum:0,size:"011",pageMenuImg:"Drink_espressoLong.png",pageConfirmImg:"Drink_espressoLong.png",dblShot:0,grinder2:0,linkedSelection:[[[0,0],[2,2],[3,3]],[[0,0],[2,2],[3,3]],],defaultSelection:[0,1,0]},
+{selNum:4,size:"100",pageMenuImg:"Drink_cortado.png",pageConfirmImg:"Drink_cortado.png"},
+{selNum:0,size:"011",pageMenuImg:"Drink_cappuccino.png",pageConfirmImg:"Drink_cappuccino.png",dblShot:1,grinder2:0,linkedSelection:[[[0,0],[5,6],[7,8]],[[0,0],[5,6],[7,8]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"111",pageMenuImg:"Drink_babyccino.png",pageConfirmImg:"Drink_babyccino.png",dblShot:0,grinder2:0,linkedSelection:[[[9,9],[10,10],[11,11]],[[9,9],[10,10],[11,11]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"011",pageMenuImg:"Drink_latteMacchiato.png",pageConfirmImg:"Drink_latteMacchiato.png",dblShot:1,grinder2:0,linkedSelection:[[[0,0],[12,13],[14,15]],[[0,0],[12,13],[14,15]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"011",pageMenuImg:"Drink_moccacino.png",pageConfirmImg:"Drink_moccacino.png",dblShot:1,grinder2:0,linkedSelection:[[[0,0],[16,17],[18,19]],[[0,0],[16,17],[18,19]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"011",pageMenuImg:"Drink_darkChocolate.png",pageConfirmImg:"Drink_darkChocolate.png",dblShot:0,grinder2:0,linkedSelection:[[[0,0],[20,20],[21,21]],[[0,0],[20,20],[21,21]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"011",pageMenuImg:"Drink_darkChocolate.png",pageConfirmImg:"Drink_darkChocolate.png",dblShot:0,grinder2:0,linkedSelection:[[[0,0],[22,22],[23,23]],[[0,0],[22,22],[23,23]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"011",pageMenuImg:"Drink_milkChocolate.png",pageConfirmImg:"Drink_milkChocolate.png",dblShot:0,grinder2:0,linkedSelection:[[[0,0],[24,24],[25,25]],[[0,0],[24,24],[25,25]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"111",pageMenuImg:"Drink_espresso.png",pageConfirmImg:"Drink_espresso.png",dblShot:0,grinder2:0,linkedSelection:[[[26,26],[27,27],[28,28]],[[26,26],[27,27],[28,28]],],defaultSelection:[0,0,0]},
+{selNum:0,size:"011",pageMenuImg:"Drink_hotWater.png",pageConfirmImg:"Drink_hotWater.png",dblShot:0,grinder2:0,linkedSelection:[[[0,0],[29,29],[30,30]],[[0,0],[29,29],[30,30]],],defaultSelection:[0,1,0]},
+];
