@@ -1,5 +1,6 @@
 #include "ESAPI.h"
 #include "ESAPICore.h"
+#include "../rheaCommonLib/rheaUtils.h"
 
 
 struct sEsapiThreadInitParam
@@ -53,18 +54,8 @@ i16 esapiThreadFn (void *userParam)
 
 	return 1;
 }
-
-//****************************************************************************
-u8 esapi::calcChecksum (const u8 *buffer, u32 numBytesToUse)
-{
-	u8 ck = 0;
-	for (u32 i = 0; i < numBytesToUse; i++)
-		ck += buffer[i];
-	return ck;
-}
-
 //****************************************************************************
 bool esapi::isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse)
 {
-	return (ck == esapi::calcChecksum(buffer, numBytesToUse));
+	return (ck == rhea::utils::simpleChecksum8_calc(buffer, numBytesToUse));
 }

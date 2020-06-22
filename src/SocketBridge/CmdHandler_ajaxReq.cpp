@@ -42,7 +42,7 @@
 #include "CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h"
 #include "CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.h"
-
+#include "CmdHandler/CmdHandler_ajaxReqGetCurSelRunning.h"
 
 using namespace socketbridge;
 
@@ -117,6 +117,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore);
 	CHECK(CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore);
 	CHECK(CmdHandler_ajaxReq_M_MilkerVer);
+	CHECK(CmdHandler_ajaxReqGetCurSelRunning);
 
 #undef CHECK
     return NULL;

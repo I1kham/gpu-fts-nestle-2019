@@ -54,6 +54,28 @@ function onAfterLangLoaded()
 		}
 	}
 	
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		//status=1 => wait
+		//status=2 => running
+		//status=5 => running, stop btn can be shown
+		if (status == 1 || status == 2|| status == 5)
+		{
+			//è partita una selezione "spontanea" (probabilmente tramite interfaccia wifi).
+			//Me ne sono accorto, per cui voglio andare in pagina pageSelInProgress.html
+
+			//chiedo il num della selezione running
+			rhea.ajax ("getCurSelRunning", "").then( function(result)
+			{
+				var selNum = parseInt(result);
+				var iconNum = MMI_fromSelNumToIconNum(selNum);
+				window.location = "pageSelInProgress.html?iconMenu=" +iconNum +"&selNum" +selNum;
+			})
+			.catch( function(result)
+			{
+			});	
+		}
+	}	
 	
 	
 	setupOverlay();

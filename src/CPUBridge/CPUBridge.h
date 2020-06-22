@@ -171,6 +171,9 @@ namespace cpubridge
 	void		notify_CPU_STATE_CHANGED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eVMCState VMCstate, u8 VMCerrorCode, u8 VMCerrorType, u16 flag1);
 	void		translateNotify_CPU_STATE_CHANGED (const rhea::thread::sMsg &msg, eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType, u16 *out_flag1);
 
+	void		notify_CPU_CUR_SEL_RUNNING(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum);
+	void		translateNotify_CPU_CUR_SEL_RUNNING(const rhea::thread::sMsg &msg, u8 *out_selNum);
+
 	void		notify_CPU_NEW_LCD_MESSAGE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPULCDMessage *msg);
 	void		translateNotify_CPU_NEW_LCD_MESSAGE(const rhea::thread::sMsg &msg, sCPULCDMessage *out_msg);
 
@@ -353,6 +356,9 @@ namespace cpubridge
 
     void		ask_CPU_QUERY_STATE (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_STATE_CHANGED
+
+	void		ask_CPU_QUERY_CUR_SEL_RUNNING(const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_CUR_SEL_RUNNING
 
     void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID);
                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_DATA_AUDIT_PROGRESS.

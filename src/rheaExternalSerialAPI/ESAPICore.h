@@ -4,6 +4,7 @@
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
+#include "../rheaCommonLib/rheaFastArray.h"
 #include "../CPUBridge/CPUBridge.h"
 
 
@@ -23,7 +24,8 @@ namespace esapi
 		static const u32		WAITLIST_EVENT_FROM_CPUBRIDGE	= 0x00400000;
 		static const u8			API_VERSION_MAJOR = 1;
 		static const u8			API_VERSION_MINOR = 0;
-		static const u32		SIZE_OF_ANSWER_BUFFER = 1024;
+		static const u32		SIZE_OF_RS232BUFFEROUT = 1024;
+		static const u32		SIZE_OF_SOKBUFFER = 2048;
 
 		struct sBuffer
 		{
@@ -33,6 +35,23 @@ namespace esapi
 			u32	SIZE;
 
 		public:
+			sBuffer() { buffer = NULL; SIZE = 0; numBytesInBuffer = 0; }
+
+			void	alloc (rhea::Allocator *allocator, u16 max_size)
+					{
+						this->SIZE = max_size;
+						this->numBytesInBuffer = 0;
+						this->buffer = (u8*)RHEAALLOC(allocator, max_size);
+					}
+			void	free (rhea::Allocator *allocator)
+					{
+						this->numBytesInBuffer = 0;
+						this->SIZE = 0;
+						if (NULL != this->buffer)
+							RHEAFREE(allocator, this->buffer);
+						this->buffer = NULL;
+					}
+
 			bool	appendU8 (u8 d)
 					{
 						if (this->numBytesInBuffer + 1 > SIZE)
@@ -85,20 +104,30 @@ namespace esapi
 			cpubridge::eRunningSelStatus	status;
 		};
 
+		struct sConnectedSocket
+		{
+			u32			uid;
+			OSSocket	sok;
+		};
+
 	private:
 		void					priv_close();
-		void					priv_allocBuffer(sBuffer *out, u16 max_size);
-		void					priv_freeBuffer (sBuffer &b);
 		bool					priv_subscribeToCPUBridge();
 		void					priv_handleIncomingMsgFromCPUBridge();
-		void					priv_handleSerialCommunication (OSSerialPort &comPort, sBuffer &b);
-		void					priv_sendBuffer (OSSerialPort &comPort, const u8 *buffer, u32 numBytesToSend);
-		void					priv_buildAndSendAnswer (OSSerialPort &comPort, u8 commandChar, const u8* optionalData, u32 numOfBytesInOptionalData);
-		bool					priv_utils_parseCommand (sBuffer &b, u32 expectedCommandLen, bool *out_atLeastOneByteConsumed);
-		bool					priv_handleCommand_A (OSSerialPort &comPort, sBuffer &b);
-		bool					priv_handleCommand_C (OSSerialPort &comPort, sBuffer &b);
-		bool					priv_handleCommand_S (OSSerialPort &comPort, sBuffer &b);
 		void					priv_onCPUNotify_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg);
+
+		void					priv_rs232_handleCommunication (OSSerialPort &comPort, sBuffer &b);
+		void					priv_rs232_sendBuffer (OSSerialPort &comPort, const u8 *buffer, u32 numBytesToSend);
+		void					priv_rs232_buildAndSendMsg (OSSerialPort &comPort, u8 commandChar, const u8* optionalData, u32 numOfBytesInOptionalData);
+		bool					priv_rs232_utils_parseCommand (sBuffer &b, u32 expectedCommandLen, bool *out_atLeastOneByteConsumed);
+		bool					priv_rs232_handleCommand_A (OSSerialPort &comPort, sBuffer &b);
+		bool					priv_rs232_handleCommand_C (OSSerialPort &comPort, sBuffer &b);
+		bool					priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b);
+		bool					priv_rs232_handleCommand_S (OSSerialPort &comPort, sBuffer &b);
+		
+		sConnectedSocket*		priv_2280_findConnectedSocketByUID (u32 uid);
+		void					priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid);
+		void					priv_2280_onClientDisconnected (OSSocket &sok, u32 uid);
 
 	private:
 		rhea::Allocator         *localAllocator;
@@ -110,8 +139,10 @@ namespace esapi
 		sBuffer					serialBuffer;
 		bool					bQuit;
 		cpubridge::sSubscriber	cpuBridgeSubscriber;
-		u8						*answerBuffer;
+		u8						*rs232BufferOUT;
+		u8						*sokBuffer;
 		sRunningSel				runningSel;
+		rhea::FastArray<sConnectedSocket>			sockettList;
 
 	};
 

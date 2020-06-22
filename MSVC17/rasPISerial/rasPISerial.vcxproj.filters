@@ -2,5 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\src\rasPISerial\main.cpp" />
+    <ClCompile Include="..\..\src\rasPISerial\raspiCore.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\rasPISerial\raspiCore.h" />
   </ItemGroup>
 </Project>

@@ -1,21 +1,14 @@
-#include "../rheaCommonLib/rhea.h"
-#include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
-
+#include "raspiCore.h"
 
 //*****************************************************
 bool startSocket2280 (rhea::ISimpleLogger *logger)
 {
-    OSSocket sok;
-    rhea::socket::init (&sok);
-
-    logger->log ("opening socket on 2280...");
-    eSocketError err = rhea::socket::openAsTCPServer(&sok, 2280);
-    if (err != eSocketError_none)
-    {
-        logger->log ("ERR code[%d]\n", err);
-        logger->log("\n");
-        return false;
-    }
+	raspi::Core core;
+	core.useLogger (logger);
+	if (!core.open ("COM3"))
+		return false;
+	core.run();
+	return true;
 }
 
 
@@ -25,9 +18,9 @@ int main()
 {
 #ifdef WIN32
 	HINSTANCE hInst = NULL;
-    rhea::init("rheaRasPISerial", &hInst);
+    rhea::init("rheaRasPIESAPI", &hInst);
 #else
-	rhea::init("rheaRasPISerial", NULL);
+	rhea::init("rheaRasPIESAPI", NULL);
 #endif
 
 

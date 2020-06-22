@@ -557,6 +557,24 @@ void cpubridge::translateNotify_CPU_STATE_CHANGED(const rhea::thread::sMsg &msg,
 }
 
 //***************************************************
+void cpubridge::notify_CPU_CUR_SEL_RUNNING(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum)
+{
+	logger->log("notify_CPU_CUR_SEL_RUNNING\n");
+
+	u8 state[2];
+	state[0] = selNum;
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CUR_SEL_RUNNING, handlerID, state, 1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_CUR_SEL_RUNNING(const rhea::thread::sMsg &msg, u8 *out_selNum)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_CUR_SEL_RUNNING);
+	const u8 *data = (u8*)msg.buffer;
+	*out_selNum = data[0];
+}
+
+//***************************************************
 void cpubridge::notify_CPU_CREDIT_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const void *credit, u8 sizeOfCredit)
 {
 	logger->log("notify_CPU_CREDIT_CHANGED\n");
@@ -1600,6 +1618,12 @@ void cpubridge::ask_CPU_QUERY_CURRENT_CREDIT(const sSubscriber &from, u16 handle
 void cpubridge::ask_CPU_QUERY_STATE(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_QUERY_CUR_SEL_RUNNING(const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_CUR_SEL_RUNNING, handlerID);
 }
 
 //***************************************************

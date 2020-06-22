@@ -94,6 +94,22 @@ void TaskImportExistingGUI::run (socketbridge::TaskStatus *status, const u8 *par
 			return;
 		}
 
+		//nella cartella config devo sovrascrivere i 2 file lang.js e MMI.js prendendoli direttamente dal template
+		sprintf_s((char*)src, sizeof(src), "%s/web/config/lang.js", templateSrcPath);
+		if (rhea::fs::fileExists(src))
+		{
+			sprintf_s((char*)dst, sizeof(dst), "%s/web/config/lang.js", dstPath);
+			rhea::fs::fileCopy(src, dst);
+		}
+
+		sprintf_s((char*)src, sizeof(src), "%s/web/config/MMI.js", templateSrcPath);
+		if (rhea::fs::fileExists(src))
+		{
+			sprintf_s((char*)dst, sizeof(dst), "%s/web/config/MMI.js", dstPath);
+			rhea::fs::fileCopy(src, dst);
+		}
+
+
 		//copio il DB a meno che non ci sia un disallineamento tra le versioni
 		if (rhea::string::utf8::toI32(templateVer) == 0)
 		{

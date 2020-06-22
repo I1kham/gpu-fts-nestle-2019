@@ -432,6 +432,13 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			notify_CPU_STATE_CHANGED(sub->q, handlerID, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_QUERY_CUR_SEL_RUNNING:
+			if (cpuStatus.VMCstate == eVMCState_PREPARAZIONE_BEVANDA)
+				notify_CPU_CUR_SEL_RUNNING(sub->q, handlerID, logger, this->runningSel.getSelNum());
+			else
+				notify_CPU_CUR_SEL_RUNNING(sub->q, handlerID, logger, 0);
+			break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
 			if (stato.get() == sStato::eStato_normal)
 				priv_downloadDataAudit(&sub->q, handlerID);

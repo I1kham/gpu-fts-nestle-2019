@@ -14,7 +14,6 @@ namespace esapi
 						[out_hThread]				è l'handle del thread che è stato creato
 				*/
 
-	u8			calcChecksum (const u8 *buffer, u32 numBytesToUse);
 	bool		isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse);
 
 } // namespace esapi
