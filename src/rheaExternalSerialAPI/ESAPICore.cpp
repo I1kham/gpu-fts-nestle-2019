@@ -226,49 +226,25 @@ void Core::priv_handleIncomingMsgFromCPUBridge()
 
             case CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE:
                 //risposta al comando # C 1
-                //to send:   # C 1 [len_LSB_MSB] [messageUTF16_LSB_MSB] [ck]
                 {
 	                cpubridge::sCPULCDMessage lcdMsg;
 	                translateNotify_CPU_NEW_LCD_MESSAGE(msg, &lcdMsg);
 
 	                const u16 msgLenInBytes = rhea::string::utf16::lengthInBytes(lcdMsg.utf16LCDString);
-
-                    u32 ct = 0;
-                    rs232BufferOUT[ct++] = '#';
-                    rs232BufferOUT[ct++] = 'C';
-                    rs232BufferOUT[ct++] = '1';
-                    rhea::utils::bufferWriteU16_LSB_MSB (&rs232BufferOUT[ct], msgLenInBytes);
-                    ct += 2;
-                    if (msgLenInBytes > 0)
-                    {
-                        memcpy(&rs232BufferOUT[ct], lcdMsg.utf16LCDString, msgLenInBytes);
-                        ct += msgLenInBytes;
-                    }
-
-                    rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct-1);
-                    priv_rs232_sendBuffer (com, rs232BufferOUT, ct+1);
+                    const u32 n = esapi::buildMsg_C1_getCPUScreenMsg_resp (lcdMsg.utf16LCDString, msgLenInBytes, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+                    priv_rs232_sendBuffer (com, rs232BufferOUT, n);
                 }
                 break;
 
 
             case CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED:
                 //risposta al comando # C 2
-                //to send:   # C 2 [avail1-8] [avail9-16] [avail17-24] [...] [avail121-128] [ck]
                 {
 	                cpubridge::sCPUSelAvailability selAvail;
 	                cpubridge::translateNotify_CPU_SEL_AVAIL_CHANGED(msg, &selAvail);
 
-                    rs232BufferOUT[0] = '#';
-                    rs232BufferOUT[1] = 'C';
-                    rs232BufferOUT[2] = '2';
-                    memset (&rs232BufferOUT[3], 0x00, 16);
-	                for (u8 i = 1; i <= NUM_MAX_SELECTIONS; i++)
-	                {
-                        if (selAvail.isAvail(i))
-                            rhea::bit::set (&rs232BufferOUT[3], 16, i-1);
-	                }
-                    rs232BufferOUT[19] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, 19);
-                    priv_rs232_sendBuffer (com, rs232BufferOUT, 20);
+                    const u32 n = esapi::buildMsg_C2_getSelAvailability_resp (selAvail, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+                    priv_rs232_sendBuffer (com, rs232BufferOUT, n);
                 }
                 break;
 
@@ -354,52 +330,6 @@ void Core::priv_rs232_sendBuffer (OSSerialPort &comPort, const u8 *buffer, u32 n
     rhea::rs232::writeBuffer (comPort, buffer, numBytesToSend);
 }
 
-//*********************************************************
-void Core::priv_rs232_buildAndSendMsg (OSSerialPort &comPort, u8 commandChar, const u8* optionalData, u32 numOfBytesInOptionalData)
-{
-    u32 ct = 0;
-    rs232BufferOUT[ct++] = '#';
-    rs232BufferOUT[ct++] = commandChar;
-    if (NULL != optionalData && numOfBytesInOptionalData)
-    {
-        memcpy (&rs232BufferOUT[ct], optionalData, numOfBytesInOptionalData);
-        ct += numOfBytesInOptionalData;
-    }
-
-    rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
-    ct++;
-
-    priv_rs232_sendBuffer (comPort, rs232BufferOUT, ct);
-}
-
-/*********************************************************
-    ritorna true se nel buffer c'è un valido messaggio. Un valido messaggio è lungo [expectedCommandLen] bytes e la sua checksum è valida.
-    ritorna false altrimenti.
-
-    [out_atLeastOneByteConsumed] viene messo a true se la fn consuma almeno un byte di buffer
-*/
-bool Core::priv_rs232_utils_parseCommand (sBuffer &b, u32 expectedCommandLen, bool *out_atLeastOneByteConsumed)
-{
-    assert (b.numBytesInBuffer >= 2 & b.buffer[0] == '#');
-
-    *out_atLeastOneByteConsumed = false;
-    
-    //ci devono essere almeno [expectedCommandLen] byte nel buffer, altrimenti devo aspettare che ne arrivino altri
-    if (b.numBytesInBuffer < expectedCommandLen)
-        return false;
-
-    //ok, posto che ci sono i byte, vediamo se la ck è valida
-    if (!esapi::isValidChecksum(b.buffer[expectedCommandLen-1], b.buffer, expectedCommandLen-1))
-    {
-        *out_atLeastOneByteConsumed = true;
-        b.removeFirstNBytes(2);
-        return false;
-    }
-
-    //abbiamo un messaggio completo e con la ck corretta
-    return true;
-}
-
 /*********************************************************
  * ritorna true se ha consumato qualche byte di buffer.
  * ritorna false altrimenti. In questo caso, vuol dire che i byte in buffer sembravano essere un valido messaggio ma probabilmente manca ancora qualche
@@ -421,18 +351,26 @@ bool Core::priv_rs232_handleCommand_A (OSSerialPort &comPort, sBuffer &b)
         return true;
 
     case '1': 
-        //API version
-        //rcv:      # A 1 [ck]  ck=149
-        //answer:   # A 1 [api_ver_major] [api_ver_minor] [gpuModel] [ck]
+        //ho ricevuto un ask A1 Api version
         {
-            const u8 MSGLEN = 4;
-            if (!priv_rs232_utils_parseCommand(b, MSGLEN, &ret))
-                return ret;
+           //parse del messaggio
+            bool bValidCk = false;
+            const u32 MSG_LEN = esapi::buildMsg_A1_getAPIVersion_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+        
+            //rimuovo msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
             //rispondo
-            const u8 data[4] = { commandCode, API_VERSION_MAJOR, API_VERSION_MINOR, 0x00 };
-            priv_rs232_buildAndSendMsg (comPort, COMMAND_CHAR, data, sizeof(data));
-            b.removeFirstNBytes(MSGLEN);
+            const u32 n = esapi::buildMsg_A1_getAPIVersion_resp (API_VERSION_MAJOR, API_VERSION_MINOR, esapi::eGPUType_TS, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+            priv_rs232_sendBuffer (comPort, rs232BufferOUT, n);
+
             return true;
         }
         break;
@@ -458,35 +396,47 @@ bool Core::priv_rs232_handleCommand_C (OSSerialPort &comPort, sBuffer &b)
         return true;
 
     case '1': 
-        //Query CPU screen message
-        //rcv:      # C 1 [ck]   ck=151
-        //answer:   # C 1 [len_LSB_MSB] [messageUTF16_LSB_MSB] [ck]
+        //Ho ricevuto un ask C1 query LCD message
         {
-            const u8 MSGLEN = 4;
-            if (!priv_rs232_utils_parseCommand(b, MSGLEN, &ret))
-                return ret;
-
+           //parse del messaggio
+            bool bValidCk = false;
+            const u32 MSG_LEN = esapi::buildMsg_C1_getCPUScreenMsg_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+        
+            //rimuovo msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
+        
             //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi priv_handleIncomingMsgFromCPUBridge)
             cpubridge::ask_CPU_QUERY_LCD_MESSAGE (this->cpuBridgeSubscriber, 0x01);
-
-            b.removeFirstNBytes(MSGLEN);
             return true;
         }
         break;
 
     case '2': 
-        //Get selection availability
-        //rcv:      # C 2 [ck] ck=152
-        //answer:   # C 2 [avail1-8] [avail9-16] [avail17-24] [...] [avail121-128] [ck]
+        //Ho ricevuto un ask C2 Get selections availability
         {
-            const u8 MSGLEN = 4;
-            if (!priv_rs232_utils_parseCommand(b, MSGLEN, &ret))
-                return ret;
+           //parse del messaggio
+            bool bValidCk = false;
+            const u32 MSG_LEN = esapi::buildMsg_C2_getSelAvailability_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+        
+            //rimuovo msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
             //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi priv_handleIncomingMsgFromCPUBridge)
             cpubridge::ask_CPU_QUERY_SEL_AVAIL (this->cpuBridgeSubscriber, 0x01);
-
-            b.removeFirstNBytes(MSGLEN);
             return true;
         }
         break;
@@ -513,41 +463,57 @@ bool Core::priv_rs232_handleCommand_S (OSSerialPort &comPort, sBuffer &b)
         return true;
 
     case '1': 
-        //Start selection
-        //rcv:      # S 1 [sel_num] [ck]
-        //answer:   # S 1 [sel_num] [ck]
+        //Ho ricevuto un ask S1 Start selection
         {
-            const u8 MSGLEN = 5;
-            if (!priv_rs232_utils_parseCommand(b, MSGLEN, &ret))
-                return ret;
+            //parse del messaggio
+            bool bValidCk = false;
+            u8 selNumber = 0;
+            const u32 MSG_LEN = esapi::buildMsg_S1_startSelection_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &selNumber);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
             //chiedo a CPUBridge di iniziare la selezione indicata. CPUBrdige risponderà con una serie di notify_CPU_RUNNING_SEL_STATUS() per
             //indicare lo stato di avanzamento della selezione
             runningSel.status = cpubridge::eRunningSelStatus_wait;
-            const u8 selNumber = b.buffer[2];
             const u16 price = 0xffff; //serve per fare in modo che la CPU gestisca lei il pagamento
             cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (this->cpuBridgeSubscriber, selNumber, price, cpubridge::eGPUPaymentType_unknown);
 
             //rispondo via seriale confermando di aver ricevuto il msg
-            priv_rs232_sendBuffer (comPort, b.buffer, MSGLEN);
-            b.removeFirstNBytes(MSGLEN);
+            const u32 n = buildMsg_S1_startSelection_resp (selNumber, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+            priv_rs232_sendBuffer (comPort, rs232BufferOUT, n);
+
             return true;
         }
         break;
 
     case '2': 
-        //Query selection status
-        //rcv:      # S 2 [ck]
-        //answer:   # S 2 [status] [ck]
+        //Ho ricevuto un ask S2 query selection status
         {
-            const u8 MSGLEN = 4;
-            if (!priv_rs232_utils_parseCommand(b, MSGLEN, &ret))
-                return ret;
+            //parse del messaggio
+            bool bValidCk = false;
+            const u32 MSG_LEN = esapi::buildMsg_S2_querySelectionStatus_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
             //rispondo
-            const u8 data[2] = { commandCode, (u8)runningSel.status };
-            priv_rs232_buildAndSendMsg (comPort, COMMAND_CHAR, data, 2);
-            b.removeFirstNBytes(MSGLEN);
+            const u32 n = esapi::buildMsg_S2_querySelectionStatus_resp (runningSel.status, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+            priv_rs232_sendBuffer (comPort, rs232BufferOUT, n);
             return true;
         }
         break;
@@ -574,22 +540,30 @@ bool Core::priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b)
 		return true;
 
 	case '1':
-		//External module identify
-		//rcv:      # R 1 [moduleType] [verMajor] [verMinor] [ck]
-		//answer:   # R 1 [result] [ck]
+		//Ho ricevuto un ask R1 External module identify
 		{
-			const u8 MSGLEN = 7;
-			if (!priv_rs232_utils_parseCommand(b, MSGLEN, &ret))
-				return ret;
+            //parse del messaggio
+            bool bValidCk = false;
+            eExternalModuleType moduleType;
+            u8 moduleVerMajor;
+            u8 moduleVerMinor;
+            const u32 MSG_LEN = esapi::buildMsg_R1_externalModuleIdentify_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &moduleType, &moduleVerMajor, &moduleVerMinor);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
 
-			const u8 moduleType = b.buffer[3];
-			const u8 moduleVerMajor = b.buffer[4];
-			const u8 moduleVerMinor = b.buffer[5];
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
-			u8 result = 0x00;
+           //rispondo via seriale confermando di aver ricevuto il msg
+            u8 result = 0x00;
 			switch (moduleType)
 			{
-			case 0x01: //modulo rasPI, wifi, restAPI
+			case eExternalModuleType_rasPI_wifi_REST:
 				result = 0x01;
 				break;
 
@@ -598,24 +572,29 @@ bool Core::priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b)
 				break;
 			}
 
-			//rispondo via seriale confermando di aver ricevuto il msg
-			const u8 data[2] = { commandCode, result };
-			priv_rs232_buildAndSendMsg(comPort, COMMAND_CHAR, data, 2);
-			b.removeFirstNBytes(MSGLEN);
+            const u32 n = esapi::buildMsg_R1_externalModuleIdentify_resp (result, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+            priv_rs232_sendBuffer (comPort, rs232BufferOUT, n);
 			return true;
 		}
 		break;
 
 	case 0x01:
-		//rasPIESAPI: new socket connected
-		//rcv:	# R [0x01] [client_uid_MSB3] [client_uid_MSB2] [client_uid_MSB1] [client_uid_LSB] [ck]
+		//ho ricevuto un R 0x01 new socket connected
 		{
-			const u8 MSGLEN = 8;
-			if (!priv_rs232_utils_parseCommand(b, MSGLEN, &ret))
-				return ret;
+            //parse del messaggio
+            bool bValidCk = false;
+            u32 socketUID = 0;
+            const u32 MSG_LEN = esapi::buildMsg_R0x01_newSocket_parse (b.buffer, b.numBytesInBuffer, &bValidCk, &socketUID);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
 
-			const u32 uid = rhea::utils::bufferReadU32(&b.buffer[3]);
-			b.removeFirstNBytes(MSGLEN);
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
 			//creo una nuova socket e la metto in comunicazione con sokbridge
 			sConnectedSocket cl;
@@ -627,13 +606,12 @@ bool Core::priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b)
 				logger->log ("FAIL\n");
 				DBGBREAK;
 				//comunico la disconnessione via seriale
-				u8 data[8];
-				rhea::utils::bufferWriteU32(data, uid);
-				priv_rs232_buildAndSendMsg (com, 0x02, data, 4);
+                const u32 n = esapi::buildMsg_R0x02_closeSocket (socketUID, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			    priv_rs232_sendBuffer (com, rs232BufferOUT, n);
 			}
 			else
 			{
-				cl.uid = uid;
+				cl.uid = socketUID;
 				sockettList.append(cl);
 				waitableGrp.addSocket (cl.sok, cl.uid);
 				logger->log ("OK, socket id [%d]\n", cl.uid);
@@ -643,27 +621,27 @@ bool Core::priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b)
 		break;
 
 	case 0x02:
-		//rasPI mi comunica che la socket xxx è stata chiusa
-		//rcv:	# R [0x02] [client_uid_MSB3] [client_uid_MSB2] [client_uid_MSB1] [client_uid_LSB] [ck]
+		//ho ricevuto un R 0x02 socket close
 		{
-			if (b.numBytesInBuffer < 8)
-				return false;
+            //parse del messaggio
+            bool bValidCk = false;
+            u32 socketUID = 0;
+            const u32 MSG_LEN = esapi::buildMsg_R0x02_closeSocket_parse (b.buffer, b.numBytesInBuffer, &bValidCk, &socketUID);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
 
-			const u32 uid = rhea::utils::bufferReadU32 (&b.buffer[3]);
-			const u8 ck = b.buffer[7];
-			if (rhea::utils::simpleChecksum8_calc(b.buffer, 7) != ck)
-			{
-				b.removeFirstNBytes(2);
-				return true;
-			}
-
-			//rimuovo il msg dal buffer di input
-			b.removeFirstNBytes(8);
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
 			//elimino il client
-			sConnectedSocket *cl = priv_2280_findConnectedSocketByUID (uid);
+			sConnectedSocket *cl = priv_2280_findConnectedSocketByUID (socketUID);
 			if (cl)
-				priv_2280_onClientDisconnected (cl->sok, uid);
+				priv_2280_onClientDisconnected (cl->sok, socketUID);
 		}
 		return true;
 
@@ -725,10 +703,8 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 			sockettList.removeAndSwapWithLast(i);
 
 			//comunico la disconnessione via seriale
-			u8 data[8];
-			rhea::utils::bufferWriteU32(data, uid);
-			priv_rs232_buildAndSendMsg (com, 0x02, data, 4);
-
+            const u32 n = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			priv_rs232_sendBuffer (com, rs232BufferOUT, n);
 			logger->log ("socket [%d] disconnected\n", uid);
 			return;
 		}

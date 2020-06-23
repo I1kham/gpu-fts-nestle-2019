@@ -118,8 +118,6 @@ namespace esapi
 
 		void					priv_rs232_handleCommunication (OSSerialPort &comPort, sBuffer &b);
 		void					priv_rs232_sendBuffer (OSSerialPort &comPort, const u8 *buffer, u32 numBytesToSend);
-		void					priv_rs232_buildAndSendMsg (OSSerialPort &comPort, u8 commandChar, const u8* optionalData, u32 numOfBytesInOptionalData);
-		bool					priv_rs232_utils_parseCommand (sBuffer &b, u32 expectedCommandLen, bool *out_atLeastOneByteConsumed);
 		bool					priv_rs232_handleCommand_A (OSSerialPort &comPort, sBuffer &b);
 		bool					priv_rs232_handleCommand_C (OSSerialPort &comPort, sBuffer &b);
 		bool					priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b);

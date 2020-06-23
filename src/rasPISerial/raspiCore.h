@@ -4,6 +4,7 @@
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../rheaCommonLib/rheaFastArray.h"
+#include "../rheaExternalSerialAPI/ESAPI.h"
 
 namespace raspi
 {
@@ -20,8 +21,8 @@ namespace raspi
 	class Core
 	{
 	public:
-					Core ();
-					~Core ()																{ priv_close(); }
+						Core ();
+						~Core ()																{ priv_close(); }
 
 		void            useLogger (rhea::ISimpleLogger *loggerIN);
 
@@ -29,20 +30,10 @@ namespace raspi
 		void			run ();
 
 	private:
-		static const u32	WAITGRP_SOCKET2280 = 0xFFFFFFFF;
-		static const u16	RS232_BUFFEROUT_SIZE = 2048;
-		static const u16	SOKCLIENT_BUFFER_SIZE = 1024;
-		static const u16	SOK_BUFFER_SIZE = 2048;
-
-	private:
-		enum eRSR232Op
-		{
-			eRSR232Op_identify				= '1',
-			eRSR232Op_socketAccept			= 0x01,
-			eRSR232Op_socketClose			= 0x02,
-			eRSR232Op_socketRcv				= 0x03,
-			eRSR232Op_socketSnd				= 0x04
-		};
+		static const u32	WAITGRP_SOCKET2280		= 0xFFFFFFFF;
+		static const u16	RS232_BUFFEROUT_SIZE	= 8192;
+		static const u16	SOKCLIENT_BUFFER_SIZE	= 4096;
+		static const u16	SOK_BUFFER_SIZE			= 8192;
 
 	private:
 		struct sConnectedSocket
@@ -124,15 +115,16 @@ namespace raspi
 		};
 
 	private:
-		void				priv_close ();
-		void				priv_2280_accept();
-		void				priv_2280_onIncomingData (OSSocket &sok, u32 uid);
-		void				priv_2280_onClientDisconnected (OSSocket &sok, u32 uid);
-		sConnectedSocket*	priv_2280_findClientByUID (u32 uid);
+		void					priv_identify();
+		void					priv_close ();
+		void					priv_2280_accept();
+		void					priv_2280_onIncomingData (OSSocket &sok, u32 uid);
+		void					priv_2280_onClientDisconnected (OSSocket &sok, u32 uid);
+		sConnectedSocket*		priv_2280_findClientByUID (u32 uid);
 
-		void				priv_rs232_handleIncomingData (sBuffer &b);
-		void				priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend);
-		void				priv_rs232_buildAndSendMsg (eRSR232Op command, const u8* optionalData, u32 numOfBytesInOptionalData);
+		void					priv_rs232_handleIncomingData (sBuffer &b);
+		void					priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend);
+		bool					priv_rs232_handleCommand_A (sBuffer &b);
 		bool					priv_rs232_handleCommand_R (sBuffer &b);
 
 
@@ -148,6 +140,9 @@ namespace raspi
 		sBuffer					rs232BufferIN;
 		u8						*sok2280Buffer;
 		rhea::FastArray< sConnectedSocket>			clientList;
+		u8						reportedESAPIVerMajor;
+		u8						reportedESAPIVerMinor;
+		esapi::eGPUType			reportedGPUType;
 	};
 } //namespace raspi
 

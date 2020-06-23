@@ -25,6 +25,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPICore.h" />
+    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIEnumAndDefine.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

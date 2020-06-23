@@ -1,16 +1,24 @@
 #include "raspiCore.h"
 
 //*****************************************************
-bool startSocket2280 (rhea::ISimpleLogger *logger)
+bool startESAPI ()
 {
+#ifdef _DEBUG
+	rhea::StdoutLogger loggerSTD; 
+	rhea::ISimpleLogger *logger = &loggerSTD;
+#else
+	rhea::NullLogger loggerNULL;
+	rhea::ISimpleLogger *logger = &loggerNULL;
+#endif
+
 	raspi::Core core;
 	core.useLogger (logger);
-	if (!core.open ("COM3"))
+	if (!core.open ("COM5"))
 		return false;
+	
 	core.run();
 	return true;
 }
-
 
 
 //*****************************************************
@@ -23,7 +31,7 @@ int main()
 	rhea::init("rheaRasPIESAPI", NULL);
 #endif
 
-
+	startESAPI();
 
     rhea::deinit();
     return 0;

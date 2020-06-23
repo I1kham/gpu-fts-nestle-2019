@@ -1,4 +1,5 @@
 #include "raspiCore.h"
+#include "../rheaExternalSerialAPI/ESAPI.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaUtils.h"
 
@@ -91,9 +92,44 @@ void Core::priv_close ()
 	}
 }
 
+/*******************************************************
+ *	In questa fase, invio periodicamente alla GPU il comando #A1 per conoscere la versione di API supportata e per capire quando la GPU
+ *	diventa disponibile.
+ *	Fino a che non ricevo risposta, rimango in questo loop
+ */
+void Core::priv_identify()
+{
+	reportedESAPIVerMajor = 0;
+	reportedESAPIVerMinor = 0;
+	reportedGPUType = esapi::eGPUType_unknown;
+
+	u64 timeToSendMsgMSec = 0;
+	while (1)
+	{
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
+		if (timeNowMSec >= timeToSendMsgMSec)
+		{
+			timeToSendMsgMSec = timeNowMSec + 2000;
+			logger->log ("requesting API version...\n");
+
+			const u32 nBytesToSend = esapi::buildMsg_A1_getAPIVersion_ask (rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
+			priv_rs232_handleIncomingData (rs232BufferIN);
+
+			if (reportedESAPIVerMajor != 0)
+				return;
+		}
+
+		rhea::thread::sleepMSec(100);
+	}
+}
+
 //*******************************************************
 void Core::run()
 {
+	priv_identify();
+
+
 	while (1)
 	{
 		const u8 nEvents = waitableGrp.wait(100);
@@ -124,25 +160,6 @@ void Core::run()
 void Core::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 {
 	rhea::rs232::writeBuffer (com, buffer, numBytesToSend);
-}
-
-//*********************************************************
-void Core::priv_rs232_buildAndSendMsg (eRSR232Op command, const u8* optionalData, u32 numOfBytesInOptionalData)
-{
-	u8 ct = 0;
-	rs232BufferOUT[ct++] = '#';
-	rs232BufferOUT[ct++] = 'R';
-	rs232BufferOUT[ct++] = (u8)command;
-	if (NULL != optionalData && numOfBytesInOptionalData)
-	{
-		memcpy (&rs232BufferOUT[ct], optionalData, numOfBytesInOptionalData);
-		ct += numOfBytesInOptionalData;
-	}
-
-	rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
-	ct++;
-
-	priv_rs232_sendBuffer (rs232BufferOUT, ct);
 }
 
 //*********************************************************
@@ -188,11 +205,55 @@ void Core::priv_rs232_handleIncomingData (sBuffer &b)
 			b.removeFirstNBytes(1);
 			break;
 
+		case 'A':   if (!priv_rs232_handleCommand_A (b)) return;    break;
 		case 'R':   if (!priv_rs232_handleCommand_R (b)) return;    break;
 		}
 
 	} //while(1)
 
+}
+
+/*********************************************************
+ * ritorna true se ha consumato qualche byte di buffer.
+ * ritorna false altrimenti. In questo caso, vuol dire che i byte in buffer sembravano essere un valido messaggio ma probabilmente manca ancora qualche
+ *  bytes al completamento del messaggio stesso. Bisogna quindi attendere che ulteriori byte vengano appesi al buffer
+ */
+bool Core::priv_rs232_handleCommand_A (sBuffer &b)
+{
+    const u8 COMMAND_CHAR = 'A';
+
+    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    const u8 commandCode = b.buffer[2];
+    bool ret;
+
+    switch (commandCode)
+    {
+    default:
+        logger->log ("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
+        b.removeFirstNBytes(2);
+        return true;
+
+    case '1': 
+        //risposta di GPU alla mia richiesta di API Version (A1)
+		{
+			bool bValidCk = false;
+			if (!esapi::buildMsg_A1_getAPIVersion_parseResp (b.buffer, b.numBytesInBuffer, &bValidCk, &this->reportedESAPIVerMajor, &this->reportedESAPIVerMinor, &reportedGPUType))
+				return false;
+
+			if (!bValidCk)
+			{
+				b.removeFirstNBytes(2);
+				return true;
+			}
+
+			logger->log ("reported ESAPI version [%d].[%d], GPUType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
+
+			//rimuovo il msg dal buffer di input
+			b.removeFirstNBytes(7);
+		}
+		return true;
+        break;
+    }
 }
 
 /********************************************************
@@ -217,26 +278,26 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 
 	case 0x02:
 		//GPU mi comunica che la socket xxx è stata chiusa
-		//rcv:	# R [0x02] [client_uid_MSB3] [client_uid_MSB2] [client_uid_MSB1] [client_uid_LSB] [ck]
 		{
-			if (b.numBytesInBuffer < 8)
-				return false;
-
-			const u32 uid = rhea::utils::bufferReadU32 (&b.buffer[3]);
-			const u8 ck = b.buffer[7];
-			if (rhea::utils::simpleChecksum8_calc(b.buffer, 7) != ck)
-			{
-				b.removeFirstNBytes(2);
-				return true;
-			}
-
-			//rimuovo il msg dal buffer di input
-			b.removeFirstNBytes(8);
+           //parse del messaggio
+            bool bValidCk = false;
+			u32 socketUID;
+            const u32 MSG_LEN = esapi::buildMsg_R0x02_closeSocket_parse (b.buffer, b.numBytesInBuffer, &bValidCk, &socketUID);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+        
+            //rimuovo msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
 
 			//elimino il client
-			sConnectedSocket *cl = priv_2280_findClientByUID (uid);
+			sConnectedSocket *cl = priv_2280_findClientByUID (socketUID);
 			if (cl)
-				priv_2280_onClientDisconnected (cl->sok, uid);
+				priv_2280_onClientDisconnected (cl->sok, socketUID);
 		}
 		return true;
 
@@ -311,9 +372,8 @@ void Core::priv_2280_accept()
 	cl.uid = ++sok2280NextID;
 
 	//comunico via seriale che ho accettato una nuova socket
-	u8 data[8];
-	rhea::utils::bufferWriteU32 (data, cl.uid);
-	priv_rs232_buildAndSendMsg (eRSR232Op_socketAccept, data, 4);
+	const u32 nBytesToSend = esapi::buildMsg_R0x01_newSocket (cl.uid, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+	priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 
 	//aggiungo la socket alla lista dei client connessi
 	clientList.append (cl);
@@ -351,24 +411,8 @@ void Core::priv_2280_onIncomingData (OSSocket &sok, u32 uid)
 	}
 
 	//spedisco lungo la seriale
-	u8 ct = 0;
-	rs232BufferOUT[ct++] = '#';
-	rs232BufferOUT[ct++] = 'R';
-	rs232BufferOUT[ct++] = (u8)eRSR232Op_socketRcv;
-
-	rhea::utils::bufferWriteU32 (&rs232BufferOUT[ct], cl->uid);
-	ct += 4;
-
-	rhea::utils::bufferWriteU16 (&rs232BufferOUT[ct], nBytesLetti);
-	ct += 2;
-
-	memcpy (&rs232BufferOUT[ct], sok2280Buffer, nBytesLetti);
-	ct += nBytesLetti;
-
-	rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
-	ct++;
-
-	priv_rs232_sendBuffer (rs232BufferOUT, ct);
+	const u32 nBytesToSend = esapi::buildMsg_R0x03_socketDataToGPU (cl->uid, sok2280Buffer, nBytesLetti, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+	priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 	logger->log ("rcv [%d] bytes from socket [%d], sending to GPU\n", nBytesLetti, cl->uid);
 
 }
@@ -387,10 +431,8 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 			clientList.removeAndSwapWithLast(i);
 
 			//comunico la disconnessione via seriale
-			u8 data[8];
-			rhea::utils::bufferWriteU32(data, uid);
-			priv_rs232_buildAndSendMsg (eRSR232Op_socketClose, data, 4);
-
+			const u32 nBytesToSend = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 			logger->log ("socket [%d] disconnected\n", uid);
 			return;
 		}
