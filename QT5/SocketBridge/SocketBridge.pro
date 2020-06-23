@@ -125,6 +125,7 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSDriveList.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileCopy.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileList.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetCurSelRunning.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMachineTypeAndModel.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSelAvailability.cpp \
@@ -153,7 +154,6 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqDataAudit.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRasPI_getIPandSSID.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelAvailability.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelPrices.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelStatus.cpp \
@@ -173,6 +173,7 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTask.cpp \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
+
 
 
 
@@ -213,6 +214,7 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSDriveList.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileCopy.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSFileList.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetCurSelRunning.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMachineTypeAndModel.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSelAvailability.h \
@@ -241,7 +243,6 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqDataAudit.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqPartialVMCDataFile.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqRasPI_getIPandSSID.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelAvailability.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelPrices.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqSelStatus.h \

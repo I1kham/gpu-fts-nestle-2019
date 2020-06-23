@@ -112,9 +112,9 @@ bool Core::open (const char *serialPort, const HThreadMsgW &hCPUServiceChannelW)
 
     logger->log ("subsribing to cpubridge...");
     if (priv_subscribeToCPUBridge())
-        logger->log ("OK\n");
+        logger->log("OK\n");
     else
-        logger->log ("KO!\n");
+        logger->log("KO!\n");;
 
 	logger->log ("OK\n");
 	logger->decIndent();
@@ -339,9 +339,8 @@ bool Core::priv_rs232_handleCommand_A (OSSerialPort &comPort, sBuffer &b)
 {
     const u8 COMMAND_CHAR = 'A';
 
-    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
     const u8 commandCode = b.buffer[2];
-    bool ret;
 
     switch (commandCode)
     {
@@ -384,9 +383,8 @@ bool Core::priv_rs232_handleCommand_C (OSSerialPort &comPort, sBuffer &b)
 {
     const u8 COMMAND_CHAR = 'C';
 
-    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
     const u8 commandCode = b.buffer[2];
-    bool ret;
 
     switch (commandCode)
     {
@@ -451,9 +449,8 @@ bool Core::priv_rs232_handleCommand_S (OSSerialPort &comPort, sBuffer &b)
 {
     const u8 COMMAND_CHAR = 'S';
 
-    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
     const u8 commandCode = b.buffer[2];
-    bool ret;
 
     switch (commandCode)
     {
@@ -528,9 +525,8 @@ bool Core::priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b)
 {
 	const u8 COMMAND_CHAR = 'R';
 
-	assert(b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert(b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
 	const u8 commandCode = b.buffer[2];
-	bool ret;
 
 	switch (commandCode)
 	{
@@ -654,7 +650,7 @@ bool Core::priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b)
 				return false;
 
 			const u32 uid = rhea::utils::bufferReadU32 (&b.buffer[3]);
-			const u16 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
+            const u32 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
 
 			if (b.numBytesInBuffer < 10 + dataLen)
 				return false;

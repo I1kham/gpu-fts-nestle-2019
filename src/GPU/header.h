@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.2.18_rasPI"
+#define GPU_VERSION     "2.3.1_ESAPI"
 
 
 //nome della porta seriale
@@ -35,13 +35,13 @@ enum eRetCode
     eRetCode_gotoNewMenuProg_lavaggioMilker = 6
 };
 
-struct sModuleRasPI
+struct sModuleESAPI
 {
-    u8  version;
-    u8  futureUse1;
-    u8  futureUse2;
-    u8  futureUse3;
+    esapi::eExternalModuleType moduleType;
+    u8  verMajor;
+    u8  verMinor;
 };
+
 /****************************************************+
  *
  */
@@ -54,7 +54,7 @@ struct sGlobal
     cpubridge::sExtendedCPUInfo extendedCPUInfo;
     u8              bCPUEnteredInMainLoop;
     u8              bIsMilkerAlive;
-    sModuleRasPI    rasPI;
+    sModuleESAPI    esapiModule;
 
     u16     sendASAP_resetCoffeeGroundDecounter;        //se !=0, il relativo comando viene mandato alla CPU non appena questa è pronta a riceverlo
 
