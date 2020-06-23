@@ -12,7 +12,8 @@
 #elif PLATFORM_YOCTO_EMBEDDED
 	#define CPU_COMPORT  "/dev/ttymxc3"
 #else
-	#define CPU_COMPORT  "COM5"
+	#define CPU_COMPORT		"COM5"
+	#define ESAPI_COMPORT	"COM4"
 #endif
 
 //*****************************************************
@@ -35,36 +36,30 @@ bool startCPUBridge()
     bool b = chToCPU->open("/dev/ttymxc3", logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 	
 	//apro un canale con la CPU fisica
-    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
-	//cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM4", logger);
-
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
 #endif
-
 
     if (!b)
         return false;
 
-
-
     //creo il thread di CPUBridge
     rhea::HThread hCPUThread;
 	HThreadMsgW hCPUServiceChannelW;
-
     if (!cpubridge::startServer(chToCPU, logger, &hCPUThread, &hCPUServiceChannelW))
 		return false;
+
 
 	//starto socketBridge che a sua volta si iscriverà a CPUBridge
 	rhea::HThread hSocketBridgeThread;
 	socketbridge::startServer(logger, hCPUServiceChannelW, false, true, &hSocketBridgeThread);
 
 
-	//starto il thread che gestisce le richieste dall'esterno via seriale
+	//starto il thread ESAPI
 	rhea::HThread hESAPIThread;	
-	esapi::startThread ("COM3", hCPUServiceChannelW, logger, &hESAPIThread);
-
+	esapi::startThread (ESAPI_COMPORT, hCPUServiceChannelW, logger, &hESAPIThread);
 
 
 	//attendo che il thread CPU termini
@@ -73,23 +68,6 @@ bool startCPUBridge()
 	return true;
 }
 
-
-/*****************************************************
-void startSyandAloneSocketBridge()
-{
-	rhea::StdoutLogger logger;
-
-	HThreadMsgW hCPUServiceChannelW;
-	hCPUServiceChannelW.setInvalid();
-
-	rhea::HThread hSocketBridgeThread;
-	if (!startSocketBridge(hCPUServiceChannelW, &logger, &hSocketBridgeThread))
-		return;
-
-	//attendo che il thread termini
-	rhea::thread::waitEnd(hSocketBridgeThread);
-}
-*/
 
 
 

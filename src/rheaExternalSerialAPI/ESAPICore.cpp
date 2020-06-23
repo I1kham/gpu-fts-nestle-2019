@@ -150,7 +150,7 @@ void Core::run()
     {
 		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
 		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
-        const u8 nEvents = waitableGrp.wait(100);
+        const u8 nEvents = waitableGrp.wait(10);
 		for (u8 i = 0; i < nEvents; i++)
 		{
 			switch (waitableGrp.getEventOrigin(i))
@@ -233,7 +233,7 @@ void Core::priv_handleIncomingMsgFromCPUBridge()
 
 	                const u16 msgLenInBytes = rhea::string::utf16::lengthInBytes(lcdMsg.utf16LCDString);
 
-                    u16 ct = 0;
+                    u32 ct = 0;
                     rs232BufferOUT[ct++] = '#';
                     rs232BufferOUT[ct++] = 'C';
                     rs232BufferOUT[ct++] = '1';
@@ -293,14 +293,21 @@ void Core::priv_rs232_handleCommunication (OSSerialPort &comPort, Core::sBuffer 
     {
 	    //leggo tutto quello che posso dalla seriale e bufferizzo in [b]
         const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
+
+		if (0 == nBytesAvailInBuffer)
+			DBGBREAK;
+
 	    if (nBytesAvailInBuffer > 0)
 	    {
 		    const u32 nRead = rhea::rs232::readBuffer(comPort, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
 		    b.numBytesInBuffer += (u16)nRead;
+
+			if (nRead)
+				logger->log ("rs232: [%d] in buffer\n", b.numBytesInBuffer);
 	    }
     
-        if (0 == b.numBytesInBuffer)
-            return;
+		if (0 == b.numBytesInBuffer)
+			return;
 
         //provo ad estrarre un msg 'raw' dal mio buffer.
         //Cerco il carattere di inizio buffer ed eventualmente butto via tutto quello che c'è prima
@@ -350,7 +357,7 @@ void Core::priv_rs232_sendBuffer (OSSerialPort &comPort, const u8 *buffer, u32 n
 //*********************************************************
 void Core::priv_rs232_buildAndSendMsg (OSSerialPort &comPort, u8 commandChar, const u8* optionalData, u32 numOfBytesInOptionalData)
 {
-    u8 ct = 0;
+    u32 ct = 0;
     rs232BufferOUT[ct++] = '#';
     rs232BufferOUT[ct++] = commandChar;
     if (NULL != optionalData && numOfBytesInOptionalData)
@@ -753,12 +760,12 @@ void Core::priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid)
 	if (nBytesLetti < 0)
 	{
 		//la chiamata sarebbe stata bloccante, non dovrebbe succedere
-		DBGBREAK;
+		logger->log ("WARN: socket [%d], read bloccante...\n", cl->uid);
 		return;
 	}
 
 	//spedisco lungo la seriale
-	u8 ct = 0;
+	u32 ct = 0;
 	rs232BufferOUT[ct++] = '#';
 	rs232BufferOUT[ct++] = 'R';
 	rs232BufferOUT[ct++] = 0x04;
