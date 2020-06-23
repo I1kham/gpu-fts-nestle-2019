@@ -541,6 +541,7 @@ bool Core::priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b)
 
 	case '1':
 		//Ho ricevuto un ask R1 External module identify
+        //C'è un modulo esterno, collegato alla seriale che vuole identificarsi
 		{
             //parse del messaggio
             bool bValidCk = false;

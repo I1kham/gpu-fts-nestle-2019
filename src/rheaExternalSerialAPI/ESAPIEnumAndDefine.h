@@ -1,9 +1,5 @@
 #ifndef _ESAPIEnumAndDefine_h_
 #define _ESAPIEnumAndDefine_h_
-#include "../rheaCommonLib/rheaFastArray.h"
-#include "../rheaCommonLib/rheaThread.h"
-#include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
-
 
 namespace esapi
 {

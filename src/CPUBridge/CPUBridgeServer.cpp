@@ -1076,6 +1076,20 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 		}
 		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_ESAPI_MODULE_VER_AND_TYPE:
+		{
+			esapi::eExternalModuleType moduleType;
+			u8 verMajor;
+			u8 verMinor;
+			translate_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(msg, &moduleType, &verMajor, &verMinor);
+
+			//notifico tutti quanti che un modulo ESAPI si è presentato
+			for (u32 i = 0; i < subscriberList.getNElem(); i++)
+				notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE (subscriberList(i)->q, 0, logger, moduleType, verMajor, verMinor);
+		}
+		break;
+
 		} //switch
 	} //while
 }

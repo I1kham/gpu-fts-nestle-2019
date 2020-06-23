@@ -1515,7 +1515,27 @@ void cpubridge::translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, ch
 	}
 }
 
+//***************************************************
+void cpubridge::notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, esapi::eExternalModuleType moduleType, u8 verMajor, u8 verMinor)
+{
+	logger->log("notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE\n");
 
+	u8 buffer[4];
+	buffer[0] = (u8)moduleType;
+	buffer[1] = verMajor;
+	buffer[2] = verMinor;	
+	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_ESAPI_MODULE_VER_AND_TYPE, handlerID, buffer, 3);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const rhea::thread::sMsg &msg, esapi::eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SET_ESAPI_MODULE_VER_AND_TYPE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_moduleType = (esapi::eExternalModuleType)p[0];
+	*out_verMajor = p[1];
+	*out_verMinor = p[2];
+}
 
 
 
@@ -2099,6 +2119,7 @@ void cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSub
 
 	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED, (u32)0, otherData, 4);
 }
+
 //***************************************************
 void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_price, eGPUPaymentType *out_paymentType)
 {
@@ -2109,3 +2130,22 @@ void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const
 	*out_price = rhea::utils::bufferReadU16 (&p[2]);
 }
 
+//***************************************************
+void cpubridge::ask_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const sSubscriber &from, esapi::eExternalModuleType moduleType, u8 verMajor, u8 verMinor)
+{
+	u8 otherData[4];
+	otherData[0] = (u8)moduleType;
+	otherData[1] = verMajor;
+	otherData[2] = verMinor;
+	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_ESAPI_MODULE_VER_AND_TYPE, (u32)0, otherData, 3);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const rhea::thread::sMsg &msg, esapi::eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_ESAPI_MODULE_VER_AND_TYPE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_moduleType = (esapi::eExternalModuleType)p[0];
+	*out_verMajor = p[1];
+	*out_verMinor = p[2];
+}
