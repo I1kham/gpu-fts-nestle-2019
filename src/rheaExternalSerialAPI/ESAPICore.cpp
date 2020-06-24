@@ -5,7 +5,7 @@
 #include "../rheaCommonLib/rheaBit.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "ESAPIModuleRaw.h"
-#include "ModuleRasPI.h"
+#include "ESAPIModuleRasPI.h"
 
 using namespace esapi;
 
@@ -114,8 +114,10 @@ void Core::run()
         {
             glob.logger->log ("Core::run() => spawn moduleRasPI\n");
             ModuleRasPI *m = RHEANEW(glob.localAllocator, ModuleRasPI)();
+            m->setup (&glob);
             m->run();
-            RHEADELETE(m, curModule);
+            glob.logger->log ("Core::run() => deleting moduleRasPI\n");
+            RHEADELETE(glob.localAllocator, m);
         }
         break;
     }

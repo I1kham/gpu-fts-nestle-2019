@@ -14,6 +14,7 @@ Core::Core ()
 	rs232BufferOUT = NULL;
 	rhea::rs232::setInvalid (com);
 	rhea::socket::init (&sok2280);
+	fileUpload.f = NULL;
 }
 
 //***************************************************
@@ -28,6 +29,14 @@ void Core::useLogger (rhea::ISimpleLogger *loggerIN)
 //*******************************************************
 bool Core::open (const char *serialPort)
 {
+    //se non esiste già, creo la cartella temp
+    {
+        u8 s[512];
+        sprintf_s ((char*)s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());
+        rhea::fs::folderCreate (s);
+        rhea::fs::deleteAllFileInFolderRecursively (s, false);
+    }
+
 	logger->log ("opening com=%s   ", serialPort);
 	if (!rhea::rs232::open(&com, serialPort, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, false))
 	{
@@ -37,40 +46,59 @@ bool Core::open (const char *serialPort)
 	}
 	logger->log ("OK\n");
 	
-
-	logger->log ("opening socket on 2280...");
-	eSocketError err = rhea::socket::openAsTCPServer(&sok2280, 2280);
-	if (err != eSocketError_none)
-	{
-		logger->log ("ERR code[%d]\n", err);
-		logger->log("\n");
-		return false;
-	}
-	logger->log("OK\n");
-
-	rhea::socket::setReadTimeoutMSec(sok2280, 0);
-	rhea::socket::setWriteTimeoutMSec(sok2280, 10000);
-
-	logger->log("listen... ");
-	if (!rhea::socket::listen(sok2280))
-	{
-		logger->log("FAIL\n", err);
-		logger->decIndent();
-		rhea::socket::close(sok2280);
-		return false;
-	}
-	logger->log("OK\n");
-
-
-	//aggiungo la socket al gruppo di oggetti in osservazione
-	waitableGrp.addSocket(sok2280, WAITGRP_SOCKET2280);
-
 	//buffer vari
 	localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("raspiCore");
-	rs232BufferOUT = (u8*)RHEAALLOC(localAllocator, RS232_BUFFEROUT_SIZE);
+	rs232BufferOUT = (u8*)RHEAALLOC(localAllocator, SIZE_OF_RS232BUFFEROUT);
 	rs232BufferIN.alloc (localAllocator, 4096);
-	sok2280Buffer = (u8*)RHEAALLOC(localAllocator, SOK_BUFFER_SIZE);
+	sok2280Buffer = (u8*)RHEAALLOC(localAllocator, SIZE_OF_RS232BUFFERIN);
 	clientList.setup (localAllocator, 128);
+
+	//recupero il mio IP di rete wifi
+    memset (wifiIP, 0, sizeof(wifiIP));
+	{
+		u32 n = 0;
+		sNetworkAdapterInfo *ipList = rhea::netaddr::getListOfAllNerworkAdpaterIPAndNetmask (rhea::getScrapAllocator(), &n);
+		if (n)
+		{
+			for (u32 i = 0; i < n; i++)
+			{
+				if (strcasecmp (ipList[i].name, "wlan0") == 0)
+				{
+					rhea::netaddr::ipstrTo4bytes (ipList[i].ip, &wifiIP[0], &wifiIP[1], &wifiIP[2], &wifiIP[3]);
+					break;
+				}
+			}
+			
+			if (wifiIP[0] == 0)
+			{
+				//questo è per la versione win, che non ha wlan0
+				rhea::netaddr::ipstrTo4bytes (ipList[0].ip, &wifiIP[0], &wifiIP[1], &wifiIP[2], &wifiIP[3]);
+			}
+
+			RHEAFREE(rhea::getScrapAllocator(), ipList);
+            logger->log ("WIFI IP: %d.%d.%d.%d\n", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
+		}
+	}
+
+    //recupero SSID dell'hotspot
+    //Uno script python parte allo startup del rasPI e crea un file di testo di nome "hotspotname.txt" che contiene il nome dell'hotspot
+    memset (ssid, 0, sizeof(ssid));
+    {
+        u8 s[128];
+        sprintf_s ((char*)s, sizeof(s), "%s/hotspotname.txt", rhea::getPhysicalPathToAppFolder());
+        FILE *f = rhea::fs::fileOpenForReadBinary(s);
+        if (NULL == f)
+        {
+            logger->log ("ERR: unable to open file [%s]\n", s);
+            sprintf_s ((char*)ssid, sizeof(ssid), "unknown");
+        }
+        else
+        {
+            fread (ssid, sizeof(ssid), 1, f);
+            fclose(f);
+        }
+    }
+    logger->log ("Hotspot name:%s\n", ssid);
 
 	return true;
 }
@@ -97,7 +125,7 @@ void Core::priv_close ()
  *	diventa disponibile.
  *	Fino a che non ricevo risposta, rimango in questo loop
  */
-void Core::priv_identify()
+void Core::priv_identify_run()
 {
 	reportedESAPIVerMajor = 0;
 	reportedESAPIVerMinor = 0;
@@ -112,32 +140,401 @@ void Core::priv_identify()
 			timeToSendMsgMSec = timeNowMSec + 2000;
 			logger->log ("requesting API version...\n");
 
-			const u32 nBytesToSend = esapi::buildMsg_A1_getAPIVersion_ask (rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+			const u32 nBytesToSend = esapi::buildMsg_A1_getAPIVersion_ask (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
-			priv_rs232_handleIncomingData (rs232BufferIN);
-
-			if (reportedESAPIVerMajor != 0)
+			if (priv_identify_waitAnswer('A', '1', 7, rs232BufferOUT, 1000))
 			{
-				//ok, la GPU mi ha risposto, quindi è viva.
-				//Segnalo la mia identità
-				const u32 n = esapi::buildMsg_R1_externalModuleIdentify_ask (esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
-				priv_rs232_sendBuffer (rs232BufferOUT, n);
-				priv_rs232_handleIncomingData (rs232BufferIN);
-				return;
+				//ho ricevuto risposta valida a comando A 1
+				reportedESAPIVerMajor = rs232BufferOUT[3];
+				reportedESAPIVerMajor = rs232BufferOUT[4];
+				reportedGPUType = (esapi::eGPUType)rs232BufferOUT[5];
+				break;
 			}
 		}
 
 		rhea::thread::sleepMSec(100);
 	}
+
+
+	//se arrivo qui, vuol dire che la GPU ha risposto al comando # A 1
+	//ora devo comunicare la mia identità e attendere risposta
+	while (1)
+	{
+		const u32 nBytesToSend = esapi::buildMsg_R1_externalModuleIdentify_ask (esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+		priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
+		if (priv_identify_waitAnswer('R', '1', 5, rs232BufferOUT, 1000))
+		{
+			//ho ricevuto risposta valida a comando R 1, posso uscire da questa fase
+			return;
+		}
+	}
 }
+
+//*******************************************************
+bool Core::priv_identify_waitAnswer(u8 command, u8 code, u8 len, u8 *answerBuffer, u32 timeoutMSec)
+{
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
+	u8 ct = 0;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	{
+		u8 ch;
+		if (!rhea::rs232::readBuffer(com, &ch, 1))
+		{
+			rhea::thread::sleepMSec(10);
+			continue;
+		}
+		
+		if (ct == 0)
+		{
+			if (ch == '#')
+				answerBuffer[ct++] = ch;
+		}
+		else if (ct == 1)
+		{
+			if (ch == command)
+				answerBuffer[ct++] = ch;
+			else
+				ct = 0;
+		}
+		else if (ct == 2)
+		{
+			if (ch == code)
+				answerBuffer[ct++] = ch;
+			else
+				ct = 0;
+		}
+		else
+		{
+			answerBuffer[ct++] = ch;
+			if (ct >= len)
+			{
+				if (rhea::utils::simpleChecksum8_calc(answerBuffer, len-1) == answerBuffer[len-1])
+					return true;
+				ct = 0;
+			}
+		}
+	}
+	return false;
+}
+
+
+/********************************************************
+ * In questa fase, il modulo è slave, ovvero attende comandi da GPU via seriale.
+ * Questa fase termina alla ricezione del comando # R 0x01 [ck] che manda il modulo
+ * nella modaliù operativa vera e propria
+ */
+void Core::priv_boot_run()
+{
+    bQuit = false;
+    while (bQuit == false)
+    {
+		priv_boot_rs232_handleCommunication(rs232BufferIN);
+		rhea::thread::sleepMSec(10);
+    }
+}
+
+//*********************************************************
+u32 Core::priv_boot_buildMsgBuffer (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData)
+{
+    const u32 totalLenOfMsg = 4 + lenOfData;
+    if (sizeOfBufer < totalLenOfMsg)
+    {
+        DBGBREAK;
+        return 0;
+    }
+    u32 ct = 0;
+    buffer[ct++] = '#';
+    buffer[ct++] = 'R';
+    buffer[ct++] = command;
+    if (data && lenOfData)
+    {
+        memcpy (&buffer[ct], data, lenOfData);
+        ct += lenOfData;
+    }
+    buffer[ct] = rhea::utils::simpleChecksum8_calc (buffer, ct);
+    return ct + 1;
+}
+
+//*********************************************************
+void Core::priv_boot_buildMsgBufferAndSend (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData)
+{
+    const u32 n = priv_boot_buildMsgBuffer (buffer, sizeOfBufer, command, data, lenOfData);
+    if (n)
+        priv_rs232_sendBuffer (buffer, n);
+}
+
+//*********************************************************
+void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
+{
+    while (1)
+    {
+	    //leggo tutto quello che posso dalla seriale e bufferizzo in [b]
+        const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
+
+		if (0 == nBytesAvailInBuffer)
+			DBGBREAK;
+
+	    if (nBytesAvailInBuffer > 0)
+	    {
+		    const u32 nRead = rhea::rs232::readBuffer(com, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
+		    b.numBytesInBuffer += (u16)nRead;
+	    }
+    
+		if (0 == b.numBytesInBuffer)
+			return;
+
+        //provo ad estrarre un msg 'raw' dal mio buffer.
+        //Cerco il carattere di inizio messaggio (#) ed eventualmente butto via tutto quello che c'è prima
+        u32 i = 0;
+        while (i < b.numBytesInBuffer && b.buffer[i] != (u8)'#')
+            i++;
+
+        if (b.buffer[i] != (u8)'#')
+        {
+            b.reset();
+            return;
+        }
+
+        b.removeFirstNBytes(i);
+        assert (b.buffer[0] == (u8)'#');
+        i = 0;
+
+        if (b.numBytesInBuffer < 3)
+            return;
+
+        //il ch successivo deve essere 'R'
+        if (b.buffer[1] != 'R')
+        {
+            b.removeFirstNBytes(1);
+            continue;
+        }
+
+        switch (b.buffer[2])
+        {
+        default:
+            logger->log ("invalid command [%c]\n", b.buffer[2]);
+            b.removeFirstNBytes(1);
+            break;
+
+        case 0x01:
+            // comando start
+            // # R [0x01] [ck]
+            if (b.numBytesInBuffer < 4)
+                return;
+            if (!esapi::isValidChecksum (b.buffer[3], b.buffer, 3))
+            {
+                b.removeFirstNBytes(1);
+                break;
+            }
+            bQuit = true;
+
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(4);
+
+            //rispondo # R [0x01] [ck]
+            priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x01, NULL, 0);
+            return;
+
+        case 0x02: 
+            //richiesta IP e SSID
+            //# R [0x02] [ck]
+            if (b.numBytesInBuffer < 4)
+                return;
+            if (!esapi::isValidChecksum (b.buffer[3], b.buffer, 3))
+            {
+                b.removeFirstNBytes(1);
+                break;
+            }
+
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(4);
+
+            //rispondo # R [0x02] [ip1] [ip2] [ip3] [ip4] [lenSSID] [ssidString...] [ck]
+            {
+                const u8 lenSSID = (u8)rhea::string::utf8::lengthInBytes(ssid);
+                u32 ct = 0;
+                rs232BufferOUT[ct++] = '#';
+                rs232BufferOUT[ct++] = 'R';
+                rs232BufferOUT[ct++] = 0x02;
+                rs232BufferOUT[ct++] = wifiIP[0];
+                rs232BufferOUT[ct++] = wifiIP[1];
+                rs232BufferOUT[ct++] = wifiIP[2];
+                rs232BufferOUT[ct++] = wifiIP[3];
+                rs232BufferOUT[ct++] = lenSSID;
+                memcpy (&rs232BufferOUT[ct], ssid, lenSSID);
+                ct += lenSSID;
+
+                rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
+                ct++;
+                priv_rs232_sendBuffer (rs232BufferOUT, ct);
+            }
+            break;
+
+        case 0x03:
+            //richiesta inizio upload file
+            //rcv:      # R [0x03] [fileSizeMSB3] [fileSizeMSB2] [filesizeMSB1] [filesizeLSB] [packetSizeMSB] [packetSizeLSB] [lenFilename] [filename...] [ck]
+            //answer:   # R [0x03] [error] [ck]
+            if (b.numBytesInBuffer < 10)
+            {
+                return;
+            }
+            else
+            {
+                const u32 filesizeBytes = rhea::utils::bufferReadU32 (&b.buffer[3]);
+                const u16 packetSizeBytes = rhea::utils::bufferReadU16 (&b.buffer[7]);
+                const u8 filenameLen = b.buffer[9];
+                const u32 totalMsgLen = 11 + filenameLen;
+                if (b.numBytesInBuffer < totalMsgLen)
+                    return;
+                if (!esapi::isValidChecksum (b.buffer[totalMsgLen - 1], b.buffer, totalMsgLen - 1))
+                {
+                    b.removeFirstNBytes(1);
+                    break;
+                }
+
+                //non devo avere altri upload in corso
+                if (NULL != fileUpload.f)
+                {
+                    //rispondo con errore
+                    const u8 error = 0x01;
+                    priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
+                }
+                else
+                {
+                    //provo a creare il file nella cartella temp
+                    const u8 *filename = &b.buffer[10];
+                    b.buffer[totalMsgLen - 1] = 0x00;
+
+                    u8 s[512];
+                    sprintf_s ((char*)s, sizeof(s), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), filename);
+                    fileUpload.f = rhea::fs::fileOpenForWriteBinary (s);
+                    if (NULL == fileUpload.f)
+                    {
+                        //rispondo con errore
+                        const u8 error = 0x02;
+                        priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
+                    }
+                    else
+                    {
+                        //ok, possiamo procedere
+                        fileUpload.totalFileSizeBytes = filesizeBytes;
+                        fileUpload.packetSizeBytes = packetSizeBytes;
+                        fileUpload.rcvBytesSoFar = 0;
+
+                        const u8 error = 0x00;
+                        priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
+                    }
+                }
+
+                //rimuovo il msg dal buffer
+                b.removeFirstNBytes(totalMsgLen);
+            }
+            break;
+
+        case 0x04:
+            //file upload packet
+            //rcv:  # R [0x04] [...] [ck]
+            //answ: # R [0x04] [accepted] [ck]
+            if (NULL == fileUpload.f)
+            {
+                b.removeFirstNBytes(1);
+                DBGBREAK
+            }
+            else
+            {
+                u16 expecxtedPacketLength = fileUpload.packetSizeBytes;
+                if (fileUpload.rcvBytesSoFar + fileUpload.packetSizeBytes > fileUpload.totalFileSizeBytes)
+                    expecxtedPacketLength = (fileUpload.totalFileSizeBytes - fileUpload.rcvBytesSoFar);
+
+                const u16 expectedMsgLen = 4 + expecxtedPacketLength;
+                if (b.numBytesInBuffer < expectedMsgLen)
+                    return;
+                if (!esapi::isValidChecksum (b.buffer[expectedMsgLen-1], b.buffer, expectedMsgLen-1))
+                {
+                    //rispondo KO
+                    const u8 accepted = 0;
+                    priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x04, &accepted, 1);
+                    b.removeFirstNBytes(1);
+                    break;
+                }
+
+                rhea::fs::fileWrite (fileUpload.f, &rs232BufferOUT[3], expecxtedPacketLength);
+                fileUpload.rcvBytesSoFar += expecxtedPacketLength;
+                if (fileUpload.rcvBytesSoFar >= fileUpload.totalFileSizeBytes)
+                {
+                    fclose(fileUpload.f);
+                    fileUpload.f = NULL;
+                }
+
+                //rimuovo dal buffer
+                b.removeFirstNBytes(expectedMsgLen);
+
+                //rispondo ok
+                const u8 accepted = 1;
+                priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x04, &accepted, 1);
+            }
+            break;
+
+        }
+
+    } //while(1)
+
+}
+
+
+
+
 
 //*******************************************************
 void Core::run()
 {
-	priv_identify();
+	logger->log ("Entering IDENITFY mode...\n");
+	logger->incIndent();
+	priv_identify_run();
+	logger->decIndent();
 
 
-	while (1)
+	logger->log ("Entering BOOT mode...\n");
+	logger->incIndent();
+	priv_boot_run();
+	logger->decIndent();
+
+	logger->log ("\n\nEntering RUNNING mode...\n");
+	logger->incIndent();
+	{
+		//socekt in listen sulla 2280
+		logger->log ("opening socket on 2280...");
+		eSocketError err = rhea::socket::openAsTCPServer(&sok2280, 2280);
+		if (err != eSocketError_none)
+		{
+			logger->log ("ERR code[%d]\n", err);
+			logger->log("\n");
+		}
+		else
+			logger->log("OK\n");
+
+		rhea::socket::setReadTimeoutMSec(sok2280, 0);
+		rhea::socket::setWriteTimeoutMSec(sok2280, 10000);
+
+		logger->log("listen... ");
+		if (!rhea::socket::listen(sok2280))
+		{
+			logger->log("FAIL\n", err);
+			logger->decIndent();
+			rhea::socket::close(sok2280);
+		}
+		else
+			logger->log("OK\n");
+
+
+		//aggiungo la socket al gruppo di oggetti in osservazione
+		waitableGrp.addSocket(sok2280, WAITGRP_SOCKET2280);
+	}
+	logger->decIndent();
+
+
+	bQuit = false;
+	while (bQuit == false)
 	{
 		const u8 nEvents = waitableGrp.wait(100);
 		for (u8 i = 0; i < nEvents; i++)
@@ -379,7 +776,7 @@ void Core::priv_2280_accept()
 	cl.uid = ++sok2280NextID;
 
 	//comunico via seriale che ho accettato una nuova socket
-	const u32 nBytesToSend = esapi::buildMsg_R0x01_newSocket (cl.uid, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+	const u32 nBytesToSend = esapi::buildMsg_R0x01_newSocket (cl.uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 	priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 
 	//aggiungo la socket alla lista dei client connessi
@@ -418,7 +815,7 @@ void Core::priv_2280_onIncomingData (OSSocket &sok, u32 uid)
 	}
 
 	//spedisco lungo la seriale
-	const u32 nBytesToSend = esapi::buildMsg_R0x03_socketDataToGPU (cl->uid, sok2280Buffer, nBytesLetti, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+	const u32 nBytesToSend = esapi::buildMsg_R0x03_socketDataToGPU (cl->uid, sok2280Buffer, nBytesLetti, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 	priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 	logger->log ("rcv [%d] bytes from socket [%d], sending to GPU\n", nBytesLetti, cl->uid);
 
@@ -438,7 +835,7 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 			clientList.removeAndSwapWithLast(i);
 
 			//comunico la disconnessione via seriale
-			const u32 nBytesToSend = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+			const u32 nBytesToSend = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 			logger->log ("socket [%d] disconnected\n", uid);
 			return;

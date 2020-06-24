@@ -576,23 +576,15 @@ void esapi::translateNotify_MODULE_TYPE_AND_VER(const rhea::thread::sMsg &msg, e
 
 
 //****************************************************************************
-void esapi::ask_GET_WIFI_IPandSSID (const cpubridge::sSubscriber &from, u16 handlerID)
+void esapi::ask_RASPI_GET_WIFI_IPandSSID (const cpubridge::sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_GET_IPandSSID, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_RASPI_GET_IPandSSID, handlerID);
 }
 
 //****************************************************************************
-void esapi::notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress, const char *ssid)
+void esapi::notify_RASPI_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid)
 {
-    u8 ipPart[4];
-    rhea::netaddr::ipstrTo4bytes (ipAddress, &ipPart[0], &ipPart[1], &ipPart[2], &ipPart[3]);
-    notify_WIFI_IPandSSID (to, handlerID, logger, ipPart[0], ipPart[1], ipPart[2], ipPart[3], ssid);
-}
-
-//****************************************************************************
-void esapi::notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid)
-{
-	logger->log("notify_WIFI_IPandSSID\n");
+	logger->log("notify_RASPI_WIFI_IPandSSID\n");
 
     u8 data[256];
     data[0] = ipPart0;
@@ -602,13 +594,13 @@ void esapi::notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handler
     sprintf_s ((char*)&data[4], sizeof(data) - 4, "%s", ssid);
     const u32 len = strlen(ssid);
     data[4 + len] = 0;
-    rhea::thread::pushMsg (to.hFromMeToSubscriberW, ESAPI_NOTIFY_IPandSSID, handlerID, data, 5+len);
+    rhea::thread::pushMsg (to.hFromMeToSubscriberW, ESAPI_NOTIFY_RASPI_IPandSSID, handlerID, data, 5+len);
 }
 
 //****************************************************************************
-void esapi::translateNotify_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid)
+void esapi::translateNotify_RASPI_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid)
 {
-	assert (msg.what == ESAPI_NOTIFY_IPandSSID);
+	assert (msg.what == ESAPI_NOTIFY_RASPI_IPandSSID);
 	const u8 *p = (const u8*)msg.buffer;
     sprintf_s (out_ipAddress, sizeof_outIpAddress, "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
 
@@ -623,13 +615,13 @@ void esapi::translateNotify_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *
 }
 
 //****************************************************************************
-void esapi::ask_START_MODULE (const cpubridge::sSubscriber &from, u16 handlerID)
+void esapi::ask_RASPI_START (const cpubridge::sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_START_MODULE, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_RASPI_START, handlerID);
 }
 //****************************************************************************
-void esapi::notify_MODULE_STARTED(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+void esapi::notify_RASPI_STARTED(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
-	logger->log("notify_MODULE_STARTED\n");
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, ESAPI_MODULE_STARTED, handlerID, NULL, 0);
+	logger->log("notify_RASPI_STARTED\n");
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, ESAPI_NOTIFY_RASPI_STARTED, handlerID, NULL, 0);
 }

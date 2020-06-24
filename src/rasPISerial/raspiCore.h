@@ -33,7 +33,10 @@ namespace raspi
 		static const u8		VER_MAJOR = 1;
 		static const u8		VER_MINOR = 0;
 		static const u32	WAITGRP_SOCKET2280		= 0xFFFFFFFF;
-		static const u16	RS232_BUFFEROUT_SIZE	= 8192;
+		
+		
+		static const u16	SIZE_OF_RS232BUFFEROUT	= 8192;
+		static const u16	SIZE_OF_RS232BUFFERIN	= 8192;
 		static const u16	SOKCLIENT_BUFFER_SIZE	= 4096;
 		static const u16	SOK_BUFFER_SIZE			= 8192;
 
@@ -117,7 +120,16 @@ namespace raspi
 		};
 
 	private:
-		void					priv_identify();
+		struct sFileUpload
+		{
+			FILE			*f;
+			u32				totalFileSizeBytes;
+			u16				packetSizeBytes;
+			u32				rcvBytesSoFar;
+			
+		};
+
+	private:
 		void					priv_close ();
 		void					priv_2280_accept();
 		void					priv_2280_onIncomingData (OSSocket &sok, u32 uid);
@@ -129,6 +141,13 @@ namespace raspi
 		bool					priv_rs232_handleCommand_A (sBuffer &b);
 		bool					priv_rs232_handleCommand_R (sBuffer &b);
 
+		void					priv_identify_run();
+		bool					priv_identify_waitAnswer(u8 command, u8 code, u8 len, u8 *answerBuffer, u32 timeoutMSec);
+
+		void					priv_boot_run();
+		void					priv_boot_rs232_handleCommunication (sBuffer &b);
+		u32						priv_boot_buildMsgBuffer (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
+		void					priv_boot_buildMsgBufferAndSend (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
 
 	private:
 		rhea::Allocator         *localAllocator;
@@ -145,6 +164,10 @@ namespace raspi
 		u8						reportedESAPIVerMajor;
 		u8						reportedESAPIVerMinor;
 		esapi::eGPUType			reportedGPUType;
+		bool					bQuit;
+		u8						wifiIP[4];
+        u8                      ssid[64];
+		sFileUpload				fileUpload;
 	};
 } //namespace raspi
 

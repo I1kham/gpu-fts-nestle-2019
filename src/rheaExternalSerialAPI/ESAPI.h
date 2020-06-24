@@ -98,15 +98,20 @@ namespace esapi
 	void		translateNotify_MODULE_TYPE_AND_VER(const rhea::thread::sMsg &msg, eExternalModuleType *out_type, u8 *out_verMajor, u8 *out_verMinor);
 
 
-	void		ask_GET_WIFI_IPandSSID (const cpubridge::sSubscriber &from, u16 handlerID);
-                    //alla ricezione di questo msg, ESAPI risponderà con notify_WIFI_IPandSSID
-    void		notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress, const char *ssid);
-	void		notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid);
-    void		translateNotify_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid);
+	/***********************************************
+		Posto che a seguito della notify_MODULE_TYPE_AND_VER() si sia capito che stiamo parlando con un modulo eExternalModuleType_rasPI_wifi_REST,
+		allora i seguenti sono validi
+		ask_xxxx
+			Un subscriber di ESAPI può richiedere le seguenti cose
+	*/
+	void		ask_RASPI_GET_WIFI_IPandSSID (const cpubridge::sSubscriber &from, u16 handlerID);
+                    //alla ricezione di questo msg, ESAPI risponderà con notify_RASPI_WIFI_IPandSSID
+	void		notify_RASPI_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid);
+    void		translateNotify_RASPI_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid);
 
-	void		ask_START_MODULE (const cpubridge::sSubscriber &from, u16 handlerID);
-					//alla ricezione di questo msg, ESAPI risponderà con notify_MODULE_STARTED
-	void		notify_MODULE_STARTED(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+	void		ask_RASPI_START (const cpubridge::sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, ESAPI risponderà con notify_RASPI_STARTED
+	void		notify_RASPI_STARTED(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 } // namespace esapi
 
 #endif // _ESAPI_h_
