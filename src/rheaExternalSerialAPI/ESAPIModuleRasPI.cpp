@@ -7,7 +7,6 @@ using namespace esapi;
 //********************************************************
 ModuleRasPI::ModuleRasPI()
 {
-
 }
 
 //********************************************************
@@ -18,6 +17,7 @@ bool ModuleRasPI::setup ( sGlob *glob)
     //buffer
 	rs232BufferIN.alloc (glob->localAllocator, SIZE_OF_RS232BUFFERIN);
 	rs232BufferOUT = (u8*)RHEAALLOC(glob->localAllocator, SIZE_OF_RS232BUFFEROUT);
+    sokBuffer = (u8*)RHEAALLOC(glob->localAllocator, SIZE_OF_SOKBUFFER);
 
     //aggiungo la serviceMsgQ alla waitList
     {
@@ -32,6 +32,8 @@ bool ModuleRasPI::setup ( sGlob *glob)
         waitableGrp.addEvent(glob->subscriberList.list(i)->hEvent, WAITLIST_EVENT_FROM_A_SUBSCRIBER);
     }
 
+    //socket list
+    sockettList.setup (glob->localAllocator, 128);
 	return true;
 }
 
@@ -47,12 +49,25 @@ void ModuleRasPI::priv_unsetup()
 
     rs232BufferIN.free (glob->localAllocator);
     RHEAFREE(glob->localAllocator, rs232BufferOUT);
+    RHEAFREE(glob->localAllocator, sokBuffer);
+    sockettList.unsetup ();
 }
 
 //*********************************************************
 void ModuleRasPI::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 {
     rhea::rs232::writeBuffer (glob->com, buffer, numBytesToSend);
+}
+
+//*******************************************************
+ModuleRasPI::sConnectedSocket* ModuleRasPI::priv_2280_findConnectedSocketByUID (u32 uid)
+{
+	for (u32 i = 0; i < sockettList.getNElem(); i++)
+	{
+		if (sockettList(i).uid == uid)
+			return &sockettList[i];
+	}
+	return NULL;
 }
 
 //********************************************************
@@ -66,6 +81,7 @@ eExternalModuleType ModuleRasPI::run()
 
     glob->logger->log ("ModuleRasPI:: now in RUNNING mode...\n");
     glob->logger->incIndent();
+    priv_running_run();
     glob->logger->log ("FIN\n");
     glob->logger->decIndent();
 
@@ -282,4 +298,374 @@ bool ModuleRasPI::priv_boot_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 w
 }
 
 
+/********************************************************
+ * In questa fase, il modulo rasPI è master e fa da tunnel tra la websocket che gira sul rasPI e la socket
+ * di socketBridge sulla GPU.
+ * Tutto quello che rasPI riceve via socket, lo spedisce pari pari via seriale alla GPU che a sua volta lo
+ * manda a socketBridge
+ */
+void ModuleRasPI::priv_running_run()
+{
+    bQuit = false;
+    while (bQuit == false)
+    {
+		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
+		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
+        const u8 nEvents = waitableGrp.wait(10);
+		for (u8 i = 0; i < nEvents; i++)
+		{
+			switch (waitableGrp.getEventOrigin(i))
+			{
+			case OSWaitableGrp::evt_origin_osevent:
+				{
+                    switch (waitableGrp.getEventUserParamAsU32(i))
+                    {
+                    case WAITLIST_EVENT_FROM_SERVICE_MSGQ:
+                        priv_handleMsgFromServiceQ();
+                        break;
 
+                    case WAITLIST_EVENT_FROM_A_SUBSCRIBER:
+				        //evento generato dalla msgQ di uno dei miei subscriber
+                        {
+                            OSEvent h = waitableGrp.getEventSrcAsOSEvent(i);
+                            sSubscription *sub = glob->subscriberList.findByOSEvent(h);
+						    if (sub)
+                                priv_running_handleMsgFromSubscriber(sub);
+				        }
+                        break;
+
+                    default:
+						DBGBREAK;
+                        glob->logger->log("esapi::ModuleRasPI::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
+					}
+				}
+				break;
+
+			case OSWaitableGrp::evt_origin_socket:
+				{
+					//Ho ricevuto dei dati lungo la socket, devo spedirli via seriale al rasPI
+					const u32 clientUID = waitableGrp.getEventUserParamAsU32(i);
+					OSSocket sok = waitableGrp.getEventSrcAsOSSocket (i);
+					priv_2280_sendDataViaRS232 (sok, clientUID);
+				}
+				break;
+
+			default:
+                glob->logger->log("esapi::ModuleRasPI::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
+				break;
+			}
+		}
+
+        //gestione comunicazione seriale
+        priv_running_handleRS232(rs232BufferIN);
+    }
+}
+
+//*********************************************************
+void ModuleRasPI::priv_running_handleMsgFromSubscriber(sSubscription *sub)
+{
+    rhea::thread::sMsg msg;
+    while (rhea::thread::popMsg (sub->q.hFromSubscriberToMeR, &msg))
+    {
+        const u16 handlerID = (u16)msg.paramU32;
+
+        switch (msg.what)
+        {
+        default:
+            glob->logger->log("ModuleRasPI::priv_running_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
+            break;
+
+        case ESAPI_ASK_UNSUBSCRIBE:
+            rhea::thread::deleteMsg(msg);
+            waitableGrp.removeEvent (sub->hEvent);
+            glob->subscriberList.unsubscribe (glob->localAllocator, sub);
+            return;
+
+        case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
+            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, glob->moduleInfo.type, glob->moduleInfo.verMajor, glob->moduleInfo.verMinor);
+            break;
+
+        case ESAPI_ASK_RASPI_GET_IPandSSID:
+            //chiedo al rasPI IP e SSID
+            {
+                u32 ct = 0;
+                rs232BufferOUT[ct++] = '#';
+                rs232BufferOUT[ct++] = 'R';
+                rs232BufferOUT[ct++] = 0x02;
+                rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, 3);
+                ct++;
+                priv_rs232_sendBuffer (rs232BufferOUT, ct);
+
+                //la risposta è a lunghezza variabile
+                //# R [0x02] [ip1] [ip2] [ip3] [ip4] [lenSSID] [ssidString...] [ck]
+                if (priv_boot_waitAnswer('R', 0x02, 9, 8, rs232BufferOUT, 1000))
+                {
+                    const char *ssid = (const char*)&rs232BufferOUT[8];
+                    rs232BufferOUT[8 + rs232BufferOUT[7]] = 0x00;
+                    notify_RASPI_WIFI_IPandSSID (sub->q, handlerID, glob->logger, rs232BufferOUT[3], rs232BufferOUT[4], rs232BufferOUT[5], rs232BufferOUT[6], ssid);
+                }
+            }
+            break;
+        }
+
+        rhea::thread::deleteMsg(msg);
+    }
+}
+
+//*********************************************************
+void ModuleRasPI::priv_running_handleRS232 (sBuffer &b)
+{
+    while (1)
+    {
+	    //leggo tutto quello che posso dalla seriale e bufferizzo in [b]
+        const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
+
+		if (0 == nBytesAvailInBuffer)
+			DBGBREAK;
+
+	    if (nBytesAvailInBuffer > 0)
+	    {
+		    const u32 nRead = rhea::rs232::readBuffer(glob->com, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
+		    b.numBytesInBuffer += (u16)nRead;
+	    }
+    
+		if (0 == b.numBytesInBuffer)
+			return;
+
+        //provo ad estrarre un msg 'raw' dal mio buffer.
+        //Cerco il carattere di inizio buffer ed eventualmente butto via tutto quello che c'è prima
+        u32 i = 0;
+        while (i < b.numBytesInBuffer && b.buffer[i] != (u8)'#')
+            i++;
+
+        if (b.buffer[i] != (u8)'#')
+        {
+            b.reset();
+            return;
+        }
+
+        b.removeFirstNBytes(i);
+        assert (b.buffer[0] == (u8)'#');
+        i = 0;
+
+        if (b.numBytesInBuffer < 3)
+            return;
+
+        const u8 commandChar = b.buffer[1];
+        switch (commandChar)
+        {
+        default:
+            glob->logger->log ("esapi::ModuleRasPI::priv_running_handleRS232() => invalid command char [%c]\n", commandChar);
+            b.removeFirstNBytes(1);
+            break;
+
+		case 'R':   if (!priv_running_handleCommand_R (b)) return;    break;
+			break;
+        }
+    } //while(1)
+}
+
+/*********************************************************
+ * ritorna true se ha consumato qualche byte di buffer.
+ * ritorna false altrimenti. In questo caso, vuol dire che i byte in buffer sembravano essere un valido messaggio ma probabilmente manca ancora qualche
+ *  bytes al completamento del messaggio stesso. Bisogna quindi attendere che ulteriori byte vengano appesi al buffer
+ */
+bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
+{
+	const u8 COMMAND_CHAR = 'R';
+
+	assert(b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+	const u8 commandCode = b.buffer[2];
+	bool ret;
+
+	switch (commandCode)
+	{
+	default:
+		glob->logger->log("esapi::ModuleRasPI => invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
+		b.removeFirstNBytes(2);
+		return true;
+
+	case 0x01:
+		//ho ricevuto un R 0x01 new socket connected
+		{
+            //parse del messaggio
+            bool bValidCk = false;
+            u32 socketUID = 0;
+            const u32 MSG_LEN = esapi::buildMsg_R0x01_newSocket_parse (b.buffer, b.numBytesInBuffer, &bValidCk, &socketUID);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
+
+			//creo una nuova socket e la metto in comunicazione con sokbridge
+			sConnectedSocket cl;
+			rhea::socket::init (&cl.sok);
+			glob->logger->log ("esapi::ModuleRasPI => new socket connection...");
+			eSocketError err = rhea::socket::openAsTCPClient (&cl.sok, "127.0.0.1", 2280);
+			if (err != eSocketError_none)
+			{
+				glob->logger->log ("FAIL\n");
+				DBGBREAK;
+				//comunico la disconnessione via seriale
+                const u32 n = esapi::buildMsg_R0x02_closeSocket (socketUID, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			    priv_rs232_sendBuffer (rs232BufferOUT, n);
+			}
+			else
+			{
+				cl.uid = socketUID;
+				sockettList.append(cl);
+				waitableGrp.addSocket (cl.sok, cl.uid);
+				glob->logger->log ("OK, socket id [%d]\n", cl.uid);
+			}
+			return true;
+		}
+		break;
+
+	case 0x02:
+		//ho ricevuto un R 0x02 socket close
+		{
+            //parse del messaggio
+            bool bValidCk = false;
+            u32 socketUID = 0;
+            const u32 MSG_LEN = esapi::buildMsg_R0x02_closeSocket_parse (b.buffer, b.numBytesInBuffer, &bValidCk, &socketUID);
+            if (0 == MSG_LEN)
+                return false;
+            if (!bValidCk)
+            {
+                b.removeFirstNBytes(2);
+                return true;
+            }
+
+            //rimuovo il msg dal buffer
+            b.removeFirstNBytes(MSG_LEN);
+
+			//elimino il client
+			sConnectedSocket *cl = priv_2280_findConnectedSocketByUID (socketUID);
+			if (cl)
+				priv_2280_onClientDisconnected (cl->sok, socketUID);
+		}
+		return true;
+
+	case 0x03:
+		//rasPIESAPI: rasPI comunica via seriale che la socket [client_uid_4bytes] ha ricevuto i dati  [data] per un totale di [lenMSB][lenLSB] bytes
+		//rcv:	# R [0x03] [client_uid_MSB3] [client_uid_MSB2] [client_uid_MSB1] [client_uid_LSB] [lenMSB] [lenLSB] [data…] [ck]
+		{
+			if (b.numBytesInBuffer < 9)
+				return false;
+
+			const u32 uid = rhea::utils::bufferReadU32 (&b.buffer[3]);
+			const u16 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
+
+			if (b.numBytesInBuffer < 10 + dataLen)
+				return false;
+
+			const u8* data = &b.buffer[9];
+			const u8 ck = b.buffer[9 + dataLen];
+			if (rhea::utils::simpleChecksum8_calc(b.buffer, 9 + dataLen) != ck)
+			{
+				b.removeFirstNBytes(2);
+				return true;
+			}
+
+			//messaggio valido, lo devo mandare via socket al client giusto
+			if (dataLen)
+			{
+				sConnectedSocket *cl = priv_2280_findConnectedSocketByUID(uid);
+				if (NULL != cl)
+				{
+					rhea::socket::write (cl->sok, data, dataLen);
+					glob->logger->log ("rcv [%d] bytes from RS232, sending to socket [%d]\n", dataLen, cl->uid);
+				}
+				else
+				{
+					DBGBREAK;
+				}
+			}
+
+			//rimuovo il msg dal buffer di input
+			b.removeFirstNBytes(10 + dataLen);
+			return true;
+		}
+		break;
+	}
+}
+
+
+//***************************************************************
+void ModuleRasPI::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
+{
+	for (u32 i = 0; i < sockettList.getNElem(); i++)
+	{
+		if (sockettList(i).uid == uid)
+		{
+			assert (rhea::socket::compare(sockettList(i).sok, sok));
+
+			waitableGrp.removeSocket (sockettList[i].sok);
+			rhea::socket::close(sockettList[i].sok);
+			sockettList.removeAndSwapWithLast(i);
+
+			//comunico la disconnessione via seriale
+            const u32 n = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			priv_rs232_sendBuffer (rs232BufferOUT, n);
+			glob->logger->log ("esapi::ModuleRasPI => socket [%d] disconnected\n", uid);
+			return;
+		}
+	}
+
+	//non ho trovato il client nella lista...
+	DBGBREAK;
+}
+
+//***************************************************************
+void ModuleRasPI::priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid)
+{
+	sConnectedSocket *cl = priv_2280_findConnectedSocketByUID(uid);
+	if (NULL == cl)
+	{
+		DBGBREAK;
+		return;
+	}
+	assert (rhea::socket::compare(cl->sok, sok));
+
+
+	i32 nBytesLetti = rhea::socket::read (cl->sok, sokBuffer, SIZE_OF_SOKBUFFER, 100);
+	if (nBytesLetti == 0)
+	{
+		//connessione chiusa
+		priv_2280_onClientDisconnected(sok, uid);
+		return;
+	}
+	if (nBytesLetti < 0)
+	{
+		//la chiamata sarebbe stata bloccante, non dovrebbe succedere
+		glob->logger->log ("esapi::ModuleRasPI => WARN: socket [%d], read bloccante...\n", cl->uid);
+		return;
+	}
+
+	//spedisco lungo la seriale
+	u32 ct = 0;
+	rs232BufferOUT[ct++] = '#';
+	rs232BufferOUT[ct++] = 'R';
+	rs232BufferOUT[ct++] = 0x04;
+
+	rhea::utils::bufferWriteU32 (&rs232BufferOUT[ct], cl->uid);
+	ct += 4;
+
+	rhea::utils::bufferWriteU16 (&rs232BufferOUT[ct], nBytesLetti);
+	ct += 2;
+
+	memcpy (&rs232BufferOUT[ct], sokBuffer, nBytesLetti);
+	ct += nBytesLetti;
+
+	rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
+	ct++;
+
+	priv_rs232_sendBuffer (rs232BufferOUT, ct);
+	glob->logger->log ("esapi::ModuleRasPI => rcv [%d] bytes from socket [%d], sending to rasPI\n", nBytesLetti, cl->uid);
+}

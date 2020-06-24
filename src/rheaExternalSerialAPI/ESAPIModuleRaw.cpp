@@ -64,7 +64,7 @@ bool ModuleRaw::setup ( sGlob *glob)
     //buffer
 	rs232BufferIN.alloc (glob->localAllocator, 1024);
 	rs232BufferOUT = (u8*)RHEAALLOC(glob->localAllocator, SIZE_OF_RS232BUFFEROUT);
-
+    
 	//subscription to CPUBridge
     glob->logger->log ("subscribing to cpubridge...");
     bIsSubscribedTpCPUBridge = priv_subscribeToCPUBridge(glob->hCPUServiceChannelW);

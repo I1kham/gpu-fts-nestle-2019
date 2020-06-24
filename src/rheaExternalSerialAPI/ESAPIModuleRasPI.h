@@ -19,29 +19,42 @@ namespace esapi
 		
 		static const u32		SIZE_OF_RS232BUFFERIN = 4096;
 		static const u32		SIZE_OF_RS232BUFFEROUT = 4096;
+		static const u32		SIZE_OF_SOKBUFFER = 2048;
 
-
+	private:
+		struct sConnectedSocket
+		{
+			u32			uid;
+			OSSocket	sok;
+		};
 
 	private:
 		void					priv_unsetup();
+
+		void					priv_handleMsgFromServiceQ();
+		void					priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend);
+		
+		sConnectedSocket*		priv_2280_findConnectedSocketByUID (u32 uid);
+		void					priv_2280_onClientDisconnected (OSSocket &sok, u32 uid);
+		void					priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid);
 
 		void					priv_boot_run();
 		void					priv_boot_handleMsgFromSubscriber(sSubscription *sub);
 		bool					priv_boot_waitAnswer (u8 command, u8 code, u8 fixedMsgLen, u8 whichByteContainsAdditionMsgLen, u8 *answerBuffer, u32 timeoutMSec);
 
-		void					priv_handleMsgFromServiceQ();
-		
-
-		void					priv_rs232_handleCommunication (sBuffer &b);
-		void					priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend);
+		void					priv_running_run();
+		void					priv_running_handleMsgFromSubscriber(sSubscription *sub);
+		void					priv_running_handleRS232 (sBuffer &b);
+		bool					priv_running_handleCommand_R (sBuffer &b);
 
 	private:
 		sGlob					*glob;
 		OSWaitableGrp           waitableGrp;
 		sBuffer					rs232BufferIN;
 		u8						*rs232BufferOUT;
+		u8						*sokBuffer;
 		bool					bQuit;
-
+		rhea::FastArray<sConnectedSocket>	sockettList;
 	};
 
 
