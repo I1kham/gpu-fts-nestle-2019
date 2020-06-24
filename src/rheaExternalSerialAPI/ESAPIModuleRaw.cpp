@@ -357,9 +357,8 @@ bool ModuleRaw::priv_rs232_handleCommand_A (sBuffer &b)
 {
     const u8 COMMAND_CHAR = 'A';
 
-    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
     const u8 commandCode = b.buffer[2];
-    bool ret;
 
     switch (commandCode)
     {
@@ -402,9 +401,8 @@ bool ModuleRaw::priv_rs232_handleCommand_C (sBuffer &b)
 {
     const u8 COMMAND_CHAR = 'C';
 
-    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
     const u8 commandCode = b.buffer[2];
-    bool ret;
 
     switch (commandCode)
     {
@@ -469,9 +467,8 @@ bool ModuleRaw::priv_rs232_handleCommand_S (sBuffer &b)
 {
     const u8 COMMAND_CHAR = 'S';
 
-    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
     const u8 commandCode = b.buffer[2];
-    bool ret;
 
     switch (commandCode)
     {
@@ -546,9 +543,8 @@ bool ModuleRaw::priv_rs232_handleCommand_R (sBuffer &b)
 {
 	const u8 COMMAND_CHAR = 'R';
 
-	assert(b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert(b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
 	const u8 commandCode = b.buffer[2];
-	bool ret;
 
 	switch (commandCode)
 	{

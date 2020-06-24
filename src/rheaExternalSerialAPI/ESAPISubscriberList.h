@@ -18,7 +18,7 @@ namespace esapi
 
 		sSubscription*	findByOSEvent (const OSEvent &h);
 
-	private:
+    public:
 		rhea::FastArray<sSubscription*>	list;
 		
 	};

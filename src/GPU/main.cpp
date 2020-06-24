@@ -6,54 +6,9 @@
 #include "../CPUBridge/CPUChannelFakeCPU.h"
 #include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
-
+#include "../rheaExternalSerialAPI/ESAPI.h"
 
 MainWindow *myMainWindow = NULL;
-
-
-//*****************************************************
-bool startSocketBridge (HThreadMsgW hCPUServiceChannelW, rhea::ISimpleLogger *logger, rhea::HThread *out_hThread)
-{
-    return socketbridge::startServer(logger, hCPUServiceChannelW, false, true, out_hThread);
-}
-
-
-//*****************************************************
-bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logger)
-{
-#ifdef PLATFORM_YOCTO_EMBEDDED
-    //apro un canale di comunicazione con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();
-    bool b = chToCPU->open(CPU_COMPORT, logger);
-#else
-    //apro un canale di comunicazione con una finta CPU
-    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
-
-    //apro un canale con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
-
-#endif
-
-    if (!b)
-        return false;
-
-    //creo il thread di CPUBridge
-    rhea::HThread hCPUThread;
-
-
-    if (!cpubridge::startServer(chToCPU, logger, &hCPUThread, hCPUServiceChannelW))
-        return false;
-
-    //starto socketBridge che a sua volta siiscrivera'  a CPUBridge
-    rhea::HThread hSocketBridgeThread;
-    startSocketBridge(*hCPUServiceChannelW, logger, &hSocketBridgeThread);
-
-
-    //attendo che il thread CPU termini
-    //rhea::thread::waitEnd (hCPUThread);
-
-    return true;
-}
 
 //****************************************************
 bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)
@@ -97,6 +52,89 @@ bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscrib
 
     return ret;
 }
+
+//****************************************************
+bool subscribeToESAPI (cpubridge::sSubscriber *out_subscriber)
+{
+    bool ret = false;
+
+    //creo una msgQ temporanea per ricevere da CPUBridge la risposta alla mia richiesta di iscrizione
+    HThreadMsgR hMsgQR;
+    HThreadMsgW hMsgQW;
+    rhea::thread::createMsgQ (&hMsgQR, &hMsgQW);
+
+    //invio la richiesta
+    esapi::subscribe (hMsgQW);
+
+    //attendo risposta
+    u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
+    do
+    {
+        rhea::thread::sleepMSec(50);
+
+        rhea::thread::sMsg msg;
+        if (rhea::thread::popMsg(hMsgQR, &msg))
+        {
+            //ok, ci siamo
+            if (msg.what == ESAPI_SERVICECH_SUBSCRIPTION_ANSWER)
+            {
+                esapi::translate_SUBSCRIPTION_ANSWER (msg, out_subscriber);
+                rhea::thread::deleteMsg(msg);
+                ret = true;
+                break;
+            }
+
+            rhea::thread::deleteMsg(msg);
+        }
+    } while (rhea::getTimeNowMSec() < timeToExitMSec);
+
+    //delete della msgQ
+    rhea::thread::deleteMsgQ (hMsgQR, hMsgQW);
+    return ret;
+}
+
+
+//*****************************************************
+bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logger)
+{
+#ifdef PLATFORM_YOCTO_EMBEDDED
+    //apro un canale di comunicazione con la CPU fisica
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();
+    bool b = chToCPU->open(CPU_COMPORT, logger);
+#else
+    //apro un canale di comunicazione con una finta CPU
+    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+
+    //apro un canale con la CPU fisica
+    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
+
+#endif
+
+    if (!b)
+        return false;
+
+    //creo il thread di CPUBridge
+    rhea::HThread hCPUThread;
+
+
+    if (!cpubridge::startServer(chToCPU, logger, &hCPUThread, hCPUServiceChannelW))
+        return false;
+
+    //starto socketBridge che a sua volta siiscrivera'  a CPUBridge
+    rhea::HThread hSocketBridgeThread;
+    socketbridge::startServer(logger, *hCPUServiceChannelW, false, true, &hSocketBridgeThread);
+
+    //starto ESAPI
+    rhea::HThread hThreadESAPI;
+    esapi::startThread (ESAPI_COMPORT, *hCPUServiceChannelW, logger, &hThreadESAPI);
+
+
+    //attendo che il thread CPU termini
+    //rhea::thread::waitEnd (hCPUThread);
+
+    return true;
+}
+
 
 
 /****************************************************
@@ -238,7 +276,10 @@ void run(int argc, char *argv[])
     startCPUBridge (&hCPUServiceChannelW, glob.logger);
 
     //Mi iscrivo alla CPU per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
-    subscribeToCPU (hCPUServiceChannelW, &glob.subscriber);
+    subscribeToCPU (hCPUServiceChannelW, &glob.cpuSubscriber);
+
+    //Mi iscrivo a ESAPI per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
+    subscribeToESAPI (&glob.esapiSubscriber);
 
 
     //Avvio del main form

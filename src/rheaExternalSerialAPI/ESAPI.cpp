@@ -67,7 +67,7 @@ void esapi::subscribe (const HThreadMsgW &hAnswerHere)
 //*****************************************************************
 void esapi::translate_SUBSCRIPTION_ANSWER (const rhea::thread::sMsg &msg, cpubridge::sSubscriber *out)
 {
-	assert(msg.what == ESAPI_SERVICECH_SUBSCRIPTION_REQUEST);
+    assert(msg.what == ESAPI_SERVICECH_SUBSCRIPTION_ANSWER);
 	memcpy(out, msg.buffer, sizeof(cpubridge::sSubscriber));
 }
 

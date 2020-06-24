@@ -245,7 +245,7 @@ void Server::priv_handleMsgFromServiceMsgQ()
 				hToThreadW.initFromU32 (msg.paramU32);
 				rhea::thread::pushMsg (hToThreadW, CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER, (u32)CPUBRIDGE_VERSION, &sub->q, sizeof(sSubscriber));
 
-				logger->log("OK");
+                logger->log("OK\n");
 				logger->decIndent();
 			}
 			break;

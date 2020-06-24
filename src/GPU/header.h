@@ -9,8 +9,10 @@
 //nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
     #define CPU_COMPORT  "/dev/ttyUSB0"
+    #define ESAPI_COMPORT  "/dev/ttyUSB1"
 #else
     #define CPU_COMPORT     "/dev/ttymxc3"
+    #define ESAPI_COMPORT   "/dev/ttymxc1"
     #define USB_MOUNTPOINT  "/run/media/sda1"
 #endif
 
@@ -47,7 +49,8 @@ struct sModuleESAPI
  */
 struct sGlobal
 {
-    cpubridge::sSubscriber subscriber;
+    cpubridge::sSubscriber cpuSubscriber;
+    cpubridge::sSubscriber esapiSubscriber;
 
     bool            bSyncWithCPUResult;
     char            cpuVersion[128];

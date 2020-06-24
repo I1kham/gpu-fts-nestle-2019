@@ -26,6 +26,12 @@ bool ModuleRasPI::setup ( sGlob *glob)
         waitableGrp.addEvent(h, WAITLIST_EVENT_FROM_SERVICE_MSGQ);
     }
 
+    //aggiungo i subscriber alla wait list
+    for (u32 i=0; i<glob->subscriberList.list.getNElem();i++)
+    {
+        waitableGrp.addEvent(glob->subscriberList.list(i)->hEvent, WAITLIST_EVENT_FROM_A_SUBSCRIBER);
+    }
+
 	return true;
 }
 

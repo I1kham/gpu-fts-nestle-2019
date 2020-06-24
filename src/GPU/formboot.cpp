@@ -3,8 +3,7 @@
 #include "ui_formboot.h"
 #include "history.h"
 #include "../rheaAppLib/rheaAppUtils.h"
-
-
+#include "../rheaExternalSerialAPI/ESAPI.h"
 #include <QWidget>
 #include <QDir>
 #include <QFile>
@@ -54,7 +53,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labGPU_buildDate->setText ("Build date: " __DATE__ " " __TIME__);
 
     //modulo ESAPI
-    ui->labESAPI->setText ("");
+    ui->labESAPI->setText ("ESAPI module: <span style='color:#fff'>none</span>");
 
     //Bottoni
     ui->btnInstall_languages->setVisible(false);
@@ -102,10 +101,10 @@ void FormBoot::showMe()
     {
         //se entriamo qui. vuol dire che la CPU attualmente installata è "buona", ovvero è una CPU fusion 2, quindi possiamo procedere
         //normalmente
-        cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
-        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
-        cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
-        cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
+        cpubridge::ask_CPU_QUERY_INI_PARAM(glob->cpuSubscriber, 0);
+        cpubridge::ask_CPU_QUERY_STATE(glob->cpuSubscriber, 0);
+        cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
+        cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
 
         //se esite la cartella AUTOF2, parto con l'autoupdate
         if (priv_autoupdate_exists())
@@ -231,11 +230,20 @@ void FormBoot::priv_updateLabelInfo()
     //modulo rasPI
     if (glob->esapiModule.verMajor != 0x00)
     {
-        sprintf_s (s, sizeof(s), "ESAPI module: <span style='color:#fff'>%d, v%d.%d</span>", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+        char moduleName[32];
+        switch (glob->esapiModule.moduleType)
+        {
+        default:
+            sprintf_s (moduleName, sizeof(moduleName), "%d", glob->esapiModule.moduleType);
+            break;
+
+        case esapi::eExternalModuleType_rasPI_wifi_REST:
+            sprintf_s (moduleName, sizeof(moduleName), "rasPI");
+            break;
+        }
+        sprintf_s (s, sizeof(s), "ESAPI module: <span style='color:#fff'>%s, v%d.%d</span>", moduleName, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
         ui->labESAPI->setText (s);
     }
-    else
-        ui->labESAPI->setText ("");
 }
 
 //*******************************************
@@ -296,7 +304,7 @@ eRetCode FormBoot::onTick()
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    while (rhea::thread::popMsg(glob->cpuSubscriber.hFromMeToSubscriberR, &msg))
     {
         priv_onCPUBridgeNotification(msg);
         rhea::thread::deleteMsg(msg);
@@ -441,17 +449,8 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         default: break;
         case eUploadCPUFWCallBack_btn: priv_on_btnInstall_CPU_upload(msg); break;
         case eUploadCPUFWCallBack_auto: priv_autoupdate_onCPU_upload(msg); break;
-        case eUploadCPUFWCallBack_rasPIGUI: priv_uploadRasPI_GUI(msg); break;
+        case eUploadCPUFWCallBack_ESAPIGUI: priv_uploadESAPI_GUI(msg); break;
         }
-        break;
-
-    case CPUBRIDGE_NOTIFY_SET_ESAPI_MODULE_VER_AND_TYPE:
-        cpubridge::translateNotify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE (msg, &glob->esapiModule.moduleType, &glob->esapiModule.verMajor, &glob->esapiModule.verMinor);
-        this->priv_updateLabelInfo();
-        break;
-
-    case CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS:
-        priv_uploadRasPI_GUI_unzipped(msg);
         break;
     }
 }
@@ -472,13 +471,13 @@ void FormBoot::priv_foreverDisableBtnStartVMC()
 void FormBoot::priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode)
 {
     dwnloadDataAuditCallBack = mode;
-    cpubridge::ask_READ_DATA_AUDIT (glob->subscriber, 0);
+    cpubridge::ask_READ_DATA_AUDIT (glob->cpuSubscriber, 0);
 }
 
 void FormBoot::priv_startUploadDA3 (eUploadDA3CallBack mode, const u8 *fullFilePathAndName)
 {
     upldDA3CallBack = mode;
-    cpubridge::ask_WRITE_VMCDATAFILE (glob->subscriber, 0, fullFilePathAndName);
+    cpubridge::ask_WRITE_VMCDATAFILE (glob->cpuSubscriber, 0, fullFilePathAndName);
 }
 
 void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullFilePathAndName)
@@ -486,7 +485,7 @@ void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullF
     upldCPUFWCallBack = mode;
     priv_foreverDisableBtnStartVMC();
     sizeInBytesOfCurrentFileUnpload = rhea::fs::filesize(fullFilePathAndName);
-    cpubridge::ask_WRITE_CPUFW (glob->subscriber, 0, fullFilePathAndName);
+    cpubridge::ask_WRITE_CPUFW (glob->cpuSubscriber, 0, fullFilePathAndName);
 }
 
 //*******************************************
@@ -512,6 +511,10 @@ void FormBoot::on_buttonStart_clicked()
     sprintf_s ((char*)s, sizeof(s), "umount -f %s", USB_MOUNTPOINT);
     system((const char*)s);
 #endif
+
+    //se ESAPI::rasPI esiste, attivo la sua interfaccia web
+    if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
+        esapi::ask_RASPI_START (glob->esapiSubscriber, (u32)0);
 
     retCode = eRetCode_gotoFormBrowser;
 }
@@ -892,10 +895,11 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
     }
 
 
-    priv_pleaseWaitShow("Uploading mobile GUI to ESAPI module...");
+    /*priv_pleaseWaitShow("Uploading mobile GUI to ESAPI module...");
     upldCPUFWCallBack = eUploadCPUFWCallBack_ESAPIGUI;
     priv_foreverDisableBtnStartVMC();
-    cpubridge::ask_CPU_RASPI_MITM_Upload_GUI_TS (glob->subscriber, 0, fullMobileGUIPathAndName);
+    cpubridge::ask_CPU_RASPI_MITM_Upload_GUI_TS (glob->cpuSubscriber, 0, fullMobileGUIPathAndName);
+    */
 }
 
 bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
@@ -925,7 +929,7 @@ bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
     return true;
 }
 
-void FormBoot::priv_uploadRasPI_GUI (rhea::thread::sMsg &msg)
+void FormBoot::priv_uploadESAPI_GUI (rhea::thread::sMsg &msg)
 {
     cpubridge::eWriteCPUFWFileStatus status;
     u16 param = 0;
@@ -953,9 +957,9 @@ void FormBoot::priv_uploadRasPI_GUI (rhea::thread::sMsg &msg)
     }
 }
 
-void FormBoot::priv_uploadRasPI_GUI_unzipped(rhea::thread::sMsg &msg)
+void FormBoot::priv_uploadESAPI_GUI_unzipped(rhea::thread::sMsg &msg)
 {
-    bool bSuccess=false;
+    /*bool bSuccess=false;
     cpubridge::translateNotify_CPU_RASPI_MITM_Upload_GUI_TS (msg, &bSuccess);
     if (bSuccess)
         priv_pleaseWaitSetOK ("Installing GUI on WIFI module... SUCCESS");
@@ -963,6 +967,7 @@ void FormBoot::priv_uploadRasPI_GUI_unzipped(rhea::thread::sMsg &msg)
         priv_pleaseWaitSetError ("Installing GUI on WIFI module... Error while unzipping");
     priv_pleaseWaitHide();
     priv_updateLabelInfo();
+    */
 }
 
 

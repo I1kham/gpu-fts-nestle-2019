@@ -101,7 +101,7 @@ void Core::run()
     eExternalModuleType ret = curModule->run();
     RHEADELETE(glob.localAllocator, curModule);
     curModule = NULL;
-    glob.logger->log ("Core::run() => module raw deleted\n");
+    glob.logger->log ("esapi::Core::run() => module raw deleted\n");
 
     //se il module raw ritorna un particolare [eExternalModuleType], allora devo spawnarlo a mandarlo in run, altrimenti
     //vuol dire che abbiamo finito
@@ -112,11 +112,11 @@ void Core::run()
 
     case esapi::eExternalModuleType_rasPI_wifi_REST:
         {
-            glob.logger->log ("Core::run() => spawn moduleRasPI\n");
+            glob.logger->log ("esapi::Core::run() => spawn moduleRasPI\n");
             ModuleRasPI *m = RHEANEW(glob.localAllocator, ModuleRasPI)();
             m->setup (&glob);
             m->run();
-            glob.logger->log ("Core::run() => deleting moduleRasPI\n");
+            glob.logger->log ("esapi::Core::run() => deleting moduleRasPI\n");
             RHEADELETE(glob.localAllocator, m);
         }
         break;

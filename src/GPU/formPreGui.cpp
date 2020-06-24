@@ -27,7 +27,7 @@ void FormPreGui::showMe (u16 groundCounterLimit, bool bShowBtnCleaMilker)
     ui->labCPUStatus->setText("");
 
     retCode = eRetCode_none;
-    cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+    cpubridge::ask_CPU_QUERY_STATE(glob->cpuSubscriber, 0);
     timeToAutoCloseMSec = rhea::getTimeNowMSec() +10000;
     priv_enableButtonClose (true);
 
@@ -106,7 +106,7 @@ eRetCode FormPreGui::onTick()
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    while (rhea::thread::popMsg(glob->cpuSubscriber.hFromMeToSubscriberR, &msg))
     {
         priv_onCPUBridgeNotification(msg);
         rhea::thread::deleteMsg(msg);
@@ -217,7 +217,7 @@ void FormPreGui::on_btnResetGrndCounter_clicked()
     if (glob->bCPUEnteredInMainLoop == 0)
         glob->sendASAP_resetCoffeeGroundDecounter = groundCounterLimit;
     else
-        cpubridge::ask_CPU_SET_DECOUNTER (glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, groundCounterLimit);
+        cpubridge::ask_CPU_SET_DECOUNTER (glob->cpuSubscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, groundCounterLimit);
     utils::waitAndProcessEvent(1000);
 
     priv_showMsg ("Done!");
@@ -235,7 +235,7 @@ void FormPreGui::on_btnMilkModuleRInse_clicked()
     priv_enableButtonClose (false);
     priv_showMsg ("Starting milker rinsing...");
 
-    //cpubridge::ask_CPU_PROGRAMMING_CMD_CLEANING(glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_cleaningType_milker);
+    //cpubridge::ask_CPU_PROGRAMMING_CMD_CLEANING(glob->cpuSubscribe, 0, cpubridge::eCPUProgrammingCommand_cleaningType_milker);
     //utils::waitAndProcessEvent(1500);
 
     showMe (groundCounterLimit, false);

@@ -83,6 +83,7 @@ LIBRARY_NAME="rheaCommonLib"
 		DEPENDPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
 		LIBS += -L$${PATH_TO_LIB}/ -l$${FULL_LIBRARY_NAME}
 		PRE_TARGETDEPS += "$${PATH_TO_LIB}/lib$${FULL_LIBRARY_NAME}.a"
+
 CONFIG(release, debug|release) {
 	QMAKE_CXXFLAGS += -O2
 	QMAKE_CFLAGS += -O2
@@ -93,13 +94,24 @@ CONFIG(release, debug|release) {
 
 SOURCES += \
     ../../src/rheaExternalSerialAPI/ESAPI.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPICore.cpp
+    ../../src/rheaExternalSerialAPI/ESAPICore.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRasPI.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.cpp
+
 
 
 HEADERS += \
     ../../src/rheaExternalSerialAPI/ESAPI.h \
     ../../src/rheaExternalSerialAPI/ESAPICore.h \
-    ../../src/rheaExternalSerialAPI/ESAPIEnumAndDefine.h
+    ../../src/rheaExternalSerialAPI/ESAPIEnumAndDefine.h \
+    ../../src/rheaExternalSerialAPI/ESAPIModule.h \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRasPI.h \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.h \
+    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.h
+
+
+
 
 
 unix {

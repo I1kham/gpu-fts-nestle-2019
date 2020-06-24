@@ -4,6 +4,7 @@
 #include "ui_mainwindow.h"
 #include "history.h"
 #include "../rheaAppLib/rheaAppUtils.h"
+#include "../rheaExternalSerialAPI/ESAPI.h"
 
 
 
@@ -184,7 +185,7 @@ void MainWindow::priv_showForm (eForm w)
         ui->webView->setVisible(false);
         ui->labInfo->setVisible(true);
         this->ui->labInfo->setText("");
-        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+        cpubridge::ask_CPU_QUERY_STATE(glob->cpuSubscriber, 0);
         this->show();
         utils::hideMouse();
         break;
@@ -195,7 +196,7 @@ void MainWindow::priv_showForm (eForm w)
         break;
 
     case eForm_specialActionBeforeGUI:
-        cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
+        cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
         if (!priv_shouldIShowFormPreGUI())
         {
             priv_scheduleFormChange(eForm_main_showBrowser);
@@ -214,9 +215,9 @@ void MainWindow::priv_showForm (eForm w)
                 sprintf_s (s, sizeof(s), "file://%s/varie/no-gui-installed.html", rhea::getPhysicalPathToAppFolder());
 
             priv_loadURL(s);
-            cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
-            cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->subscriber, 0);
-            cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+            cpubridge::ask_CPU_QUERY_INI_PARAM(glob->cpuSubscriber, 0);
+            cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
+            cpubridge::ask_CPU_QUERY_STATE(glob->cpuSubscriber, 0);
         }
         break;
 
@@ -264,7 +265,7 @@ void MainWindow::timerInterrupt()
     //non era pronta, lo mando adesso
     if (glob->sendASAP_resetCoffeeGroundDecounter != 0 && glob->bCPUEnteredInMainLoop)
     {
-        cpubridge::ask_CPU_SET_DECOUNTER (glob->subscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, glob->sendASAP_resetCoffeeGroundDecounter);
+        cpubridge::ask_CPU_SET_DECOUNTER (glob->cpuSubscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, glob->sendASAP_resetCoffeeGroundDecounter);
         glob->sendASAP_resetCoffeeGroundDecounter = 0;
     }
 
@@ -340,7 +341,7 @@ void MainWindow::priv_syncWithCPU_onTick()
     //
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    while (rhea::thread::popMsg(glob->cpuSubscriber.hFromMeToSubscriberR, &msg))
     {
         priv_syncWithCPU_onCPUBridgeNotification(msg);
         rhea::thread::deleteMsg(msg);
@@ -351,7 +352,7 @@ void MainWindow::priv_syncWithCPU_onTick()
     if (timeNowMSec > syncWithCPU.nextTimeoutAskCPUStateMSec)
     {
         syncWithCPU.nextTimeoutAskCPUStateMSec = timeNowMSec + 10000;
-        cpubridge::ask_CPU_QUERY_STATE(glob->subscriber, 0);
+        cpubridge::ask_CPU_QUERY_STATE(glob->cpuSubscriber, 0);
     }
 
 
@@ -384,7 +385,7 @@ void MainWindow::priv_syncWithCPU_onTick()
 
             //Prima di proseguire chiedo un po' di parametri di configurazione
             syncWithCPU.stato = 1;
-            cpubridge::ask_CPU_QUERY_INI_PARAM(glob->subscriber, 0);
+            cpubridge::ask_CPU_QUERY_INI_PARAM(glob->cpuSubscriber, 0);
         }
     }
     else if (syncWithCPU.stato == 3)
@@ -393,8 +394,37 @@ void MainWindow::priv_syncWithCPU_onTick()
         //abbiamo tutte le info, potremmo partire ma abbiamo aggiunto il supporto per il modulo rasPI per
         //cui aggiungo uno step per detectare o meno la presenza del modulo
         //non possiamo partire :) Bisogna verificare
+        rhea::thread::sleepMSec(100);
         syncWithCPU.stato = 4;
-        cpubridge::ask_CPU_RASPI_MITM_ARE_YOU_THERE(glob->subscriber);
+        glob->logger->log ("\n\n");
+        glob->logger->log ("asking ESAPI module type and ver\n");
+        esapi::ask_GET_MODULE_TYPE_AND_VER(glob->esapiSubscriber, (u32)0);
+        syncWithCPU.esapiTimeoutMSec = rhea::getTimeNowMSec() + 2000;
+    }
+    else if (syncWithCPU.stato == 4)
+    {
+        //attendo risposta da ESAPI
+        if (rhea::getTimeNowMSec() > syncWithCPU.esapiTimeoutMSec)
+        {
+            syncWithCPU.stato = 5;
+        }
+        else
+        {
+            rhea::thread::sleepMSec(50);
+            rhea::thread::sMsg msgESAPI;
+            while (rhea::thread::popMsg(glob->esapiSubscriber.hFromMeToSubscriberR, &msgESAPI))
+            {
+                switch (msgESAPI.what)
+                {
+                case ESAPI_NOTIFY_MODULE_TYPE_AND_VER:
+                    esapi::translateNotify_MODULE_TYPE_AND_VER (msgESAPI, &glob->esapiModule.moduleType, &glob->esapiModule.verMajor, &glob->esapiModule.verMinor);
+                    syncWithCPU.stato = 5;
+                    break;
+                }
+
+                rhea::thread::deleteMsg(msgESAPI);
+            }
+        }
     }
     else if (syncWithCPU.stato == 5)
     {
@@ -404,9 +434,9 @@ void MainWindow::priv_syncWithCPU_onTick()
             priv_scheduleFormChange (eForm_boot);
         else
         {
-            //se rasPI::MITM esiste, attivo la sua interfaccia web
-            if (glob->rasPI.version)
-                cpubridge::ask_CPU_RASPI_MITM_START_SOCKETBRIDGE(glob->subscriber);
+            //se ESAPI::rasPI esiste, attivo la sua interfaccia web
+            if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
+                esapi::ask_RASPI_START (glob->esapiSubscriber, (u32)0);
 
             priv_scheduleFormChange (eForm_specialActionBeforeGUI);
         }
@@ -435,7 +465,7 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
             if (syncWithCPU.stato == 1)
             {
                 syncWithCPU.stato = 2;
-                cpubridge::ask_CPU_GET_EXTENDED_CONFIG_INFO(glob->subscriber, 0);
+                cpubridge::ask_CPU_GET_EXTENDED_CONFIG_INFO(glob->cpuSubscriber, 0);
             }
         }
         break;
@@ -489,11 +519,6 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
 
         }
         break;
-
-    case CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_ARE_YOU_THERE:
-        cpubridge::translateNotify_CPU_RASPI_MITM_ARE_YOU_THERE (msg, &glob->rasPI.version, &glob->rasPI.futureUse1, &glob->rasPI.futureUse2, &glob->rasPI.futureUse3);
-        syncWithCPU.stato = 5;
-        break;
     }
 }
 
@@ -509,7 +534,7 @@ eRetCode MainWindow::priv_showBrowser_onTick()
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    while (rhea::thread::popMsg(glob->cpuSubscriber.hFromMeToSubscriberR, &msg))
     {
         priv_showBrowser_onCPUBridgeNotification(msg);
         rhea::thread::deleteMsg(msg);
@@ -591,7 +616,7 @@ eRetCode MainWindow::priv_showNewProgrammazione_onTick()
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg(glob->subscriber.hFromCpuToOtherR, &msg))
+    while (rhea::thread::popMsg(glob->cpuSubscriber.hFromMeToSubscriberR, &msg))
     {
         priv_showNewProgrammazione_onCPUBridgeNotification(msg);
         rhea::thread::deleteMsg(msg);
