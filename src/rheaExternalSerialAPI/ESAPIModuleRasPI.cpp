@@ -56,7 +56,22 @@ void ModuleRasPI::priv_unsetup()
 //*********************************************************
 void ModuleRasPI::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 {
-    rhea::rs232::writeBuffer (glob->com, buffer, numBytesToSend);
+    u32 nSent = 0;
+    while (1)
+    {
+        const u32 n = rhea::rs232::writeBuffer (glob->com, buffer, numBytesToSend);
+        if (n > 0)
+        {
+            nSent += n;
+            if (nSent >= numBytesToSend)
+                return;
+        }
+        else
+        {
+            DBGBREAK;
+        }
+        rhea::thread::sleepMSec(2);
+    }
 }
 
 //*******************************************************
@@ -201,6 +216,7 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                 priv_rs232_sendBuffer (rs232BufferOUT, ct);
                 if (priv_boot_waitAnswer('R', 0x01, 4, 0, rs232BufferOUT, 1000))
                     notify_RASPI_STARTED(sub->q, handlerID, glob->logger);
+                bQuit = true;
             }
             break;
 
@@ -474,9 +490,8 @@ bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
 {
 	const u8 COMMAND_CHAR = 'R';
 
-	assert(b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert(b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
 	const u8 commandCode = b.buffer[2];
-	bool ret;
 
 	switch (commandCode)
 	{
@@ -560,9 +575,9 @@ bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
 				return false;
 
 			const u32 uid = rhea::utils::bufferReadU32 (&b.buffer[3]);
-			const u16 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
+            const u32 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
 
-			if (b.numBytesInBuffer < 10 + dataLen)
+            if (b.numBytesInBuffer < 10 + dataLen)
 				return false;
 
 			const u8* data = &b.buffer[9];
@@ -666,6 +681,11 @@ void ModuleRasPI::priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid)
 	rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
 	ct++;
 
+    assert (ct < SIZE_OF_RS232BUFFEROUT);
+
 	priv_rs232_sendBuffer (rs232BufferOUT, ct);
 	glob->logger->log ("esapi::ModuleRasPI => rcv [%d] bytes from socket [%d], sending to rasPI\n", nBytesLetti, cl->uid);
+
+    if (nBytesLetti > 500)
+        rhea::thread::sleepMSec(100);
 }
