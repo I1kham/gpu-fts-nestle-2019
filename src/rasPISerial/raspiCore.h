@@ -35,10 +35,9 @@ namespace raspi
 		static const u32	WAITGRP_SOCKET2280		= 0xFFFFFFFF;
 		
 		
-		static const u16	SIZE_OF_RS232BUFFEROUT	= 8192;
-		static const u16	SIZE_OF_RS232BUFFERIN	= 8192;
-		static const u16	SOKCLIENT_BUFFER_SIZE	= 4096;
-		static const u16	SOK_BUFFER_SIZE			= 8192;
+		static const u16	SIZE_OF_RS232BUFFEROUT	= 4*1024;
+		static const u16	SIZE_OF_RS232BUFFERIN	= 4*1024;
+		static const u16	SOK_BUFFER_SIZE			= 4*1024;
 
 	private:
 		struct sConnectedSocket

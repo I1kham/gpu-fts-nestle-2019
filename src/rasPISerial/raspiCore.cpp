@@ -627,9 +627,8 @@ bool Core::priv_rs232_handleCommand_A (sBuffer &b)
 {
     const u8 COMMAND_CHAR = 'A';
 
-    assert (b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
     const u8 commandCode = b.buffer[2];
-    bool ret;
 
     switch (commandCode)
     {
@@ -670,9 +669,8 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 {
 	const u8 COMMAND_CHAR = 'R';
 
-	assert(b.numBytesInBuffer >= 3 & b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+	assert(b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
 	const u8 commandCode = b.buffer[2];
-	bool ret;
 
 	switch (commandCode)
 	{
@@ -692,6 +690,7 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
                 return false;
             if (!bValidCk)
             {
+				DBGBREAK;
                 b.removeFirstNBytes(2);
                 return true;
             }
@@ -723,6 +722,7 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 			const u8 ck = b.buffer[9 + dataLen];
 			if (rhea::utils::simpleChecksum8_calc(b.buffer, 9 + dataLen) != ck)
 			{
+				DBGBREAK;
 				b.removeFirstNBytes(2);
 				return true;
 			}
