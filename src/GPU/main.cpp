@@ -219,6 +219,7 @@ void run(int argc, char *argv[])
 {
     sGlobal glob;
     memset(&glob, 0, sizeof(glob));
+    glob.esapiModule.moduleType = esapi::eExternalModuleType_unknown;
     glob.bIsMilkerAlive = 1;
 
     //creazione del logger

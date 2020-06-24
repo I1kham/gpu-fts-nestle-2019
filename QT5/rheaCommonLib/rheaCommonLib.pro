@@ -126,6 +126,7 @@ SOURCES += \
     ../../src/rheaCommonLib/compress/miniz.c
 
 
+
 HEADERS += \
     ../../src/rheaCommonLib/compress/miniz.h \
     ../../src/rheaCommonLib/compress/rheaCompress.h \
@@ -191,9 +192,9 @@ HEADERS += \
     ../../src/rheaCommonLib/rheaTime24.h \
     ../../src/rheaCommonLib/rheaUtils.h \
     ../../src/rheaCommonLib/rheaWaitableFIFO.h
-
-
+    
 unix {
     target.path = /usr/lib
     INSTALLS += target
-}
+}    
+

@@ -119,10 +119,7 @@ void Core::run()
         }
         break;
     }
-
-
     glob.logger->log ("Core::run() => closing...\n");
     priv_close();
-    
 }
 

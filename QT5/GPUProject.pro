@@ -7,6 +7,7 @@ SUBDIRS = \
 	rheaAlipayChina\
 	SocketBridge \
 	rheaAppLib \
+	rheaExternalSerialAPI\
 	GPU
 
 

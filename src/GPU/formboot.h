@@ -77,7 +77,7 @@ private:
         eUploadCPUFWCallBack_none = 0,
         eUploadCPUFWCallBack_btn = 1,
         eUploadCPUFWCallBack_auto = 2,
-        eUploadCPUFWCallBack_rasPIGUI = 3
+        eUploadCPUFWCallBack_ESAPIGUI = 3
     };
 
     enum eAutoUpdateFase

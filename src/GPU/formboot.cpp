@@ -53,8 +53,8 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labVersion_protocol->setText("");
     ui->labGPU_buildDate->setText ("Build date: " __DATE__ " " __TIME__);
 
-    //modulo rasPI MITM
-    ui->labRasPI->setText ("WiFi module: not connected");
+    //modulo ESAPI
+    ui->labESAPI->setText ("");
 
     //Bottoni
     ui->btnInstall_languages->setVisible(false);
@@ -229,13 +229,13 @@ void FormBoot::priv_updateLabelInfo()
     }
 
     //modulo rasPI
-    if (glob->rasPI.version != 0x00)
+    if (glob->esapiModule.verMajor != 0x00)
     {
-        sprintf_s (s, sizeof(s), "WiFi module: <span style='color:#fff'>v %03d</span>", glob->rasPI.version);
-        ui->labRasPI->setText (s);
+        sprintf_s (s, sizeof(s), "ESAPI module: <span style='color:#fff'>%d, v%d.%d</span>", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+        ui->labESAPI->setText (s);
     }
     else
-        ui->labRasPI->setText ("WiFi module: not connected");
+        ui->labESAPI->setText ("");
 }
 
 //*******************************************
@@ -292,13 +292,7 @@ void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
 eRetCode FormBoot::onTick()
 {
     if (retCode != eRetCode_none)
-    {
-        //se il modulo rasPI::MITM esiste, gli dico di attivare la sua intefaccia web
-        if (glob->rasPI.version)
-            cpubridge::ask_CPU_RASPI_MITM_START_SOCKETBRIDGE(glob->subscriber);
-
         return retCode;
-    }
 
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
@@ -449,6 +443,11 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         case eUploadCPUFWCallBack_auto: priv_autoupdate_onCPU_upload(msg); break;
         case eUploadCPUFWCallBack_rasPIGUI: priv_uploadRasPI_GUI(msg); break;
         }
+        break;
+
+    case CPUBRIDGE_NOTIFY_SET_ESAPI_MODULE_VER_AND_TYPE:
+        cpubridge::translateNotify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE (msg, &glob->esapiModule.moduleType, &glob->esapiModule.verMajor, &glob->esapiModule.verMinor);
+        this->priv_updateLabelInfo();
         break;
 
     case CPUBRIDGE_NOTIFY_CPU_RASPI_MITM_UPLOAD_GUI_TS:
@@ -872,10 +871,10 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
         return;
     }
 
-    //se c'è collegato il rasPI e se la GUI importata ha una versione "mobile", devo uppare anche quella
+    //se c'è collegato il modulo ESAPI eExternalModuleType_rasPI_wifi_REST, e se la GUI importata ha una versione "mobile", devo uppare anche quella
     u8 fullMobileGUIPathAndName[1024];
     sizeInBytesOfCurrentFileUnpload = 0;
-    if (glob->rasPI.version)
+    if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
     {
         sprintf_s ((char*)fullMobileGUIPathAndName, sizeof(fullMobileGUIPathAndName), "%s/web/mobile.rheazip", glob->current_GUI);
         if (rhea::fs::fileExists(fullMobileGUIPathAndName))
@@ -893,8 +892,8 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
     }
 
 
-    priv_pleaseWaitShow("Uploading mobile GUI to wifi module...");
-    upldCPUFWCallBack = eUploadCPUFWCallBack_rasPIGUI;
+    priv_pleaseWaitShow("Uploading mobile GUI to ESAPI module...");
+    upldCPUFWCallBack = eUploadCPUFWCallBack_ESAPIGUI;
     priv_foreverDisableBtnStartVMC();
     cpubridge::ask_CPU_RASPI_MITM_Upload_GUI_TS (glob->subscriber, 0, fullMobileGUIPathAndName);
 }

@@ -1299,7 +1299,7 @@ Click on SKIP if you do not want to auto update this machine.</string>
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="labRasPI">
+  <widget class="QLabel" name="labESAPI">
    <property name="geometry">
     <rect>
      <x>790</x>
@@ -1318,7 +1318,7 @@ Click on SKIP if you do not want to auto update this machine.</string>
     <string notr="true">background-color:#000</string>
    </property>
    <property name="text">
-    <string>WiFi module: not connected</string>
+    <string>ESAPI</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1350,7 +1350,7 @@ Click on SKIP if you do not want to auto update this machine.</string>
   <zorder>frameAutoUpdate</zorder>
   <zorder>labVersion_CPUMasterName</zorder>
   <zorder>labVersion_protocol</zorder>
-  <zorder>labRasPI</zorder>
+  <zorder>labESAPI</zorder>
  </widget>
  <resources/>
  <connections/>
