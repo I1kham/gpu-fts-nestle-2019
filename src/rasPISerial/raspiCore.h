@@ -30,6 +30,8 @@ namespace raspi
 		void			run ();
 
 	private:
+		static const u8		VER_MAJOR = 1;
+		static const u8		VER_MINOR = 0;
 		static const u32	WAITGRP_SOCKET2280		= 0xFFFFFFFF;
 		static const u16	RS232_BUFFEROUT_SIZE	= 8192;
 		static const u16	SOKCLIENT_BUFFER_SIZE	= 4096;

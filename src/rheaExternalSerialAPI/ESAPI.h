@@ -16,6 +16,18 @@ namespace esapi
 						[out_hThread]				è l'handle del thread che è stato creato
 				*/
 
+	void		subscribe (const HThreadMsgW &hAnswerHere);
+					/*	Qualcuno vuole iscriversi alla coda di messaggi di output del thread di ESAPI.
+						ESAPI invierà la risposta a questa richiesta sul canale identificato da [hAnswerHere].
+
+						Il thread richiedente deve quindi monitorare la propria msgQ in attesa di un msg di tipo ESAPI_SERVICECH_SUBSCRIPTION_ANSWER e tradurlo con
+						translate_SUBSCRIPTION_ANSWER() la quale filla la struttura sSubscriber da usare poi per le comunicazioni e il monitoring dei messaggi
+					*/
+	void		translate_SUBSCRIPTION_ANSWER (const rhea::thread::sMsg &msg, cpubridge::sSubscriber *out);
+
+	void		unsubscribe (const cpubridge::sSubscriber &sub);
+
+
 	bool		isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse);
 
 
@@ -67,6 +79,34 @@ namespace esapi
 	u32			buildMsg_R0x03_socketDataToGPU (u32 socketUID, const u8 *data, u16 lenOfData, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u32			buildMsg_R0x04_GPUDataToSocket (u32 socketUID, const u8 *data, u16 lenOfData, u8 *out_buffer, u32 sizeOfOutBuffer);
 
+	u32			buildMsg_R0x05_getIPandSSID (u8 *out_buffer, u32 sizeOfOutBuffer);
+	u32			buildMsg_R0x06_start (u8 *out_buffer, u32 sizeOfOutBuffer);
+
+
+
+	/***********************************************
+		ask_xxxx
+			Un subscriber di ESAPI può richiedere le seguenti cose
+	*/
+
+	void		ask_UNSUBSCRIBE (const cpubridge::sSubscriber &from);
+
+	void		ask_GET_MODULE_TYPE_AND_VER (const cpubridge::sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, ESAPI risponderà con notify_MODULE_TYPE_AND_VER
+
+	void		notify_MODULE_TYPE_AND_VER(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eExternalModuleType type, u8 verMajor, u8 verMinor);
+	void		translateNotify_MODULE_TYPE_AND_VER(const rhea::thread::sMsg &msg, eExternalModuleType *out_type, u8 *out_verMajor, u8 *out_verMinor);
+
+
+	void		ask_GET_WIFI_IPandSSID (const cpubridge::sSubscriber &from, u16 handlerID);
+                    //alla ricezione di questo msg, ESAPI risponderà con notify_WIFI_IPandSSID
+    void		notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress, const char *ssid);
+	void		notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid);
+    void		translateNotify_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid);
+
+	void		ask_START_MODULE (const cpubridge::sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, ESAPI risponderà con notify_MODULE_STARTED
+	void		notify_MODULE_STARTED(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 } // namespace esapi
 
 #endif // _ESAPI_h_

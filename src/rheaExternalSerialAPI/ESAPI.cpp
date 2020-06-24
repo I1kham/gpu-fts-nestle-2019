@@ -10,7 +10,7 @@ struct sEsapiThreadInitParam
 	HThreadMsgW			hCPUServiceChannelW;
 	OSEvent				hEvThreadStarted;
 };
-
+HThreadMsgW esapi_serviceMsgQW;
 
 i16     esapiThreadFn (void *userParam);
 
@@ -47,6 +47,8 @@ i16 esapiThreadFn (void *userParam)
 	core.useLogger(init->logger);
 	if (core.open (init->comPort, init->hCPUServiceChannelW))
 	{
+		esapi_serviceMsgQW = core.getServiceMsgQQ();
+
 		//segnalo che il thread è partito con successo
 		rhea::event::fire(init->hEvThreadStarted);
 		core.run();
@@ -54,6 +56,27 @@ i16 esapiThreadFn (void *userParam)
 
 	return 1;
 }
+
+//*****************************************************************
+void esapi::subscribe (const HThreadMsgW &hAnswerHere)
+{
+	u32 param32 = hAnswerHere.asU32();
+	rhea::thread::pushMsg (esapi_serviceMsgQW, ESAPI_SERVICECH_SUBSCRIPTION_REQUEST, param32);
+}
+
+//*****************************************************************
+void esapi::translate_SUBSCRIPTION_ANSWER (const rhea::thread::sMsg &msg, cpubridge::sSubscriber *out)
+{
+	assert(msg.what == ESAPI_SERVICECH_SUBSCRIPTION_REQUEST);
+	memcpy(out, msg.buffer, sizeof(cpubridge::sSubscriber));
+}
+
+//*****************************************************************
+void esapi::unsubscribe (const cpubridge::sSubscriber &sub)
+{
+	ask_UNSUBSCRIBE(sub);
+}
+
 
 //****************************************************************************
 bool esapi::isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse)
@@ -259,6 +282,7 @@ u32 esapi::buildMsg_S1_startSelection_parseAsk (const u8 *buffer, u32 numBytesIn
 		*out_bIsValidCk = true;
 		*out_selNum = buffer[3];
 	}
+	else
 	{
 		DBGBREAK;
 		*out_bIsValidCk = false;
@@ -503,4 +527,109 @@ u32 esapi::buildMsg_R0x04_GPUDataToSocket (u32 socketUID, const u8 *data, u16 le
     ct++;
 
 	return ct;
+}
+
+//****************************************************************************
+u32 esapi::buildMsg_R0x05_getIPandSSID (u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+	return priv_esapi_buildMsg ('R', 0x05, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//****************************************************************************
+u32 esapi::buildMsg_R0x06_start (u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+	return priv_esapi_buildMsg ('R', 0x06, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+
+//****************************************************************************
+void esapi::ask_UNSUBSCRIBE (const cpubridge::sSubscriber &from)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_UNSUBSCRIBE, (u32)0);
+}
+
+//****************************************************************************
+void esapi::ask_GET_MODULE_TYPE_AND_VER (const cpubridge::sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_GET_MODULE_TYPE_AND_VER, handlerID);
+}
+
+//****************************************************************************
+void esapi::notify_MODULE_TYPE_AND_VER (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eExternalModuleType type, u8 verMajor, u8 verMinor)
+{
+	logger->log("notify_MODULE_TYPE_AND_VER\n");
+
+	const u8 data[4] = { (u8)type, verMajor, verMinor, 0 };
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, ESAPI_NOTIFY_MODULE_TYPE_AND_VER, handlerID, data, 3);
+}
+
+//****************************************************************************
+void esapi::translateNotify_MODULE_TYPE_AND_VER(const rhea::thread::sMsg &msg, eExternalModuleType *out_type, u8 *out_verMajor, u8 *out_verMinor)
+{
+    assert(msg.what == ESAPI_NOTIFY_MODULE_TYPE_AND_VER);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_type = (eExternalModuleType)p[0];
+	*out_verMajor = p[1];
+	*out_verMinor = p[2];
+}
+
+
+//****************************************************************************
+void esapi::ask_GET_WIFI_IPandSSID (const cpubridge::sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_GET_IPandSSID, handlerID);
+}
+
+//****************************************************************************
+void esapi::notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ipAddress, const char *ssid)
+{
+    u8 ipPart[4];
+    rhea::netaddr::ipstrTo4bytes (ipAddress, &ipPart[0], &ipPart[1], &ipPart[2], &ipPart[3]);
+    notify_WIFI_IPandSSID (to, handlerID, logger, ipPart[0], ipPart[1], ipPart[2], ipPart[3], ssid);
+}
+
+//****************************************************************************
+void esapi::notify_WIFI_IPandSSID (const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 ipPart0, u8 ipPart1, u8 ipPart2, u8 ipPart3, const char *ssid)
+{
+	logger->log("notify_WIFI_IPandSSID\n");
+
+    u8 data[256];
+    data[0] = ipPart0;
+    data[1] = ipPart1;
+    data[2] = ipPart2;
+    data[3] = ipPart3;
+    sprintf_s ((char*)&data[4], sizeof(data) - 4, "%s", ssid);
+    const u32 len = strlen(ssid);
+    data[4 + len] = 0;
+    rhea::thread::pushMsg (to.hFromMeToSubscriberW, ESAPI_NOTIFY_IPandSSID, handlerID, data, 5+len);
+}
+
+//****************************************************************************
+void esapi::translateNotify_WIFI_IPandSSID(const rhea::thread::sMsg &msg, char *out_ipAddress, u32 sizeof_outIpAddress, char *out_ssid, u32 sizeof_outssid)
+{
+	assert (msg.what == ESAPI_NOTIFY_IPandSSID);
+	const u8 *p = (const u8*)msg.buffer;
+    sprintf_s (out_ipAddress, sizeof_outIpAddress, "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
+
+    const u32 nToCopy = msg.bufferSize - 4;
+    if (sizeof_outssid >= nToCopy)
+        memcpy (out_ssid, &p[4], nToCopy);
+    else
+    {
+        DBGBREAK;
+        out_ssid[0] = 0;
+    }
+}
+
+//****************************************************************************
+void esapi::ask_START_MODULE (const cpubridge::sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_START_MODULE, handlerID);
+}
+//****************************************************************************
+void esapi::notify_MODULE_STARTED(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_MODULE_STARTED\n");
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, ESAPI_MODULE_STARTED, handlerID, NULL, 0);
 }

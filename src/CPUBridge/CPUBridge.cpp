@@ -521,14 +521,14 @@ void cpubridge::translate_SUBSCRIPTION_ANSWER (const rhea::thread::sMsg &msg, sS
 //***************************************************
 void cpubridge::unsubscribe(const sSubscriber &sub)
 {
-	rhea::thread::pushMsg(sub.hFromCpuToOtherW, CPUBRIDGE_SERVICECH_UNSUBSCRIPTION_REQUEST, (u32)0);
+	rhea::thread::pushMsg(sub.hFromSubscriberToMeW, CPUBRIDGE_SERVICECH_UNSUBSCRIPTION_REQUEST, (u32)0);
 }
 
 
 //***************************************************
 void cpubridge::notify_CPUBRIDGE_DYING (const sSubscriber &to)
 {
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_DYING, (u32)0);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_DYING, (u32)0);
 }
 
 //***************************************************
@@ -541,7 +541,7 @@ void cpubridge::notify_CPU_STATE_CHANGED(const sSubscriber &to, u16 handlerID, r
 	state[1] = (u8)VMCerrorCode;
 	state[2] = (u8)VMCerrorType;
 	rhea::utils::bufferWriteU16(&state[3], flag1);
-	rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, state, 5);
+	rhea::thread::pushMsg (to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, state, 5);
 }
 
 //***************************************************
@@ -563,7 +563,7 @@ void cpubridge::notify_CPU_CUR_SEL_RUNNING(const sSubscriber &to, u16 handlerID,
 
 	u8 state[2];
 	state[0] = selNum;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CUR_SEL_RUNNING, handlerID, state, 1);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CUR_SEL_RUNNING, handlerID, state, 1);
 }
 
 //***************************************************
@@ -578,7 +578,7 @@ void cpubridge::translateNotify_CPU_CUR_SEL_RUNNING(const rhea::thread::sMsg &ms
 void cpubridge::notify_CPU_CREDIT_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const void *credit, u8 sizeOfCredit)
 {
 	logger->log("notify_CPU_CREDIT_CHANGED\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED, handlerID, credit, sizeOfCredit);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED, handlerID, credit, sizeOfCredit);
 }
 
 //***************************************************
@@ -600,8 +600,8 @@ void cpubridge::notify_CPU_NEW_LCD_MESSAGE (const sSubscriber &to, u16 handlerID
 	{
 		if (msg->utf16LCDString[i] == 0)
 		{
-			//rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, handlerID, msg, sizeof(sCPULCDMessage));
-			rhea::thread::pushMsg2Buffer(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, handlerID, &msg->importanceLevel, 1, msg, i*2);
+			//rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, handlerID, msg, sizeof(sCPULCDMessage));
+			rhea::thread::pushMsg2Buffer(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE, handlerID, &msg->importanceLevel, 1, msg, i*2);
 			return;
 		}
 	}
@@ -625,7 +625,7 @@ void cpubridge::translateNotify_CPU_NEW_LCD_MESSAGE (const rhea::thread::sMsg &m
 void cpubridge::notify_CPU_SEL_AVAIL_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUSelAvailability *selAvailability)
 {
 	logger->log("notify_CPU_SEL_AVAIL_CHANGED\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED, handlerID, selAvailability->_flag, sizeof(selAvailability->_flag));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED, handlerID, selAvailability->_flag, sizeof(selAvailability->_flag));
 }
 
 //***************************************************
@@ -647,7 +647,7 @@ void cpubridge::notify_CPU_SEL_PRICES_CHANGED(const sSubscriber &to, u16 handler
 	buffer[0] = (u16)numPrices | ( (u16)numDecimals << 8);
 	memcpy(&buffer[1], prices, sizeof(u16)* numPrices);
 
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED, handlerID, buffer, sizeof(u16) * (numPrices+1) );
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED, handlerID, buffer, sizeof(u16) * (numPrices+1) );
 }
 
 //***************************************************
@@ -668,7 +668,7 @@ void cpubridge::notify_CPU_RUNNING_SEL_STATUS(const sSubscriber &to, u16 handler
 	u32 paramU32 = status;
 	paramU32 <<= 16;
 	paramU32 |= handlerID;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS, paramU32);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS, paramU32);
 }
 
 //***************************************************
@@ -682,7 +682,7 @@ void cpubridge::translateNotify_CPU_RUNNING_SEL_STATUS(const rhea::thread::sMsg 
 void cpubridge::notify_CPU_FULLSTATE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUStatus *s)
 {
 	logger->log("notify_CPU_FULLSTATE\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_FULLSTATE, handlerID, s, sizeof(sCPUStatus));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_FULLSTATE, handlerID, s, sizeof(sCPUStatus));
 }
 
 //***************************************************
@@ -696,7 +696,7 @@ void cpubridge::translateNotify_CPU_FULLSTATE(const rhea::thread::sMsg &msg, sCP
 void cpubridge::notify_CPU_INI_PARAM(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUParamIniziali *s)
 {
 	logger->log("notify_CPU_INI_PARAM\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_INI_PARAM, handlerID, s, sizeof(sCPUParamIniziali));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_INI_PARAM, handlerID, s, sizeof(sCPUParamIniziali));
 }
 
 //***************************************************
@@ -710,7 +710,7 @@ void cpubridge::translateNotify_CPU_INI_PARAM(const rhea::thread::sMsg &msg, sCP
 void cpubridge::notify_CPU_BTN_PROG_PRESSED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CPU_BTN_PROG_PRESSED\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED, handlerID);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED, handlerID);
 }
 
 //***************************************************
@@ -730,7 +730,7 @@ void cpubridge::notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 hand
 	nbw.writeU16(fileID);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS, handlerID, buffer, nbw.length());
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS, handlerID, buffer, nbw.length());
 }
 
 //***************************************************
@@ -760,7 +760,7 @@ void cpubridge::notify_READ_VMCDATAFILE_PROGRESS(const sSubscriber &to, u16 hand
 	nbw.writeU16(fileID);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS, handlerID, buffer, nbw.length());
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS, handlerID, buffer, nbw.length());
 }
 
 //***************************************************
@@ -789,7 +789,7 @@ void cpubridge::notify_WRITE_VMCDATAFILE_PROGRESS(const sSubscriber &to, u16 han
 	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS, handlerID, buffer, nbw.length());
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS, handlerID, buffer, nbw.length());
 }
 
 //***************************************************
@@ -817,7 +817,7 @@ void cpubridge::notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerI
 	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
 	nbw.writeU16(param);
 	nbw.writeU8((u8)status);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS, handlerID, buffer, nbw.length());
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS, handlerID, buffer, nbw.length());
 }
 
 //***************************************************
@@ -845,7 +845,7 @@ void cpubridge::notify_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &to, u16 hand
 	u8 buffer[BUFFER_SIZE];
 	assert(ts.getLenInBytes() <= BUFFER_SIZE);
 	ts.writeToBuffer(buffer);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP, handlerID, buffer, ts.getLenInBytes());
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP, handlerID, buffer, ts.getLenInBytes());
 }
 
 //***************************************************
@@ -862,7 +862,7 @@ void cpubridge::notify_SAN_WASHING_STATUS(const sSubscriber &to, u16 handlerID, 
 {
 	logger->log("notify_SAN_WASHING_STATUS\n");
 	u8 buffer[4] = { b0, b1, b2, 0 };
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS, handlerID, buffer, 3);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS, handlerID, buffer, 3);
 }
 
 //***************************************************
@@ -882,7 +882,7 @@ void cpubridge::notify_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &to, u16 hand
 {
 	logger->log("notify_WRITE_PARTIAL_VMCDATAFILE [%d]\n", blockNumOffset);
 	u8 buffer[4] = { blockNumOffset, 0, 0, 0 };
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_WRITE_PARTIAL_VMCDATAFILE_PROGRESS, handlerID, buffer, 1);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WRITE_PARTIAL_VMCDATAFILE_PROGRESS, handlerID, buffer, 1);
 }
 
 //***************************************************
@@ -902,7 +902,7 @@ void cpubridge::notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, r
 	buffer[0] = (u8)which;
 	buffer[1] = (u8)((valore & 0xFF00) >> 8);
 	buffer[2] = (u8)(valore & 0x00FF);
-	rhea::thread::pushMsg (to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET, handlerID, buffer, 3);
+	rhea::thread::pushMsg (to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET, handlerID, buffer, 3);
 }
 
 //***************************************************
@@ -923,7 +923,7 @@ void cpubridge::notify_CPU_ALL_DECOUNTER_VALUES(const sSubscriber &to, u16 handl
 
 	u16 buffer[14];
 	memcpy(buffer, arrayDiAlmeno14Elementi, sizeof(u16) * 14);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES, handlerID, buffer, 14 * sizeof(u16));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES, handlerID, buffer, 14 * sizeof(u16));
 }
 
 //***************************************************
@@ -938,7 +938,7 @@ void cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMs
 void cpubridge::notify_EXTENDED_CONFIG_INFO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sExtendedCPUInfo *info)
 {
 	logger->log("notify_EXTENDED_CONFIG_INFO\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO, handlerID, info, sizeof(sExtendedCPUInfo));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO, handlerID, info, sizeof(sExtendedCPUInfo));
 }
 
 //***************************************************
@@ -958,7 +958,7 @@ void cpubridge::notify_ATTIVAZIONE_MOTORE(const sSubscriber &to, u16 handlerID, 
 	buffer[1] = durata_dSec;
 	buffer[2] = numRipetizioni;
 	buffer[3] = pausaTraRipetizioni_dSec;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_ATTIVAZIONE_MOTORE, handlerID, buffer, 4);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_ATTIVAZIONE_MOTORE, handlerID, buffer, 4);
 }
 
 //***************************************************
@@ -977,7 +977,7 @@ void cpubridge::translateNotify_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg
 void cpubridge::notify_CALCOLA_IMPULSI_GRUPPO_STARTED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CALCOLA_IMPULSI_GRUPPO_STARTED\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_CALCOLA_IMPULSI_GRUPPO_STARTED, handlerID);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CALCOLA_IMPULSI_GRUPPO_STARTED, handlerID);
 }
 
 //***************************************************
@@ -988,7 +988,7 @@ void cpubridge::notify_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &to, u16 h
 	u8 buffer[4];
 	rhea::utils::bufferWriteU16(buffer, valore);
 	buffer[2] = stato;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_STATO_CALCOLO_IMPULSI_GRUPPO, handlerID, buffer, 3);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_STATO_CALCOLO_IMPULSI_GRUPPO, handlerID, buffer, 3);
 }
 
 //***************************************************
@@ -1009,7 +1009,7 @@ void cpubridge::notify_SET_FATTORE_CALIB_MOTORE(const sSubscriber &to, u16 handl
 	u8 buffer[4];
 	rhea::utils::bufferWriteU16(buffer, valore);
 	buffer[2] = (u8)motore;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_FATTORE_CALIB_MOTORE, handlerID, buffer, 3);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SET_FATTORE_CALIB_MOTORE, handlerID, buffer, 3);
 }
 
 //***************************************************
@@ -1028,7 +1028,7 @@ void cpubridge::notify_STATO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::
 
 	u8 buffer[4];
 	buffer[0] = (u8)stato;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_STATO_GRUPPO, handlerID, buffer, 1);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_STATO_GRUPPO, handlerID, buffer, 1);
 }
 
 //***************************************************
@@ -1049,7 +1049,7 @@ void cpubridge::notify_GET_TIME(const sSubscriber &to, u16 handlerID, rhea::ISim
 	buffer[1] = mm;
 	buffer[2] = ss;
 	
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GET_TIME, handlerID, buffer, 3);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_TIME, handlerID, buffer, 3);
 }
 
 //***************************************************
@@ -1071,7 +1071,7 @@ void cpubridge::notify_GET_DATE(const sSubscriber &to, u16 handlerID, rhea::ISim
 	rhea::utils::bufferWriteU16(buffer, year);
 	buffer[2] = month;
 	buffer[3] = day;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GET_DATE, handlerID, buffer, 4);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_DATE, handlerID, buffer, 4);
 }
 
 //***************************************************
@@ -1093,7 +1093,7 @@ void cpubridge::notify_SET_TIME(const sSubscriber &to, u16 handlerID, rhea::ISim
 	buffer[0] = hh;
 	buffer[1] = mm;
 	buffer[2] = ss;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_TIME, handlerID, buffer, 3);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SET_TIME, handlerID, buffer, 3);
 }
 
 //***************************************************
@@ -1115,7 +1115,7 @@ void cpubridge::notify_SET_DATE(const sSubscriber &to, u16 handlerID, rhea::ISim
 	rhea::utils::bufferWriteU16(buffer, year);
 	buffer[2] = month;
 	buffer[3] = day;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_DATE, handlerID, buffer, 4);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SET_DATE, handlerID, buffer, 4);
 }
 
 //***************************************************
@@ -1136,7 +1136,7 @@ void cpubridge::notify_CPU_POSIZIONE_MACINA(const sSubscriber &to, u16 handlerID
 	u8 buffer[4];
 	rhea::utils::bufferWriteU16(buffer, posizione);
 	buffer[2] = macina_1o2;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_POSIZIONE_MACINA, handlerID, buffer, 3);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_POSIZIONE_MACINA, handlerID, buffer, 3);
 }
 
 //***************************************************
@@ -1156,7 +1156,7 @@ void cpubridge::notify_CPU_MOTORE_MACINA(const sSubscriber &to, u16 handlerID, r
 	u8 buffer[4];
 	buffer[0] = macina_1o2;
 	buffer[1] = (u8)m;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_MOTORE_MACINA, handlerID, buffer, 2);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_MOTORE_MACINA, handlerID, buffer, 2);
 }
 
 //***************************************************
@@ -1176,7 +1176,7 @@ void cpubridge::notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, 
 	u8 buffer[4];
 	buffer[0] = selNum;
 	buffer[1] = (u8)d;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_TEST_SELECTION, handlerID, buffer, 2);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_TEST_SELECTION, handlerID, buffer, 2);
 }
 //***************************************************
 void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d)
@@ -1209,7 +1209,7 @@ void cpubridge::notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea
 			break;
 		buffer[33 + i] = strLingua2UTF16[i];
 	}
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU, handlerID, buffer, sizeof(buffer));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU, handlerID, buffer, sizeof(buffer));
 }
 
 //***************************************************
@@ -1245,7 +1245,7 @@ void cpubridge::notify_EVA_RESET_PARTIALDATA(const sSubscriber &to, u16 handlerI
 		buffer[0] = 0x01;
 	else
 		buffer[0] = 0x00;
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA, handlerID, buffer, 1);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA, handlerID, buffer, 1);
 }
 
 //***************************************************
@@ -1270,7 +1270,7 @@ void cpubridge::notify_GET_VOLT_AND_TEMP(const sSubscriber &to, u16 handlerID, r
 	buffer[1] = tBollitore;
 	buffer[2] = tCappuccinatore;
 	rhea::utils::bufferWriteU16(&buffer[3], voltaggio);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP, handlerID, buffer, 5);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP, handlerID, buffer, 5);
 }
 
 //***************************************************
@@ -1310,7 +1310,7 @@ void cpubridge::notify_GET_OFF_REPORT(const sSubscriber &to, u16 handlerID, rhea
 		buffer[ct++] = offs[i].stato;
 	}
 
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_OFF_REPORT, handlerID, buffer, ct);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_OFF_REPORT, handlerID, buffer, ct);
 }
 
 //***************************************************
@@ -1352,7 +1352,7 @@ void cpubridge::notify_GET_LAST_FLUX_INFORMATION(const sSubscriber &to, u16 hand
 	rhea::utils::bufferWriteU16(&buffer[0], lastFlux);
 	rhea::utils::bufferWriteU16(&buffer[2], lastGrinderPosition);
 
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION, handlerID, buffer, 4);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION, handlerID, buffer, 4);
 }
 
 //***************************************************
@@ -1371,7 +1371,7 @@ void cpubridge::notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 h
 
 	u32 n = rhea::string::utf16::lengthInBytes(utf16_msg);
 	if (n > 0)
-		rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, utf16_msg, (n+1)*2);
+		rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, utf16_msg, (n+1)*2);
 }
 
 //***************************************************
@@ -1396,14 +1396,14 @@ void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread:
 void cpubridge::notify_CPU_START_MODEM_TEST(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CPU_START_MODEM_TEST\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_CPU_START_MODEM_TEST, handlerID, NULL, 0);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_CPU_START_MODEM_TEST, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::notify_CPU_EVA_RESET_TOTALS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CPU_EVA_RESET_TOTALS\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS, handlerID, NULL, 0);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS, handlerID, NULL, 0);
 }
 
 //***************************************************
@@ -1415,7 +1415,7 @@ void cpubridge::notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &to
 	buffer[0] = hh;
 	buffer[1] = mm;
 
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GET_TIME_LAVSAN_CAPPUCINATORE, handlerID, buffer, 2);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_TIME_LAVSAN_CAPPUCINATORE, handlerID, buffer, 2);
 }
 
 //***************************************************
@@ -1431,14 +1431,14 @@ void cpubridge::translateNotify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const rhea::
 void cpubridge::notify_START_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_START_TEST_ASSORBIMENTO_GRUPPO\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE\n");
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
 }
 
 //***************************************************
@@ -1452,7 +1452,7 @@ void cpubridge::notify_GET_STATUS_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &to
 	for (u8 i=0; i<12; i++)
 		rhea::utils::bufferWriteU16(&buffer[2 +i*2], results[i]);
 
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GETSTATUS_TEST_ASSORBIMENTO_GRUPPO, handlerID, buffer, 26);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GETSTATUS_TEST_ASSORBIMENTO_GRUPPO, handlerID, buffer, 26);
 }
 
 //***************************************************
@@ -1477,7 +1477,7 @@ void cpubridge::notify_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber 
 	rhea::utils::bufferWriteU16(&buffer[2], reportUP);
 	rhea::utils::bufferWriteU16(&buffer[4], reportDOWN);
 
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_GETSTATUSTEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, buffer, 6);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GETSTATUSTEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, buffer, 6);
 }
 
 //***************************************************
@@ -1498,7 +1498,7 @@ void cpubridge::notify_CPU_MILKER_VER (const sSubscriber &to, u16 handlerID, rhe
 	logger->log("notify_CPU_MILKER_VER\n");
 
 	const u32 len = (u32)strlen(ver);
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_MILKER_VER, handlerID, ver, len+1);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_MILKER_VER, handlerID, ver, len+1);
 }
 
 //***************************************************
@@ -1515,28 +1515,6 @@ void cpubridge::translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, ch
 	}
 }
 
-//***************************************************
-void cpubridge::notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, esapi::eExternalModuleType moduleType, u8 verMajor, u8 verMinor)
-{
-	logger->log("notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE\n");
-
-	u8 buffer[4];
-	buffer[0] = (u8)moduleType;
-	buffer[1] = verMajor;
-	buffer[2] = verMinor;	
-	rhea::thread::pushMsg(to.hFromCpuToOtherW, CPUBRIDGE_NOTIFY_SET_ESAPI_MODULE_VER_AND_TYPE, handlerID, buffer, 3);
-}
-
-//***************************************************
-void cpubridge::translateNotify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const rhea::thread::sMsg &msg, esapi::eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor)
-{
-	assert(msg.what == CPUBRIDGE_NOTIFY_SET_ESAPI_MODULE_VER_AND_TYPE);
-	const u8 *p = (const u8*)msg.buffer;
-	*out_moduleType = (esapi::eExternalModuleType)p[0];
-	*out_verMajor = p[1];
-	*out_verMinor = p[2];
-}
-
 
 
 
@@ -1550,7 +1528,7 @@ void cpubridge::translateNotify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const rhea::th
 //***************************************************
 void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION, (u32)selNumber);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION, (u32)selNumber);
 }
 
 //***************************************************
@@ -1563,13 +1541,13 @@ void cpubridge::translate_CPU_START_SELECTION (const rhea::thread::sMsg &msg, u8
 //***************************************************
 void cpubridge::ask_CPU_STOP_SELECTION (const sSubscriber &from)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION, (u32)0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION, (u32)0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_SEND_BUTTON(const sSubscriber &from, u8 buttonNum)
 {
-    rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM, (u32)buttonNum);
+    rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM, (u32)buttonNum);
 }
 
 //***************************************************
@@ -1582,7 +1560,7 @@ void cpubridge::translate_CPU_SEND_BUTTON(const rhea::thread::sMsg &msg, u8 *out
 //***************************************************
 void cpubridge::ask_CPU_KEEP_SENDING_BUTTON_NUM(const sSubscriber &from, u8 buttonNum)
 {
-    rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_KEEP_SENDING_BUTTON_NUM, (u32)buttonNum);
+    rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_KEEP_SENDING_BUTTON_NUM, (u32)buttonNum);
 }
 
 //***************************************************
@@ -1595,73 +1573,73 @@ void cpubridge::translate_CPU_KEEP_SENDING_BUTTON_NUM(const rhea::thread::sMsg &
 //***************************************************
 void cpubridge::ask_CPU_QUERY_RUNNING_SEL_STATUS(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_RUNNING_SEL_STATUS, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_RUNNING_SEL_STATUS, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_FULLSTATE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_FULLSTATE, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_FULLSTATE, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_INI_PARAM(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_INI_PARAM, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_INI_PARAM, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_SEL_AVAIL(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_AVAIL, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_AVAIL, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_SEL_PRICES (const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_LCD_MESSAGE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_LCD_MESSAGE, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_LCD_MESSAGE, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_CURRENT_CREDIT(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_CURRENT_CREDIT, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_CURRENT_CREDIT, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_STATE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_STATE, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_CUR_SEL_RUNNING(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_CUR_SEL_RUNNING, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_CUR_SEL_RUNNING, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_READ_DATA_AUDIT(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath)+1);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath)+1);
 }
 
 //***************************************************
@@ -1687,7 +1665,7 @@ void cpubridge::ask_WRITE_PARTIAL_VMCDATAFILE(const sSubscriber &from, u16 handl
 	buffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE] = blocco_n_di;
 	buffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE+1] = tot_num_blocchi;
 	buffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE+2] = blockNumOffset;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE, handlerID, buffer, sizeof(buffer));
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_PARTIAL_VMCDATAFILE, handlerID, buffer, sizeof(buffer));
 }
 
 //***************************************************
@@ -1705,14 +1683,14 @@ void cpubridge::translate_PARTIAL_WRITE_VMCDATAFILE(const rhea::thread::sMsg &ms
 //***************************************************
 void cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_VMCDATAFILE_TIMESTAMP, handlerID);
 }
 
 
 //***************************************************
 void cpubridge::ask_WRITE_CPUFW(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath) + 1);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath) + 1);
 }
 
 //***************************************************
@@ -1738,7 +1716,7 @@ void cpubridge::ask_CPU_PROGRAMMING_CMD (const sSubscriber &from, u16 handlerID,
     otherData[0] = (u8)cmd;
 	if (optionalData != NULL && sizeOfOptionalData>0)
 		memcpy(&otherData[1], optionalData, sizeOfOptionalData);
-    rhea::thread::pushMsg (from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD, handlerID, otherData, 1+ sizeOfOptionalData);
+    rhea::thread::pushMsg (from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_PROGRAMMING_CMD, handlerID, otherData, 1+ sizeOfOptionalData);
 }
 
 //***************************************************
@@ -1758,7 +1736,7 @@ void cpubridge::ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, e
 	otherData[0] = (u8)which;
 	otherData[1] = (u8)((valore & 0xFF00) >> 8);
 	otherData[2] = (u8)(valore & 0x00FF);
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER, handlerID, otherData, 3);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER, handlerID, otherData, 3);
 }
 
 //***************************************************
@@ -1773,13 +1751,13 @@ void cpubridge::translate_CPU_SET_DECOUNTER (const rhea::thread::sMsg &msg, eCPU
 //***************************************************
 void cpubridge::ask_CPU_GET_ALL_DECOUNTER_VALUES(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_GET_EXTENDED_CONFIG_INFO(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_EXTENDED_CONFIG_INFO, handlerID);
 }
 
 //***************************************************
@@ -1790,7 +1768,7 @@ void cpubridge::ask_CPU_ATTIVAZIONE_MOTORE(const sSubscriber &from, u16 handlerI
 	otherData[1] = durata_dSec;
 	otherData[2] = numRipetizioni;
 	otherData[3] = pausaTraRipetizioni_dSec;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE, handlerID, otherData, 4);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_ATTIVAZIONE_MOTORE, handlerID, otherData, 4);
 }
 
 //***************************************************
@@ -1812,7 +1790,7 @@ void cpubridge::ask_CPU_CALCOLA_IMPULSI_GRUPPO(const sSubscriber &from, u16 hand
 	u8 otherData[4];
 	otherData[0] = macina_1o2;
 	rhea::utils::bufferWriteU16(&otherData[1], totalePesata_dGrammi);
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO, handlerID, otherData, 3);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO, handlerID, otherData, 3);
 }
 
 //***************************************************
@@ -1830,7 +1808,7 @@ void cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(const rhea::thread::sMsg &m
 //***************************************************
 void cpubridge::ask_CPU_GET_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO, handlerID);
 }
 
 //***************************************************
@@ -1839,7 +1817,7 @@ void cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(const sSubscriber &from, u16 ha
 	u8 otherData[4];
 	otherData[0] = (u8)motore;
 	rhea::utils::bufferWriteU16(&otherData[1], valoreGr);
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE, handlerID, otherData, 3);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE, handlerID, otherData, 3);
 }
 
 //***************************************************
@@ -1854,25 +1832,25 @@ void cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg 
 //***************************************************
 void cpubridge::ask_CPU_GET_STATO_GRUPPO(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_GRUPPO, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_GET_TIME(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_TIME, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_TIME, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_GET_DATE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_DATE, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_DATE, handlerID);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_GET_VOLT_AND_TEMP(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_VOLT_AND_TEMP, handlerID);
 }
 
 //***************************************************
@@ -1880,7 +1858,7 @@ void cpubridge::ask_CPU_GET_OFF_REPORT(const sSubscriber &from, u16 handlerID, u
 {
 	u8 otherData[4];
 	otherData[0] = indexNum;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT, handlerID, otherData, 1);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_OFF_REPORT, handlerID, otherData, 1);
 }
 
 //***************************************************
@@ -1894,32 +1872,32 @@ void cpubridge::translate_CPU_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *
 //***************************************************
 void cpubridge::ask_CPU_GET_LAST_FLUX_INFORMATION(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_FLUX_INFORMATION, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_FLUX_INFORMATION, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SHOW_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_STR_VERSION_AND_MODEL, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_DA3SYNC(const sSubscriber &from)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC, 0, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC, 0, NULL, 0);
 }
 
 
 //***************************************************
 void cpubridge::ask_CPU_START_MODEM_TEST(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_MODEM_TEST, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_START_MODEM_TEST, handlerID, NULL, 0);
 }
 
 //***************************************************
@@ -1929,7 +1907,7 @@ void cpubridge::ask_CPU_SET_TIME(const sSubscriber &from, u16 handlerID, u8 hh, 
 	otherData[0] = hh;
 	otherData[1] = mm;
 	otherData[2] = ss;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME, handlerID, otherData, 3);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_TIME, handlerID, otherData, 3);
 }
 
 //***************************************************
@@ -1950,7 +1928,7 @@ void cpubridge::ask_CPU_SET_DATE(const sSubscriber &from, u16 handlerID, u16 yea
 	otherData[0] = (u8)(year - 2000);
 	otherData[1] = month;
 	otherData[2] = day;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE, handlerID, otherData, 3);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_DATE, handlerID, otherData, 3);
 }
 
 //***************************************************
@@ -1972,7 +1950,7 @@ void cpubridge::ask_CPU_GET_POSIZIONE_MACINA(const sSubscriber &from, u16 handle
 
 	u8 otherData[1];
 	otherData[0] = macina_1o2;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA, handlerID, otherData, 1);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA, handlerID, otherData, 1);
 }
 
 //***************************************************
@@ -1992,7 +1970,7 @@ void cpubridge::ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID
 	u8 otherData[2];
 	otherData[0] = macina_1o2;
 	otherData[1] = (u8)m;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA, handlerID, otherData, 2);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA, handlerID, otherData, 2);
 }
 
 //***************************************************
@@ -2013,7 +1991,7 @@ void cpubridge::ask_CPU_SET_POSIZIONE_MACINA(const sSubscriber &from, u16 handle
 	u8 otherData[4];
 	rhea::utils::bufferWriteU16(otherData, target);
 	otherData[2] = macina_1o2;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA, handlerID, otherData, 3);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA, handlerID, otherData, 3);
 }
 
 //***************************************************
@@ -2031,7 +2009,7 @@ void cpubridge::ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u
 	u8 otherData[4];
 	otherData[0] = selNum;
 	otherData[1] = (u8)d;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE, handlerID, otherData, 2);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE, handlerID, otherData, 2);
 }
 
 //***************************************************
@@ -2046,67 +2024,67 @@ void cpubridge::translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *
 //***************************************************
 void cpubridge::ask_CPU_GET_NOMI_LINGE_CPU(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_NOMI_LINGUE_CPU, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_DISINTALLAZIONE(const sSubscriber &from)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_DISINSTALLAZIONE, 0, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_DISINSTALLAZIONE, 0, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_RICARICA_FASCIA_ORARIA_FREEVEND(const sSubscriber &from)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_RICARICA_FASCIA_ORARIA_FV, 0, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_RICARICA_FASCIA_ORARIA_FV, 0, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_EVA_RESET_PARTIALDATA(const sSubscriber &from, u16 handlerID UNUSED_PARAM)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_PARTIALDATA, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_EVA_RESET_TOTALS(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_TOTALS, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_EVA_RESET_TOTALS, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_START_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_START_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_GRUPPO, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_PROGRAMMING_CMD_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_QUERY_TEST_ASSORBIMENTO_MOTORIDUTTORE, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::ask_CPU_MILKER_VER(const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER, handlerID);
 }
 
 //***************************************************
@@ -2117,7 +2095,7 @@ void cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSub
 	otherData[1] = (u8)paymentType;
 	rhea::utils::bufferWriteU16(&otherData[2], price);	
 
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED, (u32)0, otherData, 4);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED, (u32)0, otherData, 4);
 }
 
 //***************************************************
@@ -2128,24 +2106,4 @@ void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const
 	*out_selNum = p[0];
 	*out_paymentType = (eGPUPaymentType)p[1];
 	*out_price = rhea::utils::bufferReadU16 (&p[2]);
-}
-
-//***************************************************
-void cpubridge::ask_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const sSubscriber &from, esapi::eExternalModuleType moduleType, u8 verMajor, u8 verMinor)
-{
-	u8 otherData[4];
-	otherData[0] = (u8)moduleType;
-	otherData[1] = verMajor;
-	otherData[2] = verMinor;
-	rhea::thread::pushMsg(from.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_SET_ESAPI_MODULE_VER_AND_TYPE, (u32)0, otherData, 3);
-}
-
-//***************************************************
-void cpubridge::translate_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const rhea::thread::sMsg &msg, esapi::eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor)
-{
-	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_ESAPI_MODULE_VER_AND_TYPE);
-	const u8 *p = (const u8*)msg.buffer;
-	*out_moduleType = (esapi::eExternalModuleType)p[0];
-	*out_verMajor = p[1];
-	*out_verMinor = p[2];
 }

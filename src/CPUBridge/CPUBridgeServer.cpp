@@ -159,8 +159,8 @@ void Server::run()
 void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsriberList)
 {
 	waitList.removeEvent(sub->hEvent);
-	rhea::thread::deleteMsgQ(sub->q.hFromCpuToOtherR, sub->q.hFromCpuToOtherW);
-	rhea::thread::deleteMsgQ(sub->q.hFromOtherToCpuR, sub->q.hFromOtherToCpuW);
+	rhea::thread::deleteMsgQ(sub->q.hFromMeToSubscriberR, sub->q.hFromMeToSubscriberW);
+	rhea::thread::deleteMsgQ(sub->q.hFromSubscriberToMeR, sub->q.hFromSubscriberToMeW);
 	if (bAlsoRemoveFromSubsriberList)
 		subscriberList.findAndRemove(sub);
 	localAllocator->dealloc(sub);
@@ -212,12 +212,12 @@ Server::sSubscription* Server::priv_newSubscription()
 {
 	//creo le msgQ
 	sSubscription *sub = RHEAALLOCSTRUCT(localAllocator, sSubscription);
-	rhea::thread::createMsgQ (&sub->q.hFromCpuToOtherR, &sub->q.hFromCpuToOtherW);
-	rhea::thread::createMsgQ (&sub->q.hFromOtherToCpuR, &sub->q.hFromOtherToCpuW);
+	rhea::thread::createMsgQ (&sub->q.hFromMeToSubscriberR, &sub->q.hFromMeToSubscriberW);
+	rhea::thread::createMsgQ (&sub->q.hFromSubscriberToMeR, &sub->q.hFromSubscriberToMeW);
 	subscriberList.append (sub);
 
 	//aggiungo la msqQ alla mia waitList
-	rhea::thread::getMsgQEvent(sub->q.hFromOtherToCpuR, &sub->hEvent);
+	rhea::thread::getMsgQEvent(sub->q.hFromSubscriberToMeR, &sub->hEvent);
 	waitList.addEvent(sub->hEvent, 0x0001);
 
 	return sub;
@@ -272,7 +272,7 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 {
 	rhea::thread::sMsg msg;
-	while (rhea::thread::popMsg (sub->q.hFromOtherToCpuR, &msg))
+	while (rhea::thread::popMsg (sub->q.hFromSubscriberToMeR, &msg))
 	{
 		const u16 handlerID = (u16)msg.paramU32;
 
@@ -308,7 +308,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SERVICECH_UNSUBSCRIPTION_REQUEST:
+			rhea::thread::deleteMsg(msg);
+			while (rhea::thread::popMsg (sub->q.hFromSubscriberToMeR, &msg))
+				rhea::thread::deleteMsg(msg);
 			priv_deleteSubscriber(sub, true);
+			return;
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION:
@@ -1076,21 +1080,9 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 		}
 		break;
+		} //switch (msg.what)
 
-		case CPUBRIDGE_SUBSCRIBER_ASK_SET_ESAPI_MODULE_VER_AND_TYPE:
-		{
-			esapi::eExternalModuleType moduleType;
-			u8 verMajor;
-			u8 verMinor;
-			translate_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(msg, &moduleType, &verMajor, &verMinor);
-
-			//notifico tutti quanti che un modulo ESAPI si è presentato
-			for (u32 i = 0; i < subscriberList.getNElem(); i++)
-				notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE (subscriberList(i)->q, 0, logger, moduleType, verMajor, verMinor);
-		}
-		break;
-
-		} //switch
+		rhea::thread::deleteMsg(msg);
 	} //while
 }
 

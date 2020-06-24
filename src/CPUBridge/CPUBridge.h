@@ -312,9 +312,6 @@ namespace cpubridge
 	void		notify_CPU_MILKER_VER (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ver);
 	void		translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, char *out_ver, u32 sizeofOutVer);
 
-	void		notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, esapi::eExternalModuleType moduleType, u8 verMajor, u8 verMinor);
-	void		translateNotify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const rhea::thread::sMsg &msg, esapi::eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor);
-
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -522,10 +519,10 @@ namespace cpubridge
 					//NB: se price==0xffff, allora la CPU si prende comunque in carico il pagamento, a discapito del nome di questa fn
 	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType);
 
-	void        ask_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const sSubscriber &from, esapi::eExternalModuleType moduleType, u8 verMajor, u8 verMinor);
-					//CPUBridge riceve questo messaggio quando qualcuno tramite ESAPI comunica la sua identità.
-					//In risposta alla ricezione, CPUBridge risponderà con un notify_CPU_SET_ESAPI_MODULE_VER_AND_TYPE in broadcast a tutti i suoi subscriber 
-	void		translate_CPU_SET_ESAPI_MODULE_VER_AND_TYPE(const rhea::thread::sMsg &msg, esapi::eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor);
+
+
+	
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

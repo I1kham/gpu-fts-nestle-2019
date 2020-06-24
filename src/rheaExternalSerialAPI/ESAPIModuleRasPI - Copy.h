@@ -18,7 +18,7 @@ namespace esapi
 		bool					open (const char *serialPort, const HThreadMsgW &hCPUServiceChannelW);
 		void					run();
 
-		HThreadMsgW				getServiceMsgQQ() const														{ return glob.serviceMsgQW; }
+		HThreadMsgW				getServiceMsgQQ() const														{ return serviceMsgQW; }
 
 	private:
 		static const u32		WAITLIST_EVENT_FROM_CPUBRIDGE		= 0x00400000;
@@ -44,23 +44,44 @@ namespace esapi
 
 	private:
 		void					priv_close();
+		bool					priv_subscribeToCPUBridge();
 		void					priv_handleIncomingMsgFromCPUBridge();
 		void					priv_handleMsgFromServiceQ();
 		void					priv_handleMsgFromSubscriber(sSubscription *sub);
 		void					priv_onCPUNotify_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg);
 		
+		sSubscription*			priv_newSubscription();
+
 		void					priv_rs232_handleCommunication (OSSerialPort &comPort, sBuffer &b);
 		void					priv_rs232_sendBuffer (OSSerialPort &comPort, const u8 *buffer, u32 numBytesToSend);
 		bool					priv_rs232_handleCommand_A (OSSerialPort &comPort, sBuffer &b);
 		bool					priv_rs232_handleCommand_C (OSSerialPort &comPort, sBuffer &b);
 		bool					priv_rs232_handleCommand_R (OSSerialPort &comPort, sBuffer &b);
 		bool					priv_rs232_handleCommand_S (OSSerialPort &comPort, sBuffer &b);
+		
+		sConnectedSocket*		priv_2280_findConnectedSocketByUID (u32 uid);
+		void					priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid);
+		void					priv_2280_onClientDisconnected (OSSocket &sok, u32 uid);
 
 	private:
-		Module::sGlob			glob;
+		esapi::Module			*module;
+		rhea::Allocator         *localAllocator;
+		rhea::ISimpleLogger     *logger;
 		rhea::NullLogger        nullLogger;
+		OSSerialPort			com;
+		HThreadMsgW				hCPUServiceChannelW;
+		OSWaitableGrp           waitableGrp;
+		sBuffer					serialBuffer;
+		HThreadMsgR				serviceMsgQR;
+		HThreadMsgW				serviceMsgQW;
 		bool					bQuit;
-		Module					*curModule;
+		cpubridge::sSubscriber	cpuBridgeSubscriber;
+		u8						*rs232BufferOUT;
+		u8						*sokBuffer;
+		sRunningSel				runningSel;
+		rhea::FastArray<sConnectedSocket>	sockettList;
+		SubscriberList			subscriberList;
+		sESAPIModule			esapiModule;
 	};
 
 

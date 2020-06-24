@@ -64,8 +64,7 @@ namespace cpubridge
 			u8 macina_1o2;
 			u16 target;
 		};
-
-		
+				
 		enum eStartSelectionMode
 		{
 			eStartSelectionMode_default = 0,
@@ -119,6 +118,7 @@ namespace cpubridge
 		public:
 			u8						getSelNum() const					{ return params.getSelNum(); }
 		};
+
 
 	private:
 		void					priv_resetInternalState(cpubridge::eVMCState s);
@@ -200,7 +200,6 @@ namespace cpubridge
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;
 		sRegolazioneAperturaMacina regolazioneAperturaMacina;
-
 		u16						utf16_CPUMasterVersionString[34];
 		u64						showCPUStringModelAndVersionUntil_msec;
     };

@@ -117,7 +117,14 @@ void Core::priv_identify()
 			priv_rs232_handleIncomingData (rs232BufferIN);
 
 			if (reportedESAPIVerMajor != 0)
+			{
+				//ok, la GPU mi ha risposto, quindi è viva.
+				//Segnalo la mia identità
+				const u32 n = esapi::buildMsg_R1_externalModuleIdentify_ask (esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, rs232BufferOUT, RS232_BUFFEROUT_SIZE);
+				priv_rs232_sendBuffer (rs232BufferOUT, n);
+				priv_rs232_handleIncomingData (rs232BufferIN);
 				return;
+			}
 		}
 
 		rhea::thread::sleepMSec(100);

@@ -128,7 +128,7 @@ void Server::close()
 		if (dieWhenNoClientConnected == 2)
 		{
 			//chiedo a CPUBridge di morire
-			rhea::thread::pushMsg (subscriber.hFromOtherToCpuW, CPUBRIDGE_SUBSCRIBER_ASK_DIE, (u32)0, NULL, 0);
+			rhea::thread::pushMsg (subscriber.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_DIE, (u32)0, NULL, 0);
 		}
 
 		cpubridge::unsubscribe (subscriber);
@@ -250,7 +250,7 @@ bool Server::priv_subsribeToCPU(const HThreadMsgW &hCPUServiceChannelW)
 			{
 				cpubridge::translate_SUBSCRIPTION_ANSWER (msg, &subscriber, &cpuBridgeVersion);
 				rhea::thread::deleteMsg(msg);
-				rhea::thread::getMsgQEvent(subscriber.hFromCpuToOtherR, &hSubscriberEvent);
+				rhea::thread::getMsgQEvent(subscriber.hFromMeToSubscriberR, &hSubscriberEvent);
 				server->addOSEventToWaitList (hSubscriberEvent, u32MAX);
 				break;
 			}
@@ -545,7 +545,7 @@ void Server::run()
 					{
 					case u32MAX:
 						//E' arrivato un msg da CPUBridge
-                        while (rhea::thread::popMsg(subscriber.hFromCpuToOtherR, &msg))
+                        while (rhea::thread::popMsg(subscriber.hFromMeToSubscriberR, &msg))
                         {
                             priv_onCPUBridgeNotification(msg);
                             rhea::thread::deleteMsg(msg);

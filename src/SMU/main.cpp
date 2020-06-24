@@ -36,10 +36,10 @@ bool startCPUBridge()
     bool b = chToCPU->open("/dev/ttymxc3", logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 	
 	//apro un canale con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
+    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
 #endif
 
     if (!b)
@@ -59,7 +59,8 @@ bool startCPUBridge()
 
 	//starto il thread ESAPI
 	rhea::HThread hESAPIThread;	
-	esapi::startThread (ESAPI_COMPORT, hCPUServiceChannelW, logger, &hESAPIThread);
+	//esapi::startThread (ESAPI_COMPORT, hCPUServiceChannelW, logger, &hESAPIThread);
+	esapi::startThread ("COM5", hCPUServiceChannelW, logger, &hESAPIThread);
 
 
 	//attendo che il thread CPU termini
