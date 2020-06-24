@@ -146,8 +146,9 @@ void Core::priv_identify_run()
 			{
 				//ho ricevuto risposta valida a comando A 1
 				reportedESAPIVerMajor = rs232BufferOUT[3];
-				reportedESAPIVerMajor = rs232BufferOUT[4];
+				reportedESAPIVerMinor = rs232BufferOUT[4];
 				reportedGPUType = (esapi::eGPUType)rs232BufferOUT[5];
+				logger->log ("API ver %d.%d, gpuType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
 				break;
 			}
 		}
