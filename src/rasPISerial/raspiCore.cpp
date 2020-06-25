@@ -15,6 +15,7 @@ Core::Core ()
 	rhea::rs232::setInvalid (com);
 	rhea::socket::init (&sok2280);
 	fileUpload.f = NULL;
+	fileUpload.lastTimeRcvMSec = 0;
 }
 
 //***************************************************
@@ -394,11 +395,20 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                 }
 
                 //non devo avere altri upload in corso
+				if (NULL != fileUpload.f)
+				{
+					if (rhea::getTimeNowMSec() - fileUpload.lastTimeRcvMSec > 5000)
+					{
+						fclose(fileUpload.f);
+						fileUpload.f = NULL;
+					}
+				}
+
                 if (NULL != fileUpload.f)
                 {
-                    //rispondo con errore
-                    const u8 error = 0x01;
-                    priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
+					//rispondo con errore
+					const u8 error = (u8)esapi::eFileUploadStatus_raspi_fileTransfAlreadyInProgress;
+					priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
                 }
                 else
                 {
@@ -412,7 +422,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                     if (NULL == fileUpload.f)
                     {
                         //rispondo con errore
-                        const u8 error = 0x02;
+                        const u8 error = (u8)esapi::eFileUploadStatus_raspi_cantCreateFileInTempFolder;
                         priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
                     }
                     else
@@ -421,6 +431,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                         fileUpload.totalFileSizeBytes = filesizeBytes;
                         fileUpload.packetSizeBytes = packetSizeBytes;
                         fileUpload.rcvBytesSoFar = 0;
+						fileUpload.lastTimeRcvMSec = rhea::getTimeNowMSec();
 
                         const u8 error = 0x00;
                         priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
@@ -450,6 +461,8 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                 const u16 expectedMsgLen = 4 + expecxtedPacketLength;
                 if (b.numBytesInBuffer < expectedMsgLen)
                     return;
+				
+				fileUpload.lastTimeRcvMSec = rhea::getTimeNowMSec();
                 if (!esapi::isValidChecksum (b.buffer[expectedMsgLen-1], b.buffer, expectedMsgLen-1))
                 {
                     //rispondo KO

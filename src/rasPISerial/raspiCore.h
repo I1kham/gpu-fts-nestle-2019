@@ -125,7 +125,7 @@ namespace raspi
 			u32				totalFileSizeBytes;
 			u16				packetSizeBytes;
 			u32				rcvBytesSoFar;
-			
+			u64				lastTimeRcvMSec;
 		};
 
 	private:

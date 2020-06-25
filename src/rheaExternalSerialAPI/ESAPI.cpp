@@ -619,9 +619,43 @@ void esapi::ask_RASPI_START (const cpubridge::sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_RASPI_START, handlerID);
 }
+
 //****************************************************************************
 void esapi::notify_RASPI_STARTED(const cpubridge::sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_RASPI_STARTED\n");
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, ESAPI_NOTIFY_RASPI_STARTED, handlerID, NULL, 0);
+}
+
+//****************************************************************************
+void esapi::ask_RASPI_START_FILEUPLOAD (const cpubridge::sSubscriber &from, const u8* const fullFilePathAndName)
+{
+	const u32 len = rhea::string::utf8::lengthInBytes (fullFilePathAndName);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_RASPI_START_FILEUPLOAD, (u32)0, fullFilePathAndName, len+1);
+}
+
+//****************************************************************************
+void esapi::translate_RASPI_START_FILEUPLOAD(const rhea::thread::sMsg &msg, const u8 **out_pointerToFullFilePathAndName)
+{
+	assert (msg.what == ESAPI_ASK_RASPI_START_FILEUPLOAD);
+	*out_pointerToFullFilePathAndName = (const u8*)msg.buffer;
+}
+
+//****************************************************************************
+void esapi::notify_RASPI_FILEUPLOAD(const cpubridge::sSubscriber &to, rhea::ISimpleLogger *logger, eFileUploadStatus status, u32 kbSoFar)
+{
+	logger->log("notify_RASPI_FILEUPLOAD\n");
+	u8 data[8];
+	rhea::utils::bufferWriteU32 (data, kbSoFar);
+	data[4] = (u8)status;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, ESAPI_NOTIFY_RASPI_FILEUPLOAD, (u32)0, data, 5);
+}
+
+//****************************************************************************
+void esapi::translateNotify_RASPI_FILEUPLOAD(const rhea::thread::sMsg &msg, eFileUploadStatus *out_status, u32 *out_kbSoFar)
+{
+	assert (msg.what == ESAPI_NOTIFY_RASPI_FILEUPLOAD);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_kbSoFar = rhea::utils::bufferReadU32 (p);
+	*out_status = (eFileUploadStatus)p[4];
 }

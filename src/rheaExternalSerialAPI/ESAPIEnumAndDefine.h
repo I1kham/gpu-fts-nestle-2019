@@ -15,12 +15,14 @@
 #define		ESAPI_ASK_GET_MODULE_TYPE_AND_VER		0x1001
 #define		ESAPI_ASK_RASPI_GET_IPandSSID			0x1002
 #define		ESAPI_ASK_RASPI_START					0x1003
+#define		ESAPI_ASK_RASPI_START_FILEUPLOAD		0x1004
 
 
 
 #define		ESAPI_NOTIFY_MODULE_TYPE_AND_VER		0x2000
 #define		ESAPI_NOTIFY_RASPI_IPandSSID			0x2001
 #define		ESAPI_NOTIFY_RASPI_STARTED				0x2002
+#define		ESAPI_NOTIFY_RASPI_FILEUPLOAD			0x2003
 
 
 namespace esapi
@@ -36,6 +38,17 @@ namespace esapi
 		eGPUType_unknown	= 0x00,
 		eGPUType_TS			= 0x01,
 		eGPUType_TP			= 0x02
+	};
+
+	enum eFileUploadStatus
+	{
+		eFileUploadStatus_inProgress		= 0x00,
+		eFileUploadStatus_finished_OK		= 0x01,
+		eFileUploadStatus_cantOpenSrcFile	= 0x02,
+		eFileUploadStatus_timeout			= 0x03,
+
+		eFileUploadStatus_raspi_fileTransfAlreadyInProgress = 0x10,
+		eFileUploadStatus_raspi_cantCreateFileInTempFolder = 0x11,
 	};
 
 	struct sESAPIModule

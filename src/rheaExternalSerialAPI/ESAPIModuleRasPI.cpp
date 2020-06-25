@@ -7,6 +7,8 @@ using namespace esapi;
 //********************************************************
 ModuleRasPI::ModuleRasPI()
 {
+    fileUpload.f = NULL;
+    fileUpload.lastTimeUpdatedMSec = 0;
 }
 
 //********************************************************
@@ -242,6 +244,73 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                 }
             }
             break;
+
+        case ESAPI_ASK_RASPI_START_FILEUPLOAD:
+            //verifico di non avere un file transfer già in corso
+            if (NULL != fileUpload.f)
+            {
+                if (rhea::getTimeNowMSec() - fileUpload.lastTimeUpdatedMSec > 10000)
+                {
+                    fclose (fileUpload.f);
+                    fileUpload.f = NULL;
+                }
+            }
+
+            if (NULL != fileUpload.f)
+            {
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_raspi_fileTransfAlreadyInProgress, (u32)0);
+            }
+            else
+            {
+                //provo ad aprire il file in locale
+                const u8 *fullFilePathAndName;
+                esapi::translate_RASPI_START_FILEUPLOAD (msg, &fullFilePathAndName);
+                fileUpload.f = rhea::fs::fileOpenForReadBinary(fullFilePathAndName);
+                if (NULL == fileUpload.f)
+                    esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_cantOpenSrcFile, (u32)0);
+                else
+                {
+                    //chiedo al rasPI se possiamo uppare il file
+                    //# R [0x03] [fileSizeMSB3] [fileSizeMSB2] [filesizeMSB1] [filesizeLSB] [packetSizeMSB] [packetSizeLSB] [lenFilename] [filename...] [ck]
+                    fileUpload.totalFileSizeBytes = (u32)rhea::fs::filesize(fileUpload.f);
+                    fileUpload.bytesSentSoFar = 0;
+                    fileUpload.packetSizeBytes = 1000;
+                    
+                    const u8 filenameLen = (u8)rhea::string::utf8::lengthInBytes(fullFilePathAndName);
+
+                    u32 ct = 0;
+                    rs232BufferOUT[ct++] = '#';
+                    rs232BufferOUT[ct++] = 'R';
+                    rs232BufferOUT[ct++] = 0x03;
+                    rhea::utils::bufferWriteU32(&rs232BufferOUT[ct], fileUpload.totalFileSizeBytes);
+                    ct += 4;
+                    rhea::utils::bufferWriteU16(&rs232BufferOUT[ct], fileUpload.packetSizeBytes);
+                    ct += 2;
+                    rs232BufferOUT[ct++] = filenameLen;
+                    memcpy (&rs232BufferOUT[ct], fullFilePathAndName, filenameLen+1);
+                    ct += filenameLen + 1;
+    
+                    rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, ct);
+                    ct++;
+                    priv_rs232_sendBuffer (rs232BufferOUT, ct);
+
+                    //attendo risposta
+                    //# R [0x03] [error] [ck]
+                    if (!priv_boot_waitAnswer('R', 0x03, 5, 0, rs232BufferOUT, 1000))
+                    {
+                        fclose (fileUpload.f);
+                        fileUpload.f = NULL;
+                        esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_timeout, (u32)0);
+                    }
+                    else
+                    {
+                        //ok, si parte
+                        esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, (eFileUploadStatus)rs232BufferOUT[3], (u32)0);
+                        priv_boot_handleFileUpload(sub);
+                    }
+                }
+            }
+            break;
         }
 
         rhea::thread::deleteMsg(msg);
@@ -312,6 +381,83 @@ bool ModuleRasPI::priv_boot_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 w
 		}
 	}
 	return false;
+}
+
+//*********************************************************
+void ModuleRasPI::priv_boot_handleFileUpload(sSubscription *sub)
+{
+    u32 totalKBSentSoFar = 0;
+    while (1)
+    {
+        const u32 bytesLeft = fileUpload.totalFileSizeBytes - fileUpload.bytesSentSoFar;
+        if (0 == bytesLeft)
+        {
+            //fine, tutto ok
+            fclose (fileUpload.f);
+            fileUpload.f = NULL;
+            esapi::notify_RASPI_FILEUPLOAD (sub->q, glob->logger, eFileUploadStatus_finished_OK, fileUpload.totalFileSizeBytes/1024);
+            return;
+        }
+
+        //dimensione del pacchetto
+        u32 packetSize;
+        if (bytesLeft >= fileUpload.packetSizeBytes)
+            packetSize = fileUpload.packetSizeBytes;
+        else
+            packetSize = bytesLeft;
+
+        //invio un pacchetto
+        //# R [0x04] [...] [ck]
+        u32 ct = 0;
+        rs232BufferOUT[ct++] = '#';
+        rs232BufferOUT[ct++] = 'R';
+        rs232BufferOUT[ct++] = 0x04;
+        rhea::fs::fileRead (fileUpload.f, &rs232BufferOUT[ct], packetSize);
+        ct += packetSize;
+        rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, ct);
+        ct++;
+
+        fileUpload.lastTimeUpdatedMSec = rhea::getTimeNowMSec();
+
+        u8 numRetry = 3;
+        while (1)
+        {
+            priv_rs232_sendBuffer (rs232BufferOUT, ct);
+
+            //attendo risposta
+            //# R [0x04] [accepted] [ck]
+            u8 answer[16];
+            if (!priv_boot_waitAnswer('R', 0x04, 5, 0, answer, 1000))
+            {
+                fclose (fileUpload.f);
+                fileUpload.f = NULL;
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_timeout, (u32)0);
+                return;
+            }
+
+            if (answer[3] != 0x00)
+                break;
+
+            //qualcosa è andato male, devo rimandare il pacchetto
+            if (numRetry == 0)
+            {
+                fclose (fileUpload.f);
+                fileUpload.f = NULL;
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_timeout, (u32)0);
+                return;
+            }
+
+            --numRetry;
+        }
+
+        fileUpload.bytesSentSoFar += packetSize;
+        const u32 kbSoFar = fileUpload.bytesSentSoFar / 1024;
+        if (kbSoFar != totalKBSentSoFar)
+        {
+            totalKBSentSoFar = kbSoFar;
+            esapi::notify_RASPI_FILEUPLOAD (sub->q, glob->logger, eFileUploadStatus_inProgress, totalKBSentSoFar);
+        }
+    }
 }
 
 
@@ -409,7 +555,7 @@ void ModuleRasPI::priv_running_handleMsgFromSubscriber(sSubscription *sub)
                 rs232BufferOUT[ct++] = '#';
                 rs232BufferOUT[ct++] = 'R';
                 rs232BufferOUT[ct++] = 0x02;
-                rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, 3);
+                rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, ct);
                 ct++;
                 priv_rs232_sendBuffer (rs232BufferOUT, ct);
 
@@ -424,10 +570,10 @@ void ModuleRasPI::priv_running_handleMsgFromSubscriber(sSubscription *sub)
             }
             break;
         }
-
         rhea::thread::deleteMsg(msg);
     }
 }
+
 
 //*********************************************************
 void ModuleRasPI::priv_running_handleRS232 (sBuffer &b)

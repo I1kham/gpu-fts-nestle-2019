@@ -28,6 +28,16 @@ namespace esapi
 			OSSocket	sok;
 		};
 
+		struct sFileUpload
+		{
+			FILE			*f;
+			u32				totalFileSizeBytes;
+			u16				packetSizeBytes;
+			u32				bytesSentSoFar;
+			u64				lastTimeUpdatedMSec;
+		};
+
+
 	private:
 		void					priv_unsetup();
 
@@ -41,6 +51,7 @@ namespace esapi
 		void					priv_boot_run();
 		void					priv_boot_handleMsgFromSubscriber(sSubscription *sub);
 		bool					priv_boot_waitAnswer (u8 command, u8 code, u8 fixedMsgLen, u8 whichByteContainsAdditionMsgLen, u8 *answerBuffer, u32 timeoutMSec);
+		void					priv_boot_handleFileUpload(sSubscription *sub);
 
 		void					priv_running_run();
 		void					priv_running_handleMsgFromSubscriber(sSubscription *sub);
@@ -55,6 +66,7 @@ namespace esapi
 		u8						*sokBuffer;
 		bool					bQuit;
 		rhea::FastArray<sConnectedSocket>	sockettList;
+		sFileUpload				fileUpload;
 	};
 
 
