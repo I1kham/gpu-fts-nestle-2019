@@ -42,8 +42,8 @@ void StdoutLogger::priv_out (const char *what)
         isANewLine = 0;
     }
 
-	fflush(stdout);
     fprintf (stdout, "%s", what);
+    fflush(stdout);
 }
 
 //*************************************************

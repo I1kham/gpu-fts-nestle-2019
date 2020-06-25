@@ -15,7 +15,8 @@ Core::Core ()
 	rs232BufferOUT = NULL;
 	rhea::rs232::setInvalid (com);
 	rhea::socket::init (&sok2280);
-	fileUpload.f = NULL;
+    rhea::socket::init (&sok2281);
+    fileUpload.f = NULL;
 	fileUpload.lastTimeRcvMSec = 0;
 }
 
@@ -54,6 +55,8 @@ bool Core::open (const char *serialPort)
 	rs232BufferIN.alloc (localAllocator, 4096);
 	sok2280Buffer = (u8*)RHEAALLOC(localAllocator, SIZE_OF_RS232BUFFERIN);
 	clientList.setup (localAllocator, 128);
+    sok2281BufferIN = (u8*)RHEAALLOC(localAllocator, SOK2281_BUFFERIN_SIZE);
+    sok2281BufferOUT = (u8*)RHEAALLOC(localAllocator, SOK2281_BUFFEROUT_SIZE);
 
 	//recupero il mio IP di rete wifi
     memset (wifiIP, 0, sizeof(wifiIP));
@@ -110,13 +113,16 @@ void Core::priv_close ()
 {
 	rhea::rs232::close (com);
 	rhea::socket::close (sok2280);
+    rhea::socket::close (sok2281);
 
 	if (localAllocator)
 	{
 		RHEAFREE(localAllocator, rs232BufferOUT);
 		rs232BufferIN.free (localAllocator);
-		RHEAFREE(localAllocator, sok2280Buffer);
-		clientList.unsetup();
+        RHEAFREE(localAllocator, sok2280Buffer);
+        RHEAFREE(localAllocator, sok2281BufferIN);
+        RHEAFREE(localAllocator, sok2281BufferOUT);
+        clientList.unsetup();
 		RHEADELETE(rhea::getSysHeapAllocator(), localAllocator);
 		localAllocator = NULL;
 	}
@@ -605,8 +611,72 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 
 
 //*******************************************************
+void Core::priv_openSocket2280()
+{
+    logger->log ("opening socket on 2280...");
+    eSocketError err = rhea::socket::openAsTCPServer(&sok2280, 2280);
+    if (err != eSocketError_none)
+    {
+        logger->log ("ERR code[%d]\n", err);
+        logger->log("\n");
+    }
+    else
+        logger->log("OK\n");
+
+    rhea::socket::setReadTimeoutMSec(sok2280, 0);
+    rhea::socket::setWriteTimeoutMSec(sok2280, 10000);
+
+    logger->log("listen... ");
+    if (!rhea::socket::listen(sok2280))
+    {
+        logger->log("FAIL\n", err);
+        logger->decIndent();
+        rhea::socket::close(sok2280);
+        return;
+    }
+
+    logger->log("OK\n");
+
+    //aggiungo la socket al gruppo di oggetti in osservazione
+    waitableGrp.addSocket(sok2280, WAITGRP_SOCKET2280);
+}
+
+//*******************************************************
+void Core::priv_openSocket2281()
+{
+    logger->log ("opening socket on 2281...");
+    eSocketError err = rhea::socket::openAsTCPServer(&sok2281, 2281);
+    if (err != eSocketError_none)
+    {
+        logger->log ("ERR code[%d]\n", err);
+        logger->log("\n");
+    }
+    else
+        logger->log("OK\n");
+
+    rhea::socket::setReadTimeoutMSec(sok2281, 0);
+    rhea::socket::setWriteTimeoutMSec(sok2281, 10000);
+
+    logger->log("listen... ");
+    if (!rhea::socket::listen(sok2281))
+    {
+        logger->log("FAIL\n", err);
+        logger->decIndent();
+        rhea::socket::close(sok2281);
+        return;
+    }
+
+    logger->log("OK\n");
+
+    //aggiungo la socket al gruppo di oggetti in osservazione
+    waitableGrp.addSocket(sok2281, WAITGRP_SOCKET2281);
+}
+
+
+//*******************************************************
 void Core::run()
 {
+    /*
 	logger->log ("Entering IDENITFY mode...\n");
 	logger->incIndent();
 	priv_identify_run();
@@ -617,60 +687,48 @@ void Core::run()
 	logger->incIndent();
 	priv_boot_run();
 	logger->decIndent();
-
+*/
 	logger->log ("\n\nEntering RUNNING mode...\n");
 	logger->incIndent();
-	{
-		//socekt in listen sulla 2280
-		logger->log ("opening socket on 2280...");
-		eSocketError err = rhea::socket::openAsTCPServer(&sok2280, 2280);
-		if (err != eSocketError_none)
-		{
-			logger->log ("ERR code[%d]\n", err);
-			logger->log("\n");
-		}
-		else
-			logger->log("OK\n");
-
-		rhea::socket::setReadTimeoutMSec(sok2280, 0);
-		rhea::socket::setWriteTimeoutMSec(sok2280, 10000);
-
-		logger->log("listen... ");
-		if (!rhea::socket::listen(sok2280))
-		{
-			logger->log("FAIL\n", err);
-			logger->decIndent();
-			rhea::socket::close(sok2280);
-		}
-		else
-			logger->log("OK\n");
-
-
-		//aggiungo la socket al gruppo di oggetti in osservazione
-		waitableGrp.addSocket(sok2280, WAITGRP_SOCKET2280);
-	}
+        priv_openSocket2280();
+        priv_openSocket2281();
 	logger->decIndent();
 
 
 	bQuit = false;
 	while (bQuit == false)
 	{
-		const u8 nEvents = waitableGrp.wait(100);
+        const u8 nEvents = waitableGrp.wait(100);
 		for (u8 i = 0; i < nEvents; i++)
 		{
 			if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
 			{
-				if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2280)
+                if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2280)
 				{
-					//evento generato dalla socket in listen sulla 2280
-					priv_2280_accept();
+                    priv_2280_accept();
 				}
+                else if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2281)
+                {
+                    OSSocket sok;
+                    if (!rhea::socket::accept (sok2281, &sok))
+                        logger->log("ERR => accept failed on 2281\n");
+                    else
+                    {
+                        logger->log ("accepted on 2281\n");
+                        waitableGrp.addSocket (sok, SOK_ID_FROM_REST_API);
+                    }
+                }
 				else
 				{
 					//altimenti la socket che si è svegliata deve essere una dei miei client già connessi
 					const u32 clientUID = waitableGrp.getEventUserParamAsU32(i);
-					OSSocket sok = waitableGrp.getEventSrcAsOSSocket (i);
-					priv_2280_onIncomingData (sok, clientUID);
+                    if (SOK_ID_FROM_REST_API == clientUID)
+                        priv_handle_restAPI(waitableGrp.getEventSrcAsOSSocket (i));
+                    else
+                    {
+                        OSSocket sok = waitableGrp.getEventSrcAsOSSocket (i);
+                        priv_2280_onIncomingData (sok, clientUID);
+                    }
 				}
 			}
 		}
@@ -987,4 +1045,26 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 	//non ho trovato il client nella lista...
 	DBGBREAK;
 
+}
+
+//*********************************************************
+void Core::priv_handle_restAPI (OSSocket &sok)
+{
+    i32 nBytesLetti = rhea::socket::read (sok, sok2281BufferIN, SOK2281_BUFFERIN_SIZE, 100);
+    if (nBytesLetti == 0)
+    {
+        //connessione chiusa
+        rhea::socket::close(sok);
+        logger->log ("2281: closed\n");
+        return;
+    }
+    if (nBytesLetti < 0)
+    {
+        //la chiamata sarebbe stata bloccante, non dovrebbe succedere
+        DBGBREAK;
+        return;
+    }
+
+    sok2281BufferIN[5]=0;
+    logger->log ("%s\n", sok2281BufferIN);
 }

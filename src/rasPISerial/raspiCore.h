@@ -32,12 +32,15 @@ namespace raspi
 	private:
 		static const u8		VER_MAJOR = 1;
 		static const u8		VER_MINOR = 0;
-		static const u32	WAITGRP_SOCKET2280		= 0xFFFFFFFF;
-		
+        static const u32	WAITGRP_SOCKET2280		= 0xFFFFFFFF;
+        static const u32	WAITGRP_SOCKET2281		= 0xFFFFFFFE;
+        static const u32	SOK_ID_FROM_REST_API    = 0xFFFFFFFD;
 		
 		static const u16	SIZE_OF_RS232BUFFEROUT	= 4*1024;
 		static const u16	SIZE_OF_RS232BUFFERIN	= 4*1024;
-		static const u16	SOK_BUFFER_SIZE			= 4*1024;
+        static const u16	SOK_BUFFER_SIZE			= 4*1024;
+        static const u16	SOK2281_BUFFERIN_SIZE   = 2*1024;
+        static const u16	SOK2281_BUFFEROUT_SIZE  = 8*1024;
 
 	private:
 		struct sConnectedSocket
@@ -151,17 +154,24 @@ namespace raspi
 		u32						priv_boot_buildMsgBuffer (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
 		void					priv_boot_buildMsgBufferAndSend (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
 
+        void                    priv_openSocket2280();
+        void                    priv_openSocket2281();
+        void                    priv_handle_restAPI (OSSocket &sok);
+
 	private:
 		rhea::Allocator         *localAllocator;
 		rhea::ISimpleLogger     *logger;
 		rhea::NullLogger        nullLogger;
 		OSSocket				sok2280;
+        OSSocket                sok2281;
 		OSSerialPort			com;
 		OSWaitableGrp			waitableGrp;
 		u32						sok2280NextID;
 		u8						*rs232BufferOUT;
 		sBuffer					rs232BufferIN;
 		u8						*sok2280Buffer;
+        u8                      *sok2281BufferIN;
+        u8                      *sok2281BufferOUT;
 		rhea::FastArray< sConnectedSocket>			clientList;
 		u8						reportedESAPIVerMajor;
 		u8						reportedESAPIVerMinor;
