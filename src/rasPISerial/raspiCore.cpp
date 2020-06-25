@@ -831,7 +831,7 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 				return false;
 			
 			const u32 uid = rhea::utils::bufferReadU32 (&b.buffer[3]);
-			const u16 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
+            const u32 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
 			
 			if (b.numBytesInBuffer < 10 + dataLen)
 				return false;
@@ -946,11 +946,11 @@ void Core::priv_2280_onIncomingData (OSSocket &sok, u32 uid)
 	rhea::utils::bufferWriteU32 (&rs232BufferOUT[ct], cl->uid);
 	ct += 4;
 
-	rhea::utils::bufferWriteU16 (&rs232BufferOUT[ct], nBytesLetti);
+    rhea::utils::bufferWriteU16 (&rs232BufferOUT[ct], (u16)nBytesLetti);
 	ct += 2;
 
-	memcpy (&rs232BufferOUT[ct], sok2280Buffer, nBytesLetti);
-	ct += nBytesLetti;
+    memcpy (&rs232BufferOUT[ct], sok2280Buffer, (u16)nBytesLetti);
+    ct += (u16)nBytesLetti;
 
     rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
     ct++;

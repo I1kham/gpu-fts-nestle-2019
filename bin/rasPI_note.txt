@@ -1,3 +1,8 @@
+Seriali
+/dev/ttyAMA0	tx-pin8 	rx-pin10 massa pin6
+/dev/ttyAMA1	tx-pin24	rx-pin21
+
+
 DEFATUL Wifi hotspot + lighttpd
 	https://raspap.com/#quick-installer
 	

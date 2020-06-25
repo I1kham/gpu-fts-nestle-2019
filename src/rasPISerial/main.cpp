@@ -11,9 +11,14 @@ bool startESAPI ()
 	rhea::ISimpleLogger *logger = &loggerNULL;
 #endif
 
+#ifdef PLATFORM_RASPI
+    const char SERIAL_PORT[] = {"/dev/ttyAMA0"};
+#else
+    const char SERIAL_PORT[] = {"COM5"};
+#endif
 	raspi::Core core;
 	core.useLogger (logger);
-	if (!core.open ("COM5"))
+    if (!core.open (SERIAL_PORT))
 		return false;
 	
 	core.run();

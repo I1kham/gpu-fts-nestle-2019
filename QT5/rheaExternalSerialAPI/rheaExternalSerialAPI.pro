@@ -60,14 +60,6 @@ message ("$${THIS_LIBRARY_NAME}: configuration is $${CONFIG_NAME}")
 	PATH_TO_LIB = "$${PATH_TO_ROOT}/lib"
 	TARGET = "$${PATH_TO_LIB}/$${CONFIG_NAME}_$${THIS_LIBRARY_NAME}"
 
-#depends on SocketBridge libray
-LIBRARY_NAME="SocketBridge"
-		FULL_LIBRARY_NAME = "$${CONFIG_NAME}_$${LIBRARY_NAME}"
-		INCLUDEPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
-		DEPENDPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
-		unix:!macx: LIBS += -L$${PATH_TO_LIB}/ -l$${FULL_LIBRARY_NAME}
-		unix:!macx: PRE_TARGETDEPS += "$${PATH_TO_LIB}/lib$${FULL_LIBRARY_NAME}.a"
-
 #depends on CPUBridge libray
 LIBRARY_NAME="CPUBridge"
 		FULL_LIBRARY_NAME = "$${CONFIG_NAME}_$${LIBRARY_NAME}"
@@ -98,6 +90,7 @@ SOURCES += \
     ../../src/rheaExternalSerialAPI/ESAPIModuleRasPI.cpp \
     ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.cpp \
     ../../src/rheaExternalSerialAPI/ESAPISubscriberList.cpp
+
 
 
 
