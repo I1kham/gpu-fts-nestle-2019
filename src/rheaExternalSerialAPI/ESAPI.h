@@ -118,6 +118,16 @@ namespace esapi
 					//alla ricezione di questo msg, ESAPI risponderà con una serie di notify_RASPI_FILEUPLOAD ad indicare lo stato dell'upload
 	void		notify_RASPI_FILEUPLOAD(const cpubridge::sSubscriber &to, rhea::ISimpleLogger *logger, eFileUploadStatus status, u32 kbSoFar);
 	void		translateNotify_RASPI_FILEUPLOAD(const rhea::thread::sMsg &msg, eFileUploadStatus *out_status, u32 *out_kbSoFar);
+
+	void		ask_RASPI_UNZIP (const cpubridge::sSubscriber &from, const u8* const fileName, const u8* const destFolderNoSlashFinale);
+	void		translate_RASPI_UNZIP(const rhea::thread::sMsg &msg, const u8 **out_pointerToFilename, const u8 **out_pointerToFolderNoSlashFinale);
+					//chiede al rasPI di unzippare un file precedentemente uppato con ask_RASPI_START_FILEUPLOAD()
+					//[fileName] contiene solo il nome del file, niente path
+					//alla ricezione di questo msg, ESAPI risponderà con una serie di notify_RASPI_UNZIP (potrebbe volerci un po' di tempo per ricevere
+					//la notifica, dipende da quanto è grosso il file da unzippare)
+	void		notify_RASPI_UNZIP (const cpubridge::sSubscriber &to, rhea::ISimpleLogger *logger, bool bSuccess);
+	void		translateNotify_RASPI_UNZIP(const rhea::thread::sMsg &msg, bool *out_bSuccess);
+
 } // namespace esapi
 
 #endif // _ESAPI_h_

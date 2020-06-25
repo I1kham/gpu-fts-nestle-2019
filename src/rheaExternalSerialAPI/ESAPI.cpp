@@ -659,3 +659,51 @@ void esapi::translateNotify_RASPI_FILEUPLOAD(const rhea::thread::sMsg &msg, eFil
 	*out_kbSoFar = rhea::utils::bufferReadU32 (p);
 	*out_status = (eFileUploadStatus)p[4];
 }
+
+//****************************************************************************
+void esapi::ask_RASPI_UNZIP (const cpubridge::sSubscriber &from, const u8* const fileName, const u8* const destFolderNoSlashFinale)
+{
+	const u32 len1 = rhea::string::utf8::lengthInBytes (fileName);
+	const u32 len2 = rhea::string::utf8::lengthInBytes (destFolderNoSlashFinale);
+	assert (len1 <= 0xff && len2 <= 0xff);
+
+	const u32 totalSizeOfMsg = 2 + (len1 + 1) + (len2 + 1);
+	u8 *data = (u8*)RHEAALLOC(rhea::getScrapAllocator(), totalSizeOfMsg);
+	data[0] = (u8)len1;
+	data[1] = (u8)len2;
+	memcpy (&data[2], fileName, len1 + 1);
+	memcpy (&data[2+ len1 + 1], destFolderNoSlashFinale, len2 + 1);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_RASPI_UNZIP, (u32)0, data, totalSizeOfMsg);
+	RHEAFREE(rhea::getScrapAllocator(), data);
+}
+
+//****************************************************************************
+void esapi::translate_RASPI_UNZIP(const rhea::thread::sMsg &msg, const u8 **out_pointerToFilename, const u8 **out_pointerToFolderNoSlashFinale)
+{
+	assert (msg.what == ESAPI_ASK_RASPI_UNZIP);
+	const u8 *p = (const u8*)msg.buffer;
+	const u8 len1 = p[0];
+//	const u8 len2 = p[1];
+	*out_pointerToFilename = &p[2];
+	*out_pointerToFolderNoSlashFinale = &p[2+len1+1];
+}
+
+//****************************************************************************
+void esapi::notify_RASPI_UNZIP (const cpubridge::sSubscriber &to, rhea::ISimpleLogger *logger, bool bSuccess)
+{
+	logger->log("notify_RASPI_UNZIP\n");
+	u8 data = 0;
+	if (bSuccess)
+		data = 0x01;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, ESAPI_NOTIFY_RASPI_UNZIP, (u32)0, &data, 1);
+}
+//****************************************************************************
+void esapi::translateNotify_RASPI_UNZIP(const rhea::thread::sMsg &msg, bool *out_bSuccess)
+{
+	assert (msg.what == ESAPI_NOTIFY_RASPI_UNZIP);
+	const u8 *p = (const u8*)msg.buffer;
+	if (p[0] == 0x01)
+		*out_bSuccess = true;
+	else
+		*out_bSuccess = false;
+}

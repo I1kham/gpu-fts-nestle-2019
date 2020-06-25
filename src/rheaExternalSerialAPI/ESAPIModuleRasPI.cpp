@@ -214,7 +214,7 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                 rs232BufferOUT[ct++] = '#';
                 rs232BufferOUT[ct++] = 'R';
                 rs232BufferOUT[ct++] = 0x01;
-                rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, 3);
+                rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, ct);
                 ct++;
                 priv_rs232_sendBuffer (rs232BufferOUT, ct);
                 if (priv_boot_waitAnswer('R', 0x01, 4, 0, rs232BufferOUT, 1000))
@@ -312,6 +312,47 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                         priv_boot_handleFileUpload(sub);
                     }
                 }
+            }
+            break;
+
+        case ESAPI_ASK_RASPI_UNZIP:
+            {
+                const u8 *filename;
+                const u8 *dstFolder;
+                esapi::translate_RASPI_UNZIP(msg, &filename, &dstFolder);
+                const u8 len1 = rhea::string::utf8::lengthInBytes(filename);
+                const u8 len2 = rhea::string::utf8::lengthInBytes(dstFolder);
+
+                //chiedo al rasPI
+                //# R [0x05] [lenFilename] [lenFolder] [filename_terminato_con_0x00] [folderDest_con_0x00] [ck]
+                u32 ct = 0;
+                rs232BufferOUT[ct++] = '#';
+                rs232BufferOUT[ct++] = 'R';
+                rs232BufferOUT[ct++] = 0x05;
+                rs232BufferOUT[ct++] = len1;
+                rs232BufferOUT[ct++] = len2;
+                memcpy (&rs232BufferOUT[ct], filename, len1 + 1);
+                ct += len1 + 1;
+                memcpy (&rs232BufferOUT[ct], dstFolder, len2 + 1);
+                ct += len2 + 1;
+
+                rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, ct);
+                ct++;
+
+                priv_rs232_sendBuffer (rs232BufferOUT, ct);
+
+                //aspetto risposta
+                //# R [0x05] [success] [ck]
+                if (priv_boot_waitAnswer('R', 0x05, 5, 0, rs232BufferOUT, 20000))
+                {
+                    if (rs232BufferOUT[3] == 0x01)
+                        notify_RASPI_UNZIP(sub->q, glob->logger, true);
+                    else
+                        notify_RASPI_UNZIP(sub->q, glob->logger, false);
+                }
+                else
+                    notify_RASPI_UNZIP(sub->q, glob->logger, false);
+
             }
             break;
         }

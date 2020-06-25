@@ -2,6 +2,7 @@
 #include "../rheaExternalSerialAPI/ESAPI.h"
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaUtils.h"
+#include "../rheaCommonLib/compress/rheaCompress.h"
 
 using namespace raspi;
 
@@ -394,6 +395,10 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                     break;
                 }
 
+                const u8 *filename = &b.buffer[10];
+                b.buffer[totalMsgLen - 1] = 0x00;
+				logger->log ("rcv: file upload [%s]\n", filename);
+
                 //non devo avere altri upload in corso
 				if (NULL != fileUpload.f)
 				{
@@ -407,26 +412,26 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                 if (NULL != fileUpload.f)
                 {
 					//rispondo con errore
+					logger->log ("ERR: file transfer already in progress\n");
 					const u8 error = (u8)esapi::eFileUploadStatus_raspi_fileTransfAlreadyInProgress;
 					priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
                 }
                 else
                 {
                     //provo a creare il file nella cartella temp
-                    const u8 *filename = &b.buffer[10];
-                    b.buffer[totalMsgLen - 1] = 0x00;
-
                     u8 s[512];
                     sprintf_s ((char*)s, sizeof(s), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), filename);
                     fileUpload.f = rhea::fs::fileOpenForWriteBinary (s);
                     if (NULL == fileUpload.f)
                     {
                         //rispondo con errore
+						logger->log ("ERR: cant' open file [%s]\n", s);
                         const u8 error = (u8)esapi::eFileUploadStatus_raspi_cantCreateFileInTempFolder;
                         priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
                     }
                     else
                     {
+						logger->log ("accepted\n", s);
                         //ok, possiamo procedere
                         fileUpload.totalFileSizeBytes = filesizeBytes;
                         fileUpload.packetSizeBytes = packetSizeBytes;
@@ -466,6 +471,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                 if (!esapi::isValidChecksum (b.buffer[expectedMsgLen-1], b.buffer, expectedMsgLen-1))
                 {
                     //rispondo KO
+					logger->log ("packet refused, kbSoFar[%d]\n", fileUpload.rcvBytesSoFar);
                     const u8 accepted = 0;
                     priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x04, &accepted, 1);
                     b.removeFirstNBytes(1);
@@ -474,21 +480,62 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 
                 rhea::fs::fileWrite (fileUpload.f, &rs232BufferOUT[3], expecxtedPacketLength);
                 fileUpload.rcvBytesSoFar += expecxtedPacketLength;
-                if (fileUpload.rcvBytesSoFar >= fileUpload.totalFileSizeBytes)
-                {
-                    fclose(fileUpload.f);
-                    fileUpload.f = NULL;
-                }
 
-                //rimuovo dal buffer
+                //rimuovo il messaggio dal buffer
                 b.removeFirstNBytes(expectedMsgLen);
 
                 //rispondo ok
                 const u8 accepted = 1;
                 priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x04, &accepted, 1);
-            }
+
+                if (fileUpload.rcvBytesSoFar >= fileUpload.totalFileSizeBytes)
+                {
+                    fclose(fileUpload.f);
+                    fileUpload.f = NULL;
+					logger->log ("file transfer finished, kbSoFar[%d]\n", fileUpload.rcvBytesSoFar);
+                }
+				else
+				{
+					logger->log ("rcv packet, kbSoFar[%d]\n", fileUpload.rcvBytesSoFar);
+				}
+			}
             break;
 
+		case 0x05:
+			//richiesta di unzippare un file che ho in /temp
+			//# R [0x05] [lenFilename] [lenFolder] [filename_terminato_con_0x00] [folderDest_con_0x00] [ck]
+            if (b.numBytesInBuffer < 6)
+                return;
+			else
+			{
+				const u8 len1 = b.buffer[3];
+				const u8 len2 = b.buffer[4];
+				const u32 totalLenOfMsg = 6 + (len1 + 1) + (len2 + 1);
+				if (b.numBytesInBuffer < totalLenOfMsg)
+					return;
+
+				if (!esapi::isValidChecksum (b.buffer[totalLenOfMsg - 1], b.buffer, totalLenOfMsg - 1))
+				{
+					b.removeFirstNBytes(1);
+					break;
+				}
+
+				const u8 *filename = &b.buffer[5];
+				const u8 *dstFolder = &b.buffer[5+ (len1+1)];
+				u8 s[512];
+				sprintf_s ((char*)s, sizeof(s), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), filename);
+				bool zipResult = rhea::CompressUtility::decompresAll (s, dstFolder);
+
+				//rimuovo il msg dal buffer
+				b.removeFirstNBytes(totalLenOfMsg);
+
+				//rispondo # R [0x05] [success] [ck]
+				u8 result = 0x00;
+				if (zipResult)
+					result = 0x01;
+				priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x05, &result, 1);
+			}
+			break;
         }
 
     } //while(1)
