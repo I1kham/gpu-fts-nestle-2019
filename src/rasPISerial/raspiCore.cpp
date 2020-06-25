@@ -478,7 +478,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                     break;
                 }
 
-                rhea::fs::fileWrite (fileUpload.f, &rs232BufferOUT[3], expecxtedPacketLength);
+                rhea::fs::fileWrite (fileUpload.f, &b.buffer[3], expecxtedPacketLength);
                 fileUpload.rcvBytesSoFar += expecxtedPacketLength;
 
                 //rimuovo il messaggio dal buffer
@@ -522,9 +522,33 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 
 				const u8 *filename = &b.buffer[5];
 				const u8 *dstFolder = &b.buffer[5+ (len1+1)];
-				u8 s[512];
-				sprintf_s ((char*)s, sizeof(s), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), filename);
-				bool zipResult = rhea::CompressUtility::decompresAll (s, dstFolder);
+				logger->log ("unzip [%s] [%s]\n", filename, dstFolder);
+
+				u8 src[512];
+				u8 dst[512];
+				if (rhea::string::utf8::areEqual(dstFolder, (const u8*)"@GUITS", true))
+				{
+#ifdef LINUX
+#ifdef PLATFORM_UBUNTU_DESKTOP
+					//unzippo in temp/filenameSenzaExt/
+					rhea::fs::extractFileNameWithoutExt (filename, src, sizeof(src));
+					sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), src);
+#else
+					sprintf_s ((char*)dst, sizeof(dst), "/var/www/html/rhea/GUITS");
+#endif
+#else
+					//unzippo in temp/filenameSenzaExt/
+					rhea::fs::extractFileNameWithoutExt (filename, src, sizeof(src));
+					sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), src);
+#endif
+				}
+				else
+					sprintf_s ((char*)dst, sizeof(dst), "%s", dstFolder);
+				
+
+				sprintf_s ((char*)src, sizeof(src), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), filename);
+				logger->log ("unzipping [%s] into [%s]\n", src, dst);
+				bool zipResult = rhea::CompressUtility::decompresAll (src, dst);
 
 				//rimuovo il msg dal buffer
 				b.removeFirstNBytes(totalLenOfMsg);
@@ -534,6 +558,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 				if (zipResult)
 					result = 0x01;
 				priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x05, &result, 1);
+				logger->log ("unzip resul [%d]\n", result);
 			}
 			break;
         }
