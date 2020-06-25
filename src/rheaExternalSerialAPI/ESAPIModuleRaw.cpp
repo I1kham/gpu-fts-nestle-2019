@@ -298,7 +298,9 @@ void ModuleRaw::priv_rs232_handleCommunication (sBuffer &b)
         const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
 
 		if (0 == nBytesAvailInBuffer)
+        {
 			DBGBREAK;
+        }
 
 	    if (nBytesAvailInBuffer > 0)
 	    {

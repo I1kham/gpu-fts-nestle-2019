@@ -76,8 +76,7 @@ private:
     {
         eUploadCPUFWCallBack_none = 0,
         eUploadCPUFWCallBack_btn = 1,
-        eUploadCPUFWCallBack_auto = 2,
-        eUploadCPUFWCallBack_ESAPIGUI = 3
+        eUploadCPUFWCallBack_auto = 2
     };
 
     enum eAutoUpdateFase
@@ -135,6 +134,7 @@ private:
 
     void                    priv_updateLabelInfo();
     void                    priv_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    void                    priv_onESAPINotification (rhea::thread::sMsg &msg);
     bool                    priv_langCopy (const u8 *srcFolder, const u8 *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec);
     void                    priv_foreverDisableBtnStartVMC();
     void                    priv_on_btnInstall_DA3_onFileSelected (const u8 *srcFullFilePathAndName);

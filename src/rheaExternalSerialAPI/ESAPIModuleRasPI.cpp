@@ -276,7 +276,10 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                     fileUpload.bytesSentSoFar = 0;
                     fileUpload.packetSizeBytes = 1000;
                     
-                    const u8 filenameLen = (u8)rhea::string::utf8::lengthInBytes(fullFilePathAndName);
+                    //al rasPI mando solo il filename, senza il path
+                    u8 onlyFilename[128];
+                    rhea::fs::extractFileNameWithExt (fullFilePathAndName, onlyFilename, sizeof(onlyFilename));
+                    const u8 onlyFilenameLen = (u8)rhea::string::utf8::lengthInBytes(onlyFilename);
 
                     u32 ct = 0;
                     rs232BufferOUT[ct++] = '#';
@@ -286,9 +289,9 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                     ct += 4;
                     rhea::utils::bufferWriteU16(&rs232BufferOUT[ct], fileUpload.packetSizeBytes);
                     ct += 2;
-                    rs232BufferOUT[ct++] = filenameLen;
-                    memcpy (&rs232BufferOUT[ct], fullFilePathAndName, filenameLen+1);
-                    ct += filenameLen + 1;
+                    rs232BufferOUT[ct++] = onlyFilenameLen;
+                    memcpy (&rs232BufferOUT[ct], onlyFilename, onlyFilenameLen);
+                    ct += onlyFilenameLen;
     
                     rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc(rs232BufferOUT, ct);
                     ct++;
@@ -574,7 +577,6 @@ void ModuleRasPI::priv_running_handleMsgFromSubscriber(sSubscription *sub)
     }
 }
 
-
 //*********************************************************
 void ModuleRasPI::priv_running_handleRS232 (sBuffer &b)
 {
@@ -584,7 +586,9 @@ void ModuleRasPI::priv_running_handleRS232 (sBuffer &b)
         const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
 
 		if (0 == nBytesAvailInBuffer)
+        {
 			DBGBREAK;
+        }
 
 	    if (nBytesAvailInBuffer > 0)
 	    {
@@ -757,7 +761,6 @@ bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
 		break;
 	}
 }
-
 
 //***************************************************************
 void ModuleRasPI::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)

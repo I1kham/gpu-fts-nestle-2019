@@ -318,6 +318,12 @@ eRetCode FormBoot::onTick()
         rhea::thread::deleteMsg(msg);
     }
 
+    while (rhea::thread::popMsg(glob->esapiSubscriber.hFromMeToSubscriberR, &msg))
+    {
+        priv_onESAPINotification(msg);
+        rhea::thread::deleteMsg(msg);
+    }
+
     if (autoupdate.isRunning)
         priv_autoupdate_onTick();
 
@@ -457,8 +463,22 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         default: break;
         case eUploadCPUFWCallBack_btn: priv_on_btnInstall_CPU_upload(msg); break;
         case eUploadCPUFWCallBack_auto: priv_autoupdate_onCPU_upload(msg); break;
-        case eUploadCPUFWCallBack_ESAPIGUI: priv_uploadESAPI_GUI(msg); break;
         }
+        break;
+    }
+}
+
+/**************************************************************************
+ * priv_onESAPINotification
+ *
+ * E' arrivato un messaggio da parte di ESAPI sulla msgQ dedicata
+ */
+void FormBoot::priv_onESAPINotification (rhea::thread::sMsg &msg)
+{
+    switch (msg.what)
+    {
+    case ESAPI_NOTIFY_RASPI_FILEUPLOAD:
+        priv_uploadESAPI_GUI(msg);
         break;
     }
 }
@@ -902,12 +922,10 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
         return;
     }
 
-
-    /*priv_pleaseWaitShow("Uploading mobile GUI to ESAPI module...");
-    upldCPUFWCallBack = eUploadCPUFWCallBack_ESAPIGUI;
+    //chiedo a ESAPI di iniziare il fileUpload. Mano mano che l'upload prosegue, la fn priv_uploadESAPI_GUI() viene chiamata
+    priv_pleaseWaitShow("Uploading mobile GUI to ESAPI module...");
     priv_foreverDisableBtnStartVMC();
-    cpubridge::ask_CPU_RASPI_MITM_Upload_GUI_TS (glob->cpuSubscriber, 0, fullMobileGUIPathAndName);
-    */
+    esapi::ask_RASPI_START_FILEUPLOAD (glob->esapiSubscriber, fullMobileGUIPathAndName);
 }
 
 bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
@@ -939,26 +957,24 @@ bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
 
 void FormBoot::priv_uploadESAPI_GUI (rhea::thread::sMsg &msg)
 {
-    cpubridge::eWriteCPUFWFileStatus status;
-    u16 param = 0;
-    cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
+    esapi::eFileUploadStatus status;
+    u32 kbSoFar = 0;
+    esapi::translateNotify_RASPI_FILEUPLOAD(msg, &status, &kbSoFar);
 
     char s[512];
-    if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
+    if (status == esapi::eFileUploadStatus_inProgress)
     {
-        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... %d/%d KB", param, (sizeInBytesOfCurrentFileUnpload>>10));
+        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... %d/%d KB", kbSoFar, (sizeInBytesOfCurrentFileUnpload>>10));
         priv_pleaseWaitSetText (s);
     }
-    else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
+    else if (status == esapi::eFileUploadStatus_finished_OK)
     {
-        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
         sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... file upload SUCCESS, now waiting for unzip");
         priv_pleaseWaitSetText (s);
     }
     else
     {
-        upldCPUFWCallBack = eUploadCPUFWCallBack_none;
-        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... ERROR: %s [%d]", rhea::app::utils::verbose_WriteCPUFWFileStatus(status), param);
+        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... ERROR: [%d]", status);
         priv_pleaseWaitSetError(s);
         priv_pleaseWaitHide();
         priv_updateLabelInfo();
