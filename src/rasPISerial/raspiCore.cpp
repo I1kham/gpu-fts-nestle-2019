@@ -122,6 +122,38 @@ void Core::priv_close ()
 	}
 }
 
+//*********************************************************
+u32 Core::priv_esapi_buildMsg (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+	const u32 totalSizeOfMsg = 4 + numOfBytesInOptionalData;
+	if (sizeOfOutBuffer < totalSizeOfMsg)
+	{
+		DBGBREAK;
+		return 0;
+	}
+
+    u32 ct = 0;
+    out_buffer[ct++] = '#';
+    out_buffer[ct++] = c1;
+	out_buffer[ct++] = c2;
+    if (NULL != optionalData && numOfBytesInOptionalData)
+    {
+        memcpy (&out_buffer[ct], optionalData, numOfBytesInOptionalData);
+        ct += numOfBytesInOptionalData;
+    }
+
+    out_buffer[ct] = rhea::utils::simpleChecksum8_calc (out_buffer, ct);
+    ct++;
+
+	return ct;
+}
+
+//****************************************************************************
+bool Core::priv_esapi_isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse)
+{
+	return (ck == rhea::utils::simpleChecksum8_calc(buffer, numBytesToUse));
+}
+
 /*******************************************************
  *	In questa fase, invio periodicamente alla GPU il comando #A1 per conoscere la versione di API supportata e per capire quando la GPU
  *	diventa disponibile.
@@ -142,7 +174,7 @@ void Core::priv_identify_run()
 			timeToSendMsgMSec = timeNowMSec + 2000;
 			logger->log ("requesting API version...\n");
 
-			const u32 nBytesToSend = esapi::buildMsg_A1_getAPIVersion_ask (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			const u32 nBytesToSend = priv_esapi_buildMsg ('A', '1', NULL, 0, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 			if (priv_identify_waitAnswer('A', '1', 7, rs232BufferOUT, 1000))
 			{
@@ -163,7 +195,8 @@ void Core::priv_identify_run()
 	//ora devo comunicare la mia identità e attendere risposta
 	while (1)
 	{
-		const u32 nBytesToSend = esapi::buildMsg_R1_externalModuleIdentify_ask (esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+		const u8 data[4] = { (u8)esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, 0 };
+		const u32 nBytesToSend = priv_esapi_buildMsg ('R', '1', data, 3, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 		priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 		if (priv_identify_waitAnswer('R', '1', 5, rs232BufferOUT, 1000))
 		{
@@ -324,7 +357,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
             // # R [0x01] [ck]
             if (b.numBytesInBuffer < 4)
                 return;
-            if (!esapi::isValidChecksum (b.buffer[3], b.buffer, 3))
+            if (!priv_esapi_isValidChecksum (b.buffer[3], b.buffer, 3))
             {
                 b.removeFirstNBytes(1);
                 break;
@@ -343,7 +376,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
             //# R [0x02] [ck]
             if (b.numBytesInBuffer < 4)
                 return;
-            if (!esapi::isValidChecksum (b.buffer[3], b.buffer, 3))
+            if (!priv_esapi_isValidChecksum (b.buffer[3], b.buffer, 3))
             {
                 b.removeFirstNBytes(1);
                 break;
@@ -389,7 +422,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                 const u32 totalMsgLen = 11 + filenameLen;
                 if (b.numBytesInBuffer < totalMsgLen)
                     return;
-                if (!esapi::isValidChecksum (b.buffer[totalMsgLen - 1], b.buffer, totalMsgLen - 1))
+                if (!priv_esapi_isValidChecksum (b.buffer[totalMsgLen - 1], b.buffer, totalMsgLen - 1))
                 {
                     b.removeFirstNBytes(1);
                     break;
@@ -468,7 +501,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                     return;
 				
 				fileUpload.lastTimeRcvMSec = rhea::getTimeNowMSec();
-                if (!esapi::isValidChecksum (b.buffer[expectedMsgLen-1], b.buffer, expectedMsgLen-1))
+                if (!priv_esapi_isValidChecksum (b.buffer[expectedMsgLen-1], b.buffer, expectedMsgLen-1))
                 {
                     //rispondo KO
 					logger->log ("packet refused, kbSoFar[%d]\n", fileUpload.rcvBytesSoFar);
@@ -514,7 +547,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 				if (b.numBytesInBuffer < totalLenOfMsg)
 					return;
 
-				if (!esapi::isValidChecksum (b.buffer[totalLenOfMsg - 1], b.buffer, totalLenOfMsg - 1))
+				if (!priv_esapi_isValidChecksum (b.buffer[totalLenOfMsg - 1], b.buffer, totalLenOfMsg - 1))
 				{
 					b.removeFirstNBytes(1);
 					break;
@@ -724,22 +757,22 @@ bool Core::priv_rs232_handleCommand_A (sBuffer &b)
 
     case '1': 
         //risposta di GPU alla mia richiesta di API Version (A1)
+		//# A 1 [api_ver_major] [api_ver_minor] [GPUmodel] [ck]
+		if (b.numBytesInBuffer < 7)
+			return false;
+		if (!priv_esapi_isValidChecksum(b.buffer[6], b.buffer, 6))
 		{
-			bool bValidCk = false;
-			if (!esapi::buildMsg_A1_getAPIVersion_parseResp (b.buffer, b.numBytesInBuffer, &bValidCk, &this->reportedESAPIVerMajor, &this->reportedESAPIVerMinor, &reportedGPUType))
-				return false;
-
-			if (!bValidCk)
-			{
-				b.removeFirstNBytes(2);
-				return true;
-			}
-
-			logger->log ("reported ESAPI version [%d].[%d], GPUType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
-
-			//rimuovo il msg dal buffer di input
-			b.removeFirstNBytes(7);
+			b.removeFirstNBytes(2);
+			return true;
 		}
+
+		reportedESAPIVerMajor = b.buffer[3];
+		reportedESAPIVerMinor = b.buffer[4];
+		reportedGPUType = (esapi::eGPUType)b.buffer[5];
+		logger->log ("reported ESAPI version [%d].[%d], GPUType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
+
+		//rimuovo il msg dal buffer di input
+		b.removeFirstNBytes(7);
 		return true;
         break;
     }
@@ -766,22 +799,22 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 
 	case 0x02:
 		//GPU mi comunica che la socket xxx è stata chiusa
+		//# R [0x02] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [ck]
+		if (b.numBytesInBuffer < 8)
+			return false;
+		if (rhea::utils::simpleChecksum8_calc(b.buffer, 7) != b.buffer[7])
 		{
-           //parse del messaggio
-            bool bValidCk = false;
-			u32 socketUID;
-            const u32 MSG_LEN = esapi::buildMsg_R0x02_closeSocket_parse (b.buffer, b.numBytesInBuffer, &bValidCk, &socketUID);
-            if (0 == MSG_LEN)
-                return false;
-            if (!bValidCk)
-            {
-				DBGBREAK;
-                b.removeFirstNBytes(2);
-                return true;
-            }
-        
-            //rimuovo msg dal buffer
-            b.removeFirstNBytes(MSG_LEN);
+			DBGBREAK;
+			b.removeFirstNBytes(2);
+			return true;
+		}
+
+		//parse del messaggio
+		{
+			const u32 socketUID = rhea::utils::bufferReadU32(&b.buffer[3]);
+
+			//rimuovo msg dal buffer
+			b.removeFirstNBytes(8);
 
 			//elimino il client
 			sConnectedSocket *cl = priv_2280_findClientByUID (socketUID);
@@ -862,7 +895,10 @@ void Core::priv_2280_accept()
 	cl.uid = ++sok2280NextID;
 
 	//comunico via seriale che ho accettato una nuova socket
-	const u32 nBytesToSend = esapi::buildMsg_R0x01_newSocket (cl.uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+	//# R [0x01] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [ck]
+	u8 data[4];
+	rhea::utils::bufferWriteU32 (data, cl.uid);
+	const u32 nBytesToSend = priv_esapi_buildMsg ('R', 0x01, data, 4, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 	priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 
 	//aggiungo la socket alla lista dei client connessi
@@ -901,8 +937,25 @@ void Core::priv_2280_onIncomingData (OSSocket &sok, u32 uid)
 	}
 
 	//spedisco lungo la seriale
-	const u32 nBytesToSend = esapi::buildMsg_R0x03_socketDataToGPU (cl->uid, sok2280Buffer, nBytesLetti, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
-	priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
+	//# R [0x03] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [lenMSB] [lenLSB] [data…] [ck]
+    u32 ct = 0;
+    rs232BufferOUT[ct++] = '#';
+    rs232BufferOUT[ct++] = 'R';
+	rs232BufferOUT[ct++] = 0x03;
+	
+	rhea::utils::bufferWriteU32 (&rs232BufferOUT[ct], cl->uid);
+	ct += 4;
+
+	rhea::utils::bufferWriteU16 (&rs232BufferOUT[ct], nBytesLetti);
+	ct += 2;
+
+	memcpy (&rs232BufferOUT[ct], sok2280Buffer, nBytesLetti);
+	ct += nBytesLetti;
+
+    rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
+    ct++;
+
+	priv_rs232_sendBuffer (rs232BufferOUT, ct);
 	logger->log ("rcv [%d] bytes from socket [%d], sending to GPU\n", nBytesLetti, cl->uid);
 
 }
@@ -921,7 +974,10 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 			clientList.removeAndSwapWithLast(i);
 
 			//comunico la disconnessione via seriale
-			const u32 nBytesToSend = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			//# R [0x02] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [ck]
+			u8 data[4];
+			rhea::utils::bufferWriteU32 (data, uid);
+			const u32 nBytesToSend= priv_esapi_buildMsg ('R', 0x02, data, 4, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
 			logger->log ("socket [%d] disconnected\n", uid);
 			return;

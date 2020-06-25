@@ -130,6 +130,9 @@ namespace raspi
 
 	private:
 		void					priv_close ();
+		u32						priv_esapi_buildMsg (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
+		bool					priv_esapi_isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse);
+
 		void					priv_2280_accept();
 		void					priv_2280_onIncomingData (OSSocket &sok, u32 uid);
 		void					priv_2280_onClientDisconnected (OSSocket &sok, u32 uid);
