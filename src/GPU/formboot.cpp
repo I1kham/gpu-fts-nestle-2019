@@ -27,6 +27,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     upldCPUFWCallBack = eUploadCPUFWCallBack_none;
     bBtnStartVMCEnabled = true;
     sizeInBytesOfCurrentFileUnpload = 0;
+    filenameOfCurrentFileUnpload[0] = 0;
 
     autoupdate.isRunning = false;
     memset (autoupdate.cpuFileName, 0, sizeof(autoupdate.cpuFileName));
@@ -480,6 +481,10 @@ void FormBoot::priv_onESAPINotification (rhea::thread::sMsg &msg)
     case ESAPI_NOTIFY_RASPI_FILEUPLOAD:
         priv_uploadESAPI_GUI(msg);
         break;
+
+    case ESAPI_NOTIFY_RASPI_UNZIP:
+        priv_uploadESAPI_GUI_unzipped(msg);
+        break;
     }
 }
 
@@ -513,6 +518,7 @@ void FormBoot::priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullF
     upldCPUFWCallBack = mode;
     priv_foreverDisableBtnStartVMC();
     sizeInBytesOfCurrentFileUnpload = rhea::fs::filesize(fullFilePathAndName);
+    rhea::fs::extractFileNameWithExt (fullFilePathAndName, filenameOfCurrentFileUnpload, sizeof(filenameOfCurrentFileUnpload));
     cpubridge::ask_WRITE_CPUFW (glob->cpuSubscriber, 0, fullFilePathAndName);
 }
 
@@ -905,11 +911,15 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
     //se c'è collegato il modulo ESAPI eExternalModuleType_rasPI_wifi_REST, e se la GUI importata ha una versione "mobile", devo uppare anche quella
     u8 fullMobileGUIPathAndName[1024];
     sizeInBytesOfCurrentFileUnpload = 0;
+    filenameOfCurrentFileUnpload[0] = 0;
     if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
     {
         sprintf_s ((char*)fullMobileGUIPathAndName, sizeof(fullMobileGUIPathAndName), "%s/web/mobile.rheazip", glob->current_GUI);
         if (rhea::fs::fileExists(fullMobileGUIPathAndName))
+        {
             sizeInBytesOfCurrentFileUnpload = rhea::fs::filesize(fullMobileGUIPathAndName);
+            rhea::fs::extractFileNameWithExt (fullMobileGUIPathAndName, filenameOfCurrentFileUnpload, sizeof(filenameOfCurrentFileUnpload));
+        }
         else
             fullMobileGUIPathAndName[0] = 0;
     }
@@ -971,6 +981,7 @@ void FormBoot::priv_uploadESAPI_GUI (rhea::thread::sMsg &msg)
     {
         sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... file upload SUCCESS, now waiting for unzip");
         priv_pleaseWaitSetText (s);
+        esapi::ask_RASPI_UNZIP (glob->esapiSubscriber, filenameOfCurrentFileUnpload, (const u8*)"@GUITS");
     }
     else
     {
@@ -983,15 +994,14 @@ void FormBoot::priv_uploadESAPI_GUI (rhea::thread::sMsg &msg)
 
 void FormBoot::priv_uploadESAPI_GUI_unzipped(rhea::thread::sMsg &msg)
 {
-    /*bool bSuccess=false;
-    cpubridge::translateNotify_CPU_RASPI_MITM_Upload_GUI_TS (msg, &bSuccess);
+    bool bSuccess=false;
+    esapi::translateNotify_RASPI_UNZIP (msg, &bSuccess);
     if (bSuccess)
         priv_pleaseWaitSetOK ("Installing GUI on WIFI module... SUCCESS");
     else
         priv_pleaseWaitSetError ("Installing GUI on WIFI module... Error while unzipping");
     priv_pleaseWaitHide();
     priv_updateLabelInfo();
-    */
 }
 
 

@@ -180,6 +180,7 @@ private:
     eUploadCPUFWCallBack    upldCPUFWCallBack;
     sAutoupdate             autoupdate;
     u32                     sizeInBytesOfCurrentFileUnpload;
+    u8                      filenameOfCurrentFileUnpload[256];
 
 };
 
