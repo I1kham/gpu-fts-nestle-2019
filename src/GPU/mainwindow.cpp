@@ -394,7 +394,8 @@ void MainWindow::priv_syncWithCPU_onTick()
         //abbiamo tutte le info, potremmo partire ma abbiamo aggiunto il supporto per il modulo rasPI per
         //cui aggiungo uno step per detectare o meno la presenza del modulo
         //non possiamo partire :) Bisogna verificare
-        rhea::thread::sleepMSec(100);
+        priv_addText ("Checking for ESAPI module...");
+        rhea::thread::sleepMSec(1000);
         syncWithCPU.stato = 4;
         glob->logger->log ("\n\n");
         glob->logger->log ("asking ESAPI module type and ver\n");
@@ -410,6 +411,7 @@ void MainWindow::priv_syncWithCPU_onTick()
         }
         else
         {
+            char s[32];
             rhea::thread::sleepMSec(50);
             rhea::thread::sMsg msgESAPI;
             while (rhea::thread::popMsg(glob->esapiSubscriber.hFromMeToSubscriberR, &msgESAPI))
@@ -419,6 +421,8 @@ void MainWindow::priv_syncWithCPU_onTick()
                 case ESAPI_NOTIFY_MODULE_TYPE_AND_VER:
                     esapi::translateNotify_MODULE_TYPE_AND_VER (msgESAPI, &glob->esapiModule.moduleType, &glob->esapiModule.verMajor, &glob->esapiModule.verMinor);
                     syncWithCPU.stato = 5;
+                    sprintf_s (s, sizeof(s), "ESAPI [%d] [%d] [%d]", glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+                    priv_addText (s);
                     break;
                 }
 

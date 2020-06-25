@@ -393,7 +393,7 @@ u32 esapi::buildMsg_R1_externalModuleIdentify_parseAsk (const u8 *buffer, u32 nu
 	{
 		DBGBREAK;
 		*out_bIsValidCk = false;
-		*out_moduleType = eExternalModuleType_unknown;
+        *out_moduleType = eExternalModuleType_none;
 		*out_verMajor = 0;
 		*out_verMinor = 0;
 	}

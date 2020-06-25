@@ -230,19 +230,27 @@ void FormBoot::priv_updateLabelInfo()
     //modulo rasPI
     if (glob->esapiModule.verMajor != 0x00)
     {
-        char moduleName[32];
-        switch (glob->esapiModule.moduleType)
+        if (esapi::eExternalModuleType_none == glob->esapiModule.moduleType)
         {
-        default:
-            sprintf_s (moduleName, sizeof(moduleName), "%d", glob->esapiModule.moduleType);
-            break;
-
-        case esapi::eExternalModuleType_rasPI_wifi_REST:
-            sprintf_s (moduleName, sizeof(moduleName), "rasPI");
-            break;
+            sprintf_s (s, sizeof(s), "ESAPI: <span style='color:#fff'>API v%d.%d</span>", glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+            ui->labESAPI->setText (s);
         }
-        sprintf_s (s, sizeof(s), "ESAPI module: <span style='color:#fff'>%s, v%d.%d</span>", moduleName, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
-        ui->labESAPI->setText (s);
+        else
+        {
+            char moduleName[32];
+            switch (glob->esapiModule.moduleType)
+            {
+            default:
+                sprintf_s (moduleName, sizeof(moduleName), "%d", glob->esapiModule.moduleType);
+                break;
+
+            case esapi::eExternalModuleType_rasPI_wifi_REST:
+                sprintf_s (moduleName, sizeof(moduleName), "rasPI");
+                break;
+            }
+            sprintf_s (s, sizeof(s), "ESAPI module: <span style='color:#fff'>%s, v%d.%d</span>", moduleName, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+            ui->labESAPI->setText (s);
+        }
     }
 }
 

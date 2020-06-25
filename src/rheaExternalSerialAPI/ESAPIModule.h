@@ -18,7 +18,7 @@ namespace esapi
 			HThreadMsgR			serviceMsgQR;
 			HThreadMsgW			serviceMsgQW;
 			SubscriberList		subscriberList;
-			sESAPIModule		moduleInfo;
+            sESAPIModule		moduleInfo;
 		};
 
 	public:

@@ -27,7 +27,7 @@ namespace esapi
 {
 	enum eExternalModuleType
 	{
-		eExternalModuleType_unknown			= 0x00,
+        eExternalModuleType_none			= 0x00,
 		eExternalModuleType_rasPI_wifi_REST = 0x01
 	};
 

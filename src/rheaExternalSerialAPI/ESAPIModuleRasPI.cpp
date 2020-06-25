@@ -13,6 +13,7 @@ ModuleRasPI::ModuleRasPI()
 bool ModuleRasPI::setup ( sGlob *glob)
 {
     this->glob = glob;
+    this->glob->moduleInfo.type = esapi::eExternalModuleType_rasPI_wifi_REST;
 
     //buffer
 	rs232BufferIN.alloc (glob->localAllocator, SIZE_OF_RS232BUFFERIN);
@@ -101,7 +102,7 @@ eExternalModuleType ModuleRasPI::run()
     glob->logger->decIndent();
 
     priv_unsetup();
-    return esapi::eExternalModuleType_unknown;
+    return esapi::eExternalModuleType_none;
 }
 
 //*********************************************************
@@ -398,7 +399,7 @@ void ModuleRasPI::priv_running_handleMsgFromSubscriber(sSubscription *sub)
             return;
 
         case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
-            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, glob->moduleInfo.type, glob->moduleInfo.verMajor, glob->moduleInfo.verMinor);
+            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, esapi::eExternalModuleType_rasPI_wifi_REST, glob->moduleInfo.verMajor, glob->moduleInfo.verMinor);
             break;
 
         case ESAPI_ASK_RASPI_GET_IPandSSID:

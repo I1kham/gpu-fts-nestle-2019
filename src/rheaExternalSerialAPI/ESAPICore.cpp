@@ -15,7 +15,7 @@ Core::Core()
 	glob.localAllocator = NULL;
 	glob.logger = &nullLogger;
 	rhea::rs232::setInvalid (glob.com);
-    glob.moduleInfo.type = esapi::eExternalModuleType_unknown;
+    glob.moduleInfo.type = esapi::eExternalModuleType_none;
     glob.moduleInfo.verMajor = glob.moduleInfo.verMinor = 0;
 
     curModule = NULL;

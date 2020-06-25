@@ -108,8 +108,8 @@ void ModuleRaw::priv_unsetup()
 eExternalModuleType ModuleRaw::run()
 {
     runningSel.status = cpubridge::eRunningSelStatus_finished_OK;
-    retCode = esapi::eExternalModuleType_unknown;
-    while (retCode == esapi::eExternalModuleType_unknown)
+    retCode = esapi::eExternalModuleType_none;
+    while (retCode == esapi::eExternalModuleType_none)
     {
 		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
 		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
@@ -206,7 +206,7 @@ void ModuleRaw::priv_handleMsgFromSubscriber(sSubscription *sub)
             return;
 
         case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
-            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, glob->moduleInfo.type, glob->moduleInfo.verMajor, glob->moduleInfo.verMinor);
+            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, eExternalModuleType_none, this->API_VERSION_MAJOR, this->API_VERSION_MINOR);
             break;
         }
 
