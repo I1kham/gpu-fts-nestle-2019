@@ -270,11 +270,24 @@ bool Core::priv_identify_waitAnswer(u8 command, u8 code, u8 len, u8 *answerBuffe
  */
 void Core::priv_boot_run()
 {
+#ifdef LINUX
+    u64 timeToSyncMSec = 0;
+#endif
+
     bQuit = false;
     while (bQuit == false)
     {
 		priv_boot_rs232_handleCommunication(rs232BufferIN);
-		rhea::thread::sleepMSec(10);
+        rhea::thread::sleepMSec(100);
+
+#ifdef LINUX
+        //flusho i dati su SD nel tentativo di preservare l'SD da spegnimenti improvvisi
+        if (rhea::getTimeNowMSec() >= timeToSyncMSec)
+        {
+            timeToSyncMSec = rhea::getTimeNowMSec() + 10000;
+            sync();
+        }
+#endif
     }
 }
 
@@ -598,9 +611,17 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 				//rispondo # R [0x05] [success] [ck]
 				u8 result = 0x00;
 				if (zipResult)
+                {
+                    priv_boot_finalizeGUITSInstall(dst);
 					result = 0x01;
+                }
 				priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x05, &result, 1);
 				logger->log ("unzip resul [%d]\n", result);
+
+#ifdef LINUX
+                //dovrebbe flushare tutti i dati sulla SD
+                sync();
+#endif
 			}
 			break;
         }
@@ -609,6 +630,76 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 
 }
 
+//*********************************************************
+void Core::priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder)
+{
+    logger->log("priv_finalizeGUITSInstall []\n", pathToGUIFolder);
+    logger->incIndent();
+
+    //per prima cosa devo cambiare l'IP usato dalla websocket per collegarsi al server.
+    //Al posto di 127.0.0.1 ci devo mettere l'IP di questa macchina
+    //L'ip si trova all'interno del file js/rhea_final.min.js
+    u8 s[512];
+    u32 filesize = 0;
+    sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
+    u8 *pSRC = rhea::fs::fileCopyInMemory (s, rhea::getScrapAllocator(), &filesize);
+    if (NULL == pSRC)
+    {
+        logger->log ("ERR: unable to load file [%s] in memory\n", s);
+    }
+    else
+    {
+        char myIP[16];
+        sprintf_s (myIP, sizeof(myIP), "%d.%d.%d.%d", hotspot.wifiIP[0], hotspot.wifiIP[1], hotspot.wifiIP[2], hotspot.wifiIP[3]);
+        const u32 myIPLen = strlen(myIP);
+
+        const u8 toFind[] = { "127.0.0.1" };
+        const u32 toFindLen = rhea::string::utf8::lengthInBytes(toFind);
+
+        if (filesize >= toFindLen)
+        {
+            for (u32 i = 0; i < filesize-toFindLen; i++)
+            {
+                if (memcmp (&pSRC[i], toFind, toFindLen) == 0)
+                {
+                    logger->log ("found [%s]\n", toFind);
+                    u8 *buffer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), filesize + 32);
+                    memcpy (buffer, pSRC, i);
+                    memcpy (&buffer[i], myIP, myIPLen);
+                    memcpy (&buffer[i+myIPLen], &pSRC[i+toFindLen], filesize - i - toFindLen);
+
+
+                    sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
+                    FILE *f = rhea::fs::fileOpenForWriteBinary(s);
+                    if (NULL == f)
+                    {
+                        logger->log ("ERR: unable to write to file  [%s]\n", s);
+                    }
+                    else
+                    {
+                        rhea::fs::fileWrite (f, buffer, filesize - toFindLen + myIPLen);
+                        fclose(f);
+                    }
+
+                    RHEAFREE(rhea::getScrapAllocator(), buffer);
+                    i = u32MAX-1;
+                }
+            }
+        }
+
+        RHEAFREE(rhea::getScrapAllocator(), pSRC);
+    }
+
+    //Poi devo copiare la cartella coi font
+    u8 s2[512];
+    sprintf_s ((char*)s, sizeof(s), "%s/gui_parts/fonts", rhea::getPhysicalPathToAppFolder());
+    sprintf_s ((char*)s2, sizeof(s2), "%s/fonts", pathToGUIFolder);
+    logger->log ("copying folder [%s] into [%s]\n", s, s2);
+    rhea::fs::folderCopy (s, s2, NULL);
+
+    logger->log ("end\n");
+    logger->decIndent();
+}
 
 
 
@@ -679,7 +770,7 @@ void Core::priv_openSocket2281()
 //*******************************************************
 void Core::run()
 {
-	logger->log ("Entering IDENITFY mode...\n");
+    logger->log ("Entering IDENITFY mode...\n");
 	logger->incIndent();
 	priv_identify_run();
 	logger->decIndent();
@@ -690,17 +781,26 @@ void Core::run()
 	priv_boot_run();
 	logger->decIndent();
 
+
 	logger->log ("\n\nEntering RUNNING mode...\n");
 	logger->incIndent();
         priv_openSocket2280();
         priv_openSocket2281();
 	logger->decIndent();
 
+#ifdef LINUX
+    u64 timeToSyncMSec = 0;
+    waitableGrp.addSerialPort (com, WAITGRP_RS232);
+#endif
 
 	bQuit = false;
 	while (bQuit == false)
 	{
+#ifdef LINUX
+        const u8 nEvents = waitableGrp.wait(5000);
+#else
         const u8 nEvents = waitableGrp.wait(100);
+#endif
 		for (u8 i = 0; i < nEvents; i++)
 		{
 			if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
@@ -717,14 +817,14 @@ void Core::run()
                     else
                     {
                         logger->log ("accepted on 2281\n");
-                        waitableGrp.addSocket (sok, SOK_ID_FROM_REST_API);
+                        waitableGrp.addSocket (sok, WAITGRP_RS232);
                     }
                 }
 				else
 				{
 					//altimenti la socket che si è svegliata deve essere una dei miei client già connessi
 					const u32 clientUID = waitableGrp.getEventUserParamAsU32(i);
-                    if (SOK_ID_FROM_REST_API == clientUID)
+                    if (WAITGRP_SOK_FROM_REST_API == clientUID)
                         priv_2281_handle_restAPI(waitableGrp.getEventSrcAsOSSocket (i));
                     else
                     {
@@ -733,8 +833,18 @@ void Core::run()
                     }
 				}
 			}
-		}
+#ifdef LINUX
+            else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_serialPort)
+            {
+                if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_RS232)
+                {
+                    priv_rs232_handleIncomingData(rs232BufferIN);
+                }
+            }
+#endif
+        }
 
+        //se hotspot è stato spento, verifico se è ora di riaccenderlo (vedi comando REST/SUSP-WIFI)
         if (hotspot.timeToTurnOnMSec)
         {
             if (rhea::getTimeNowMSec() >= hotspot.timeToTurnOnMSec)
@@ -745,7 +855,18 @@ void Core::run()
             }
         }
 
-		priv_rs232_handleIncomingData(rs232BufferIN);
+#ifdef LINUX
+        //flusho i dati su SD nel tentativo di preservare l'SD da spegnimenti improvvisi
+        if (rhea::getTimeNowMSec() >= timeToSyncMSec)
+        {
+            timeToSyncMSec = rhea::getTimeNowMSec() + 10000;
+            sync();
+        }
+#endif
+
+#ifndef LINUX
+        priv_rs232_handleIncomingData(rs232BufferIN);
+#endif
 	}
 }
 

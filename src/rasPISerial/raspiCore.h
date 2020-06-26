@@ -32,9 +32,10 @@ namespace raspi
 	private:
 		static const u8		VER_MAJOR = 1;
 		static const u8		VER_MINOR = 0;
-        static const u32	WAITGRP_SOCKET2280		= 0xFFFFFFFF;
-        static const u32	WAITGRP_SOCKET2281		= 0xFFFFFFFE;
-        static const u32	SOK_ID_FROM_REST_API    = 0xFFFFFFFD;
+        static const u32	WAITGRP_SOCKET2280          = 0xFFFFFFFF;
+        static const u32	WAITGRP_SOCKET2281          = 0xFFFFFFFE;
+        static const u32	WAITGRP_RS232               = 0xFFFFFFFD;
+        static const u32	WAITGRP_SOK_FROM_REST_API   = 0xFFFFFFFC;
 		
 		static const u16	SIZE_OF_RS232BUFFEROUT	= 4*1024;
 		static const u16	SIZE_OF_RS232BUFFERIN	= 4*1024;
@@ -164,6 +165,7 @@ namespace raspi
 		void					priv_boot_rs232_handleCommunication (sBuffer &b);
 		u32						priv_boot_buildMsgBuffer (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
 		void					priv_boot_buildMsgBufferAndSend (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
+        void                    priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder);
 
         void                    priv_openSocket2280();
         void                    priv_openSocket2281();
