@@ -1,6 +1,11 @@
-Seriali
-/dev/ttyAMA0	tx-pin8 	rx-pin10 massa pin6
-/dev/ttyAMA1	tx-pin24	rx-pin21
+GPU TS varishyte
+	ttymxc0	-> seriale di debug		connettore J27 pin 2=RX pin3=TX pin4=gnd
+	ttymxc2 -> ESAPI				connettore J28 pin 2=RX pin3=TX pin4=gnd
+	ttymxc3 -> CPU
+	
+RASPI4 Seriali
+	/dev/ttyAMA0	tx-pin8 	rx-pin10 massa pin6
+	/dev/ttyAMA1	tx-pin24	rx-pin21
 
 
 DEFATUL Wifi hotspot + lighttpd
