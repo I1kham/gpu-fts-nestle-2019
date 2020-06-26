@@ -329,8 +329,10 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 	    //leggo tutto quello che posso dalla seriale e bufferizzo in [b]
         const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
 
+#ifdef _DEBUG
 		if (0 == nBytesAvailInBuffer)
 			DBGBREAK;
+#endif
 
 	    if (nBytesAvailInBuffer > 0)
 	    {
@@ -817,7 +819,7 @@ void Core::run()
                     else
                     {
                         logger->log ("accepted on 2281\n");
-                        waitableGrp.addSocket (sok, WAITGRP_RS232);
+                        waitableGrp.addSocket (sok, WAITGRP_SOK_FROM_REST_API);
                     }
                 }
 				else
