@@ -49,6 +49,17 @@ namespace raspi
 			OSSocket	sok;
 		};
 
+        struct sHotspot
+        {
+            u8      bIsOn;
+            u64     timeToTurnOnMSec;
+            u8      wifiIP[4];
+            u8      ssid[64];
+
+            void    turnOFF()   { system ("sudo systemctl stop hostapd"); }
+            void    turnON()    { system ("sudo systemctl start hostapd"); }
+        };
+
 		struct sBuffer
 		{
 		public:
@@ -156,7 +167,9 @@ namespace raspi
 
         void                    priv_openSocket2280();
         void                    priv_openSocket2281();
-        void                    priv_handle_restAPI (OSSocket &sok);
+        void                    priv_2281_handle_restAPI (OSSocket &sok);
+        void                    priv_2281_handle_singleCommand (const u8 *command, rhea::string::utf8::Iter *params);
+        bool                    priv_2281_utils_match (const u8 *command, u32 commandLen, const char *match) const;
 
 	private:
 		rhea::Allocator         *localAllocator;
@@ -177,9 +190,9 @@ namespace raspi
 		u8						reportedESAPIVerMinor;
 		esapi::eGPUType			reportedGPUType;
 		bool					bQuit;
-		u8						wifiIP[4];
-        u8                      ssid[64];
+        sHotspot                hotspot;
 		sFileUpload				fileUpload;
+
 	};
 } //namespace raspi
 

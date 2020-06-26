@@ -18,6 +18,9 @@ Core::Core ()
     rhea::socket::init (&sok2281);
     fileUpload.f = NULL;
 	fileUpload.lastTimeRcvMSec = 0;
+
+    memset (&hotspot, 0, sizeof(hotspot));
+    hotspot.bIsOn=1;
 }
 
 //***************************************************
@@ -59,7 +62,7 @@ bool Core::open (const char *serialPort)
     sok2281BufferOUT = (u8*)RHEAALLOC(localAllocator, SOK2281_BUFFEROUT_SIZE);
 
 	//recupero il mio IP di rete wifi
-    memset (wifiIP, 0, sizeof(wifiIP));
+    memset (hotspot.wifiIP, 0, sizeof(hotspot.wifiIP));
 	{
 		u32 n = 0;
 		sNetworkAdapterInfo *ipList = rhea::netaddr::getListOfAllNerworkAdpaterIPAndNetmask (rhea::getScrapAllocator(), &n);
@@ -69,25 +72,25 @@ bool Core::open (const char *serialPort)
 			{
 				if (strcasecmp (ipList[i].name, "wlan0") == 0)
 				{
-					rhea::netaddr::ipstrTo4bytes (ipList[i].ip, &wifiIP[0], &wifiIP[1], &wifiIP[2], &wifiIP[3]);
+                    rhea::netaddr::ipstrTo4bytes (ipList[i].ip, &hotspot.wifiIP[0], &hotspot.wifiIP[1], &hotspot.wifiIP[2], &hotspot.wifiIP[3]);
 					break;
 				}
 			}
 			
-			if (wifiIP[0] == 0)
+            if (hotspot.wifiIP[0] == 0)
 			{
 				//questo è per la versione win, che non ha wlan0
-				rhea::netaddr::ipstrTo4bytes (ipList[0].ip, &wifiIP[0], &wifiIP[1], &wifiIP[2], &wifiIP[3]);
+                rhea::netaddr::ipstrTo4bytes (ipList[0].ip, &hotspot.wifiIP[0], &hotspot.wifiIP[1], &hotspot.wifiIP[2], &hotspot.wifiIP[3]);
 			}
 
 			RHEAFREE(rhea::getScrapAllocator(), ipList);
-            logger->log ("WIFI IP: %d.%d.%d.%d\n", wifiIP[0], wifiIP[1], wifiIP[2], wifiIP[3]);
+            logger->log ("WIFI IP: %d.%d.%d.%d\n", hotspot.wifiIP[0], hotspot.wifiIP[1], hotspot.wifiIP[2], hotspot.wifiIP[3]);
 		}
 	}
 
     //recupero SSID dell'hotspot
     //Uno script python parte allo startup del rasPI e crea un file di testo di nome "hotspotname.txt" che contiene il nome dell'hotspot
-    memset (ssid, 0, sizeof(ssid));
+    memset (hotspot.ssid, 0, sizeof(hotspot.ssid));
     {
         u8 s[128];
         sprintf_s ((char*)s, sizeof(s), "%s/hotspotname.txt", rhea::getPhysicalPathToAppFolder());
@@ -95,15 +98,15 @@ bool Core::open (const char *serialPort)
         if (NULL == f)
         {
             logger->log ("ERR: unable to open file [%s]\n", s);
-            sprintf_s ((char*)ssid, sizeof(ssid), "unknown");
+            sprintf_s ((char*)hotspot.ssid, sizeof(hotspot.ssid), "unknown");
         }
         else
         {
-            fread (ssid, sizeof(ssid), 1, f);
+            fread (hotspot.ssid, sizeof(hotspot.ssid), 1, f);
             fclose(f);
         }
     }
-    logger->log ("Hotspot name:%s\n", ssid);
+    logger->log ("Hotspot name:%s\n", hotspot.ssid);
 
 	return true;
 }
@@ -393,17 +396,17 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 
             //rispondo # R [0x02] [ip1] [ip2] [ip3] [ip4] [lenSSID] [ssidString...] [ck]
             {
-                const u8 lenSSID = (u8)rhea::string::utf8::lengthInBytes(ssid);
+                const u8 lenSSID = (u8)rhea::string::utf8::lengthInBytes(hotspot.ssid);
                 u32 ct = 0;
                 rs232BufferOUT[ct++] = '#';
                 rs232BufferOUT[ct++] = 'R';
                 rs232BufferOUT[ct++] = 0x02;
-                rs232BufferOUT[ct++] = wifiIP[0];
-                rs232BufferOUT[ct++] = wifiIP[1];
-                rs232BufferOUT[ct++] = wifiIP[2];
-                rs232BufferOUT[ct++] = wifiIP[3];
+                rs232BufferOUT[ct++] = hotspot.wifiIP[0];
+                rs232BufferOUT[ct++] = hotspot.wifiIP[1];
+                rs232BufferOUT[ct++] = hotspot.wifiIP[2];
+                rs232BufferOUT[ct++] = hotspot.wifiIP[3];
                 rs232BufferOUT[ct++] = lenSSID;
-                memcpy (&rs232BufferOUT[ct], ssid, lenSSID);
+                memcpy (&rs232BufferOUT[ct], hotspot.ssid, lenSSID);
                 ct += lenSSID;
 
                 rs232BufferOUT[ct] = rhea::utils::simpleChecksum8_calc (rs232BufferOUT, ct);
@@ -676,7 +679,6 @@ void Core::priv_openSocket2281()
 //*******************************************************
 void Core::run()
 {
-    /*
 	logger->log ("Entering IDENITFY mode...\n");
 	logger->incIndent();
 	priv_identify_run();
@@ -687,7 +689,7 @@ void Core::run()
 	logger->incIndent();
 	priv_boot_run();
 	logger->decIndent();
-*/
+
 	logger->log ("\n\nEntering RUNNING mode...\n");
 	logger->incIndent();
         priv_openSocket2280();
@@ -723,7 +725,7 @@ void Core::run()
 					//altimenti la socket che si è svegliata deve essere una dei miei client già connessi
 					const u32 clientUID = waitableGrp.getEventUserParamAsU32(i);
                     if (SOK_ID_FROM_REST_API == clientUID)
-                        priv_handle_restAPI(waitableGrp.getEventSrcAsOSSocket (i));
+                        priv_2281_handle_restAPI(waitableGrp.getEventSrcAsOSSocket (i));
                     else
                     {
                         OSSocket sok = waitableGrp.getEventSrcAsOSSocket (i);
@@ -732,6 +734,16 @@ void Core::run()
 				}
 			}
 		}
+
+        if (hotspot.timeToTurnOnMSec)
+        {
+            if (rhea::getTimeNowMSec() >= hotspot.timeToTurnOnMSec)
+            {
+                logger->log ("2281: turn on hotspot\n");
+                hotspot.timeToTurnOnMSec = 0;
+                hotspot.turnON();
+            }
+        }
 
 		priv_rs232_handleIncomingData(rs232BufferIN);
 	}
@@ -1048,7 +1060,7 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 }
 
 //*********************************************************
-void Core::priv_handle_restAPI (OSSocket &sok)
+void Core::priv_2281_handle_restAPI (OSSocket &sok)
 {
     i32 nBytesLetti = rhea::socket::read (sok, sok2281BufferIN, SOK2281_BUFFERIN_SIZE, 100);
     if (nBytesLetti == 0)
@@ -1064,7 +1076,73 @@ void Core::priv_handle_restAPI (OSSocket &sok)
         DBGBREAK;
         return;
     }
+    sok2281BufferIN[nBytesLetti] = 0x00;
 
-    sok2281BufferIN[5]=0;
-    logger->log ("%s\n", sok2281BufferIN);
+    if (nBytesLetti < 3)
+    {
+        logger->log ("2281: invalid input [%s]\n", sok2281BufferIN);
+        return;
+    }
+
+    const rhea::UTF8Char    cSep(124);          // pipe
+    rhea::string::utf8::Iter iter;
+    rhea::UTF8Char c;
+    u8  command[64];
+    command[0] = 0x00;
+    iter.setup (sok2281BufferIN);
+    while ( !(c = iter.getCurChar()).isEOF() )
+    {
+        if (c == cSep)
+        {
+            //comando con parametri
+            iter.copyStrFromXToCurrentPosition (0, command, sizeof(command), false);
+            iter.advanceOneChar();
+            priv_2281_handle_singleCommand (command, &iter);
+            return;
+        }
+
+        iter.advanceOneChar();
+    }
+
+    //comando senza parametri
+    priv_2281_handle_singleCommand (sok2281BufferIN, NULL);
+    sok2281BufferIN[0] = 0;
+}
+
+//*********************************************************
+bool Core::priv_2281_utils_match (const u8 *command, u32 commandLen, const char *match) const
+{
+    const u32 n = strlen(match);
+    if (commandLen != n)
+        return false;
+    return rhea::string::utf8::areEqual (command, (const u8*)match, true);
+}
+
+//*********************************************************
+void Core::priv_2281_handle_singleCommand (const u8 *command, rhea::string::utf8::Iter *params)
+{
+    const u32 commandLen = rhea::string::utf8::lengthInBytes(command);
+
+    if (NULL == params)
+    {
+        //comando senza parametri
+    }
+    else
+    {
+        //comando con parametri
+        if (priv_2281_utils_match(command, commandLen, "SUSP-WIFI"))
+        {
+            //SUSP-WIFI|timeSec
+            i32 timeSec=3;
+            rhea::string::utf8::extractInteger (*params, &timeSec);
+            logger->log ("2281: [%s] [%d]\n", command, timeSec);
+
+            logger->log ("2281: turn off hotspot\n");
+            hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (timeSec*1000);
+            hotspot.turnOFF();
+            return;
+        }
+    }
+
+    logger->log ("2281: ERR command [%s] not recognized\n", command);
 }
