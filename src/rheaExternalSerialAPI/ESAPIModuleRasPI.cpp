@@ -143,9 +143,7 @@ void ModuleRasPI::priv_boot_run()
     bQuit = false;
     while (bQuit == false)
     {
-		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
-		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
-        const u8 nEvents = waitableGrp.wait(10);
+        const u8 nEvents = waitableGrp.wait(100);
 		for (u8 i = 0; i < nEvents; i++)
 		{
 			switch (waitableGrp.getEventOrigin(i))
@@ -513,16 +511,30 @@ void ModuleRasPI::priv_boot_handleFileUpload(sSubscription *sub)
  */
 void ModuleRasPI::priv_running_run()
 {
+#ifdef LINUX
+    waitableGrp.addSerialPort(glob->com, WAITLIST_RS232);
+#endif
+
     bQuit = false;
     while (bQuit == false)
     {
 		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
 		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
-        const u8 nEvents = waitableGrp.wait(10);
+#ifdef LINUX
+        const u8 nEvents = waitableGrp.wait(10000);
+#else
+        const u8 nEvents = waitableGrp.wait(100);
+#endif
 		for (u8 i = 0; i < nEvents; i++)
 		{
 			switch (waitableGrp.getEventOrigin(i))
 			{
+#ifdef LINUX
+            case OSWaitableGrp::evt_origin_serialPort:
+                priv_running_handleRS232(rs232BufferIN);
+                break;
+#endif
+
 			case OSWaitableGrp::evt_origin_osevent:
 				{
                     switch (waitableGrp.getEventUserParamAsU32(i))
@@ -563,8 +575,9 @@ void ModuleRasPI::priv_running_run()
 			}
 		}
 
-        //gestione comunicazione seriale
+#ifndef LINUX
         priv_running_handleRS232(rs232BufferIN);
+#endif
     }
 }
 

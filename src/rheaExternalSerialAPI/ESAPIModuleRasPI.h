@@ -16,6 +16,7 @@ namespace esapi
 	private:
 		static const u32		WAITLIST_EVENT_FROM_SERVICE_MSGQ	= 0x00400000;
 		static const u32		WAITLIST_EVENT_FROM_A_SUBSCRIBER	= 0x00500000;
+        static const u32		WAITLIST_RS232                      = 0x00600000;
 		
         static const u32		SIZE_OF_RS232BUFFERIN = 2048;
         static const u32		SIZE_OF_RS232BUFFEROUT = 2048;

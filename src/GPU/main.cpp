@@ -103,10 +103,10 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
     bool b = chToCPU->open(CPU_COMPORT, logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 
     //apro un canale con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
+    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open(CPU_COMPORT, logger);
 
 #endif
 
@@ -123,14 +123,6 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
     //starto socketBridge che a sua volta siiscrivera'  a CPUBridge
     rhea::HThread hSocketBridgeThread;
     socketbridge::startServer(logger, *hCPUServiceChannelW, false, true, &hSocketBridgeThread);
-
-    //starto ESAPI
-    rhea::HThread hThreadESAPI;
-    esapi::startThread (ESAPI_COMPORT, *hCPUServiceChannelW, logger, &hThreadESAPI);
-
-
-    //attendo che il thread CPU termini
-    //rhea::thread::waitEnd (hCPUThread);
 
     return true;
 }
@@ -278,9 +270,13 @@ void run(int argc, char *argv[])
     //Mi iscrivo alla CPU per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
     subscribeToCPU (hCPUServiceChannelW, &glob.cpuSubscriber);
 
-    //Mi iscrivo a ESAPI per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
-    subscribeToESAPI (&glob.esapiSubscriber);
-
+    //starto ESAPI
+    rhea::HThread hThreadESAPI;
+    if (esapi::startThread (ESAPI_COMPORT, hCPUServiceChannelW, glob.logger, &hThreadESAPI))
+    {
+        //Mi iscrivo a ESAPI per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
+        subscribeToESAPI (&glob.esapiSubscriber);
+    }
 
     //Avvio del main form
     QApplication app(argc, argv);

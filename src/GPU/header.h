@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.3.1_ESAPI"
+#define GPU_VERSION     "2.3_ESAPI"
 
 
 //nome della porta seriale
@@ -12,7 +12,7 @@
     #define ESAPI_COMPORT  "/dev/ttyUSB1"
 #else
     #define CPU_COMPORT     "/dev/ttymxc3"
-    #define ESAPI_COMPORT   "/dev/ttymxc1"
+    #define ESAPI_COMPORT   "/dev/ttymxc2"
     #define USB_MOUNTPOINT  "/run/media/sda1"
 #endif
 

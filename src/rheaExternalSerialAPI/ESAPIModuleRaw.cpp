@@ -100,6 +100,10 @@ void ModuleRaw::priv_unsetup()
         waitableGrp.removeEvent(h);
     }
 
+#ifdef LINUX
+    waitableGrp.removeSerialPort (glob->com);
+#endif
+
     rs232BufferIN.free (glob->localAllocator);
     RHEAFREE(glob->localAllocator, rs232BufferOUT);
 }
@@ -107,13 +111,21 @@ void ModuleRaw::priv_unsetup()
 //********************************************************
 eExternalModuleType ModuleRaw::run()
 {
+#ifdef LINUX
+    waitableGrp.addSerialPort (glob->com, WAITLIST_RS232);
+#endif
+
     runningSel.status = cpubridge::eRunningSelStatus_finished_OK;
     retCode = esapi::eExternalModuleType_none;
     while (retCode == esapi::eExternalModuleType_none)
     {
-		//qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
-		//TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
-        const u8 nEvents = waitableGrp.wait(10);
+        //qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
+        //TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
+#ifdef LINUX
+        const u8 nEvents = waitableGrp.wait(10000);
+#else
+        const u8 nEvents = waitableGrp.wait(100);
+#endif
 		for (u8 i = 0; i < nEvents; i++)
 		{
 			switch (waitableGrp.getEventOrigin(i))
@@ -147,14 +159,21 @@ eExternalModuleType ModuleRaw::run()
 				}
 				break;
 
+#ifdef LINUX
+            case OSWaitableGrp::evt_origin_serialPort:
+                priv_rs232_handleCommunication(rs232BufferIN);
+                break;
+#endif
+
 			default:
                 glob->logger->log("esapi::ModuleRaw::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
 				break;
 			}
 		}
 
-        //gestione comunicazione seriale
+#ifndef LINUX
         priv_rs232_handleCommunication(rs232BufferIN);
+#endif
     }
 
     priv_unsetup();
@@ -292,15 +311,18 @@ void ModuleRaw::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 //*********************************************************
 void ModuleRaw::priv_rs232_handleCommunication (sBuffer &b)
 {
-    while (1)
+    const u64 timeToExitMSec = rhea::getTimeNowMSec() + 300;
+    while (rhea::getTimeNowMSec() < timeToExitMSec)
     {
 	    //leggo tutto quello che posso dalla seriale e bufferizzo in [b]
         const u16 nBytesAvailInBuffer = (u16)(b.SIZE - b.numBytesInBuffer);
 
+#ifdef _DEBUG
 		if (0 == nBytesAvailInBuffer)
         {
 			DBGBREAK;
         }
+#endif
 
 	    if (nBytesAvailInBuffer > 0)
 	    {

@@ -934,7 +934,7 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
 
     //chiedo a ESAPI di iniziare il fileUpload. Mano mano che l'upload prosegue, la fn priv_uploadESAPI_GUI() viene chiamata
     priv_pleaseWaitShow("Uploading mobile GUI to ESAPI module...");
-    priv_foreverDisableBtnStartVMC();
+    //priv_foreverDisableBtnStartVMC();
     esapi::ask_RASPI_START_FILEUPLOAD (glob->esapiSubscriber, fullMobileGUIPathAndName);
 }
 

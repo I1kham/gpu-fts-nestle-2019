@@ -57,7 +57,6 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
     out_serialPort->fd = ::open(deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
     if (out_serialPort->fd == -1)
     {
-        DBGBREAK;
         switch (errno)
         {
         case ENOENT:    return false; //the named file does not exist;

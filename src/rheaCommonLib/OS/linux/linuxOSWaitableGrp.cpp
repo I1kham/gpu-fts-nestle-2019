@@ -53,6 +53,9 @@ int OSWaitableGrp::priv_getFd (const sRecord *s) const
     case evt_origin_osevent:
         return s->origin.osEvent.evfd;
 
+    case evt_origin_serialPort:
+        return s->origin.osSerialPort.fd;
+
     default:
         DBGBREAK;
         return 0;
