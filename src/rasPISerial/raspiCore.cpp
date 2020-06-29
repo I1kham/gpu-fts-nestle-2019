@@ -640,7 +640,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 //*********************************************************
 void Core::priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder)
 {
-    logger->log("priv_finalizeGUITSInstall []\n", pathToGUIFolder);
+    logger->log("priv_finalizeGUITSInstall [%s]\n", pathToGUIFolder);
     logger->incIndent();
 
     //per prima cosa devo cambiare l'IP usato dalla websocket per collegarsi al server.
