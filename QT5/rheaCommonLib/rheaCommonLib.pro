@@ -90,6 +90,7 @@ SOURCES += \
     ../../src/rheaCommonLib/Protocol/ProtocolConsole.cpp \
     ../../src/rheaCommonLib/Protocol/ProtocolSocketServer.cpp \
     ../../src/rheaCommonLib/Protocol/ProtocolWebsocket.cpp \
+    ../../src/rheaCommonLib/SimpleLogger/FileLogger.cpp \
     ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.cpp \
     ../../src/rheaCommonLib/string/rheaString.cpp \
     ../../src/rheaCommonLib/string/rheaStringANSI.cpp \
@@ -127,6 +128,7 @@ SOURCES += \
 
 
 
+
 HEADERS += \
     ../../src/rheaCommonLib/compress/miniz.h \
     ../../src/rheaCommonLib/compress/rheaCompress.h \
@@ -148,6 +150,7 @@ HEADERS += \
     ../../src/rheaCommonLib/Protocol/ProtocolConsole.h \
     ../../src/rheaCommonLib/Protocol/ProtocolSocketServer.h \
     ../../src/rheaCommonLib/Protocol/ProtocolWebsocket.h \
+    ../../src/rheaCommonLib/SimpleLogger/FileLogger.h \
     ../../src/rheaCommonLib/SimpleLogger/ISimpleLogger.h \
     ../../src/rheaCommonLib/SimpleLogger/NullLogger.h \
     ../../src/rheaCommonLib/SimpleLogger/StdoutLogger.h \
@@ -192,6 +195,10 @@ HEADERS += \
     ../../src/rheaCommonLib/rheaTime24.h \
     ../../src/rheaCommonLib/rheaUtils.h \
     ../../src/rheaCommonLib/rheaWaitableFIFO.h
+
+
+
+
     
 unix {
     target.path = /usr/lib

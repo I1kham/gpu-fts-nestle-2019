@@ -1,4 +1,5 @@
 #include "raspiCore.h"
+#include "../rheaCommonLib/SimpleLogger/FileLogger.h"
 
 //*****************************************************
 bool startESAPI ()
@@ -9,8 +10,8 @@ bool startESAPI ()
 #else
     //rhea::NullLogger loggerNULL;
     //rhea::ISimpleLogger *logger = &loggerNULL;
-    rhea::StdoutLogger loggerSTD;
-    rhea::ISimpleLogger *logger = &loggerSTD;
+    rhea::FileLogger loggerFile((const u8*)"/home/pi/rhea/gpu-fts-nestle-2019/bin/output.log");
+    rhea::ISimpleLogger *logger = &loggerFile;
 #endif
 
 #ifdef PLATFORM_RASPI
