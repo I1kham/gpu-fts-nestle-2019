@@ -174,14 +174,19 @@ void Core::priv_identify_run()
 	reportedESAPIVerMinor = 0;
 	reportedGPUType = esapi::eGPUType_unknown;
 
-	u64 timeToSendMsgMSec = 0;
+    //flush del buffer seriale nel caso ci sia qualche schifezza
+    rhea::rs232::readBuffer(com, rs232BufferIN.buffer, rs232BufferIN.SIZE);
+    rs232BufferIN.numBytesInBuffer=0;
+
+    logger->log ("requesting API version...\n");
+    u64 timeToSendMsgMSec = 0;
 	while (1)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 		if (timeNowMSec >= timeToSendMsgMSec)
 		{
-			timeToSendMsgMSec = timeNowMSec + 2000;
-			logger->log ("requesting API version...\n");
+            timeToSendMsgMSec = timeNowMSec + 150;
+            logger->log (".");
 
 			const u32 nBytesToSend = priv_esapi_buildMsg ('A', '1', NULL, 0, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
@@ -191,12 +196,12 @@ void Core::priv_identify_run()
 				reportedESAPIVerMajor = rs232BufferOUT[3];
 				reportedESAPIVerMinor = rs232BufferOUT[4];
 				reportedGPUType = (esapi::eGPUType)rs232BufferOUT[5];
-				logger->log ("API ver %d.%d, gpuType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
+                logger->log ("\nAPI ver %d.%d, gpuType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
 				break;
 			}
 		}
-
-		rhea::thread::sleepMSec(100);
+        else
+            rhea::thread::sleepMSec(50);
 	}
 
 

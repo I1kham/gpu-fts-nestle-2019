@@ -40,12 +40,6 @@ int main()
 	rhea::init("rheaRasPIESAPI", NULL);
 #endif
 
-	{
-		rhea::CompressUtility cp;
-		cp.begin((const u8*)"c:\\vuota\\pippo.rheazip", 8);
-		cp.addFile ((const u8*)"E:\\rhea\\gpu-fts-nestle-2019\\bin\\RheaMedia20\\home\\img\\animationRound.gif", (const u8*)"zippedAnimationRound.gif");
-		cp.end();
-	}
 
 	startESAPI();
 
