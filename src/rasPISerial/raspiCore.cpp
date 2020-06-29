@@ -62,6 +62,11 @@ bool Core::open (const char *serialPort)
     sok2281BufferOUT = (u8*)RHEAALLOC(localAllocator, SOK2281_BUFFEROUT_SIZE);
 
 	//recupero il mio IP di rete wifi
+    //NB: il codice sottostante è perferttamente funzionane, recupera l'IP interrogando l'interfaccia di rete
+    //Dato pero' che il processo parte prima che l'interfaccia di rete wifi sia effettivamente online, l'IP che riesce a recuperare è solo quello
+    //di localhost, wlan0 non è ancora pronta.
+    //Per risolvere il problema, c'è uno script python che crea un file con dentro l'IP corretto. Leggo l'IP da quel file
+#if 0
     memset (hotspot.wifiIP, 0, sizeof(hotspot.wifiIP));
 	{
 		u32 n = 0;
@@ -87,6 +92,26 @@ bool Core::open (const char *serialPort)
             logger->log ("WIFI IP: %d.%d.%d.%d\n", hotspot.wifiIP[0], hotspot.wifiIP[1], hotspot.wifiIP[2], hotspot.wifiIP[3]);
 		}
 	}
+#endif
+
+    memset (hotspot.wifiIP, 0, sizeof(hotspot.wifiIP));
+    {
+        u8 s[128];
+        sprintf_s ((char*)s, sizeof(s), "%s/ip.txt", rhea::getPhysicalPathToAppFolder());
+        FILE *f = rhea::fs::fileOpenForReadBinary(s);
+        if (NULL == f)
+        {
+            logger->log ("ERR: unable to open file [%s]\n", s);
+        }
+        else
+        {
+            memset (s, 0, sizeof(s));
+            fread (s, 32, 1, f);
+            fclose(f);
+
+            rhea::netaddr::ipstrTo4bytes ((const char*)s, &hotspot.wifiIP[0], &hotspot.wifiIP[1], &hotspot.wifiIP[2], &hotspot.wifiIP[3]);
+        }
+    }
 
     //recupero SSID dell'hotspot
     //Uno script python parte allo startup del rasPI e crea un file di testo di nome "hotspotname.txt" che contiene il nome dell'hotspot
@@ -669,7 +694,7 @@ void Core::priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder)
             {
                 if (memcmp (&pSRC[i], toFind, toFindLen) == 0)
                 {
-                    logger->log ("found [%s]\n", toFind);
+                    logger->log ("found [%s], replacing with [%s]\n", toFind, myIP);
                     u8 *buffer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), filesize + 32);
                     memcpy (buffer, pSRC, i);
                     memcpy (&buffer[i], myIP, myIPLen);
@@ -677,6 +702,7 @@ void Core::priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder)
 
 
                     sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
+                    logger->log ("opening file [%s] for write\n", s);
                     FILE *f = rhea::fs::fileOpenForWriteBinary(s);
                     if (NULL == f)
                     {
@@ -686,6 +712,7 @@ void Core::priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder)
                     {
                         rhea::fs::fileWrite (f, buffer, filesize - toFindLen + myIPLen);
                         fclose(f);
+                        logger->log ("done\n");
                     }
 
                     RHEAFREE(rhea::getScrapAllocator(), buffer);
