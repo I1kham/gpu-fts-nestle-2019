@@ -74,6 +74,7 @@ void TaskExportGUIToUserFolder::run(socketbridge::TaskStatus *status, const u8 *
 			rhea::fs::folderDelete (dst);
 			sprintf_s((char*)src, sizeof(src), "%s/web/upload", dstPath);
 			rhea::fs::folderCopy (src, dst, NULL);
+			
 
 			sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/web/mobile/js", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
 			rhea::fs::folderDelete (dst);

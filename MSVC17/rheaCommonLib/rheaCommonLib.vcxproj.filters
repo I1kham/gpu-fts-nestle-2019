@@ -228,6 +228,9 @@
     <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompressUtility.cpp">
       <Filter>rhea\utils\compress</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.cpp">
+      <Filter>SimpleLogger</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h">
@@ -421,6 +424,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\compress\rheaCompress.h">
       <Filter>rhea\utils\compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.h">
+      <Filter>SimpleLogger</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

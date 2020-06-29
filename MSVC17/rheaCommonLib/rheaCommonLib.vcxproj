@@ -64,6 +64,7 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaThreadMsgQ.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaTime24.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaUtils.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\string\rheaString.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringANSI.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaTime24.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaUtils.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaWaitableFIFO.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\ISimpleLogger.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\NullLogger.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.h" />
