@@ -11,7 +11,8 @@ def getMAC(interface='wlan0'):
 
 
 #recupero il mac address ma gli tolgo i ":"
-wlan0IP="10.3.141.1"
+#wlan0IP="10.3.141.1"
+wlan0IP="192.168.10.1"
 macAddress = getMAC('wlan0')
 cleanMACAddress = ""
 for i in range(0, len(macAddress)):
