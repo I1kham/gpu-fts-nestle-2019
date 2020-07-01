@@ -404,6 +404,13 @@ namespace cpubridge
 		eCPUProgrammingCommand_macinaMove_close = 2
 	};
 
+	enum class eCPUGruppoCaffe : u8
+	{
+		eGruppoVariflex = 'V',
+		eGruppoMicro = 'M',
+		eGruppoNone = 'N'
+	};
+
 	struct sSubscriber
 	{
 		HThreadMsgR	hFromMeToSubscriberR;
@@ -495,6 +502,7 @@ namespace cpubridge
 		eCPUMachineType	machineType;
 		u8				machineModel;
 		u8				isInduzione;		//induzione o bollitore?
+		eCPUGruppoCaffe	tipoGruppoCaffe;
 	};
 
 	struct sCPUOffSingleEvent

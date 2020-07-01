@@ -1103,6 +1103,7 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	if (out->msgVersion != 2)
 		return false;
 
+	//machine type
 	switch (answerBuffer[4])
 	{
 	default: 
@@ -1123,6 +1124,19 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	}
 	out->machineModel = answerBuffer[5];
 	out->isInduzione = answerBuffer[6];
+	
+	//Tipo gruppo caffè: questa informazione potrebbe non esistere, è stata aggiunta successivamente.
+	//In base alla lunghezza del msg, ne determino la presenza
+	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoVariflex;
+	if (answerBuffer[2] > 8)
+	{
+		switch (answerBuffer[7])
+		{
+		case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoVariflex; break;
+		case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoMicro; break;
+		default:	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoNone; break;
+		}
+	}
 	return true;
 }
 
@@ -1954,8 +1968,8 @@ void Server::priv_handleState_compatibilityCheck()
                 sCPUVMCDataFileTimeStamp myTS;
                 myTS.setInvalid();
                 saveVMCDataFileTimeStamp(myTS);
-                priv_handleState_DA3Sync();
-				return;
+                //priv_handleState_DA3Sync();
+				//return;
 			}
 			break;
 		}
@@ -3217,6 +3231,9 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	}
 
 
+	//in ogni caso metto un limite di tempo massimo per il raggiungimento del target perchè le letture fornite dalla
+	//CPU sono ballerine e potrebbe essere che non arrivo mai esattamente dove voglio
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + 60000;
 	const u16 TOLLERANZA = 0;
 	while (stato.get() == sStato::eStato_regolazioneAperturaMacina)
 	{
@@ -3237,7 +3254,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 				diff = curpos - regolazioneAperturaMacina.target;
 			else
 				diff = regolazioneAperturaMacina.target - curpos;
-			if (diff <= TOLLERANZA)
+			if (diff <= TOLLERANZA || timeNowMSec >= timeToExitMSec)
 			{
 				//fine
 				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
@@ -3280,7 +3297,10 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	}
 
 	//a questo punto, sono molto vicino al target, generalmente disto 1 o 2 punti dal valore desiderato, vado di fine tuning
+	//In ogni caso, se entro 30 sec non raggiungo l'apertura precisa, esco altrimenti si rischia di stare qui all'infinito visto
+	//che le letture riportate dalla CPU sono un po' ballerine
 	nRetry = NRETRY;
+    timeToExitMSec = rhea::getTimeNowMSec() + 15000;
 	while (1)
 	{
 		//chiede la posizione della macina
@@ -3306,7 +3326,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			curpos /= n;
 			nRetry = NRETRY;
 
-			if (curpos == regolazioneAperturaMacina.target)
+			if (curpos == regolazioneAperturaMacina.target || rhea::getTimeNowMSec() > timeToExitMSec)
 			{
 				//fine
 				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);

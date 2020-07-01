@@ -196,7 +196,7 @@ UINumber.prototype.priv_getValueFromDA3 = function(da3, loc)
 			var mask = parseInt((0x01 << parseInt(e[1])));
 			if ( (v2 & mask) != 0)
 				v +=256;
-			return v;ù
+			return v;
 		default: 	return da3.read16(loc);
 		case 32:	return da3.read32(loc);
 	}

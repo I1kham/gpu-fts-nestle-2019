@@ -4,6 +4,9 @@
 var rhea = null;
 var rheaPathPrefix = "";
 
+function rheaDebug_isEnabled()		{ return Rhea_session_getOrDefault("debug", 0); }
+function rheaDebug_enableDebug()	{ Rhea_session_setValue("debug", 1); }
+
 
 function rheaBootstrap() { rheaBootstrapWithPathPrefix(""); }
 function rheaBootstrapWithPathPrefix (pathPrefix)
@@ -30,7 +33,6 @@ function rheaBootstrap_step3()
 		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaSession.js"); })
 		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaSelection.js"); })
 		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaEvent.js"); })
-		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaFileDownload.js"); })
 		.then( function() { 
 							var scriptTagExists = document.getElementById("rheaBootstrapTag");
 							if (null != scriptTagExists)
@@ -46,8 +48,16 @@ function rheaBootstrap_step3()
 						  })
 		.then( function() 
 			  	{
-					onRheaBootstrapFinished();
-					console.log ("SHOW window.name="+window.name);
+					if (rheaDebug_isEnabled())
+					{
+						console.log ("loading debug script");
+						return rheaLoadScript(rheaPathPrefix + "js/dev/rheaDebug.js").then( function() { rheaDebug_showWindow(); onRheaBootstrapFinished(); } );
+					}
+					else
+					{
+						onRheaBootstrapFinished();
+						console.log ("SHOW window.name="+window.name);
+					}
 				} )
 		
 		.catch ( function(result) 

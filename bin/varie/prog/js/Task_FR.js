@@ -77,6 +77,7 @@ function TaskCleaning (whichWashIN, isEspresso)
 	this.btn1 = 0;
 	this.btn2 = 0;
 	this.btnTrick = 0;
+	this.prevFase = 99999;
 	this.nextTimeSanWashStatusCheckMSec = 0;
 	
 	rhea.sendGetCPUStatus();
@@ -149,74 +150,65 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 				case 12: pleaseWait_freeText_setText("Brewer placed in brush position, press CONTINUE when finished."); break;	//HC_STEP_BRW_BRUSH_POSITION
 				case 13: pleaseWait_freeText_setText("Skip final coffee or make a coffee"); break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 				case 14: pleaseWait_freeText_setText("Coffee delivery"); break; //HC_STEP_COFFEE_DELIVERY
-				case 15: //HC_STEP_MIXER_1
+				
+				case 15:	//HC_STEP_MIXER_1
+				case 16:	//HC_STEP_MIXER_2
+				case 17:	//HC_STEP_MIXER_3
+				case 18:	//HC_STEP_MIXER_4
+					cleanMixNum = me.fase-14;
 					if (me.isEspresso)
-						pleaseWait_freeText_setText("Cleaning 2");
-					else
-						pleaseWait_freeText_setText("Cleaning 1");
-					break; 	
-				case 16: //HC_STEP_MIXER_2
-					if (me.isEspresso)
-						pleaseWait_freeText_setText("Cleaning 3");
-					else
-						pleaseWait_freeText_setText("Cleaning 2");
-					break; 	
-				case 17: //HC_STEP_MIXER_3
-					if (me.isEspresso)
-						pleaseWait_freeText_setText("Cleaning 4");
-					else
-						pleaseWait_freeText_setText("Cleaning 3");
-					break; 	
-				case 18: //HC_STEP_MIXER_4
-					if (me.isEspresso)
-						pleaseWait_freeText_setText("Cleaning 5");
-					else
-						pleaseWait_freeText_setText("Cleaning 4");
+						cleanMixNum++;
+					pleaseWait_freeText_setText("Cleaning " +cleanMixNum);
 					break; 	
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();
-			
-			if (me.btn1 == 0)
-				pleaseWait_btn1_hide();
-			else
+				
+			if (me.fase != me.prevFase)
 			{
-				if (me.fase == 4)
-				{
-					//qui, la CPU invia il BTN 3 che serve per "debug" per saltare la fase di dissoluzione della tab.
-					//Non mostro il tasto, ma uso il btn trick che è in semi trasparenza nell'angolo in alto a dx. Gli operatore
-					//che conoscono il trucco, possono cliccare sul btn invisibile per skippare questa fase
-					me.btnTrick = me.btn1;
-					pleaseWait_btnTrick_show();	
-				}
+				me.prevFase = me.fase;
+
+				if (me.btn1 == 0)
+					pleaseWait_btn1_hide();
 				else
 				{
-					var btnText = "BOUTON " +me.btn1;
+					if (me.fase == 4)
+					{
+						//qui, la CPU invia il BTN 3 che serve per "debug" per saltare la fase di dissoluzione della tab.
+						//Non mostro il tasto, ma uso il btn trick che è in semi trasparenza nell'angolo in alto a dx. Gli operatore
+						//che conoscono il trucco, possono cliccare sul btn invisibile per skippare questa fase
+						me.btnTrick = me.btn1;
+						pleaseWait_btnTrick_show();	
+					}
+					else
+					{
+						var btnText = "BOUTON " +me.btn1;
+						switch (me.fase)
+						{
+							case 3:  btnText = "DÉBUT"; break; //HC_STEP_TABLET
+							case 11: btnText = "NO"; break; //HC_STEP_BRW_REPEAT
+							case 12: btnText = "CONTINUER"; break; //HC_STEP_BRW_BRUSH_POSITION
+							case 13: btnText = "SAUTER LE CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
+						}
+						pleaseWait_btn1_setText (btnText);
+						pleaseWait_btn1_show();	
+					}
+				}
+				
+				if (me.btn2 == 0)
+					pleaseWait_btn2_hide();
+				else
+				{
+					var btnText = "BOUTON " +me.btn2;
 					switch (me.fase)
 					{
-						case 3:  btnText = "DÉBUT"; break; //HC_STEP_TABLET
-						case 11: btnText = "NO"; break; //HC_STEP_BRW_REPEAT
-						case 12: btnText = "CONTINUER"; break; //HC_STEP_BRW_BRUSH_POSITION
-						case 13: btnText = "SAUTER LE CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
+						case 11: btnText = "OUI"; break;//HC_STEP_BRW_REPEAT
+						case 13: btnText = "FAIRE UN CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 					}
-					pleaseWait_btn1_setText (btnText);
-					pleaseWait_btn1_show();	
+					pleaseWait_btn2_setText (btnText);
+					pleaseWait_btn2_show();	
 				}
-			}
-			
-			if (me.btn2 == 0)
-				pleaseWait_btn2_hide();
-			else
-			{
-				var btnText = "BOUTON " +me.btn2;
-				switch (me.fase)
-				{
-					case 11: btnText = "OUI"; break;//HC_STEP_BRW_REPEAT
-					case 13: btnText = "FAIRE UN CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
-				}
-				pleaseWait_btn2_setText (btnText);
-				pleaseWait_btn2_show();	
-			}			
+			} //if (me.fase != me.prevFase)
 		})
 		.catch( function(result)
 		{
@@ -259,7 +251,7 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 				case 4: pleaseWait_freeText_setText("It is doing cleaner cycles (12)"); break;
 				case 5: pleaseWait_freeText_setText("Warning for water"); break;
 				case 6: pleaseWait_freeText_setText("Wait for second confirm"); break;
-				case 7: pleaseWait_freeText_setText("It is doing cleaner cycles (12)"); break;
+				case 7: pleaseWait_freeText_setText("Doing cleaner cycles (12)"); break;
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();
@@ -268,7 +260,14 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 				pleaseWait_btn1_hide();
 			else
 			{
-				pleaseWait_btn1_setText ("BOUTON " +me.btn1);
+				switch (me.fase)
+				{
+					default: pleaseWait_btn1_setText ("BOUTON " +me.btn2); break;
+					case 2:  pleaseWait_btn1_setText ("DÉBUT"); break;
+					case 3:
+					case 5:  pleaseWait_btn1_setText ("CONTINUER"); break;
+					case 6:  pleaseWait_btn1_setText ("CONFIRM"); break;
+				}
 				pleaseWait_btn1_show();	
 			}
 			
@@ -471,6 +470,9 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 {
 	var TIME_ATTIVAZIONE_dSEC = 60;
+	if (da3.read8(7554) == 0)
+		TIME_ATTIVAZIONE_dSEC = 40;
+	//console.log ("Tempo attivazione macina [" +TIME_ATTIVAZIONE_dSEC +"] dsec");
 	
 	var me = this;
 	//console.log ("TaskCalibMotor::fase[" +me.fase +"]");
@@ -529,7 +531,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 20:
 		me.fase = 21;
 		
-		//mostro le regolazioni per il varigrind
+		//mostro le regolazioni per il gruppo caffè
 		pleaseWait_calibration_motor_hide();
 		pleaseWait_calibration_varigrind_show();		
 		
@@ -543,21 +545,24 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 21: //attendo pressione di continue per terminare, oppure GRIND AGAIN o SET per calibrare l'apertura del vgrind
 		
 		//periodicamente, chiedo la posizione attuale della macina del VGrind
-		if (!me.amIAskingForVGrindPos)
+		if (da3.isGruppoVariflex())
 		{
-			me.amIAskingForVGrindPos = 1;
-			rhea.ajax ("getPosMacina", {"m":(me.motor-10)}).then( function(result)
+			if (!me.amIAskingForVGrindPos)
 			{
-				var obj = JSON.parse(result);
-				rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
-				if (uiStandAloneVarigringTargetPos.getValue() == 0)					
-					uiStandAloneVarigringTargetPos.setValue(obj.v)
-				me.amIAskingForVGrindPos = 0;
-			})
-			.catch( function(result)
-			{
-				me.amIAskingForVGrindPos = 0;
-			});		
+				me.amIAskingForVGrindPos = 1;
+				rhea.ajax ("getPosMacina", {"m":(me.motor-10)}).then( function(result)
+				{
+					var obj = JSON.parse(result);
+					rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
+					if (uiStandAloneVarigringTargetPos.getValue() == 0)					
+						uiStandAloneVarigringTargetPos.setValue(obj.v)
+					me.amIAskingForVGrindPos = 0;
+				})
+				.catch( function(result)
+				{
+					me.amIAskingForVGrindPos = 0;
+				});		
+			}
 		}	
 		break;
 		
@@ -571,15 +576,18 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 26:	me.fase = 27; break;
 	case 27:	me.fase = 28; break;
 	case 28:
-		rhea.ajax ("getPosMacina", {"m":(me.motor-10)}).then( function(result)
+		if (da3.isGruppoVariflex())
 		{
-			var obj = JSON.parse(result);
-			rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
-			pleaseWait_calibration_setText("Veuillez patienter pendant que le varigrind ajuste sa position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position  [current pos]
-		})
-		.catch( function(result)
-		{
-		});	
+			rhea.ajax ("getPosMacina", {"m":(me.motor-10)}).then( function(result)
+			{
+				var obj = JSON.parse(result);
+				rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
+				pleaseWait_calibration_setText("Veuillez patienter pendant que le varigrind ajuste sa position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position  [current pos]
+			})
+			.catch( function(result)
+			{
+			});	
+		}
 		me.fase = 29;
 		break;	
 
@@ -1127,6 +1135,8 @@ TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
 
 TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 {
+	if (da3.isGruppoMicro())
+		return;	
 	var me = this;
 	if (this.fase == 0)
 	{
@@ -1207,6 +1217,8 @@ TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
 
 TaskDevices.prototype.priv_queryMacina = function(macina_1o2)
 {
+	if (da3.isGruppoMicro())
+		return;	
 	rhea.ajax ("getPosMacina", {"m":macina_1o2}).then( function(result)
 	{
 		var obj = JSON.parse(result);
@@ -1547,6 +1559,7 @@ TaskDisintall.prototype.onFreeBtn1Clicked	 = function(ev)
 		case 1:  pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=10; break;
 		case 11: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=20; break;
 		case 21: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=30; break;
+		case 33: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=36; rhea.sendButtonPress(10); break;
 		
 	}
 }
@@ -1561,6 +1574,17 @@ TaskDisintall.prototype.onFreeBtnTrickClicked= function(ev)						{}
 
 TaskDisintall.prototype.onTimer = function (timeNowMsec)
 {
+	var bBollitore400cc = 0;
+	if (!da3.isInduzione())
+	{
+		if (!da3.isInstant())
+		{
+			if (da3.read8(7072)==0)
+				bBollitore400cc=1;
+		}
+	}
+	//console.log ("Bollitore da 400? [" +bBollitore400cc +"]");
+	
 	if (this.timeStarted == 0)
 		this.timeStarted = timeNowMsec;
 	var timeElapsedMSec = timeNowMsec - this.timeStarted;
@@ -1609,11 +1633,32 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		this.fase = 31;
 		pleaseWait_freeText_setText("LA DESINTALLATION est en cours, veuillez patienter ..."); //DISINTALLATION is running, please wait
 		rhea.sendStartDisintallation();
+		break;
 		
-	case 31: this.fase = 32; break;
-	case 32: this.fase = 33; break;
-	case 33: this.fase = 34; break;
-	case 34: 
+	case 31: 
+		this.fase = 32;
+		break;
+		
+	case 32:
+		if (!bBollitore400cc)
+		{
+			this.fase = 36; 
+		}
+		else
+		{
+			this.fase = 33;
+			pleaseWait_freeText_setText("DISINSTALLATION<br><br>Open boiler tap then press CONTINUE ..."); //DISINSTALLATION<br><br>Open boiler tap then press CONTINUE
+			pleaseWait_btn1_setText("CONTINUER");
+			pleaseWait_btn1_show();
+		}		
+		break;
+		
+	case 33:
+		break;
+	
+	case 36: this.fase = 37; break;
+	case 37: this.fase = 38; break;
+	case 38: 
 		//a questo punto CPU dovrebbe già essere in stato eVMCState_DISINSTALLAZIONE (13)
 		//quando ha finito, finisco pure io
 		if (this.cpuStatus != 13 && this.status != 101)
@@ -1621,7 +1666,10 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		break;
 		
 	case 40:
-		pleaseWait_freeText_setText("DÉSINSTALLATION terminée, veuillez ARRÊTER la machine"); //DISINTALLATION finished, please shut down the machine
+		if (bBollitore400cc)
+			pleaseWait_freeText_setText("DISINSTALLATION finished, please CLOSE the boiler tap and SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
+		else
+			pleaseWait_freeText_setText("DÉSINSTALLATION terminée, veuillez ARRÊTER la machine"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
 		break;
 		
@@ -2046,31 +2094,36 @@ TaskEspressoCalib.prototype.priv_handleRunSelection = function(timeNowMsec)
 
 TaskEspressoCalib.prototype.priv_handleRichiestaPosizioneMacina = function()
 {
+	if (da3.isGruppoMicro())
+		return;
 	var me = this;
 	if (this.fase == 0)
 	{
 		//chiede la posizione della macina
 		this.fase = 1;
-		rhea.ajax ("getPosMacina", {"m":this.macina1o2}).then( function(result)
+		if (da3.isGruppoVariflex())
 		{
-			var obj = JSON.parse(result);
-			rheaSetDivHTMLByName("pageExpCalib_vgCurPos", obj.v);
-			if (me.firstTimeMacina>0)
+			rhea.ajax ("getPosMacina", {"m":this.macina1o2}).then( function(result)
 			{
-				me.firstTimeMacina--;
-				if (me.firstTimeMacina==0)		
+				var obj = JSON.parse(result);
+				rheaSetDivHTMLByName("pageExpCalib_vgCurPos", obj.v);
+				if (me.firstTimeMacina>0)
 				{
-					var w = ui.getWindowByID("pageExpCalib");
-					w.getChildByID("pageExpCalib_vg_target").setValue(obj.v)
-					w.getChildByID("pageExpCalib_vgBtnSet").show();
+					me.firstTimeMacina--;
+					if (me.firstTimeMacina==0)		
+					{
+						var w = ui.getWindowByID("pageExpCalib");
+						w.getChildByID("pageExpCalib_vg_target").setValue(obj.v)
+						w.getChildByID("pageExpCalib_vgBtnSet").show();
+					}
 				}
-			}
-			me.fase = 0;
-		})
-		.catch( function(result)
-		{
-			me.fase = 0;
-		});			
+				me.fase = 0;
+			})
+			.catch( function(result)
+			{
+				me.fase = 0;
+			});			
+		}
 		return;
 	}
 	else
@@ -2112,6 +2165,8 @@ TaskEspressoCalib.prototype.priv_handleRegolazionePosizioneMacina = function()
 
 TaskEspressoCalib.prototype.priv_queryMacina = function()
 {
+	if (!da3.isGruppoVariflex())
+		return;
 	rhea.ajax ("getPosMacina", {"m":this.macina1o2}).then( function(result)
 	{
 		var obj = JSON.parse(result);

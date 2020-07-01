@@ -61,6 +61,14 @@ function UIOption (parentID, childNum, node)
 		this.selectOptionByValue (UIUtils_getAttributeOrDefault(node, "data-selected", "-1"));
 }
 
+UIOption.prototype.changeCaptionByIndex = function (i, msg)
+{
+	this.optionCaption[i] = msg;
+	var btnID = this.id +"_opt" +i;
+	var d = rheaGetElemByID(btnID);
+	rheaSetElemHTML(d, "<p>" +this.optionCaption[i] +"</p>");
+}
+
 UIOption.prototype.setDA3Offset = function(da3offset)			{ this.da3offset = da3offset;}
 UIOption.prototype.loadFromDA3 = function(da3)					
 { 

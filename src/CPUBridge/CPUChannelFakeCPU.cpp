@@ -325,6 +325,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = machine_type;
 			out_answer[ct++] = 0x82;	//modello macchina
 			out_answer[ct++] = isInduzione;
+			out_answer[ct++] = 'V';		//brewer type 'V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			*in_out_sizeOfAnswer = out_answer[2];
@@ -511,7 +512,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					out_answer[i2++] = 'N'; out_answer[i2++] = 0x00;
 					out_answer[i2++] = '1'; out_answer[i2++] = 0x00;
 
-					//×”××œ×¤×‘×™×ª ×”×¢×‘×¨
+					//האלפבית העבר
 					{
 						const u16 utf16Seq[] = { 0x05d4, 0x05d0, 0x05dc, 0x05e4, 0x05d1, 0x05d9, 0x05ea, 0x0020, 0x05d4, 0x05e2, 0x05d1, 0x05e8, 0x0000 };
 						i2 = startOfMsg1 + 64;
@@ -645,9 +646,21 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct++] = bufferToSend[4]; //macina
 
 				if (bufferToSend[4] == 11)
-					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], macine[0].posizioneMacina);
+				{
+					u16 pos = macine[0].posizioneMacina;
+					//simulo il fatto che la posizione � un po' ballerina
+					if (rhea::random01() < 0.4f)
+						pos++;
+					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], pos);
+				}
 				else if (bufferToSend[4] == 12)
-					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], macine[1].posizioneMacina);
+				{
+					u16 pos = macine[1].posizioneMacina;
+					//simulo il fatto che la posizione � un po' ballerina
+					if (rhea::random01() < 0.4f)
+						pos++;
+					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], pos);
+				}
 				else
 				{
 					DBGBREAK;
