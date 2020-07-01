@@ -325,7 +325,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = machine_type;
 			out_answer[ct++] = 0x82;	//modello macchina
 			out_answer[ct++] = isInduzione;
-			out_answer[ct++] = 'M';		//brewer type 'V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente
+			out_answer[ct++] = 'V';		//brewer type 'V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			*in_out_sizeOfAnswer = out_answer[2];
