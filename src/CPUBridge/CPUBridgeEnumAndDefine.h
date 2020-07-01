@@ -404,11 +404,11 @@ namespace cpubridge
 		eCPUProgrammingCommand_macinaMove_close = 2
 	};
 
-	enum class eCPUGruppoCaffe : u8
+    enum eCPUGruppoCaffe
 	{
-		eGruppoVariflex = 'V',
-		eGruppoMicro = 'M',
-		eGruppoNone = 'N'
+        eCPUGruppoCaffe_Variflex = 'V',
+        eCPUGruppoCaffe_Micro = 'M',
+        eCPUGruppoCaffe_None = 'N'
 	};
 
 	struct sSubscriber

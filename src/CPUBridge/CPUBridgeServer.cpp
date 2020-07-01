@@ -1127,14 +1127,14 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	
 	//Tipo gruppo caffè: questa informazione potrebbe non esistere, è stata aggiunta successivamente.
 	//In base alla lunghezza del msg, ne determino la presenza
-	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoVariflex;
+    out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex;
 	if (answerBuffer[2] > 8)
 	{
 		switch (answerBuffer[7])
 		{
-		case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoVariflex; break;
-		case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoMicro; break;
-		default:	out->tipoGruppoCaffe = eCPUGruppoCaffe::eGruppoNone; break;
+        case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex; break;
+        case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Micro; break;
+        default:	out->tipoGruppoCaffe = eCPUGruppoCaffe_None; break;
 		}
 	}
 	return true;

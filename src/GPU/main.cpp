@@ -11,6 +11,14 @@
 MainWindow *myMainWindow = NULL;
 
 //****************************************************
+void activeSleep (u32 howMuchMSec)
+{
+    u64 timeToExitMSec = rhea::getTimeNowMSec() + howMuchMSec;
+    while (rhea::getTimeNowMSec() < timeToExitMSec)
+        rhea::thread::sleepMSec(50);
+}
+
+//****************************************************
 bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)
 {
     bool ret = false;
