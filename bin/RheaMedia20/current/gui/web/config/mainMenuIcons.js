@@ -1,0 +1,13 @@
+var rheaMainMenuIcons = [{selNum:0,size:"100",pageMenuImg:"Drink_americano.png",pageConfirmImg:"Drink_americano.png",dblShot:0,grinder2:1,linkedSelection:[[[1,1],[0,0],[0,0]],[[2,2],[0,0],[0,0]],],defaultSelection:[0,0,0]},
+{selNum:0,size:"100",pageMenuImg:"Drink_cappuccino.png",pageConfirmImg:"Drink_cappuccino.png",dblShot:0,grinder2:1,linkedSelection:[[[3,3],[0,0],[0,0]],[[4,4],[0,0],[0,0]],],defaultSelection:[0,0,0]},
+{selNum:0,size:"010",pageMenuImg:"Drink_darkChocolate.png",pageConfirmImg:"Drink_darkChocolate.png",dblShot:1,grinder2:0,linkedSelection:[[[0,0],[5,6],[0,0]],[[0,0],[5,6],[0,0]],],defaultSelection:[0,1,0]},
+{selNum:7,size:"100",pageMenuImg:"Drink_milkChocolate.png",pageConfirmImg:"Drink_milkChocolate.png"},
+{selNum:8,size:"100",pageMenuImg:"Drink_americano.png",pageConfirmImg:"Drink_americano.png"},
+{selNum:9,size:"100",pageMenuImg:"Drink_sideHotWater.png",pageConfirmImg:"Drink_direct_water.png"},
+{selNum:0,size:"100",pageMenuImg:"Drink_espresso.png",pageConfirmImg:"Drink_espresso.png",dblShot:1,grinder2:1,linkedSelection:[[[13,10],[0,0],[0,0]],[[11,12],[0,0],[0,0]],],defaultSelection:[0,0,0]},
+{selNum:0,size:"010",pageMenuImg:"Drink_cortado.png",pageConfirmImg:"Drink_cortado.png",dblShot:1,grinder2:0,linkedSelection:[[[0,0],[14,15],[0,0]],[[0,0],[14,15],[0,0]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"110",pageMenuImg:"Drink_latteMacchiato.png",pageConfirmImg:"Drink_latteMacchiato.png",dblShot:1,grinder2:1,linkedSelection:[[[20,21],[16,17],[0,0]],[[22,23],[18,19],[0,0]],],defaultSelection:[0,1,0]},
+{selNum:0,size:"100",pageMenuImg:"Drink_espressoLong.png",pageConfirmImg:"Drink_espressoLong.png",dblShot:0,grinder2:1,linkedSelection:[[[24,24],[0,0],[0,0]],[[25,25],[0,0],[0,0]],],defaultSelection:[0,0,0]},
+{selNum:0,size:"111",pageMenuImg:"Drink_babyccino.png",pageConfirmImg:"Drink_babyccino.png",dblShot:1,grinder2:0,linkedSelection:[[[26,27],[28,29],[30,31]],[[26,27],[28,29],[30,31]],],defaultSelection:[0,0,0]},
+{selNum:0,size:"011",pageMenuImg:"Drink_blackTea.png",pageConfirmImg:"Drink_blackTea.png",dblShot:0,grinder2:0,linkedSelection:[[[0,0],[32,32],[33,33]],[[0,0],[32,32],[33,33]],],defaultSelection:[0,1,0]},
+];

@@ -1,11 +1,7 @@
-bin/DESKTOP64_DEBUG_GPU
-bin/EMBEDDED_RELEASE_GPU
-bin/log.txt
 src/GPU/build/
 src/rheaCommonLib/build/
 src/rheaGUIBridge/build/
 *.a
-bin/simula-chiavetta-usb/
 src/GPUServer/build/Desktop-Debug64/main.o
 src/GPUServer/build/
 lib/
@@ -19,7 +15,6 @@ MSVC17/GPUServer/build/WINDebug/GPUServer.tlog/CL.write.1.tlog
 MSVC17/GPUServer/build/
 MSVC17/rheaGUIBridge/build/
 MSVC17/SocketBridge/build/
-bin/
 MSVC17/Debug/
 MSVC17/rheaAppLib/
 MSVC17/SMU/build/
@@ -27,9 +22,6 @@ MSVC17/rheaDB/build/
 MSVC17/testDB/build/
 *.o
 QT5/build/
-bin
-!/bin/varie/
-!/bin/varie/prog/index_template.html
 MSVC17/stressTestUpDownDA3/build/
 MSVC17/rheaMedia2.0/build/
 MenuProgTranslator/
@@ -52,3 +44,13 @@ MSVC17/rheaAlipayChina/x64/
 MSVC17/rasPI/build/
 MSVC17/rasPISerial/build/
 MSVC17/rheaExternalSerialAPI/build/
+bin/simula-chiavetta-usb/
+bin/log.txt
+*.exe
+*.ilk
+*.da3
+bin/current/
+bin/last_installed/
+bin/RheaMedia20/RHEAMEDIA2 MANUAL - Rev 004 - 20200331.docx
+bin/RheaMedia20/log.txt
+bin/RheaMedia20/varie/
