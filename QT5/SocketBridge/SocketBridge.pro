@@ -116,6 +116,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x23_startGrinderSpeedTest.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_T_VMCDataFileTimestamp.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.cpp \
@@ -177,6 +179,7 @@ SOURCES += \
 
 
 
+
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
@@ -205,6 +208,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x20_getStatusTestAssorbGruppo.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x21_StartTestAssorbMotoriduttore.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x22_getStatusTestAssorbMotoriduttore.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x23_startGrinderSpeedTest.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_T_VMCDataFileTimestamp.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqDBC.h \
