@@ -18,7 +18,7 @@ function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe)
 	this.da3_current = null;
 	this.da3_filesize = 0;
 	this.machineType = machineType;
-	this.machineModel = machineModel;
+	this.machineModel = parseInt(machineModel);
 	this.bInduzione = parseInt(isInduzione);
 	this.tipoGruppoCaffe = tipoGruppoCaffe;
 }
@@ -64,7 +64,7 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
-DA3.prototype.isMachine_Multibona = function()						{ return (this.machineModel==0x56); }
+DA3.prototype.isMachine_Multibona = function()						{ return (this.machineModel==86); }
 DA3.prototype.getTipoGruppoCaffe = function ()						{ return this.tipoGruppoCaffe; }
 DA3.prototype.isGruppoMicro = function ()							{ if (this.getTipoGruppoCaffe() == 'M') return 1; return 0;}
 DA3.prototype.isGruppoVariflex = function ()						{ if (this.getTipoGruppoCaffe() == 'V') return 1; return 0;}
