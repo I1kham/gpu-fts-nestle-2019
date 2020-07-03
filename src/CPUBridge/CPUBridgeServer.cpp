@@ -3480,6 +3480,25 @@ void Server::priv_handleState_grinderSpeedTest()
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 	if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 	{
+		//aspetto il tempo di macina e poi chiedo a CPU il risultato
+		const u64 timeToExitMSec = rhea::getTimeNowMSec() + TEMPO_DI_MACINATA_MSec;
+		while (rhea::getTimeNowMSec() < timeToExitMSec)
+			rhea::thread::sleepMSec(500);
+
+		//chiedo alla CPU il valore del sensore
+		u8 nRetry = 5;
+		while (nRetry--)
+		{
+			const u8 nBytesToSend = cpubridge::buildMsg_getLastGrinderSpeed (bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+			{
+				grinderSpeedTest.lastCalculatedGrinderSpeed = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4]);
+				break;
+			}
+		}
+
+#if 0
 		//ok, la macina è partita.
 		//Per i prossimi [TEMPO_DI_MACINATA_MSec] chiedo a CPU i valori del sensore e ne faccio la media
 		const u32 UN_CAMPIONE_OGNI_MSec = 250;
@@ -3549,6 +3568,7 @@ void Server::priv_handleState_grinderSpeedTest()
 		grinderSpeedTest.lastCalculatedGrinderSpeed = result;
 		
 		RHEAFREE(rhea::getScrapAllocator(), campioni);
+#endif
 	}
 	else
 	{

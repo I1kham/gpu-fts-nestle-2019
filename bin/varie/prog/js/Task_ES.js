@@ -967,7 +967,7 @@ TaskDevices.prototype.messageBox = function (msg)
 
 TaskDevices.prototype.runTestAssorbGruppo = function()								{ this.what = 5; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runTestAssorbMotoriduttore = function()						{ this.what = 6; this.fase = 0; pleaseWait_show(); }
-TaskDevices.prototype.runGrinderSpeedTest = function(macina1o2)						{ this.what = 7; this.fase = 0; this.macina1o2=macina1o2; this.speed1=0; this.speed2=0; pleaseWait_show(); }
+TaskDevices.prototype.runGrinderSpeedTest = function(macina1o2)						{ this.what = 7; this.fase = 0; this.macina1o2=macina1o2; this.speed1=0; this.speed2=0; this.gruppoTolto=0; pleaseWait_show(); }
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr); }
 TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
@@ -1025,10 +1025,12 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 	case 7: //grinder speed Test
 		switch (this.fase)
 		{
-			case 1:		this.fase = 10; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break; 	//ho premuto CONTINUE
+			case 1:		this.fase = 2; 	pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break; 	//ho premuto CONTINUE
+			case 6:		this.fase = 10; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break; 	//ho premuto CONTINUE
 			case 21:	this.fase = 30; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CONTINUE
 			case 41:	this.fase = 50; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CONTINUE
-			case 61:	this.fase = 90; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CLOSE
+			case 61:	this.fase = 70; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CLOSE
+			case 71:	this.fase = 72; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CONTINUE
 		}
 		break;
 	}
@@ -1065,7 +1067,7 @@ TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)
 		break;		
 		
 	case 7: //grinder speed Test
-		this.fase = 90;
+		this.fase = 70;
 		pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
 		break;		
 	}
@@ -1540,14 +1542,14 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 	var DURATA_MACINATA_SEC = 10;
 	var me = this;
 	
-	console.log ("fase[" +me.fase +"]");	
+	//console.log ("fase[" +me.fase +"]");	
 	switch (me.fase)
 	{
-	case 0: //step 1
+	case 0:
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED TEST</b><br><br>STEP 1<br>Please, <b>close the coffee bell</b> (orange lever) and press CONTINUE. The grinder will run for about " +DURATA_MACINATA_SEC +" seconds in order to empty the grinder itself.");
+		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>Por favor retire el grupo de café y luego pulse CONTINUAR"); //Please remove the brewer, then press CONTINUE
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUA");
 		pleaseWait_btn1_show();
@@ -1555,31 +1557,74 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		pleaseWait_btn2_show();	
 		break;
 		
-	case 1: //attendo CONTINUE o ABORT
+	case 1:	//attendo btn CONTINUE
+		break;
+		
+	case 2: //verifico che il gruppo sia scollegato, altrimenti goto 0
+		pleaseWait_rotella_show();
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			if (result=="0")
+			{
+				me.gruppoTolto=1;
+				me.fase = 5;
+			}
+			else
+				me.fase = 0;
+		})
+		.catch( function(result)
+		{
+			me.fase = 0;
+		});			
+		me.fase = 3;
+		break;
+		
+	case 3:	//attendo risposta CPU
+		break;
+
+	
+	//************************************************************ STEP 1	
+	case 5: //step 1
+		me.fase = 6;
+		pleaseWait_show();
+		pleaseWait_rotella_hide();
+		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 1<br>Please, <b>close the coffee bell</b> (orange lever) and press CONTINUE. The grinder will run for about 10 seconds in order to empty the grinder itself.");
+		pleaseWait_freeText_show();
+		pleaseWait_btn1_setText("CONTINUA");
+		pleaseWait_btn1_show();
+		pleaseWait_btn2_setText("INTERRUMPIR");
+		pleaseWait_btn2_show();	
+		break;
+		
+	case 6: //attendo CONTINUE o ABORT
 		break;
 		
 	case 10: //macino per una 10a di secondi in modo da svuotare la macina
 		pleaseWait_rotella_show();
+		me.fase = 11;
 		rhea.ajax ("startGrnSpeedTest", { "m":this.macina1o2, "d":DURATA_MACINATA_SEC}).then( function(result)
 			{
 				if (result == "OK")
-					me.fase = 11;
+					me.fase = 12;
 				else
-					me.fase = 0;
+					me.fase = 5;
 				
 			})
 			.catch( function(result)
 			{
-				me.fase = 0;
+				me.fase = 5;
 			});
 		break;		
 		
-	case 11: //attendo fine macinata. Prima verifico di leggere this.cpuStatus==eVMCState_GRINDER_SPEED_TEST(106) e poi attendo che this.cpuStatus torni eVMCState_DISPONIBILE
+	case 11: //attendo risposta CPU
+		break;	
+		
+	case 12: //attendo fine macinata. Prima verifico di leggere this.cpuStatus==eVMCState_GRINDER_SPEED_TEST(106) e poi attendo che this.cpuStatus torni eVMCState_DISPONIBILE
 		if (this.cpuStatus == 106)
-			me.fase = 12;
+			me.fase = 13;
 		break;
 		
-	case 12:
+	case 13:
 		if (this.cpuStatus != 106)
 			me.fase = 20;
 		break;
@@ -1588,7 +1633,7 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 	case 20:
 		me.fase = 21;
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED TEST</b><br><br>STEP 2<br>Now that the grinder is empty, we can test to detect the average sensor value reported when the grinder is empty. Press CONTINUE to proceed. The grinder will run for about " +DURATA_MACINATA_SEC +" seconds.");		
+		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 2<br>Now that the grinder is empty, we can test to detect the average sensor value reported when the grinder is empty. Press CONTINUE to proceed. The grinder will run for about 10 seconds.");		
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUA");
 		pleaseWait_btn1_show();
@@ -1600,11 +1645,12 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		break;		
 	
 	case 30: //macino per una 10a di secondi in modo da svuotare la macina
+		me.fase = 31;
 		pleaseWait_rotella_show();
 		rhea.ajax ("startGrnSpeedTest", { "m":this.macina1o2, "d":DURATA_MACINATA_SEC}).then( function(result)
 			{
 				if (result == "OK")
-					me.fase = 31;
+					me.fase = 32;
 				else
 					me.fase = 20;
 				
@@ -1614,18 +1660,22 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 				me.fase = 20;
 			});
 		break;
-		
-	case 31: //attendo fine macinata. Prima verifico di leggere this.cpuStatus==eVMCState_GRINDER_SPEED_TEST(106) e poi attendo che this.cpuStatus torni eVMCState_DISPONIBILE
-		if (this.cpuStatus == 106)
-			me.fase = 32;
+	
+	case 31: //attendo risposta CPU	
 		break;
 		
-	case 32:
-		if (this.cpuStatus != 106)
+	case 32: //attendo fine macinata. Prima verifico di leggere this.cpuStatus==eVMCState_GRINDER_SPEED_TEST(106) e poi attendo che this.cpuStatus torni eVMCState_DISPONIBILE
+		if (this.cpuStatus == 106)
 			me.fase = 33;
 		break;
 		
-	case 33: //la macinata è finita, chiedo la speed calcolata
+	case 33:
+		if (this.cpuStatus != 106)
+			me.fase = 34;
+		break;
+		
+	case 34: //la macinata è finita, chiedo la speed calcolata
+		me.fase = 35;
 		rhea.ajax ("getLastGrndSpeedValue", "").then( function(result)
 		{
 			me.speed1 = parseInt(result);
@@ -1638,12 +1688,15 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		});
 		break;
 
+	case 35: //attendo risposta CPU	
+		break;
+
 
 	//************************************************************ STEP 3
 	case 40:
 		me.fase = 41;
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED TEST</b><br><br>STEP 3<br>Now <b>open the coffee bell</b> (orange lever) and  then press CONTINUE to proceed. The grinder will run for about " +DURATA_MACINATA_SEC +" seconds.");		
+		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 3<br>Now <b>open the coffee bell</b> (orange lever) and  then press CONTINUE to proceed. The grinder will run for about 10 seconds.");
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUA");
 		pleaseWait_btn1_show();
@@ -1655,11 +1708,12 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		break;		
 
 	case 50: //macino per una 10a di secondi in modo da svuotare la macina
+		me.fase = 51;
 		pleaseWait_rotella_show();
 		rhea.ajax ("startGrnSpeedTest", { "m":this.macina1o2, "d":DURATA_MACINATA_SEC}).then( function(result)
 			{
 				if (result == "OK")
-					me.fase = 51;
+					me.fase = 52;
 				else
 					me.fase = 40;
 				
@@ -1670,17 +1724,21 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 			});
 		break;
 		
-	case 51: //attendo fine macinata. Prima verifico di leggere this.cpuStatus==eVMCState_GRINDER_SPEED_TEST(106) e poi attendo che this.cpuStatus torni eVMCState_DISPONIBILE
-		if (this.cpuStatus == 106)
-			me.fase = 52;
+	case 51: //attendo risposta CPU	
 		break;
 		
-	case 52:
-		if (this.cpuStatus != 106)
+	case 52: //attendo fine macinata. Prima verifico di leggere this.cpuStatus==eVMCState_GRINDER_SPEED_TEST(106) e poi attendo che this.cpuStatus torni eVMCState_DISPONIBILE
+		if (this.cpuStatus == 106)
 			me.fase = 53;
 		break;
 		
-	case 53: //la macinata è finita, chiedo la speed calcolata
+	case 53:
+		if (this.cpuStatus != 106)
+			me.fase = 54;
+		break;
+		
+	case 54: //la macinata è finita, chiedo la speed calcolata
+		me.fase = 55;
 		rhea.ajax ("getLastGrndSpeedValue", "").then( function(result)
 		{
 			me.speed2 = parseInt(result);
@@ -1693,22 +1751,68 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		});
 		break;
 		
+	case 55: //attendo risposta CPU	
+		break;
 		
 		
 	//************************************************************ STEP 4
 	case 60:
 		me.fase = 61;
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED TEST</b><br><br>RESULTS:<br>Average speed when grinder is empty: <b>" +me.speed1 +"</b><br>Average speed when grinder is not empty <b>" +me.speed2 +"</b><br>");		
+		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>RESULT:<br>Average speed when grinder is empty: <b>" +me.speed1 +"</b><br>Average speed when grinder is not empty: <b>" +me.speed2 +"</b><br>");		
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CERRADO");
 		pleaseWait_btn1_show();
 		break;
 
-	case 61: //attendo CONTINUE o ABORT
+	case 61: //attendo CLOSE
 		break;		
 
 		
+	//************************************************************
+	case 70: //chiedo di rimettere a posto il gruppo
+		if (me.gruppoTolto == 0)
+		{
+			me.fase = 90;
+		}
+		else
+		{
+			me.fase = 71;
+			pleaseWait_rotella_hide();
+			pleaseWait_freeText_setText("<b>GRINDER SPEED FOR OFF09</b><br><br>Volver a colocar el grupo en posicion y luego presionar CONTINUAR"); //Place the brewer into position, then press CONTINUE
+			pleaseWait_freeText_show();
+			pleaseWait_btn1_setText("CONTINUA");
+			pleaseWait_btn1_show();
+		}
+		break;
+		
+	case 71: //aspetto continue
+		break;
+		
+	case 72: //verifico che il gruppo sia collegato, altrimenti goto 40
+		me.fase = 73;
+		pleaseWait_rotella_show();
+		rhea.ajax ("getGroupState", "").then( function(result)
+		{
+			if (result=="1")
+			{
+				me.gruppoTolto = 0;
+				me.fase = 90;
+			}
+			else
+				me.fase = 70;
+		})
+		.catch( function(result)
+		{
+			me.fase = 70;
+		});			
+		
+		break;
+		
+	case 73://attendo risposta CPU
+		break;
+		
+	
 	//************************************************************ FINE
 	case 90: //fine
 		pleaseWait_hide();
