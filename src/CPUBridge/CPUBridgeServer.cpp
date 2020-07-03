@@ -3481,7 +3481,7 @@ void Server::priv_handleState_grinderSpeedTest()
 	if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 	{
 		//aspetto il tempo di macina e poi chiedo a CPU il risultato
-		const u64 timeToExitMSec = rhea::getTimeNowMSec() + TEMPO_DI_MACINATA_MSec;
+		const u64 timeToExitMSec = rhea::getTimeNowMSec() + TEMPO_DI_MACINATA_MSec +1500;
 		while (rhea::getTimeNowMSec() < timeToExitMSec)
 			rhea::thread::sleepMSec(500);
 
@@ -3497,82 +3497,10 @@ void Server::priv_handleState_grinderSpeedTest()
 				break;
 			}
 		}
-
-#if 0
-		//ok, la macina è partita.
-		//Per i prossimi [TEMPO_DI_MACINATA_MSec] chiedo a CPU i valori del sensore e ne faccio la media
-		const u32 UN_CAMPIONE_OGNI_MSec = 250;
-		u32 numCampioni = 0;
-		u16 *campioni;
-		{
-			const u32 NUM_ALLOCATI = (TEMPO_DI_MACINATA_MSec / UN_CAMPIONE_OGNI_MSec) + 4;
-			campioni = (u16*)RHEAALLOC(rhea::getScrapAllocator(), sizeof(u16) * NUM_ALLOCATI);
-		}
-
-		const u64 timeToExitMSec = rhea::getTimeNowMSec() + TEMPO_DI_MACINATA_MSec;
-		u64 nextTimeToSampleMSec = 0;
-		while (1)
-		{
-			const u64 timeNowMSec = rhea::getTimeNowMSec();
-			if (timeNowMSec >= timeToExitMSec)
-				break;
-
-			if (timeNowMSec >= nextTimeToSampleMSec)
-			{
-				nextTimeToSampleMSec = timeNowMSec + UN_CAMPIONE_OGNI_MSec;
-				
-				//chiedo alla CPU il valore del sensore
-				const u8 nBytesToSend = cpubridge::buildMsg_getLastGrinderSpeed (bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 300))
-					campioni[numCampioni++] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4]);
-			}
-			rhea::thread::sleepMSec(10);
-		}
-
-		//ok, tempo scaduto. Prendo tutti i campioni che ho raccolto, scarto i 2 migliori e i 2 peggiori e faccio la media
-		
-		//sort
-		u32 n = numCampioni;
-		while (n--)
-		{
-			bool bExit = true;
-			for (u32 i = 0; i < n; i++)
-			{
-				if (campioni[i] > campioni[i + 1])
-				{
-					const u16 swap = campioni[i];
-					campioni[i] = campioni[i + 1];
-					campioni[i + 1] = swap;
-					bExit = false;
-				}
-			}
-			if (bExit)
-				break;
-		}
-
-		//media
-		u32 result = 0;
-		if (numCampioni < 4)
-		{
-			for (u32 i = 0; i < numCampioni; i++)
-				result += campioni[i];
-			result /= numCampioni;
-		}
-		else
-		{
-			for (u32 i = 2; i < numCampioni-2; i++)
-				result += campioni[i];
-			result /= (numCampioni-4);
-		}
-		grinderSpeedTest.lastCalculatedGrinderSpeed = result;
-		
-		RHEAFREE(rhea::getScrapAllocator(), campioni);
-#endif
 	}
 	else
 	{
-		//in caso di fallimento, aspetto un paio di secondi prima di tornare in NORMAL
+		//in caso di fallimento, aspetto un paio di secondi prima di tornare in NORMAL per dare il tempo alla GUI di vedere i cambi di stato
 		rhea::thread::sleepMSec(2000);
 	}
 
