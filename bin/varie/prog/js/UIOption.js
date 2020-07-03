@@ -69,6 +69,7 @@ UIOption.prototype.changeCaptionByIndex = function (i, msg)
 	rheaSetElemHTML(d, "<p>" +this.optionCaption[i] +"</p>");
 }
 
+UIOption.prototype.dontSaveToDa3 = function () 					{  this.da3offset = -1; this.da3Pos = -1; }
 UIOption.prototype.setDA3Offset = function(da3offset)			{ this.da3offset = da3offset;}
 UIOption.prototype.loadFromDA3 = function(da3)					
 { 

@@ -13,7 +13,7 @@ var DA3_BLOCK_SIZE = 64;
 */
 function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe)
 {
-	console.log ("DA3: machineType[" +machineType +"], isInduzione[" +isInduzione +"], grpCaffe[" +tipoGruppoCaffe +"]");
+	console.log ("DA3: machineType[" +machineType +"], model[" +machineModel +"], isInduzione[" +isInduzione +"], grpCaffe[" +tipoGruppoCaffe +"]");
 	this.da3_original = null;
 	this.da3_current = null;
 	this.da3_filesize = 0;
@@ -64,6 +64,7 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
+DA3.prototype.isMachine_Multibona = function()						{ return (this.machineModel==0x56); }
 DA3.prototype.getTipoGruppoCaffe = function ()						{ return this.tipoGruppoCaffe; }
 DA3.prototype.isGruppoMicro = function ()							{ if (this.getTipoGruppoCaffe() == 'M') return 1; return 0;}
 DA3.prototype.isGruppoVariflex = function ()						{ if (this.getTipoGruppoCaffe() == 'V') return 1; return 0;}

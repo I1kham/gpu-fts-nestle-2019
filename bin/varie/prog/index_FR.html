@@ -852,6 +852,7 @@
 				</table>
 				<div style='height:5px'></div>
 			
+				<!--DEVICES OTHER-->
 				<div id="pageDevices_general" style="display:none">
 					<table border='0' class='elenco'>
 						<tr><td>DÉTECTION DRIPTRAY</td><td><div class='UIOption' data-option='0|NO|1|OUI' data-da3='7092' data-da3bit='8'></div></td></tr>
@@ -865,12 +866,24 @@
 					</table>
 				</div>
 
+				<!--DEVICES VARIFLEX / MICRO-->
 				<div id="pageDevices_vflex" style="display:none">
 					<table border='0' class='elenco'>
 						<tr><td>DIAMÈTRE DE BROYEUR</td><td><div id="pageDevices_vflex_brewerDiam" class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
 						<tr><td>POSITION DE REPOS</td><td><div class='UIOption' data-option='0|PROCHE|1|OUVERT' data-da3='7556' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_vflex_autoAdjust"><td>AUTOMATIC<br>ADJUSTMENT</td><td><div class='UIOption' data-option='0|NO|1|OUI' data-da3='7558' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_vflex_autoAdjust"><td>AUTOMATIC<br>ADJUSTMENT</td><td><div id="pageDevices_vflex_v1AutoAdjust" class='UIOption' data-option='0|NO|1|OUI' data-da3='7558' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_vflex_deliveryPhase"><td>LIVRAISON RAPIDE</td><td><div class='UIOption' data-option='0|ORDINAIRE|1|VITE' data-da3='7570' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_grinderSpeedTest">
+							<td>GRINDER SPEED FOR OFF09</td>
+							<td>
+								<table style="width:100%">
+									<tr>
+										<td><div id="pageDevices_vflex_grnSpeedOff9" class="UINumber" data-numfigures="4" data-max="9999" data-da3="7558" data-da3bit="16"></div></td>
+										<td><div class='UIButton bigButton60 actionButton' data-caption='TEST' data-onclick="pageDevices_startGrinderSpeedTest()"></div></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
 					</table>				
 				</div>
 				
@@ -2948,8 +2961,23 @@ function pageDevices_show()
 			rheaHideElem(rheaGetElemByID("pageDevices_vflex_deliveryPhase"));
 			rheaHideElem(rheaGetElemByID("pageDevices_motorTest"));
 			rheaHideElem(rheaGetElemByID("pageDevices_grpTest"));
-			
 			win.getChildByID("pageDevices_vflex_brewerDiam").changeCaptionByIndex(1,"40mm");
+		}
+
+		//grinder speed test, valido solo per multibona
+		//Il valore viene memorizzato nella loc 7558 del da3
+		//La locazione 7558 è usata sia per indicare se l'auto adjustment su varifilex 1 è attivo, sia per memorizzare lo speed dell'oFF09
+		//Se il gruppo è micro, si usa il secondo caso, se il gruppo è vflex, si usa il primo
+		if (da3.isGruppoMicro() && da3.isMachine_Multibona())
+		{
+			rheaSetDisplayMode(rheaGetElemByID("pageDevices_grinderSpeedTest", "table-row"));
+			rheaHideElem(rheaGetElemByID("pageDevices_vflex_v1AutoAdjust"));
+			win.getChildByID("pageDevices_vflex_v1AutoAdjust").dontSaveToDa3();
+		}
+		else
+		{
+			rheaHideElem(rheaGetElemByID("pageDevices_grinderSpeedTest"));
+			win.getChildByID("pageDevices_grinderSpeedTest").dontSaveToDa3();
 		}
 		
 		if (da3.isInduzione())
@@ -3129,7 +3157,7 @@ function pageDevices_setVGrind (macina1o2)
 function pageDevices_startModemTest()					{ currentTask.runModemTest(); }
 function pageDevices_startTestAssorbGruppo()			{ currentTask.runTestAssorbGruppo(); }
 function pageDevices_startTestAssorbMotoriduttore()		{ currentTask.runTestAssorbMotoriduttore(); }
-
+function pageDevices_startGrinderSpeedTest()			{ currentTask.runGrinderSpeedTest(1); }
 /***************************************************************************
  *
  * pageDataAudit

@@ -323,9 +323,13 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = 0; //lunghezza
 			out_answer[ct++] = 0x02;	//versione
 			out_answer[ct++] = machine_type;
-			out_answer[ct++] = 0x82;	//modello macchina
-			out_answer[ct++] = isInduzione;
-			out_answer[ct++] = 'V';		//brewer type 'V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente
+			
+			//modello macchina											//brewer type 'V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente
+			//out_answer[ct++] = 0x82;	out_answer[ct++] = isInduzione; out_answer[ct++] = 'V';		
+			
+			//modello macchina = Minibona
+			out_answer[ct++] = 0x56;	out_answer[ct++] = isInduzione;	out_answer[ct++] = 'M';
+
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			*in_out_sizeOfAnswer = out_answer[2];
@@ -358,6 +362,34 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			{
 			default:
 				return false;
+
+			case eCPUProgrammingCommand_attivazioneMotore:
+				//rispondo con lo stesso msg che ho ricevuto
+				{
+					const u8 len = bufferToSend[2];
+					memcpy (out_answer, bufferToSend, len);
+					*in_out_sizeOfAnswer = len;
+					return true;
+				}
+				break;
+
+			case eCPUProgrammingCommand_getLastGrinderSpeed:
+				//# P [len] 0x23 [velocità macina LSB MSB] [ck]
+				{
+					const u16 speed = rhea::randomU32(1000);
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					rhea::utils::bufferWriteU16_LSB_MSB (&out_answer[ct], speed);
+					ct += 2;
+
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+					return true;
+				}
+				break;
 
 			case eCPUProgrammingCommand_testSelezione:
 				if (timeToEndTestSelezioneMSec == 0)

@@ -347,6 +347,11 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						case 23: statusStr ="MILKER CLEANING"; break;
 						case 101: statusStr ="COM_ERROR"; break;
 						case 102: statusStr ="GRINDER OPENING"; break;
+						
+						case 103: statusStr ="COMPATIBILITY CHECK"; break;
+						case 104: statusStr ="CPU_NOT_SUPPORTED"; break;
+						case 105: statusStr ="DA3_SYNC"; break;
+						case 106: statusStr ="GRINDER SPEED TEST"; break;
 					}
 					//console.log ("rhea.js => RHEA_EVENT_CPU_STATUS [" +statusID +"] [" +statusStr +"]");
 					me.onEvent_cpuStatus(statusID, statusStr, flag16);

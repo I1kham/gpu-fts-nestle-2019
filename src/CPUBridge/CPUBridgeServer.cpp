@@ -141,6 +141,10 @@ void Server::run()
 		case sStato::eStato_telemetry:
 			priv_handleState_telemetry();
 			break;
+
+		case sStato::eStato_grinderSpeedTest:
+			priv_handleState_grinderSpeedTest();
+			break;
 		}
 	}
 
@@ -1080,6 +1084,23 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 		}
 		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST:
+			{
+				u8 macina_1o2 = 0;
+				u8 tempoDiMacinaSec = 0;
+				cpubridge::translate_CPU_START_GRINDER_SPEED_TEST(msg, &macina_1o2, &tempoDiMacinaSec);
+				if (priv_enterState_grinderSpeedTest (macina_1o2, tempoDiMacinaSec))
+					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, true);
+				else
+					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, false);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_GRINDER_SPEED:
+			notify_CPU_GET_LAST_GRINDER_SPEED (sub->q, handlerID, logger, grinderSpeedTest.lastCalculatedGrinderSpeed);
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -3401,4 +3422,142 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 	this->cpu_numDecimalsForPrices = da3[7066];
 
 	RHEAFREE(localAllocator, da3);
+}
+
+/***************************************************
+ * priv_enterState_grinderSpeedTest
+ *
+ *	ritorna true se ci sono le condizioni per iniziare il test. In questo caso, lo stato passa a stato = eStato_grinderSpeedTest.
+ *	In caso contrario, ritorna false e non cambia l'attuale stato.
+ *	Lo scopo di questo test è quello di muovere la macina per un tot di tempo e leggere (chiedendo alla CPU) il valore di un certo sensore.
+ *	Alla fine della macinata, si ritorna la media delle letture del sensore
+ */
+bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec)
+{
+	logger->log("CPUBridgeServer::priv_enterState_calcGrinderSpeed() => [%d]\n", macina_1o2);
+
+	if (stato.get() != sStato::eStato_normal)
+	{
+		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
+		return false;
+	}
+
+	if (cpuStatus.VMCstate != eVMCState_DISPONIBILE)
+	{
+		logger->log("  invalid request, VMCState != eVMCState_DISPONIBILE, aborting.");
+		return false;
+	}
+
+	
+	stato.set(sStato::eStato_grinderSpeedTest);
+	grinderSpeedTest.motoreID = 11;
+	if (macina_1o2 == 2)
+		grinderSpeedTest.motoreID = 12;
+	grinderSpeedTest.lastCalculatedGrinderSpeed = 0;
+	grinderSpeedTest.tempoDiMacinataInSec = tempoDiMacinataInSec;
+	return true;
+}
+
+//***************************************************
+void Server::priv_handleState_grinderSpeedTest()
+{
+	//dico a tutti che sono in uno stato speciale
+	cpuStatus.VMCstate = eVMCState_GRINDER_SPEED_TEST;
+	cpuStatus.VMCerrorCode = 0;
+	cpuStatus.VMCerrorType = 0;
+	cpuStatus.selAvailability.reset();
+	for (u32 i = 0; i < subscriberList.getNElem(); i++)
+	{
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
+		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
+	}
+
+
+	const u32 TEMPO_DI_MACINATA_MSec = (u32)grinderSpeedTest.tempoDiMacinataInSec * 1000;
+
+	u8 bufferW[16];
+	const u8 nBytesToSend = cpubridge::buildMsg_attivazioneMotore(grinderSpeedTest.motoreID, (u8)(TEMPO_DI_MACINATA_MSec/100), 1, 0, bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+	{
+		//ok, la macina è partita.
+		//Per i prossimi [TEMPO_DI_MACINATA_MSec] chiedo a CPU i valori del sensore e ne faccio la media
+		const u32 UN_CAMPIONE_OGNI_MSec = 250;
+		u32 numCampioni = 0;
+		u16 *campioni;
+		{
+			const u32 NUM_ALLOCATI = (TEMPO_DI_MACINATA_MSec / UN_CAMPIONE_OGNI_MSec) + 4;
+			campioni = (u16*)RHEAALLOC(rhea::getScrapAllocator(), sizeof(u16) * NUM_ALLOCATI);
+		}
+
+		const u64 timeToExitMSec = rhea::getTimeNowMSec() + TEMPO_DI_MACINATA_MSec;
+		u64 nextTimeToSampleMSec = 0;
+		while (1)
+		{
+			const u64 timeNowMSec = rhea::getTimeNowMSec();
+			if (timeNowMSec >= timeToExitMSec)
+				break;
+
+			if (timeNowMSec >= nextTimeToSampleMSec)
+			{
+				nextTimeToSampleMSec = timeNowMSec + UN_CAMPIONE_OGNI_MSec;
+				
+				//chiedo alla CPU il valore del sensore
+				const u8 nBytesToSend = cpubridge::buildMsg_getLastGrinderSpeed (bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 300))
+					campioni[numCampioni++] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4]);
+			}
+			rhea::thread::sleepMSec(10);
+		}
+
+		//ok, tempo scaduto. Prendo tutti i campioni che ho raccolto, scarto i 2 migliori e i 2 peggiori e faccio la media
+		
+		//sort
+		u32 n = numCampioni;
+		while (n--)
+		{
+			bool bExit = true;
+			for (u32 i = 0; i < n; i++)
+			{
+				if (campioni[i] > campioni[i + 1])
+				{
+					const u16 swap = campioni[i];
+					campioni[i] = campioni[i + 1];
+					campioni[i + 1] = swap;
+					bExit = false;
+				}
+			}
+			if (bExit)
+				break;
+		}
+
+		//media
+		u32 result = 0;
+		if (numCampioni < 4)
+		{
+			for (u32 i = 0; i < numCampioni; i++)
+				result += campioni[i];
+			result /= numCampioni;
+		}
+		else
+		{
+			for (u32 i = 2; i < numCampioni-2; i++)
+				result += campioni[i];
+			result /= (numCampioni-4);
+		}
+		grinderSpeedTest.lastCalculatedGrinderSpeed = result;
+		
+		RHEAFREE(rhea::getScrapAllocator(), campioni);
+	}
+	else
+	{
+		//in caso di fallimento, aspetto un paio di secondi prima di tornare in NORMAL
+		rhea::thread::sleepMSec(2000);
+	}
+
+	
+	//fine
+	priv_enterState_normal();
+
 }

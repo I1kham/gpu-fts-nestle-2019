@@ -39,6 +39,7 @@ namespace cpubridge
 				eStato_CPUNotSupported = 6,
 				eStato_DA3_sync = 7,
 				eStato_telemetry = 8,
+				eStato_grinderSpeedTest = 9,
 
 				eStato_quit = 0xff
             };
@@ -65,6 +66,13 @@ namespace cpubridge
 			u16 target;
 		};
 				
+		struct sCalcGrinderSpeed
+		{
+			u8	motoreID;
+			u8	tempoDiMacinataInSec;
+			u16 lastCalculatedGrinderSpeed;
+		};
+
 		enum eStartSelectionMode
 		{
 			eStartSelectionMode_default = 0,
@@ -157,6 +165,9 @@ namespace cpubridge
 		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
 		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1o2, u16 *out);
 
+		bool					priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec);
+		void                    priv_handleState_grinderSpeedTest();
+
 		bool					priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub);
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
@@ -200,6 +211,7 @@ namespace cpubridge
 		u8						lastBtnProgStatus;
         u8                      keepOnSendingThisButtonNum;
 		sRegolazioneAperturaMacina regolazioneAperturaMacina;
+		sCalcGrinderSpeed		grinderSpeedTest;
 		u16						utf16_CPUMasterVersionString[34];
 		u64						showCPUStringModelAndVersionUntil_msec;
     };
