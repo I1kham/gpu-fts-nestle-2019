@@ -2579,6 +2579,7 @@ function pageTemperature_build()
 {
 	var html = "<table border='0' class='elenco'>"
 			   +"	<tr style='height:30px;'><td colspan='3' align='center'><div id='pageTemperature_live'  class='tip'></div></td></tr>";
+
 	if (da3.isInstant())
 	{
 		//boiler & delta
@@ -2587,18 +2588,26 @@ function pageTemperature_build()
 	}
 	else
 	{
+		var hasHeaterTemp = 1;
+		if (da3.isGruppoMicro())
+			hasHeaterTemp = 0;
+	
 		if (da3.isInduzione())
 		{
 			//solo temp heater (aka camera caffe')
-			html += "<tr><td>RISCALDATORE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+			if (hasHeaterTemp)
+				html += "<tr><td>RISCALDATORE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 		else
 		{
 			//(espresso qui significa bollitore, heater significa camera caffe')
 			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
-				   +"<tr><td>PRIMO CAFFE'</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
-				   +"<tr><td>TEMPO RISCALDAMENTO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>"
-				   +"<tr><td>RISCALDATORE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+					+"<tr><td>DELTA</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='16' data-da3='7042' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+					+"<tr><td>PRIMO CAFFE'</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
+					+"<tr><td>TEMPO RISCALDAMENTO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>";
+				   
+			if (hasHeaterTemp)
+				html += "<tr><td>RISCALDATORE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 	}	
 	html += "</table>";
