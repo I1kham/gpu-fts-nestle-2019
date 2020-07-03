@@ -2977,7 +2977,7 @@ function pageDevices_show()
 		//Il valore viene memorizzato nella loc 7558 del da3
 		//La locazione 7558 è usata sia per indicare se l'auto adjustment su varifilex 1 è attivo, sia per memorizzare lo speed dell'oFF09
 		//Se il gruppo è micro, si usa il secondo caso, se il gruppo è vflex, si usa il primo
-		if (da3.isGruppoMicro()) // && da3.isMachine_Multibona())
+		if (da3.isGruppoMicro() && da3.isMachine_Multibona())
 		{
 			rheaSetDisplayMode(rheaGetElemByID("pageDevices_grinderSpeedTest", "table-row"));
 			rheaHideElem(rheaGetElemByID("pageDevices_vflex_v1AutoAdjust"));
