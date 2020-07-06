@@ -1,0 +1,269 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="styleOptionButtons.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div id="mainWrapper" class="wrapper1024x600">
+	<div class="header">
+		<center><img src="img/logo_rhea.jpg"></center> 	
+	</div>
+	
+	<div class="pageConfirm">
+		<div class="pageConfirm_center">
+			<div id="divSelectionImage" class="pageConfirm_selectionImage"></div>
+			<div id="divBtnSelectionInfo" class="pageConfirm_selectionInfo" style="display:none" onclick="gotoSelectionInfo()"><img draggable='false' src="img/info.png"></div>
+			<div class="pageConfirm_selectionBottom pageConfirm_bigFont" id="divPrice"></div>
+		</div>
+		
+		
+		<div class="pageConfirm_right" style="position:relative;">
+			<div id="rightPane_wait" style="display:none; text-align:center; margin-top:160px"><img draggable='false' src="img/animationRound.gif"></div>
+			<div id="rightPane_content">
+				<div class="pageConfirm_right3box">
+					<div class="pageConfirm_bigFont" style="margin-bottom:10px;" id="divSelectionName"></div>
+					<div id="selDescription"></div>
+				</div>
+				<div class="pageConfirm_bottomBox">
+					<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+						<tr valign="middle">
+							<td align="middle">
+								<div id="btnStart" class="btnStart pageConfirm_bigFont" onclick="onBtnStartSelection()"></div>
+								<div id="btnStartNotAvail" class="btnStartNotAvail" style="display:none"></div>
+							</td>
+						</tr>
+					</table>			
+				</div>
+			</div>
+		</div>
+		
+		<div class="clear"></div>
+	</div>
+	
+	
+	<div class="pageConfirm_footer">
+		<div id="divCPUMessage" style="width:100%; text-align:center"></div></td></tr>
+	</div>
+	
+	<!-- il btn home lo metto qui in position absolute per dargli una maggiore area di click -->
+	<div id="divBtnHome" class="btnIndietro"><img draggable='false' src="img/btnHome.png"></div>
+</div> <!-- wrapper1024x600 -->
+
+
+
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/MMI.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+<script src="js/qrcode/qrcode.min.js"></script>
+<script language="javascript">
+var iconNum = 0;
+var selThatWasStarted = 0;
+var GRINDER = 0;
+var CUP_SIZE = 0;
+var SHOT_TYPE = 0;
+var qrcode = null;
+
+function onRheaBootstrapFinished() 
+{
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
+}
+
+function onAfterLangLoaded()
+{
+	lang_loadJS ("cupAppearance")
+		.then ( function()	
+		{
+			onAfterLangLoaded2();
+		});
+}
+
+function onAfterLangLoaded2()
+{
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+
+	//carica le nutritional info
+	lang_loadJS ("nutriInfo").then ( function()
+	{
+		if (rheaLang_nutriInfo[iconNum] != "")
+			rheaShowElem(rheaGetElemByID("divBtnSelectionInfo"));
+	});
+		
+		
+	rhea.onEvent_creditUpdated = function ()
+	{
+		doUpdateCredit();
+	}
+	
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		if (importanceLevel == 0)
+			rheaHideElem(dCPU)
+		else
+		{			
+			rheaSetElemHTML(dCPU, msg);
+			rheaShowElem(dCPU);
+		}
+	}
+	
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		switch (status)
+		{
+			case 1: // wait for credit
+				console.log ("sel waiting..");
+				break;
+				
+			case 2:// selection started
+				gotoPagePreparingSel(0);
+				break;
+				
+			case 5:// selection started, can use btnStop
+				gotoPagePreparingSel(1);
+				break;
+
+			default:				
+			case 3: // selection aborted
+				console.log ("sel aborted [" +status +"]");
+				var dContent = rheaGetElemByID("rightPane_content");
+				var dWait = rheaGetElemByID("rightPane_wait");
+				rheaHideElem(dWait);
+				rheaSetDisplayMode(dContent, "inline-block");
+				selThatWasStarted = 0;
+				rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
+				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+				
+				break;
+		}
+	
+	}
+		
+	setupPageContent();
+
+	doUpdateCredit();
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+
+	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
+	var d = rheaGetElemByID("divBtnHome");
+	d.addEventListener('mouseup', function (ev)
+	{
+		window.location = "pageMenu.html";
+	}, true);	
+}
+
+function onSelectionChanged(selNum)
+{
+	var selInfo = rhea.selection_getBySelNumber(selNum);
+	
+	var elemPrice = rheaGetElemByID("divPrice");
+	rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
+	if (parseFloat(selInfo.price) <= 0)
+		rheaHideElem (elemPrice);
+	else
+		rheaShowElem (elemPrice);
+		
+
+	var btnStart = rheaGetElemByID("btnStart");
+	var btnStartNotAvail = rheaGetElemByID("btnStartNotAvail");
+	if (selInfo.enabled == "0")
+	{
+		rheaHideElem(btnStart);
+		rheaSetElemHTML(btnStartNotAvail, rheaLang.BTN_START_SELECTION_NOT_AVAIL);
+		rheaShowElem(btnStartNotAvail);
+	}
+	else
+	{
+		rheaHideElem(btnStartNotAvail);
+		rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
+		rheaShowElem(btnStart);
+	}
+
+	if (rheaDebug_isEnabled())
+		rheaDebug_addText ("selection:" +selNum);
+}
+
+function doUpdateCredit()
+{
+	//rheaSetDivHTMLByName("divCredit", rhea.credit);	
+}
+
+function setupPageContent()
+{
+	var iconDisplayName = MMI_getDisplayName(iconNum);
+	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
+	var selNum = MMI_getLinkedSelectionNumber(iconNum);
+	
+	
+	//colonna sinistra, foto bevanda
+	var d = rheaGetElemByID("divSelectionImage");
+	rheaSetElemHTML(d, image);
+	
+	//nome bevanda
+	rheaSetDivHTMLByName("divSelectionName", iconDisplayName);
+	
+	
+	//colonna destra
+	var bShowOption1 = 0;
+	var bShowOption2 = 0;
+	var bShowCupDiv = 0;
+	
+	//carica la descrizione della bevanda
+	lang_loadJS ("mainMenuIconsInfo").then ( function()
+	{
+		var e = document.getElementById("selDescription");
+		e.innerHTML = rheaMainMenuIconsInfo[iconNum];
+		rheaShowElem(e);
+	});	
+	
+	onSelectionChanged(selNum);
+}
+
+function detectCurrentSelection()
+{
+	var selNum = MMI_getLinkedSelectionNumber(iconNum);
+	if (selNum == 0)
+		selNum = MMI_getLinkedSelection (iconNum, GRINDER, CUP_SIZE, SHOT_TYPE);
+	return selNum;
+}
+
+function onBtnStartSelection()
+{
+	var dContent = rheaGetElemByID("rightPane_content");
+	rheaHideElem(dContent);
+	
+	var dWait = rheaGetElemByID("rightPane_wait");
+	rheaShowElem(dWait);
+	
+	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
+	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+	
+	selThatWasStarted = detectCurrentSelection();
+	console.log ("Starting sel num:" +selThatWasStarted);
+	rhea.selection_start(selThatWasStarted);	
+}
+
+
+
+function gotoPagePreparingSel(bCanUseBtnStop)
+{
+	var url = "pageSelInProgress.html";
+	url += "?iconMenu=" +iconNum +"&selNum=" +selThatWasStarted +"&btnStop=" +bCanUseBtnStop;
+	window.location = url;
+}
+
+function gotoSelectionInfo()
+{
+	window.location = "pageSelectionInfo.html?iconMenu=" +iconNum;
+}
+</script>
+
+
+</html>

@@ -1,5 +1,6 @@
 #include "ESAPIModuleRaw.h"
 #include "../CPUBridge/CPUBridge.h"
+#include "../rheaCommonLib/rheaUtils.h"
 
 using namespace esapi;
 
@@ -255,7 +256,7 @@ void ModuleRaw::priv_handleIncomingMsgFromCPUBridge()
             case CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS:
                 priv_onCPUNotify_RUNNING_SEL_STATUS(msg);
                 break;
-            }
+			}
         }
         else
         {
@@ -294,6 +295,40 @@ void ModuleRaw::priv_handleIncomingMsgFromCPUBridge()
                 priv_onCPUNotify_RUNNING_SEL_STATUS(msg);
                 break;
 
+			case CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED:
+				//risposta al comando  #C3	
+				{
+					u8 numPrices = 0;
+					u8 numDecimals = 0;
+					u16 prices[NUM_MAX_SELECTIONS];
+					cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(msg, &numPrices, &numDecimals, prices);
+
+					u32 BYTES_TO_ALLOC = 5 + numPrices * (7);
+					u8 *answer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), BYTES_TO_ALLOC);
+					u32 ct = 0;
+					answer[ct++] = '#';
+					answer[ct++] = 'C';
+					answer[ct++] = '3';
+					answer[ct++] = numPrices;
+
+					for (u16 i = 0; i < numPrices; i++)
+					{
+						char s[32];
+						const char DECIMAL_SEP = '.';
+						rhea::string::format::currency (prices[i], numDecimals, DECIMAL_SEP, s, sizeof(s));
+
+						const u32 n = strlen(s);
+						memcpy (&answer[ct], s, n);
+						ct += n;
+						answer[ct++] = '|';
+					}
+					answer[ct] = rhea::utils::simpleChecksum8_calc (answer, ct);
+					ct++;
+					
+					priv_rs232_sendBuffer(answer, ct);
+					RHEAFREE(rhea::getScrapAllocator(), answer);
+				}
+				break;
             } //switch (msg.what)
 		}
 		
@@ -481,6 +516,29 @@ bool ModuleRaw::priv_rs232_handleCommand_C (sBuffer &b)
         }
         break;
 
+	case '3':
+		//Ho ricevuto un ask C3 Get selections prices
+		{
+			//parse del messaggio
+			bool bValidCk = false;
+			const u32 MSG_LEN = esapi::buildMsg_C3_getSelAvailability_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
+			if (0 == MSG_LEN)
+				return false;
+			if (!bValidCk)
+			{
+				b.removeFirstNBytes(2);
+				return true;
+			}
+
+			//rimuovo msg dal buffer
+			b.removeFirstNBytes(MSG_LEN);
+
+			//chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi priv_handleIncomingMsgFromCPUBridge)
+			cpubridge::ask_CPU_QUERY_SEL_PRICES (this->cpuBridgeSubscriber, 0x01);
+			return true;
+		}
+		break;
+
     }
 }
 
@@ -521,9 +579,11 @@ bool ModuleRaw::priv_rs232_handleCommand_S (sBuffer &b)
 
             //chiedo a CPUBridge di iniziare la selezione indicata. CPUBrdige risponderà con una serie di notify_CPU_RUNNING_SEL_STATUS() per
             //indicare lo stato di avanzamento della selezione
-            runningSel.status = cpubridge::eRunningSelStatus_wait;
-            const u16 price = 0xffff; //serve per fare in modo che la CPU gestisca lei il pagamento
-            cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (this->cpuBridgeSubscriber, selNumber, price, cpubridge::eGPUPaymentType_unknown);
+			if (selNumber > 0)
+			{
+				runningSel.status = cpubridge::eRunningSelStatus_wait;
+				cpubridge::ask_CPU_START_SELECTION(this->cpuBridgeSubscriber, selNumber);
+			}
 
             //rispondo via seriale confermando di aver ricevuto il msg
             const u32 n = buildMsg_S1_startSelection_resp (selNumber, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
@@ -557,6 +617,67 @@ bool ModuleRaw::priv_rs232_handleCommand_S (sBuffer &b)
         }
         break;
 
+	case '3':
+		//ho recevuto #S3 "start already paid selection"
+		{
+			//parse del messaggio
+			bool bValidCk = false;
+			u8 selNum = 0;
+			u16 price = 0;
+			const u32 MSG_LEN = esapi::buildMsg_S3_startAlreadySelection_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &selNum, &price);
+			if (0 == MSG_LEN)
+				return false;
+			if (!bValidCk)
+			{
+				b.removeFirstNBytes(2);
+				return true;
+			}
+
+			//rimuovo il msg dal buffer
+			b.removeFirstNBytes(MSG_LEN);
+
+			//chiedo a CPUBridge di iniziare la selezione indicata. CPUBrdige risponderà con una serie di notify_CPU_RUNNING_SEL_STATUS() per
+			//indicare lo stato di avanzamento della selezione
+			if (selNum > 0)
+			{
+				runningSel.status = cpubridge::eRunningSelStatus_wait;
+				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (this->cpuBridgeSubscriber, selNum, price, cpubridge::eGPUPaymentType_unknown);
+			}
+
+			//rispondo via seriale confermando di aver ricevuto il msg
+			const u32 n = buildMsg_S3_startAlreadySelection_resp (selNum, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			priv_rs232_sendBuffer (rs232BufferOUT, n);
+		}
+		break;
+
+	case '4':
+		//Ho ricevuto un ask S4, button press
+		{
+			//parse del messaggio
+			bool bValidCk = false;
+			u8 btnNum;
+			const u32 MSG_LEN = esapi::buildMsg_S4_btnPress_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &btnNum);
+			if (0 == MSG_LEN)
+				return false;
+			if (!bValidCk)
+			{
+				b.removeFirstNBytes(2);
+				return true;
+			}
+
+			//rimuovo il msg dal buffer
+			b.removeFirstNBytes(MSG_LEN);
+
+			//inoltro a CPUBridge
+			if (btnNum >0 && btnNum<=12)
+				cpubridge::ask_CPU_SEND_BUTTON (this->cpuBridgeSubscriber, btnNum);
+
+			//rispondo
+			const u32 n = esapi::buildMsg_S4_btnPress_resp (btnNum, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+			priv_rs232_sendBuffer (rs232BufferOUT, n);
+			return true;
+		}
+		break;
     }
 }
 

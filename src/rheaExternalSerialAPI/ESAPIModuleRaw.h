@@ -4,6 +4,15 @@
 
 namespace esapi
 {
+	/**************************************************************************
+	 * ModuleRaw
+	 *
+	 *	Questa classe gestisce la comunicazione seriale nel caso di default, ovvero nel caso in cui sulla seriale non sia collegato alcun modulo
+	 *	ESAPI. In questa situazione, la GPU è slave, in attesa di richieste lungo il cavo seriale. Ad ogni richiesta (lecita), il modulo raw risponde
+	 *
+	 *	Alla eventuale ricezione di un comando #R1, il modulo raw termina e la classe ESAPICore istanzia il modulo appropriato alla gestione del device che
+	 *	si è presentato attraverso il comando #R1
+	 */
 	class ModuleRaw : public Module
 	{
 	public:

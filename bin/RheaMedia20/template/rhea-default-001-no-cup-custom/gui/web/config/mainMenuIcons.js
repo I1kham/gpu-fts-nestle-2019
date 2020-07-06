@@ -1,0 +1,13 @@
+var rheaMainMenuIcons = [{selNum:1,size:"100",pageMenuImg:"Drink_chocolate.png",pageConfirmImg:"Drink_chocolate.png"},
+{selNum:2,size:"100",pageMenuImg:"Drink_moccacinoDoppio.png",pageConfirmImg:"Drink_moccacinoDoppio.png"},
+{selNum:3,size:"100",pageMenuImg:"Drink_cappuccino.png",pageConfirmImg:"Drink_cappuccino.png"},
+{selNum:4,size:"010",pageMenuImg:"Drink_chocoMilk.png",pageConfirmImg:"Drink_chocoMilk.png"},
+{selNum:5,size:"100",pageMenuImg:"Drink_espressoMacchiato.png",pageConfirmImg:"Drink_espressoMacchiato.png"},
+{selNum:6,size:"010",pageMenuImg:"Drink_hotWater.png",pageConfirmImg:"Drink_direct_water.png"},
+{selNum:7,size:"100",pageMenuImg:"Drink_espresso.png",pageConfirmImg:"Drink_espresso.png"},
+{selNum:8,size:"100",pageMenuImg:"Drink_espresso.png",pageConfirmImg:"Drink_espresso.png"},
+{selNum:9,size:"010",pageMenuImg:"Drink_latteMacchiato.png",pageConfirmImg:"Drink_latteMacchiato.png"},
+{selNum:10,size:"100",pageMenuImg:"Drink_espressoLong.png",pageConfirmImg:"Drink_espressoLong.png"},
+{selNum:11,size:"010",pageMenuImg:"Drink_milk.png",pageConfirmImg:"Drink_milk.png"},
+{selNum:12,size:"010",pageMenuImg:"Drink_teaStrong.png",pageConfirmImg:"Drink_teaStrong.png"},
+];

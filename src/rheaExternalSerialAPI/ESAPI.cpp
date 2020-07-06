@@ -266,6 +266,27 @@ u32 esapi::buildMsg_C2_getSelAvailability_resp (const cpubridge::sCPUSelAvailabi
 }
 
 //****************************************************************************
+u32	esapi::buildMsg_C3_getSelAvailability_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk)
+{
+	//# C 3 [ck]
+	const u32 MSG_LEN = 4;
+	if (numBytesInBuffer < MSG_LEN)
+		return 0;
+
+	if (buffer[MSG_LEN - 1] == rhea::utils::simpleChecksum8_calc(buffer, MSG_LEN - 1))
+	{
+		*out_bIsValidCk = true;
+	}
+	else
+	{
+		DBGBREAK;
+		*out_bIsValidCk = false;
+	}
+
+	return MSG_LEN;
+}
+
+//****************************************************************************
 u32 esapi::buildMsg_S1_startSelection_ask (u8 selNum, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
 	return priv_esapi_buildMsg ('S', '1', &selNum, 1, out_buffer, sizeOfOutBuffer);
@@ -368,6 +389,63 @@ u32 esapi::buildMsg_S2_querySelectionStatus_parseResp (const u8 *buffer, u32 num
 
 	return MSG_LEN;
 }
+
+
+//****************************************************************************
+u32	esapi::buildMsg_S3_startAlreadySelection_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_selNum, u16 *out_price)
+{
+	//# S 3 [sel_num] [priceLSB] [priceMSB] [ck]
+	const u32 MSG_LEN = 7;
+	if (numBytesInBuffer < MSG_LEN)
+		return 0;
+
+	if (buffer[MSG_LEN - 1] == rhea::utils::simpleChecksum8_calc(buffer, MSG_LEN - 1))
+	{
+		*out_bIsValidCk = true;
+		*out_selNum = buffer[3];
+		*out_price = rhea::utils::bufferReadU16_LSB_MSB(&buffer[4]);
+	}
+	else
+	{
+		DBGBREAK;
+		*out_bIsValidCk = false;
+		*out_selNum = 0;
+		*out_price = 0;
+	}
+	return MSG_LEN;
+}
+u32	esapi::buildMsg_S3_startAlreadySelection_resp (u8 selNum, u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+	return priv_esapi_buildMsg ('S', '3', &selNum, 1, out_buffer, sizeOfOutBuffer);
+}
+
+
+//****************************************************************************
+u32 esapi::buildMsg_S4_btnPress_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_btnNum)
+{
+	//# S 4 [btn_num] [ck]
+	const u32 MSG_LEN = 5;
+	if (numBytesInBuffer < MSG_LEN)
+		return 0;
+
+	if (buffer[MSG_LEN - 1] == rhea::utils::simpleChecksum8_calc(buffer, MSG_LEN - 1))
+	{
+		*out_bIsValidCk = true;
+		*out_btnNum = buffer[3];
+	}
+	else
+	{
+		DBGBREAK;
+		*out_bIsValidCk = false;
+		*out_btnNum = 0;
+	}
+	return MSG_LEN;
+}
+u32 esapi::buildMsg_S4_btnPress_resp (u8 btnNum, u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+	return priv_esapi_buildMsg ('S', '4', &btnNum, 1, out_buffer, sizeOfOutBuffer);
+}
+
 
 //****************************************************************************
 u32 esapi::buildMsg_R1_externalModuleIdentify_ask (esapi::eExternalModuleType moduleType, u8 verMajor, u8 verMinor, u8 *out_buffer, u32 sizeOfOutBuffer)
