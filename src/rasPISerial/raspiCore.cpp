@@ -1429,7 +1429,7 @@ bool Core::priv_2281_utils_match (const u8 *command, u32 commandLen, const char 
 //*********************************************************
 void Core::priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData)
 {
-    u32 ct = 0;
+    u16 ct = 0;
     sok2281BufferOUT[ct++]='#';
     rhea::utils::bufferWriteU16(&sok2281BufferOUT[ct], sizeOfData);
     ct+=2;
@@ -1467,8 +1467,24 @@ void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhe
             priv_rs232_sendBuffer (rs232BufferOUT, n);
             if (priv_rs232_waitAnswer('C','1',5,3,rs232BufferOUT, 1000))
             {
-                const u16 numBytes = rs232BufferOUT[2] * 2;
-                priv_2281_sendAnswer (sok, &rs232BufferOUT[4], numBytes);
+                //# C 1 [msgLen] [msgUTF16_LSB_MSB] [ck]
+                u8 *msgInUTF8 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), 1024);
+
+                //traduco da utf16 a utf8
+                u16 ct=0;
+                const u16 msgLen = rs232BufferOUT[3];
+                for (u16 i=0; i<msgLen; i+=2)
+                {
+                    const rhea::UTF16Char utf16 ( rhea::utils::bufferReadU16_LSB_MSB(&rs232BufferOUT[4+i]) );
+                    rhea::UTF8Char utf8;
+                    rhea::string::utf16::toUTF8 (utf16, &utf8);
+
+                    memcpy (&msgInUTF8[ct], utf8.data, utf8.length());
+                    ct+=utf8.length();
+                }
+                msgInUTF8[ct]=0;
+                priv_2281_sendAnswer (sok, msgInUTF8, ct);
+                RHEAFREE(rhea::getScrapAllocator(), msgInUTF8);
             }
             else
             {

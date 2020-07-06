@@ -9,8 +9,25 @@ namespace rhea
 
 
 	struct ANSIChar			{ char	data; };
-	struct UTF16Char		{ u16	data[2]; };
-	struct UTF32Char		{ u32	data; };
+
+    struct UTF16Char
+    {
+    public:
+                    UTF16Char()                                 { data[0]=data[1]=0; }
+                    UTF16Char(u16 a, u16 b=0)                   { setFromU16(a,b); }
+
+        void        setFromU16 (u16 a, u16 b=0)                 { data[0]=a; data[1]=b; }
+
+        bool        operator==(const UTF16Char& b) const        { return (data[0]==b.data[0] && data[1]==b.data[1]); }
+        bool        operator!=(const UTF16Char& b) const        { return (data[0]!=b.data[0] || data[1]!=b.data[1]); }
+
+        UTF16Char&  operator= (const UTF16Char &b)              { data[0]=b.data[0]; data[1]=b.data[1]; return *this; }
+
+    public:
+        u16	data[2];
+    };
+
+    struct UTF32Char		{ u32	data; };
 
 	struct UTF8Char			
 	{ 
