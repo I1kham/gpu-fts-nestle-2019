@@ -62,3 +62,9 @@ bin/zipt.rheazip
 bin/zip3.rheazip
 bin/hotspotname.txt
 bin/ip.txt
+bin/RASPI_DEBUG_rasPISerial
+bin/RASPI_RELEASE_rasPISerial
+bin/output.log
+bin/qrcodeTP.png
+bin/qrcodeTS.png
+
