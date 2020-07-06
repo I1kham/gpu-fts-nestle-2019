@@ -191,28 +191,28 @@ u32 esapi::buildMsg_C1_getCPUScreenMsg_parseAsk (const u8 *buffer, u32 numBytesI
 	return MSG_LEN;
 }
 
-u32 esapi::buildMsg_C1_getCPUScreenMsg_resp (const void *lcdMsg, u16 msgLenInBytes, u8 *out_buffer, u32 sizeOfOutBuffer)
+u32 esapi::buildMsg_C1_getCPUScreenMsg_resp (const void *lcdMsg, u16 numBytesInMsg, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
-    //# C 1 [numChar] [msgUTF16_LSB_MSB] [ck]
-	const u32 totalSizeOfMsg = 6 + msgLenInBytes;
+    //# C 1 [numBytesInMsg] [msgUTF16_LSB_MSB] [ck]
+    const u32 totalSizeOfMsg = 5 + numBytesInMsg;
 	if (sizeOfOutBuffer < totalSizeOfMsg)
 	{
 		DBGBREAK;
 		return 0;
 	}
 
-    assert (msgLenInBytes <= 512 && (msgLenInBytes%2)==0);
+    assert (numBytesInMsg <= 256);
 
     u32 ct = 0;
     out_buffer[ct++] = '#';
     out_buffer[ct++] = 'C';
     out_buffer[ct++] = '1';
-    out_buffer[ct++] = (u8)(msgLenInBytes/2);
+    out_buffer[ct++] = (u8)(numBytesInMsg);
 	
-    if (msgLenInBytes > 0)
+    if (numBytesInMsg > 0)
     {
-        memcpy(&out_buffer[ct], lcdMsg, msgLenInBytes);
-        ct += msgLenInBytes;
+        memcpy(&out_buffer[ct], lcdMsg, numBytesInMsg);
+        ct += numBytesInMsg;
     }
 
     out_buffer[ct] = rhea::utils::simpleChecksum8_calc (out_buffer, ct);

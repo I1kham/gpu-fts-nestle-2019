@@ -647,6 +647,7 @@ bool ModuleRaw::priv_rs232_handleCommand_S (sBuffer &b)
 			//rispondo via seriale confermando di aver ricevuto il msg
 			const u32 n = buildMsg_S3_startAlreadySelection_resp (selNum, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, n);
+            return true;
 		}
 		break;
 
