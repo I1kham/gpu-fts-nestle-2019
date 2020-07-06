@@ -193,6 +193,7 @@ u32 esapi::buildMsg_C1_getCPUScreenMsg_parseAsk (const u8 *buffer, u32 numBytesI
 
 u32 esapi::buildMsg_C1_getCPUScreenMsg_resp (const void *lcdMsg, u16 msgLenInBytes, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
+    //# C 1 [numChar] [msgUTF16_LSB_MSB] [ck]
 	const u32 totalSizeOfMsg = 6 + msgLenInBytes;
 	if (sizeOfOutBuffer < totalSizeOfMsg)
 	{
@@ -200,13 +201,14 @@ u32 esapi::buildMsg_C1_getCPUScreenMsg_resp (const void *lcdMsg, u16 msgLenInByt
 		return 0;
 	}
 
+    assert (msgLenInBytes <= 512 && (msgLenInBytes%2)==0);
+
     u32 ct = 0;
     out_buffer[ct++] = '#';
     out_buffer[ct++] = 'C';
-	out_buffer[ct++] = '1';
+    out_buffer[ct++] = '1';
+    out_buffer[ct++] = (u8)(msgLenInBytes/2);
 	
-    rhea::utils::bufferWriteU16_LSB_MSB (&out_buffer[ct], msgLenInBytes);
-    ct += 2;
     if (msgLenInBytes > 0)
     {
         memcpy(&out_buffer[ct], lcdMsg, msgLenInBytes);

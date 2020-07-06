@@ -222,6 +222,8 @@ void Core::priv_identify_run()
 				reportedESAPIVerMajor = rs232BufferOUT[3];
 				reportedESAPIVerMinor = rs232BufferOUT[4];
 				reportedGPUType = (esapi::eGPUType)rs232BufferOUT[5];
+
+reportedGPUType = esapi::eGPUType_TP;
                 logger->log ("\nAPI ver %d.%d, gpuType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
 				break;
 			}
@@ -232,18 +234,22 @@ void Core::priv_identify_run()
 
 
 	//se arrivo qui, vuol dire che la GPU ha risposto al comando # A 1
-	//ora devo comunicare la mia identità e attendere risposta
-	while (1)
-	{
-		const u8 data[4] = { (u8)esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, 0 };
-		const u32 nBytesToSend = priv_esapi_buildMsg ('R', '1', data, 3, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
-		priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
-		if (priv_identify_waitAnswer('R', '1', 5, rs232BufferOUT, 1000))
-		{
-			//ho ricevuto risposta valida a comando R 1, posso uscire da questa fase
-			return;
-		}
-	}
+    //ora devo comunicare la mia identità e attendere risposta.
+    //Questo vale solo per le GPU TS, perchè per le TP mi limito ad utilizzare i normali comandi seriali ESAPI
+    if (reportedGPUType == esapi::eGPUType::eGPUType_TS)
+    {
+        while (1)
+        {
+            const u8 data[4] = { (u8)esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, 0 };
+            const u32 nBytesToSend = priv_esapi_buildMsg ('R', '1', data, 3, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+            priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
+            if (priv_identify_waitAnswer('R', '1', 5, rs232BufferOUT, 1000))
+            {
+                //ho ricevuto risposta valida a comando R 1, posso uscire da questa fase
+                return;
+            }
+        }
+    }
 }
 
 //*******************************************************
@@ -810,12 +816,22 @@ void Core::run()
 	priv_identify_run();
 	logger->decIndent();
 
+    //se la GPU che mi ha risposto è una TS...
+    if (reportedGPUType == esapi::eGPUType_TS)
+        priv_runTS();
+    else
+        priv_runTP();
+}
 
-	logger->log ("Entering BOOT mode...\n");
-	logger->incIndent();
-	priv_boot_run();
-	logger->decIndent();
+//*******************************************************
+void Core::priv_runTS()
+{
+    logger->log ("GPU is TS\n");
 
+    logger->log ("Entering BOOT mode...\n");
+    logger->incIndent();
+    priv_boot_run();
+    logger->decIndent();
 
 	logger->log ("\n\nEntering RUNNING mode...\n");
 	logger->incIndent();
@@ -905,10 +921,146 @@ void Core::run()
 	}
 }
 
+//*******************************************************
+void Core::priv_runTP()
+{
+    logger->log ("GPU is TP\n");
+
+    logger->log ("\n\nEntering RUNNING mode...\n");
+    logger->incIndent();
+        priv_openSocket2281();
+    logger->decIndent();
+
+#ifdef LINUX
+    u64 timeToSyncMSec = 0;
+#endif
+
+    bQuit = false;
+    while (bQuit == false)
+    {
+        const u8 nEvents = waitableGrp.wait(5000);
+        for (u8 i = 0; i < nEvents; i++)
+        {
+            if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
+            {
+                if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2281)
+                {
+                    OSSocket sok;
+                    if (!rhea::socket::accept (sok2281, &sok))
+                        logger->log("ERR => accept failed on 2281\n");
+                    else
+                    {
+                        logger->log ("accepted on 2281\n");
+                        waitableGrp.addSocket (sok, WAITGRP_SOK_FROM_REST_API);
+                    }
+                }
+                else
+                {
+                    //altimenti la socket che si è svegliata deve essere una dei miei client già connessi
+                    const u32 clientUID = waitableGrp.getEventUserParamAsU32(i);
+                    if (WAITGRP_SOK_FROM_REST_API == clientUID)
+                        priv_2281_handle_restAPI(waitableGrp.getEventSrcAsOSSocket (i));
+                    else
+                    {
+                        DBGBREAK;
+                        logger->log ("ERR. rcv msg from a socket that is not from REST API\n");
+                    }
+                }
+            }
+        }
+
+        //se hotspot è stato spento, verifico se è ora di riaccenderlo (vedi comando REST/SUSP-WIFI)
+        if (hotspot.timeToTurnOnMSec)
+        {
+            if (rhea::getTimeNowMSec() >= hotspot.timeToTurnOnMSec)
+            {
+                logger->log ("2281: turn on hotspot\n");
+                hotspot.timeToTurnOnMSec = 0;
+                hotspot.turnON();
+            }
+        }
+
+#ifdef LINUX
+        //flusho i dati su SD nel tentativo di preservare l'SD da spegnimenti improvvisi
+        if (rhea::getTimeNowMSec() >= timeToSyncMSec)
+        {
+            timeToSyncMSec = rhea::getTimeNowMSec() + 10000;
+            sync();
+        }
+#endif
+    }
+}
+
 //*********************************************************
 void Core::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 {
 	rhea::rs232::writeBuffer (com, buffer, numBytesToSend);
+}
+
+//*********************************************************
+bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichByteContainsAdditionMsgLen, u8 *answerBuffer, u32 timeoutMSec)
+{
+    const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
+    u8 ct = 0;
+    while (rhea::getTimeNowMSec() < timeToExitMSec)
+    {
+        u8 ch;
+        if (!rhea::rs232::readBuffer(com, &ch, 1))
+        {
+            rhea::thread::sleepMSec(10);
+            continue;
+        }
+
+        if (ct == 0)
+        {
+            if (ch == '#')
+                answerBuffer[ct++] = ch;
+        }
+        else if (ct == 1)
+        {
+            if (ch == command)
+                answerBuffer[ct++] = ch;
+            else
+                ct = 0;
+        }
+        else if (ct == 2)
+        {
+            if (ch == code)
+                answerBuffer[ct++] = ch;
+            else
+                ct = 0;
+        }
+        else
+        {
+            answerBuffer[ct++] = ch;
+
+            if (0 == whichByteContainsAdditionMsgLen)
+            {
+                if (ct == fixedMsgLen)
+                {
+                    if (rhea::utils::simpleChecksum8_calc(answerBuffer, fixedMsgLen - 1) == answerBuffer[fixedMsgLen - 1])
+                        return true;
+                    ct = 0;
+                }
+            }
+            else
+            {
+                //questo caso vuol dire che il messaggio e' lungo [fixedMsgLen] + quanto indicato dal byte [whichByteContainsAdditionMsgLen]
+                if (ct >= whichByteContainsAdditionMsgLen)
+                {
+                    const u8 totalMsgSize = answerBuffer[whichByteContainsAdditionMsgLen] + fixedMsgLen;
+                    if (ct == totalMsgSize)
+                    {
+                        if (rhea::utils::simpleChecksum8_calc(answerBuffer, totalMsgSize - 1) == answerBuffer[totalMsgSize - 1])
+                            return true;
+                        ct = 0;
+                    }
+                }
+
+            }
+        }
+    }
+    return false;
 }
 
 //*********************************************************
@@ -1253,7 +1405,7 @@ void Core::priv_2281_handle_restAPI (OSSocket &sok)
             //comando con parametri
             iter.copyStrFromXToCurrentPosition (0, command, sizeof(command), false);
             iter.advanceOneChar();
-            priv_2281_handle_singleCommand (command, &iter);
+            priv_2281_handle_singleCommand (sok, command, &iter);
             return;
         }
 
@@ -1261,7 +1413,7 @@ void Core::priv_2281_handle_restAPI (OSSocket &sok)
     }
 
     //comando senza parametri
-    priv_2281_handle_singleCommand (sok2281BufferIN, NULL);
+    priv_2281_handle_singleCommand (sok, sok2281BufferIN, NULL);
     sok2281BufferIN[0] = 0;
 }
 
@@ -1275,13 +1427,55 @@ bool Core::priv_2281_utils_match (const u8 *command, u32 commandLen, const char 
 }
 
 //*********************************************************
-void Core::priv_2281_handle_singleCommand (const u8 *command, rhea::string::utf8::Iter *params)
+void Core::priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData)
+{
+    u32 ct = 0;
+    sok2281BufferOUT[ct++]='#';
+    rhea::utils::bufferWriteU16(&sok2281BufferOUT[ct], sizeOfData);
+    ct+=2;
+
+    if (sizeOfData)
+    {
+        memcpy (&sok2281BufferOUT[ct], data, sizeOfData);
+        ct+=sizeOfData;
+    }
+
+    sok2281BufferOUT[ct] =0;
+    rhea::socket::write (sok, sok2281BufferOUT, ct);
+
+    logger->log ("2281: snd %s\n", &sok2281BufferOUT[3]);
+}
+
+//*********************************************************
+void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhea::string::utf8::Iter *params)
 {
     const u32 commandLen = rhea::string::utf8::lengthInBytes(command);
 
     if (NULL == params)
     {
         //comando senza parametri
+
+        //i comandi successivi sono gestiti solo nel caso in cui il rasPI sia connesso ad una TP
+        if (reportedGPUType == esapi::eGPUType::eGPUType_TS)
+            return;
+
+        u32 ct = 0;
+
+        if(priv_2281_utils_match(command, commandLen, "GET-CPU-LCD-MSG"))
+        {
+            const u32 n = priv_esapi_buildMsg ('C', '1', NULL, 0, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+            priv_rs232_sendBuffer (rs232BufferOUT, n);
+            if (priv_rs232_waitAnswer('C','1',5,3,rs232BufferOUT, 1000))
+            {
+                const u16 numBytes = rs232BufferOUT[2] * 2;
+                priv_2281_sendAnswer (sok, &rs232BufferOUT[4], numBytes);
+            }
+            else
+            {
+                priv_2281_sendAnswer (sok, (const u8*)"KO", 2);
+            }
+            return;
+        }
     }
     else
     {
@@ -1296,6 +1490,12 @@ void Core::priv_2281_handle_singleCommand (const u8 *command, rhea::string::utf8
             logger->log ("2281: turn off hotspot\n");
             hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (timeSec*1000);
             hotspot.turnOFF();
+            return;
+        }
+
+        //i comandi successivi sono gestiti solo nel caso in cui il rasPI sia connesso ad una TP
+        if (reportedGPUType == esapi::eGPUType::eGPUType_TS)
+        {
             return;
         }
     }

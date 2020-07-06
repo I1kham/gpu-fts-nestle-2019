@@ -2,7 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
 	rheaCommonLib\   
-	rheaExternalSerialAPI \
         rasPISerial
 
 

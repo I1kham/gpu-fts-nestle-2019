@@ -57,12 +57,12 @@ message ("$${THIS_EXE_NAME}: configuration is $${CONFIG_NAME}")
 	TARGET = "$${PATH_TO_BIN}/$${CONFIG_NAME}_$${THIS_EXE_NAME}"
 
 #depends on rheaExternalSerialAPI libray
-LIBRARY_NAME="rheaExternalSerialAPI"
-		FULL_LIBRARY_NAME = "$${CONFIG_NAME}_$${LIBRARY_NAME}"
-		INCLUDEPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
-		DEPENDPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
-		LIBS += -L$${PATH_TO_LIB}/ -l$${FULL_LIBRARY_NAME}
-		PRE_TARGETDEPS += "$${PATH_TO_LIB}/lib$${FULL_LIBRARY_NAME}.a"
+#LIBRARY_NAME="rheaExternalSerialAPI"
+#		FULL_LIBRARY_NAME = "$${CONFIG_NAME}_$${LIBRARY_NAME}"
+#		INCLUDEPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
+#		DEPENDPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
+#		LIBS += -L$${PATH_TO_LIB}/ -l$${FULL_LIBRARY_NAME}
+#		PRE_TARGETDEPS += "$${PATH_TO_LIB}/lib$${FULL_LIBRARY_NAME}.a"
 
 #depends on rheaCommonLib libray
 LIBRARY_NAME="rheaCommonLib"
