@@ -164,12 +164,24 @@ function onSelectionChanged(selNum)
 	var selInfo = rhea.selection_getBySelNumber(selNum);
 	
 	var elemPrice = rheaGetElemByID("divPrice");
-	rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
-	if (parseFloat(selInfo.price) <= 0)
-		rheaHideElem (elemPrice);
-	else
+	if (rhea.isFreevend == 1)
+	{
+		rheaSetElemHTML(elemPrice, "FREEVEND");
 		rheaShowElem (elemPrice);
-		
+	}
+	else if (rhea.isTestvend == 1)
+	{
+		rheaSetElemHTML(elemPrice, "TESTVEND");
+		rheaShowElem (elemPrice);
+	}
+	else
+	{	
+		rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
+		if (parseFloat(selInfo.price) <= 0)
+			rheaHideElem (elemPrice);
+		else
+			rheaShowElem (elemPrice);
+	}		
 
 	var btnStart = rheaGetElemByID("btnStart");
 	var btnStartNotAvail = rheaGetElemByID("btnStartNotAvail");
