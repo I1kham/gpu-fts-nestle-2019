@@ -136,12 +136,12 @@ void CmdHandler_ajaxReq_P0x18_GetOFFList::onCPUBridgeNotification(socketbridge::
 
 		//,"tipo" : ["A", " "]
 		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"tipo\":[\"");
-		rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, (char)offList[0].tipo);
+		rhea::string::utf8::appendUTF8Char (buffer, sizeOfBuffer, (char)offList[0].tipo);
 		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		for (u8 i = 1; i < numOffs; i++)
 		{
 			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, ",\"");
-			rhea::string::utf8::appendU32 (buffer, sizeOfBuffer, (char)offList[i].tipo);
+			rhea::string::utf8::appendUTF8Char (buffer, sizeOfBuffer, (char)offList[i].tipo);
 			rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "\"");
 		}
 		rhea::string::utf8::concatStr (buffer, sizeOfBuffer, "]");

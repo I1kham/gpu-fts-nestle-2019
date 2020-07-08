@@ -264,6 +264,12 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetCurSelRunning.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x23_startGrinderSpeedTest.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -500,6 +506,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetCurSelRunning.h">
       <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x23_startGrinderSpeedTest.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

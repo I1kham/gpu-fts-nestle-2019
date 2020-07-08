@@ -56,7 +56,7 @@ function priv_askMachineTypeAndModel()
 		
 		//carico il da3
 		pleaseWait_freeText_appendText("loading da3...<br>");
-		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione);
+		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione, obj.gruppo);
 		da3.load();
 	})
 	.catch( function(result)
@@ -74,6 +74,8 @@ function onDA3Loaded(bResult)
 		return;
 	}
 	//console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
+	//console.log ("onDA3Loaded:: isGrpVariflex?" + da3.isGruppoVariflex());
+	//console.log ("onDA3Loaded:: isGrpMicro?" + da3.isGruppoMicro());
 	
 	
 	//inizio il load delle GUI info
@@ -109,7 +111,8 @@ function onGUIInfoLoaded()
 	if (da3.isEspresso())
 	{
 		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnEspressoCalib"), "UIdisabled");
-		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+		if (da3.isGruppoVariflex())
+			rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
 	}
 	
 	//da ora in poi, il currentTask.onTimer() viene chiamata una volta al secondo

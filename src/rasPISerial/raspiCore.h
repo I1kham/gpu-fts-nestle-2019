@@ -157,6 +157,7 @@ namespace raspi
 		void					priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend);
 		bool					priv_rs232_handleCommand_A (sBuffer &b);
 		bool					priv_rs232_handleCommand_R (sBuffer &b);
+        bool                    priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichByteContainsAdditionMsgLen, u8 *answerBuffer, u32 timeoutMSec);
 
 		void					priv_identify_run();
 		bool					priv_identify_waitAnswer(u8 command, u8 code, u8 len, u8 *answerBuffer, u32 timeoutMSec);
@@ -170,8 +171,13 @@ namespace raspi
         void                    priv_openSocket2280();
         void                    priv_openSocket2281();
         void                    priv_2281_handle_restAPI (OSSocket &sok);
-        void                    priv_2281_handle_singleCommand (const u8 *command, rhea::string::utf8::Iter *params);
+        void                    priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhea::string::utf8::Iter *params);
         bool                    priv_2281_utils_match (const u8 *command, u32 commandLen, const char *match) const;
+        void                    priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData);
+
+        void                    priv_runTS();
+        void                    priv_runTP();
+
 
 	private:
 		rhea::Allocator         *localAllocator;

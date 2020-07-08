@@ -458,7 +458,7 @@ void Server::formatPriceList (const u16 *priceList, u16 nPricesInList, u8 numDec
 			return;
 
 		if (i > 0)
-			strcat(out, "ยง");
+			strcat(out, "ยง"); //ยง (ovvero 0xc2 0xa7) ่ l'UTF8 per il carattere ง
 		strcat(out, s);
 		sizeofOut -= len;
 	}

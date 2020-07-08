@@ -84,7 +84,9 @@ namespace MenuProgTranslator
 
         private string toUTF8(string s)
         {
-            byte[] utf8Sequence = Encoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(s));
+            byte[] curSeq = Encoding.Unicode.GetBytes(s);
+            //byte[] utf8Sequence = Encoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(s));
+            byte[] utf8Sequence = Encoding.Convert(Encoding.Unicode, Encoding.UTF8, Encoding.Unicode.GetBytes(s));
             return Encoding.UTF8.GetString(utf8Sequence);
         }
 

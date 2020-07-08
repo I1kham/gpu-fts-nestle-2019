@@ -60,7 +60,7 @@ bool startCPUBridge()
 	//starto il thread ESAPI
 	rhea::HThread hESAPIThread;	
 	//esapi::startThread (ESAPI_COMPORT, hCPUServiceChannelW, logger, &hESAPIThread);
-	esapi::startThread ("COM4", hCPUServiceChannelW, logger, &hESAPIThread);
+	esapi::startThread ("COM7", hCPUServiceChannelW, logger, &hESAPIThread);
 
 
 	//attendo che il thread CPU termini

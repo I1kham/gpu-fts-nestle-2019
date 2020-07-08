@@ -156,6 +156,7 @@ namespace cpubridge
 	u8			buildMsg_startTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_getMilkerVer (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 	/***********************************************
@@ -310,7 +311,14 @@ namespace cpubridge
 	void		translateNotify_GET_STATUS_TEST_ASSORBIMENTO_MOTORIDUTTORE(const rhea::thread::sMsg &msg, u8 *out_fase, u8 *out_esito, u16 *out_reportUP, u16 *out_reportDOWN);
 		
 	void		notify_CPU_MILKER_VER (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const char *ver);
-	void		translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, char *out_ver, u32 sizeofOutVer);
+	void		translateNotify_CPU_MILKER_VER (const rhea::thread::sMsg &msg, char *out_ver, u32 sizeofOutVer);
+
+	void		notify_CPU_START_GRINDER_SPEED_TEST (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bStarted);
+	void		translateNotify_CPU_START_GRINDER_SPEED_TEST (const rhea::thread::sMsg &msg, bool *out_bStarted);
+
+	void		notify_CPU_GET_LAST_GRINDER_SPEED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 speed);
+	void		translateNotify_CPU_GET_LAST_GRINDER_SPEED (const rhea::thread::sMsg &msg, u16 *out_speed);
+	
 
 	/***********************************************
 		ask_xxxx
@@ -519,7 +527,13 @@ namespace cpubridge
 					//NB: se price==0xffff, allora la CPU si prende comunque in carico il pagamento, a discapito del nome di questa fn
 	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType);
 
+	void		ask_CPU_START_GRINDER_SPEED_TEST (const sSubscriber &from, u16 handlerID, u8 macina1o2, u8 durataMacinataInSec);
+	void		translate_CPU_START_GRINDER_SPEED_TEST(const rhea::thread::sMsg &msg, u8 *out_macina1o2, u8 *out_durataMacinataInSec);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_START_GRINDER_SPEED_TEST
 
+	void		ask_CPU_GET_LAST_GRINDER_SPEED (const sSubscriber &from, u16 handlerID);
+					//a seguito di un ask_CPU_START_GRINDER_SPEED_TEST(), usare questo cmd per recuperare il valor medio della vel calcolata durante il test
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_LAST_GRINDER_SPEED
 
 	
 

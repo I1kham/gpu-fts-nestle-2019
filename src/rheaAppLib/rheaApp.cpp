@@ -719,6 +719,7 @@ void app::ExtendedConfigInfo::decodeAnswer(const sDecodedEventMsg &msg, cpubridg
 	nbr.readU8(u);	out->machineType = (cpubridge::eCPUMachineType)u;
 	nbr.readU8(out->machineModel);
 	nbr.readU8(out->isInduzione);
+	nbr.readU8(u);	out->tipoGruppoCaffe = (cpubridge::eCPUGruppoCaffe)u;
 }
 
 

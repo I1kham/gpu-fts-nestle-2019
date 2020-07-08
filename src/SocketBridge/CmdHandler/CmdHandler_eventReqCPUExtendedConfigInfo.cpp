@@ -27,6 +27,7 @@ void CmdHandler_eventReqCPUExtendedConfigInfo::onCPUBridgeNotification (socketbr
 	nbw.writeU8((u8)info.machineType);
 	nbw.writeU8(info.machineModel);
 	nbw.writeU8(info.isInduzione);
+	nbw.writeU8((u8)info.tipoGruppoCaffe);
 	
 	server->sendEvent (hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, nbw.length());
 }

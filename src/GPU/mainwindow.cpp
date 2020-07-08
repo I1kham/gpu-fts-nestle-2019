@@ -395,24 +395,22 @@ void MainWindow::priv_syncWithCPU_onTick()
         //cui aggiungo uno step per detectare o meno la presenza del modulo
         //non possiamo partire :) Bisogna verificare
         priv_addText ("Checking for ESAPI module...");
-        rhea::thread::sleepMSec(1000);
-        syncWithCPU.stato = 4;
+        //activeSleep (1200);
         glob->logger->log ("\n\n");
         glob->logger->log ("asking ESAPI module type and ver\n");
-        esapi::ask_GET_MODULE_TYPE_AND_VER(glob->esapiSubscriber, (u32)0);
-        syncWithCPU.esapiTimeoutMSec = rhea::getTimeNowMSec() + 2000;
+        syncWithCPU.esapiTimeoutMSec = rhea::getTimeNowMSec() + 4000;
+        syncWithCPU.stato = 4;
     }
     else if (syncWithCPU.stato == 4)
     {
-        //attendo risposta da ESAPI
         if (rhea::getTimeNowMSec() > syncWithCPU.esapiTimeoutMSec)
-        {
             syncWithCPU.stato = 5;
-        }
         else
         {
-            char s[32];
-            rhea::thread::sleepMSec(50);
+            esapi::ask_GET_MODULE_TYPE_AND_VER(glob->esapiSubscriber, (u32)0);
+            priv_addText (".");
+            rhea::thread::sleepMSec (200);
+
             rhea::thread::sMsg msgESAPI;
             while (rhea::thread::popMsg(glob->esapiSubscriber.hFromMeToSubscriberR, &msgESAPI))
             {
@@ -420,12 +418,16 @@ void MainWindow::priv_syncWithCPU_onTick()
                 {
                 case ESAPI_NOTIFY_MODULE_TYPE_AND_VER:
                     esapi::translateNotify_MODULE_TYPE_AND_VER (msgESAPI, &glob->esapiModule.moduleType, &glob->esapiModule.verMajor, &glob->esapiModule.verMinor);
-                    syncWithCPU.stato = 5;
-                    sprintf_s (s, sizeof(s), "ESAPI [%d] [%d] [%d]", glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
-                    priv_addText (s);
+
+                    if (glob->esapiModule.moduleType > 0)
+                    {
+                        char s[32];
+                        sprintf_s (s, sizeof(s), "ESAPI [%d] [%d] [%d]", glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+                        priv_addText (s);
+                        syncWithCPU.stato = 5;
+                    }
                     break;
                 }
-
                 rhea::thread::deleteMsg(msgESAPI);
             }
         }
@@ -440,7 +442,30 @@ void MainWindow::priv_syncWithCPU_onTick()
         {
             //se ESAPI::rasPI esiste, attivo la sua interfaccia web
             if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
-                esapi::ask_RASPI_START (glob->esapiSubscriber, (u32)0);
+            {
+                priv_addText ("\nStarting rasPI module web interface");
+                u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
+                while (rhea::getTimeNowMSec() < timeToExitMSec)
+                {
+                    esapi::ask_RASPI_START (glob->esapiSubscriber, (u32)0);
+                    priv_addText (".");
+                    rhea::thread::sleepMSec(200);
+
+                    rhea::thread::sMsg msgESAPI;
+                    while (rhea::thread::popMsg(glob->esapiSubscriber.hFromMeToSubscriberR, &msgESAPI))
+                    {
+                        switch (msgESAPI.what)
+                        {
+                        case ESAPI_NOTIFY_RASPI_STARTED:
+                            rhea::thread::deleteMsg(msgESAPI);
+                            timeToExitMSec = 0;
+                            break;
+                        }
+
+                        rhea::thread::deleteMsg(msgESAPI);
+                    }
+                }
+            }
 
             priv_scheduleFormChange (eForm_specialActionBeforeGUI);
         }

@@ -1,0 +1,1 @@
+var mainMenuPageOptions={icon_numRow:3,icon_numIconPerRow:3,gotoPageStandbyAfterMSec:30000};

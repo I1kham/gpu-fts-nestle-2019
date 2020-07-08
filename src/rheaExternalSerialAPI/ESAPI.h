@@ -48,11 +48,13 @@ namespace esapi
 
 	u32			buildMsg_C1_getCPUScreenMsg_ask (u8 *out_buffer, u32 sizeOfOutBuffer);
 	u32			buildMsg_C1_getCPUScreenMsg_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
-	u32			buildMsg_C1_getCPUScreenMsg_resp (const void *lcdMsg, u16 msgLenInBytes, u8 *out_buffer, u32 sizeOfOutBuffer);
+    u32			buildMsg_C1_getCPUScreenMsg_resp (const void *lcdMsg, u16 numBytesInMsg, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 	u32			buildMsg_C2_getSelAvailability_ask (u8 *out_buffer, u32 sizeOfOutBuffer);
 	u32			buildMsg_C2_getSelAvailability_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
 	u32			buildMsg_C2_getSelAvailability_resp (const cpubridge::sCPUSelAvailability &selAvail, u8 *out_buffer, u32 sizeOfOutBuffer);
+
+	u32			buildMsg_C3_getSelAvailability_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
 
 
 	u32			buildMsg_S1_startSelection_ask (u8 selNum, u8 *out_buffer, u32 sizeOfOutBuffer);
@@ -65,6 +67,11 @@ namespace esapi
 	u32			buildMsg_S2_querySelectionStatus_resp (cpubridge::eRunningSelStatus status, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u32			buildMsg_S2_querySelectionStatus_parseResp (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, cpubridge::eRunningSelStatus *out_sstatus);
 
+	u32			buildMsg_S3_startAlreadySelection_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_selNum, u16 *out_price);
+	u32			buildMsg_S3_startAlreadySelection_resp (u8 selNum, u8 *out_buffer, u32 sizeOfOutBuffer);
+
+	u32			buildMsg_S4_btnPress_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_btnNum);
+	u32			buildMsg_S4_btnPress_resp (u8 btnNum, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 	u32			buildMsg_R1_externalModuleIdentify_ask (eExternalModuleType moduleType, u8 verMajor, u8 verMinor, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u32			buildMsg_R1_externalModuleIdentify_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor);

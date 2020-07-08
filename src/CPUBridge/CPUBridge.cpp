@@ -499,6 +499,11 @@ u8 cpubridge::buildMsg_getTimeNextLavaggioSanCappuccinatore(u8 *out_buffer, u8 s
 	return buildMsg_Programming(eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand_getLastGrinderSpeed, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
 
 
 
@@ -1515,7 +1520,45 @@ void cpubridge::translateNotify_CPU_MILKER_VER(const rhea::thread::sMsg &msg, ch
 	}
 }
 
+//***************************************************
+void cpubridge::notify_CPU_START_GRINDER_SPEED_TEST (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bStarted)
+{
+	logger->log("notify_CPU_START_GRINDER_SPEED_TEST\n");
 
+	u8 data = 0;
+	if (bStarted)
+		data = 0x01;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_START_GRINDER_SPEED_TEST, handlerID, &data, 1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_START_GRINDER_SPEED_TEST (const rhea::thread::sMsg &msg, bool *out_bStarted)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_START_GRINDER_SPEED_TEST);
+
+	*out_bStarted = false;
+	const u8 *p = (const u8*)msg.buffer;
+	if (p[0] == 0x01)
+		*out_bStarted = true;
+}
+
+//***************************************************
+void cpubridge::notify_CPU_GET_LAST_GRINDER_SPEED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 speed)
+{
+	logger->log("notify_CPU_GET_LAST_GRINDER_SPEED\n");
+	u8 data[2];
+	rhea::utils::bufferWriteU16(data, speed);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_LAST_GRINDER_SPEED, handlerID, data, 2);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_GET_LAST_GRINDER_SPEED (const rhea::thread::sMsg &msg, u16 *out_speed)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_LAST_GRINDER_SPEED);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_speed = rhea::utils::bufferReadU16(p);
+}
 
 
 
@@ -1802,7 +1845,29 @@ void cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(const rhea::thread::sMsg &m
 	*out_totalePesata_dGrammi = rhea::utils::bufferReadU16(&p[1]);
 }
 
+//***************************************************
+void cpubridge::ask_CPU_START_GRINDER_SPEED_TEST(const sSubscriber &from, u16 handlerID, u8 macina1o2, u8 durataMacinataInSec)
+{
+	u8 otherData[2];
+	otherData[0] = macina1o2;
+	otherData[1] = durataMacinataInSec;
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST, handlerID, otherData, 2);
+}
 
+//***************************************************
+void cpubridge::translate_CPU_START_GRINDER_SPEED_TEST(const rhea::thread::sMsg &msg, u8 *out_macina1o2, u8 *out_durataMacinataInSec)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_macina1o2 = p[0];
+	*out_durataMacinataInSec = p[1];
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_LAST_GRINDER_SPEED (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_GRINDER_SPEED, handlerID);
+}
 
 
 //***************************************************

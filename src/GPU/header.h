@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.3_ESAPI"
+#define GPU_VERSION     "2.3.2_ESAPI"
 
 
 //nome della porta seriale
@@ -85,6 +85,7 @@ struct sGlobal
 };
 
 
+void activeSleep (u32 howMuchMSec);
 
 #endif 
 

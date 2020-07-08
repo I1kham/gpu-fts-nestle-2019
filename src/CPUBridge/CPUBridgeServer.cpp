@@ -141,6 +141,10 @@ void Server::run()
 		case sStato::eStato_telemetry:
 			priv_handleState_telemetry();
 			break;
+
+		case sStato::eStato_grinderSpeedTest:
+			priv_handleState_grinderSpeedTest();
+			break;
 		}
 	}
 
@@ -1080,6 +1084,23 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 		}
 		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST:
+			{
+				u8 macina_1o2 = 0;
+				u8 tempoDiMacinaSec = 0;
+				cpubridge::translate_CPU_START_GRINDER_SPEED_TEST(msg, &macina_1o2, &tempoDiMacinaSec);
+				if (priv_enterState_grinderSpeedTest (macina_1o2, tempoDiMacinaSec))
+					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, true);
+				else
+					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, false);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_GRINDER_SPEED:
+			notify_CPU_GET_LAST_GRINDER_SPEED (sub->q, handlerID, logger, grinderSpeedTest.lastCalculatedGrinderSpeed);
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -1103,6 +1124,7 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	if (out->msgVersion != 2)
 		return false;
 
+	//machine type
 	switch (answerBuffer[4])
 	{
 	default: 
@@ -1123,6 +1145,19 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	}
 	out->machineModel = answerBuffer[5];
 	out->isInduzione = answerBuffer[6];
+	
+	//Tipo gruppo caffè: questa informazione potrebbe non esistere, è stata aggiunta successivamente.
+	//In base alla lunghezza del msg, ne determino la presenza
+    out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex;
+	if (answerBuffer[2] > 8)
+	{
+		switch (answerBuffer[7])
+		{
+        case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex; break;
+        case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Micro; break;
+        default:	out->tipoGruppoCaffe = eCPUGruppoCaffe_None; break;
+		}
+	}
 	return true;
 }
 
@@ -1954,8 +1989,8 @@ void Server::priv_handleState_compatibilityCheck()
                 sCPUVMCDataFileTimeStamp myTS;
                 myTS.setInvalid();
                 saveVMCDataFileTimeStamp(myTS);
-                priv_handleState_DA3Sync();
-				return;
+                //priv_handleState_DA3Sync();
+				//return;
 			}
 			break;
 		}
@@ -3217,6 +3252,9 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	}
 
 
+	//in ogni caso metto un limite di tempo massimo per il raggiungimento del target perchè le letture fornite dalla
+	//CPU sono ballerine e potrebbe essere che non arrivo mai esattamente dove voglio
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + 60000;
 	const u16 TOLLERANZA = 0;
 	while (stato.get() == sStato::eStato_regolazioneAperturaMacina)
 	{
@@ -3237,7 +3275,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 				diff = curpos - regolazioneAperturaMacina.target;
 			else
 				diff = regolazioneAperturaMacina.target - curpos;
-			if (diff <= TOLLERANZA)
+			if (diff <= TOLLERANZA || timeNowMSec >= timeToExitMSec)
 			{
 				//fine
 				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
@@ -3280,7 +3318,10 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	}
 
 	//a questo punto, sono molto vicino al target, generalmente disto 1 o 2 punti dal valore desiderato, vado di fine tuning
+	//In ogni caso, se entro 30 sec non raggiungo l'apertura precisa, esco altrimenti si rischia di stare qui all'infinito visto
+	//che le letture riportate dalla CPU sono un po' ballerine
 	nRetry = NRETRY;
+    timeToExitMSec = rhea::getTimeNowMSec() + 15000;
 	while (1)
 	{
 		//chiede la posizione della macina
@@ -3306,7 +3347,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			curpos /= n;
 			nRetry = NRETRY;
 
-			if (curpos == regolazioneAperturaMacina.target)
+			if (curpos == regolazioneAperturaMacina.target || rhea::getTimeNowMSec() > timeToExitMSec)
 			{
 				//fine
 				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
@@ -3381,4 +3422,90 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 	this->cpu_numDecimalsForPrices = da3[7066];
 
 	RHEAFREE(localAllocator, da3);
+}
+
+/***************************************************
+ * priv_enterState_grinderSpeedTest
+ *
+ *	ritorna true se ci sono le condizioni per iniziare il test. In questo caso, lo stato passa a stato = eStato_grinderSpeedTest.
+ *	In caso contrario, ritorna false e non cambia l'attuale stato.
+ *	Lo scopo di questo test è quello di muovere la macina per un tot di tempo e leggere (chiedendo alla CPU) il valore di un certo sensore.
+ *	Alla fine della macinata, si ritorna la media delle letture del sensore
+ */
+bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec)
+{
+	logger->log("CPUBridgeServer::priv_enterState_calcGrinderSpeed() => [%d]\n", macina_1o2);
+
+	if (stato.get() != sStato::eStato_normal)
+	{
+		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
+		return false;
+	}
+
+	if (cpuStatus.VMCstate != eVMCState_DISPONIBILE)
+	{
+		logger->log("  invalid request, VMCState != eVMCState_DISPONIBILE, aborting.");
+		return false;
+	}
+
+	
+	stato.set(sStato::eStato_grinderSpeedTest);
+	grinderSpeedTest.motoreID = 11;
+	if (macina_1o2 == 2)
+		grinderSpeedTest.motoreID = 12;
+	grinderSpeedTest.lastCalculatedGrinderSpeed = 0;
+	grinderSpeedTest.tempoDiMacinataInSec = tempoDiMacinataInSec;
+	return true;
+}
+
+//***************************************************
+void Server::priv_handleState_grinderSpeedTest()
+{
+	//dico a tutti che sono in uno stato speciale
+	cpuStatus.VMCstate = eVMCState_GRINDER_SPEED_TEST;
+	cpuStatus.VMCerrorCode = 0;
+	cpuStatus.VMCerrorType = 0;
+	cpuStatus.selAvailability.reset();
+	for (u32 i = 0; i < subscriberList.getNElem(); i++)
+	{
+		notify_CPU_STATE_CHANGED(subscriberList(i)->q, 0, logger, cpuStatus.VMCstate, cpuStatus.VMCerrorCode, cpuStatus.VMCerrorType, cpuStatus.flag1);
+		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
+	}
+
+
+	const u32 TEMPO_DI_MACINATA_MSec = (u32)grinderSpeedTest.tempoDiMacinataInSec * 1000;
+
+	u8 bufferW[16];
+	const u8 nBytesToSend = cpubridge::buildMsg_attivazioneMotore(grinderSpeedTest.motoreID, (u8)(TEMPO_DI_MACINATA_MSec/100), 1, 0, bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+	{
+		//aspetto il tempo di macina e poi chiedo a CPU il risultato
+		const u64 timeToExitMSec = rhea::getTimeNowMSec() + TEMPO_DI_MACINATA_MSec +1500;
+		while (rhea::getTimeNowMSec() < timeToExitMSec)
+			rhea::thread::sleepMSec(500);
+
+		//chiedo alla CPU il valore del sensore
+		u8 nRetry = 5;
+		while (nRetry--)
+		{
+			const u8 nBytesToSend = cpubridge::buildMsg_getLastGrinderSpeed (bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+			{
+				grinderSpeedTest.lastCalculatedGrinderSpeed = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4]);
+				break;
+			}
+		}
+	}
+	else
+	{
+		//in caso di fallimento, aspetto un paio di secondi prima di tornare in NORMAL per dare il tempo alla GUI di vedere i cambi di stato
+		rhea::thread::sleepMSec(2000);
+	}
+
+	
+	//fine
+	priv_enterState_normal();
+
 }

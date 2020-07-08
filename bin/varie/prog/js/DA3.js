@@ -11,15 +11,16 @@ var DA3_BLOCK_SIZE = 64;
 	In teoria queste informazioni sono nel DA3, in pratica non è detto che quello che trovi nel DA3 rappresenti l'attuale macchina.
 	E' necessario quindi chiedere alla CPU tipo e modello e fare finta che queste informazioni ricevute dalla CPU siano davvero nel DA3
 */
-function DA3(machineType, machineModel, isInduzione)
+function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe)
 {
-	console.log ("DA3: machineType[" +machineType +"], isInduzione[" +isInduzione +"]");
+	console.log ("DA3: machineType[" +machineType +"], model[" +machineModel +"], isInduzione[" +isInduzione +"], grpCaffe[" +tipoGruppoCaffe +"]");
 	this.da3_original = null;
 	this.da3_current = null;
 	this.da3_filesize = 0;
 	this.machineType = machineType;
-	this.machineModel = machineModel;
+	this.machineModel = parseInt(machineModel);
 	this.bInduzione = parseInt(isInduzione);
+	this.tipoGruppoCaffe = tipoGruppoCaffe;
 }
 
 
@@ -63,6 +64,10 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
+DA3.prototype.isMachine_Multibona = function()						{ return (this.machineModel==86); }
+DA3.prototype.getTipoGruppoCaffe = function ()						{ return this.tipoGruppoCaffe; }
+DA3.prototype.isGruppoMicro = function ()							{ if (this.getTipoGruppoCaffe() == 'M') return 1; return 0;}
+DA3.prototype.isGruppoVariflex = function ()						{ if (this.getTipoGruppoCaffe() == 'V') return 1; return 0;}
 DA3.prototype.isInduzione = function ()								{ return this.bInduzione; }
 DA3.prototype.isInstant = function ()								{ if (parseInt(this.da3_current[9465]) == 0) return 1; return 0; }
 DA3.prototype.isEspresso = function ()								{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }

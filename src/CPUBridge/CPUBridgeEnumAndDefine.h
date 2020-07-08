@@ -64,9 +64,11 @@
 #define		CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_MOTORIDUTTORE		0x012A
 #define		CPUBRIDGE_NOTIFY_GETSTATUS_TEST_ASSORBIMENTO_GRUPPO			0x012B
 #define		CPUBRIDGE_NOTIFY_GETSTATUSTEST_ASSORBIMENTO_MOTORIDUTTORE	0x012C
-#define		CPUBRIDGE_NOTIFY_MILKER_VER						0x012D
-#define		CPUBRIDGE_NOTIFY_CUR_SEL_RUNNING				0x012E
-#define		CPUBRIDGE_NOTIFY_ESAPI_MODULE_VER_AND_TYPE	0x012F
+#define		CPUBRIDGE_NOTIFY_MILKER_VER							0x012D
+#define		CPUBRIDGE_NOTIFY_CUR_SEL_RUNNING					0x012E
+#define		CPUBRIDGE_NOTIFY_ESAPI_MODULE_VER_AND_TYPE			0x012F
+#define		CPUBRIDGE_NOTIFY_START_GRINDER_SPEED_TEST			0x0130
+#define		CPUBRIDGE_NOTIFY_LAST_GRINDER_SPEED					0x0131
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
@@ -132,7 +134,8 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_MILKER_VER										0x0835
 #define		CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED	0x0836
 #define		CPUBRIDGE_SUBSCRIBER_ASK_QUERY_CUR_SEL_RUNNING							0x0837
-
+#define		CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST						0x0838
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_GRINDER_SPEED							0x0839
 
 
 namespace cpubridge
@@ -201,7 +204,8 @@ namespace cpubridge
 		eVMCState_REG_APERTURA_MACINA = 102,
 		eVMCState_COMPATIBILITY_CHECK = 103,
 		eVMCState_CPU_NOT_SUPPORTED = 104,
-		eVMCState_DA3_SYNC = 105
+		eVMCState_DA3_SYNC = 105,
+		eVMCState_GRINDER_SPEED_TEST = 106
 
 	};
 
@@ -298,6 +302,7 @@ namespace cpubridge
 		eCPUProgrammingCommand_getStatusTestAssorbGruppo = 0x20,
 		eCPUProgrammingCommand_startTestAssorbMotoriduttore = 0x21,
 		eCPUProgrammingCommand_getStatusTestAssorbMotoriduttore = 0x22,
+		eCPUProgrammingCommand_getLastGrinderSpeed = 0x23,
 		eCPUProgrammingCommand_unknown = 0xff
     };
 
@@ -404,6 +409,13 @@ namespace cpubridge
 		eCPUProgrammingCommand_macinaMove_close = 2
 	};
 
+    enum eCPUGruppoCaffe
+	{
+        eCPUGruppoCaffe_Variflex = 'V',
+        eCPUGruppoCaffe_Micro = 'M',
+        eCPUGruppoCaffe_None = 'N'
+	};
+
 	struct sSubscriber
 	{
 		HThreadMsgR	hFromMeToSubscriberR;
@@ -495,6 +507,7 @@ namespace cpubridge
 		eCPUMachineType	machineType;
 		u8				machineModel;
 		u8				isInduzione;		//induzione o bollitore?
+		eCPUGruppoCaffe	tipoGruppoCaffe;
 	};
 
 	struct sCPUOffSingleEvent
