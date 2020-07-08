@@ -113,6 +113,7 @@ bool Core::open (const char *serialPort)
         }
     }
 
+
     //recupero SSID dell'hotspot
     //Uno script python parte allo startup del rasPI e crea un file di testo di nome "hotspotname.txt" che contiene il nome dell'hotspot
     memset (hotspot.ssid, 0, sizeof(hotspot.ssid));
