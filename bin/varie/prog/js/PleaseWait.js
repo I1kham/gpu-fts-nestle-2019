@@ -69,8 +69,8 @@ function pleaseWait_freeText_appendText(s)				{ var d=rheaGetElemByID("pagePleas
 
 
 //********* usati durante la calibrazione della macina
-function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
-function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_show()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); pleaseWait_calibration_motor_hide(); rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration")); }
+function pleaseWait_calibration_hide()					{ pleaseWait_calibration_num_hide(); pleaseWait_calibration_varigrind_hide(); pleaseWait_calibration_motor_hide(); rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration")); }
 function pleaseWait_calibration_num_show()				{ rheaShowElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
 function pleaseWait_calibration_num_hide()				{ rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_num")); }
 function pleaseWait_calibration_num_setValue (v)		{ uiStandAloneNum.setValue(parseInt(v)); }
