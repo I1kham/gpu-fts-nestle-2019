@@ -60,6 +60,8 @@ namespace socketbridge
 
 								//============================== ALIPAY China ===============================================
 		bool					priv_module_alipayChina_setup ();
+		bool					module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, u8 *out_urlForQRCode, u32 sizeOfOutURL);
+		void					module_alipayChina_abort();
 
     private:
         static const u16        RESERVED_HANDLE_RANGE = 1024;
@@ -73,6 +75,8 @@ namespace socketbridge
 			HThreadMsgR					hMsgQR;
 			HThreadMsgW					hMsgQW;
 			rhea::AlipayChina::Context	ctx;
+			u8							curSelRunning;
+			u16							curSelPrice;
 		};
 
     private:

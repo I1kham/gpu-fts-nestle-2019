@@ -28,6 +28,9 @@
     <Filter Include="CmdHandler\event\Prog">
       <UniqueIdentifier>{59921bac-c196-46f2-b180-39b2c2421236}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CmdHandler\ajax\AlipayChina">
+      <UniqueIdentifier>{c687cefb-8663-4556-af60-6bf69c24cbce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
@@ -269,6 +272,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.cpp">
       <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_getQR.cpp">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_abort.cpp">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -512,6 +521,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.h">
       <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_getQR.h">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_abort.h">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

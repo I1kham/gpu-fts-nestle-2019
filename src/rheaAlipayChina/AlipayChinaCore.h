@@ -20,11 +20,6 @@ namespace rhea
             bool                    setup (const char *serverIP, u16 serverPort, const char *machineID, const char *cryptoKey, HThreadMsgW *out_hWrite);
             void                    run ();
 
-            void                    onSelectionFinished(bool bSelectionWasDelivered);
-            //comunica al server che la selezione è terminata.
-            //Se [bSelectionWasDelivered] == true, allora selezione terminata con successo
-            //Se [bSelectionWasDelivered] == false, la selezione non è andata a buon fine
-
         private:
             static const u32        SIZE_OF_RCV_BUFFER = 4096;
             static const u32        TIMEOUT_FOR_PAYMENT_MSec = 60000; //tempo massimo che l'utente ha per pagare
@@ -132,7 +127,7 @@ namespace rhea
         private:
             bool                    priv_handleIncomingSocketMsg(OSSocket &sok);
             u32                     priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *out);
-            void                    priv_handleIncomingThreadMsg();
+            void                    priv_handleIncomingThreadMsg(OSSocket &sok);
             bool                    priv_openSocket (OSSocket *sok);
             void                    priv_getTimestamp(char *out, u32 sizeofOut) const;
             void                    priv_sendLogin(OSSocket &sok);
@@ -140,10 +135,12 @@ namespace rhea
             bool                    priv_orderStart (OSSocket &sok, const u8 *selectionName, u8 selectionNum, const char *selectionPrice);
             void                    priv_orderAskForPaymentStatus (OSSocket &sok);
             void                    priv_orderClose (OSSocket &sok, eOrderCloseStatus status);
+
             u32                     priv_buildCommand (const char *command, const u8 *optionalData, u8 *out_buffer, u32 sizeofOutBuffer) const;
             void                    priv_sendCommand (OSSocket &sok, const u8 *buffer, u32 nBytesToSend);
-            void                    priv_doNotifyAll (u16 what, u32 paramU32);
+            void                    priv_doNotifyAll (u16 what, u32 paramU32, const void *data, u32 sizeOfData);
             void                    priv_notify_ONLINE_STATUS_CHANGED();
+            void                    priv_notify_ORDER_STATUS (AlipayChina::eOrderStatus s, const void *data=NULL, u32 sizeOfData=0);
         };
     } //namespace AlipayChina
 } // namespace rhea

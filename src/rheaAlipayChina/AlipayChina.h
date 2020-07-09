@@ -21,10 +21,17 @@ namespace rhea
 
 		void		ask_ONLINE_STATUS (Context &ctx);
 					//il thread risponde con una notifica ALIPAYCHINA_NOTIFY_ONLINE_STATUS_CHANGED
+		
+		void		ask_startOrder (Context &ctx, const u8 *selectionName, u8 selectionNum, const char *selectionPrice);
+						//il thread risponde con una notifica ALIPAYCHINA_NOTIFY_START_ORDER_STATUS(AlipayChina::eOrderStatus)
+		
+		void		ask_abortOrder (Context &ctx);
+						//mentre sto aspettando che l'utente paghi, posso ancora abortire. Con questa fn chiudo l'ordine
+
+		void		ask_endOrder (Context &ctx, bool bSelectionWasDelivered);
+						//posto che l'utente abbia pagato, con questa chiudo l'ordine e segnalo se la bevanda è stata fatta o no
 
 
-		//void		startOrder (Context &ctx, const u8 *selectionName, u8 selectionNum, const char *selectionPrice);
-		//void		endOrder (Context &ctx, bool bSelectionWasDelivered);
     } //namespace AlipayChina
 } // namespace rhea
 

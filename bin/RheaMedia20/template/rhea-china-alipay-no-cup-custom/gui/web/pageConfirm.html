@@ -28,8 +28,13 @@
 				<table border="0" cellspacing="0" cellpadding="0" style="width:100%; height:100%">
 					<tr valign="middle">
 						<td align="center">
-							<div id="qrcode_text">Please, scan the QR code in order to proceed with the payment</div>
-							<div id="qrcode" style="margin:40px auto 80px auto; width:128px; height:128px;"></div>
+							<div style="height:380px">
+								<div id="qrcode_plsWait" style="margin:20px auto 0 auto; width:256px; height:256px;"><img src="img/animationRound.gif"></div>
+								<div id="qrcode_payment" style="display:none;">
+									<div id="qrcode_text">Please, scan the QR code in order to proceed with the payment</div>
+									<div id="qrcode" style="margin:40px auto auto auto; width:256px; height:256px;"></div>
+								</div>
+							</div>
 							<div id="btnAbortPayment" class="btnStart pageConfirm_bigFont" onclick="onBtnAbortPayment()">ABORT</div>
 						</td>
 					</tr>
@@ -80,6 +85,7 @@
 <script src="js/qrcode/qrcode.min.js"></script>
 <script language="javascript">
 var iconNum = 0;
+var iconDisplayName="";
 var selThatWasStarted = 0;
 var GRINDER = 0;
 var CUP_SIZE = 0;
@@ -139,11 +145,25 @@ function onAfterLangLoaded2()
 				break;
 				
 			case 2:// selection started
-				gotoPagePreparingSel(0);
-				break;
-				
 			case 5:// selection started, can use btnStop
-				gotoPagePreparingSel(1);
+				//chiedo il num della selezione running
+				rhea.ajax ("getCurSelRunning", "").then( function(result)
+				{
+					var selNum = parseInt(result);
+					if (selNum >0)
+					{
+						var bCanUseBtnStop=0;
+						if (status == 5)
+							bCanUseBtnStop=1;
+						var iconNum = MMI_fromSelNumToIconNum(selNum);
+						var url = "pageSelInProgress.html";
+						url += "?iconMenu=" +iconNum +"&selNum=" +selNum +"&btnStop=" +bCanUseBtnStop;
+						window.location = url;
+					}
+				})
+				.catch( function(result)
+				{
+				});			
 				break;
 
 			default:				
@@ -156,7 +176,6 @@ function onAfterLangLoaded2()
 				selThatWasStarted = 0;
 				rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
 				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
-				
 				break;
 		}
 	
@@ -176,16 +195,6 @@ function onAfterLangLoaded2()
 	
 	
 	rheaSetDivHTMLByName ("qrcode_text", rheaLang.LAB_PLEASE_SCAN_QRCODE);
-	
-	//Setup del genratore di QR
-	qrcode = new QRCode(document.getElementById("qrcode"), {
-					text: "http://jindo.dev.naver.com/collie",
-					width: 128,
-					height: 128,
-					colorDark : "#000000",
-					colorLight : "#ffffff",
-					correctLevel : QRCode.CorrectLevel.H
-				});
 }
 
 function onSelectionChanged(selNum)
@@ -226,7 +235,7 @@ function doUpdateCredit()
 
 function setupPageContent()
 {
-	var iconDisplayName = MMI_getDisplayName(iconNum);
+	iconDisplayName = MMI_getDisplayName(iconNum);
 	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
 	var selNum = MMI_getLinkedSelectionNumber(iconNum);
 	
@@ -277,22 +286,39 @@ function btnAbort_countdown()
 		return;
 	}
 		
-	if (btnAbort_secondsLeft < 58)
+	/*if (btnAbort_secondsLeft < 58)
 	{
 		startCurrentSelWithPaymentConfirmed();
 		return;
-	}
+	}*/
 
 	setTimeout (btnAbort_countdown, 1000);
 }
 
 function onBtnAbortPayment()
 {
-	window.location = "pageMenu.html";
+	rheaHideElem (rheaGetElemByID("btnAbortPayment"));
+	rheaHideElem (rheaGetElemByID("qrcode_payment"));
+	rheaHideElem (rheaGetElemByID("qrcode_plsWait"));
+	
+	rhea.ajax ("AliChinaAbort", "").then( function(result)
+	{
+		window.location = "pageMenu.html";
+	})
+	.catch( function(result)
+	{
+		window.location = "pageMenu.html";
+	});
 }
 
 function onBtnStartSelection()
 {
+	//info sulla selezione da erogare
+	selThatWasStarted = detectCurrentSelection();
+	var selInfo = rhea.selection_getBySelNumber(selThatWasStarted);
+	var selPrice = selInfo.price;
+	
+	
 	var dContent = rheaGetElemByID("rightPane_content");
 	rheaHideElem(dContent);
 	
@@ -302,7 +328,32 @@ function onBtnStartSelection()
 	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
 	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
 	
+	//inizio conto alla rovescia
 	btnAbort_countdown();
+
+	//mostro la rotellina al posto del qr code
+	rheaHideElem (rheaGetElemByID("qrcode_payment"));
+	rheaShowElem (rheaGetElemByID("qrcode_plsWait"));
+	
+	//chiedo il qrcode
+	rhea.ajax ("AliChinaGetQR", {"name":iconDisplayName, "selNum":selThatWasStarted, "price":selPrice} ).then( function(result)
+	{
+		qrcode = new QRCode(document.getElementById("qrcode"), {
+					text: result,
+					width: 256,
+					height: 256,
+					colorDark : "#000000",
+					colorLight : "#ffffff",
+					correctLevel : QRCode.CorrectLevel.H
+				});
+		rheaHideElem (rheaGetElemByID("qrcode_plsWait"));
+		rheaShowElem (rheaGetElemByID("qrcode_payment"));
+	})
+	.catch( function(result)
+	{
+		//console.log ("ERROR[" +result +"]");
+		window.location = "pageMenu.html";
+	});
 }
 
 function startCurrentSelWithPaymentConfirmed()
@@ -316,13 +367,6 @@ function startCurrentSelWithPaymentConfirmed()
 	var selPaymentType=1; //alipayChina
 	
 	rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
-}
-
-function gotoPagePreparingSel(bCanUseBtnStop)
-{
-	var url = "pageSelInProgress.html";
-	url += "?iconMenu=" +iconNum +"&selNum=" +selThatWasStarted +"&btnStop=" +bCanUseBtnStop;
-	window.location = url;
 }
 
 function gotoSelectionInfo()

@@ -161,10 +161,11 @@ void Server::close()
  */
 bool Server::priv_module_alipayChina_setup ()
 {
-	return true;
-	/*
-	//rhea::fs::fileCopyInMemory (
 	//const char *serverIP, u16 serverPort, const char *machineID, const char *cryptoKey
+	const char serverIP[] = { "121.196.20.39" };
+	const u16 serverPort = 6019;
+	const char machineID[] = { "C20190001" };
+	const char cryptoKey[] = { "1648339973B547DC8DE3D60787079B3D" };
 
 	if (moduleAlipayChina.enabled)
 	{
@@ -220,7 +221,95 @@ bool Server::priv_module_alipayChina_setup ()
 	rhea::AlipayChina::kill(moduleAlipayChina.ctx);
 	rhea::thread::deleteMsgQ (moduleAlipayChina.hMsgQR, moduleAlipayChina.hMsgQW);
 	return false;
-	*/
+}
+
+//***************************************************
+bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, u8 *out_urlForQRCode, u32 sizeOfOutURL)
+{
+	moduleAlipayChina.curSelRunning = 0;
+	moduleAlipayChina.curSelPrice = 0;
+	if (!moduleAlipayChina.enabled)
+		return false;
+
+	
+
+	//chiedo al server alipay di iniziare la transazione
+	//Mi risponde con una serie di notifiche ALIPAYCHINA_NOTIFY_ORDER_STATUS che riportano
+	//un codice di stato preso dalla enum AlipayChina::eOrderStatus
+	rhea::AlipayChina::ask_startOrder (moduleAlipayChina.ctx, selectionName, selectionNum, selectionPrice);
+
+	OSEvent hEvent;
+	rhea::thread::getMsgQEvent(moduleAlipayChina.hMsgQR, &hEvent);
+	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 60000;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
+	{
+		if (rhea::event::wait (hEvent, 5000))
+		{
+			rhea::thread::sMsg msg;
+			while (rhea::thread::popMsg(moduleAlipayChina.hMsgQR, &msg))
+			{
+				switch (msg.what)
+				{
+				default:
+					priv_onAlipayChinaNotification(msg);
+					break;
+
+				case ALIPAYCHINA_NOTIFY_ORDER_STATUS:
+					switch ((rhea::AlipayChina::eOrderStatus)msg.paramU32)
+					{
+					case rhea::AlipayChina::eOrderStatus_waitingQR:
+						//siamo ancora in attesa di una risposta
+						break;
+
+					case rhea::AlipayChina::eOrderStatus_pollingPaymentStatus:
+						//ok, il thread alipay è in polling quindi vuol dire che ha ricevuto il qrcode.
+						//Questo msg contiene anche l'url da visualizzare nel qrcode
+						memcpy_s (out_urlForQRCode, sizeOfOutURL, msg.buffer, msg.bufferSize);
+						rhea::thread::deleteMsg(msg);
+							
+						//memorizzo la selezione da far partire. Da ora in poi sono in attesa di un messaggio dal thread alipay
+						//che mi dica se l'utente ha pagato oppure abortito.
+						//Se ha pagato, faccio partire la selezione, vedi priv_onAlipayChinaNotification()
+						moduleAlipayChina.curSelRunning = selectionNum;
+						{
+							u8 ct = 0;
+							u8 price[16];
+							for (u8 i = 0; i < strlen(selectionPrice); i++)
+							{
+								char c = selectionPrice[i];
+								if (c >= '0' && c <= '9')
+									price[ct++] = c;
+							}
+							price[ct] = 0x00;
+							moduleAlipayChina.curSelPrice = rhea::string::utf8::toU32(price);
+						}
+						return true;
+						break;
+
+					default:
+						DBGBREAK;
+						rhea::thread::deleteMsg(msg);
+						return false;
+						break;
+					}
+					break;
+				}
+				rhea::thread::deleteMsg(msg);
+			}			
+		}
+	}
+	return false;
+}
+
+//***************************************************
+void Server::module_alipayChina_abort()
+{
+	if (moduleAlipayChina.enabled && moduleAlipayChina.curSelRunning)
+	{
+		moduleAlipayChina.curSelRunning = 0;
+		moduleAlipayChina.curSelPrice = 0;
+		rhea::AlipayChina::ask_abortOrder(moduleAlipayChina.ctx);
+	}
 }
 
 //***************************************************
@@ -994,6 +1083,32 @@ void Server::priv_onAlipayChinaNotification (rhea::thread::sMsg &msg)
 			}
 		}
 		break;
+
+	case ALIPAYCHINA_NOTIFY_ORDER_STATUS:
+		switch ((rhea::AlipayChina::eOrderStatus)msg.paramU32)
+		{
+		case rhea::AlipayChina::eOrderStatus_paymentOK:
+			//L'utente ha pagato, possiamo procedere con la selezione
+			if (moduleAlipayChina.curSelRunning)
+			{
+				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (subscriber, moduleAlipayChina.curSelRunning, moduleAlipayChina.curSelPrice, cpubridge::eGPUPaymentType_alipayChina);
+				moduleAlipayChina.curSelRunning = 0;
+				moduleAlipayChina.curSelPrice = 0;
+				rhea::AlipayChina::ask_endOrder (moduleAlipayChina.ctx, true);
+			}
+			break;
+
+		case rhea::AlipayChina::eOrderStatus_paymentTimeout:
+			//L'utente non ha pagato, selezione terminata
+			moduleAlipayChina.curSelRunning = 0;
+			moduleAlipayChina.curSelPrice = 0;
+			break;
+
+		default:
+			break;
+		}
+		break;
+
 
 	default:
 		logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => unknown notification [%d]\n", msg.what);

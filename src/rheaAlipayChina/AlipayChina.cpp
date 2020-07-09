@@ -44,8 +44,9 @@ bool AlipayChina::startThread (const char *serverIP, u16 serverPort, const char 
 i16 AlipayChinaThreadFn (void *userParam)
 {
 	sAlipayChinaInitParam *ini = (sAlipayChinaInitParam*)userParam;
+	AlipayChina::Core *core = ini->core;
 	rhea::event::fire(ini->hThreadStarted);
-	ini->core->run();
+	core->run();
 	return 0;
 }
 
@@ -67,4 +68,41 @@ void AlipayChina::kill (Context &ctx)
 void AlipayChina::ask_ONLINE_STATUS (Context &ctx)
 {
 	rhea::thread::pushMsg (ctx.hMsgQW, ALIPAYCHINA_ASK_ONLINE_STATUS, (u32)0);
+}
+
+//****************************************************
+void AlipayChina::ask_startOrder (Context &ctx, const u8 *selectionName, u8 selectionNum, const char *selectionPrice)
+{
+	u16 ct = 0;
+	u8 data[256];
+	
+	data[ct++] = selectionNum;
+
+	const u8 lenOfSelName = rhea::string::utf8::lengthInBytes(selectionName);
+	data[ct++] = lenOfSelName;
+	memcpy (&data[ct], selectionName, lenOfSelName);
+	ct += lenOfSelName;
+	data[ct++] = 0x00;
+
+	const u8 lenOfSelPrice = (u8)strlen(selectionPrice);
+	memcpy (&data[ct], selectionPrice, lenOfSelPrice);
+	ct += lenOfSelPrice;
+	data[ct++] = 0x00;
+
+	rhea::thread::pushMsg (ctx.hMsgQW, ALIPAYCHINA_ASK_START_ORDER, data, ct);
+}
+
+//****************************************************
+void AlipayChina::ask_abortOrder (Context &ctx)
+{
+	rhea::thread::pushMsg (ctx.hMsgQW, ALIPAYCHINA_ASK_ABORT_ORDER, (u32)0);
+}
+
+//****************************************************
+void AlipayChina::ask_endOrder (Context &ctx, bool bSelectionWasDelivered)
+{
+	if (bSelectionWasDelivered)
+		rhea::thread::pushMsg (ctx.hMsgQW, ALIPAYCHINA_ASK_END_ORDER, 1);
+	else
+		rhea::thread::pushMsg (ctx.hMsgQW, ALIPAYCHINA_ASK_END_ORDER, 0);
 }

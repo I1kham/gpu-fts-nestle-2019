@@ -45,6 +45,8 @@
 #include "CmdHandler/CmdHandler_ajaxReqGetCurSelRunning.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x23_startGrinderSpeedTest.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.h"
+#include "CmdHandler/CmdHandler_ajaxReq_AliChina_getQR.h"
+#include "CmdHandler/CmdHandler_ajaxReq_AliChina_abort.h"
 
 using namespace socketbridge;
 
@@ -122,6 +124,8 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqGetCurSelRunning);
 	CHECK(CmdHandler_ajaxReq_P0x23_startGrinderSpeedTest);
 	CHECK(CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue);
+	CHECK(CmdHandler_ajaxReq_AliChina_getQR);
+	CHECK(CmdHandler_ajaxReq_AliChina_abort);
 
 #undef CHECK
     return NULL;
