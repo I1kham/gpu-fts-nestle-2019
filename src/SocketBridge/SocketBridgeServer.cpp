@@ -215,7 +215,6 @@ bool Server::priv_module_alipayChina_setup ()
 		}
 	} while (rhea::getTimeNowMSec() < timeToExitMSec);
 
-
 	//il thread alypay non ha risposto...
 	logger->log ("SocketBridgeServer::alipayChina_setup() => KO\n");
 	rhea::AlipayChina::kill(moduleAlipayChina.ctx);

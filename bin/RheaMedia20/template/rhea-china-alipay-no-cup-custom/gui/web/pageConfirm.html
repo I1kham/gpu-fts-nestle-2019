@@ -32,7 +32,7 @@
 								<div id="qrcode_plsWait" style="margin:20px auto 0 auto; width:256px; height:256px;"><img src="img/animationRound.gif"></div>
 								<div id="qrcode_payment" style="display:none;">
 									<div id="qrcode_text">Please, scan the QR code in order to proceed with the payment</div>
-									<div id="qrcode" style="margin:40px auto auto auto; width:256px; height:256px;"></div>
+									<div id="qrcode" style="margin:40px auto auto auto; width:258px; height:258px; padding: 1px; background-color:#fff"></div>
 								</div>
 							</div>
 							<div id="btnAbortPayment" class="btnStart pageConfirm_bigFont" onclick="onBtnAbortPayment()">ABORT</div>
@@ -338,13 +338,14 @@ function onBtnStartSelection()
 	//chiedo il qrcode
 	rhea.ajax ("AliChinaGetQR", {"name":iconDisplayName, "selNum":selThatWasStarted, "price":selPrice} ).then( function(result)
 	{
+		console.log ("QR [" +result +"]");
 		qrcode = new QRCode(document.getElementById("qrcode"), {
 					text: result,
 					width: 256,
 					height: 256,
 					colorDark : "#000000",
 					colorLight : "#ffffff",
-					correctLevel : QRCode.CorrectLevel.H
+					correctLevel : QRCode.CorrectLevel.L
 				});
 		rheaHideElem (rheaGetElemByID("qrcode_plsWait"));
 		rheaShowElem (rheaGetElemByID("qrcode_payment"));

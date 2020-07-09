@@ -20,7 +20,7 @@ namespace rhea
         void				setIndex (u32 idx)                          { assert(idx<1024); _handle = (_handle & 0xFC00) | (idx & 0x03FF); }
         void				setCounter (u32 ct)                         { assert(ct<16);    _handle = (_handle & 0x0FFF) | ((ct & 0x0F) << 12); }
         void				incCounter ()                               { _handle += 0x1000; }
-        void				setReserved (u32 r)                         { assert(r<4); _handle |= ((r & 0x03) << 10); }
+		void				setReserved (u32 r)							{ assert(r < 4); _handle &= 0xF3FF; _handle |= ((r & 0x03) << 10); }
         u8					getIndex  () const                          { return (_handle & 0x03FF); }
         u8					getCounter () const                         { return (_handle & 0xF000) >> 12; }
         u8                  getReservedBit() const                      { return ((_handle & 0x0C00) >> 10); }

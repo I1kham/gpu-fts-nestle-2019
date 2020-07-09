@@ -51,7 +51,7 @@ void thread::internal_deinit()
 //**************************************************************
 sThreadMsgQ* thread_fromHandleToPointer (const HThreadMsgR &h)
 {
-    sThreadMsgQ *s = NULL;
+    /*sThreadMsgQ *s = NULL;
     //rhea::criticalsection::enter(glob.cs);
         if (glob.handleArray.fromHandleToPointer(h, &s))
         {
@@ -63,8 +63,12 @@ sThreadMsgQ* thread_fromHandleToPointer (const HThreadMsgR &h)
 
     assert (s != NULL);
 
-    return s;
+    return s;*/
 
+	sThreadMsgQ *s = NULL;
+	if (glob.handleArray.fromHandleToPointer(h, &s))
+		return s;
+	return NULL;
 }
 
 //**************************************************************
@@ -112,23 +116,22 @@ void thread::deleteMsgQ (HThreadMsgR &handleR, HThreadMsgW &handleW UNUSED_PARAM
     if (NULL == s)
         return;
 
-    rhea::criticalsection::enter(s->cs);
-    {
-        thread::sMsg msg;
-        while ( s->fifo->pop(&msg) )
-            thread::deleteMsg (msg);
+	rhea::criticalsection::enter(glob.cs);
+	{
+		rhea::criticalsection::enter(s->cs);
+		{
+			thread::sMsg msg;
+			while ( s->fifo->pop(&msg) )
+				thread::deleteMsg (msg);
 
-		s->fifo->unsetup();
-        RHEADELETE( glob.allocator, s->fifo );
-    }
-    rhea::criticalsection::leave(s->cs);
-    rhea::criticalsection::close(s->cs);
+			s->fifo->unsetup();
+			RHEADELETE( glob.allocator, s->fifo );
+		}
+		rhea::criticalsection::leave(s->cs);
+		rhea::criticalsection::close(s->cs);
 
-	rhea::event::close (s->osEvent);
+		rhea::event::close (s->osEvent);
 
-
-    rhea::criticalsection::enter(glob.cs);
-    {
         glob.handleArray.dealloc (handleR);
     }
     rhea::criticalsection::leave(glob.cs);
