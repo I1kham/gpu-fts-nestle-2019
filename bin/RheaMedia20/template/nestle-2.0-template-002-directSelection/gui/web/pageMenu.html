@@ -187,10 +187,11 @@ function onAfterLangLoaded()
 	//il numero di righe/colonne della grid può essere passato anche via urlGet
 	var nGridRow = rheaGetURLParamOrDefault("gridR", mainMenuPageOptions.icon_numRow);
 	var nGridCol = rheaGetURLParamOrDefault("gridC", mainMenuPageOptions.icon_numIconPerRow);
+	Rhea_session_setValue ("jug", "0");
 	setupIconContainer(nGridRow, nGridCol);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
-	
+		
 	if (Rhea_session_getOrDefault("rheamedia2preview","0")=="1")
 		isRheamediaPreviewBox=1;
 	//console.log ("isRheamediaPreviewBox=" +isRheamediaPreviewBox);
@@ -514,6 +515,8 @@ function setupIconContainer(nRow, nIconPerRow)
 	setupIconPage (0, nIconPerPage);
 }
 
+var jug_iconNum = 0;
+var jug_isIconSelected = 0;
 function setupIconPage (iPage, nIconPerPage)
 {
 	//console.log ("setupIconPage (" +iPage +", " +nIconPerPage +")");
@@ -535,10 +538,13 @@ function setupIconPage (iPage, nIconPerPage)
 		var cssForIconDisabled="";
 		if (MMI_isEnabled(startIcon) == 0)
 			cssForIconDisabled=" disabled";
+		if (iconDisplayName=="JUG")
+			jug_iconNum = startIcon;
+			
 		html += "<div " + styleForIconDiv + ">"
 			  + " <div id='divIcon" +startIcon +"'  iconNum='" + startIcon + "' class='pageMenu_icon" +cssForIconDisabled +"'>"
 			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
-			  + "  <div class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
+			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
 			  + " </div>"
 			  + "</div>";
 		startIcon++;
@@ -587,6 +593,26 @@ function onRightArrowClicked()
 function onIconMenuClicked (iconNum)
 {
 	resetTimerGotoPageStandby();
+	
+	if (iconNum == jug_iconNum)
+	{	
+		//ho cliccato l'icona JUG
+		var d = rheaGetElemByID("icon_text" + iconNum);
+		if (jug_isIconSelected)
+		{
+			jug_isIconSelected=0;
+			rheaRemoveClassToElem (d, "pageMenu_icon_text_hl");
+			Rhea_session_setValue ("jug", "0");
+		}
+		else
+		{
+			jug_isIconSelected=1;
+			rheaAddClassToElem (d, "pageMenu_icon_text_hl");
+			Rhea_session_setValue ("jug", rheaMainMenuIcons[iconNum].selNum);
+		}
+		return;
+	}
+	
 	if (MMI_isEnabled(iconNum))
 	{
 		selRunning_iconNum = iconNum;
@@ -604,7 +630,7 @@ function onIconMenuClicked (iconNum)
 					console.log ("Starting sel num:" +selRunning_selThatWasStarted);
 					bShowOnlyImportantCPUMessages=0;
 					rheaShowElem (rheaGetElemByID("divPleaseWait"));
-					rhea.selection_start(selRunning_selThatWasStarted);
+					startSelectionNow(selRunning_selThatWasStarted);
 					return;
 				}
 			}
@@ -613,6 +639,24 @@ function onIconMenuClicked (iconNum)
 		window.location = "pageConfirm.html?iconMenu=" + iconNum;
 		
 	}
+}
+
+function startSelectionNow (selNum)
+{
+	if (jug_isIconSelected)
+	{
+		var selJUG = parseInt(Rhea_session_getValue ("jug"));
+		Rhea_session_setValue ("jug", "0");
+
+		var buffer = new Uint8Array(2);
+		buffer[0] = 115;
+		buffer[1] = selJUG;
+		rhea.sendGPUCommand ("E", buffer, 0, 0);
+		console.log ("JUG on sel [" +selJUG +"]");
+		setTimeout (function() { rhea.selection_start(selNum); }, 500);
+	}
+	else
+		rhea.selection_start(selNum);
 }
 
 function setLanguage(twoCharISOCode) 

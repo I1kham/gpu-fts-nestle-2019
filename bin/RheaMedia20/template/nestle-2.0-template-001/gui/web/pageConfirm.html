@@ -114,6 +114,9 @@ var GRINDER = 0;
 var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
 
+
+function isJUG()			{ if (iconDisplayName=="JUG") return true; return false;}
+
 function onRheaBootstrapFinished() 
 {
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
@@ -217,6 +220,10 @@ function onSelectionChanged(selNum)
 		rheaSetElemHTML(elemPrice, "TESTVEND");
 		rheaShowElem (elemPrice);
 	}
+	else if (isJUG())
+	{
+		rheaHideElem(elemPrice);
+	}
 	else
 	{
 		rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
@@ -237,7 +244,13 @@ function onSelectionChanged(selNum)
 	else
 	{
 		rheaHideElem(btnStartNotAvail);
-		rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
+		if (isJUG())
+		{
+			rheaRemoveClassToElem (btnStart, "pageConfirm_bigFont");
+			rheaSetElemHTML (btnStart, "CHOOSE A BEVERAGE");
+		}
+		else
+			rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
 		rheaShowElem(btnStart);
 	}
 }
@@ -247,9 +260,11 @@ function doUpdateCredit()
 	//rheaSetDivHTMLByName("divCredit", rhea.credit);	
 }
 
+
+var iconDisplayName="";
 function setupPageContent()
 {
-	var iconDisplayName = MMI_getDisplayName(iconNum);
+	iconDisplayName = MMI_getDisplayName(iconNum);
 	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
 	var selNum = MMI_getLinkedSelectionNumber(iconNum);
 	
@@ -452,6 +467,38 @@ function detectCurrentSelection()
 
 function onBtnStartSelection()
 {
+	selThatWasStarted = detectCurrentSelection();
+
+	//se sono la preselezione JUG, alla pressione di start, memorizzo in session il fatto che JUG è attiva e torno al menu
+	if (isJUG())
+	{
+		Rhea_session_setValue ("jug", selThatWasStarted);
+		window.location = "pageMenu.html";
+		return;
+	}
+	
+	//se JUG è attiva, prima mando il "btn" corrispondente al JUG e poi mando la selezione come al solito
+	var hoJugInCanna = Rhea_session_getOrDefault ("jug", "0");
+	if (hoJugInCanna=="") hoJugInCanna="0";
+	hoJugInCanna = parseInt(hoJugInCanna);
+	if (hoJugInCanna > 0)
+	{
+		Rhea_session_setValue ("jug", "0");
+		var buffer = new Uint8Array(2);
+		buffer[0] = 115;
+		buffer[1] = hoJugInCanna;
+		rhea.sendGPUCommand ("E", buffer, 0, 0);
+		console.log ("JUG on sel [" +hoJugInCanna +"]");
+		setTimeout (function() { doStartSelection(); }, 500);
+	}
+	else
+		doStartSelection();
+}
+	
+	
+function doStartSelection()
+{	
+	console.log ("doStartSelection()");
 	var dContent = rheaGetElemByID("rightPane_content");
 	rheaHideElem(dContent);
 	
@@ -461,7 +508,6 @@ function onBtnStartSelection()
 	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
 	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
 
-	selThatWasStarted = detectCurrentSelection();
 	console.log ("Starting sel num:" +selThatWasStarted);
 	rhea.selection_start(selThatWasStarted);
 }
