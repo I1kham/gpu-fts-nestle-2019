@@ -273,7 +273,7 @@ bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum,
 					case rhea::AlipayChina::eOrderStatus_pollingPaymentStatus:
 						//ok, il thread alipay è in polling quindi vuol dire che ha ricevuto il qrcode.
 						//Questo msg contiene anche l'url da visualizzare nel qrcode
-						memcpy_s (out_urlForQRCode, sizeOfOutURL, msg.buffer, msg.bufferSize);
+                        memcpy (out_urlForQRCode, msg.buffer, msg.bufferSize);
 						rhea::thread::deleteMsg(msg);
 							
 						//memorizzo la selezione da far partire. Da ora in poi sono in attesa di un messaggio dal thread alipay

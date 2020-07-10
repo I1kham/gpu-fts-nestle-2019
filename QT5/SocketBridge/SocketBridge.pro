@@ -89,6 +89,10 @@ CONFIG(release, debug|release) {
 
 
 SOURCES += \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_abort.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_activate.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getQR.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_isOnline.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x04_SetDecounter.cpp \
@@ -135,6 +139,7 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskSpawn.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTestSelection.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_AliChina_onlineStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x03_CPUSanWashingStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x04_SetDecounter.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x06_GetAllDecounters.cpp \
@@ -177,10 +182,11 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
 
 
-
-
-
 HEADERS += \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_abort.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_activate.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getQR.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_isOnline.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x03_SanWashStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x04_SetDecounter.h \
@@ -227,6 +233,7 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskSpawn.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTestSelection.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_AliChina_onlineStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x03_CPUSanWashingStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x04_SetDecounter.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReq_P0x06_GetAllDecounters.h \
@@ -270,6 +277,7 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeTask.h \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
     ../../src/SocketBridge/SocketBridgeVersion.h
+
 
 
 

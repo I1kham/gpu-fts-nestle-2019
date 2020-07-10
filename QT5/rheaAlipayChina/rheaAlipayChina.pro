@@ -82,6 +82,8 @@ HEADERS += \
     ../../src/rheaAlipayChina/AlipayChinaCore.h \
     ../../src/rheaAlipayChina/AlipayChinaEnumAndDefine.h
 
+
+
 unix {
     target.path = /usr/lib
     INSTALLS += target
