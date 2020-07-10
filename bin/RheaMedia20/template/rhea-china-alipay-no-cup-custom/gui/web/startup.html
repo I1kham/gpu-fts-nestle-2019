@@ -18,6 +18,8 @@
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
 
+function isRheamediaPreview()				{ if (Rhea_session_getOrDefault("rheamedia2preview","0")=="1") return 1; return 0; }
+
 function onRheaBootstrapFinished()
 {
 	console.log ("onRheaBootstrapFinished");
@@ -31,6 +33,7 @@ function onRheaBootstrapFinished()
 	querySelectionPrice()
 		.then ( function() { return querySelectionAvail(); } )
 		.then ( function() { return lang_loadLang(defaultLang); })
+		.then ( function() { return activateAlipayChina(); })
 		.then ( function() { 
 			window.location = "pageStandby.html";
 		})
@@ -101,7 +104,24 @@ function querySelectionAvail()
 
 
 
-
+function activateAlipayChina()
+{
+	if (isRheamediaPreview())
+	{
+		return new Promise( function(resolve, reject) { resolve("ok"); })
+	}
+	
+	console.log ("activateAlipayChina");
+	return rhea.ajax ("AliChinaActivate", "")
+		.then( function(result) 
+		{
+			return new Promise( function(resolve, reject) { resolve("ok"); })
+		})
+		.catch( function(result)
+		{
+			return new Promise( function(resolve, reject) { resolve("ok"); })
+		});
+}
 </script>
 
 

@@ -13,7 +13,7 @@ var	RHEA_EVENT_STOP_SELECTION = 103;					//'g'
 var	RHEA_EVENT_CPU_STATUS = 104;						//'h'
 var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
 var	RHEA_EVENT_START_SEL_ALREADY_PAID = 68;				//'D'
-
+var	RHEA_EVENT_ALIPAYCHINA_ONLINE_STATUS = 69;			//'E'
 
 
 //info sulla versione attuale del codice (viene comunicata a GPU in fase di registrazione)
@@ -37,7 +37,8 @@ Rhea_clearSessionData = function (defaultLanguage)
 	Rhea_session_setValue("isTestvend", "0");
 	Rhea_session_setValue("debug", 0);
 	Rhea_session_setValue("debug_console", "");
-
+	Rhea_session_setValue("isAlipayChinaOnline", "0");
+	
 	//selection session clear
 	for (var i=1; i<=RHEA_NUM_MAX_SELECTIONS; i++)
 		Rhea_session_clearObject("selInfo" +i);
@@ -364,8 +365,20 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 
 					me.onEvent_cpuStatus(statusID, statusStr, flag16);
 					break;
-				}
-				
+					
+				case RHEA_EVENT_ALIPAYCHINA_ONLINE_STATUS:
+					if (parseInt(data[8]) == 0x01)
+					{
+						Rhea_session_setValue ("isAlipayChinaOnline", "1");
+						me.onEvent_alipayChinaOnlineStatus (1);
+					}
+					else
+					{
+						Rhea_session_setValue ("isAlipayChinaOnline", "0");
+						me.onEvent_alipayChinaOnlineStatus (0);
+					}
+					break;
+				} //switch (eventTypeID)				
 				return;
 			}
 		}
@@ -769,4 +782,14 @@ Rhea.prototype.filetransfer_startDownload = function(usage, userValue, callback_
 		}
 	}
 	this.fileTransfer[this.nFileTransfer++] = new RheaFileDownload(usage, userValue, callback_onStart, callback_onProgress, callback_onEnd);
+}
+
+/*********************************************************
+ * isAlipayChinaOnline
+ */
+Rhea.prototype.isAlipayChinaOnline = function ()
+{
+	if (Rhea_session_getOrDefault ("isAlipayChinaOnline", "0") == "1")
+		return 1;
+	return 0;
 }

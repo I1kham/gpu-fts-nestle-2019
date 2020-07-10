@@ -479,6 +479,7 @@ console.time("translation 01");
 	let rstLAB_PLEASE_SCAN_QRCODE = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_PLEASE_SCAN_QRCODE' AND What='MSG'");
 	let rstBTN_START_SELECTION = await db.q("SELECT ISO,Message FROM lang WHERE UID='BTN_START_SELECTION' AND What='MSG'");
 	let rstBTN_START_SELECTION_NOT_AVAIL = await db.q("SELECT ISO,Message FROM lang WHERE UID='BTN_START_SELECTION_NOT_AVAIL' AND What='MSG'");
+	let rstBTN_START_OFFLINE = await db.q("SELECT ISO,Message FROM lang WHERE UID='BTN_START_OFFLINE' AND What='MSG'");
 	let rstLAB_CURRENCY_SIMBOL = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_CURRENCY_SIMBOL' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_READY = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_READY' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_BEING_PREPARED = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_BEING_PREPARED' AND What='MSG'");
@@ -576,6 +577,7 @@ console.time("  " +iso +"04");
 		var msgBtnStop = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_STOP, iso, iLang, allLang[0]);
 		var msgBtnStart = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_START_SELECTION, iso, iLang, allLang[0]);
 		var msgBtnStartNotAvail = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_START_SELECTION_NOT_AVAIL, iso, iLang, allLang[0]);
+		var msgBtnStartOffline = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_START_OFFLINE, iso, iLang, allLang[0]);
 		var msgBtnAbort = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_ABORT, iso, iLang, allLang[0]);
 		var msgLabPleaseScanQRCode = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_PLEASE_SCAN_QRCODE, iso, iLang, allLang[0]);
 		var msgLabCurrency = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_CURRENCY_SIMBOL, iso, iLang, allLang[0]);
@@ -587,6 +589,7 @@ console.timeEnd("  " +iso +"04");
 						+"BTN_STOP: \"" +msgBtnStop +"\""
 						+",BTN_START_SELECTION: \"" +msgBtnStart +"\""
 						+",BTN_START_SELECTION_NOT_AVAIL: \"" +msgBtnStartNotAvail +"\""
+						+",BTN_START_OFFLINE: \"" +msgBtnStartOffline +"\""
 						+",LAB_CURRENCY_SIMBOL: \"" +msgLabCurrency +"\""
 						+",LAB_YOUR_DRINK_IS_READY: \"" +msgLabDrinkReady +"\""
 						+",LAB_YOUR_DRINK_IS_BEING_PREPARED: \"" +msgLabDrinkBeingPrepared +"\""

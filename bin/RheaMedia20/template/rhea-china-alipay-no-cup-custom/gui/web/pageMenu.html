@@ -15,7 +15,7 @@
 	</div>
 	
 	<div class="header">
-		<center><img src="img/logo_rhea.jpg"></center> 	
+		<center><img src="img/logo_rhea.jpg"></center>
 	</div>
 
 	<div class="page">
@@ -80,6 +80,9 @@
 		<br><br><br><br><br><br><br>
 		<center><img src="img/animationRound.gif"></center>
 	</div>
+	
+	<div id="divWIFI" class="wifiSpot"><img src='img/wifi-on.png'></div>
+
 </div>
 
 
@@ -174,8 +177,12 @@ function onAfterLangLoaded()
 				selRunning_selThatWasStarted = 0;
 				break;
 		}
-	
 	}	
+	
+	rhea.onEvent_alipayChinaOnlineStatus = function (isOnline)
+	{
+		updateWifiIcon();
+	}
 	
 	//rhea.onEvent_selectionPricesUpdated = function () {}
 	//rhea.onEvent_creditUpdated = function () {}
@@ -187,6 +194,7 @@ function onAfterLangLoaded()
 	setupIconContainer(nGridRow, nGridCol);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
+	rhea.requestGPUEvent(RHEA_EVENT_ALIPAYCHINA_ONLINE_STATUS);
 	
 	if (Rhea_session_getOrDefault("rheamedia2preview","0")=="1")
 		isRheamediaPreviewBox=1;
@@ -735,6 +743,17 @@ function gotoPagePreparingSel(bCanUseBtnStop)
 	var url = "pageSelInProgress.html";
 	url += "?iconMenu=" +selRunning_iconNum +"&selNum=" +selRunning_selThatWasStarted +"&btnStop=" +bCanUseBtnStop;
 	window.location = url;
+}
+
+
+function updateWifiIcon()
+{
+	//console.log ("updateWifiIcon[" +rhea.isAlipayChinaOnline() +"]");
+	var d = rheaGetElemByID ("divWIFI");
+	if (rhea.isAlipayChinaOnline())
+		rheaSetElemHTML (d, "<img src='img/wifi-on.png'>");
+	else
+		rheaSetElemHTML (d, "<img src='img/wifi-off.png'>");
 }
 
 </script>

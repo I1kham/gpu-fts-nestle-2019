@@ -57,6 +57,7 @@
 							<td align="middle">
 								<div id="btnStart" class="btnStart pageConfirm_bigFont" onclick="onBtnStartSelection()"></div>
 								<div id="btnStartNotAvail" class="btnStartNotAvail" style="display:none"></div>
+								<div id="btnStartOffline" class="btnStartNotAvail" style="display:none"></div>
 							</td>
 						</tr>
 					</table>			
@@ -74,6 +75,8 @@
 	
 	<!-- il btn home lo metto qui in position absolute per dargli una maggiore area di click -->
 	<div id="divBtnHome" class="btnIndietro"><img draggable='false' src="img/btnHome.png"></div>
+	
+	<div id="divWIFI" class="wifiSpot"><img src='img/wifi-on.png'></div>
 </div> <!-- wrapper1024x600 -->
 
 
@@ -180,13 +183,18 @@ function onAfterLangLoaded2()
 				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
 				break;
 		}
-	
 	}
+	
+	rhea.onEvent_alipayChinaOnlineStatus = function (isOnline)
+	{
+		updateWifiIcon();
+	}	
 		
 	setupPageContent();
 
 	doUpdateCredit();
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+	rhea.requestGPUEvent(RHEA_EVENT_ALIPAYCHINA_ONLINE_STATUS);
 
 	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
 	var d = rheaGetElemByID("divBtnHome");
@@ -388,6 +396,28 @@ function startCurrentSelWithPaymentConfirmed()
 function gotoSelectionInfo()
 {
 	window.location = "pageSelectionInfo.html?iconMenu=" +iconNum;
+}
+
+function updateWifiIcon()
+{
+	console.log ("updateWifiIcon[" +rhea.isAlipayChinaOnline() +"]");
+	var d = rheaGetElemByID ("divWIFI");
+	if (rhea.isAlipayChinaOnline() || isRheamediaPreview())
+	{
+		rheaSetElemHTML (d, "<img src='img/wifi-on.png'>");
+	}
+	else
+	{
+		rheaSetElemHTML (d, "<img src='img/wifi-off.png'>");
+		
+		rheaHideElem(rheaGetElemByID("btnStart"));
+		rheaHideElem(rheaGetElemByID("btnStartNotAvail"));
+
+		var btnStartOffline = rheaGetElemByID("btnStartOffline");		
+		rheaSetElemHTML(btnStartOffline, rheaLang.BTN_START_OFFLINE);
+		rheaShowElem(btnStartOffline);
+		
+	}
 }
 </script>
 

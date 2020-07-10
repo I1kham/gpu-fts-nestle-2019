@@ -41,6 +41,9 @@
 							<tr valign="top"><td><b>BTN_START_SELECTION_NOT_AVAIL</b> (message that replace the START BTN when the selection is not available)<br><div id="ml_BTN_START_SELECTION_NOT_AVAIL"></div></td></tr>
 
 							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>BTN_START_OFFLINE</b> (message that replace the START BTN when the payment server is offline)<br><div id="ml_BTN_START_OFFLINE"></div></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
 							<tr valign="top"><td><b>BTN_ABORT</b> (button that appears when Alipay payment process is waiting for user to scan the QR code)<br><div id="ml_BTN_ABORT"></div></td></tr>
 							
 							<tr valign="top"><td>&nbsp;</td></tr>
@@ -84,6 +87,7 @@ var db = null;
 var ml_BTN_ABORT = null;
 var ml_BTN_START_SELECTION = null;
 var ml_BTN_START_SELECTION_NOT_AVAIL = null;
+var ml_BTN_START_OFFLINE = null;
 var ml_LAB_CURRENCY_SIMBOL = null;
 var ml_LAB_YOUR_DRINK_IS_READY = null;
 var ml_LAB_YOUR_DRINK_IS_BEING_PREPARED = null;
@@ -111,6 +115,10 @@ async function onRheaBootstrapFinished()
 
 	ml_BTN_START_SELECTION_NOT_AVAIL = new MultilangElem("ml_BTN_START_SELECTION_NOT_AVAIL", "BTN_START_SELECTION_NOT_AVAIL", "MSG", "TEXTAREA", "700px", allLang);
 	await ml_BTN_START_SELECTION_NOT_AVAIL.load(db);
+	
+	ml_BTN_START_OFFLINE = new MultilangElem("ml_BTN_START_OFFLINE", "BTN_START_OFFLINE", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_BTN_START_OFFLINE.load(db);
+	
 
 	ml_LAB_CURRENCY_SIMBOL = new MultilangElem("ml_LAB_CURRENCY_SIMBOL", "LAB_CURRENCY_SIMBOL", "MSG", "EDIT", "70px", allLang);
 	await ml_LAB_CURRENCY_SIMBOL.load(db);
@@ -135,6 +143,7 @@ async function saveAll()
 	await ml_LAB_PLEASE_SCAN_QRCODE.save(db);
 	await ml_BTN_START_SELECTION.save(db);
 	await ml_BTN_START_SELECTION_NOT_AVAIL.save(db);
+	await ml_BTN_START_OFFLINE.save(db);
 	await ml_LAB_CURRENCY_SIMBOL.save(db);
 	await ml_LAB_YOUR_DRINK_IS_READY.save(db);
 	await ml_LAB_YOUR_DRINK_IS_BEING_PREPARED.save(db);
