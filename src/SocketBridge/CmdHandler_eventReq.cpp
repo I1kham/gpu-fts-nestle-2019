@@ -29,6 +29,7 @@
 #include "CmdHandler/CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h"
 #include "CmdHandler/CmdHandler_eventReqEnterDA3SyncStatus.h"
 #include "CmdHandler/CmdHandler_eventReq_V_StartSelAlreadyPaid.h"
+#include "CmdHandler/CmdHandler_eventReq_AliChina_onlineStatus.h"
 
 using namespace socketbridge;
 
@@ -72,6 +73,7 @@ CmdHandler_eventReq* CmdHandler_eventReqFactory::spawnFromSocketClientEventType(
 	CHECK(CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV);
 	CHECK(CmdHandler_eventReqEnterDA3SyncStatus);
 	CHECK(CmdHandler_eventReq_V_StartSelAlreadyPaid);
+	CHECK(CmdHandler_eventReq_AliChina_onlineStatus);
 #undef CHECK
 
     return NULL;

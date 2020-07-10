@@ -24,6 +24,8 @@ Server::Server()
 	rhea::event::setInvalid (hSubscriberEvent);
 
 	moduleAlipayChina.enabled = false;
+	moduleAlipayChina.isOnline = false;
+
 }
 
 
@@ -188,10 +190,10 @@ bool Server::priv_module_alipayChina_setup ()
 	rhea::AlipayChina::subscribe (moduleAlipayChina.ctx, moduleAlipayChina.hMsgQW);
 
 	//attendo risposta
-	u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + 6000;
 	do
 	{
-		rhea::thread::sleepMSec(50);
+		rhea::thread::sleepMSec(100);
 
 		rhea::thread::sMsg msg;
 		if (rhea::thread::popMsg(moduleAlipayChina.hMsgQR, &msg))
@@ -220,6 +222,14 @@ bool Server::priv_module_alipayChina_setup ()
 	rhea::AlipayChina::kill(moduleAlipayChina.ctx);
 	rhea::thread::deleteMsgQ (moduleAlipayChina.hMsgQR, moduleAlipayChina.hMsgQW);
 	return false;
+}
+
+//***************************************************
+void Server::module_alipayChina_activate()
+{
+	if (moduleAlipayChina.enabled)
+		return;
+	priv_module_alipayChina_setup();
 }
 
 //***************************************************
@@ -309,6 +319,14 @@ void Server::module_alipayChina_abort()
 		moduleAlipayChina.curSelPrice = 0;
 		rhea::AlipayChina::ask_abortOrder(moduleAlipayChina.ctx);
 	}
+}
+
+//***************************************************
+bool Server::module_alipayChina_isOnline() const 
+{
+	if (moduleAlipayChina.enabled && moduleAlipayChina.isOnline)
+		return true;
+	return false;
 }
 
 //***************************************************
@@ -558,7 +576,7 @@ void Server::run()
 {
     assert (server != NULL);
 
-    priv_module_alipayChina_setup();
+    //priv_module_alipayChina_setup();
 
     bQuit = false;
     while (bQuit == false)
@@ -1063,22 +1081,51 @@ void Server::priv_onAlipayChinaNotification (rhea::thread::sMsg &msg)
 	switch (msg.what)
 	{
 	case ALIPAYCHINA_NOTIFY_ONLINE_STATUS_CHANGED:
-		if (msg.paramU32 == 0)
+		//il modulo AlipayChina che mantiene la connessione col server cinese ha inviato questa
+		//notifica per far sapere che il suo stato di connessione è variato
 		{
-			if (moduleAlipayChina.isOnline)
+			bool bNotifyAll = false;
+			if (msg.paramU32 == 0)
 			{
-				//il modulo è andato offline
-				moduleAlipayChina.isOnline = false;
-				logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => offline\n");
+				if (moduleAlipayChina.isOnline)
+				{
+					//il modulo è andato offline
+					moduleAlipayChina.isOnline = false;
+					logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => offline\n");
+					bNotifyAll = true;
+				}
 			}
-		}
-		else
-		{
-			if (!moduleAlipayChina.isOnline)
+			else
 			{
-				//il modulo è andato online
-				moduleAlipayChina.isOnline = true;
-				logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => online\n");
+				if (!moduleAlipayChina.isOnline)
+				{
+					//il modulo è andato online
+					moduleAlipayChina.isOnline = true;
+					logger->log ("SocketBridgeServer::priv_onAlipayChinaNotification() => online\n");
+					bNotifyAll = true;
+				}
+			}
+
+			//notifico i clienti che lo stato della connessione è variato
+			if (bNotifyAll)
+			{
+				for (u32 i = 0; i < identifiedClientList.getCount(); i++)
+				{
+					HSokBridgeClient hClientHandle;
+					if (identifiedClientList.getHandleByIndex(i, &hClientHandle))
+					{
+						HSokServerClient hServerHandle;
+						if (identifiedClientList.isBoundToSocket (hClientHandle, &hServerHandle))
+						{
+							CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, hClientHandle, eEventType_AlipayChina_onlineStatusChanged, priv_getANewHandlerID(), 10000);
+							if (NULL != handler)
+							{
+								handler->handleRequestFromSocketBridge (this, hServerHandle);
+								RHEADELETE(localAllocator, handler);
+							}
+						}
+					}
+				}
 			}
 		}
 		break;

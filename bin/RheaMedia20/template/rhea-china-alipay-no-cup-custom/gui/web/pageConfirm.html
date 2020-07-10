@@ -92,6 +92,8 @@ var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
 var qrcode = null;
 
+function isRheamediaPreview()				{ if (Rhea_session_getOrDefault("rheamedia2preview","0")=="1") return 1; return 0; }
+
 function onRheaBootstrapFinished() 
 {
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
@@ -285,12 +287,13 @@ function btnAbort_countdown()
 		onBtnAbortPayment();
 		return;
 	}
-		
-	/*if (btnAbort_secondsLeft < 58)
+	
+	//se siamo nella preview di rheaMedia...	
+	if (isRheamediaPreview() && btnAbort_secondsLeft < 58)
 	{
 		startCurrentSelWithPaymentConfirmed();
 		return;
-	}*/
+	}
 
 	setTimeout (btnAbort_countdown, 1000);
 }
@@ -336,25 +339,37 @@ function onBtnStartSelection()
 	rheaShowElem (rheaGetElemByID("qrcode_plsWait"));
 	
 	//chiedo il qrcode
-	rhea.ajax ("AliChinaGetQR", {"name":iconDisplayName, "selNum":selThatWasStarted, "price":selPrice} ).then( function(result)
+	if (isRheamediaPreview())
 	{
-		console.log ("QR [" +result +"]");
-		qrcode = new QRCode(document.getElementById("qrcode"), {
-					text: result,
-					width: 256,
-					height: 256,
-					colorDark : "#000000",
-					colorLight : "#ffffff",
-					correctLevel : QRCode.CorrectLevel.L
-				});
-		rheaHideElem (rheaGetElemByID("qrcode_plsWait"));
-		rheaShowElem (rheaGetElemByID("qrcode_payment"));
-	})
-	.catch( function(result)
+		showQRCode ("this is a test");
+	}
+	else
 	{
-		//console.log ("ERROR[" +result +"]");
-		window.location = "pageMenu.html";
-	});
+		rhea.ajax ("AliChinaGetQR", {"name":iconDisplayName, "selNum":selThatWasStarted, "price":selPrice} ).then( function(result)
+		{
+			showQRCode (result);
+		})
+		.catch( function(result)
+		{
+			//console.log ("ERROR[" +result +"]");
+			window.location = "pageMenu.html";
+		});
+	}
+}
+
+function showQRCode (url)
+{
+	console.log ("QR [" +url +"]");
+	qrcode = new QRCode(document.getElementById("qrcode"), {
+				text: url,
+				width: 256,
+				height: 256,
+				colorDark : "#000000",
+				colorLight : "#ffffff",
+				correctLevel : QRCode.CorrectLevel.L
+			});
+	rheaHideElem (rheaGetElemByID("qrcode_plsWait"));
+	rheaShowElem (rheaGetElemByID("qrcode_payment"));
 }
 
 function startCurrentSelWithPaymentConfirmed()

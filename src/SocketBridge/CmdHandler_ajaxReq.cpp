@@ -47,6 +47,8 @@
 #include "CmdHandler/CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue.h"
 #include "CmdHandler/CmdHandler_ajaxReq_AliChina_getQR.h"
 #include "CmdHandler/CmdHandler_ajaxReq_AliChina_abort.h"
+#include "CmdHandler/CmdHandler_ajaxReq_AliChina_isOnline.h"
+#include "CmdHandler/CmdHandler_ajaxReq_AliChina_activate.h"
 
 using namespace socketbridge;
 
@@ -126,6 +128,8 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_P0x23bis_getLastSpeedValue);
 	CHECK(CmdHandler_ajaxReq_AliChina_getQR);
 	CHECK(CmdHandler_ajaxReq_AliChina_abort);
+	CHECK(CmdHandler_ajaxReq_AliChina_isOnline);
+	CHECK(CmdHandler_ajaxReq_AliChina_activate);
 
 #undef CHECK
     return NULL;

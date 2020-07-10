@@ -38,12 +38,11 @@ a:hover	{ text-decoration:none; outline: 0; }
 .page, .pageConfirm	{ height:500px; width:100%;  overflow:hidden; position:relative; margin-top:10px}
 .footer	{ height:50px; width:100%;  overflow:hidden; line-height:30px; background-color:#000 }
 
-
-
 .footer_left { float:left; width:250px; min-width:250px; height:100%;}
 .footer_center { float:left; width:524px; min-width:524px; height:100%; min-height:100%; text-align:center; padding-top:6px}
 .footer_right { float:left; width:250px; height:100%; text-align:center}
 
+.wifiSpot { position:absolute; top:2px; right:3px; width:23px; height:18px; }
 
 .btnIndietro { position:absolute; top:0; left:0; width:200px; height:80px; cursor:pointer; z-index:90;}
 .btnIndietro img { position:relative; top:20px; left:20px; }

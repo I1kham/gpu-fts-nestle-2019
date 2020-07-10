@@ -63,6 +63,7 @@ namespace socketbridge
 		eEventType_recalcFasciaOrariaFV = 'B',				//66	0x42
 		eEventType_enterDA3Sync = 'C',						//67	0x43
 		eEventType_startSelectionAlreadyPaid = 'D',			//68	0x44
+		eEventType_AlipayChina_onlineStatusChanged = 'E',	//69	0x45
         eEventType_unknown = 0xff
     };
 

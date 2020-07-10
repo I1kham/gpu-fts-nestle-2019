@@ -31,6 +31,9 @@
     <Filter Include="CmdHandler\ajax\AlipayChina">
       <UniqueIdentifier>{c687cefb-8663-4556-af60-6bf69c24cbce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CmdHandler\event\AlipayChina">
+      <UniqueIdentifier>{9197cb86-50b0-4d57-8b82-db8e8a71f008}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
@@ -278,6 +281,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_abort.cpp">
       <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_isOnline.cpp">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_activate.cpp">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.cpp">
+      <Filter>CmdHandler\event\AlipayChina</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -527,6 +539,15 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_abort.h">
       <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_isOnline.h">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_activate.h">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.h">
+      <Filter>CmdHandler\event\AlipayChina</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
