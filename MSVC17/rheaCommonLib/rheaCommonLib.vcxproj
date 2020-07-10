@@ -49,6 +49,8 @@
     <ClCompile Include="..\..\src\rheaCommonLib\rheaDate.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaDateTime.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaFS.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFile.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFileSection.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaJSONParser.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaLinearBuffer.cpp" />
     <ClCompile Include="..\..\src\rheaCommonLib\rheaLogger.cpp" />
@@ -117,6 +119,7 @@
     <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleBaseArray.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleUID040210.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleUID88.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaIniFile.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaIntrusiveFreeList.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaJSONParser.h" />
     <ClInclude Include="..\..\src\rheaCommonLib\rheaLIFO.h" />

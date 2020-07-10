@@ -11,7 +11,7 @@ var DA3_BLOCK_SIZE = 64;
 	In teoria queste informazioni sono nel DA3, in pratica non è detto che quello che trovi nel DA3 rappresenti l'attuale macchina.
 	E' necessario quindi chiedere alla CPU tipo e modello e fare finta che queste informazioni ricevute dalla CPU siano davvero nel DA3
 */
-function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe)
+function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe, aliChinaActivated)
 {
 	console.log ("DA3: machineType[" +machineType +"], model[" +machineModel +"], isInduzione[" +isInduzione +"], grpCaffe[" +tipoGruppoCaffe +"]");
 	this.da3_original = null;
@@ -21,6 +21,7 @@ function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe)
 	this.machineModel = parseInt(machineModel);
 	this.bInduzione = parseInt(isInduzione);
 	this.tipoGruppoCaffe = tipoGruppoCaffe;
+	this.aliChinaActivated = aliChinaActivated;
 }
 
 
@@ -64,6 +65,7 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
+DA3.prototype.isAlipayChinaActive = function()						{ return this.aliChinaActivated; }
 DA3.prototype.isMachine_Multibona = function()						{ return (this.machineModel==86); }
 DA3.prototype.getTipoGruppoCaffe = function ()						{ return this.tipoGruppoCaffe; }
 DA3.prototype.isGruppoMicro = function ()							{ if (this.getTipoGruppoCaffe() == 'M') return 1; return 0;}

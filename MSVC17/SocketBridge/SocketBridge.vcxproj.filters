@@ -291,6 +291,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.cpp">
       <Filter>CmdHandler\event\AlipayChina</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_getConnDetail.cpp">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -548,6 +551,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.h">
       <Filter>CmdHandler\event\AlipayChina</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_getConnDetail.h">
+      <Filter>CmdHandler\ajax\AlipayChina</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

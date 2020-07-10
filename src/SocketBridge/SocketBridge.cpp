@@ -44,7 +44,7 @@ bool socketbridge::startServer (rhea::ISimpleLogger *logger, const HThreadMsgW &
     sServerInitParam *init = (sServerInitParam*)RHEAALLOC(rhea::getScrapAllocator(), sizeof(sServerInitParam));
 	
 	//creo la struttura di cartelle necessarie al corretto funzionamento
-    //socketbridge_helper_folder_create("current/socketbridge", logger);
+    socketbridge_helper_folder_create("current/ini", logger);
 
 
     //crea il thread del server

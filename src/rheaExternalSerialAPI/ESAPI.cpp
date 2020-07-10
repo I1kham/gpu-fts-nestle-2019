@@ -27,7 +27,7 @@ bool esapi::startThread (const char *comPort, const HThreadMsgW &hCPUServiceChan
 	rhea::thread::create (out_hThread, esapiThreadFn, &init);
 
 	//attendo che il thread sia partito
-	bool bStarted = rhea::event::wait (init.hEvThreadStarted, 1000);
+	bool bStarted = rhea::event::wait (init.hEvThreadStarted, 2000);
 	rhea::event::close(init.hEvThreadStarted);
 
 	if (bStarted)

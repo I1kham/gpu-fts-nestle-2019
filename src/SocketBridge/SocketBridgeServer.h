@@ -61,9 +61,11 @@ namespace socketbridge
 								//============================== ALIPAY China ===============================================
 		bool					priv_module_alipayChina_setup ();
 		void					module_alipayChina_activate();
+		bool					module_alipayChina_hasBeenActivated() const					{ return moduleAlipayChina.subscribed; }
+		bool					module_alipayChina_isOnline() const							{ return (moduleAlipayChina.subscribed && moduleAlipayChina.isOnline); }
 		bool					module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, u8 *out_urlForQRCode, u32 sizeOfOutURL);
 		void					module_alipayChina_abort();
-		bool					module_alipayChina_isOnline() const;
+		bool					module_getConnectionDetail (char *out_serverIP, u16 *out_serverPort, char *out_machineID, char *out_criptoKey) const;
 
     private:
         static const u16        RESERVED_HANDLE_RANGE = 1024;
@@ -72,13 +74,18 @@ namespace socketbridge
 	private:
 		struct sModuleAlipayChina
 		{
-			bool						enabled;
+			bool						subscribed;
+			bool						threadStarted;
 			bool						isOnline;
 			HThreadMsgR					hMsgQR;
 			HThreadMsgW					hMsgQW;
 			rhea::AlipayChina::Context	ctx;
 			u8							curSelRunning;
 			u16							curSelPrice;
+			char						serverIP[16];
+			u16							serverPort;
+			char						machineID[16];
+			char						criptoKey[64];
 		};
 
     private:

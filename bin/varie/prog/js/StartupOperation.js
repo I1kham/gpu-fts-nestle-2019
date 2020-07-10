@@ -56,7 +56,7 @@ function priv_askMachineTypeAndModel()
 		
 		//carico il da3
 		pleaseWait_freeText_appendText("loading da3...<br>");
-		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione, obj.gruppo);
+		da3 = new DA3(obj.mType, obj.mModel, obj.isInduzione, obj.gruppo, obj.aliChina);
 		da3.load();
 	})
 	.catch( function(result)
@@ -87,6 +87,7 @@ function onDA3Loaded(bResult)
 function onGUIInfoLoaded()
 {
 	pageProductQty_build();
+	pagePayment_build();
 	pageSelections_build();
 	pageSingleSelection_build();
 	pageTemperature_build();

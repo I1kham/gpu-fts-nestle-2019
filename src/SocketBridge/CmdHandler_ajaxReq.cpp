@@ -49,6 +49,7 @@
 #include "CmdHandler/CmdHandler_ajaxReq_AliChina_abort.h"
 #include "CmdHandler/CmdHandler_ajaxReq_AliChina_isOnline.h"
 #include "CmdHandler/CmdHandler_ajaxReq_AliChina_activate.h"
+#include "CmdHandler/CmdHandler_ajaxReq_AliChina_getConnDetail.h"
 
 using namespace socketbridge;
 
@@ -130,6 +131,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_AliChina_abort);
 	CHECK(CmdHandler_ajaxReq_AliChina_isOnline);
 	CHECK(CmdHandler_ajaxReq_AliChina_activate);
+	CHECK(CmdHandler_ajaxReq_AliChina_getConnDetail);
 
 #undef CHECK
     return NULL;

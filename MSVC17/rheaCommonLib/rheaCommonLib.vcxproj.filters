@@ -61,6 +61,9 @@
     <Filter Include="rhea\utils\compress">
       <UniqueIdentifier>{86d51767-cd39-4cb7-9200-97f204f25b86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rhea\utils\iniFile">
+      <UniqueIdentifier>{28abacbb-71cc-428c-bb82-c0398cdacc25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp">
@@ -230,6 +233,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.cpp">
       <Filter>SimpleLogger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFile.cpp">
+      <Filter>rhea\utils\iniFile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFileSection.cpp">
+      <Filter>rhea\utils\iniFile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -427,6 +436,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.h">
       <Filter>SimpleLogger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaIniFile.h">
+      <Filter>rhea\utils\iniFile</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

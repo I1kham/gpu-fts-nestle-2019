@@ -177,7 +177,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 						//qui, la CPU invia il BTN 3 che serve per "debug" per saltare la fase di dissoluzione della tab.
 						//Non mostro il tasto, ma uso il btn trick che è in semi trasparenza nell'angolo in alto a dx. Gli operatore
 						//che conoscono il trucco, possono cliccare sul btn invisibile per skippare questa fase
-						me.btnTrick = me.btn1;
+						me.btnTrick = 3; //me.btn1;
 						pleaseWait_btnTrick_show();	
 					}
 					else

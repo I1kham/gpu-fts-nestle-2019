@@ -31,7 +31,7 @@ void Core::useLogger(rhea::ISimpleLogger *loggerIN)
 //***************************************************
 bool Core::setup (const char *serverIPIN, u16 serverPortIN, const char *machineIDIN, const char *cryptoKeyIN, HThreadMsgW *out_hWrite)
 {
-	logger->log("AlipayChinaCore::setup\n");
+	logger->log("AlipayChinaCore::setup [ip:%s:%d] [machineID:%s] [key:%s]\n", serverIPIN, serverPortIN, machineIDIN, cryptoKeyIN);
 	logger->incIndent();
 
 	localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("AlipayChinaCore");
@@ -121,7 +121,6 @@ void Core::run ()
 				thread::sleepMSec (5000);
 			}
 			logger->decIndent();
-		
 			continue;
 		}
 

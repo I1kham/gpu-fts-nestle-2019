@@ -17,7 +17,11 @@ void CmdHandler_ajaxReqMachineTypeAndModel::onCPUBridgeNotification (socketbridg
 	cpubridge::sExtendedCPUInfo info;
 	cpubridge::translateNotify_EXTENDED_CONFIG_INFO(msgFromCPUBridge, &info);
 	
-	char resp[64];
-	sprintf_s(resp, sizeof(resp), "{\"mType\":%d,\"mModel\":%d,\"isInduzione\":%d,\"gruppo\":\"%c\"}", (u8)info.machineType, info.machineModel, info.isInduzione, (char)info.tipoGruppoCaffe);
+	u8 alipayChinaActive = 0;
+	if (server->module_alipayChina_hasBeenActivated())
+		alipayChinaActive = 1;
+
+	char resp[128];
+	sprintf_s(resp, sizeof(resp), "{\"mType\":%d,\"mModel\":%d,\"isInduzione\":%d,\"gruppo\":\"%c\",\"aliChina\":%d}", (u8)info.machineType, info.machineModel, info.isInduzione, (char)info.tipoGruppoCaffe, alipayChinaActive);
 	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }
