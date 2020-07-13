@@ -837,31 +837,16 @@
 
 				<div id="pagePayment_alipayChina">
 					<table border='0' class='elenco'>
-						<tr valign="bottom">
-							<td style="width:183px">IP</td>
-							<td style="width:195px"><div id="pagePayment_alichina_ip1" class="UINumber" data-numfigures="3" data-max="255"></div></td>
-							<td style="width:5px"><span class="bigCaption15">.</span></td>
-							
-							<td style="width:195px"><div id="pagePayment_alichina_ip2" class="UINumber" data-numfigures="3" data-max="255"></div></td>
-							<td style="width:5px"><span class="bigCaption15">.</span></td>
-							
-							<td style="width:195px"><div id="pagePayment_alichina_ip3" class="UINumber" data-numfigures="3" data-max="255"></div></td>
-							<td style="width:5px"><span class="bigCaption15">.</span></td>
-							
-							<td><div id="pagePayment_alichina_ip4" class="UINumber" data-numfigures="3" data-max="255"></div></td>
-						</tr>
-					</table>
-					
-					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:183px">PORT</td>
-							<td><div id="pagePayment_alichina_port" class="UINumber" data-numfigures="5" data-max="65535"></div></td>
+							<td style="width:200px">IP</td>
+							<td><div  id="pagePayment_alichina_ip" class="bigCaption15"></div></td>
 						</tr>
-					</table>					
-					
-					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:200px">MACHINE NAME</td>
+							<td>PORT</td>
+							<td><div  id="pagePayment_alichina_port" class="bigCaption15"></div></td>
+						</tr>
+						<tr>
+							<td>MACHINE NAME</td>
 							<td><div  id="pagePayment_alichina_mid" class="bigCaption15"></div></td>
 						</tr>
 						<tr>
@@ -2938,7 +2923,6 @@ function pagePayment_show()
 	{
 	}
 
-	btnSave_setCallback ("pagePayment_onBtnSave()");
 	pagePayment_onSelector();
 	
 	var win = ui.getWindowByID("pagePayment");
@@ -2983,14 +2967,8 @@ function pagePayment_onSelector()
 			rhea.ajax ("AliChinaGetConnDetail", "").then( function(result)
 			{
 				var data = JSON.parse(result);
-
-				win.getChildByID("pagePayment_alichina_ip1").setValue (parseInt(data.ip1));
-				win.getChildByID("pagePayment_alichina_ip2").setValue (parseInt(data.ip2));
-				win.getChildByID("pagePayment_alichina_ip3").setValue (parseInt(data.ip3));
-				win.getChildByID("pagePayment_alichina_ip4").setValue (parseInt(data.ip4));
-
-				win.getChildByID("pagePayment_alichina_port").setValue (parseInt(data.port));
-				
+				rheaSetElemHTML(rheaGetElemByID("pagePayment_alichina_ip"), data.ip1 +"." +data.ip2 +"." +data.ip3 +"." +data.ip4);
+				rheaSetElemHTML(rheaGetElemByID("pagePayment_alichina_port"), data.port);
 				rheaSetElemHTML(rheaGetElemByID("pagePayment_alichina_mid"), data.mid);
 				rheaSetElemHTML(rheaGetElemByID("pagePayment_alichina_key"), data.key);
 				
@@ -3004,24 +2982,6 @@ function pagePayment_onSelector()
 	}
 	
 	ui.getWindowByID("pagePayment").showHideScrollBar();
-}
-
-function pagePayment_onBtnSave()
-{
-	if (da3.isAlipayChinaActive())
-	{
-		var win = ui.getWindowByID("pagePayment");
-		var ip1 = win.getChildByID("pagePayment_alichina_ip1").getValue();
-		var ip2 = win.getChildByID("pagePayment_alichina_ip2").getValue();
-		var ip3 = win.getChildByID("pagePayment_alichina_ip3").getValue();
-		var ip4 = win.getChildByID("pagePayment_alichina_ip4").getValue();
-		var port = win.getChildByID("pagePayment_alichina_port").getValue();
-		
-		var ip = ip1 +"." +ip2 +"." +ip3 +"." +ip4;
-		console.log ("ip: " +ip +":" +port);
-	}
-	
-	btnSave_defaultCallback();
 }
 
 
