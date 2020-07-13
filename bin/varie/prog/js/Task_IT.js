@@ -134,22 +134,22 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 			me.btn2 = parseInt(obj.btn2);
 			switch (me.fase)
 			{
-				case 0: pleaseWait_freeText_setText("Brewer Cleaning is not started (or ended)"); break;
-				case 1: pleaseWait_freeText_setText("Brewer Cleaning is started"); break; //HC_STEP_STARTED
-				case 2: pleaseWait_freeText_setText("Brewer placed"); break; //HC_STEP_BRW_PLACED
-				case 3: pleaseWait_freeText_setText("Put pastille and push START"); break; //HC_STEP_TABLET
-				case 4: pleaseWait_freeText_setText("Infusion"); break; //HC_STEP_INFUSION                     
-				case 5: pleaseWait_freeText_setText("Brewer cleaning cycles 1"); break; // HC_STEP_BRW_1
-				case 6: pleaseWait_freeText_setText("Brewer cleaning cycles 2"); break;	// HC_STEP_BRW_2
-				case 7: pleaseWait_freeText_setText("Brewer cleaning cycles 3"); break;	// HC_STEP_BRW_3
-				case 8: pleaseWait_freeText_setText("Brewer cleaning cycles 4"); break;	// HC_STEP_BRW_4
-				case 9: pleaseWait_freeText_setText("Brewer cleaning cycles 5"); break;	// HC_STEP_BRW_5
-				case 10: pleaseWait_freeText_setText("Brewer cleaning cycles 6"); break;	// HC_STEP_BRW_6
+				case 0: pleaseWait_freeText_setText("Lavaggio non iniziato (o terminato)"); break;	//Brewer Cleaning is not started (or ended)
+				case 1: pleaseWait_freeText_setText("Lavaggio del gruppo in corso"); break; 	//Brewer Cleaning is started
+				case 2: pleaseWait_freeText_setText("Gruppo posizionato"); break; 	//Brewer placed
+				case 3: pleaseWait_freeText_setText("Inserire la pastiglia e premere INIZIA"); break; //Put pastille and push START
+				case 4: pleaseWait_freeText_setText("Infusione"); break; //Infusion
+				case 5: pleaseWait_freeText_setText("Ciclo di pulizia del gruppo 1"); break; // Brewer cleaning cycles 1
+				case 6: pleaseWait_freeText_setText("Ciclo di pulizia del gruppo 2"); break;	// Brewer cleaning cycles 2
+				case 7: pleaseWait_freeText_setText("Ciclo di pulizia del gruppo 3"); break;	// Brewer cleaning cycles 3
+				case 8: pleaseWait_freeText_setText("Ciclo di pulizia del gruppo 4"); break;	// Brewer cleaning cycles 4
+				case 9: pleaseWait_freeText_setText("Ciclo di pulizia del gruppo 5"); break;	// Brewer cleaning cycles 56
+				case 10: pleaseWait_freeText_setText("Ciclo di pulizia del gruppo 6"); break;	// HC_STEP_BRW_6
 				
-				case 11: pleaseWait_freeText_setText("Repeat cleaning ?"); break;	//HC_STEP_BRW_REPEAT
-				case 12: pleaseWait_freeText_setText("Brewer placed in brush position, press CONTINUE when finished."); break;	//HC_STEP_BRW_BRUSH_POSITION
-				case 13: pleaseWait_freeText_setText("Skip final coffee or make a coffee"); break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
-				case 14: pleaseWait_freeText_setText("Coffee delivery"); break; //HC_STEP_COFFEE_DELIVERY
+				case 11: pleaseWait_freeText_setText("Ripetere la pulizia?"); break;	//Repeat cleaning ?
+				case 12: pleaseWait_freeText_setText("Gruppo posizionato, premere CONTINUA quando terminato"); break;	//Brewer placed in brush position, press CONTINUE when finished
+				case 13: pleaseWait_freeText_setText("Si desidera erogare un caffè?"); break; //Skip final coffee or make a coffee
+				case 14: pleaseWait_freeText_setText("Erogazione in corso"); break; //Coffee delivery
 				
 				case 15:	//HC_STEP_MIXER_1
 				case 16:	//HC_STEP_MIXER_2
@@ -158,7 +158,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					cleanMixNum = me.fase-14;
 					if (me.isEspresso)
 						cleanMixNum++;
-					pleaseWait_freeText_setText("Cleaning " +cleanMixNum);
+					pleaseWait_freeText_setText("Risciacquo " +cleanMixNum); //rinsing
 					break; 	
 				default: pleaseWait_freeText_setText(""); break;
 			}
@@ -245,13 +245,13 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 			me.btn2 = parseInt(obj.btn2);
 			switch (me.fase)
 			{
-				case 1: pleaseWait_freeText_setText("Milker Cleaning is started"); break;
-				case 2: pleaseWait_freeText_setText("Warning for cleaner"); break;
-				case 3: pleaseWait_freeText_setText("Wait for confirm"); break;
-				case 4: pleaseWait_freeText_setText("It is doing cleaner cycles (12)"); break;
-				case 5: pleaseWait_freeText_setText("Warning for water"); break;
-				case 6: pleaseWait_freeText_setText("Wait for second confirm"); break;
-				case 7: pleaseWait_freeText_setText("Doing cleaner cycles (12)"); break;
+				case 1: pleaseWait_freeText_setText("Lavaggio del cappuccinatore in corso"); break;	//Milker Cleaning is started
+				case 2: pleaseWait_freeText_setText("Attesa temperatura"); break;	//Warming for cleaner
+				case 3: pleaseWait_freeText_setText("Attesa conferma"); break;	//Wait for confirm
+				case 4: pleaseWait_freeText_setText("Cicli di lavaggio in corso (12)"); break;	//Doing cleaner cycles (12)
+				case 5: pleaseWait_freeText_setText("Attesa temperatura"); break;	//Warming for water
+				case 6: pleaseWait_freeText_setText("Attesa seconda conferma"); break;	//Wait for second confirm
+				case 7: pleaseWait_freeText_setText("Cicli di lavaggio in corso (12)"); break;	//Doing cleaner cycles (12)
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();

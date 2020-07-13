@@ -324,11 +324,11 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = 0x02;	//versione
 			out_answer[ct++] = machine_type;
 			
-			//modello macchina											//brewer type 'V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente
-			//out_answer[ct++] = 0x82;	out_answer[ct++] = isInduzione; out_answer[ct++] = 'V';		
+			//modello macchina, induzione, tipo gruppo ('V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente)
+			out_answer[ct++] = 0x82;	out_answer[ct++] = isInduzione; out_answer[ct++] = 'V';		
 			
 			//modello macchina = Minibona
-			out_answer[ct++] = 0x56;	out_answer[ct++] = isInduzione;	out_answer[ct++] = 'M';
+			//out_answer[ct++] = 0x56;	out_answer[ct++] = isInduzione;	out_answer[ct++] = 'M';
 
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
