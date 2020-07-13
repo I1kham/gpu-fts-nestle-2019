@@ -28,11 +28,11 @@ namespace socketbridge
                         CmdHandler_eventReq(identifiedClientHandle, handlerID, dieAfterHowManyMSec)
                     {  }
 
-		bool		needToPassDownToCPUBridge() const { return false; }
+        bool		needToPassDownToCPUBridge() const                                                           { return false; }
         void		handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient);
 
-        void        passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen) { }
-        void		onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge) { }
+        void        passDownRequestToCPUBridge (cpubridge::sSubscriber &from UNUSED_PARAM, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM) { }
+        void		onCPUBridgeNotification (socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM) { }
 
     };
 } // namespace socketbridge

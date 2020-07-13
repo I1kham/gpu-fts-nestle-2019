@@ -22,6 +22,7 @@ namespace rhea
 
 		void				onAlloc (u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte, const char *debug_filename, u32 debug_lineNumber);
 		void				onDealloc(u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte);
+        void                finalReport (u32 allocatorID, const char *allocatorName);
 
 		sRecord*			getRoot() const { return root; }
 

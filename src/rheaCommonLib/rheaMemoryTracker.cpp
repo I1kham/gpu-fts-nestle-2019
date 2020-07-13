@@ -68,7 +68,7 @@ void MemoryTracker::onAlloc(u32 allocatorID, const char *allocatorName, const vo
 }
 
 //*****************************************************
-void MemoryTracker::onDealloc(u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte)
+void MemoryTracker::onDealloc (u32 allocatorID, const char *allocatorName, const void *p, u32 allocatedSizeInByte)
 {
 	rhea::criticalsection::enter(cs);
 	sRecord *s = root;
@@ -100,4 +100,30 @@ void MemoryTracker::onDealloc(u32 allocatorID, const char *allocatorName, const 
 	//non ho trovato *p nella lista delle allocazioni!
 	DBGBREAK;
 
+}
+
+//*****************************************************
+void MemoryTracker::finalReport (u32 allocatorID, const char *allocatorName)
+{
+    rhea::criticalsection::enter(cs);
+
+    fprintf (f, "\n\n================= FINAL REPORT FOR allocator [%d][%s]===============\n", allocatorID, allocatorName);
+    fprintf (f, "List of undeleted pointer:\n");
+    fprintf(f, "ALLOC.ID PTR-FROM\n");
+    sRecord *s = root;
+    while (s)
+    {
+        if (s->allocatorID == allocatorID)
+        {
+            //verifico che non sia già stato deleted
+            if ( (s->allocID & 0x80000000) == 0)
+            {
+                IntPointer from = PTR_TO_INT(s->p);
+                fprintf(f, "%08d 0x%08X\n", s->allocID, (u32)from);
+            }
+        }
+        s = s->next;
+    }
+    fflush(f);
+    rhea::criticalsection::leave(cs);
 }

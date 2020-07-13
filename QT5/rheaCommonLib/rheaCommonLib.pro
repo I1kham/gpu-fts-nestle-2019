@@ -109,6 +109,8 @@ SOURCES += \
     ../../src/rheaCommonLib/rheaDate.cpp \
     ../../src/rheaCommonLib/rheaDateTime.cpp \
     ../../src/rheaCommonLib/rheaFS.cpp \
+    ../../src/rheaCommonLib/rheaIniFile.cpp \
+    ../../src/rheaCommonLib/rheaIniFileSection.cpp \
     ../../src/rheaCommonLib/rheaJSONParser.cpp \
     ../../src/rheaCommonLib/rheaLinearBuffer.cpp \
     ../../src/rheaCommonLib/rheaLogger.cpp \
@@ -125,8 +127,6 @@ SOURCES += \
     ../../src/rheaCommonLib/rheaTime24.cpp \
     ../../src/rheaCommonLib/rheaUtils.cpp \
     ../../src/rheaCommonLib/compress/miniz.c
-
-
 
 
 
@@ -177,6 +177,7 @@ HEADERS += \
     ../../src/rheaCommonLib/rheaHandleBaseArray.h \
     ../../src/rheaCommonLib/rheaHandleUID040210.h \
     ../../src/rheaCommonLib/rheaHandleUID88.h \
+    ../../src/rheaCommonLib/rheaIniFile.h \
     ../../src/rheaCommonLib/rheaIntrusiveFreeList.h \
     ../../src/rheaCommonLib/rheaJSONParser.h \
     ../../src/rheaCommonLib/rheaLIFO.h \
@@ -196,7 +197,6 @@ HEADERS += \
     ../../src/rheaCommonLib/rheaTime24.h \
     ../../src/rheaCommonLib/rheaUtils.h \
     ../../src/rheaCommonLib/rheaWaitableFIFO.h
-
 
 
 

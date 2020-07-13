@@ -45,7 +45,14 @@ namespace rhea
 							}
 
 
-        virtual             ~AllocatorSimple()												{ assert(!track.anyMemLeaks()); }
+        virtual             ~AllocatorSimple()
+                            {
+#ifdef ALLOCATOR_SIMPLE_USE_MEM_TRACKER
+                                rhea::internal_getMemoryTracker()->finalReport(getAllocatorID(), getName());
+#else
+                                assert(!track.anyMemLeaks());
+#endif
+                            }
 
         bool                isThreadSafe() const                                            { return true; }
 		size_t              getAllocatedSize (const void *p) const							
@@ -157,7 +164,7 @@ namespace rhea
 							{
 								assert (real_align == 4 || real_align == 8);
 
-								//la qt√† di memoria da allocare deve essere un multiplo dell'allineamento
+								//la qt√  di memoria da allocare deve essere un multiplo dell'allineamento
 								u32 real_size_to_alloc = ALIGN_NUMEBER_TO_POWER_OF_TWO((u32)sizeInBytes, real_align);
 
 								//Voglio memorizzare anche il sizeInBytes, mi servono quindi altri 4 byte oltre a quelli richiesti dall'utente

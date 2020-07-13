@@ -116,7 +116,7 @@ void thread::deleteMsgQ (HThreadMsgR &handleR, HThreadMsgW &handleW UNUSED_PARAM
     if (NULL == s)
         return;
 
-	rhea::criticalsection::enter(glob.cs);
+    rhea::criticalsection::enter(glob.cs);
 	{
 		rhea::criticalsection::enter(s->cs);
 		{

@@ -91,6 +91,7 @@ CONFIG(release, debug|release) {
 SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_abort.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_activate.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getConnDetail.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getQR.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_isOnline.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.cpp \
@@ -185,6 +186,7 @@ SOURCES += \
 HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_abort.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_activate.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getConnDetail.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getQR.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_isOnline.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_M_MilkerVer.h \
@@ -277,7 +279,6 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeTask.h \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
     ../../src/SocketBridge/SocketBridgeVersion.h
-
 
 
 

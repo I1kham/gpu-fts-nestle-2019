@@ -138,6 +138,7 @@ private:
     bool                    priv_langCopy (const u8 *srcFolder, const u8 *dstFolder, u32 timeToWaitDuringCopyFinalizingMSec);
     void                    priv_foreverDisableBtnStartVMC();
     void                    priv_on_btnInstall_DA3_onFileSelected (const u8 *srcFullFilePathAndName);
+    void                    priv_on_btnInstall_DA3_onAlipayChinaSelected (const u8 *srcFullFilePathAndName);
     void                    priv_uploadManual (const u8 *srcFullFilePathAndName);
     void                    priv_uploadGUI (const u8 *srcFullFolderPath);
     void                    priv_on_btnInstall_CPU_onFileSelected (const u8 *fullFilePathAndName);

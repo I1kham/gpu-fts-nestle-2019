@@ -818,12 +818,43 @@ void FormBoot::on_btnInstall_DA3_clicked()
     //chiedo all'utente quale file vuole uppare...
     priv_fileListShow(eFileListMode_DA3);
     priv_fileListPopulate(glob->usbFolder_VMCSettings, (const u8*)"*.da3", true);
+    priv_fileListPopulate(glob->usbFolder_VMCSettings, (const u8*)"*.alipaychina.ini", false);
 }
 
 void FormBoot::priv_on_btnInstall_DA3_onFileSelected (const u8 *fullFilePathAndName)
 {
-    priv_pleaseWaitShow("Installing VMC Settings...");
-    priv_startUploadDA3 (eUploadDA3CallBack_btn, fullFilePathAndName);
+    //a seconda dell'estensione del file da caricare...
+    u8 ext[32];
+    rhea::fs::extractFileExt (fullFilePathAndName, ext, sizeof(ext));
+
+    if (rhea::string::utf8::areEqual (ext, (const u8*)"da3", false))
+    {
+        //file .da3
+        priv_pleaseWaitShow("Installing VMC Settings...");
+        priv_startUploadDA3 (eUploadDA3CallBack_btn, fullFilePathAndName);
+        return;
+    }
+
+    if (rhea::string::utf8::areEqual (ext, (const u8*)"ini", false))
+    {
+        //file .ini
+
+        const u32 len = rhea::string::utf8::lengthInBytes(fullFilePathAndName);
+        if (len > 16)
+        {
+            if (rhea::string::utf8::areEqual (&fullFilePathAndName[len-16], (const u8*)".alipaychina.ini", false))
+            {
+                // file .alipaychina.ini
+                priv_pleaseWaitShow("Installing Alipay China settings...");
+                priv_on_btnInstall_DA3_onAlipayChinaSelected (fullFilePathAndName);
+                return;
+            }
+        }
+    }
+
+
+    priv_pleaseWaitSetError("Invalid source file");
+    priv_pleaseWaitHide();
 }
 
 void FormBoot::priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg)
@@ -858,7 +889,20 @@ void FormBoot::priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg)
 
 }
 
+void FormBoot::priv_on_btnInstall_DA3_onAlipayChinaSelected (const u8 *srcFullFilePathAndName)
+{
+    u8 s[256];
 
+    sprintf_s ((char*)s, sizeof(s), "%s/current/ini/config.alipaychina.ini", rhea::getPhysicalPathToAppFolder());
+    rhea::fs::fileDelete (s);
+
+    rhea::fs::fileCopy (srcFullFilePathAndName, s);
+
+    priv_pleaseWaitSetOK ("Alipay China settings imported. Please <b>RESTART</b> the machine");
+    priv_pleaseWaitHide();
+    priv_updateLabelInfo();
+    priv_foreverDisableBtnStartVMC();
+}
 
 /**********************************************************************
  * Install GUI

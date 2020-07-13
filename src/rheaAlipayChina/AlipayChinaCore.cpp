@@ -83,13 +83,40 @@ void Core::run ()
 	rhea::thread::getMsgQEvent (hMsgQRead, &hMsgQEvent);
 	waitableGrp.addEvent (hMsgQEvent, MSGQ_WAITID);
 
-	memset (&theOrder, 0, sizeof(theOrder));
+    OSSocket sok;
+    socket::init(&sok);
+
+    //attendo che qualcuno si iscriva a me
+    bool bAtLeastOnSubscriber = false;
+    while (bAtLeastOnSubscriber == false)
+    {
+        u8 nEvents = waitableGrp.wait (PAYMENT_POLL_MSec);
+        for (u8 i = 0; i < nEvents; i++)
+        {
+            switch (waitableGrp.getEventOrigin(i))
+            {
+            default:
+                break;
+
+            case OSWaitableGrp::evt_origin_osevent:
+                if (waitableGrp.getEventUserParamAsU32(i) == MSGQ_WAITID)
+                {
+                    priv_handleIncomingThreadMsg(sok);
+                    if (toBeNotifiedThreadList.getNElem())
+                        bAtLeastOnSubscriber=true;
+                }
+                break;
+            }
+        }
+    }
+
+
+
+    memset (&theOrder, 0, sizeof(theOrder));
 	theOrder.status = Core::eOrderStatus_none;
 
 	bool bIsSocketConnected = false;
 	u64 nextTimeSendHeartBeatMSec = 0;
-	OSSocket sok;
-	socket::init(&sok);
 	bQuit = false;
 	while (bQuit == false)
 	{
@@ -124,7 +151,7 @@ void Core::run ()
 			continue;
 		}
 
-		//se arriviamo qui, vuol dire che la socket è connessa
+        //se arriviamo qui, vuol dire che la socket e' connessa
 		u8 nEvents = waitableGrp.wait (PAYMENT_POLL_MSec);
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
