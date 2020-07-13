@@ -160,7 +160,7 @@ void Server::close()
 
 /***************************************************
  *	Crea il thread per la gestione delle transazioni alipay cinesi.
- *	I dati per la connessione (IP, porta e via dicendo) sono nel file alipaychina.sokbridge.ini in current/ini
+ *	I dati per la connessione (IP, porta e via dicendo) sono nel file config.alipaychina.ini in current/ini
  */
 bool Server::priv_module_alipayChina_setup ()
 {
@@ -183,10 +183,10 @@ bool Server::priv_module_alipayChina_setup ()
 	sprintf_s (moduleAlipayChina.criptoKey, sizeof(moduleAlipayChina.criptoKey), DEFAULT_cryptoKey);
 	
 
-	//se esiste, apro e parso il file "current/ini/alipaychina.sokbridge.ini" per leggere i parametri di comunicazione
+	//se esiste, apro e parso il file "current/ini/config.alipaychina.ini" per leggere i parametri di comunicazione
 	{
 		u8 filename[256];
-		sprintf_s ((char*)filename, sizeof(filename), "%s/current/ini/alipaychina.sokbridge.ini", rhea::getPhysicalPathToAppFolder());
+		sprintf_s ((char*)filename, sizeof(filename), "%s/current/ini/config.alipaychina.ini", rhea::getPhysicalPathToAppFolder());
 		rhea::IniFile config;
 		config.setup (localAllocator);
 		if (config.loadAndParse (filename))
