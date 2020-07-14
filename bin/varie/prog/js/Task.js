@@ -1842,7 +1842,7 @@ TaskDisintall.prototype.onFreeBtn1Clicked	 = function(ev)
 		case 1:  pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=10; break;
 		case 11: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=20; break;
 		case 21: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=30; break;
-		case 33: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=36; rhea.sendButtonPress(10); break;
+		case 33: pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); this.fase=35; rhea.sendButtonPress(10); break;
 		
 	}
 }
@@ -1938,6 +1938,12 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 33:
 		break;
+		
+	case 35:
+		this.fase = 36;
+		pleaseWait_freeText_setText("$TASK_DISINSTALL_WAIT4 ..."); //DISINTALLATION is running, please wait
+		break;
+		
 	
 	case 36: this.fase = 37; break;
 	case 37: this.fase = 38; break;
