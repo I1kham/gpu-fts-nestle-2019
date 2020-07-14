@@ -212,26 +212,67 @@ function onSelectionChanged(selNum)
 	var selInfo = rhea.selection_getBySelNumber(selNum);
 	
 	var elemPrice = rheaGetElemByID("divPrice");
-	rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
-	if (parseFloat(selInfo.price) <= 0)
-		rheaHideElem (elemPrice);
-	else
+	if (rhea.isFreevend == 1)
+	{
+		rheaSetElemHTML(elemPrice, "FREEVEND");
 		rheaShowElem (elemPrice);
-		
+	}
+	else if (rhea.isTestvend == 1)
+	{
+		rheaSetElemHTML(elemPrice, "TESTVEND");
+		rheaShowElem (elemPrice);
+	}
+	else
+	{	
+		rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
+		if (parseFloat(selInfo.price) <= 0)
+			rheaHideElem (elemPrice);
+		else
+			rheaShowElem (elemPrice);
+	}		
 
 	var btnStart = rheaGetElemByID("btnStart");
 	var btnStartNotAvail = rheaGetElemByID("btnStartNotAvail");
+	var btnStartOffline = rheaGetElemByID("btnStartOffline");		
+	
+	//se selezione disabilitata, mostro START_NOT_AVAIL
 	if (selInfo.enabled == "0")
 	{
 		rheaHideElem(btnStart);
+		rheaHideElem(btnStartOffline);
 		rheaSetElemHTML(btnStartNotAvail, rheaLang.BTN_START_SELECTION_NOT_AVAIL);
 		rheaShowElem(btnStartNotAvail);
 	}
 	else
 	{
-		rheaHideElem(btnStartNotAvail);
-		rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
-		rheaShowElem(btnStart);
+		var bShowBtnStart = 0;
+		
+		//se wifi==ON...
+		if (rhea.isAlipayChinaOnline() || isRheamediaPreview())
+			bShowBtnStart = 1;
+		else
+		{
+			//se wifi==OFF ma siamo in FREEVEND oppure prezzo==0
+			if (parseFloat(selInfo.price) <= 0 || rhea.isFreevend)
+				bShowBtnStart = 1;
+		}
+		
+		if (bShowBtnStart)
+		{
+			rheaHideElem(btnStartNotAvail);
+			rheaHideElem(btnStartOffline);
+			rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
+			rheaShowElem(btnStart);
+		}
+		else
+		{
+			//nascondo il btn START e mostro il msg di "server non disponibile"
+			rheaHideElem(rheaGetElemByID("btnStart"));
+			rheaHideElem(rheaGetElemByID("btnStartNotAvail"));
+			rheaSetElemHTML(btnStartOffline, rheaLang.BTN_START_OFFLINE);
+			rheaShowElem(btnStartOffline);
+		}
+		
 	}
 
 	if (rheaDebug_isEnabled())
@@ -270,7 +311,7 @@ function setupPageContent()
 		e.innerHTML = rheaMainMenuIconsInfo[iconNum];
 		rheaShowElem(e);
 	});	
-	
+
 	onSelectionChanged(selNum);
 }
 
@@ -293,13 +334,6 @@ function btnAbort_countdown()
 	if (btnAbort_secondsLeft <= 0)
 	{
 		onBtnAbortPayment();
-		return;
-	}
-	
-	//se siamo nella preview di rheaMedia...	
-	if (isRheamediaPreview() && btnAbort_secondsLeft < 58)
-	{
-		startCurrentSelWithPaymentConfirmed();
 		return;
 	}
 
@@ -339,20 +373,22 @@ function onBtnStartSelection()
 	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
 	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
 	
-	//inizio conto alla rovescia
-	btnAbort_countdown();
-
 	//mostro la rotellina al posto del qr code
 	rheaHideElem (rheaGetElemByID("qrcode_payment"));
 	rheaShowElem (rheaGetElemByID("qrcode_plsWait"));
 	
-	//chiedo il qrcode
-	if (isRheamediaPreview())
+	
+	//se siamo in freevend oppure prezzo==0
+	if (parseFloat(selInfo.price) <= 0 || rhea.isFreevend || isRheamediaPreview())
 	{
-		showQRCode ("this is a test");
+		startCurrentSelWithPaymentConfirmed();
 	}
 	else
 	{
+		//inizio conto alla rovescia
+		btnAbort_countdown();
+
+		//chiedo il qrcode per il pagamento
 		rhea.ajax ("AliChinaGetQR", {"name":iconDisplayName, "selNum":selThatWasStarted, "price":selPrice} ).then( function(result)
 		{
 			showQRCode (result);
@@ -382,9 +418,8 @@ function showQRCode (url)
 
 function startCurrentSelWithPaymentConfirmed()
 {
-	var dWait = rheaGetElemByID("rightPane_wait");
-	rheaHideElem(dWait);
-				
+	rheaHideElem(rheaGetElemByID("btnAbortPayment"));
+	
 	selThatWasStarted = detectCurrentSelection();
 	var selInfo = rhea.selection_getBySelNumber(selThatWasStarted);
 	var selPrice = selInfo.price;
@@ -408,16 +443,14 @@ function updateWifiIcon()
 	}
 	else
 	{
+		//wifi = off
 		rheaSetElemHTML (d, "<img src='img/wifi-off.png'>");
 		
-		rheaHideElem(rheaGetElemByID("btnStart"));
-		rheaHideElem(rheaGetElemByID("btnStartNotAvail"));
-
-		var btnStartOffline = rheaGetElemByID("btnStartOffline");		
-		rheaSetElemHTML(btnStartOffline, rheaLang.BTN_START_OFFLINE);
-		rheaShowElem(btnStartOffline);
-		
 	}
+
+	//aggiorno lo stato del btn START
+	var selNum = MMI_getLinkedSelectionNumber(iconNum);
+	onSelectionChanged(selNum);
 }
 </script>
 
