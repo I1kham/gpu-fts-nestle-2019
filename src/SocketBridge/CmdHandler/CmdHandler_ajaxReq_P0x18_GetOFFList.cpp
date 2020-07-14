@@ -51,7 +51,18 @@ void CmdHandler_ajaxReq_P0x18_GetOFFList::onCPUBridgeNotification(socketbridge::
 	cpubridge::sCPUOffSingleEvent offList[32];
 	cpubridge::translateNotify_GET_OFF_REPORT(msgFromCPUBridge, &startIndex, &lastIndex, &numOffs, offList, sizeof(offList));
 
-	if (numOffs > 0)
+	if (numOffs == 0)
+	{
+		offList[0].anno = 1;
+		offList[0].mese = 1;
+		offList[0].giorno = 1;
+		offList[0].ora = 1;
+		offList[0].minuto = 1;
+		offList[0].codice = 1;
+		offList[0].stato = 0;
+		offList[0].tipo = 0;
+	}
+
 	{
 		rhea::Allocator *allocator = rhea::getScrapAllocator();
 		const u32 sizeOfBuffer = (40 * numOffs) + 128;

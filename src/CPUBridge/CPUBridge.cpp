@@ -1292,9 +1292,6 @@ void cpubridge::translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg,
 //***************************************************
 void cpubridge::notify_GET_OFF_REPORT(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 indexNum, u8 lastIndexNum, const sCPUOffSingleEvent *offs, u8 numOffs)
 {
-	if (numOffs == 0)
-		return;
-
 	logger->log("notify_GET_OFF_REPORT\n");
 
 	u8 buffer[256];

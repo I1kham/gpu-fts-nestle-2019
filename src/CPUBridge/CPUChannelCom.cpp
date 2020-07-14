@@ -36,7 +36,7 @@ using namespace cpubridge;
 	#define DUMPMSG(string)				fprintf(fDUMP_CPUChannelCom, string); fflush(fDUMP_CPUChannelCom);
 #else
 	#define DUMP_OPEN()
-	#define DUMP_CLOSE()
+	#define DUMP_CLOSE()	
 	#define DUMP(buffer, lenInBytes)	
 	#define DUMPMSG(string)
 #endif
