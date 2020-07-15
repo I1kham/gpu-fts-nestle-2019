@@ -543,7 +543,7 @@ u8* fs::fileCopyInMemory (FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAl
 	u32 fsize = (u32)fs::filesize(f);
 
 	*out_sizeOfAllocatedBuffer = (u32)fsize;
-	u8 *buffer = (u8*)RHEAALLOC(allocator, (u32)fsize);
+	u8 *buffer = RHEAALLOCT(u8*,allocator, (u32)fsize);
 	if (NULL == buffer)
 	{
 		*out_sizeOfAllocatedBuffer = 0;

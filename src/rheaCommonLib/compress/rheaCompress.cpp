@@ -27,7 +27,7 @@ bool rhea::compressFromMemory (const u8 *src, u32 numBytesToCompress, u8 compres
 {
 	//stima dei byte richiesti dalla versione compressa
 	*out_compressedSize = compressCalcEstimatedCompressedSize(numBytesToCompress);
-	out_dst = (u8*)RHEAALLOC(allocator, (*out_compressedSize));
+	out_dst = RHEAALLOCT(u8*,allocator, (*out_compressedSize));
 	if (!rhea::compressFromMemory(src, numBytesToCompress, compressionLevel, out_dst, out_compressedSize))
 	{
 		RHEAFREE(allocator, out_dst);

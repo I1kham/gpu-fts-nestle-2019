@@ -38,7 +38,7 @@ void CompressUtility::begin (const u8* const utf8_fullDstFileNameAndPath, u8 com
 	fData = rhea::fs::fileOpenForWriteBinary (s);
 
 	sizeOfTempBuffer = 4 * 1024 * 1024;
-	tempBuffer = (u8*)RHEAALLOC(localAllocator, sizeOfTempBuffer);
+    tempBuffer = RHEAALLOCT(u8*,localAllocator, sizeOfTempBuffer);
 }
 
 //********************************************
@@ -53,13 +53,13 @@ bool CompressUtility::addFile (const u8* const utf8_fullFileNameAndPath, const u
 		{
 			RHEAFREE(localAllocator, tempBuffer);
 			sizeOfTempBuffer = estimatedCompressedSize;
-			tempBuffer = (u8*)RHEAALLOC(localAllocator, sizeOfTempBuffer);
+            tempBuffer = RHEAALLOCT(u8*,localAllocator, sizeOfTempBuffer);
 		}
 
 		u32 sizeCompressed = sizeOfTempBuffer;
 		if (compressFromMemory (src, srcSize, compressionLevel, tempBuffer, &sizeCompressed))
 		{
-			const u32 position = ::ftell (fData);
+            const u32 position = static_cast<const u32>(::ftell (fData));
 			fs::fileWrite (fData, tempBuffer, sizeCompressed);
 
 			const u8 *pSanitizedFullDestiFilenameAndPath = NULL;
@@ -292,8 +292,8 @@ bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath,
 
 	u32 SIZE_OF_BUFFER1 = 1024 * 1024;
 	u32 SIZE_OF_BUFFER2 = 1024 * 1024;
-	u8 *buffer1 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), SIZE_OF_BUFFER1);
-	u8 *buffer2 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), SIZE_OF_BUFFER2);
+    u8 *buffer1 = RHEAALLOCT(u8*,rhea::getScrapAllocator(), SIZE_OF_BUFFER1);
+    u8 *buffer2 = RHEAALLOCT(u8*,rhea::getScrapAllocator(), SIZE_OF_BUFFER2);
 	while (numFiles--)
 	{
 		//4 byte per la lunghezza del filename
@@ -333,7 +333,7 @@ bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath,
 			{
 				RHEAFREE(rhea::getScrapAllocator(), buffer1);
 				SIZE_OF_BUFFER1 = compressedFileLen;
-				buffer1 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), SIZE_OF_BUFFER1);
+                buffer1 = RHEAALLOCT(u8*,rhea::getScrapAllocator(), SIZE_OF_BUFFER1);
 			}
 			fseek (f, dataPosInFile, SEEK_SET);
 			fs::fileRead (f, buffer1, compressedFileLen);
@@ -343,7 +343,7 @@ bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath,
 			{
 				RHEAFREE(rhea::getScrapAllocator(), buffer2);
 				SIZE_OF_BUFFER2 = fileLen;
-				buffer2 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), SIZE_OF_BUFFER2);
+                buffer2 = RHEAALLOCT(u8*,rhea::getScrapAllocator(), SIZE_OF_BUFFER2);
 			}
 			
 			u32 sizeOfUncompressed = SIZE_OF_BUFFER2;

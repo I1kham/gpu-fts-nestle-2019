@@ -46,12 +46,12 @@ void String::prealloc (u32 newSizeInByte)
 	{
 		if (NULL == allocator)
 			allocator =  rhea::getSysHeapAllocator();
-		buffer = (u8*)RHEAALLOC(allocator, allocatedSize);
+		buffer = RHEAALLOCT(u8*,allocator, allocatedSize);
 		buffer[0] = 0;
 	}
 	else
 	{
-		u8 *newstr = (u8*)RHEAALLOC(allocator, allocatedSize);
+		u8 *newstr = RHEAALLOCT(u8*,allocator, allocatedSize);
 		if (curSize)
 			memcpy (newstr, buffer, curSize);
 		newstr[curSize] = 0;

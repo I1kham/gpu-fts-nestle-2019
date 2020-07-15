@@ -200,7 +200,7 @@ u8 string::utf8::extractAChar (const u8* const p, u32 lenInBytes, UTF8Char *out)
 //**************************************************
 u8* string::utf8::allocStr (Allocator *allocator, const char* const src, u32 numBytesDaUtilizzare)
 {
-	return utf8::allocStr (allocator, (const u8* const)src, numBytesDaUtilizzare);
+    return utf8::allocStr (allocator, (const u8* const)(src), numBytesDaUtilizzare);
 }
 
 //**************************************************
@@ -209,11 +209,11 @@ u8* string::utf8::allocStr (Allocator *allocator, const u8* const src, u32 numBy
 	assert (allocator && src);
 
 	if (u32MAX == numBytesDaUtilizzare)
-		numBytesDaUtilizzare = string::utf8::lengthInBytes ((const u8* const)src);
+        numBytesDaUtilizzare = string::utf8::lengthInBytes (src);
 	if (0 == numBytesDaUtilizzare)
 		return NULL;
 	
-	u8 *ret = (u8*)RHEAALLOC (allocator, numBytesDaUtilizzare+1);
+    u8 *ret = RHEAALLOCT (u8*, allocator, numBytesDaUtilizzare+1);
 	memcpy (ret, src, numBytesDaUtilizzare);
 	ret[numBytesDaUtilizzare] = 0x00;
 	return ret;

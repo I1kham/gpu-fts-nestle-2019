@@ -46,7 +46,7 @@ void LinearBuffer::setup (rhea::Allocator *backingallocator, u32 preallocNumByte
 
     if (preallocNumBytes)
     {
-        mem = (u8*)RHEAALLOC(allocator,preallocNumBytes);
+        mem = RHEAALLOCT(u8*,allocator,preallocNumBytes);
         allocatedSize = preallocNumBytes;
     }
     else
@@ -96,7 +96,7 @@ bool LinearBuffer::growIncremental (u32 howManyBytesToAdd)
 {
     if (howManyBytesToAdd == 0)
         return true;
-    u8 *newBuffer = (u8*)RHEAALLOC(allocator, allocatedSize + howManyBytesToAdd);
+    u8 *newBuffer = RHEAALLOCT(u8*,allocator, allocatedSize + howManyBytesToAdd);
     if (NULL == newBuffer)
     {
         DBGBREAK;
@@ -143,7 +143,7 @@ void LinearBuffer::shrink (u32 newSize, rhea::Allocator *newAllocator)
     if (newAllocator == NULL)
         newAllocator = allocator;
 
-    u8	*temp = (u8*)RHEAALLOC(newAllocator, newSize);
+    u8	*temp = RHEAALLOCT(u8*,newAllocator, newSize);
     memcpy (temp, mem, newSize);
 
     unsetup ();

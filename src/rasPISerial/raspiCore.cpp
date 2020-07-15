@@ -58,6 +58,7 @@ bool Core::open (const char *serialPort)
 	rs232BufferIN.alloc (localAllocator, 4096);
 	sok2280Buffer = (u8*)RHEAALLOC(localAllocator, SIZE_OF_RS232BUFFERIN);
 	clientList.setup (localAllocator, 128);
+    client2281List.setup (localAllocator, 1024);
     sok2281BufferIN = (u8*)RHEAALLOC(localAllocator, SOK2281_BUFFERIN_SIZE);
     sok2281BufferOUT = (u8*)RHEAALLOC(localAllocator, SOK2281_BUFFEROUT_SIZE);
 
@@ -152,6 +153,7 @@ void Core::priv_close ()
         RHEAFREE(localAllocator, sok2281BufferIN);
         RHEAFREE(localAllocator, sok2281BufferOUT);
         clientList.unsetup();
+        client2281List.unsetup();
 		RHEADELETE(rhea::getSysHeapAllocator(), localAllocator);
 		localAllocator = NULL;
 	}
@@ -223,7 +225,7 @@ void Core::priv_identify_run()
 				reportedESAPIVerMinor = rs232BufferOUT[4];
 				reportedGPUType = (esapi::eGPUType)rs232BufferOUT[5];
 
-reportedGPUType = esapi::eGPUType_TP;
+//reportedGPUType = esapi::eGPUType_TP;
                 logger->log ("\nAPI ver %d.%d, gpuType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
 				break;
 			}
@@ -823,7 +825,12 @@ void Core::run()
         priv_runTP();
 }
 
-//*******************************************************
+/*******************************************************
+ * Questo è il "main" nel caso in cui siamo connessi ad una GPU TS
+ * Apro la socket sulla porta 2281 per gestire le chiamate REST
+ * Apro la socket sulla porta 2280 per gestire la richieste provenienti dalla GUI
+ * Sulla rs232 viaggiano i pacchetti che ricevo dalla GUI sulla 2280 e le risposte prodotte dalla GPU a questi pacchetti
+ */
 void Core::priv_runTS()
 {
     logger->log ("GPU is TS\n");
@@ -843,6 +850,7 @@ void Core::priv_runTS()
     u64 timeToSyncMSec = 0;
     waitableGrp.addSerialPort (com, WAITGRP_RS232);
 #endif
+    u64 timeToCheckSocketOn2281MSec=0;
 
 	bQuit = false;
 	while (bQuit == false)
@@ -862,18 +870,12 @@ void Core::priv_runTS()
 				}
                 else if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2281)
                 {
-                    OSSocket sok;
-                    if (!rhea::socket::accept (sok2281, &sok))
-                        logger->log("ERR => accept failed on 2281\n");
-                    else
-                    {
-                        logger->log ("accepted on 2281\n");
-                        waitableGrp.addSocket (sok, WAITGRP_SOK_FROM_REST_API);
-                    }
+                    //richiesta di connessione sulla 2281 (client REST)
+                    priv_2281_accept();
                 }
 				else
 				{
-					//altimenti la socket che si è svegliata deve essere una dei miei client già connessi
+                    //la socket che si è svegliata deve essere una dei miei client già connessi
 					const u32 clientUID = waitableGrp.getEventUserParamAsU32(i);
                     if (WAITGRP_SOK_FROM_REST_API == clientUID)
                         priv_2281_handle_restAPI(waitableGrp.getEventSrcAsOSSocket (i));
@@ -895,10 +897,12 @@ void Core::priv_runTS()
 #endif
         }
 
+        const u64 timeNowMSec = rhea::getTimeNowMSec();
+
         //se hotspot è stato spento, verifico se è ora di riaccenderlo (vedi comando REST/SUSP-WIFI)
         if (hotspot.timeToTurnOnMSec)
         {
-            if (rhea::getTimeNowMSec() >= hotspot.timeToTurnOnMSec)
+            if (timeNowMSec >= hotspot.timeToTurnOnMSec)
             {
                 logger->log ("2281: turn on hotspot\n");
                 hotspot.timeToTurnOnMSec = 0;
@@ -906,9 +910,16 @@ void Core::priv_runTS()
             }
         }
 
+        //ogni tot controllo se le socket sulla 2281 (REST) sono da chiudere
+        if (timeNowMSec >= timeToCheckSocketOn2281MSec)
+        {
+            priv_2281_removeOldConnection(timeNowMSec);
+            timeToCheckSocketOn2281MSec = timeNowMSec + 5000;
+        }
+
 #ifdef LINUX
         //flusho i dati su SD nel tentativo di preservare l'SD da spegnimenti improvvisi
-        if (rhea::getTimeNowMSec() >= timeToSyncMSec)
+        if (timeNowMSec >= timeToSyncMSec)
         {
             timeToSyncMSec = rhea::getTimeNowMSec() + 10000;
             sync();
@@ -921,7 +932,11 @@ void Core::priv_runTS()
 	}
 }
 
-//*******************************************************
+/*******************************************************
+ * Questo è il "main" nel caso in cui la GPU alla quale siamo connessi sia una TP.
+ * Apro la socket sulla porta 2281 per gestire le chiamate REST
+ * Sulla rs232 invece viaggiano solo i comandi ESAPI
+ */
 void Core::priv_runTP()
 {
     logger->log ("GPU is TP\n");
@@ -934,6 +949,7 @@ void Core::priv_runTP()
 #ifdef LINUX
     u64 timeToSyncMSec = 0;
 #endif
+    u64 timeToCheckSocketOn2281MSec = 0;
 
     bQuit = false;
     while (bQuit == false)
@@ -945,18 +961,12 @@ void Core::priv_runTP()
             {
                 if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2281)
                 {
-                    OSSocket sok;
-                    if (!rhea::socket::accept (sok2281, &sok))
-                        logger->log("ERR => accept failed on 2281\n");
-                    else
-                    {
-                        logger->log ("accepted on 2281\n");
-                        waitableGrp.addSocket (sok, WAITGRP_SOK_FROM_REST_API);
-                    }
+                    //qualcuno vuole connettersi sulla 2281 (un client REST)
+                    priv_2281_accept();
                 }
                 else
                 {
-                    //altimenti la socket che si è svegliata deve essere una dei miei client già connessi
+                    //la socket che si è svegliata deve essere una dei miei client già connessi
                     const u32 clientUID = waitableGrp.getEventUserParamAsU32(i);
                     if (WAITGRP_SOK_FROM_REST_API == clientUID)
                         priv_2281_handle_restAPI(waitableGrp.getEventSrcAsOSSocket (i));
@@ -969,10 +979,12 @@ void Core::priv_runTP()
             }
         }
 
+        const u64 timeNowMSec = rhea::getTimeNowMSec();
+
         //se hotspot è stato spento, verifico se è ora di riaccenderlo (vedi comando REST/SUSP-WIFI)
         if (hotspot.timeToTurnOnMSec)
         {
-            if (rhea::getTimeNowMSec() >= hotspot.timeToTurnOnMSec)
+            if (timeNowMSec >= hotspot.timeToTurnOnMSec)
             {
                 logger->log ("2281: turn on hotspot\n");
                 hotspot.timeToTurnOnMSec = 0;
@@ -980,9 +992,16 @@ void Core::priv_runTP()
             }
         }
 
+        //ogni tot controllo se le socket sulla 2281 (REST) sono da chiudere
+        if (timeNowMSec >= timeToCheckSocketOn2281MSec)
+        {
+            priv_2281_removeOldConnection(timeNowMSec);
+            timeToCheckSocketOn2281MSec = timeNowMSec + 5000;
+        }
+
 #ifdef LINUX
         //flusho i dati su SD nel tentativo di preservare l'SD da spegnimenti improvvisi
-        if (rhea::getTimeNowMSec() >= timeToSyncMSec)
+        if (timeNowMSec >= timeToSyncMSec)
         {
             timeToSyncMSec = rhea::getTimeNowMSec() + 10000;
             sync();
@@ -1367,6 +1386,46 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 
 }
 
+
+
+//*********************************************************
+void Core::priv_2281_accept()
+{
+    sClient2281 cl;
+    if (!rhea::socket::accept (sok2281, &cl.sok))
+        logger->log("2281: ERR => accept failed\n");
+    else
+    {
+        logger->log ("2281[%d]: accepted\n", cl.sok.socketID);
+        cl.lastTimeRcvMSec = rhea::getTimeNowMSec();
+        waitableGrp.addSocket (cl.sok, WAITGRP_SOK_FROM_REST_API);
+        client2281List.append (cl);
+    }
+}
+
+//*********************************************************
+void Core::priv_2281_removeOldConnection(u64 timeNowMSec)
+{
+    u32 n = client2281List.getNElem();
+
+    u32 i=0;
+    while (i<n)
+    {
+        if (timeNowMSec >= client2281List(i).lastTimeRcvMSec + 5000)
+        {
+            OSSocket sok = client2281List(i).sok;
+            logger->log ("2281: closed [%d]\n", sok.socketID);
+            waitableGrp.removeSocket(sok);
+            rhea::socket::close(sok);
+
+            n--;
+            client2281List.removeAndSwapWithLast(i);
+        }
+        else
+            i++;
+    }
+}
+
 //*********************************************************
 void Core::priv_2281_handle_restAPI (OSSocket &sok)
 {
@@ -1374,10 +1433,21 @@ void Core::priv_2281_handle_restAPI (OSSocket &sok)
     if (nBytesLetti == 0)
     {
         //connessione chiusa
-        rhea::socket::close(sok);
-        logger->log ("2281: closed\n");
+        //Non chiudo qui la socket, ci pensa poi la priv_2281_removeOldConnection()
         return;
     }
+
+    //cerco la socket nella lista delle socket collegate
+    for (u32 i=0; i<client2281List.getNElem(); i++)
+    {
+        if (rhea::socket::compare(sok, client2281List(i).sok))
+        {
+            client2281List[i].lastTimeRcvMSec = rhea::getTimeNowMSec();
+            break;
+        }
+    }
+
+
     if (nBytesLetti < 0)
     {
         //la chiamata sarebbe stata bloccante, non dovrebbe succedere
@@ -1392,6 +1462,12 @@ void Core::priv_2281_handle_restAPI (OSSocket &sok)
         return;
     }
 
+    logger->log ("2281[%d]: rcv %s\n", sok.socketID, sok2281BufferIN);
+
+    //i comandi ricevuti lungo questa socket sono nel formato:
+    //  COMANDO|param1|param2|...|paramn
+    //Un comando può anche non avere parametri
+    //Il separatore "|" (pipe) è usato per separare comando e parametri
     const rhea::UTF8Char    cSep(124);          // pipe
     rhea::string::utf8::Iter iter;
     rhea::UTF8Char c;
@@ -1443,7 +1519,7 @@ void Core::priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData)
     sok2281BufferOUT[ct] =0;
     rhea::socket::write (sok, sok2281BufferOUT, ct);
 
-    logger->log ("2281: snd %s\n", &sok2281BufferOUT[3]);
+    logger->log ("2281[%d]: snd %s\n", sok.socketID, &sok2281BufferOUT[3]);
 }
 
 //*********************************************************
@@ -1451,69 +1527,52 @@ void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhe
 {
     const u32 commandLen = rhea::string::utf8::lengthInBytes(command);
 
-    if (NULL == params)
+    u32 ct = 0;
+
+    if (priv_2281_utils_match(command, commandLen, "SUSP-WIFI"))
     {
-        //comando senza parametri
+        //SUSP-WIFI|timeSec
+        i32 timeSec=3;
+        rhea::string::utf8::extractInteger (*params, &timeSec);
+        logger->log ("2281: [%s] [%d]\n", command, timeSec);
 
-        //i comandi successivi sono gestiti solo nel caso in cui il rasPI sia connesso ad una TP
-        if (reportedGPUType == esapi::eGPUType::eGPUType_TS)
-            return;
-
-        u32 ct = 0;
-
-        if(priv_2281_utils_match(command, commandLen, "GET-CPU-LCD-MSG"))
-        {
-            const u32 n = priv_esapi_buildMsg ('C', '1', NULL, 0, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
-            priv_rs232_sendBuffer (rs232BufferOUT, n);
-            if (priv_rs232_waitAnswer('C','1',5,3,rs232BufferOUT, 1000))
-            {
-                //# C 1 [msgLen] [msgUTF16_LSB_MSB] [ck]
-                u8 *msgInUTF8 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), 1024);
-
-                //traduco da utf16 a utf8
-                u16 ct=0;
-                const u16 msgLen = rs232BufferOUT[3];
-                for (u16 i=0; i<msgLen; i+=2)
-                {
-                    const rhea::UTF16Char utf16 ( rhea::utils::bufferReadU16_LSB_MSB(&rs232BufferOUT[4+i]) );
-                    rhea::UTF8Char utf8;
-                    rhea::string::utf16::toUTF8 (utf16, &utf8);
-
-                    memcpy (&msgInUTF8[ct], utf8.data, utf8.length());
-                    ct+=utf8.length();
-                }
-                msgInUTF8[ct]=0;
-                priv_2281_sendAnswer (sok, msgInUTF8, ct);
-                RHEAFREE(rhea::getScrapAllocator(), msgInUTF8);
-            }
-            else
-            {
-                priv_2281_sendAnswer (sok, (const u8*)"KO", 2);
-            }
-            return;
-        }
+        logger->log ("2281: turn off hotspot\n");
+        hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (timeSec*1000);
+        hotspot.turnOFF();
+        return;
     }
-    else
+    else if (priv_2281_utils_match(command, commandLen, "GET-CPU-LCD-MSG"))
     {
-        //comando con parametri
-        if (priv_2281_utils_match(command, commandLen, "SUSP-WIFI"))
+        //invio comando ESAPI #C1
+        const u32 n = priv_esapi_buildMsg ('C', '1', NULL, 0, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+        priv_rs232_sendBuffer (rs232BufferOUT, n);
+        if (priv_rs232_waitAnswer('C','1',5,3,rs232BufferOUT, 1000))
         {
-            //SUSP-WIFI|timeSec
-            i32 timeSec=3;
-            rhea::string::utf8::extractInteger (*params, &timeSec);
-            logger->log ("2281: [%s] [%d]\n", command, timeSec);
+            //mi aspetto questa risposta
+            //# C 1 [msgLen] [msgUTF16_LSB_MSB] [ck]
+            u8 *msgInUTF8 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), 1024);
 
-            logger->log ("2281: turn off hotspot\n");
-            hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (timeSec*1000);
-            hotspot.turnOFF();
-            return;
+            //traduco da utf16 a utf8
+            u16 ct=0;
+            const u16 msgLen = rs232BufferOUT[3];
+            for (u16 i=0; i<msgLen; i+=2)
+            {
+                const rhea::UTF16Char utf16 ( rhea::utils::bufferReadU16_LSB_MSB(&rs232BufferOUT[4+i]) );
+                rhea::UTF8Char utf8;
+                rhea::string::utf16::toUTF8 (utf16, &utf8);
+
+                memcpy (&msgInUTF8[ct], utf8.data, utf8.length());
+                ct+=utf8.length();
+            }
+            msgInUTF8[ct]=0;
+            priv_2281_sendAnswer (sok, msgInUTF8, ct);
+            RHEAFREE(rhea::getScrapAllocator(), msgInUTF8);
         }
-
-        //i comandi successivi sono gestiti solo nel caso in cui il rasPI sia connesso ad una TP
-        if (reportedGPUType == esapi::eGPUType::eGPUType_TS)
+        else
         {
-            return;
+            priv_2281_sendAnswer (sok, (const u8*)"KO", 2);
         }
+        return;
     }
 
     logger->log ("2281: ERR command [%s] not recognized\n", command);

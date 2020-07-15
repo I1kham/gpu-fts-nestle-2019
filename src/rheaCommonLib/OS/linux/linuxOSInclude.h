@@ -34,6 +34,11 @@
 typedef uintptr_t IntPointer;
 
 
+#ifdef PLATFORM_RASPI
+    #undef NULL
+    #define NULL nullptr
+#endif
+
 /***********************************************
  * debug helpers
  */

@@ -71,7 +71,7 @@ namespace rhea
                                             allocator = allocatorIN;
                                             indexOfFirstItem = indexOfFirstItemIN;
                                             const u32 sizeOfMemBlock = sizeOfAnItem * numMaxItem;
-                                            memblock = (u8*)RHEAALLOC(allocator, sizeOfMemBlock);
+                                            memblock = RHEAALLOCT(u8*,allocator, sizeOfMemBlock);
                                             assert (NULL != memblock);
                                             memset (memblock, 0, sizeOfMemBlock);
 

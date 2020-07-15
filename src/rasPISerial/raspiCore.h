@@ -133,6 +133,12 @@ namespace raspi
 			}
 		};
 
+        struct sClient2281
+        {
+            OSSocket    sok;
+            u64         lastTimeRcvMSec;
+        };
+
 	private:
 		struct sFileUpload
 		{
@@ -170,6 +176,8 @@ namespace raspi
 
         void                    priv_openSocket2280();
         void                    priv_openSocket2281();
+        void                    priv_2281_accept();
+        void                    priv_2281_removeOldConnection(u64 timeNowMSec);
         void                    priv_2281_handle_restAPI (OSSocket &sok);
         void                    priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhea::string::utf8::Iter *params);
         bool                    priv_2281_utils_match (const u8 *command, u32 commandLen, const char *match) const;
@@ -200,6 +208,7 @@ namespace raspi
 		bool					bQuit;
         sHotspot                hotspot;
 		sFileUpload				fileUpload;
+        rhea::FastArray<sClient2281>    client2281List;
 
 	};
 } //namespace raspi

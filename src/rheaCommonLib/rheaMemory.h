@@ -14,18 +14,19 @@
 	#define RHEANEW(allocator, T)                               new ( (*allocator).alloc( sizeof(T), __alignof(T), __FILE__, __LINE__, true)) T
 
 
-	#define RHEAALLOCSTRUCT(allocator,T)                        (T*)(allocator)->alloc( sizeof(T), __alignof(T), __FILE__, __LINE__, false);
+    #define RHEAALLOCSTRUCT(allocator,T)                        (T*)(allocator)->alloc( sizeof(T), __alignof(T), __FILE__, __LINE__, false)
 
-	#define RHEAALIGNEDALLOC(allocator,sizeInByte,align)		(allocator)->alloc (sizeInByte, align, __FILE__, __LINE__, false);
-	#define RHEAALLOC(allocator,sizeInByte)						(allocator)->alloc (sizeInByte, __alignof(void*), __FILE__, __LINE__, false);
+    #define RHEAALIGNEDALLOC(allocator,sizeInByte,align)		(allocator)->alloc ((sizeInByte), align, __FILE__, __LINE__, false)
+    #define RHEAALLOC(allocator,sizeInByte)                     (allocator)->alloc ((sizeInByte), __alignof(void*), __FILE__, __LINE__, false)
+    #define RHEAALLOCT(returnType, allocator,sizeInByte)        static_cast<returnType>((allocator)->alloc ((sizeInByte), __alignof(void*), __FILE__, __LINE__, false))
 #else
 	#define RHEANEW(allocator, T)                               new ( (*allocator).alloc( sizeof(T), __alignof(T), true)) T
 
 
-	#define RHEAALLOCSTRUCT(allocator,T)                        (T*)(allocator)->alloc( sizeof(T), __alignof(T), false);
+    #define RHEAALLOCSTRUCT(allocator,T)                        (T*)(allocator)->alloc( sizeof(T), __alignof(T), false)
 
-	#define RHEAALIGNEDALLOC(allocator,sizeInByte,align)		(allocator)->alloc (sizeInByte, align, false);
-	#define RHEAALLOC(allocator,sizeInByte)						(allocator)->alloc (sizeInByte, __alignof(void*), false);
+    #define RHEAALIGNEDALLOC(allocator,sizeInByte,align)		(allocator)->alloc ((sizeInByte), align, false);
+    #define RHEAALLOC(allocator,sizeInByte)						(allocator)->alloc ((sizeInByte), __alignof(void*), false)
 #endif
 
 

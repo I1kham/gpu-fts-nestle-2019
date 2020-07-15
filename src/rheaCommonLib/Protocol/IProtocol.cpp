@@ -8,7 +8,7 @@ IProtocol::IProtocol (Allocator * allocatorIN, u16 startingSizeOfWriteBuffer, u1
 	allocator = allocatorIN;
 	BUFFERW_CUR_SIZE = startingSizeOfWriteBuffer;
 	BUFFERW_MAX_SIZE = maxSizeOfWriteBuffer;
-	bufferW = (u8*)RHEAALLOC(allocator, BUFFERW_CUR_SIZE);
+	bufferW = RHEAALLOCT(u8*,allocator, BUFFERW_CUR_SIZE);
 }
 
 //*************************************************
@@ -61,7 +61,7 @@ bool IProtocol::priv_growWriteBuffer()
 		u32 newBufferSize = BUFFERW_CUR_SIZE * 2;
 		if (newBufferSize < 0xffff)
 		{
-			u8 *p = (u8*)RHEAALLOC(allocator, newBufferSize);
+			u8 *p = RHEAALLOCT(u8*,allocator, newBufferSize);
 			memcpy(p, bufferW, BUFFERW_CUR_SIZE);
 			BUFFERW_CUR_SIZE = (u16)newBufferSize;
 
