@@ -1249,7 +1249,7 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 				if (NULL != cl)
 				{
 					rhea::socket::write (cl->sok, data, dataLen);
-					logger->log ("rcv [%d] bytes from RS232, sending to socket [%d]\n", dataLen, cl->uid);
+                    logger->log ("RS232: rcv [%d] bytes, sending to socket [%d, uid=%d]\n", dataLen, cl->sok.socketID, cl->uid);
 				}
 				else
 				{
@@ -1274,6 +1274,8 @@ Core::sConnectedSocket* Core::priv_2280_findClientByUID (u32 uid)
 		if (clientList(i).uid == uid)
 			return &clientList[i];
 	}
+
+    logger->log ("2280: can't find socket[uid=%d]\n", uid);
 	return NULL;
 }
 
@@ -1283,7 +1285,7 @@ void Core::priv_2280_accept()
 	sConnectedSocket cl;
 	if (!rhea::socket::accept (sok2280, &cl.sok))
 	{
-		logger->log("ERR => accept failed on 2280\n");
+        logger->log("2280: ERR => accept failed\n");
 		return;
 	}
 
@@ -1302,7 +1304,7 @@ void Core::priv_2280_accept()
 	clientList.append (cl);
 	waitableGrp.addSocket (cl.sok, cl.uid);
 
-	logger->log ("socket [%d] connected\n", cl.uid);
+    logger->log ("2280[%d, uid=%d]: connected\n", cl.sok.socketID, cl.uid);
 }
 
 /*********************************************************
@@ -1353,7 +1355,7 @@ void Core::priv_2280_onIncomingData (OSSocket &sok, u32 uid)
     ct++;
 
 	priv_rs232_sendBuffer (rs232BufferOUT, ct);
-	logger->log ("rcv [%d] bytes from socket [%d], sending to GPU\n", nBytesLetti, cl->uid);
+    logger->log ("2280[%d, uid=%d]: rcv [%d] bytes, sending to GPU\n", cl->sok.socketID, cl->uid, nBytesLetti);
 
 }
 
@@ -1366,7 +1368,9 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 		{
 			assert (rhea::socket::compare(clientList(i).sok, sok));
 
-			waitableGrp.removeSocket (clientList[i].sok);
+            logger->log ("2280[%d, uid=%d]: disconnected\n", sok.socketID, uid);
+
+            waitableGrp.removeSocket (clientList[i].sok);
 			rhea::socket::close(clientList[i].sok);
 			clientList.removeAndSwapWithLast(i);
 
@@ -1376,7 +1380,6 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 			rhea::utils::bufferWriteU32 (data, uid);
 			const u32 nBytesToSend= priv_esapi_buildMsg ('R', 0x02, data, 4, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
-			logger->log ("socket [%d] disconnected\n", uid);
 			return;
 		}
 	}
