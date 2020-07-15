@@ -23,15 +23,18 @@
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPICore.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRasPI.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRaw.cpp" />
+    <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIProtocol.cpp" />
+    <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIShared.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPISubscriberList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPICore.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIEnumAndDefine.h" />
-    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModule.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRasPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRaw.h" />
+    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIProtocol.h" />
+    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIShared.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPISubscriberList.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

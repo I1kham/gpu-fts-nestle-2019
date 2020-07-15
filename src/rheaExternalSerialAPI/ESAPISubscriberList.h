@@ -7,8 +7,8 @@ namespace esapi
 	class SubscriberList
 	{
 	public:
-					SubscriberList();
-					~SubscriberList()													{ }
+						SubscriberList();
+						~SubscriberList()													{ }
 
 		void			setup (rhea::Allocator *allocator);
 		void			unsetup();

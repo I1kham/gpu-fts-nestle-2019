@@ -1,6 +1,8 @@
 #ifndef _rheaNullLogger_h_
 #define _rheaNullLogger_h_
 #include "ISimpleLogger.h"
+#include "../OS/OS.h"
+
 
 namespace rhea
 {
