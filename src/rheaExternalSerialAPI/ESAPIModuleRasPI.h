@@ -14,11 +14,11 @@ namespace esapi
 		eExternalModuleType		run();
 
 	protected:
-		void			virt_handleMsgFromServiceQ	(sShared *shared, const rhea::thread::sMsg &msg);
-		void			virt_handleMsgFromSubscriber(sShared *shared, sSubscription &sub, const rhea::thread::sMsg &msg, u16 handlerID);
-		void			virt_handleMsgFromCPUBridge	(sShared *shared, cpubridge::sSubscriber &sub, const rhea::thread::sMsg &msg, u16 handlerID);
-		void			virt_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b);
-		void			virt_handleMsgFromSocket (sShared *shared, OSSocket &sok, u32 userParam);
+        void                    virt_handleMsgFromServiceQ	(sShared *shared, const rhea::thread::sMsg &msg);
+        void                    virt_handleMsgFromSubscriber(sShared *shared, sSubscription &sub, const rhea::thread::sMsg &msg, u16 handlerID);
+        void                    virt_handleMsgFromCPUBridge	(sShared *shared, cpubridge::sSubscriber &sub, const rhea::thread::sMsg &msg, u16 handlerID);
+        void                    virt_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b);
+        void                    virt_handleMsgFromSocket (sShared *shared, OSSocket &sok, u32 userParam);
 
 	private:
         static const u32		SIZE_OF_RS232BUFFEROUT = 2048;

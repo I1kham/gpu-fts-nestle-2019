@@ -62,8 +62,8 @@ void ModuleRasPI::virt_handleMsgFromSubscriber (sShared *shared, sSubscription &
 //********************************************************
 void ModuleRasPI::virt_handleMsgFromCPUBridge (sShared *shared, cpubridge::sSubscriber &sub, const rhea::thread::sMsg &msg, u16 handlerID)
 {
-    //in stato boot, non ci sono notiche CPUBridge che devo gestire
-    DBGBREAK;
+    //in stato boot, non ci sono notiche CPUBridge che devo gestire, ma non è un errore se ne ricevo
+
 }
 
 //********************************************************
@@ -126,7 +126,7 @@ void ModuleRasPI::priv_2280_onClientDisconnected (sShared *shared, OSSocket &sok
 			//comunico la disconnessione via seriale
             const u32 n = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			shared->protocol->rs232_write (rs232BufferOUT, n);
-			shared->logger->log ("esapi::ModuleRasPI => socket [%d] disconnected\n", uid);
+            shared->logger->log ("esapi::ModuleRasPI::socket[%d] disconnected\n", uid);
 			return;
 		}
 	}
@@ -152,10 +152,6 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
     {
     default:
         shared->logger->log("ModuleRasPI::boot_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
-        break;
-
-    case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
-        notify_MODULE_TYPE_AND_VER (sub.q, handlerID, shared->logger, shared->moduleInfo.type, shared->moduleInfo.verMajor, shared->moduleInfo.verMinor);
         break;
 
     case ESAPI_ASK_RASPI_GET_IPandSSID:
@@ -493,126 +489,130 @@ void ModuleRasPI::running_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
 {
 	const u8 COMMAND_CHAR = 'R';
 
-    assert(b->numBytesInBuffer >= 3 && b->buffer[0] == '#' && b->buffer[1] == COMMAND_CHAR);
-	const u8 commandCode = b->buffer[2];
+    while (b->numBytesInBuffer >= 3)
+    {
+        assert(b->numBytesInBuffer >= 3 && b->buffer[0] == '#' && b->buffer[1] == COMMAND_CHAR);
+        const u8 commandCode = b->buffer[2];
 
-	switch (commandCode)
-	{
-	default:
-		shared->logger->log("esapi::ModuleRasPI::running_handleMsg_R_fromRs232 => invalid commandNum [%c][%c]\n", b->buffer[1], commandCode);
-		b->removeFirstNBytes(2);
-        break;
+        switch (commandCode)
+        {
+        default:
+            shared->logger->log("esapi::ModuleRasPI::RS232 => invalid commandNum [%c][%c]\n", b->buffer[1], commandCode);
+            b->removeFirstNBytes(2);
+            return;
 
-	case 0x01:
-		//new socket connected
-        //ricevuto: # R [0x01] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [ck]
-		{
-            //parse del messaggio
-            bool bValidCk = false;
-            u32 socketUID = 0;
-            const u32 MSG_LEN = esapi::buildMsg_R0x01_newSocket_parse (b->buffer, b->numBytesInBuffer, &bValidCk, &socketUID);
-            if (0 == MSG_LEN)
-                return;
-            if (!bValidCk)
+        case 0x01:
+            //new socket connected
+            //ricevuto: # R [0x01] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [ck]
             {
-                b->removeFirstNBytes(2);
-                return;
+                //parse del messaggio
+                bool bValidCk = false;
+                u32 socketUID = 0;
+                const u32 MSG_LEN = esapi::buildMsg_R0x01_newSocket_parse (b->buffer, b->numBytesInBuffer, &bValidCk, &socketUID);
+                if (0 == MSG_LEN)
+                    return;
+                if (!bValidCk)
+                {
+                    b->removeFirstNBytes(2);
+                    return;
+                }
+
+                //rimuovo il msg dal buffer
+                b->removeFirstNBytes(MSG_LEN);
+
+                //creo una nuova socket e la metto in comunicazione con sokbridge
+                sConnectedSocket cl;
+                rhea::socket::init (&cl.sok);
+                shared->logger->log ("esapi::ModuleRasPI::RS232 => new socket connection...");
+                eSocketError err = rhea::socket::openAsTCPClient (&cl.sok, "127.0.0.1", 2280);
+                if (err != eSocketError_none)
+                {
+                    shared->logger->log ("FAIL\n");
+                    DBGBREAK;
+                    //comunico la disconnessione via seriale
+                    const u32 n = esapi::buildMsg_R0x02_closeSocket (socketUID, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+                    shared->protocol->rs232_write (rs232BufferOUT, n);
+                }
+                else
+                {
+                    cl.uid = socketUID;
+                    sockettList.append(cl);
+                    shared->waitableGrp.addSocket (cl.sok, cl.uid);
+                    shared->logger->log ("OK, socket id [%d]\n", cl.uid);
+                }
             }
+            break;
 
-            //rimuovo il msg dal buffer
-            b->removeFirstNBytes(MSG_LEN);
-
-			//creo una nuova socket e la metto in comunicazione con sokbridge
-			sConnectedSocket cl;
-			rhea::socket::init (&cl.sok);
-			shared->logger->log ("esapi::ModuleRasPI => new socket connection...");
-			eSocketError err = rhea::socket::openAsTCPClient (&cl.sok, "127.0.0.1", 2280);
-			if (err != eSocketError_none)
-			{
-				shared->logger->log ("FAIL\n");
-				DBGBREAK;
-				//comunico la disconnessione via seriale
-                const u32 n = esapi::buildMsg_R0x02_closeSocket (socketUID, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
-			    shared->protocol->rs232_write (rs232BufferOUT, n);
-			}
-			else
-			{
-				cl.uid = socketUID;
-				sockettList.append(cl);
-				shared->waitableGrp.addSocket (cl.sok, cl.uid);
-				shared->logger->log ("OK, socket id [%d]\n", cl.uid);
-			}
-		}
-		break;
-
-	case 0x02:
-		//Socket close
-        //ricevuto: # R [0x02] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [ck]
-		{
-            //parse del messaggio
-            bool bValidCk = false;
-            u32 socketUID = 0;
-            const u32 MSG_LEN = esapi::buildMsg_R0x02_closeSocket_parse (b->buffer, b->numBytesInBuffer, &bValidCk, &socketUID);
-            if (0 == MSG_LEN)
-                return;
-            if (!bValidCk)
+        case 0x02:
+            //Socket close
+            //ricevuto: # R [0x02] [socketUID_MSB3] [socketUID_MSB2] [socketUID_MSB1] [socketUID_LSB] [ck]
             {
-                b->removeFirstNBytes(2);
-                return;
+                //parse del messaggio
+                bool bValidCk = false;
+                u32 socketUID = 0;
+                const u32 MSG_LEN = esapi::buildMsg_R0x02_closeSocket_parse (b->buffer, b->numBytesInBuffer, &bValidCk, &socketUID);
+                if (0 == MSG_LEN)
+                    return;
+                if (!bValidCk)
+                {
+                    b->removeFirstNBytes(2);
+                    return;
+                }
+
+                //rimuovo il msg dal buffer
+                b->removeFirstNBytes(MSG_LEN);
+
+                //elimino il client
+                shared->logger->log ("esapi::ModuleRasPI::RS232 => close socket [%d]\n", socketUID);
+                sConnectedSocket *cl = priv_2280_findConnectedSocketByUID (socketUID);
+                if (cl)
+                    priv_2280_onClientDisconnected (shared, cl->sok, socketUID);
             }
+            break;
 
-            //rimuovo il msg dal buffer
-            b->removeFirstNBytes(MSG_LEN);
+        case 0x03:
+            //rasPI comunica via seriale che la socket [client_uid_4bytes] ha ricevuto i dati [data] per un totale di [lenMSB][lenLSB] bytes
+            //Io devo a mia volta inviarli a SocketBridge
+            //rcv:	# R [0x03] [client_uid_MSB3] [client_uid_MSB2] [client_uid_MSB1] [client_uid_LSB] [lenMSB] [lenLSB] [data…] [ck]
+            {
+                if (b->numBytesInBuffer < 9)
+                    return;
 
-			//elimino il client
-			sConnectedSocket *cl = priv_2280_findConnectedSocketByUID (socketUID);
-			if (cl)
-				priv_2280_onClientDisconnected (shared, cl->sok, socketUID);
-		}
-        break;
+                const u32 uid = rhea::utils::bufferReadU32 (&b->buffer[3]);
+                const u32 dataLen = rhea::utils::bufferReadU16(&b->buffer[7]);
 
-	case 0x03:
-		//rasPI comunica via seriale che la socket [client_uid_4bytes] ha ricevuto i dati [data] per un totale di [lenMSB][lenLSB] bytes
-        //Io devo a mia volta inviarli a SocketBridge
-		//rcv:	# R [0x03] [client_uid_MSB3] [client_uid_MSB2] [client_uid_MSB1] [client_uid_LSB] [lenMSB] [lenLSB] [data…] [ck]
-		{
-			if (b->numBytesInBuffer < 9)
-				return;
+                if (b->numBytesInBuffer < 10 + dataLen)
+                    return;
 
-			const u32 uid = rhea::utils::bufferReadU32 (&b->buffer[3]);
-            const u32 dataLen = rhea::utils::bufferReadU16(&b->buffer[7]);
+                const u8* data = &b->buffer[9];
+                const u8 ck = b->buffer[9 + dataLen];
+                if (rhea::utils::simpleChecksum8_calc(b->buffer, 9 + dataLen) != ck)
+                {
+                    b->removeFirstNBytes(2);
+                    return;
+                }
 
-            if (b->numBytesInBuffer < 10 + dataLen)
-				return;
+                //messaggio valido, lo devo mandare via socket al client giusto
+                if (dataLen)
+                {
+                    sConnectedSocket *cl = priv_2280_findConnectedSocketByUID(uid);
+                    if (NULL != cl)
+                    {
+                        rhea::socket::write (cl->sok, data, dataLen);
+                        shared->logger->log ("esapi::ModuleRasPI::RS232 => rcv [%d] bytes, sending to socket [%d]\n", dataLen, cl->uid);
+                    }
+                    else
+                    {
+                        DBGBREAK;
+                    }
+                }
 
-			const u8* data = &b->buffer[9];
-			const u8 ck = b->buffer[9 + dataLen];
-			if (rhea::utils::simpleChecksum8_calc(b->buffer, 9 + dataLen) != ck)
-			{
-				b->removeFirstNBytes(2);
-				return;
-			}
-
-			//messaggio valido, lo devo mandare via socket al client giusto
-			if (dataLen)
-			{
-				sConnectedSocket *cl = priv_2280_findConnectedSocketByUID(uid);
-				if (NULL != cl)
-				{
-					rhea::socket::write (cl->sok, data, dataLen);
-					shared->logger->log ("rcv [%d] bytes from RS232, sending to socket [%d]\n", dataLen, cl->uid);
-				}
-				else
-				{
-					DBGBREAK;
-				}
-			}
-
-			//rimuovo il msg dal buffer di input
-			b->removeFirstNBytes(10 + dataLen);
-		}
-		break;
-	}
+                //rimuovo il msg dal buffer di input
+                b->removeFirstNBytes(10 + dataLen);
+            }
+            break;
+        }
+    }
 }
 
 //*********************************************************
@@ -638,7 +638,7 @@ void ModuleRasPI::running_handleMsgFromSocket (sShared *shared, OSSocket &sok, u
 	if (nBytesLetti < 0)
 	{
 		//la chiamata sarebbe stata bloccante, non dovrebbe succedere
-		shared->logger->log ("esapi::ModuleRasPI => WARN: socket [%d], read bloccante...\n", cl->uid);
+        shared->logger->log ("esapi::ModuleRasPI::socket[%d] => read bloccante...\n", cl->uid);
 		return;
 	}
 
@@ -663,7 +663,7 @@ void ModuleRasPI::running_handleMsgFromSocket (sShared *shared, OSSocket &sok, u
     assert (ct < SIZE_OF_RS232BUFFEROUT);
 
 	shared->protocol->rs232_write (rs232BufferOUT, ct);
-	shared->logger->log ("esapi::ModuleRasPI => rcv [%d] bytes from socket [%d], sending to rasPI\n", nBytesLetti, cl->uid);
+    shared->logger->log ("esapi::ModuleRasPI::socket[%d] => rcv [%d] bytes, sending to rasPI\n", cl->uid, nBytesLetti);
 
     if (nBytesLetti > 500)
         rhea::thread::sleepMSec(100);

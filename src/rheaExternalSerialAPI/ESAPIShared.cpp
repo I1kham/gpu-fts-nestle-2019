@@ -18,7 +18,7 @@ sShared::eRetCode sShared::run(Module *module)
         //qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
         //TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
 #ifdef LINUX
-        const u8 nEvents = shared->waitableGrp.wait(10000);
+        const u8 nEvents = waitableGrp.wait(10000);
 #else
         const u8 nEvents = waitableGrp.wait(100);
 #endif
@@ -139,7 +139,7 @@ void sShared::priv_handleMsgFromSubscriber(Module *module, sSubscription *sub)
             return;
 
         case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
-            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, logger, eExternalModuleType_none, esapi::Protocol::ESAPI_VERSION_MAJOR, esapi::Protocol::ESAPI_VERSION_MINOR);
+            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, logger, moduleInfo.type, moduleInfo.verMajor, moduleInfo.verMinor);
             break;
         }
 

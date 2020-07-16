@@ -36,7 +36,7 @@ bool Protocol::setup (rhea::Allocator *allocator, cpubridge::sSubscriber *cpuBri
 	logger->log ("OK\n");
 
 #ifdef LINUX
-    waitableGrp->addSerialPort (glob->com, ESAPI_WAITABLEGRP_EVENT_FROM_RS232);
+    waitableGrp->addSerialPort (rs232, ESAPI_WAITABLEGRP_EVENT_FROM_RS232);
 #endif
 
     //buffer
@@ -55,7 +55,7 @@ void Protocol::priv_unsetup()
     if (NULL != waitableGrp)
     {
 #ifdef LINUX
-        waitableGrp.removeSerialPort (glob->com);
+        waitableGrp->removeSerialPort (rs232);
 #endif
         waitableGrp = NULL;
     }
