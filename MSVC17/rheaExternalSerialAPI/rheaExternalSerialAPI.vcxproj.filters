@@ -6,6 +6,8 @@
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRaw.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPISubscriberList.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRasPI.cpp" />
+    <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIProtocol.cpp" />
+    <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIShared.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPI.h" />
@@ -15,5 +17,6 @@
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPISubscriberList.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRasPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIShared.h" />
+    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIProtocol.h" />
   </ItemGroup>
 </Project>
