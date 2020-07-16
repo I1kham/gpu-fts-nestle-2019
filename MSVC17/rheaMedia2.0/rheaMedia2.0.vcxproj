@@ -73,11 +73,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
-    <TargetName>DEBUG_RheaMedia2_20200701</TargetName>
+    <TargetName>DEBUG_RheaMedia2_20200716</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
-    <TargetName>RheaMedia2_20200701</TargetName>
+    <TargetName>RheaMedia2_v2.3.1_20200716</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>RheaMedia2_v2.0.1_2020-04-10</TargetName>

@@ -23,6 +23,18 @@ void fs::sanitizePath (const u8* const utf8_path, u8* out_utf8sanitizedPath, u32
 	fs::sanitizePathInPlace(out_utf8sanitizedPath);
 }
 
+bool fs_isValidHexSymbol (u8 c)
+{
+	if (c >= '0' && c <= '9') return true;
+	if (c == 'A' || c == 'a') return true;
+	if (c == 'B' || c == 'b') return true;
+	if (c == 'C' || c == 'c') return true;
+	if (c == 'D' || c == 'd') return true;
+	if (c == 'E' || c == 'e') return true;
+	if (c == 'F' || c == 'f') return true;
+	return false;
+}
+
 //**************************************************************
 void fs::sanitizePathInPlace(u8 *utf8_path, u32 nBytesToCheck)
 {
@@ -42,9 +54,20 @@ void fs::sanitizePathInPlace(u8 *utf8_path, u32 nBytesToCheck)
 		{
 			if (utf8_path[i] == '%')
 			{
-				if (utf8_path[i + 1] == '2' && utf8_path[i + 2] == '0')
+				/*if (utf8_path[i + 1] == '2' && utf8_path[i + 2] == '0')
 				{
 					utf8_path[i] = ' ';
+					memcpy(&utf8_path[i + 1], &utf8_path[i + 3], nBytesToCheck - i - 3);
+					nBytesToCheck -= 2;
+					utf8_path[nBytesToCheck] = 0;
+				}*/
+				
+				if (fs_isValidHexSymbol(utf8_path[i + 1]) && fs_isValidHexSymbol(utf8_path[i + 2]))
+				{
+					char hex[4] = { (char)utf8_path[i + 1], (char)utf8_path[i + 2], 0, 0 };
+					u32 num = 32;
+					rhea::string::ansi::hexToInt (hex, &num);
+					utf8_path[i] = (u8)num;
 					memcpy(&utf8_path[i + 1], &utf8_path[i + 3], nBytesToCheck - i - 3);
 					nBytesToCheck -= 2;
 					utf8_path[nBytesToCheck] = 0;

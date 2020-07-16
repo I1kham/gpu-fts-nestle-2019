@@ -10,7 +10,8 @@
 #include "TaskImportExistingGUI.h"
 #include "varie.h"
 
-#define		RHEAMEDIA2_VERSIONE L"2.3"
+#define		RHEAMEDIA2_VERSIONE L"2.3.1"
+#define		RHEAMEDIA2_DATA		L"2020/07/16"
 
 
 wchar_t chromeFullPathAndName[256];
@@ -112,7 +113,7 @@ bool findChrome()
 	//determino il path della home
 	wchar_t pathToAppFolder[512];
 	platform::win32::utf8_towchar (rhea::getPhysicalPathToAppFolder(), u32MAX, pathToAppFolder, sizeof(pathToAppFolder));
-	swprintf_s(chromeHome, _countof(chromeHome), L"file:///%s/home/startup.html", pathToAppFolder);
+	swprintf_s(chromeHome, _countof(chromeHome), L"\"file:///%s/home/startup.html\"", pathToAppFolder);
 
 	return true;
 }
@@ -175,7 +176,7 @@ int main()
 
 
 	wchar_t nameAndVersion[128];
-	swprintf_s(nameAndVersion, _countof(nameAndVersion), L"RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - 2020/04/10");
+	swprintf_s(nameAndVersion, _countof(nameAndVersion), L"RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - " RHEAMEDIA2_DATA);
 
 	SetConsoleTitle(nameAndVersion);
 	wprintf(nameAndVersion);

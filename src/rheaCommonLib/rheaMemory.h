@@ -27,6 +27,7 @@
 
     #define RHEAALIGNEDALLOC(allocator,sizeInByte,align)		(allocator)->alloc ((sizeInByte), align, false);
     #define RHEAALLOC(allocator,sizeInByte)						(allocator)->alloc ((sizeInByte), __alignof(void*), false)
+#define RHEAALLOCT(returnType, allocator,sizeInByte)			static_cast<returnType>((allocator)->alloc ((sizeInByte), __alignof(void*), false))
 #endif
 
 
