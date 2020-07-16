@@ -29,9 +29,9 @@
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPICore.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIEnumAndDefine.h" />
-    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModule.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRasPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRaw.h" />
+    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIShared.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPISubscriberList.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

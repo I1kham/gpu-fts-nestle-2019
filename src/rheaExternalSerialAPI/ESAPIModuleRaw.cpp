@@ -1,6 +1,7 @@
 #include "ESAPIModuleRaw.h"
 #include "../CPUBridge/CPUBridge.h"
 #include "../rheaCommonLib/rheaUtils.h"
+#include "ESAPI.h"
 
 using namespace esapi;
 
@@ -34,7 +35,7 @@ bool ModuleRaw::priv_subscribeToCPUBridge(const HThreadMsgW &hCPUServiceChannelW
             //ok, ci siamo
             if (msg.what == CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER)
             {
-                glob->logger->log ("esapi::ModuleRaw => subsribed to CPUBridge\n");
+                shared->logger->log ("esapi::ModuleRaw => subsribed to CPUBridge\n");
 
                 u8 cpuBridgeVersion = 0;
                 cpubridge::translate_SUBSCRIPTION_ANSWER(msg, &cpuBridgeSubscriber, &cpuBridgeVersion);
@@ -58,9 +59,9 @@ bool ModuleRaw::priv_subscribeToCPUBridge(const HThreadMsgW &hCPUServiceChannelW
 
 
 //********************************************************
-bool ModuleRaw::setup ( sGlob *glob)
+bool ModuleRaw::setup (sShared *glob)
 {
-    this->glob = glob;
+    this->shared = glob;
 
     //buffer
 	rs232BufferIN.alloc (glob->localAllocator, 1024);
@@ -97,7 +98,7 @@ void ModuleRaw::priv_unsetup()
     //rimuovo la serviceMsgQ dalla waitList
     {
         OSEvent h;
-        rhea::thread::getMsgQEvent(glob->serviceMsgQR, &h);
+        rhea::thread::getMsgQEvent(shared->serviceMsgQR, &h);
         waitableGrp.removeEvent(h);
     }
 
@@ -105,8 +106,8 @@ void ModuleRaw::priv_unsetup()
     waitableGrp.removeSerialPort (glob->com);
 #endif
 
-    rs232BufferIN.free (glob->localAllocator);
-    RHEAFREE(glob->localAllocator, rs232BufferOUT);
+    rs232BufferIN.free (shared->localAllocator);
+    RHEAFREE(shared->localAllocator, rs232BufferOUT);
 }
 
 //********************************************************
@@ -143,7 +144,7 @@ eExternalModuleType ModuleRaw::run()
 				        //evento generato dalla msgQ di uno dei miei subscriber
                         {
                             OSEvent h = waitableGrp.getEventSrcAsOSEvent(i);
-                            sSubscription *sub = glob->subscriberList.findByOSEvent(h);
+                            sSubscription *sub = shared->subscriberList.findByOSEvent(h);
 						    if (sub)
                                 priv_handleMsgFromSubscriber(sub);
 				        }
@@ -155,7 +156,7 @@ eExternalModuleType ModuleRaw::run()
 
                     default:
 						DBGBREAK;
-                        glob->logger->log("esapi::ModuleRaw::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
+                        shared->logger->log("esapi::ModuleRaw::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
 					}
 				}
 				break;
@@ -167,7 +168,7 @@ eExternalModuleType ModuleRaw::run()
 #endif
 
 			default:
-                glob->logger->log("esapi::ModuleRaw::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
+                shared->logger->log("esapi::ModuleRaw::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
 				break;
 			}
 		}
@@ -185,7 +186,7 @@ eExternalModuleType ModuleRaw::run()
 void ModuleRaw::priv_handleMsgFromServiceQ()
 {
 	rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg (glob->serviceMsgQR, &msg))
+    while (rhea::thread::popMsg (shared->serviceMsgQR, &msg))
     {
         switch (msg.what)
         {
@@ -195,7 +196,7 @@ void ModuleRaw::priv_handleMsgFromServiceQ()
 
         case ESAPI_SERVICECH_SUBSCRIPTION_REQUEST:
             {
-                sSubscription *sub = glob->subscriberList.onSubscriptionRequest (glob->localAllocator, glob->logger, msg);
+                sSubscription *sub = shared->subscriberList.onSubscriptionRequest (shared->localAllocator, shared->logger, msg);
                 waitableGrp.addEvent(sub->hEvent, WAITLIST_EVENT_FROM_A_SUBSCRIBER);
             }
 			break;
@@ -216,17 +217,17 @@ void ModuleRaw::priv_handleMsgFromSubscriber(sSubscription *sub)
         switch (msg.what)
         {
         default:
-            glob->logger->log("ModuleRaw::priv_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
+            shared->logger->log("ModuleRaw::priv_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
             break;
 
         case ESAPI_ASK_UNSUBSCRIBE:
             rhea::thread::deleteMsg(msg);
             waitableGrp.removeEvent (sub->hEvent);
-            glob->subscriberList.unsubscribe (glob->localAllocator, sub);
+            shared->subscriberList.unsubscribe (shared->localAllocator, sub);
             return;
 
         case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
-            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, eExternalModuleType_none, this->API_VERSION_MAJOR, this->API_VERSION_MINOR);
+            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, shared->logger, eExternalModuleType_none, this->API_VERSION_MAJOR, this->API_VERSION_MINOR);
             break;
         }
 
@@ -340,7 +341,7 @@ void ModuleRaw::priv_handleIncomingMsgFromCPUBridge()
 //*********************************************************
 void ModuleRaw::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 {
-    rhea::rs232::writeBuffer (glob->com, buffer, numBytesToSend);
+    rhea::rs232::writeBuffer (shared->com, buffer, numBytesToSend);
 }
 
 //*********************************************************
@@ -361,7 +362,7 @@ void ModuleRaw::priv_rs232_handleCommunication (sBuffer &b)
 
 	    if (nBytesAvailInBuffer > 0)
 	    {
-		    const u32 nRead = rhea::rs232::readBuffer(glob->com, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
+		    const u32 nRead = rhea::rs232::readBuffer(shared->com, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
 		    b.numBytesInBuffer += (u16)nRead;
 	    }
     
@@ -391,7 +392,7 @@ void ModuleRaw::priv_rs232_handleCommunication (sBuffer &b)
         switch (commandChar)
         {
         default:
-            glob->logger->log ("invalid command char [%c]\n", commandChar);
+            shared->logger->log ("invalid command char [%c]\n", commandChar);
             b.removeFirstNBytes(1);
             break;
 
@@ -422,7 +423,7 @@ bool ModuleRaw::priv_rs232_handleCommand_A (sBuffer &b)
     switch (commandCode)
     {
     default:
-        glob->logger->log ("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
+        shared->logger->log ("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
         b.removeFirstNBytes(2);
         return true;
 
@@ -466,7 +467,7 @@ bool ModuleRaw::priv_rs232_handleCommand_C (sBuffer &b)
     switch (commandCode)
     {
     default:
-        glob->logger->log ("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
+        shared->logger->log ("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
         b.removeFirstNBytes(2);
         return true;
 
@@ -555,7 +556,7 @@ bool ModuleRaw::priv_rs232_handleCommand_S (sBuffer &b)
     switch (commandCode)
     {
     default:
-        glob->logger->log ("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
+        shared->logger->log ("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
         b.removeFirstNBytes(2);
         return true;
 
@@ -695,7 +696,7 @@ bool ModuleRaw::priv_rs232_handleCommand_R (sBuffer &b)
 	switch (commandCode)
 	{
 	default:
-		glob->logger->log("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
+		shared->logger->log("invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
 		b.removeFirstNBytes(2);
 		return true;
 
@@ -705,7 +706,7 @@ bool ModuleRaw::priv_rs232_handleCommand_R (sBuffer &b)
 		{
             //parse del messaggio
             bool bValidCk = false;
-            const u32 MSG_LEN = esapi::buildMsg_R1_externalModuleIdentify_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &glob->moduleInfo.type, &glob->moduleInfo.verMajor, &glob->moduleInfo.verMinor);
+            const u32 MSG_LEN = esapi::buildMsg_R1_externalModuleIdentify_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &shared->moduleInfo.type, &shared->moduleInfo.verMajor, &shared->moduleInfo.verMinor);
             if (0 == MSG_LEN)
                 return false;
             if (!bValidCk)
@@ -719,11 +720,11 @@ bool ModuleRaw::priv_rs232_handleCommand_R (sBuffer &b)
 
            //rispondo via seriale confermando di aver ricevuto il msg
             u8 result = 0x00;
-			switch (glob->moduleInfo.type)
+			switch (shared->moduleInfo.type)
 			{
 			case eExternalModuleType_rasPI_wifi_REST:
 				result = 0x01;
-                retCode = glob->moduleInfo.type;
+                retCode = shared->moduleInfo.type;
 				break;
 
 			default:

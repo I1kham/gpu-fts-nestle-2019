@@ -12,22 +12,22 @@ using namespace esapi;
 //*********************************************************
 Core::Core()
 {
-	glob.localAllocator = NULL;
-	glob.logger = &nullLogger;
-	rhea::rs232::setInvalid (glob.com);
-    glob.moduleInfo.type = esapi::eExternalModuleType_none;
-    glob.moduleInfo.verMajor = glob.moduleInfo.verMinor = 0;
+	shared.localAllocator = NULL;
+	shared.logger = &nullLogger;
+	rhea::rs232::setInvalid (shared.com);
+    shared.moduleInfo.type = esapi::eExternalModuleType_none;
+    shared.moduleInfo.verMajor = shared.moduleInfo.verMinor = 0;
 
-    curModule = NULL;
+    moduleRaw = NULL;
 }
 
 //*********************************************************
 void Core::useLogger (rhea::ISimpleLogger *loggerIN)
 {
     if (NULL==loggerIN)
-        glob.logger = &nullLogger;
+        shared.logger = &nullLogger;
     else
-        glob.logger = loggerIN;
+        shared.logger = loggerIN;
 }
 
 //*********************************************************
@@ -35,62 +35,63 @@ bool Core::open (const char *serialPort, const HThreadMsgW &hCPUServiceChannelW)
 {
 	const bool SERIAL_IS_BLOCKING = false;
 
-    glob.hCPUServiceChannelW = hCPUServiceChannelW;
+    shared.hCPUServiceChannelW = hCPUServiceChannelW;
 
-    glob.logger->log ("esapi::Core::open\n");
-    glob.logger->incIndent();
+    shared.logger->log ("esapi::Core::open\n");
+    shared.logger->incIndent();
 
-	glob.logger->log ("com=%s   ", serialPort);
-    if (!rhea::rs232::open(&glob.com, serialPort, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCKING))
+	shared.logger->log ("com=%s   ", serialPort);
+    if (!rhea::rs232::open(&shared.com, serialPort, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCKING))
     {
-        glob.logger->log ("FAILED. unable to open port [%s]\n", serialPort);
-        glob.logger->decIndent();
+        shared.logger->log ("FAILED. unable to open port [%s]\n", serialPort);
+        shared.logger->decIndent();
         return false;
     }
-	glob.logger->log ("OK\n");
+	shared.logger->log ("OK\n");
 
     //creo la service msg Q sulla quale ricevo msg da thread esterni
-    rhea::thread::createMsgQ (&glob.serviceMsgQR, &glob.serviceMsgQW);
+    rhea::thread::createMsgQ (&shared.serviceMsgQR, &shared.serviceMsgQW);
 
-    glob.localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("mitm");
+    shared.localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("mitm");
 
     //subscriber list
-    glob.subscriberList.setup (glob.localAllocator);
+    shared.subscriberList.setup (shared.localAllocator);
 
     //spawn del modulo raw
-    esapi::ModuleRaw *m = RHEANEW(glob.localAllocator, esapi::ModuleRaw)();
-    if (!m->setup (&glob))
+    moduleRaw = RHEANEW(shared.localAllocator, esapi::ModuleRaw)();
+    if (!moduleRaw->setup (&shared))
     {
-        RHEADELETE(glob.localAllocator, m);
-	    glob.logger->log ("FAIL\n");
-	    glob.logger->decIndent();
-    	glob.logger->decIndent();
+        RHEADELETE(shared.localAllocator, moduleRaw);
+        moduleRaw = NULL;
+	    shared.logger->log ("FAIL\n");
+	    shared.logger->decIndent();
+    	shared.logger->decIndent();
         return false;
     }
-    curModule = m;
-	glob.logger->log ("OK\n");
-	glob.logger->decIndent();
+
+	shared.logger->log ("OK\n");
+	shared.logger->decIndent();
     return true;
 }
 
 //*****************************************************************
 void Core::priv_close ()
 {
-	rhea::rs232::close (glob.com);
+	rhea::rs232::close (shared.com);
 
-    if (curModule)
+    if (moduleRaw)
     {
-        RHEADELETE(glob.localAllocator, curModule);
-        curModule = NULL;
+        RHEADELETE(shared.localAllocator, moduleRaw);
+        moduleRaw = NULL;
     }
 
-    if (glob.localAllocator)
+    if (shared.localAllocator)
     {
-        rhea::thread::deleteMsgQ (glob.serviceMsgQR, glob.serviceMsgQW);
+        rhea::thread::deleteMsgQ (shared.serviceMsgQR, shared.serviceMsgQW);
 
-        glob.subscriberList.unsetup();
-        RHEADELETE(rhea::getSysHeapAllocator(), glob.localAllocator);
-        glob.localAllocator = NULL;
+        shared.subscriberList.unsetup();
+        RHEADELETE(rhea::getSysHeapAllocator(), shared.localAllocator);
+        shared.localAllocator = NULL;
     }
 }
 
@@ -98,10 +99,11 @@ void Core::priv_close ()
 void Core::run()
 {
     //run del module raw
-    eExternalModuleType ret = curModule->run();
-    RHEADELETE(glob.localAllocator, curModule);
-    curModule = NULL;
-    glob.logger->log ("esapi::Core::run() => module raw deleted\n");
+    eExternalModuleType ret = moduleRaw->run();
+    RHEADELETE(shared.localAllocator, moduleRaw);
+    moduleRaw = NULL;
+    shared.logger->log ("esapi::Core::run() => module raw deleted\n");
+
 
     //se il module raw ritorna un particolare [eExternalModuleType], allora devo spawnarlo a mandarlo in run, altrimenti
     //vuol dire che abbiamo finito
@@ -112,16 +114,16 @@ void Core::run()
 
     case esapi::eExternalModuleType_rasPI_wifi_REST:
         {
-            glob.logger->log ("esapi::Core::run() => spawn moduleRasPI\n");
-            ModuleRasPI *m = RHEANEW(glob.localAllocator, ModuleRasPI)();
-            m->setup (&glob);
+            shared.logger->log ("esapi::Core::run() => spawn moduleRasPI\n");
+            ModuleRasPI *m = RHEANEW(shared.localAllocator, ModuleRasPI)();
+            m->setup (&shared);
             m->run();
-            glob.logger->log ("esapi::Core::run() => deleting moduleRasPI\n");
-            RHEADELETE(glob.localAllocator, m);
+            shared.logger->log ("esapi::Core::run() => deleting moduleRasPI\n");
+            RHEADELETE(shared.localAllocator, m);
         }
         break;
     }
-    glob.logger->log ("Core::run() => closing...\n");
+    shared.logger->log ("Core::run() => closing...\n");
     priv_close();
 }
 

@@ -1,6 +1,6 @@
 #ifndef _ESAPIModuleRaw_h_
 #define _ESAPIModuleRaw_h_
-#include "ESAPIModule.h"
+#include "ESAPIShared.h"
 
 namespace esapi
 {
@@ -13,13 +13,13 @@ namespace esapi
 	 *	Alla eventuale ricezione di un comando #R1, il modulo raw termina e la classe ESAPICore istanzia il modulo appropriato alla gestione del device che
 	 *	si è presentato attraverso il comando #R1
 	 */
-	class ModuleRaw : public Module
+	class ModuleRaw
 	{
 	public:
 								ModuleRaw();
 								~ModuleRaw()													{ }
 
-		bool					setup (sGlob *glob);
+		bool					setup (sShared *glob);
 		eExternalModuleType		run();
 		
 	private:
@@ -56,7 +56,7 @@ namespace esapi
 		bool					priv_rs232_handleCommand_S (sBuffer &b);
 
 	private:
-		sGlob					*glob;
+		sShared					*shared;
 		cpubridge::sSubscriber	cpuBridgeSubscriber;
 		OSWaitableGrp           waitableGrp;
 		bool					bIsSubscribedTpCPUBridge;

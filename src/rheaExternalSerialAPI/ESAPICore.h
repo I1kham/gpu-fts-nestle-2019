@@ -1,13 +1,15 @@
 #ifndef _ESAPICore_h_
 #define _ESAPICore_h_
-#include "ESAPIModule.h"
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../CPUBridge/CPUBridge.h"
+#include "ESAPIModuleRaw.h"
 
 namespace esapi
 {
-	
+	/**************************************************
+	 *	Core
+	 */
 	class Core
 	{
 	public:
@@ -18,7 +20,7 @@ namespace esapi
 		bool					open (const char *serialPort, const HThreadMsgW &hCPUServiceChannelW);
 		void					run();
 
-		HThreadMsgW				getServiceMsgQQ() const														{ return glob.serviceMsgQW; }
+		HThreadMsgW				getServiceMsgQQ() const														{ return shared.serviceMsgQW; }
 
 	private:
 		static const u32		WAITLIST_EVENT_FROM_CPUBRIDGE		= 0x00400000;
@@ -57,10 +59,10 @@ namespace esapi
 		bool					priv_rs232_handleCommand_S (OSSerialPort &comPort, sBuffer &b);
 
 	private:
-		Module::sGlob			glob;
+		sShared					shared;
 		rhea::NullLogger        nullLogger;
 		bool					bQuit;
-		Module					*curModule;
+		ModuleRaw				*moduleRaw;
 	};
 
 

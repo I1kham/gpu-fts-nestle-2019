@@ -1,6 +1,7 @@
 #include "ESAPIModuleRasPI.h"
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../CPUBridge/CPUBridge.h"
+#include "ESAPI.h"
 
 using namespace esapi;
 
@@ -12,10 +13,10 @@ ModuleRasPI::ModuleRasPI()
 }
 
 //********************************************************
-bool ModuleRasPI::setup ( sGlob *glob)
+bool ModuleRasPI::setup (sShared *glob)
 {
-    this->glob = glob;
-    this->glob->moduleInfo.type = esapi::eExternalModuleType_rasPI_wifi_REST;
+    this->shared = glob;
+    this->shared->moduleInfo.type = esapi::eExternalModuleType_rasPI_wifi_REST;
 
     //buffer
 	rs232BufferIN.alloc (glob->localAllocator, SIZE_OF_RS232BUFFERIN);
@@ -46,13 +47,13 @@ void ModuleRasPI::priv_unsetup()
     //rimuovo la serviceMsgQ dalla waitList
     {
         OSEvent h;
-        rhea::thread::getMsgQEvent(glob->serviceMsgQR, &h);
+        rhea::thread::getMsgQEvent(shared->serviceMsgQR, &h);
         waitableGrp.removeEvent(h);
     }
 
-    rs232BufferIN.free (glob->localAllocator);
-    RHEAFREE(glob->localAllocator, rs232BufferOUT);
-    RHEAFREE(glob->localAllocator, sokBuffer);
+    rs232BufferIN.free (shared->localAllocator);
+    RHEAFREE(shared->localAllocator, rs232BufferOUT);
+    RHEAFREE(shared->localAllocator, sokBuffer);
     sockettList.unsetup ();
 }
 
@@ -62,7 +63,7 @@ void ModuleRasPI::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
     u32 nSent = 0;
     while (1)
     {
-        const u32 n = rhea::rs232::writeBuffer (glob->com, buffer, numBytesToSend);
+        const u32 n = rhea::rs232::writeBuffer (shared->com, buffer, numBytesToSend);
         if (n > 0)
         {
             nSent += n;
@@ -91,17 +92,17 @@ ModuleRasPI::sConnectedSocket* ModuleRasPI::priv_2280_findConnectedSocketByUID (
 //********************************************************
 eExternalModuleType ModuleRasPI::run()
 {
-    glob->logger->log ("ModuleRasPI:: now in BOOT mode...\n");
-    glob->logger->incIndent();
+    shared->logger->log ("ModuleRasPI:: now in BOOT mode...\n");
+    shared->logger->incIndent();
     priv_boot_run();
-    glob->logger->log ("FIN\n");
-    glob->logger->decIndent();
+    shared->logger->log ("FIN\n");
+    shared->logger->decIndent();
 
-    glob->logger->log ("ModuleRasPI:: now in RUNNING mode...\n");
-    glob->logger->incIndent();
+    shared->logger->log ("ModuleRasPI:: now in RUNNING mode...\n");
+    shared->logger->incIndent();
     priv_running_run();
-    glob->logger->log ("FIN\n");
-    glob->logger->decIndent();
+    shared->logger->log ("FIN\n");
+    shared->logger->decIndent();
 
     priv_unsetup();
     return esapi::eExternalModuleType_none;
@@ -111,7 +112,7 @@ eExternalModuleType ModuleRasPI::run()
 void ModuleRasPI::priv_handleMsgFromServiceQ()
 {
 	rhea::thread::sMsg msg;
-    while (rhea::thread::popMsg (glob->serviceMsgQR, &msg))
+    while (rhea::thread::popMsg (shared->serviceMsgQR, &msg))
     {
         switch (msg.what)
         {
@@ -121,7 +122,7 @@ void ModuleRasPI::priv_handleMsgFromServiceQ()
 
         case ESAPI_SERVICECH_SUBSCRIPTION_REQUEST:
             {
-                sSubscription *sub = glob->subscriberList.onSubscriptionRequest (glob->localAllocator, glob->logger, msg);
+                sSubscription *sub = shared->subscriberList.onSubscriptionRequest (shared->localAllocator, shared->logger, msg);
                 waitableGrp.addEvent(sub->hEvent, WAITLIST_EVENT_FROM_A_SUBSCRIBER);
             }
 			break;
@@ -160,7 +161,7 @@ void ModuleRasPI::priv_boot_run()
 				        //evento generato dalla msgQ di uno dei miei subscriber
                         {
                             OSEvent h = waitableGrp.getEventSrcAsOSEvent(i);
-                            sSubscription *sub = glob->subscriberList.findByOSEvent(h);
+                            sSubscription *sub = shared->subscriberList.findByOSEvent(h);
 						    if (sub)
                                 priv_boot_handleMsgFromSubscriber(sub);
 				        }
@@ -168,13 +169,13 @@ void ModuleRasPI::priv_boot_run()
 
                     default:
 						DBGBREAK;
-                        glob->logger->log("esapi::ModuleRasPI::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
+                        shared->logger->log("esapi::ModuleRasPI::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
 					}
 				}
 				break;
 
 			default:
-                glob->logger->log("esapi::ModuleRasPI::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
+                shared->logger->log("esapi::ModuleRasPI::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
 				break;
 			}
 		}
@@ -192,17 +193,17 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
         switch (msg.what)
         {
         default:
-            glob->logger->log("ModuleRasPI::priv_boot_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
+            shared->logger->log("ModuleRasPI::priv_boot_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
             break;
 
         case ESAPI_ASK_UNSUBSCRIBE:
             rhea::thread::deleteMsg(msg);
             waitableGrp.removeEvent (sub->hEvent);
-            glob->subscriberList.unsubscribe (glob->localAllocator, sub);
+            shared->subscriberList.unsubscribe (shared->localAllocator, sub);
             return;
 
         case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
-            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, glob->moduleInfo.type, glob->moduleInfo.verMajor, glob->moduleInfo.verMinor);
+            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, shared->logger, shared->moduleInfo.type, shared->moduleInfo.verMajor, shared->moduleInfo.verMinor);
             break;
 
         case ESAPI_ASK_RASPI_START:
@@ -216,7 +217,7 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                 ct++;
                 priv_rs232_sendBuffer (rs232BufferOUT, ct);
                 if (priv_boot_waitAnswer('R', 0x01, 4, 0, rs232BufferOUT, 1000))
-                    notify_RASPI_STARTED(sub->q, handlerID, glob->logger);
+                    notify_RASPI_STARTED(sub->q, handlerID, shared->logger);
                 bQuit = true;
             }
             break;
@@ -238,7 +239,7 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                 {
                     const char *ssid = (const char*)&rs232BufferOUT[8];
                     rs232BufferOUT[8 + rs232BufferOUT[7]] = 0x00;
-                    notify_RASPI_WIFI_IPandSSID (sub->q, handlerID, glob->logger, rs232BufferOUT[3], rs232BufferOUT[4], rs232BufferOUT[5], rs232BufferOUT[6], ssid);
+                    notify_RASPI_WIFI_IPandSSID (sub->q, handlerID, shared->logger, rs232BufferOUT[3], rs232BufferOUT[4], rs232BufferOUT[5], rs232BufferOUT[6], ssid);
                 }
             }
             break;
@@ -256,7 +257,7 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
 
             if (NULL != fileUpload.f)
             {
-                esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_raspi_fileTransfAlreadyInProgress, (u32)0);
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus_raspi_fileTransfAlreadyInProgress, (u32)0);
             }
             else
             {
@@ -265,7 +266,7 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                 esapi::translate_RASPI_START_FILEUPLOAD (msg, &fullFilePathAndName);
                 fileUpload.f = rhea::fs::fileOpenForReadBinary(fullFilePathAndName);
                 if (NULL == fileUpload.f)
-                    esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_cantOpenSrcFile, (u32)0);
+                    esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus_cantOpenSrcFile, (u32)0);
                 else
                 {
                     //chiedo al rasPI se possiamo uppare il file
@@ -301,12 +302,12 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                     {
                         fclose (fileUpload.f);
                         fileUpload.f = NULL;
-                        esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_timeout, (u32)0);
+                        esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus_timeout, (u32)0);
                     }
                     else
                     {
                         //ok, si parte
-                        esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, (eFileUploadStatus)rs232BufferOUT[3], (u32)0);
+                        esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, (eFileUploadStatus)rs232BufferOUT[3], (u32)0);
                         priv_boot_handleFileUpload(sub);
                     }
                 }
@@ -344,12 +345,12 @@ void ModuleRasPI::priv_boot_handleMsgFromSubscriber(sSubscription *sub)
                 if (priv_boot_waitAnswer('R', 0x05, 5, 0, rs232BufferOUT, 20000))
                 {
                     if (rs232BufferOUT[3] == 0x01)
-                        notify_RASPI_UNZIP(sub->q, glob->logger, true);
+                        notify_RASPI_UNZIP(sub->q, shared->logger, true);
                     else
-                        notify_RASPI_UNZIP(sub->q, glob->logger, false);
+                        notify_RASPI_UNZIP(sub->q, shared->logger, false);
                 }
                 else
-                    notify_RASPI_UNZIP(sub->q, glob->logger, false);
+                    notify_RASPI_UNZIP(sub->q, shared->logger, false);
 
             }
             break;
@@ -367,7 +368,7 @@ bool ModuleRasPI::priv_boot_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 w
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
 		u8 ch;
-		if (!rhea::rs232::readBuffer(glob->com, &ch, 1))
+		if (!rhea::rs232::readBuffer(shared->com, &ch, 1))
 		{
 			rhea::thread::sleepMSec(10);
 			continue;
@@ -437,7 +438,7 @@ void ModuleRasPI::priv_boot_handleFileUpload(sSubscription *sub)
             //fine, tutto ok
             fclose (fileUpload.f);
             fileUpload.f = NULL;
-            esapi::notify_RASPI_FILEUPLOAD (sub->q, glob->logger, eFileUploadStatus_finished_OK, fileUpload.totalFileSizeBytes/1024);
+            esapi::notify_RASPI_FILEUPLOAD (sub->q, shared->logger, eFileUploadStatus_finished_OK, fileUpload.totalFileSizeBytes/1024);
             return;
         }
 
@@ -473,7 +474,7 @@ void ModuleRasPI::priv_boot_handleFileUpload(sSubscription *sub)
             {
                 fclose (fileUpload.f);
                 fileUpload.f = NULL;
-                esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_timeout, (u32)0);
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus_timeout, (u32)0);
                 return;
             }
 
@@ -485,7 +486,7 @@ void ModuleRasPI::priv_boot_handleFileUpload(sSubscription *sub)
             {
                 fclose (fileUpload.f);
                 fileUpload.f = NULL;
-                esapi::notify_RASPI_FILEUPLOAD(sub->q, glob->logger, eFileUploadStatus_timeout, (u32)0);
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus_timeout, (u32)0);
                 return;
             }
 
@@ -497,7 +498,7 @@ void ModuleRasPI::priv_boot_handleFileUpload(sSubscription *sub)
         if (kbSoFar != totalKBSentSoFar)
         {
             totalKBSentSoFar = kbSoFar;
-            esapi::notify_RASPI_FILEUPLOAD (sub->q, glob->logger, eFileUploadStatus_inProgress, totalKBSentSoFar);
+            esapi::notify_RASPI_FILEUPLOAD (sub->q, shared->logger, eFileUploadStatus_inProgress, totalKBSentSoFar);
         }
     }
 }
@@ -547,7 +548,7 @@ void ModuleRasPI::priv_running_run()
 				        //evento generato dalla msgQ di uno dei miei subscriber
                         {
                             OSEvent h = waitableGrp.getEventSrcAsOSEvent(i);
-                            sSubscription *sub = glob->subscriberList.findByOSEvent(h);
+                            sSubscription *sub = shared->subscriberList.findByOSEvent(h);
 						    if (sub)
                                 priv_running_handleMsgFromSubscriber(sub);
 				        }
@@ -555,7 +556,7 @@ void ModuleRasPI::priv_running_run()
 
                     default:
 						DBGBREAK;
-                        glob->logger->log("esapi::ModuleRasPI::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
+                        shared->logger->log("esapi::ModuleRasPI::run() => unhandled OSEVENT from waitGrp [%d]\n", waitableGrp.getEventUserParamAsU32(i));
 					}
 				}
 				break;
@@ -570,7 +571,7 @@ void ModuleRasPI::priv_running_run()
 				break;
 
 			default:
-                glob->logger->log("esapi::ModuleRasPI::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
+                shared->logger->log("esapi::ModuleRasPI::run() => unhandled event from waitGrp [%d]\n", waitableGrp.getEventOrigin(i));
 				break;
 			}
 		}
@@ -592,17 +593,17 @@ void ModuleRasPI::priv_running_handleMsgFromSubscriber(sSubscription *sub)
         switch (msg.what)
         {
         default:
-            glob->logger->log("ModuleRasPI::priv_running_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
+            shared->logger->log("ModuleRasPI::priv_running_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
             break;
 
         case ESAPI_ASK_UNSUBSCRIBE:
             rhea::thread::deleteMsg(msg);
             waitableGrp.removeEvent (sub->hEvent);
-            glob->subscriberList.unsubscribe (glob->localAllocator, sub);
+            shared->subscriberList.unsubscribe (shared->localAllocator, sub);
             return;
 
         case ESAPI_ASK_GET_MODULE_TYPE_AND_VER:
-            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, glob->logger, esapi::eExternalModuleType_rasPI_wifi_REST, glob->moduleInfo.verMajor, glob->moduleInfo.verMinor);
+            notify_MODULE_TYPE_AND_VER (sub->q, handlerID, shared->logger, esapi::eExternalModuleType_rasPI_wifi_REST, shared->moduleInfo.verMajor, shared->moduleInfo.verMinor);
             break;
 
         case ESAPI_ASK_RASPI_GET_IPandSSID:
@@ -622,7 +623,7 @@ void ModuleRasPI::priv_running_handleMsgFromSubscriber(sSubscription *sub)
                 {
                     const char *ssid = (const char*)&rs232BufferOUT[8];
                     rs232BufferOUT[8 + rs232BufferOUT[7]] = 0x00;
-                    notify_RASPI_WIFI_IPandSSID (sub->q, handlerID, glob->logger, rs232BufferOUT[3], rs232BufferOUT[4], rs232BufferOUT[5], rs232BufferOUT[6], ssid);
+                    notify_RASPI_WIFI_IPandSSID (sub->q, handlerID, shared->logger, rs232BufferOUT[3], rs232BufferOUT[4], rs232BufferOUT[5], rs232BufferOUT[6], ssid);
                 }
             }
             break;
@@ -646,7 +647,7 @@ void ModuleRasPI::priv_running_handleRS232 (sBuffer &b)
 
 	    if (nBytesAvailInBuffer > 0)
 	    {
-		    const u32 nRead = rhea::rs232::readBuffer(glob->com, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
+		    const u32 nRead = rhea::rs232::readBuffer(shared->com, &b.buffer[b.numBytesInBuffer], nBytesAvailInBuffer);
 		    b.numBytesInBuffer += (u16)nRead;
 	    }
     
@@ -676,7 +677,7 @@ void ModuleRasPI::priv_running_handleRS232 (sBuffer &b)
         switch (commandChar)
         {
         default:
-            glob->logger->log ("esapi::ModuleRasPI::priv_running_handleRS232() => invalid command char [%c]\n", commandChar);
+            shared->logger->log ("esapi::ModuleRasPI::priv_running_handleRS232() => invalid command char [%c]\n", commandChar);
             b.removeFirstNBytes(1);
             break;
 
@@ -701,7 +702,7 @@ bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
 	switch (commandCode)
 	{
 	default:
-		glob->logger->log("esapi::ModuleRasPI => invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
+		shared->logger->log("esapi::ModuleRasPI => invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
 		b.removeFirstNBytes(2);
 		return true;
 
@@ -726,11 +727,11 @@ bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
 			//creo una nuova socket e la metto in comunicazione con sokbridge
 			sConnectedSocket cl;
 			rhea::socket::init (&cl.sok);
-			glob->logger->log ("esapi::ModuleRasPI => new socket connection...");
+			shared->logger->log ("esapi::ModuleRasPI => new socket connection...");
 			eSocketError err = rhea::socket::openAsTCPClient (&cl.sok, "127.0.0.1", 2280);
 			if (err != eSocketError_none)
 			{
-				glob->logger->log ("FAIL\n");
+				shared->logger->log ("FAIL\n");
 				DBGBREAK;
 				//comunico la disconnessione via seriale
                 const u32 n = esapi::buildMsg_R0x02_closeSocket (socketUID, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
@@ -741,7 +742,7 @@ bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
 				cl.uid = socketUID;
 				sockettList.append(cl);
 				waitableGrp.addSocket (cl.sok, cl.uid);
-				glob->logger->log ("OK, socket id [%d]\n", cl.uid);
+				shared->logger->log ("OK, socket id [%d]\n", cl.uid);
 			}
 			return true;
 		}
@@ -800,7 +801,7 @@ bool ModuleRasPI::priv_running_handleCommand_R (sBuffer &b)
 				if (NULL != cl)
 				{
 					rhea::socket::write (cl->sok, data, dataLen);
-					glob->logger->log ("rcv [%d] bytes from RS232, sending to socket [%d]\n", dataLen, cl->uid);
+					shared->logger->log ("rcv [%d] bytes from RS232, sending to socket [%d]\n", dataLen, cl->uid);
 				}
 				else
 				{
@@ -832,7 +833,7 @@ void ModuleRasPI::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 			//comunico la disconnessione via seriale
             const u32 n = esapi::buildMsg_R0x02_closeSocket (uid, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, n);
-			glob->logger->log ("esapi::ModuleRasPI => socket [%d] disconnected\n", uid);
+			shared->logger->log ("esapi::ModuleRasPI => socket [%d] disconnected\n", uid);
 			return;
 		}
 	}
@@ -863,7 +864,7 @@ void ModuleRasPI::priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid)
 	if (nBytesLetti < 0)
 	{
 		//la chiamata sarebbe stata bloccante, non dovrebbe succedere
-		glob->logger->log ("esapi::ModuleRasPI => WARN: socket [%d], read bloccante...\n", cl->uid);
+		shared->logger->log ("esapi::ModuleRasPI => WARN: socket [%d], read bloccante...\n", cl->uid);
 		return;
 	}
 
@@ -888,7 +889,7 @@ void ModuleRasPI::priv_2280_sendDataViaRS232 (OSSocket &sok, u32 uid)
     assert (ct < SIZE_OF_RS232BUFFEROUT);
 
 	priv_rs232_sendBuffer (rs232BufferOUT, ct);
-	glob->logger->log ("esapi::ModuleRasPI => rcv [%d] bytes from socket [%d], sending to rasPI\n", nBytesLetti, cl->uid);
+	shared->logger->log ("esapi::ModuleRasPI => rcv [%d] bytes from socket [%d], sending to rasPI\n", nBytesLetti, cl->uid);
 
     if (nBytesLetti > 500)
         rhea::thread::sleepMSec(100);

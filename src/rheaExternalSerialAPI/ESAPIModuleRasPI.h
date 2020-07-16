@@ -1,16 +1,16 @@
 #ifndef _ESAPIModuleRasPI_h_
 #define _ESAPIModuleRasPI_h_
-#include "ESAPIModule.h"
+#include "ESAPIShared.h"
 
 namespace esapi
 {	
-	class ModuleRasPI : public Module
+	class ModuleRasPI
 {
 	public:
 								ModuleRasPI();
 								~ModuleRasPI()													{ }
 
-		bool					setup (sGlob *glob);
+		bool					setup (sShared *glob);
 		eExternalModuleType		run();
 		
 	private:
@@ -60,7 +60,7 @@ namespace esapi
 		bool					priv_running_handleCommand_R (sBuffer &b);
 
 	private:
-		sGlob					*glob;
+		sShared					*shared;
 		OSWaitableGrp           waitableGrp;
 		sBuffer					rs232BufferIN;
 		u8						*rs232BufferOUT;

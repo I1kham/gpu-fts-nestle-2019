@@ -137,7 +137,6 @@ namespace esapi
 		OSEvent		hEvent;
 		cpubridge::sSubscriber	q;
 	};
-
 	
 } // namespace esapi
 
