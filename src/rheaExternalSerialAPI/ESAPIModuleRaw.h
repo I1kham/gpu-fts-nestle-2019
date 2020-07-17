@@ -19,6 +19,8 @@ namespace esapi
 						ModuleRaw();
 						~ModuleRaw()													{ }
 
+        bool            setup (sShared *shared);
+
 	protected:
 		void			virt_handleMsgFromServiceQ	(sShared *shared, const rhea::thread::sMsg &msg);
 		void			virt_handleMsgFromSubscriber(sShared *shared, sSubscription &sub, const rhea::thread::sMsg &msg, u16 handlerID);

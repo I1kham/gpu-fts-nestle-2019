@@ -166,6 +166,7 @@ void Core::run()
     //spawn del modulo raw
     shared.logger->log ("esapi::Core::run() => instancing module_raw\n");
     Module	*currentModule = RHEANEW(shared.localAllocator, esapi::ModuleRaw)();
+    currentModule->setup (&shared);
 
     bool bQuit = false;
     while (bQuit == false)

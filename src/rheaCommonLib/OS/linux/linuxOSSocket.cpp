@@ -81,10 +81,15 @@ eSocketError platform::socket_openAsTCPClient (OSSocket *sok, const char *connec
         return eSocketError_no_such_host;
     }
 
-    struct sockaddr_in serv_addr;
+    /*struct sockaddr_in serv_addr;
     memset (&serv_addr, 0x00, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     memcpy (server->h_addr, &serv_addr.sin_addr.s_addr, server->h_length);
+    serv_addr.sin_port = htons(portNumber);
+*/
+    sockaddr_in serv_addr;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = inet_addr(connectToIP);
     serv_addr.sin_port = htons(portNumber);
 
     if (0 != connect (sok->socketID, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))

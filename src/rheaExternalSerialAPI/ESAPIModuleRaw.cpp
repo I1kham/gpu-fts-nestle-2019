@@ -10,28 +10,38 @@ ModuleRaw::ModuleRaw()
 {
 }
 
+//********************************************************
+bool ModuleRaw::setup (sShared *shared)
+{
+    shared->moduleInfo.type = esapi::eExternalModuleType_none;
+    shared->moduleInfo.verMajor = esapi::Protocol::ESAPI_VERSION_MAJOR;
+    shared->moduleInfo.verMinor = esapi::Protocol::ESAPI_VERSION_MINOR;
+    return true;
+}
+
+
 //*********************************************************
-void ModuleRaw::virt_handleMsgFromServiceQ	(sShared *shared, const rhea::thread::sMsg &msg)
+void ModuleRaw::virt_handleMsgFromServiceQ	(sShared *shared UNUSED_PARAM, const rhea::thread::sMsg &msg UNUSED_PARAM)
 {
     //non c'è nulla che questo modulo debba gestire in caso di messaggi ricevuti da altri thread sulla msgQ
     DBGBREAK;
 }
 
 //*********************************************************
-void ModuleRaw::virt_handleMsgFromSubscriber(sShared *shared, sSubscription &sub, const rhea::thread::sMsg &msg, u16 handlerID)
+void ModuleRaw::virt_handleMsgFromSubscriber(sShared *shared, sSubscription &sub UNUSED_PARAM, const rhea::thread::sMsg &msg, u16 handlerID UNUSED_PARAM)
 {
     shared->logger->log("esapi::ModuleRaw::virt_handleMsgFromSubscriber() => invalid msg.what [0x%02X]\n", msg.what);
 }
 
 //*********************************************************
-void ModuleRaw::virt_handleMsgFromCPUBridge	(sShared *shared, cpubridge::sSubscriber &sub, const rhea::thread::sMsg &msg, u16 handlerID)
+void ModuleRaw::virt_handleMsgFromCPUBridge	(sShared *shared UNUSED_PARAM, cpubridge::sSubscriber &sub UNUSED_PARAM, const rhea::thread::sMsg &msg UNUSED_PARAM, u16 handlerID UNUSED_PARAM)
 {
     //non c'è nulla da fare, tutte le notifiche utili in arrivo da CPUBridge sono già gestite da protocol
 }
 
 
 //*********************************************************
-void ModuleRaw::virt_handleMsgFromSocket (sShared *shared, OSSocket &sok, u32 userParam)
+void ModuleRaw::virt_handleMsgFromSocket (sShared *shared UNUSED_PARAM, OSSocket &sok UNUSED_PARAM, u32 userParam UNUSED_PARAM)
 {
     //non dovrebbe mai accadere
     DBGBREAK;

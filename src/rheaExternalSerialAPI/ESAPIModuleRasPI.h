@@ -10,7 +10,7 @@ namespace esapi
 								ModuleRasPI();
 								~ModuleRasPI()													{ }
 
-		bool					setup (sShared *glob);
+        bool					setup (sShared *shared);
 		eExternalModuleType		run();
 
 	protected:

@@ -7,6 +7,7 @@
 #include "../SocketBridge/SocketBridge.h"
 #include "../rheaCommonLib/SimpleLogger/StdoutLogger.h"
 #include "../rheaExternalSerialAPI/ESAPI.h"
+#include "../rheaCommonLib/SimpleLogger/FileLogger.h"
 
 MainWindow *myMainWindow = NULL;
 
@@ -264,7 +265,13 @@ void run(int argc, char *argv[])
 #ifdef _DEBUG
     glob.logger = new rhea::StdoutLogger();
 #else
+#ifdef PLATFORM_YOCTO_EMBEDDED
     glob.logger = new rhea::NullLogger();
+    //u8 s[256]; sprintf_s ((char*)s, sizeof(s), "%s/output.log", rhea::getPhysicalPathToAppFolder()); glob.logger = new rhea::FileLogger(s);
+#else
+    glob.logger = new rhea::NullLogger();
+
+#endif
 #endif
 
     //recupero informazioni sui vari folder

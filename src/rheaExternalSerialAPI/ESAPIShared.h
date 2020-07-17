@@ -60,6 +60,8 @@ namespace esapi
 	public:
 		virtual			~Module()				{ };
 
+        virtual bool    setup (sShared *shared) = 0;
+
 		virtual	void	virt_handleMsgFromServiceQ	(sShared *shared, const rhea::thread::sMsg &msg) = 0;
 		virtual	void	virt_handleMsgFromSubscriber(sShared *shared, sSubscription &sub, const rhea::thread::sMsg &msg, u16 handlerID) = 0;
 		virtual	void	virt_handleMsgFromCPUBridge	(sShared *shared, cpubridge::sSubscriber &sub, const rhea::thread::sMsg &msg, u16 handlerID) = 0;
