@@ -163,7 +163,7 @@ namespace raspi
 		void					priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend);
 		bool					priv_rs232_handleCommand_A (sBuffer &b);
 		bool					priv_rs232_handleCommand_R (sBuffer &b);
-        bool                    priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichByteContainsAdditionMsgLen, u8 *answerBuffer, u32 timeoutMSec);
+        bool                    priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichByteContainsAdditionMsgLenLSB, u8 whichByteContainsAdditionMsgLenMSB, u8 *answerBuffer, u32 timeoutMSec);
 
 		void					priv_identify_run();
 		bool					priv_identify_waitAnswer(u8 command, u8 code, u8 len, u8 *answerBuffer, u32 timeoutMSec);
@@ -186,6 +186,13 @@ namespace raspi
         void                    priv_runTS();
         void                    priv_runTP();
 
+        void                    priv_REST_getCPULCDMsg (OSSocket &sok);
+        void                    priv_REST_getSelAvail (OSSocket &sok);
+        void                    priv_REST_get12LEDStatus (OSSocket &sok);
+        void                    priv_REST_getSelPrices (OSSocket &sok);
+        void                    priv_REST_sendButtonPress (OSSocket &sok, rhea::string::utf8::Iter *params);
+        void                    priv_REST_startSel (OSSocket &sok, rhea::string::utf8::Iter *params);
+        void                    priv_REST_getSelStatus (OSSocket &sok);
 
 	private:
 		rhea::Allocator         *localAllocator;
