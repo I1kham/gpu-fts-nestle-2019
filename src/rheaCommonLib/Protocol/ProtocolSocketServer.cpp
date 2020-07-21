@@ -64,11 +64,23 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
 
 
 	//apro la socket UDP per il broadcastr hello
+    logger->log ("opening UDP port [%d]...", portNumber+1);
 	err = rhea::socket::openAsUDP(&sokUDP);
-    err = rhea::socket::UDPbind (sokUDP, portNumber + 1);
+    if (err != eSocketError_none)
+        logger->log ("FAILED (open)[%d]\n", err);
+    else
+    {
+        err = rhea::socket::UDPbind (sokUDP, portNumber + 1);
+        if (err != eSocketError_none)
+            logger->log ("FAILED (bind)[%d]\n", err);
+        else
+        {
+            logger->log ("OK\n");
+            //aggiungo la socket al gruppo di oggetti in osservazione
+            waitableGrp.addSocket(sokUDP, u32MAX-1);
+        }
+    }
 
-	//aggiungo la socket al gruppo di oggetti in osservazione
-	waitableGrp.addSocket(sokUDP, u32MAX-1);
 
 
     logger->log ("Done!\n");
