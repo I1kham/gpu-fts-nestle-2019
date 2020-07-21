@@ -83,6 +83,7 @@
 
 <script src="config/lang.js"></script>
 <script src="config/mainMenuIcons.js"></script>
+<script src="config/pageConfirm.js"></script>
 <script src="config/MMI.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script src="js/qrcode/qrcode.min.js"></script>
@@ -324,7 +325,7 @@ function detectCurrentSelection()
 }
 
 
-var btnAbort_secondsLeft = 61;
+var btnAbort_secondsLeft = pageConfirmOptions.abortSec;
 function btnAbort_countdown()
 {
 	var d = rheaGetElemByID("btnAbortPayment");

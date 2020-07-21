@@ -1,0 +1,1 @@
+var pageConfirmOptions={abortSec:62};

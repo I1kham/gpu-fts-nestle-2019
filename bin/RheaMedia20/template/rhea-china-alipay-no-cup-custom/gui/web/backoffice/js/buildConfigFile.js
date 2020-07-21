@@ -140,6 +140,7 @@ console.time("page menu");
 	await buildConfigFile_pageMenu(db, historyID);
 console.timeEnd("page menu");	
 
+
 console.time("page sel in progress");		
 	pleaseWait_addMessage("creating page sel in progress files...");
 	await buildConfigFile_pageSelInProgress(db, historyID);
@@ -235,7 +236,7 @@ async function buildConfigFile_pageSelFinished (db, his_id)
 		await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageSelFinished','xx','timeToMain', '2000')");
 		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageSelFinished' AND ISO='xx' AND What='timeToMain'");
 	}
-	var result = "var selFinishedPageOptions={timeToGoBack:" +rst.valByColName(0, "ValueA") +"}";	
+	var result = "var selFinishedPageOptions={timeToGoBack:" +rst.valByColName(0, "ValueA") +"};";	
 	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageSelFinished.js");
 }
 
@@ -311,6 +312,12 @@ async function buildConfigFile_pageMenu(db, his_id)
 				+"};";
 	
 	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageMenu.js");
+	
+	
+	//Creo anche il file pageConfirm.js che contiene alcune valori presi dalla tabella pagemenu
+	var result = "var pageConfirmOptions={abortSec:" +rst.valByColName(0, "alipayAbortSec") +"};";	
+	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageConfirm.js");
+	
 }
 
 /*********************************************************
