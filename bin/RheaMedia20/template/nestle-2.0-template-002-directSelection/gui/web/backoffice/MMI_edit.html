@@ -408,19 +408,11 @@ async function saveAll()
 	}
 		
 	pleaseWait(1);
-console.time("save1");
 	await db.exec(sql);
-console.timeEnd("save1");	
-
 
 	//salvataggio del nome MMI in multilingua
-console.time("save2");	
 	await ml_MMIName.save(db);
-console.timeEnd("save2");	
-
-console.time("save3");
 	await ml_MMIDescr.save(db);
-console.timeEnd("save3");	
 
 	//se era un record nuovo...
 	if (sql.substr(0,6) == "INSERT")
@@ -429,27 +421,19 @@ console.timeEnd("save3");
 		let rst = await db.q("SELECT UID FROM pagemenu_mmi WHERE HIS_ID=" +historyID +" AND PROGR="+progressivo);
 		UID = rst.valByColName(0, "UID");
 		
-console.time("save4");		
 		await db.exec ("INSERT INTO cupcustombtn(HIS_ID,MMI,AppearanceA,AppearanceB) VALUES(" +historyID +"," +UID +",'A','C')");
-console.timeEnd("save4");		
-
-console.time("save5");
+		await db.exec ("DELETE FROM lang WHERE What='" +UID +"' AND UID IN ('MMI_NAME','MMI_DESCR','MMI_NUTRI')");
 		await db.exec ("UPDATE lang SET What='" +UID +"' WHERE What='-1' AND UID IN ('MMI_NAME','MMI_DESCR','MMI_NUTRI')");
-console.timeEnd("save5");		
 	}
 	
 	//salvataggio nutritional info
 	var langList = allLang.split(",");
 	for (var i=0; i<langList.length; i++)
 	{
-console.time("save-lang"+i);
 		await db.exec ("UPDATE lang SET Message='" +nutritionalInfoImg[i] +"' WHERE UID='MMI_NUTRI' AND What='" +UID +"' AND ISO='" +langList[i] +"'");
-console.timeEnd("save-lang"+i);
 	}
 
-console.time("save-final");
 	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
-console.timeEnd("save-final");	
 	
 	gotoMMI();
 }

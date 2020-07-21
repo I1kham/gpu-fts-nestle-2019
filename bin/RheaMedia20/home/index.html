@@ -128,7 +128,7 @@ async function onRheaBootstrapFinished()
 
 function scrollToPage (i)
 {
-	//$("#multiBoxContainer").css("left", -i*1000);
+	$('html,body').scrollTop(0);
 	var dest = -i*1000;
 	$("#multiBoxContainer").animate(
 		{ left: dest }, 

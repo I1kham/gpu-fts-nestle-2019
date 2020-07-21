@@ -1194,6 +1194,7 @@ async function saveAll()
 		UID = rst.valByColName(0, "UID");
 		
 		await db.exec ("INSERT INTO cupcustombtn(HIS_ID,MMI,AppearanceA,AppearanceB) VALUES(" +historyID +"," +UID +",'A','C')");
+		await db.exec ("DELETE FROM lang WHERE What='" +UID +"' AND UID IN ('MMI_NAME','MMI_DESCR','MMI_NUTRI')");
 		await db.exec ("UPDATE lang SET What='" +UID +"' WHERE What='-1' AND UID IN ('MMI_NAME','MMI_DESCR','MMI_NUTRI')");
 	}
 	
