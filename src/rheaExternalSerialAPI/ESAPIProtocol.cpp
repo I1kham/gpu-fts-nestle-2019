@@ -139,12 +139,15 @@ bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, c
 
 				u32 BYTES_TO_ALLOC = 5 + numPrices * (7);
 				u8 *answer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), BYTES_TO_ALLOC);
-				u32 ct = 0;
+				u16 ct = 0;
 				answer[ct++] = '#';
 				answer[ct++] = 'C';
 				answer[ct++] = '3';
 				answer[ct++] = numPrices;
+				answer[ct++] = 0;	//lughezza totale stringa dei prezzi LSB
+				answer[ct++] = 0;	//lughezza totale stringa dei prezzi MSB
 
+				const u16 ct_startOfPriceList = ct;
 				for (u16 i = 0; i < numPrices; i++)
 				{
 					char s[32];
@@ -156,6 +159,9 @@ bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, c
 					ct += n;
 					answer[ct++] = '|';
 				}
+
+				rhea::utils::bufferWriteU16_LSB_MSB (&answer[4], (ct - ct_startOfPriceList));
+
 				answer[ct] = rhea::utils::simpleChecksum8_calc (answer, ct);
 				ct++;
 					
