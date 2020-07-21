@@ -1,0 +1,1 @@
+var allLang="CN,GB"; var defaultLang="CN";allLangLocale=["中文","English"];
