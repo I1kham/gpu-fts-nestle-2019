@@ -337,6 +337,16 @@ function btnAbort_countdown()
 		onBtnAbortPayment();
 		return;
 	}
+	
+	//se siamo in preview, faccio partire la selezione dopo 3 secondi da quando è comparso il qr
+	if (isRheamediaPreview())
+	{
+		if (btnAbort_secondsLeft <= pageConfirmOptions.abortSec-3)
+		{
+			startCurrentSelWithPaymentConfirmed();
+			return;
+		}
+	}
 
 	setTimeout (btnAbort_countdown, 1000);
 }
@@ -379,9 +389,17 @@ function onBtnStartSelection()
 	rheaShowElem (rheaGetElemByID("qrcode_plsWait"));
 	
 	
-	//se siamo in freevend oppure prezzo==0
-	if (parseFloat(selInfo.price) <= 0 || rhea.isFreevend || isRheamediaPreview())
+	
+	//nella preview di rheaMedia mostro un QR fake che autoscompare dopo 2 secondi e fa partire la selezione
+	if (isRheamediaPreview())
 	{
+		//inizio conto alla rovescia
+		btnAbort_countdown();
+		showQRCode ("example qr code");
+	}
+	else if (parseFloat(selInfo.price) <= 0 || rhea.isFreevend)
+	{
+		//siamo in freevend oppure prezzo==0
 		startCurrentSelWithPaymentConfirmed();
 	}
 	else
