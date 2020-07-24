@@ -1,5 +1,7 @@
 <?php
 //***è************
+require_once "common.php";
+
 $sok = rasPI_connect();
 if (false === $sok)
 {

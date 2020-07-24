@@ -1,5 +1,7 @@
 <?php
 //***è************
+require_once "common.php";
+
 $selNum = httpGetOrDefault("selNum", "0");
 if ($selNum>1 && $selNum<100)
 {

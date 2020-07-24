@@ -1,5 +1,7 @@
 <?php
 //***è************
+require_once "common.php";
+
 $btnNum = httpGetOrDefault("b", "0");
 if ($btnNum>1 && $btnNum<12)
 {

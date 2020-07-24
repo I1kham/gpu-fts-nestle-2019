@@ -813,6 +813,10 @@ void Core::priv_openSocket2281()
 //*******************************************************
 void Core::run()
 {
+    reportedGPUType = esapi::eGPUType_TS;
+    priv_runTS();
+
+    /*
     logger->log ("Entering IDENITFY mode...\n");
 	logger->incIndent();
 	priv_identify_run();
@@ -823,6 +827,7 @@ void Core::run()
         priv_runTS();
     else
         priv_runTP();
+        */
 }
 
 /*******************************************************
@@ -835,11 +840,11 @@ void Core::priv_runTS()
 {
     logger->log ("GPU is TS\n");
 
-    logger->log ("Entering BOOT mode...\n");
+    /*logger->log ("Entering BOOT mode...\n");
     logger->incIndent();
     priv_boot_run();
     logger->decIndent();
-
+*/
 	logger->log ("\n\nEntering RUNNING mode...\n");
 	logger->incIndent();
         priv_openSocket2280();
@@ -1678,7 +1683,8 @@ void Core::priv_REST_get12LEDStatus (OSSocket &sok)
     if (reportedGPUType == esapi::eGPUType_TS)
     {
         //non supportato dalle TS
-        const char ko[] = {"111111111111"};
+        //const char ko[] = {"111111111111"};
+        const char ko[] = {"101010101010"};
         priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko));
         return;
     }

@@ -1,9 +1,11 @@
 <?php
 //***è************
+require_once "common.php";
+
 $sok = rasPI_connect();
 if (false === $sok)
 {
-    echo "Connection failed";
+    echo "6";
     die();
 }
 
