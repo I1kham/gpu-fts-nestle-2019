@@ -140,6 +140,11 @@ console.time("page menu");
 	await buildConfigFile_pageMenu(db, historyID);
 console.timeEnd("page menu");	
 
+console.time("page confirm");
+	pleaseWait_addMessage("creating page confirm files..");
+	await buildConfigFile_pageConfirm(db, historyID);
+console.timeEnd("page confirm finished");	
+
 
 console.time("page sel in progress");		
 	pleaseWait_addMessage("creating page sel in progress files...");
@@ -223,6 +228,31 @@ function buildConfigFile_saveAs(what, path, filename)
 						});
 }
 
+
+/*********************************************************
+ * crea il file config/pageConfirm.js
+ */
+async function buildConfigFile_pageConfirm (db, his_id)
+{
+	let rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='timeToMain'");
+	if (rst.getNumRows() == 0)
+	{
+		await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageConfirm','xx','timeToMain', '15000')");
+		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='timeToMain'");
+	}
+	var timeToMainMSec = rst.valByColName(0, "ValueA");
+	
+	rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='alipayAbortSec'");
+	if (rst.getNumRows() == 0)
+	{
+		await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageConfirm','xx','alipayAbortSec', '60')");
+		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='alipayAbortSec'");
+	}
+	var alipayAbortSec = rst.valByColName(0, "ValueA");	
+	
+	var result = "var pageConfirmOptions={timeToMainMSec:" +timeToMainMSec +",abortSec:" +alipayAbortSec +"};";	
+	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageConfirm.js");
+}
 
 
 /*********************************************************
@@ -312,12 +342,6 @@ async function buildConfigFile_pageMenu(db, his_id)
 				+"};";
 	
 	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageMenu.js");
-	
-	
-	//Creo anche il file pageConfirm.js che contiene alcune valori presi dalla tabella pagemenu
-	var result = "var pageConfirmOptions={abortSec:" +rst.valByColName(0, "alipayAbortSec") +"};";	
-	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageConfirm.js");
-	
 }
 
 /*********************************************************

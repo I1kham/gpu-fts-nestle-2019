@@ -17,7 +17,7 @@
 <div id="mainWrapper" class="wrapper">
 	<div id="main-content">
 		<div class="header">
-			<h1>Page selection finished</h1>
+			<h1>Page confirm</h1>
 		</div>
 
 		<div class="pulsantiera-sticky">
@@ -36,6 +36,8 @@
 					<h2>General settings</h2>
 					<div class="box-content">
 						<p>Time to go back to main menu <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="timeToGoBacToMainMenu"> sec</p>
+						
+						<p>Alipay ABORT time <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="alipayAbortSec"> sec</p>
 					</div>
 				</div>
 			</div>
@@ -71,7 +73,7 @@ async function onRheaBootstrapFinished()
 	
 	var curPath = rheaGetAbsolutePhysicalPath();
 	db = new RheaDB (curPath +"/guidb.db3");
-	let rst = await db.q("SELECT ValueA FROM other WHERE UID='pageSelFinished' AND ISO='xx' AND What='timeToMain'");
+	let rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='timeToMain'");
 	if (rst.hasError() != "")
 	{
 		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
@@ -79,11 +81,24 @@ async function onRheaBootstrapFinished()
 	}
 	if (rst.getNumRows() == 0)
 	{
-		await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageSelFinished','xx','timeToMain', '2000')");
-		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageSelFinished' AND ISO='xx' AND What='timeToMain'");
+		await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageConfirm','xx','timeToMain', '15000')");
+		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='timeToMain'");
 	}
-	
 	$("#timeToGoBacToMainMenu").val (Math.floor(rst.valByColName(0, "ValueA") / 1000));
+
+
+	rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='alipayAbortSec'");
+	if (rst.hasError() != "")
+	{
+		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
+		return;
+	}
+	if (rst.getNumRows() == 0)
+	{
+		await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageConfirm','xx','alipayAbortSec', '60')");
+		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageConfirm' AND ISO='xx' AND What='alipayAbortSec'");
+	}
+	$("#alipayAbortSec").val (Math.floor(rst.valByColName(0, "ValueA")));
 
 	$("#main-content-wait").hide();
 	$("#page-content").show();
@@ -95,10 +110,12 @@ async function saveAll()
 	//*** 
 	var sql = "UPDATE other SET"
 			+ " ValueA=" +($("#timeToGoBacToMainMenu").val() * 1000)
-			+ " WHERE UID='pageSelFinished' AND ISO='xx' AND What='timeToMain'";
-			
-	
+			+ " WHERE UID='pageConfirm' AND ISO='xx' AND What='timeToMain';"
+			+ "UPDATE other SET"
+			+ " ValueA=" +($("#alipayAbortSec").val())
+			+ " WHERE UID='pageConfirm' AND ISO='xx' AND What='alipayAbortSec'";
 	await db.exec (sql);
+
 	
 	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
 	pleaseWait(0);

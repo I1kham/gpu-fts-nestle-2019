@@ -95,6 +95,7 @@ var GRINDER = 0;
 var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
 var qrcode = null;
+var timerGotoMainMenu = null;
 
 function isRheamediaPreview()				{ if (Rhea_session_getOrDefault("rheamedia2preview","0")=="1") return 1; return 0; }
 
@@ -204,12 +205,13 @@ function onAfterLangLoaded2()
 		window.location = "pageMenu.html";
 	}, true);	
 	
-	
 	rheaSetDivHTMLByName ("qrcode_text", rheaLang.LAB_PLEASE_SCAN_QRCODE);
+	resetTimerGotoPageMainMenu();
 }
 
 function onSelectionChanged(selNum)
 {
+	resetTimerGotoPageMainMenu();
 	var selInfo = rhea.selection_getBySelNumber(selNum);
 	
 	var elemPrice = rheaGetElemByID("divPrice");
@@ -369,6 +371,8 @@ function onBtnAbortPayment()
 
 function onBtnStartSelection()
 {
+	clearInterval(timerGotoMainMenu);
+
 	//info sulla selezione da erogare
 	selThatWasStarted = detectCurrentSelection();
 	var selInfo = rhea.selection_getBySelNumber(selThatWasStarted);
@@ -437,6 +441,7 @@ function showQRCode (url)
 
 function startCurrentSelWithPaymentConfirmed()
 {
+	clearInterval(timerGotoMainMenu);
 	rheaHideElem(rheaGetElemByID("btnAbortPayment"));
 	
 	selThatWasStarted = detectCurrentSelection();
@@ -471,7 +476,24 @@ function updateWifiIcon()
 	var selNum = MMI_getLinkedSelectionNumber(iconNum);
 	onSelectionChanged(selNum);
 }
-</script>
+
+
+function resetTimerGotoPageMainMenu() 
+{
+	if (pageConfirmOptions.timeToMainMSec <= 1000)
+		return;
+
+	if (null != timerGotoMainMenu)
+		clearInterval(timerGotoMainMenu);
+
+	timerGotoMainMenu = setInterval(gotoPageMainMenu, pageConfirmOptions.timeToMainMSec);
+}
+
+
+function gotoPageMainMenu()  
+{
+	window.location = "pageMenu.html"; 
+}</script>
 
 
 </html>

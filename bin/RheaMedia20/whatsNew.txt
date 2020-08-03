@@ -1,4 +1,9 @@
 ================================================================================================
+ver 2.3.2 2020/08/03
+	Bug fixing:
+		- Fixed a bug when creating more than 33 selection icons.
+
+================================================================================================
 ver 2.3.1 2020/07/16
 	Bug fixing
 		-	Fixed a bug when rheaMedia is installed on folder with a space in the path name

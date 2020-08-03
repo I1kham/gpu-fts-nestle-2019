@@ -328,7 +328,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
         if (ProtocolWebsocket::server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
         {
             //logger->log ("it's a websocket\n");
-			protocol = RHEANEW(allocator, ProtocolWebsocket) (allocator, 1024, 4096);
+			protocol = RHEANEW(allocator, ProtocolWebsocket) (allocator, 1024, 8192);
             break;
         }
 

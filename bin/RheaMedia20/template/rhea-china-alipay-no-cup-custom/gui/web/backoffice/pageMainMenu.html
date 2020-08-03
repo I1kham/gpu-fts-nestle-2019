@@ -50,7 +50,7 @@
 					<div class="box-content">
 						<table border='0' cellspacing='0' cellpadding='2'>
 							<tr valign="middle">
-								<td style="width:250px">
+								<td style="width:300px">
 									Num. row <select class="combo" id="icon_numRow"><option value="2">2</option><option value="3">3</option></select>,&nbsp;
 									num. cols <select class="combo" id="icon_numIconPerRow"><option value="3">3</option><option value="4">4</option></select>
 								</td>
@@ -63,8 +63,7 @@
 									<div class="checkboxFive" data-input-id="cbOneClickSelection"></div>Enable "one button selection" option
 								</td>
 								<td>
-									Alipay ABORT time <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="alipayAbortSec"> sec
-								</td>								
+								</td>
 							</tr>
 						</table>						
 						<div class="clear"></div>
@@ -187,7 +186,6 @@ async function onRheaBootstrapFinished()
 	$("#icon_numRow").val (rst.valByColName(0, "icon_numRow"));
 	$("#icon_numIconPerRow").val (rst.valByColName(0, "icon_numIconPerRow"));
 	$("#gotoPageStandbyAfterMSec").val (Math.floor(rst.valByColName(0, "gotoPageStandbyAfterMSec") / 1000));
-	$("#alipayAbortSec").val (Math.floor(rst.valByColName(0, "alipayAbortSec")));
 	if (rst.valByColName(0, "oneClickSelection") == 1)
 		$("#cbOneClickSelection").prop('checked', true);
 	else
@@ -365,7 +363,6 @@ async function saveAll()
 			+ ",icon_numIconPerRow=" +$("#icon_numIconPerRow").val()
 			+ ",gotoPageStandbyAfterMSec=" +(1000 * $("#gotoPageStandbyAfterMSec").val())
 			+ ",oneClickSelection=" +oneClickSelection
-			+ ",alipayAbortSec=" +($("#alipayAbortSec").val())
 			+ " WHERE HIS_ID=" +historyID +";";
 			
 	console.log (sql);
