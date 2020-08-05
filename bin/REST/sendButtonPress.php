@@ -2,8 +2,8 @@
 //***è************
 require_once "common.php";
 
-$btnNum = httpGetOrDefault("b", "0");
-if ($btnNum>1 && $btnNum<12)
+$btnNum = intval(httpGetOrDefault("b", "0"));
+if ($btnNum>=1 && $btnNum<=12)
 {
     $sok = rasPI_connect();
     if (false === $sok)

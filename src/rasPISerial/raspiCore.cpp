@@ -218,14 +218,15 @@ void Core::priv_identify_run()
 
 			const u32 nBytesToSend = priv_esapi_buildMsg ('A', '1', NULL, 0, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
 			priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
-			if (priv_identify_waitAnswer('A', '1', 7, rs232BufferOUT, 1000))
+
+            if (priv_rs232_waitAnswer('A', '1', 7, 0, 0, rs232BufferOUT, 1000))
+            //if (priv_identify_waitAnswer('A', '1', 7, rs232BufferOUT, 1000))
 			{
 				//ho ricevuto risposta valida a comando A 1
 				reportedESAPIVerMajor = rs232BufferOUT[3];
 				reportedESAPIVerMinor = rs232BufferOUT[4];
 				reportedGPUType = (esapi::eGPUType)rs232BufferOUT[5];
 
-//reportedGPUType = esapi::eGPUType_TP;
                 logger->log ("\nAPI ver %d.%d, gpuType[%d]\n", reportedESAPIVerMajor, reportedESAPIVerMinor, reportedGPUType);
 				break;
 			}
@@ -238,6 +239,16 @@ void Core::priv_identify_run()
 	//se arrivo qui, vuol dire che la GPU ha risposto al comando # A 1
     //ora devo comunicare la mia identità e attendere risposta.
     //Questo vale solo per le GPU TS, perchè per le TP mi limito ad utilizzare i normali comandi seriali ESAPI
+
+    //in ogni caso, flusho eventuali ulteriori risposte che potrebbero essere presenti sulla seriale
+    {
+        u8 ch;
+        while (rhea::rs232::readBuffer(com, &ch, 1))
+        {
+            rhea::thread::sleepMSec(1);
+        }
+    }
+
     if (reportedGPUType == esapi::eGPUType::eGPUType_TS)
     {
         while (1)
@@ -245,7 +256,8 @@ void Core::priv_identify_run()
             const u8 data[4] = { (u8)esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, 0 };
             const u32 nBytesToSend = priv_esapi_buildMsg ('R', '1', data, 3, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
             priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
-            if (priv_identify_waitAnswer('R', '1', 5, rs232BufferOUT, 1000))
+            if (priv_rs232_waitAnswer('R', '1', 5, 0, 0, rs232BufferOUT, 1000))
+            //if (priv_identify_waitAnswer('R', '1', 5, rs232BufferOUT, 1000))
             {
                 //ho ricevuto risposta valida a comando R 1, posso uscire da questa fase
                 return;
@@ -813,10 +825,6 @@ void Core::priv_openSocket2281()
 //*******************************************************
 void Core::run()
 {
- /*   reportedGPUType = esapi::eGPUType_TS;
-    priv_runTS();
-*/
-
     logger->log ("Entering IDENITFY mode...\n");
 	logger->incIndent();
 	priv_identify_run();
@@ -1015,8 +1023,36 @@ void Core::priv_runTP()
 }
 
 //*********************************************************
+const char* Core::DEBUG_priv_chToWritableCh (u8 c)
+{
+    static char dbgStr[8];
+
+    if ((c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='#')
+    {
+        dbgStr[0] = c;
+        dbgStr[1] = 0;
+    }
+    else
+        sprintf (dbgStr, "[%02X]", c);
+
+    return dbgStr;
+}
+
+//*********************************************************
 void Core::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 {
+    char dbgStr[256];
+    u32 ct=0;
+    memset (dbgStr,0,sizeof(dbgStr));
+    for (u32 i=0; i<numBytesToSend; i++)
+    {
+        const char *s = DEBUG_priv_chToWritableCh(buffer[i]);
+        strcat (dbgStr, s);
+        ct += strlen(s);
+    }
+    dbgStr[ct] = 0;
+    logger->log ("RS232snd: %s", dbgStr);
+
 	rhea::rs232::writeBuffer (com, buffer, numBytesToSend);
 }
 
@@ -1033,7 +1069,9 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
              (whichByteContainsAdditionMsgLenLSB>0 && whichByteContainsAdditionMsgLenMSB==0) ||
              (whichByteContainsAdditionMsgLenLSB>0 && whichByteContainsAdditionMsgLenMSB>0));
 
-    const u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
+    logger->log ("rs232_waitAnswer: ");
+
+    u64 timeToExitMSec = 10000 + rhea::getTimeNowMSec() + timeoutMSec;
     u16 ct = 0;
     while (rhea::getTimeNowMSec() < timeToExitMSec)
     {
@@ -1043,6 +1081,8 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
             rhea::thread::sleepMSec(10);
             continue;
         }
+
+        logger->log (DEBUG_priv_chToWritableCh(ch));
 
         if (ct == 0)
         {
@@ -1072,7 +1112,10 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
                 if (ct == fixedMsgLen)
                 {
                     if (rhea::utils::simpleChecksum8_calc(answerBuffer, fixedMsgLen - 1) == answerBuffer[fixedMsgLen - 1])
+                    {
+                        logger->log ("\n  [true]\n");
                         return true;
+                    }
                     ct = 0;
                 }
             }
@@ -1089,7 +1132,10 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
                         if (ct == totalMsgSize)
                         {
                             if (rhea::utils::simpleChecksum8_calc(answerBuffer, totalMsgSize - 1) == answerBuffer[totalMsgSize - 1])
+                            {
+                                logger->log ("\n  [true]\n");
                                 return true;
+                            }
                             ct = 0;
                         }
                     }
@@ -1103,7 +1149,10 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
                         if (ct == totalMsgSize)
                         {
                             if (rhea::utils::simpleChecksum8_calc(answerBuffer, totalMsgSize - 1) == answerBuffer[totalMsgSize - 1])
+                            {
+                                logger->log ("\n  [true]\n");
                                 return true;
+                            }
                             ct = 0;
                         }
                     }
@@ -1111,6 +1160,8 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
             }
         }
     }
+
+    logger->log ("\n----------**************-------------[false]----------**************-------------\n");
     return false;
 }
 
@@ -1431,11 +1482,30 @@ void Core::priv_2281_accept()
         logger->log("2281: ERR => accept failed\n");
     else
     {
-        logger->log ("2281[%d]: accepted\n", cl.sok.socketID);
+        //logger->log ("2281[%d]: accepted\n", cl.sok.socketID);
         cl.lastTimeRcvMSec = rhea::getTimeNowMSec();
         waitableGrp.addSocket (cl.sok, WAITGRP_SOK_FROM_REST_API);
         client2281List.append (cl);
     }
+}
+
+//*********************************************************
+void Core::priv_2281_findAndRemoveClientBySok (OSSocket &sokIN)
+{
+    const u32 n = client2281List.getNElem();
+    for (u32 i=0; i<n; i++)
+    {
+        if (rhea::socket::compare(sokIN, client2281List(i).sok))
+        {
+            OSSocket sok = client2281List(i).sok;
+            //logger->log ("2281: closed [%d]\n", sok.socketID);
+            waitableGrp.removeSocket(sok);
+            rhea::socket::close(sok);
+            client2281List.removeAndSwapWithLast(i);
+            return;
+        }
+    }
+
 }
 
 //*********************************************************
@@ -1449,7 +1519,7 @@ void Core::priv_2281_removeOldConnection(u64 timeNowMSec)
         if (timeNowMSec >= client2281List(i).lastTimeRcvMSec + 5000)
         {
             OSSocket sok = client2281List(i).sok;
-            logger->log ("2281: closed [%d]\n", sok.socketID);
+            //logger->log ("2281: closed [%d]\n", sok.socketID);
             waitableGrp.removeSocket(sok);
             rhea::socket::close(sok);
 
@@ -1468,7 +1538,7 @@ void Core::priv_2281_handle_restAPI (OSSocket &sok)
     if (nBytesLetti == 0)
     {
         //connessione chiusa
-        //Non chiudo qui la socket, ci pensa poi la priv_2281_removeOldConnection()
+        priv_2281_findAndRemoveClientBySok(sok);
         return;
     }
 
@@ -1497,7 +1567,8 @@ void Core::priv_2281_handle_restAPI (OSSocket &sok)
         return;
     }
 
-    logger->log ("2281[%d]: rcv %s\n", sok.socketID, sok2281BufferIN);
+    //if (strcmp("GET-12LED", (const char*)sok2281BufferIN) != 0 && strcmp("GET-CPU-LCD-MSG", (const char*)sok2281BufferIN) != 0)
+        logger->log ("2281[%d]: rcv %s\n", sok.socketID, sok2281BufferIN);
 
     //i comandi ricevuti lungo questa socket sono nel formato:
     //  COMANDO|param1|param2|...|paramn
@@ -1538,7 +1609,7 @@ bool Core::priv_2281_utils_match (const u8 *command, u32 commandLen, const char 
 }
 
 //*********************************************************
-void Core::priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData)
+void Core::priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData, bool bLog)
 {
     u16 ct = 0;
     sok2281BufferOUT[ct++]='#';
@@ -1554,7 +1625,8 @@ void Core::priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData)
     sok2281BufferOUT[ct] =0;
     rhea::socket::write (sok, sok2281BufferOUT, ct);
 
-    logger->log ("2281[%d]: snd %s\n", sok.socketID, &sok2281BufferOUT[3]);
+    if (bLog)
+        logger->log ("2281[%d]: snd %s\n", sok.socketID, &sok2281BufferOUT[3]);
 }
 
 //*********************************************************
@@ -1582,14 +1654,19 @@ void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhe
         priv_REST_getSelAvail (sok);
     else if (priv_2281_utils_match(command, commandLen, "GET-12LED"))
         priv_REST_get12LEDStatus (sok);
-    else if (priv_2281_utils_match(command, commandLen, "GET-SEL-PRICES"))
-        priv_REST_getSelPrices (sok);
+    else if (priv_2281_utils_match(command, commandLen, "GET-SEL-PRICE"))
+        priv_REST_getSelPrice (sok, params);
     else if (priv_2281_utils_match(command, commandLen, "SND-BTN"))
         priv_REST_sendButtonPress (sok, params);
     else if (priv_2281_utils_match(command, commandLen, "START-SEL"))
         priv_REST_startSel (sok, params);
     else if (priv_2281_utils_match(command, commandLen, "GET-SEL-STATUS"))
         priv_REST_getSelStatus (sok);
+    else if (priv_2281_utils_match(command, commandLen, "GET-SEL-NAME"))
+        priv_REST_getSelName (sok, params);
+    else if (priv_2281_utils_match(command, commandLen, "GET-12SEL-NAMES"))
+        priv_REST_get12SelNames(sok);
+
     else
         logger->log ("2281: ERR command [%s] not recognized\n", command);
 }
@@ -1605,11 +1682,11 @@ void Core::priv_REST_getCPULCDMsg (OSSocket &sok)
     //# C 1 [msgLen] [msgUTF16_LSB_MSB] [ck]
     if (!priv_rs232_waitAnswer('C','1',5,3,0,rs232BufferOUT, 1000))
     {
-        priv_2281_sendAnswer (sok, (const u8*)"KO", 2);
+        priv_2281_sendAnswer (sok, (const u8*)"KO", 2, true);
         return;
     }
 
-    u8 *msgInUTF8 = (u8*)RHEAALLOC(rhea::getScrapAllocator(), 1024);
+    u8 *msgInUTF8 = RHEAALLOCT(u8*, rhea::getScrapAllocator(), 1024);
 
     //traduco da utf16 a utf8
     u16 ct=0;
@@ -1624,7 +1701,7 @@ void Core::priv_REST_getCPULCDMsg (OSSocket &sok)
         ct+=utf8.length();
     }
     msgInUTF8[ct]=0;
-    priv_2281_sendAnswer (sok, msgInUTF8, ct);
+    priv_2281_sendAnswer (sok, msgInUTF8, ct, true);
     RHEAFREE(rhea::getScrapAllocator(), msgInUTF8);
 }
 
@@ -1635,7 +1712,7 @@ void Core::priv_REST_getSelAvail (OSSocket &sok)
     {
         //non suportato dalle TP
         const char ko[] = {"48|111111111111111111111111111111111111111111111111"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko));
+        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), true);
         return;
     }
 
@@ -1648,7 +1725,7 @@ void Core::priv_REST_getSelAvail (OSSocket &sok)
     if (!priv_rs232_waitAnswer('C','2',20,0,0,rs232BufferOUT, 1000))
     {
         const char ko[] = {"48|000000000000000000000000000000000000000000000000"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko));
+        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), true);
         return;
     }
 
@@ -1673,7 +1750,7 @@ void Core::priv_REST_getSelAvail (OSSocket &sok)
     }
     rs232BufferOUT[ct]=0x00;
 
-    priv_2281_sendAnswer (sok, rs232BufferOUT, ct);
+    priv_2281_sendAnswer (sok, rs232BufferOUT, ct, true);
 }
 
 //*********************************************************
@@ -1684,7 +1761,7 @@ void Core::priv_REST_get12LEDStatus (OSSocket &sok)
         //non supportato dalle TS
         //const char ko[] = {"111111111111"};
         const char ko[] = {"101010101010"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko));
+        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), false);
         return;
     }
 
@@ -1697,7 +1774,7 @@ void Core::priv_REST_get12LEDStatus (OSSocket &sok)
     if (!priv_rs232_waitAnswer('C','4',6,0,0,rs232BufferOUT, 1000))
     {
         const char ko[] = {"000000000000"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko));
+        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), true);
         return;
     }
 
@@ -1718,36 +1795,33 @@ void Core::priv_REST_get12LEDStatus (OSSocket &sok)
     }
     rs232BufferOUT[ct]=0x00;
 
-    priv_2281_sendAnswer (sok, rs232BufferOUT, ct);
+    priv_2281_sendAnswer (sok, rs232BufferOUT, ct, true);
 }
 
 //*********************************************************
-void Core::priv_REST_getSelPrices (OSSocket &sok)
+void Core::priv_REST_getSelPrice (OSSocket &sok, rhea::string::utf8::Iter *params)
 {
-    //invio comando ESAPI #C3
-    const u32 n = priv_esapi_buildMsg ('C', '3', NULL, 0, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+    i32 selNum = 0;
+    rhea::string::utf8::extractInteger (*params, &selNum);
+
+    //invio comando ESAPI # C 3 [selNum]
+    const u8 data = (u8)selNum;
+    const u32 n = priv_esapi_buildMsg ('C', '3', &data, 1, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
     priv_rs232_sendBuffer (rs232BufferOUT, n);
 
     //mi aspetto questa risposta
-    //# C 3 [numSel] [msgLen_LSB] [msgLen_MSB] [price1_ASCII] | ... | [priceN_ASCII] | [ck]
-    if (!priv_rs232_waitAnswer('C','3',7,4,5,rs232BufferOUT, 1000))
+    //# C 3 [numSel] [priceLen] [price...] [ck]
+    if (!priv_rs232_waitAnswer('C','3',6,4,0,rs232BufferOUT, 1000))
     {
-        priv_2281_sendAnswer (sok, (const u8*)"0|0", 2);
+        priv_2281_sendAnswer (sok, (const u8*)"0", 1, true);
         return;
     }
 
-    //rispondo con una strniga formattata cosi': numSel|price|price|price|..|price
-    const u8 numSel = rs232BufferOUT[3];
-    const u16 priceListLen = rhea::utils::bufferReadU16_LSB_MSB(&rs232BufferOUT[4]);
-    const u8 *priceList = &rs232BufferOUT[6];
-
-    u8 *answer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), priceListLen+20);
-    memset (answer, 0, priceListLen+20);
-    sprintf_s ((char*)answer, priceListLen, "%d|", numSel);
-    memcpy (&answer[strlen((const char*)answer)], priceList, priceListLen);
-
-    priv_2281_sendAnswer (sok, answer, (u16)strlen((const char*)answer));
-    RHEAFREE(rhea::getScrapAllocator(), answer);
+    //rispondo riportando il prezzo ricevuto
+    u8 answer[16];
+    memset (answer, 0, sizeof(answer));
+    memcpy(answer, &rs232BufferOUT[5], rs232BufferOUT[4]);
+    priv_2281_sendAnswer (sok, answer, (u16)strlen((const char*)answer), true);
 }
 
 //*********************************************************
@@ -1767,9 +1841,9 @@ void Core::priv_REST_sendButtonPress (OSSocket &sok, rhea::string::utf8::Iter *p
     //mi aspetto questa risposta
     //# S 4 [btnNum] [ck]
     if (priv_rs232_waitAnswer('S','4',5,0,0,rs232BufferOUT, 1000))
-        priv_2281_sendAnswer (sok, (const u8*)"OK", 2);
+        priv_2281_sendAnswer (sok, (const u8*)"OK", 2, true);
     else
-        priv_2281_sendAnswer (sok, (const u8*)"KO", 2);
+        priv_2281_sendAnswer (sok, (const u8*)"KO", 2, true);
 }
 
 //*********************************************************
@@ -1779,7 +1853,7 @@ void Core::priv_REST_startSel (OSSocket &sok, rhea::string::utf8::Iter *params)
     rhea::string::utf8::extractInteger (*params, &selNum);
     if (selNum <1 || selNum>64)
     {
-        priv_2281_sendAnswer (sok, (const u8*)"KO", 2);
+        priv_2281_sendAnswer (sok, (const u8*)"KO", 2, true);
         return;
     }
 
@@ -1792,9 +1866,9 @@ void Core::priv_REST_startSel (OSSocket &sok, rhea::string::utf8::Iter *params)
     //mi aspetto questa risposta
     //# S 1 [selNum] [ck]
     if (priv_rs232_waitAnswer('S','1',5,0,0,rs232BufferOUT, 1000))
-        priv_2281_sendAnswer (sok, (const u8*)"OK", 2);
+        priv_2281_sendAnswer (sok, (const u8*)"OK", 2, true);
     else
-        priv_2281_sendAnswer (sok, (const u8*)"KO", 2);
+        priv_2281_sendAnswer (sok, (const u8*)"KO", 2, true);
 }
 
 //*********************************************************
@@ -1806,12 +1880,92 @@ void Core::priv_REST_getSelStatus (OSSocket &sok)
 
     //mi aspetto questa risposta
     //# S 1 [status] [ck]
-    if (priv_rs232_waitAnswer('S','1',5,0,0,rs232BufferOUT, 1000))
+    if (priv_rs232_waitAnswer('S','2',5,0,0,rs232BufferOUT, 1000))
     {
         char status[8];
         sprintf_s (status, sizeof(status), "%d", rs232BufferOUT[3]);
-        priv_2281_sendAnswer (sok, (const u8*)status, 1);
+        priv_2281_sendAnswer (sok, (const u8*)status, 1, true);
     }
     else
-        priv_2281_sendAnswer (sok, (const u8*)"6", 1);
+        priv_2281_sendAnswer (sok, (const u8*)"6", 1, true);
+}
+
+//*********************************************************
+void Core::priv_REST_getSelName (OSSocket &sok, rhea::string::utf8::Iter *params)
+{
+    i32 selNum = 0;
+    rhea::string::utf8::extractInteger (*params, &selNum);
+
+    //invio comando ESAPI # C 5 [selNum]
+    const u8 data = (u8)selNum;
+    const u32 n = priv_esapi_buildMsg ('C', '5', &data, 1, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+    priv_rs232_sendBuffer (rs232BufferOUT, n);
+
+    //mi aspetto questa risposta
+    //# C 5 [selNum] [nameLenInBytes] [nameUTF16_LSB_MSB...] [ck]
+    if (!priv_rs232_waitAnswer('C','5',6,4,0,rs232BufferOUT, 1000))
+    {
+        priv_2281_sendAnswer (sok, (const u8*)"?", 1, true);
+        return;
+    }
+
+    //il nome ricevuto è in UTF16 LSB-MSB, devo convertirlo in UTF8
+    u8 nameInUTF8[64];
+    u16 ct=0;
+    const u16 nameLenInBytes = rs232BufferOUT[4];
+    for (u16 i=0; i<nameLenInBytes; i+=2)
+    {
+        const rhea::UTF16Char utf16 ( rhea::utils::bufferReadU16_LSB_MSB(&rs232BufferOUT[5+i]) );
+        rhea::UTF8Char utf8;
+        rhea::string::utf16::toUTF8 (utf16, &utf8);
+
+        memcpy (&nameInUTF8[ct], utf8.data, utf8.length());
+        ct+=utf8.length();
+    }
+    nameInUTF8[ct]=0;
+    priv_2281_sendAnswer (sok, nameInUTF8, ct, true);
+}
+
+/*********************************************************
+ * Ritorna il nome delle prime 12 selezioni, separati da pipe (|)
+ */
+void Core::priv_REST_get12SelNames (OSSocket &sok)
+{
+    u8 *nameList = RHEAALLOCT(u8*, localAllocator, 2048);
+    u16 ct=0;
+
+    for (u8 selNum=1; selNum<=12; selNum++)
+    {
+        //invio comando ESAPI # C 5 [selNum]
+        const u32 n = priv_esapi_buildMsg ('C', '5', &selNum, 1, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+        priv_rs232_sendBuffer (rs232BufferOUT, n);
+
+        //mi aspetto questa risposta
+        //# C 5 [selNum] [nameLenInBytes] [nameUTF16_LSB_MSB...] [ck]
+        if (!priv_rs232_waitAnswer('C','5',6,4,0,rs232BufferOUT, 1000))
+        {
+            nameList[ct++] = '?';
+        }
+        else
+        {
+            //il nome ricevuto è in UTF16 LSB-MSB, devo convertirlo in UTF8
+            const u16 nameLenInBytes = rs232BufferOUT[4];
+            for (u16 i=0; i<nameLenInBytes; i+=2)
+            {
+                const rhea::UTF16Char utf16 ( rhea::utils::bufferReadU16_LSB_MSB(&rs232BufferOUT[5+i]) );
+                rhea::UTF8Char utf8;
+                rhea::string::utf16::toUTF8 (utf16, &utf8);
+
+                memcpy (&nameList[ct], utf8.data, utf8.length());
+                ct+=utf8.length();
+            }
+        }
+
+        nameList[ct++] = '|';
+    }
+    ct--;
+    nameList[ct] = 0x00;
+
+    priv_2281_sendAnswer (sok, nameList, ct, true);
+    RHEAFREE(localAllocator, nameList);
 }

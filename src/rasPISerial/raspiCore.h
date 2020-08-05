@@ -178,10 +178,11 @@ namespace raspi
         void                    priv_openSocket2281();
         void                    priv_2281_accept();
         void                    priv_2281_removeOldConnection(u64 timeNowMSec);
+        void                    priv_2281_findAndRemoveClientBySok (OSSocket &sok);
         void                    priv_2281_handle_restAPI (OSSocket &sok);
         void                    priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhea::string::utf8::Iter *params);
         bool                    priv_2281_utils_match (const u8 *command, u32 commandLen, const char *match) const;
-        void                    priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData);
+        void                    priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData, bool bLog);
 
         void                    priv_runTS();
         void                    priv_runTP();
@@ -189,10 +190,14 @@ namespace raspi
         void                    priv_REST_getCPULCDMsg (OSSocket &sok);
         void                    priv_REST_getSelAvail (OSSocket &sok);
         void                    priv_REST_get12LEDStatus (OSSocket &sok);
-        void                    priv_REST_getSelPrices (OSSocket &sok);
+        void                    priv_REST_getSelPrice (OSSocket &sok, rhea::string::utf8::Iter *params);
         void                    priv_REST_sendButtonPress (OSSocket &sok, rhea::string::utf8::Iter *params);
         void                    priv_REST_startSel (OSSocket &sok, rhea::string::utf8::Iter *params);
         void                    priv_REST_getSelStatus (OSSocket &sok);
+        void                    priv_REST_getSelName (OSSocket &sok, rhea::string::utf8::Iter *params);
+        void                    priv_REST_get12SelNames (OSSocket &sok);
+
+        const char*             DEBUG_priv_chToWritableCh (u8 ch);
 
 	private:
 		rhea::Allocator         *localAllocator;
