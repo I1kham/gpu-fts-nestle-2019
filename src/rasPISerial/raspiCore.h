@@ -166,7 +166,6 @@ namespace raspi
         bool                    priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichByteContainsAdditionMsgLenLSB, u8 whichByteContainsAdditionMsgLenMSB, u8 *answerBuffer, u32 timeoutMSec);
 
 		void					priv_identify_run();
-		bool					priv_identify_waitAnswer(u8 command, u8 code, u8 len, u8 *answerBuffer, u32 timeoutMSec);
 
 		void					priv_boot_run();
 		void					priv_boot_rs232_handleCommunication (sBuffer &b);
