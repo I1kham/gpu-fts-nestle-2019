@@ -80,10 +80,14 @@ SOURCES += \
     ../../src/rheaDB/SQLRst.cpp \
     ../../src/rheaDB/SQLite3/sqlite3.c
 
+
+
 HEADERS += \
     ../../src/rheaDB/SQLite3/SQLInterface_SQLite.h \
     ../../src/rheaDB/SQLite3/sqlite3.h \
     ../../src/rheaDB/SQLInterface.h
+
+
 
 unix {
     target.path = /usr/lib
