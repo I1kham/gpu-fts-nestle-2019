@@ -1117,11 +1117,14 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 		return false;
 
+
+	//risposta attesa:	# c [len] [msg_ver] [machine_type] [machine_model] [bollitore_induzione] [brewer_type] [numDecimali] [ck]
+
 	//parsing della risposta
 	out->msgVersion = answerBuffer[3];
 
-	//è necessario che la versione del msg sia la 2, altrimenti fingo che la CPU non mi abbia nemmeno risposto
-	if (out->msgVersion != 2)
+	//è necessario che la versione del msg sia almeno 2, altrimenti fingo che la CPU non mi abbia nemmeno risposto
+	if (out->msgVersion < 2)
 		return false;
 
 	//machine type
@@ -1146,18 +1149,26 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	out->machineModel = answerBuffer[5];
 	out->isInduzione = answerBuffer[6];
 	
-	//Tipo gruppo caffè: questa informazione potrebbe non esistere, è stata aggiunta successivamente.
-	//In base alla lunghezza del msg, ne determino la presenza
-    out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex;
-	if (answerBuffer[2] > 8)
+	//Tipo gruppo caffè
+	out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex;
+	if (out->msgVersion >= 2)
 	{
-		switch (answerBuffer[7])
+		if (answerBuffer[2] > 8)
 		{
-        case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex; break;
-        case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Micro; break;
-        default:	out->tipoGruppoCaffe = eCPUGruppoCaffe_None; break;
+			switch (answerBuffer[7])
+			{
+			case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex; break;
+			case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Micro; break;
+			default:	out->tipoGruppoCaffe = eCPUGruppoCaffe_None; break;
+			}
 		}
 	}
+
+	//Tipo gruppo caffè
+	out->numDecimaliNeiPrezzi = 0;
+	if (out->msgVersion >= 3)
+		out->numDecimaliNeiPrezzi = answerBuffer[8];
+
 	return true;
 }
 

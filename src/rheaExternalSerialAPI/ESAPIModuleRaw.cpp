@@ -1,6 +1,7 @@
 #include "ESAPIModuleRaw.h"
 #include "ESAPI.h"
 #include "ESAPIProtocol.h"
+#include "../rheaCommonLib/rheaUtils.h"
 
 
 using namespace esapi;
@@ -52,8 +53,7 @@ void ModuleRaw::virt_handleMsgFromSocket (sShared *shared UNUSED_PARAM, OSSocket
  */
 void ModuleRaw::virt_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
 {
-    const u8 COMMAND_CHAR = 'R';
-    assert(b->numBytesInBuffer >= 3 && b->buffer[0] == '#' && b->buffer[1] == COMMAND_CHAR);
+    assert(b->numBytesInBuffer >= 4 && b->buffer[0] == '#' && b->buffer[1] == 'R');
 	const u8 commandCode = b->buffer[2];
 
 	switch (commandCode)
@@ -70,21 +70,24 @@ void ModuleRaw::virt_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
         //ricevuto: # R 1 [moduleType] [verMajor] [verMinor] [ck]
         //rispondo: # R 1 [result] [ck]
 		{
-            //parse del messaggio
-            bool bValidCk = false;
-            sESAPIModule moduleInfo;
-            const u32 MSG_LEN = esapi::buildMsg_R1_externalModuleIdentify_parseAsk (b->buffer, b->numBytesInBuffer, &bValidCk, &moduleInfo.type, &moduleInfo.verMajor, &moduleInfo.verMinor);
-            if (0 == MSG_LEN)
-                return;
-            if (!bValidCk)
-            {
-                b->removeFirstNBytes(2);
-                return;
-            }
+			if (b->numBytesInBuffer < 7)	//devo avere almeno 7 char nel buffer
+				return;
 
-            //rimuovo il msg dal buffer
-            b->removeFirstNBytes(MSG_LEN);
+			if (b->buffer[6] != rhea::utils::simpleChecksum8_calc (b->buffer, 6))
+			{
+				b->removeFirstNBytes(2);
+				return;
+			}
 
+			//parse del messaggio
+			sESAPIModule moduleInfo;
+			moduleInfo.type = (eExternalModuleType)b->buffer[3];
+			moduleInfo.verMajor = b->buffer[4];
+			moduleInfo.verMinor = b->buffer[5];
+            
+			//rimuovo il msg dal buffer
+			b->removeFirstNBytes(7);
+			
            //rispondo via seriale confermando di aver ricevuto il msg
             u8 result = 0x00;
 			switch (moduleInfo.type)
@@ -103,7 +106,7 @@ void ModuleRaw::virt_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
 			}
 
             u8 answer[16];
-            const u32 n = esapi::buildMsg_R1_externalModuleIdentify_resp (result, answer, sizeof(answer));
+            const u32 n = esapi::buildAnswer ('R', '1', &result, 1, answer, sizeof(answer));
             shared->protocol->rs232_write (answer, n);
 		}
 		break;

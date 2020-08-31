@@ -28,8 +28,7 @@ namespace esapi
 	void		unsubscribe (const cpubridge::sSubscriber &sub);
 
 
-	bool		isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse);
-
+	u32			buildAnswer (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 
 	/***********************************************
@@ -41,42 +40,10 @@ namespace esapi
 			ritornano 0 se nel buffer non ci sono abbastanza bytes da completare l'intera risposta.
 			Se invece la risposta c'è tutta, ritornano il num di bytes utillizzati e valorizzano [out_bIsValidCk]==true se la ck è valida, false altrimenti
 	*/
-	u32			buildMsg_A1_getAPIVersion_ask (u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_A1_getAPIVersion_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
-	u32			buildMsg_A1_getAPIVersion_resp (u8 apiVerMajor, u8 apiVerMinor, eGPUType gpuType, u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_A1_getAPIVersion_parseResp (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_apiVerMajor, u8 *out_apiVerMinor, eGPUType *out_gpuType);
-
-	u32			buildMsg_C1_getCPUScreenMsg_ask (u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_C1_getCPUScreenMsg_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
-    u32			buildMsg_C1_getCPUScreenMsg_resp (const void *lcdMsg, u16 numBytesInMsg, u8 *out_buffer, u32 sizeOfOutBuffer);
-
-	u32			buildMsg_C2_getSelAvailability_ask (u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_C2_getSelAvailability_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
-	u32			buildMsg_C2_getSelAvailability_resp (const cpubridge::sCPUSelAvailability &selAvail, u8 *out_buffer, u32 sizeOfOutBuffer);
-
-	u32			buildMsg_C3_getSelAvailability_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
-
-
-	u32			buildMsg_S1_startSelection_ask (u8 selNum, u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_S1_startSelection_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_selNum);
-	u32			buildMsg_S1_startSelection_resp (u8 selNum, u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_S1_startSelection_parseResp (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_selNum);
-
-	u32			buildMsg_S2_querySelectionStatus_ask (u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_S2_querySelectionStatus_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk);
-	u32			buildMsg_S2_querySelectionStatus_resp (cpubridge::eRunningSelStatus status, u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_S2_querySelectionStatus_parseResp (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, cpubridge::eRunningSelStatus *out_sstatus);
-
-	u32			buildMsg_S3_startAlreadySelection_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_selNum, u16 *out_price);
-	u32			buildMsg_S3_startAlreadySelection_resp (u8 selNum, u8 *out_buffer, u32 sizeOfOutBuffer);
-
-	u32			buildMsg_S4_btnPress_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u8 *out_btnNum);
-	u32			buildMsg_S4_btnPress_resp (u8 btnNum, u8 *out_buffer, u32 sizeOfOutBuffer);
-
-	u32			buildMsg_R1_externalModuleIdentify_ask (eExternalModuleType moduleType, u8 verMajor, u8 verMinor, u8 *out_buffer, u32 sizeOfOutBuffer);
-	u32			buildMsg_R1_externalModuleIdentify_parseAsk (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, eExternalModuleType *out_moduleType, u8 *out_verMajor, u8 *out_verMinor);
-	u32			buildMsg_R1_externalModuleIdentify_resp (u8 result, u8 *out_buffer, u32 sizeOfOutBuffer);
 	
+	u32			buildAnswer_C1_getCPUScreenMsg (const void *lcdMsg, u16 numBytesInMsg, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u32			buildAnswer_C2_getSelAvailability (const cpubridge::sCPUSelAvailability &selAvail, u8 *out_buffer, u32 sizeOfOutBuffer);
+
 	u32			buildMsg_R0x01_newSocket (u32 socketUID, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u32			buildMsg_R0x01_newSocket_parse (const u8 *buffer, u32 numBytesInBuffer, bool *out_bIsValidCk, u32 *out_socketUID);
 	

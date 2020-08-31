@@ -508,6 +508,7 @@ namespace cpubridge
 		u8				machineModel;
 		u8				isInduzione;		//induzione o bollitore?
 		eCPUGruppoCaffe	tipoGruppoCaffe;
+		u8				numDecimaliNeiPrezzi;
 	};
 
 	struct sCPUOffSingleEvent
