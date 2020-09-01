@@ -47,6 +47,13 @@ namespace rhea
 						NON appende un \n alla fine
 					*/
 
+        u32         copyBufferAsMuchAsYouCan (void *dst, u32 sizeOfDest, const void *src, u32 numBytesToCopyMax);
+                    /* copia un massimo di [numBytesToCopyMax] da [src] in [dst].
+                     * Se [sizeOfDest] è minore di [numBytesToCopyMax], copia tutto quello che può senza andare in buffer overflow.
+                     * Ritorna il num di bytes copiati in dst
+                     */
+
+
 		inline void	bufferWriteU32(u8 *buffer, u32 val)			{ buffer[0] = (u8)((val & 0xFF000000) >> 24); buffer[1] = (u8)((val & 0x00FF0000) >> 16); buffer[2] = (u8)((val & 0x0000FF00) >> 8); buffer[3] = (u8)(val & 0x000000FF); }
 		inline void	bufferWriteU16(u8 *buffer, u16 val)			{ buffer[0] = (u8)((val & 0xFF00) >> 8); buffer[1] = (u8)(val & 0x00FF); }
 		inline void	bufferWriteU16_LSB_MSB(u8 *buffer, u16 val) { buffer[1] = (u8)((val & 0xFF00) >> 8); buffer[0] = (u8)(val & 0x00FF); }

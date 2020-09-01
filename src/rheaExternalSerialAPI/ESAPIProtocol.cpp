@@ -79,7 +79,7 @@ void Protocol::priv_onCPUNotify_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg
 }
 
 //*********************************************************
-bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, const rhea::thread::sMsg &msg, u16 handlerID)
+bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridgeSubscriber, const rhea::thread::sMsg &msg, u16 handlerID)
 {
     if (handlerID == 0)
     {
@@ -129,45 +129,19 @@ bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, c
             priv_onCPUNotify_RUNNING_SEL_STATUS(msg);
             return true;
 
-		case CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED:
+        case CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING:
 			//risposta al comando  #C3	
 			{
-				u8 numPrices = 0;
-				u8 numDecimals = 0;
-				u16 prices[NUM_MAX_SELECTIONS];
-				cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(msg, &numPrices, &numDecimals, prices);
+                u8 data[32];
+                u8 selNum = 0;
+                cpubridge::translateNotify_CPU_SINGLE_SEL_PRICE (msg, &selNum, &data[2], sizeof(data)-2);
 
-				u32 BYTES_TO_ALLOC = 5 + numPrices * (7);
-				u8 *answer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), BYTES_TO_ALLOC);
-				u16 ct = 0;
-				answer[ct++] = '#';
-				answer[ct++] = 'C';
-				answer[ct++] = '3';
-				answer[ct++] = numPrices;
-				answer[ct++] = 0;	//lughezza totale stringa dei prezzi LSB
-				answer[ct++] = 0;	//lughezza totale stringa dei prezzi MSB
+                //rispondo con # C 3 [selNum] [priceLen] [price?] [ck]
+                data[0] = selNum;
+                data[1] = (u8)rhea::string::utf8::lengthInBytes(&data[2]);
 
-				const u16 ct_startOfPriceList = ct;
-				for (u16 i = 0; i < numPrices; i++)
-				{
-					char s[32];
-					const char DECIMAL_SEP = '.';
-					rhea::string::format::currency (prices[i], numDecimals, DECIMAL_SEP, s, sizeof(s));
-
-					const u32 n = strlen(s);
-					memcpy (&answer[ct], s, n);
-					ct += n;
-					answer[ct++] = '|';
-				}
-
-				rhea::utils::bufferWriteU16_LSB_MSB (&answer[4], (ct - ct_startOfPriceList));
-
-				answer[ct] = rhea::utils::simpleChecksum8_calc (answer, ct);
-				ct++;
-					
-				rs232_write (answer, ct);
-				RHEAFREE(rhea::getScrapAllocator(), answer);
-			}
+                rs232_esapiSendAnswer ('C', '3', data, data[1]+2);
+            }
 			return true;
 
 		case CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB:
@@ -374,15 +348,18 @@ u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 
 	case '3':
         //Query selections prices
-        //ricevuto: # C 3 [ck]
-        //rispondo: # C 3 [n] [price1] | [price2] | … | [priceN] | [ck]
-		{
-			//parse del messaggio
-			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
-				return 2;
+        //ricevuto: # C 3 [selNum] [ck]
+        //rispondo: # C 3 [selNum] [priceLen] [price?] [ck]
+        {
+            if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+                return 0;
 
+            if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+                return 2;
+
+            const u8 selNum = b.buffer[3];
 			//chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
-			cpubridge::ask_CPU_QUERY_SEL_PRICES (*cpuBridgeSubscriber, 0x01);
+            cpubridge::ask_CPU_QUERY_SINGLE_SEL_PRICE (*cpuBridgeSubscriber, 0x01, selNum);
 		}
 		return 4;
 

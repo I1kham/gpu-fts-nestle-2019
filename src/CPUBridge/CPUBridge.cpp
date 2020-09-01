@@ -672,6 +672,30 @@ void cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg 
 }
 
 //***************************************************
+void cpubridge::notify_CPU_SINGLE_SEL_PRICE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u8* utf8_alreadyFormattedPriceString)
+{
+    logger->log("notify_CPU_SINGLE_SEL_PRICE\n");
+
+    const u32 len = rhea::string::utf8::lengthInBytes(utf8_alreadyFormattedPriceString);
+    rhea::thread::pushMsg2Buffer(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING, handlerID,
+                                 &selNum, 1,
+                                 utf8_alreadyFormattedPriceString, len+1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum, u8* out_utf8_alreadyFormattedPriceString, u32 sizeOfUtf8FormattedPriceString)
+{
+    assert(msg.what == CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING);
+    const u8 *pp = (const u8*)msg.buffer;
+
+    *out_selNum = pp[0];
+
+    const u8 *priceStr = &pp[1];
+    rhea::string::utf8::copyStrAsMuchAsYouCan (out_utf8_alreadyFormattedPriceString, sizeOfUtf8FormattedPriceString, priceStr);
+}
+
+
+//***************************************************
 void cpubridge::notify_CPU_RUNNING_SEL_STATUS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eRunningSelStatus status)
 {
 	logger->log("notify_CPU_RUNNING_SEL_STATUS [%d]\n", (u8)status);
@@ -1586,7 +1610,7 @@ void cpubridge::translateNotify_CPU_GET_CPU_SELECTION_NAME (const rhea::thread::
 	u8 len = p[1];
 
 	memset (out_utf16_LSB_MSB_selectioName, 0, sizeOfOutUTF16_LSB_MSB_selectioName);
-	if (sizeOfOutUTF16_LSB_MSB_selectioName < (len+2))
+    if (sizeOfOutUTF16_LSB_MSB_selectioName < (u32)(len+2))
 		len = sizeOfOutUTF16_LSB_MSB_selectioName - 2;
 	
 	if (len)
@@ -1672,6 +1696,20 @@ void cpubridge::ask_CPU_QUERY_SEL_AVAIL(const sSubscriber &from, u16 handlerID)
 void cpubridge::ask_CPU_QUERY_SEL_PRICES (const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_QUERY_SINGLE_SEL_PRICE (const sSubscriber &from, u16 handlerID, u8 selNum)
+{
+    rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE, handlerID, &selNum, 1);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_QUERY_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE);
+    const u8* p = (const u8*)msg.buffer;
+    *out_selNum = p[0];
 }
 
 //***************************************************

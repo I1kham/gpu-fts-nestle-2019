@@ -414,6 +414,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES:
+        case CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE:
 		{
 			u8 bufferW[32];
 			const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
@@ -423,7 +424,21 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			{
 				priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 				const u8 numPrices = NUM_MAX_SELECTIONS;
-				notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.prices);
+
+                if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES)
+                    notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.prices);
+                else
+                {
+                    u8 selNum = 0;
+                    translate_CPU_QUERY_SINGLE_SEL_PRICE (msg, &selNum);
+                    selNum--;
+                    if (selNum < 48)
+                    {
+                        rhea::string::format::currency (cpuParamIniziali.prices[selNum], cpu_numDecimalsForPrices, '.', (char*)bufferW, sizeof(bufferW));
+                        notify_CPU_SINGLE_SEL_PRICE (sub->q, handlerID, logger, selNum+1, bufferW);
+                    }
+                }
+
 			}
 		}
 		break;

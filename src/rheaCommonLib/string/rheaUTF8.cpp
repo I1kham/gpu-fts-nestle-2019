@@ -290,6 +290,40 @@ u32 string::utf8::copyStr (u8 *dst, u32 sizeofDst, const u8* const src, u32 numB
 }
 
 //**************************************************
+u32 string::utf8::copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8* const src)
+{
+    if (NULL == dst)
+        return 0;
+    if (0 == sizeOfDest)
+        return 0;
+
+    if (NULL == src)
+    {
+        dst[0] = 0;
+        return 0;
+    }
+
+    u32 srcLen = string::utf8::lengthInBytes(src);
+    if (0 == srcLen)
+    {
+        dst[0] = 0;
+        return 0;
+    }
+
+    if (sizeOfDest >= (srcLen+1))
+    {
+        memcpy (dst, src, srcLen+1);
+        return srcLen;
+    }
+
+    sizeOfDest--;
+    if (sizeOfDest)
+        memcpy (dst, src, sizeOfDest);
+    dst[sizeOfDest] = 0;
+    return sizeOfDest;
+}
+
+//**************************************************
 u32 string::utf8::concatStr (u8 *dst, u32 sizeofDst, const char* const src)
 {
 	u32 n = string::utf8::lengthInBytes(dst);

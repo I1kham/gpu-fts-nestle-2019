@@ -107,6 +107,12 @@ namespace rhea
 							// ritorna la "lengthInBytes" di dst
 
 			u32				copyStr		(u8 *dst, u32 sizeofDst, const u8* const src, u32 numBytesDaUtilizzare=u32MAX);
+            u32             copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8* const src);
+                                // Copia il [dst] il massimo num di bytes possibili di [src] e mette sempre un 0x00 alla fine di dst
+                                // Se [sizeOfDest] è troppo piccolo, non va in buffer overflow ma copia tutto quello che può da [src]
+                                // e aggiunge uno 0x00 alla fine di dst
+                                // Ritorna length(dst)
+
 			u32				concatStr	(u8 *dst, u32 sizeofDst, const char* const src);
 			inline u32		concatStr	(u8 *dst, u32 sizeofDst, const u8* src)							{ return utf8::concatStr(dst, sizeofDst, (const char*)src);  }
 							// ritornano la "lengthInBytes" di dst
