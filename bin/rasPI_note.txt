@@ -3,6 +3,10 @@ GPU TS varishyte
 	ttymxc2 -> ESAPI				connettore J28 pin 2=RX pin3=TX pin4=gnd
 	ttymxc3 -> CPU
 	
+GPU TP
+	connettore J18		pin2=RX	pin4=TX	pin5=GND
+
+	
 RASPI4 Seriali
 	/dev/ttyAMA0	pin6=massa 	pin8=tx 	pin10=rx
 	/dev/ttyAMA1	pin20=massa	pin24=tx4	pin21=rx4
