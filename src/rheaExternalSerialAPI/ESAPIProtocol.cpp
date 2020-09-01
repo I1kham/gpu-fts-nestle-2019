@@ -169,6 +169,35 @@ bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, c
 				RHEAFREE(rhea::getScrapAllocator(), answer);
 			}
 			return true;
+
+		case CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB:
+			//risposta al comando  #C5
+			{
+				u8 selNum = 0;
+				u16 selNameUTF16_LSB_MSB[64];
+				cpubridge::translateNotify_CPU_GET_CPU_SELECTION_NAME (msg, &selNum, selNameUTF16_LSB_MSB, sizeof(selNameUTF16_LSB_MSB));
+
+				//rispondo # C 5 [selNum] [nameLenInBytes] [nameUTF16_LSB_MSB...] [ck]
+				const u8 nameLenInBytes = rhea::string::utf16::lengthInBytes(selNameUTF16_LSB_MSB);
+
+				u32 BYTES_TO_ALLOC = 6 + nameLenInBytes;
+				u8 *answer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), BYTES_TO_ALLOC);
+				u16 ct = 0;
+				answer[ct++] = '#';
+				answer[ct++] = 'C';
+				answer[ct++] = '5';
+				answer[ct++] = selNum;
+				answer[ct++] = nameLenInBytes;
+				memcpy (&answer[ct], selNameUTF16_LSB_MSB, nameLenInBytes);
+				ct += nameLenInBytes;
+
+				answer[ct] = rhea::utils::simpleChecksum8_calc (answer, ct);
+				ct++;
+
+				rs232_write (answer, ct);
+				RHEAFREE(rhea::getScrapAllocator(), answer);
+			}
+			return true;
         } //switch (msg.what)
 	}
 
@@ -367,7 +396,28 @@ u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 			rs232_esapiSendAnswer ('C', '4', data, 2);
 		}
 		return 4;
-    }
+
+	case '5':
+		//Get selection name
+		//ricevuto: # C 5 [selNum] [ck]
+		//rispondo:	# C 5 [selNum] [nameLenInBytes] [nameUTF16_LSB_MSB...] [ck]
+		{
+			if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+				return 0;
+
+			if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+				return 2;
+
+			u8 selNumber = b.buffer[3];
+			if (selNumber < 1 || selNumber > 48)
+				selNumber = 1;
+
+			//chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (*cpuBridgeSubscriber, 0x01, selNumber);
+		}
+		return 5;
+
+    } //switch
 }
 
 /********************************************************
@@ -483,6 +533,6 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 			rs232_esapiSendAnswer ('S', '4', &btnNum, 1);
 		}
 		return 5;
-    }
+	} //switch
 }
 

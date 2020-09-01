@@ -1101,6 +1101,49 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			notify_CPU_GET_LAST_GRINDER_SPEED (sub->q, handlerID, logger, grinderSpeedTest.lastCalculatedGrinderSpeed);
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB:
+			{
+				u8 selNum = 0;
+				cpubridge::translate_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB(msg, &selNum);
+
+				u8 bufferW[128];
+				const u16 nBytesToSend = cpubridge::buildMsg_richiestaNomeSelezioneDiCPU_d(selNum, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				{
+					//# d [len] [numSel] [isUnicode] [msgLenInByte] [msg…..] [ck]
+					selNum = answerBuffer[3];
+					const u8 isUnicode = answerBuffer[4];
+					const u8 msgLenInByte = answerBuffer[5];
+
+					if (isUnicode)
+					{
+						//CPU mi ha inviato il nome in formato UTF16 LSB-MSB, quindi è già formattato come desidero
+						const u16 *selName = (const u16*)&answerBuffer[6];
+						answerBuffer[6 + msgLenInByte] = 0;
+						answerBuffer[7 + msgLenInByte] = 0;
+						notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (sub->q, handlerID, logger, selNum, selName);
+					}
+					else
+					{
+						//CPU mi ha inviato il nome in formato ASCII.
+						//Io lo devo spedire come UTF16 LSB MSB
+						u32 ct = 0;
+						for (u8 i = 0; i < msgLenInByte; i++)
+						{
+							bufferW[ct++] = answerBuffer[6 + i];
+							bufferW[ct++] = 0x00;
+						}
+						bufferW[ct++] = 0x00;
+						bufferW[ct++] = 0x00;
+
+						const u16 *selName = (const u16*)bufferW;
+						notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (sub->q, handlerID, logger, selNum, selName);
+					}
+				}
+			}
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -1164,10 +1207,10 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 		}
 	}
 
-	//Tipo gruppo caffè
-	out->numDecimaliNeiPrezzi = 0;
-	if (out->msgVersion >= 3)
-		out->numDecimaliNeiPrezzi = answerBuffer[8];
+	//numero cifre decimali nei prezzi
+	//In realtà, ignoro questa informazione in quanto la prendo direttamente dal DA3, vedi this->cpu_numDecimalsForPrices
+	//if (out->msgVersion >= 3)
+	//	out->numDecimaliNeiPrezzi = answerBuffer[8];
 
 	return true;
 }
