@@ -1,7 +1,7 @@
 #include "raspiCore.h"
 #include "../rheaCommonLib/SimpleLogger/FileLogger.h"
 
-#define FW_VERSION "1.0"
+#define FW_VERSION "1.1"
 
 
 //*****************************************************
