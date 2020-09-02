@@ -129,7 +129,7 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
     if (!cpubridge::startServer(chToCPU, logger, &hCPUThread, hCPUServiceChannelW))
         return false;
 
-    //starto socketBridge che a sua volta siiscrivera'  a CPUBridge
+    //starto socketBridge che a sua volta si iscrivera'  a CPUBridge
     rhea::HThread hSocketBridgeThread;
     socketbridge::startServer(logger, *hCPUServiceChannelW, false, true, &hSocketBridgeThread);
 

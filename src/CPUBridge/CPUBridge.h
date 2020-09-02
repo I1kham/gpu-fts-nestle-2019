@@ -125,6 +125,9 @@ namespace cpubridge
 						portato a termine lei stessa.
 					*/
 
+	u8			buildMsg_richiestaNomeSelezioneDiCPU_d (u8 selNum, u8 *out_buffer, u8 sizeOfOutBuffer);
+					/* chiede alla CPU il nome della selezione [selNum]. Il nome ritornato è quello utilizzato dalla CPU, impostato nel DA3 */
+
 	u8			buildMsg_setDecounter  (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getAllDecounterValues (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
@@ -187,6 +190,9 @@ namespace cpubridge
 	void		notify_CPU_SEL_PRICES_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 numPrices, u8 numDecimals, const u16 *prices);
 	void		translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg &msg, u8 *out_numPrices, u8 *out_numDecimals, u16 *out_prices);
 					//out_prices deve essere di almeno NUM_MAX_SELECTIONS elementi
+
+    void		notify_CPU_SINGLE_SEL_PRICE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u8* utf8_alreadyFormattedPriceString);
+    void        translateNotify_CPU_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum, u8* out_utf8_alreadyFormattedPriceString, u32 sizeOfUtf8FormattedPriceString);
 
 	void		notify_CPU_RUNNING_SEL_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eRunningSelStatus s);
 	void		translateNotify_CPU_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg, eRunningSelStatus *out_s);
@@ -319,6 +325,8 @@ namespace cpubridge
 	void		notify_CPU_GET_LAST_GRINDER_SPEED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 speed);
 	void		translateNotify_CPU_GET_LAST_GRINDER_SPEED (const rhea::thread::sMsg &msg, u16 *out_speed);
 	
+	void		notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u16 *utf16_LSB_MSB_selectioName);
+	void		translateNotify_CPU_GET_CPU_SELECTION_NAME (const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_utf16_LSB_MSB_selectioName, u32 sizeOfOutUTF16_LSB_MSB_selectioName);
 
 	/***********************************************
 		ask_xxxx
@@ -355,6 +363,10 @@ namespace cpubridge
 
 	void		ask_CPU_QUERY_SEL_PRICES (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_SEL_PRICES_CHANGED
+
+    void		ask_CPU_QUERY_SINGLE_SEL_PRICE (const sSubscriber &from, u16 handlerID, u8 selNum);
+    void		translate_CPU_QUERY_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum);
+                    //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_SINGLE_SEL_PRICE
 
 	void		ask_CPU_QUERY_LCD_MESSAGE (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_NEW_LCD_MESSAGE
@@ -535,6 +547,10 @@ namespace cpubridge
 					//a seguito di un ask_CPU_START_GRINDER_SPEED_TEST(), usare questo cmd per recuperare il valor medio della vel calcolata durante il test
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_LAST_GRINDER_SPEED
 
+	void		ask_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const sSubscriber &from, u16 handlerID, u8 selNum);
+	void		translate_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const rhea::thread::sMsg &msg, u8 *out_selNum);
+					//chiede alla CPU il nome della selezione [selNum] cos' come riportato nel DA3
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_CPU_SELECTION_NAME
 	
 
 } // namespace cpubridge

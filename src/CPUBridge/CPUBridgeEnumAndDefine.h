@@ -69,7 +69,8 @@
 #define		CPUBRIDGE_NOTIFY_ESAPI_MODULE_VER_AND_TYPE			0x012F
 #define		CPUBRIDGE_NOTIFY_START_GRINDER_SPEED_TEST			0x0130
 #define		CPUBRIDGE_NOTIFY_LAST_GRINDER_SPEED					0x0131
-
+#define		CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB		0x0132
+#define		CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING            0x0133
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
 
@@ -136,7 +137,8 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_QUERY_CUR_SEL_RUNNING							0x0837
 #define		CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST						0x0838
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_GRINDER_SPEED							0x0839
-
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB			0x083A
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE							0x083B
 
 namespace cpubridge
 {
@@ -156,7 +158,8 @@ namespace cpubridge
 		eCPUCommand_writePartialVMCDataFile = 'X',
 		eCPUCommand_getExtendedConfigInfo = 'c',
 		eCPUCommand_getMilkerVer = 'M',
-        eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V'
+        eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V',
+		eCPUCommand_getNomeSelezioneCPU_d = 'd'
 	};
 
 	enum eRunningSelStatus

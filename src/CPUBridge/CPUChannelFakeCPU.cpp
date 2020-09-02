@@ -202,6 +202,31 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		break;
 
+	case eCPUCommand_getNomeSelezioneCPU_d:
+		{
+			//ricevuto:	# d [len] [numSel] [ck]
+			//rispondo: # d [len] [numSel] [isUnicode] [msgLenInByte] [msg…..] [ck]
+			const u8 selNum = bufferToSend[3];
+			
+			out_answer[ct++] = '#';
+			out_answer[ct++] = cpuCommand;
+			out_answer[ct++] = 0; //lunghezza
+			out_answer[ct++] = selNum;
+			out_answer[ct++] = 0;	//is unicode
+			out_answer[ct++] = 5;
+			out_answer[ct++] = 'S';
+			out_answer[ct++] = 'E';
+			out_answer[ct++] = 'L';
+			out_answer[ct++] = ' ';
+			out_answer[ct++] = ('0' + selNum);
+	
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+			return true;
+		}
+		break;
+
 	case eCPUCommand_checkStatus_B:
 		//ho ricevuto una richiesta di stato, rispondo in maniera appropriata
 		{

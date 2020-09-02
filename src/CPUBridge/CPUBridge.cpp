@@ -182,6 +182,12 @@ u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum
 	return cpubridge_buildMsg (cpubridge::eCPUCommand_startSelWithPaymentAlreadyHandled_V, optionalData, ct, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_richiestaNomeSelezioneDiCPU_d (u8 selNum, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return cpubridge_buildMsg (cpubridge::eCPUCommand_getNomeSelezioneCPU_d, &selNum, 1, out_buffer, sizeOfOutBuffer);
+}
+
 
 //***************************************************
 u8 cpubridge::buildMsg_setDecounter (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer)
@@ -664,6 +670,30 @@ void cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg 
 	*out_numDecimals = (u8)((p[0] & 0xFF00)>>8);
 	memcpy(out_prices, &p[1], sizeof(u16)* (*out_numPrices));
 }
+
+//***************************************************
+void cpubridge::notify_CPU_SINGLE_SEL_PRICE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u8* utf8_alreadyFormattedPriceString)
+{
+    logger->log("notify_CPU_SINGLE_SEL_PRICE\n");
+
+    const u32 len = rhea::string::utf8::lengthInBytes(utf8_alreadyFormattedPriceString);
+    rhea::thread::pushMsg2Buffer(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING, handlerID,
+                                 &selNum, 1,
+                                 utf8_alreadyFormattedPriceString, len+1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum, u8* out_utf8_alreadyFormattedPriceString, u32 sizeOfUtf8FormattedPriceString)
+{
+    assert(msg.what == CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING);
+    const u8 *pp = (const u8*)msg.buffer;
+
+    *out_selNum = pp[0];
+
+    const u8 *priceStr = &pp[1];
+    rhea::string::utf8::copyStrAsMuchAsYouCan (out_utf8_alreadyFormattedPriceString, sizeOfUtf8FormattedPriceString, priceStr);
+}
+
 
 //***************************************************
 void cpubridge::notify_CPU_RUNNING_SEL_STATUS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eRunningSelStatus status)
@@ -1557,7 +1587,35 @@ void cpubridge::translateNotify_CPU_GET_LAST_GRINDER_SPEED (const rhea::thread::
 	*out_speed = rhea::utils::bufferReadU16(p);
 }
 
+//***************************************************
+void cpubridge::notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u16 *utf16_LSB_MSB_selectioName)
+{
+	logger->log("notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB\n");
 
+	const u8 len = (u8)rhea::string::utf16::lengthInBytes(utf16_LSB_MSB_selectioName);
+	
+	u8 data[2];
+	data[0] = selNum;
+	data[1] = len;
+	rhea::thread::pushMsg2Buffer(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB, handlerID, data, 2, utf16_LSB_MSB_selectioName, len);
+}
+
+//***************************************************
+void cpubridge::translateNotify_CPU_GET_CPU_SELECTION_NAME (const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_utf16_LSB_MSB_selectioName, u32 sizeOfOutUTF16_LSB_MSB_selectioName)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_selNum = p[0];
+	u8 len = p[1];
+
+	memset (out_utf16_LSB_MSB_selectioName, 0, sizeOfOutUTF16_LSB_MSB_selectioName);
+    if (sizeOfOutUTF16_LSB_MSB_selectioName < (u32)(len+2))
+		len = sizeOfOutUTF16_LSB_MSB_selectioName - 2;
+	
+	if (len)
+		memcpy (out_utf16_LSB_MSB_selectioName, &p[2], len);
+}
 
 
 
@@ -1638,6 +1696,20 @@ void cpubridge::ask_CPU_QUERY_SEL_AVAIL(const sSubscriber &from, u16 handlerID)
 void cpubridge::ask_CPU_QUERY_SEL_PRICES (const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_QUERY_SINGLE_SEL_PRICE (const sSubscriber &from, u16 handlerID, u8 selNum)
+{
+    rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE, handlerID, &selNum, 1);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_QUERY_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE);
+    const u8* p = (const u8*)msg.buffer;
+    *out_selNum = p[0];
 }
 
 //***************************************************
@@ -2168,4 +2240,18 @@ void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const
 	*out_selNum = p[0];
 	*out_paymentType = (eGPUPaymentType)p[1];
 	*out_price = rhea::utils::bufferReadU16 (&p[2]);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const sSubscriber &from, u16 handlerID, u8 selNum)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB, handlerID, &selNum, 1);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const rhea::thread::sMsg &msg, u8 *out_selNum)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_selNum = p[0];
 }

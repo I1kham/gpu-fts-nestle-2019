@@ -51,3 +51,16 @@ bool rhea::utils::md5 (char *out, size_t sizeOfOutInBytes, const void *in, u32 l
     md5.hexdigest(out, sizeOfOutInBytes);
     return true;
 }
+
+//******************************************************************************
+u32 rhea::utils::copyBufferAsMuchAsYouCan (void *dst, u32 sizeOfDest, const void *src, u32 numBytesToCopyMax)
+{
+    if (sizeOfDest >= numBytesToCopyMax)
+    {
+        memcpy (dst, src, numBytesToCopyMax);
+        return numBytesToCopyMax;
+    }
+
+    memcpy (dst, src, sizeOfDest);
+    return sizeOfDest;
+}

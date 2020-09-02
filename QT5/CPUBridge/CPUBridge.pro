@@ -84,7 +84,6 @@ SOURCES += \
 
 
 HEADERS += \
-    ../../src/CPUBridge/lang.h \
     ../../src/CPUBridge/CPUBridge.h \
     ../../src/CPUBridge/CPUBridgeEnumAndDefine.h \
     ../../src/CPUBridge/CPUBridgeServer.h \
@@ -93,8 +92,8 @@ HEADERS += \
     ../../src/CPUBridge/CPUChannelCom.h \
     ../../src/CPUBridge/CPUChannelFakeCPU.h \
     ../../src/CPUBridge/DA3.h \
-    ../../src/CPUBridge/EVADTSParser.h
-
+    ../../src/CPUBridge/EVADTSParser.h \
+    ../../src/CPUBridge/lang.h
 
 
 unix {

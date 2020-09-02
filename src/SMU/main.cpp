@@ -8,12 +8,14 @@
 
 //nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
-	#define CPU_COMPORT  "/dev/ttyUSB0"
+    #define CPU_COMPORT     "/dev/ttyUSB0"
+    #define ESAPI_COMPORT	"/dev/ttyUSB1"
 #elif PLATFORM_YOCTO_EMBEDDED
-	#define CPU_COMPORT  "/dev/ttymxc3"
+    #define CPU_COMPORT     "/dev/ttymxc3"
+    #define ESAPI_COMPORT   "/dev/ttymxc2"
 #else
 	#define CPU_COMPORT		"COM5"
-	#define ESAPI_COMPORT	"COM3"
+	#define ESAPI_COMPORT	"COM7"
 #endif
 
 //*****************************************************

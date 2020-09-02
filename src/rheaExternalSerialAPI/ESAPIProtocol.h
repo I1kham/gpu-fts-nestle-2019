@@ -33,6 +33,9 @@ namespace esapi
 									//modulo collegato alla seriale e quindi vanno gestiti in autonomia dal modulo stesso
 									//Utilizzare rsr232_getBufferIN() per ottenre il buffer di dati sul quale lavorare per processare il messaggio R
 
+		void					rs232_esapiSendAnswer (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData);
+
+
 		bool					onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, const rhea::thread::sMsg &msg, u16 handlerID);
 								//da chiamarsi ogni volta che CPUBridge manda una notifica
 								//ritorna true se ha processato la notifica, false altrimenti
@@ -51,9 +54,9 @@ namespace esapi
 
 	private:
 		void					priv_unsetup();
-		bool					priv_rs232_handleCommand_A (sBuffer &b);
-		bool					priv_rs232_handleCommand_C (sBuffer &b);
-		bool					priv_rs232_handleCommand_S (sBuffer &b);
+		u32						priv_rs232_handleCommand_A (const sBuffer &b);
+		u32						priv_rs232_handleCommand_C (const sBuffer &b);
+		u32						priv_rs232_handleCommand_S (const sBuffer &b);
 
 		void					priv_onCPUNotify_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg);
 

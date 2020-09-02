@@ -79,7 +79,7 @@ void Protocol::priv_onCPUNotify_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg
 }
 
 //*********************************************************
-bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, const rhea::thread::sMsg &msg, u16 handlerID)
+bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridgeSubscriber, const rhea::thread::sMsg &msg, u16 handlerID)
 {
     if (handlerID == 0)
     {
@@ -109,7 +109,7 @@ bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, c
 	            translateNotify_CPU_NEW_LCD_MESSAGE(msg, &lcdMsg);
 
 	            const u16 msgLenInBytes = rhea::string::utf16::lengthInBytes(lcdMsg.utf16LCDString);
-                const u32 n = esapi::buildMsg_C1_getCPUScreenMsg_resp (lcdMsg.utf16LCDString, msgLenInBytes, bufferOUT, SIZE_OF_BUFFEROUT);
+                const u32 n = esapi::buildAnswer_C1_getCPUScreenMsg (lcdMsg.utf16LCDString, msgLenInBytes, bufferOUT, SIZE_OF_BUFFEROUT);
                 rs232_write (bufferOUT, n);
             }
             return true;
@@ -120,7 +120,7 @@ bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, c
 	            cpubridge::sCPUSelAvailability selAvail;
 	            cpubridge::translateNotify_CPU_SEL_AVAIL_CHANGED(msg, &selAvail);
 
-                const u32 n = esapi::buildMsg_C2_getSelAvailability_resp (selAvail, bufferOUT, SIZE_OF_BUFFEROUT);
+                const u32 n = esapi::buildAnswer_C2_getSelAvailability (selAvail, bufferOUT, SIZE_OF_BUFFEROUT);
                 rs232_write (bufferOUT, n);
             }
             return true;
@@ -129,42 +129,45 @@ bool Protocol::onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, c
             priv_onCPUNotify_RUNNING_SEL_STATUS(msg);
             return true;
 
-		case CPUBRIDGE_NOTIFY_CPU_SEL_PRICES_CHANGED:
+        case CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING:
 			//risposta al comando  #C3	
 			{
-				u8 numPrices = 0;
-				u8 numDecimals = 0;
-				u16 prices[NUM_MAX_SELECTIONS];
-				cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(msg, &numPrices, &numDecimals, prices);
+                u8 data[32];
+                u8 selNum = 0;
+                cpubridge::translateNotify_CPU_SINGLE_SEL_PRICE (msg, &selNum, &data[2], sizeof(data)-2);
 
-				u32 BYTES_TO_ALLOC = 5 + numPrices * (7);
+                //rispondo con # C 3 [selNum] [priceLen] [price?] [ck]
+                data[0] = selNum;
+                data[1] = (u8)rhea::string::utf8::lengthInBytes(&data[2]);
+
+                rs232_esapiSendAnswer ('C', '3', data, data[1]+2);
+            }
+			return true;
+
+		case CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB:
+			//risposta al comando  #C5
+			{
+				u8 selNum = 0;
+				u16 selNameUTF16_LSB_MSB[64];
+				cpubridge::translateNotify_CPU_GET_CPU_SELECTION_NAME (msg, &selNum, selNameUTF16_LSB_MSB, sizeof(selNameUTF16_LSB_MSB));
+
+				//rispondo # C 5 [selNum] [nameLenInBytes] [nameUTF16_LSB_MSB...] [ck]
+				const u8 nameLenInBytes = rhea::string::utf16::lengthInBytes(selNameUTF16_LSB_MSB);
+
+				u32 BYTES_TO_ALLOC = 6 + nameLenInBytes;
 				u8 *answer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), BYTES_TO_ALLOC);
 				u16 ct = 0;
 				answer[ct++] = '#';
 				answer[ct++] = 'C';
-				answer[ct++] = '3';
-				answer[ct++] = numPrices;
-				answer[ct++] = 0;	//lughezza totale stringa dei prezzi LSB
-				answer[ct++] = 0;	//lughezza totale stringa dei prezzi MSB
-
-				const u16 ct_startOfPriceList = ct;
-				for (u16 i = 0; i < numPrices; i++)
-				{
-					char s[32];
-					const char DECIMAL_SEP = '.';
-					rhea::string::format::currency (prices[i], numDecimals, DECIMAL_SEP, s, sizeof(s));
-
-					const u32 n = strlen(s);
-					memcpy (&answer[ct], s, n);
-					ct += n;
-					answer[ct++] = '|';
-				}
-
-				rhea::utils::bufferWriteU16_LSB_MSB (&answer[4], (ct - ct_startOfPriceList));
+				answer[ct++] = '5';
+				answer[ct++] = selNum;
+				answer[ct++] = nameLenInBytes;
+				memcpy (&answer[ct], selNameUTF16_LSB_MSB, nameLenInBytes);
+				ct += nameLenInBytes;
 
 				answer[ct] = rhea::utils::simpleChecksum8_calc (answer, ct);
 				ct++;
-					
+
 				rs232_write (answer, ct);
 				RHEAFREE(rhea::getScrapAllocator(), answer);
 			}
@@ -183,6 +186,14 @@ void Protocol::rs232_write (const u8 *buffer, u32 numBytesToSend)
 {
     if (numBytesToSend>0)
         rhea::rs232::writeBuffer (rs232, buffer, numBytesToSend);
+}
+
+//*********************************************************
+void Protocol::rs232_esapiSendAnswer (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData)
+{
+	const u32 nBytesToSend = esapi::buildAnswer (c1, c2, optionalData, numOfBytesInOptionalData, bufferOUT, SIZE_OF_BUFFEROUT);
+	if (nBytesToSend)
+		rs232_write (bufferOUT, nBytesToSend);
 }
 
 //*********************************************************
@@ -232,326 +243,273 @@ bool Protocol::rs232_read ()
         assert (rs232BufferIN.buffer[0] == (u8)'#');
         i = 0;
 
-        if (rs232BufferIN.numBytesInBuffer < 3)
+		//il comando valido più piccolo è di almeno 4 byte
+        if (rs232BufferIN.numBytesInBuffer < 4)
             return true;
 
         const u8 commandChar = rs232BufferIN.buffer[1];
+		u32 nBytesConsumed = 0;
         switch (commandChar)
         {
         default:
-            logger->log ("esapi::Protocol() => invalid command char [%c]\n", commandChar);
-            rs232BufferIN.removeFirstNBytes(1);
+			//comando non riconosciuto, cancello # che e' in posizione 0 cosi'
+			//al prossimo giro viene buttato via tutto fino al prossimo #
+			nBytesConsumed = 1;
+			logger->log ("esapi::Protocol() => invalid command char [%c]\n", commandChar);
             break;
 
-        case 'A':   if (!priv_rs232_handleCommand_A (rs232BufferIN)) return true;    break;
-        case 'C':   if (!priv_rs232_handleCommand_C (rs232BufferIN)) return true;    break;
-		case 'S':   if (!priv_rs232_handleCommand_S (rs232BufferIN)) return true;    break;
+        case 'A':   nBytesConsumed = priv_rs232_handleCommand_A (rs232BufferIN);    break;
+        case 'C':   nBytesConsumed = priv_rs232_handleCommand_C (rs232BufferIN);    break;
+		case 'S':   nBytesConsumed = priv_rs232_handleCommand_S (rs232BufferIN);    break;
 
         case 'R':
             //questo tipo di comandi (classe 'R') devono essere gestiti in autonomia dai singoli moduli
             return false;
         }
+
+		rs232BufferIN.removeFirstNBytes(nBytesConsumed);
     }
 
     return true;
 }
 
 /*********************************************************
- *  ritorna true se ha consumato qualche byte di buffer.
- *  ritorna false altrimenti. In questo caso, vuol dire che i byte in buffer sembravano essere un valido messaggio ma probabilmente manca ancora qualche
- *  bytes al completamento del messaggio stesso. Bisogna quindi attendere che ulteriori byte vengano appesi al buffer
+ * ritorna il numero di bytes consumati
  */
-bool Protocol::priv_rs232_handleCommand_A (sBuffer &b)
+u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
 {
-    const u8 COMMAND_CHAR = 'A';
-
-    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == 'A');
     const u8 commandCode = b.buffer[2];
 
     switch (commandCode)
     {
     default:
         logger->log ("esapi::Protocol() => invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
-        b.removeFirstNBytes(2);
-        return true;
+		return 2;
 
     case '1': 
         //Request API version
         //ricevuto: # A 1 [ck]
         //rispondo: # A 1 [api_ver_major] [api_ver_minor] [GPUmodel] [ck]
-        {
-           //parse del messaggio
-            bool bValidCk = false;
-            const u32 MSG_LEN = esapi::buildMsg_A1_getAPIVersion_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
-            if (0 == MSG_LEN)
-                return false;
-            if (!bValidCk)
-            {
-                b.removeFirstNBytes(2);
-                return true;
-            }
-        
-            //rimuovo msg dal buffer
-            b.removeFirstNBytes(MSG_LEN);
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
 
-            //rispondo
-            const u32 n = esapi::buildMsg_A1_getAPIVersion_resp (ESAPI_VERSION_MAJOR, ESAPI_VERSION_MINOR, esapi::eGPUType_TS, bufferOUT, SIZE_OF_BUFFEROUT);
-            rs232_write (bufferOUT, n);
-            return true;
-        }
-        break;
+			//rispondo.
+			const u8 data[4] = { ESAPI_VERSION_MAJOR, ESAPI_VERSION_MINOR, esapi::eGPUType_TS, 0 };
+			rs232_esapiSendAnswer ('A', '1', data, 3);
+		}
+		return 4;
     }
 }
 
 /********************************************************
- * funziona come priv_mode_raw_handleCommand_A(), vedi i commenti in cima a quella fn
+ * ritorna il numero di bytes consumati
  */
-bool Protocol::priv_rs232_handleCommand_C (sBuffer &b)
+u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 {
-    const u8 COMMAND_CHAR = 'C';
-
-    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == 'C');
     const u8 commandCode = b.buffer[2];
 
     switch (commandCode)
     {
     default:
         logger->log ("esapi::Protocol => invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
-        b.removeFirstNBytes(2);
-        return true;
+		return 2;
 
     case '1': 
         //Query CPU screen message
         //ricevuto: # C 1 [ck]
         //rispondo: # C 1 [numByteInMsg] [messageUTF16_LSB_MSB] [ck]
         {
-           //parse del messaggio
-            bool bValidCk = false;
-            const u32 MSG_LEN = esapi::buildMsg_C1_getCPUScreenMsg_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
-            if (0 == MSG_LEN)
-                return false;
-            if (!bValidCk)
-            {
-                b.removeFirstNBytes(2);
-                return true;
-            }
-        
-            //rimuovo msg dal buffer
-            b.removeFirstNBytes(MSG_LEN);
-        
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+			       
             //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
             cpubridge::ask_CPU_QUERY_LCD_MESSAGE (*cpuBridgeSubscriber, 0x01);
-            return true;
         }
-        break;
-
+		return 4;
+		
     case '2': 
         //Query selections availability
         //ricevuto: # C 2 [ck]
         //rispondo: # C 2 [avail1-8] [avail9-16] [avail17-24] [...] [avail121-128] [ck]
         {
-           //parse del messaggio
-            bool bValidCk = false;
-            const u32 MSG_LEN = esapi::buildMsg_C2_getSelAvailability_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
-            if (0 == MSG_LEN)
-                return false;
-            if (!bValidCk)
-            {
-                b.removeFirstNBytes(2);
-                return true;
-            }
-        
-            //rimuovo msg dal buffer
-            b.removeFirstNBytes(MSG_LEN);
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
 
-            //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi priv_handleIncomingMsgFromCPUBridge)
+            //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
             cpubridge::ask_CPU_QUERY_SEL_AVAIL (*cpuBridgeSubscriber, 0x01);
-            return true;
         }
-        break;
+		return 4;
 
 	case '3':
         //Query selections prices
-        //ricevuto: # C 3 [ck]
-        //rispondo: # C 3 [n] [price1] | [price2] | … | [priceN] | [ck]
-		{
-			//parse del messaggio
-			bool bValidCk = false;
-			const u32 MSG_LEN = esapi::buildMsg_C3_getSelAvailability_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
-			if (0 == MSG_LEN)
-				return false;
-			if (!bValidCk)
-			{
-				b.removeFirstNBytes(2);
-				return true;
-			}
+        //ricevuto: # C 3 [selNum] [ck]
+        //rispondo: # C 3 [selNum] [priceLen] [price?] [ck]
+        {
+            if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+                return 0;
 
-			//rimuovo msg dal buffer
-			b.removeFirstNBytes(MSG_LEN);
+            if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+                return 2;
 
-			//chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi priv_handleIncomingMsgFromCPUBridge)
-			cpubridge::ask_CPU_QUERY_SEL_PRICES (*cpuBridgeSubscriber, 0x01);
-			return true;
+            const u8 selNum = b.buffer[3];
+			//chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+            cpubridge::ask_CPU_QUERY_SINGLE_SEL_PRICE (*cpuBridgeSubscriber, 0x01, selNum);
 		}
-		break;
+		return 4;
 
     case '4':
         //Query 12 LED status
-        //ricevuto: # C 3 [ck]
+        //ricevuto: # C 4 [ck]
         //rispondo: # C 4 [b1] [b2] [ck]
-        DBGBREAK;
-        logger->log ("esapi::Protocol => #C4 not implemented yet\n");
-        b.removeFirstNBytes(2);
-        return true;
+		{
+			//questo comando non è supportato per le TS
+			const u8 data[2] = { 0, 0 };
+			rs232_esapiSendAnswer ('C', '4', data, 2);
+		}
+		return 4;
 
-    }
+	case '5':
+		//Get selection name
+		//ricevuto: # C 5 [selNum] [ck]
+		//rispondo:	# C 5 [selNum] [nameLenInBytes] [nameUTF16_LSB_MSB...] [ck]
+		{
+			if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+				return 0;
+
+			if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+				return 2;
+
+			u8 selNumber = b.buffer[3];
+			if (selNumber < 1 || selNumber > 48)
+				selNumber = 1;
+
+			//chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (*cpuBridgeSubscriber, 0x01, selNumber);
+		}
+		return 5;
+
+    } //switch
 }
 
 /********************************************************
- * funziona come priv_mode_raw_handleCommand_A(), vedi i commenti in cima a quella fn
+ * ritorna il numero di bytes consumati
  */
-bool Protocol::priv_rs232_handleCommand_S (sBuffer &b)
+u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 {
-    const u8 COMMAND_CHAR = 'S';
-
-    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == COMMAND_CHAR);
+    assert (b.numBytesInBuffer >= 3 && b.buffer[0] == '#' && b.buffer[1] == 'S');
     const u8 commandCode = b.buffer[2];
 
     switch (commandCode)
     {
     default:
         logger->log ("esapi::Protocol => invalid commandNum [%c][%c]\n", b.buffer[1], commandCode);
-        b.removeFirstNBytes(2);
-        return true;
+		return 2;
 
     case '1': 
         //Start selection
         //ricevuto: # S 1 [sel_num] [ck]
         //rispondo: # S 1 [sel_num] [ck]
         {
-            //parse del messaggio
-            bool bValidCk = false;
-            u8 selNumber = 0;
-            const u32 MSG_LEN = esapi::buildMsg_S1_startSelection_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &selNumber);
-            if (0 == MSG_LEN)
-                return false;
-            if (!bValidCk)
-            {
-                b.removeFirstNBytes(2);
-                return true;
-            }
+			if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+				return 0;
 
-            //rimuovo il msg dal buffer
-            b.removeFirstNBytes(MSG_LEN);
+			if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+				return 2;
+
+			u8 selNumber = b.buffer[3];
+			if (selNumber < 1 || selNumber > 48)
+				selNumber = 0;
 
             //chiedo a CPUBridge di iniziare la selezione indicata. CPUBridge risponderà con una serie di notify_CPU_RUNNING_SEL_STATUS() per
             //indicare lo stato di avanzamento della selezione
 			if (selNumber > 0)
 			{
 				runningSel.status = cpubridge::eRunningSelStatus_wait;
-				cpubridge::ask_CPU_START_SELECTION(*cpuBridgeSubscriber, selNumber);
+				cpubridge::ask_CPU_START_SELECTION (*cpuBridgeSubscriber, selNumber);
 			}
 
-            //rispondo via seriale confermando di aver ricevuto il msg
-            const u32 n = buildMsg_S1_startSelection_resp (selNumber, bufferOUT, SIZE_OF_BUFFEROUT);
-            rs232_write (bufferOUT, n);
-
-            return true;
+			//rispondo
+			rs232_esapiSendAnswer ('S', '1', &selNumber, 1);
         }
-        break;
+		return 5;
 
     case '2': 
         //Query selection status
         //ricevuto: # S 2 [ck]
         //rispondo: # S 2 [status] [ck]
-        {
-            //parse del messaggio
-            bool bValidCk = false;
-            const u32 MSG_LEN = esapi::buildMsg_S2_querySelectionStatus_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk);
-            if (0 == MSG_LEN)
-                return false;
-            if (!bValidCk)
-            {
-                b.removeFirstNBytes(2);
-                return true;
-            }
-
-            //rimuovo il msg dal buffer
-            b.removeFirstNBytes(MSG_LEN);
+		//		[status] can be one of the following:
+		//		0x01 => waiting for payment
+		//		0x02 => delivering in progress, STOP button is not available
+		//		0x03 => finished KO
+		//		0x04 => finished OK
+		//		0x05 => delivering in progress, STOP button is available		
+		{
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
 
             //rispondo
-            const u32 n = esapi::buildMsg_S2_querySelectionStatus_resp (runningSel.status, bufferOUT, SIZE_OF_BUFFEROUT);
-            rs232_write (bufferOUT, n);
-            return true;
+			const u8 status = (u8)runningSel.status;
+			rs232_esapiSendAnswer ('S', '2', &status, 1);
         }
-        break;
+		return 4;
 
 	case '3':
 		//start already paid selection
-        //ricevuto: # S 3 [sel_num] [priceLSB] [priceMSB] [ck]
-        //rispondo: # S 3 [sel_num] [ck]
+		//ricevo:	# S 3 [sel_num] [priceLSB] [priceMSB] [ck]
+		//rispondo:	# S 3 [sel_num] [ck]
 		{
-			//parse del messaggio
-			bool bValidCk = false;
-			u8 selNum = 0;
-			u16 price = 0;
-			const u32 MSG_LEN = esapi::buildMsg_S3_startAlreadySelection_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &selNum, &price);
-			if (0 == MSG_LEN)
-				return false;
-			if (!bValidCk)
-			{
-				b.removeFirstNBytes(2);
-				return true;
-			}
+			if (b.numBytesInBuffer < 7)	//devo avere almeno 7 char nel buffer
+				return 0;
 
-			//rimuovo il msg dal buffer
-			b.removeFirstNBytes(MSG_LEN);
+			if (b.buffer[6] != rhea::utils::simpleChecksum8_calc (b.buffer, 6))
+				return 2;
 
 			//chiedo a CPUBridge di iniziare la selezione indicata. CPUBrdige risponderà con una serie di notify_CPU_RUNNING_SEL_STATUS() per
 			//indicare lo stato di avanzamento della selezione
-			if (selNum > 0)
+			u8 selNum = b.buffer[3];
+			if (selNum < 1 || selNum > 48)
+				selNum = 0;
+			else
 			{
+				const u16 price = rhea::utils::bufferReadU16_LSB_MSB(&b.buffer[4]);
 				runningSel.status = cpubridge::eRunningSelStatus_wait;
 				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (*cpuBridgeSubscriber, selNum, price, cpubridge::eGPUPaymentType_unknown);
 			}
 
-			//rispondo via seriale confermando di aver ricevuto il msg
-			const u32 n = buildMsg_S3_startAlreadySelection_resp (selNum, bufferOUT, SIZE_OF_BUFFEROUT);
-			rs232_write (bufferOUT, n);
-            return true;
+			//rispondo
+			rs232_esapiSendAnswer ('S', '3', &selNum, 1);
 		}
-		break;
+		return 7;
 
 	case '4':
 		//Send button press
         //ricevuto: # S 4 [btn] [ck]
         //rispondo: # S 4 [btn] [ck]
 		{
-			//parse del messaggio
-			bool bValidCk = false;
-			u8 btnNum;
-			const u32 MSG_LEN = esapi::buildMsg_S4_btnPress_parseAsk (b.buffer, b.numBytesInBuffer, &bValidCk, &btnNum);
-			if (0 == MSG_LEN)
-				return false;
-			if (!bValidCk)
-			{
-				b.removeFirstNBytes(2);
-				return true;
-			}
+			if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+				return 0;
 
-			//rimuovo il msg dal buffer
-			b.removeFirstNBytes(MSG_LEN);
+			if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+				return 2;
+
+			u8 btnNum =b.buffer[3];
 
 			//inoltro a CPUBridge
-			if (btnNum >0 && btnNum<=12)
+			if (btnNum > 0 && btnNum <= 12)
 				cpubridge::ask_CPU_SEND_BUTTON (*cpuBridgeSubscriber, btnNum);
+			else
+				btnNum = 0;
 
 			//rispondo
-			const u32 n = esapi::buildMsg_S4_btnPress_resp (btnNum, bufferOUT, SIZE_OF_BUFFEROUT);
-			rs232_write (bufferOUT, n);
-			return true;
+			rs232_esapiSendAnswer ('S', '4', &btnNum, 1);
 		}
-		break;
-    }
+		return 5;
+	} //switch
 }
 
