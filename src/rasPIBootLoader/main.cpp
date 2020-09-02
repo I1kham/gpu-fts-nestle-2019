@@ -102,42 +102,49 @@ bool checkGUI_TP (const u8 *usb_path)
 /*****************************************************
  * copia sulla chiavetta USB i file qrcodeTP.png e qrcodeTS.png
  */
-bool copyQRCodesToUSB (const u8 *usb_path)
+void copyQRCodesToUSB (const u8 *usb_path)
 {
-    bool ret = false;
     u8 s1[512];
     u8 s2[512];
 
     sprintf_s ((char*)s1, sizeof(s1), "%s/qrcodeTP.png", BIN_FOLDER);
     sprintf_s ((char*)s2, sizeof(s2), "%s/qrcodeTP.png", usb_path);
-    u64 timeToExitMSec = rhea::getTimeNowMSec() + 5000;
-    while (rhea::getTimeNowMSec() < timeToExitMSec)
+    rhea::fs::fileCopy (s1, s2);
+
+    sprintf_s ((char*)s1, sizeof(s1), "%s/qrcodeTS.png", BIN_FOLDER);
+    sprintf_s ((char*)s2, sizeof(s2), "%s/qrcodeTS.png", usb_path);
+    rhea::fs::fileCopy (s1, s2);
+}
+
+
+/*****************************************************
+ * Al primissimo avvio del rasPI, c'è uno script python che crea alcuni file nella cartella BIN_FOLDER.
+ * Tra questi file, ci sono anche le 2 png che rappresentano i QR da usare per collegarsi al rasPI tramite rheAPP.
+ * Dato che per creare i QR è necessario conoscere il MAX-ADDRESS, e dato che per conoscere il MAC-ADDRESS linux ci impiega un po' (parliamo di una 30a di secondi), al primissimo
+ * avvio questi file vengono generati con una certa lentezza (30s circa).
+ * A me interessa che si esca dal bootLoader con la consapevolezza che questi file esistono, visto che sono utilizati dall'applicazione
+ */
+void waitForQRCodeToBeGenerated ()
+{
+    u8 s1[512];
+
+    sprintf_s ((char*)s1, sizeof(s1), "%s/qrcodeTP.png", BIN_FOLDER);
+    while (1)
     {
         if (rhea::fs::fileExists(s1))
-        {
-            rhea::fs::fileCopy (s1, s2);
-            ret = true;
             break;
-        }
         rhea::thread::sleepMSec(1000);
     }
 
     sprintf_s ((char*)s1, sizeof(s1), "%s/qrcodeTS.png", BIN_FOLDER);
-    sprintf_s ((char*)s2, sizeof(s2), "%s/qrcodeTS.png", usb_path);
-    timeToExitMSec = rhea::getTimeNowMSec() + 5000;
-    while (rhea::getTimeNowMSec() < timeToExitMSec)
+    while (1)
     {
         if (rhea::fs::fileExists(s1))
-        {
-            rhea::fs::fileCopy (s1, s2);
-            ret = true;
             break;
-        }
         rhea::thread::sleepMSec(1000);
     }
-
-    return ret;
 }
+
 
 //*****************************************************
 void runRASPI()
@@ -166,13 +173,18 @@ int main()
     u8 path[128];
     sprintf_s ((char*)path, sizeof(path), "%s/%s", USB_MOUNT_POINT, USB_FOLDER);
 
+
+    //attendo che lo script python generi i QRcode (serve solo al primissimo avvio dato che poi i file rimangono sull'hard disk)
+    waitForQRCodeToBeGenerated();
+
+
     //se la cartella esiste, verifico se c'è da aggiornare qualcosa
     bool bAnyUpdate = false;
     if (rhea::fs::folderExists(path))
     {
+        copyQRCodesToUSB(path);
         if (checkFWUpdate(path))        bAnyUpdate = true;
         if (checkGUI_TP(path))          bAnyUpdate = true;
-        if (copyQRCodesToUSB(path))     bAnyUpdate = true;
     }
 
     LED_OFF;
