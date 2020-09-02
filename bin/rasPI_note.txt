@@ -77,18 +77,20 @@ sudo nano /lib/systemd/system/rheaHotspotSetup.service
 	WantedBy=multi-user.target
 
 
-sudo nano /lib/systemd/system/rheaStartMITM.service
+sudo nano /lib/systemd/system/rheaStartRasPIESAPI.service
 	[Unit]
-	Description=Fa partire il MITM
+	Description=Start rhea bootloader for rasPI prg 
 	After=network.target
 
 	[Service]
-	WorkingDirectory=/home/pi/Desktop/gpu-fts-nestle-2019/bin/
+	WorkingDirectory=/home/pi/rhea/gpu-fts-nestle-2019/bin
 	User=pi
-	ExecStart=/home/pi/Desktop/gpu-fts-nestle-2019/bin/RASPI_DEBUG_rasPI
+	ExecStart=/home/pi/rhea/gpu-fts-nestle-2019/bin/RASPI_RELEASE_rasPIBootLoader
 
 	[Install]
-	WantedBy=multi-user.target
+	WantedBy=network.target
+
+
 
 
 sudo systemctl daemon-reload

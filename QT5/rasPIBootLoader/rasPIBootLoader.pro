@@ -10,30 +10,7 @@ TEMPLATE = app
 QMAKE_CXXFLAGS += -std=c++0x -pthread -Wno-unused-result -Wno-expansion-to-defined -Wcomment -Wno-old-style-cast
 QMAKE_CFLAGS += -std=gnu++0x -pthread -Wcomment
 LIBS += -pthread
-
-#direttive specifiche per quando compilo per yocto embedded
-contains(DEFINES, PLATFORM_YOCTO_EMBEDDED) {
-	CONFIG(debug, debug|release) {
-		CONFIG_NAME="EMBEDDED_DEBUG"
-	}
-
-	CONFIG(release, debug|release) {
-		CONFIG_NAME="EMBEDDED_RELEASE"
-	}
-}
-
-
-#direttive specifiche per quando compilo su ubuntu desktop
-contains(DEFINES, PLATFORM_UBUNTU_DESKTOP) {
-
-	CONFIG(debug, debug|release) {
-		CONFIG_NAME="DESKTOP64_DEBUG"
-	}
-
-	CONFIG(release, debug|release) {
-		CONFIG_NAME="DESKTOP64_RELEASE"
-	}
-}
+LIBS += -lwiringPi
 
 #direttive specifiche per quando compilo su rasPI
 contains(DEFINES, PLATFORM_RASPI) {
@@ -47,7 +24,7 @@ contains(DEFINES, PLATFORM_RASPI) {
         }
 }
 
-THIS_EXE_NAME="rasPISerial"
+THIS_EXE_NAME="rasPIBootLoader"
 
 message ("$${THIS_EXE_NAME}: configuration is $${CONFIG_NAME}")
 	PATH_TO_ROOT = "../../../.."
@@ -56,14 +33,6 @@ message ("$${THIS_EXE_NAME}: configuration is $${CONFIG_NAME}")
 	PATH_TO_LIB = "$${PATH_TO_ROOT}/lib"
 	TARGET = "$${PATH_TO_BIN}/$${CONFIG_NAME}_$${THIS_EXE_NAME}"
 
-#depends on rheaExternalSerialAPI libray
-#LIBRARY_NAME="rheaExternalSerialAPI"
-#		FULL_LIBRARY_NAME = "$${CONFIG_NAME}_$${LIBRARY_NAME}"
-#		INCLUDEPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
-#		DEPENDPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
-#		LIBS += -L$${PATH_TO_LIB}/ -l$${FULL_LIBRARY_NAME}
-#		PRE_TARGETDEPS += "$${PATH_TO_LIB}/lib$${FULL_LIBRARY_NAME}.a"
-
 #depends on rheaCommonLib libray
 LIBRARY_NAME="rheaCommonLib"
 		FULL_LIBRARY_NAME = "$${CONFIG_NAME}_$${LIBRARY_NAME}"
@@ -71,9 +40,6 @@ LIBRARY_NAME="rheaCommonLib"
 		DEPENDPATH += $${PATH_TO_SRC}/$${LIBRARY_NAME}
 		LIBS += -L$${PATH_TO_LIB}/ -l$${FULL_LIBRARY_NAME}
 		PRE_TARGETDEPS += "$${PATH_TO_LIB}/lib$${FULL_LIBRARY_NAME}.a"
-
-#questa serve a rheaDB
-LIBS += -ldl
 
 
 CONFIG(release, debug|release) {
@@ -84,12 +50,9 @@ CONFIG(release, debug|release) {
 }
 
 SOURCES += \
-    ../../src/rasPISerial/main.cpp \
-    ../../src/rasPISerial/raspiCore.cpp
-
-
+    ../../src/rasPIBootLoader/main.cpp \
 
 HEADERS  += \
-    ../../src/rasPISerial/raspiCore.h
+    ../../src/rasPIBootLoader/main.h
 
 

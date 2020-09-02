@@ -1,6 +1,7 @@
 #include "raspiCore.h"
 #include "../rheaCommonLib/SimpleLogger/FileLogger.h"
 
+#define FW_VERSION "1.0"
 
 
 //*****************************************************
@@ -21,6 +22,9 @@ bool startESAPI ()
 #else
     const char SERIAL_PORT[] = {"COM5"};
 #endif
+
+    logger->log ("FW version: " FW_VERSION "\n");
+
 	raspi::Core core;
 	core.useLogger (logger);
     if (!core.open (SERIAL_PORT))

@@ -128,7 +128,7 @@ namespace raspi
 				}
 				const u32 nBytesLeft = this->numBytesInBuffer - n;
 				if (nBytesLeft)
-					memcpy (this->buffer, &this->buffer[n], nBytesLeft);
+                    memmove (this->buffer, &this->buffer[n], nBytesLeft);
 				this->numBytesInBuffer = nBytesLeft;
 			}
 		};

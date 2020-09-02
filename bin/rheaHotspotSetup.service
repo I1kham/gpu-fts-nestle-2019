@@ -3,9 +3,10 @@ Description=modifica le impostazioni dell'hotspot wifi cambiandone il nome e la 
 After=multi-user.target
 
 [Service]
-WorkingDirectory=/home/pi/rhea
+WorkingDirectory=/home/pi/rhea/gpu-fts-nestle-2019/bin
 User=pi
-ExecStart=/usr/bin/python2 /home/pi/rhea/rasPI_rheaBoot.py
+ExecStart=/usr/bin/python2 /home/pi/rhea/gpu-fts-nestle-2019/bin/rasPI_rheaBoot.py
 
 [Install]
 WantedBy=multi-user.target
+

@@ -4,6 +4,15 @@
 #include "../rheaCommonLib/rheaUtils.h"
 #include "../rheaCommonLib/compress/rheaCompress.h"
 
+#undef DEBUG_VERBOSE_RSR232_SEND
+#undef DEBUG_VERBOSE_RSR232_WAITANSWER
+#define DEBUG_VERBOSE_2280_onIcomingData
+#define DEBUG_VERBOSE_2280_onClientDisconnected
+
+#define DEBUG_VERBOSE_2281_onSocketClose
+#define DEBUG_VERBOSE_2281_onHandleRESTApi
+#define DEBUG_VERBOSE_2281_sendAnswer
+
 using namespace raspi;
 
 //*******************************************************
@@ -520,7 +529,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
             {
                 u16 expecxtedPacketLength = fileUpload.packetSizeBytes;
                 if (fileUpload.rcvBytesSoFar + fileUpload.packetSizeBytes > fileUpload.totalFileSizeBytes)
-                    expecxtedPacketLength = (fileUpload.totalFileSizeBytes - fileUpload.rcvBytesSoFar);
+                    expecxtedPacketLength = (u16)(fileUpload.totalFileSizeBytes - fileUpload.rcvBytesSoFar);
 
                 const u16 expectedMsgLen = 4 + expecxtedPacketLength;
                 if (b.numBytesInBuffer < expectedMsgLen)
@@ -992,7 +1001,7 @@ const char* Core::DEBUG_priv_chToWritableCh (u8 c)
 //*********************************************************
 void Core::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
 {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_RSR232_SEND)
     char dbgStr[256];
     u32 ct=0;
     memset (dbgStr,0,sizeof(dbgStr));
@@ -1003,8 +1012,9 @@ void Core::priv_rs232_sendBuffer (const u8 *buffer, u32 numBytesToSend)
         ct += strlen(s);
     }
     dbgStr[ct] = 0;
-    logger->log ("RS232snd: %s", dbgStr);
+    logger->log ("RS232snd: %s\n", dbgStr);
 #endif
+
 	rhea::rs232::writeBuffer (com, buffer, numBytesToSend);
 }
 
@@ -1021,11 +1031,11 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
              (whichByteContainsAdditionMsgLenLSB>0 && whichByteContainsAdditionMsgLenMSB==0) ||
              (whichByteContainsAdditionMsgLenLSB>0 && whichByteContainsAdditionMsgLenMSB>0));
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_RSR232_WAITANSWER)
     logger->log ("rs232_waitAnswer: ");
 #endif
 
-    u64 timeToExitMSec = 10000 + rhea::getTimeNowMSec() + timeoutMSec;
+    u64 timeToExitMSec = rhea::getTimeNowMSec() + timeoutMSec;
     u16 ct = 0;
     while (rhea::getTimeNowMSec() < timeToExitMSec)
     {
@@ -1036,7 +1046,7 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
             continue;
         }
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_RSR232_WAITANSWER)
         logger->log (DEBUG_priv_chToWritableCh(ch));
 #endif
 
@@ -1069,8 +1079,8 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
                 {
                     if (rhea::utils::simpleChecksum8_calc(answerBuffer, fixedMsgLen - 1) == answerBuffer[fixedMsgLen - 1])
                     {
-#ifdef _DEBUG
-                        logger->log ("\n  [true]\n");
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_RSR232_WAITANSWER)
+                        logger->log (" [true]\n");
 #endif
                         return true;
                     }
@@ -1091,8 +1101,8 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
                         {
                             if (rhea::utils::simpleChecksum8_calc(answerBuffer, totalMsgSize - 1) == answerBuffer[totalMsgSize - 1])
                             {
-#ifdef _DEBUG
-                                logger->log ("\n  [true]\n");
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_RSR232_WAITANSWER)
+                                logger->log ("  [true]\n");
 #endif
                                 return true;
                             }
@@ -1110,8 +1120,8 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
                         {
                             if (rhea::utils::simpleChecksum8_calc(answerBuffer, totalMsgSize - 1) == answerBuffer[totalMsgSize - 1])
                             {
-#ifdef _DEBUG
-                                logger->log ("\n  [true]\n");
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_RSR232_WAITANSWER)
+                                logger->log ("  [true]\n");
 #endif
                                 return true;
                             }
@@ -1123,8 +1133,8 @@ bool Core::priv_rs232_waitAnswer(u8 command, u8 code, u8 fixedMsgLen, u8 whichBy
         }
     }
 
-#ifdef _DEBUG
-    logger->log ("\n----------**************-------------[false]----------**************-------------\n");
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_RSR232_WAITANSWER)
+    logger->log (" [FALSE]\n");
 #endif
     return false;
 }
@@ -1218,7 +1228,6 @@ bool Core::priv_rs232_handleCommand_A (sBuffer &b)
 		//rimuovo il msg dal buffer di input
 		b.removeFirstNBytes(7);
 		return true;
-        break;
     }
 }
 
@@ -1275,9 +1284,9 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 				return false;
 			
 			const u32 uid = rhea::utils::bufferReadU32 (&b.buffer[3]);
-            const u32 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
+            const u16 dataLen = rhea::utils::bufferReadU16(&b.buffer[7]);
 			
-			if (b.numBytesInBuffer < 10 + dataLen)
+            if (b.numBytesInBuffer < (u32)(10 + dataLen))
 				return false;
 
 			const u8* data = &b.buffer[9];
@@ -1306,10 +1315,9 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
 
 			//rimuovo il msg dal buffer di input
 			b.removeFirstNBytes(10+dataLen);
-			return true;
 		}
-		break;
-	}
+        return true;
+    }
 }
 
 
@@ -1405,7 +1413,7 @@ void Core::priv_2280_onIncomingData (OSSocket &sok, u32 uid)
 
 	priv_rs232_sendBuffer (rs232BufferOUT, ct);
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_2280_onIcomingData)
     logger->log ("2280[%d, uid=%d]: rcv [%d] bytes, sending to GPU\n", cl->sok.socketID, cl->uid, nBytesLetti);
 #endif
 
@@ -1420,7 +1428,7 @@ void Core::priv_2280_onClientDisconnected (OSSocket &sok, u32 uid)
 		{
 			assert (rhea::socket::compare(clientList(i).sok, sok));
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_2280_onClientDisconnected)
             logger->log ("2280[%d, uid=%d]: disconnected\n", sok.socketID, uid);
 #endif
 
@@ -1468,7 +1476,9 @@ void Core::priv_2281_findAndRemoveClientBySok (OSSocket &sokIN)
         if (rhea::socket::compare(sokIN, client2281List(i).sok))
         {
             OSSocket sok = client2281List(i).sok;
-            //logger->log ("2281: closed [%d]\n", sok.socketID);
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_2281_onSocketClose)
+            logger->log ("2281: closed [%d]\n", sok.socketID);
+#endif
             waitableGrp.removeSocket(sok);
             rhea::socket::close(sok);
             client2281List.removeAndSwapWithLast(i);
@@ -1489,7 +1499,9 @@ void Core::priv_2281_removeOldConnection(u64 timeNowMSec)
         if (timeNowMSec >= client2281List(i).lastTimeRcvMSec + 5000)
         {
             OSSocket sok = client2281List(i).sok;
-            //logger->log ("2281: closed [%d]\n", sok.socketID);
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_2281_onSocketClose)
+            logger->log ("2281: closed [%d]\n", sok.socketID);
+#endif
             waitableGrp.removeSocket(sok);
             rhea::socket::close(sok);
 
@@ -1537,8 +1549,10 @@ void Core::priv_2281_handle_restAPI (OSSocket &sok)
         return;
     }
 
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_2281_onHandleRESTApi)
     if (strcmp("GET-12LED", (const char*)sok2281BufferIN) != 0 && strcmp("GET-CPU-LCD-MSG", (const char*)sok2281BufferIN) != 0)
         logger->log ("2281[%d]: rcv %s\n", sok.socketID, sok2281BufferIN);
+#endif
 
     //i comandi ricevuti lungo questa socket sono nel formato:
     //  COMANDO|param1|param2|...|paramn
@@ -1595,16 +1609,16 @@ void Core::priv_2281_sendAnswer (OSSocket &sok, const u8 *data, u16 sizeOfData, 
     sok2281BufferOUT[ct] =0;
     rhea::socket::write (sok, sok2281BufferOUT, ct);
 
+#if defined(_DEBUG) && defined(DEBUG_VERBOSE_2281_sendAnswer)
     if (bLog)
         logger->log ("2281[%d]: snd %s\n", sok.socketID, &sok2281BufferOUT[3]);
+#endif
 }
 
 //*********************************************************
 void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhea::string::utf8::Iter *params)
 {
     const u32 commandLen = rhea::string::utf8::lengthInBytes(command);
-
-    u32 ct = 0;
 
     if (priv_2281_utils_match(command, commandLen, "SUSP-WIFI"))
     {
@@ -1614,7 +1628,7 @@ void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhe
         logger->log ("2281: [%s] [%d]\n", command, timeSec);
 
         logger->log ("2281: turn off hotspot\n");
-        hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (timeSec*1000);
+        hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (u64)(timeSec*1000);
         hotspot.turnOFF();
         return;
     }
