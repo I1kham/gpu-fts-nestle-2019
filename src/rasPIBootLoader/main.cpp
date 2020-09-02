@@ -98,6 +98,47 @@ bool checkGUI_TP (const u8 *usb_path)
     return false;
 }
 
+
+/*****************************************************
+ * copia sulla chiavetta USB i file qrcodeTP.png e qrcodeTS.png
+ */
+bool copyQRCodesToUSB (const u8 *usb_path)
+{
+    bool ret = false;
+    u8 s1[512];
+    u8 s2[512];
+
+    sprintf_s ((char*)s1, sizeof(s1), "%s/qrcodeTP.png", BIN_FOLDER);
+    sprintf_s ((char*)s2, sizeof(s2), "%s/qrcodeTP.png", usb_path);
+    u64 timeToExitMSec = rhea::getTimeNowMSec() + 5000;
+    while (rhea::getTimeNowMSec() < timeToExitMSec)
+    {
+        if (rhea::fs::fileExists(s1))
+        {
+            rhea::fs::fileCopy (s1, s2);
+            ret = true;
+            break;
+        }
+        rhea::thread::sleepMSec(1000);
+    }
+
+    sprintf_s ((char*)s1, sizeof(s1), "%s/qrcodeTS.png", BIN_FOLDER);
+    sprintf_s ((char*)s2, sizeof(s2), "%s/qrcodeTS.png", usb_path);
+    timeToExitMSec = rhea::getTimeNowMSec() + 5000;
+    while (rhea::getTimeNowMSec() < timeToExitMSec)
+    {
+        if (rhea::fs::fileExists(s1))
+        {
+            rhea::fs::fileCopy (s1, s2);
+            ret = true;
+            break;
+        }
+        rhea::thread::sleepMSec(1000);
+    }
+
+    return ret;
+}
+
 //*****************************************************
 void runRASPI()
 {
@@ -129,8 +170,9 @@ int main()
     bool bAnyUpdate = false;
     if (rhea::fs::folderExists(path))
     {
-        if (checkFWUpdate(path))    bAnyUpdate = true;
-        if (checkGUI_TP(path))      bAnyUpdate = true;
+        if (checkFWUpdate(path))        bAnyUpdate = true;
+        if (checkGUI_TP(path))          bAnyUpdate = true;
+        if (copyQRCodesToUSB(path))     bAnyUpdate = true;
     }
 
     LED_OFF;
@@ -138,6 +180,9 @@ int main()
 
     if (bAnyUpdate)
     {
+        //"smonto" la USB
+        system ("sudo umount -f " USB_MOUNT_POINT);
+
         //entro in un loop infinito e faccio lampeggiare il LED
         //Mi aspetto che la chiavetta USB venga rimossa e il PI riavviato
         while (1)
