@@ -192,9 +192,11 @@ namespace raspi
         void                    priv_REST_getSelPrice (OSSocket &sok, rhea::string::utf8::Iter *params);
         void                    priv_REST_sendButtonPress (OSSocket &sok, rhea::string::utf8::Iter *params);
         void                    priv_REST_startSel (OSSocket &sok, rhea::string::utf8::Iter *params);
+        void                    priv_REST_startAlreadyPaidSel (OSSocket &sok, rhea::string::utf8::Iter *params);
         void                    priv_REST_getSelStatus (OSSocket &sok);
         void                    priv_REST_getSelName (OSSocket &sok, rhea::string::utf8::Iter *params);
         void                    priv_REST_get12SelNames (OSSocket &sok);
+        void                    priv_REST_get12SelPrices (OSSocket &sok);
 
         const char*             DEBUG_priv_chToWritableCh (u8 ch);
 

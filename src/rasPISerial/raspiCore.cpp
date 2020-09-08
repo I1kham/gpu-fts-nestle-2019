@@ -1644,12 +1644,16 @@ void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhe
         priv_REST_sendButtonPress (sok, params);
     else if (priv_2281_utils_match(command, commandLen, "START-SEL"))
         priv_REST_startSel (sok, params);
+    else if (priv_2281_utils_match(command, commandLen, "START-PAID-SEL"))
+        priv_REST_startAlreadyPaidSel (sok, params);
     else if (priv_2281_utils_match(command, commandLen, "GET-SEL-STATUS"))
         priv_REST_getSelStatus (sok);
     else if (priv_2281_utils_match(command, commandLen, "GET-SEL-NAME"))
         priv_REST_getSelName (sok, params);
     else if (priv_2281_utils_match(command, commandLen, "GET-12SEL-NAMES"))
         priv_REST_get12SelNames(sok);
+    else if (priv_2281_utils_match(command, commandLen, "GET-12SEL-PRICES"))
+        priv_REST_get12SelPrices(sok);
 
     else
         logger->log ("2281: ERR command [%s] not recognized\n", command);
@@ -1856,6 +1860,57 @@ void Core::priv_REST_startSel (OSSocket &sok, rhea::string::utf8::Iter *params)
 }
 
 //*********************************************************
+void Core::priv_REST_startAlreadyPaidSel (OSSocket &sok, rhea::string::utf8::Iter *params)
+{
+    rhea::UTF8Char closingChar = rhea::UTF8Char("|");;
+    i32 selNum = 0;
+    rhea::string::utf8::extractInteger (*params, &selNum, &closingChar, 1);
+    if (selNum <1 || selNum>64)
+    {
+        priv_2281_sendAnswer (sok, (const u8*)"KO", 2, true);
+        return;
+    }
+    params->advanceOneChar();
+
+    int price = 0;
+    {
+        f32 fPrice = 0;
+        rhea::string::utf8::extractFloat (*params, &fPrice);
+        if (fPrice < 0 || fPrice>10)
+        {
+            priv_2281_sendAnswer (sok, (const u8*)"KO", 2, true);
+            return;
+        }
+
+        //price potrebbe essere un numero decimale con il "." come separatore. Devo eliminare il "." per ottenere un intero
+        char s[32],sPrice[32];
+        u8 ct=0;
+        sprintf_s (s, sizeof(s), "%f", fPrice);
+        for (u8 i=0; i<(u8)strlen(s); i++)
+        {
+            if (s[i]>='0' && s[i]<='9')
+                sPrice[ct++] = s[i];
+        }
+        sPrice[ct]=0x00;
+
+        price = rhea::string::ansi::toI32(sPrice);
+    }
+
+
+    //invio comando ESAPI # S 3 [selNum] [priceLSB] [priceMSB] [ck]
+    const u8 data[3] = { (u8)selNum, (u8)(price & 0x00FF), (u8)((price & 0xFF00)>>8) };
+    const u32 n = priv_esapi_buildMsg ('S', '3', data, 3, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+    priv_rs232_sendBuffer (rs232BufferOUT, n);
+
+    //mi aspetto questa risposta
+    //# S 3 [selNum] [ck]
+    if (priv_rs232_waitAnswer('S','3',5,0,0,rs232BufferOUT, 1000))
+        priv_2281_sendAnswer (sok, (const u8*)"OK", 2, true);
+    else
+        priv_2281_sendAnswer (sok, (const u8*)"KO", 2, true);
+}
+
+//*********************************************************
 void Core::priv_REST_getSelStatus (OSSocket &sok)
 {
     //invio comando ESAPI # S 2 [ck]
@@ -1965,4 +2020,46 @@ void Core::priv_REST_get12SelNames (OSSocket &sok)
 
     priv_2281_sendAnswer (sok, nameList, ct, true);
     RHEAFREE(localAllocator, nameList);
+}
+
+/*********************************************************
+ * Ritorna il prezzo delle prime 12 selezioni, separati da pipe (|)
+ */
+void Core::priv_REST_get12SelPrices (OSSocket &sok)
+{
+    u8 *priceList = RHEAALLOCT(u8*, localAllocator, 1024);
+    u16 ct=0;
+
+    for (u8 selNum=1; selNum<=12; selNum++)
+    {
+        //invio comando ESAPI # C 3 [selNum]
+        const u32 n = priv_esapi_buildMsg ('C', '3', &selNum, 1, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
+        priv_rs232_sendBuffer (rs232BufferOUT, n);
+
+        //mi aspetto questa risposta
+        //# C 3 [numSel] [priceLen] [price...] [ck]
+
+        while (1)
+        {
+            if (!priv_rs232_waitAnswer('C','3',6,4,0,rs232BufferOUT, 1000))
+            {
+                //non ho ricevuto risposta
+                priceList[ct++] = '0';
+                break;
+            }
+            else
+            {
+                //Ho ricevuto risposta corretta
+                memcpy(&priceList[ct], &rs232BufferOUT[5], rs232BufferOUT[4]);
+                ct += rs232BufferOUT[4];
+                break;
+            }
+        }
+        priceList[ct++] = '|';
+    }
+    ct--;
+    priceList[ct] = 0x00;
+
+    priv_2281_sendAnswer (sok, priceList, ct, true);
+    RHEAFREE(localAllocator, priceList);
 }

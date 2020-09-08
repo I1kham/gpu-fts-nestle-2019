@@ -26,7 +26,8 @@ hotspotPassw = "fertysnd7789"
 saveToFolder = "/home/pi/rhea/gpu-fts-nestle-2019/bin"
 
 #creo il QR code per le macchine TP e lo salvo in una png
-qrCodeForTPMachine = hotspotName + "|||" +wlan0IP +"/rhea/GUITP/startup.html"
+#qrCodeForTPMachine = hotspotName + "|||" +wlan0IP +"/rhea/GUITP/startup.html"
+qrCodeForTPMachine = hotspotName + "|" +wlan0IP +"/rhea/GUITP/startup.html" +"|rheavendors|rheavendors_department"
 qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
 qr.add_data(qrCodeForTPMachine)
 qr.make(fit=True)
@@ -35,7 +36,8 @@ img.save(saveToFolder +"/qrcodeTP.png")
 #print "QRCODE(TP):" +qrCodeForTPMachine
 
 #creo il QR code per le macchine TS e lo salvo in una png
-qrCodeForTSMachine = hotspotName + "|||" +wlan0IP +"/rhea/GUITS/startup.html"
+#qrCodeForTSMachine = hotspotName + "|||" +wlan0IP +"/rhea/GUITS/startup.html"
+qrCodeForTSMachine = hotspotName + "|" +wlan0IP +"/rhea/GUITS/startup.html" +"|rheavendors|rheavendors_department"
 qr2 = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
 qr2.add_data(qrCodeForTSMachine)
 qr2.make(fit=True)
