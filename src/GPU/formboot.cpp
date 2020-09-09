@@ -958,14 +958,23 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
     filenameOfCurrentFileUnpload[0] = 0;
     if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
     {
-        sprintf_s ((char*)fullMobileGUIPathAndName, sizeof(fullMobileGUIPathAndName), "%s/web/mobile.rheazip", glob->current_GUI);
-        if (rhea::fs::fileExists(fullMobileGUIPathAndName))
+        OSFileFind ff;
+        sprintf_s ((char*)fullMobileGUIPathAndName, sizeof(fullMobileGUIPathAndName), "%s/web", glob->current_GUI);
+        if (rhea::fs::findFirst (&ff, fullMobileGUIPathAndName, (const u8*)"*.rheaRasGuiTS"))
         {
-            sizeInBytesOfCurrentFileUnpload = rhea::fs::filesize(fullMobileGUIPathAndName);
-            rhea::fs::extractFileNameWithExt (fullMobileGUIPathAndName, filenameOfCurrentFileUnpload, sizeof(filenameOfCurrentFileUnpload));
+            do
+            {
+                if (!rhea::fs::findIsDirectory(ff))
+                {
+                    rhea::fs::findGetFileName(ff, filenameOfCurrentFileUnpload, sizeof(filenameOfCurrentFileUnpload));
+                    sprintf_s ((char*)fullMobileGUIPathAndName, sizeof(fullMobileGUIPathAndName), "%s/web/%s", glob->current_GUI, filenameOfCurrentFileUnpload);
+                    sizeInBytesOfCurrentFileUnpload = rhea::fs::filesize(fullMobileGUIPathAndName);
+                    rhea::fs::extractFileNameWithExt (fullMobileGUIPathAndName, filenameOfCurrentFileUnpload, sizeof(filenameOfCurrentFileUnpload));
+                    break;
+                }
+            } while (rhea::fs::findNext(ff));
+            rhea::fs::findClose(ff);
         }
-        else
-            fullMobileGUIPathAndName[0] = 0;
     }
 
     if (0 == sizeInBytesOfCurrentFileUnpload)
