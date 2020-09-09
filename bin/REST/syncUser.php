@@ -10,9 +10,9 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 header('Access-Control-Allow-Methods: GET, POST, PUT');
 
 require_once "common.php";
-require_once "../common/DBConn.php";
+require_once "DBConn.php";
 
-$userID = httpGetOrDefault("userId", 0);
+$userID = GUtils::httpGetOrDefaultInt("userId", 0);
 debug_log_prefix ("syncUser.php", "userID=$userID\n");
 
 if ($userID > 0)
@@ -41,7 +41,7 @@ if ($userID > 0)
 		"operations"	=> array()
 	);
 	
-	$rst = $db->Q ("SELECT dateUTC,what,productName,credit FROM transazioni WHERE app_userID=" .$s["app_userID"] ." AND bAlive=1 ORDER BY sessionID, datetime");
+	$rst = $db->Q ("SELECT dateUTC,what,productName,price FROM transazioni WHERE app_userID=" .$s["app_userID"] ." AND bAlive=1 ORDER BY sessionID, datetime");
 	foreach ($rst as $r)
 	{
 		$detail = array(
@@ -49,7 +49,7 @@ if ($userID > 0)
 			"dateUtc" 	=> $r["dateUTC"],
 			"type" 		=> $r["what"],
 			"product" 	=> $r["productName"],
-			"credit" 	=> $r["credit"]
+			"credit" 	=> $r["price"]
 		);
 		
 		array_push ($result["operations"], $detail);

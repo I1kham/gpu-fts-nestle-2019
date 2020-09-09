@@ -2,7 +2,7 @@
 //***è************
 require_once "common.php";
 
-$selNum = intval(httpGetOrDefault("s", "1"));
+$selNum = GUtils::httpGetOrDefaultInt("s", 1);
 $sok = rasPI_connect();
 if (false === $sok)
 {

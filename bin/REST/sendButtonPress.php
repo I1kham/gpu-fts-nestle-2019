@@ -2,7 +2,7 @@
 //***è************
 require_once "common.php";
 
-$btnNum = intval(httpGetOrDefault("b", "0"));
+$btnNum = GUtils::httpGetOrDefaultInt("b", 0);
 if ($btnNum>=1 && $btnNum<=12)
 {
     $sok = rasPI_connect();

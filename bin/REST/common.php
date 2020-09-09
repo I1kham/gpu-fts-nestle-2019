@@ -50,16 +50,21 @@ function rasPI_waitAnswer($socket)
 function rasPI_echoAnswer($socket)      { $s = rasPI_waitAnswer($socket); echo $s; }
 function rasPI_close($socket){ socket_close($socket); }
 
-
-//******************************************************************
-function httpGetOrDefault($nomeVarInGet, $defaultValue)
+/******************************************************************
+ * session stuff
+ */
+function session_debug_begin ($db)
 {
-    if (isset($_GET[$nomeVarInGet]) && $_GET[$nomeVarInGet]!="")
-        return $_GET[$nomeVarInGet];
-    return $defaultValue;
+    $timeNow = time();
+    $app_userID = 999;
+    $app_credit = "123.00";
+    
+    $db->Exec ("DELETE FROM thesession");
+    $db->Exec ("INSERT INTO thesession (sessionID,app_userID,app_creditAtStart,creditCurrent,lastTimeUpdated) VALUES($timeNow,$app_userID,'$app_credit','$app_credit',$timeNow)");
+    debug_log_prefix ("  sessionBegin", "new session accepted is [$timeNow]\n");
+    return $timeNow;
 }
 
-//******************************************************************
 function sessionBegin ($db, $app_userID, $app_credit)
 {
     $timeNow = time();
@@ -132,7 +137,7 @@ function sessionTryTransaction ($db, $sessionID, $app_userID, $price, $productNa
     }
     
     $dt = date("YmdHis");
-    $dateUTC = "";
+    $dateUTC = gmdate("Y-m-d\TH:i:s\Z");
     $nomeProdotto = $db->toDBString($productName);
     $q = "INSERT INTO transazioni (sessionID,datetime,app_userID,dateUTC,what,productName,price) VALUES($sessionID,$dt,$app_userID,'$dateUTC',1,'$nomeProdotto','$price')";
     $db->Exec ($q);
@@ -148,5 +153,100 @@ function sessionEnd ($db, $sessionID)
         return;
     debug_log_prefix ("  sessionEnd", "session [$sessionID] closed\n");
     $db->Exec ("DELETE FROM thesession WHERE sessionID=$sessionID");
+}
+
+
+/******************************************************************
+ * GUtils
+ */
+class GUtils
+{
+	private static $encoder_entities    = 	array	('!'   ,'*'   ,"'"   ,"("   ,")"   ,";"   ,":"   ,"@"   ,"&"   ,"="   ,"+"   ,"$"   ,","   ,"/"   ,"?"   ,"%"   ,"#"   ,"["   ,"]"   ," ");
+	private static $encoder_replacements= array   ('%21' ,'%2A' ,'%27' ,'%28' ,'%29' ,'%3B' ,'%3A' ,'%40' ,'%26' ,'%3D' ,'%2B' ,'%24' ,'%2C' ,'%2F' ,'%3F' ,'%25' ,'%23' ,'%5B' ,'%5D' ,'%20');
+	static function encodeURL ($u)
+	{
+		//fa il paio con le funzioni js GENCODER_encode() e GENCODER_decode()
+		return str_replace(GUtils::$encoder_entities, GUtils::$encoder_replacements, $u);
+	}
+
+	static function decodeURL ($u)
+	{
+		//fa il paio con le funzioni js GENCODER_encode() e GENCODER_decode()
+		$a = str_replace("%25", "%", $u);
+		return str_replace(GUtils::$encoder_replacements, GUtils::$encoder_entities, $a);
+	}	
+
+	/*è************************************** 
+	 *
+	 ***************************************/
+	static function httpGetOrDefault ($nomeVarInGet,$defValue)
+	{
+		if (isset($_GET[$nomeVarInGet]) && $_GET[$nomeVarInGet]!="")
+			return $_GET[$nomeVarInGet];
+		return $defValue;
+	}
+
+	/*************************************** 
+	 *
+	 ***************************************/
+	static function httpPostOrDefault ($nomeVarInGet,$defValue)
+	{
+		if (isset($_POST[$nomeVarInGet]) && $_POST[$nomeVarInGet]!="")
+			return $_POST[$nomeVarInGet];
+		return $defValue;
+	}
+
+	/*è************************************** 
+	 * accetta solo interi positivi E il -1 come caso speciale
+	 ***************************************/
+	static function httpGetOrDefaultInt ($nomeVarInGet,$defValue)
+	{
+		$ret = GUtils::httpGetOrDefault ($nomeVarInGet, $defValue);
+		if ($ret == "-1")
+			return $ret;
+		if (!GUtils::isInteger ($ret))
+			$ret = $defValue;
+		return $ret;
+	}
+	
+	/*è************************************** 
+	 * accetta solo interi positivi E il -1 come caso speciale
+	 ***************************************/
+	static function httpPostOrDefaultInt ($nomeVarInGet,$defValue)
+	{
+		$ret = GUtils::httpPostOrDefault ($nomeVarInGet, $defValue);
+		if ($ret == "-1")
+			return $ret;
+		if (!GUtils::isInteger ($ret))
+			$ret = $defValue;
+		return $ret;
+	}
+    
+	/******************************************************************
+	 * verifica che la str sia un numero intero positivo
+	 *****************************************************************/
+	static function isInteger ($str)
+	{
+		if ($str=="")
+			return 0;
+		return GUtils::containsOnlyAllowedChar ($str, array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"));
+	}
+    
+	/******************************************************************
+	 * true se $str contiene solo caratteri in $arrayAllowedChar
+	 *****************************************************************/
+	static function containsOnlyAllowedChar ($str, $arrayAllowedChar)
+	{
+		$n = strlen($str);
+		for ($i=0; $i<$n; $i++)
+		{
+			$c = substr($str, $i, 1);
+			if (!in_array ($c, $arrayAllowedChar))
+				return 0;
+		}
+		return 1;
+	}
+    
+    
 }
 ?>

@@ -15,7 +15,7 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 header('Access-Control-Allow-Methods: GET, POST, PUT');
 
 require_once "common.php";
-require_once "../common/DBConn.php";
+require_once "DBConn.php";
 
 $in = file_get_contents("php://input");
 if (!isset($in) || $in == "")

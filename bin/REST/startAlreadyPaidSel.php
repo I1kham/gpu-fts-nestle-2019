@@ -2,8 +2,8 @@
 //***è************
 require_once "common.php";
 
-$selNum = httpGetOrDefault("selNum", "0");
-$price  = httpGetOrDefault("price", "");
+$selNum = GUtils::httpGetOrDefaultInt("selNum", 0);
+$price  = GUtils::httpGetOrDefault("price", "100000");
 if ($selNum>1 && $selNum<100 && price>="0")
 {
     $sok = rasPI_connect();

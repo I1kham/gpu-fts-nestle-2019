@@ -10,9 +10,9 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 header('Access-Control-Allow-Methods: GET, POST, PUT');
 
 require_once "common.php";
-require_once "../common/DBConn.php";
+require_once "DBConn.php";
 
-$userID = httpGetOrDefault("userId", 0);
+$userID = GUtils::httpGetOrDefaultInt("userId", 0);
 debug_log_prefix ("updateUser.php", "userID=$userID\n");
 
 if ($userID > 0)
@@ -22,8 +22,8 @@ if ($userID > 0)
 	$s = sessionGetCurrent ($db);
 	if (false === $s)
 	{
-		debug_log_prefix ("updateUser.php", "ANSWER: KO, no session running\n");
-		echo "KO";
+		debug_log_prefix ("updateUser.php", "ANSWER: KO, no session running, ma rispondo lo stesso OK\n");
+		echo "OK";
 		die();
 	}
 
@@ -39,15 +39,18 @@ if ($userID > 0)
 	echo "OK";
 	
 	sessionEnd ($db, $s["sessionID"]);
+	die();
 }
 
+debug_log_prefix ("updateUser.php", "ANSWER: KO, invalid param, ma rispondo lo stesso OK\n");
 echo "OK";
 die();
 
-//else
+/*else
 {
 	//invalid user
 	echo "KO";
 	debug_log_prefix ("updateUser.php", "ANSWER: KO, invalid user id\n");
 }
+*/
 ?>
