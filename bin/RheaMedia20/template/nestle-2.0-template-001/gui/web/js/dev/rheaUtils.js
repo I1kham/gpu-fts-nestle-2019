@@ -1,7 +1,5 @@
-function rheaLog(s)
-{
-	console.log (s);
-}
+function rheaLog(s)  			{ console.log (s); }
+function rheaGetTimeStamp() 	{ var d = new Date().toISOString(); d = d.replace(/\./g, ''); d = d.replace(/-/g,""); d = d.replace(/:/g,""); return d; }
 
 /**************************************************
  * RheaAjaxAnswer

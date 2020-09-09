@@ -1,17 +1,22 @@
+<?php
+require_once "../REST/DBConn.php";
+require_once "../REST/common.php";
+$db = new DBConn();
+$ses = sessionGetCurrent ($db);
+sessionUpdateTimestamp ($db, $ses["sessionID"]);
+?>
 <html>
 <head>
 	<title>GUI</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta http-equiv='cache-control' content='no-cache'>
-	<meta http-equiv='expires' content='0'>
-	<meta http-equiv='pragma' content='no-cache'>
 	<link href="style.css" rel="stylesheet" type="text/css">
-	<link href="styleOptionButtons.css" rel="stylesheet" type="text/css">
+	<link href="styleOptionButtons.css?dt=<?php echo time()?>" rel="stylesheet" type="text/css">
 </head>
 
 <body onLoad="rheaBootstrap()">
 <div id="mainWrapper" class="wrapper">
+	<div id="divCredit" class="header-credit">CREDIT <?php echo number_format ($ses["creditCurrent"], 2, ",", ".")?></div>
 	<div class="header-sticky">
 		<div id="divCPUMessage" style="display:none;"></div>	
 	</div>
@@ -22,7 +27,7 @@
 	<div id="pleaseWait" style="display:none; text-align:center;"><img draggable='false' src="img/animationRound.gif"></div>
 	<div id="beverageOptions">
 		<table border="0" cellspacing="0" cellpadding="0" width="100%">
-			<!-- selection descr (when no cup customization option ara avail -->
+			<!-- selection descr (when no cup customization options are avail -->
 			<tr valign="middle" id="rowSelDescription" style="display:none">
 				<td align="center" id="tdSelDescription">
 				</td>
@@ -83,12 +88,13 @@
 	<div class="clear">&nbsp;</div>
 </div>
 
-
+<script src="js/gjs-min.js"></script>
 <script src="config/lang.js"></script>
 <script src="config/mainMenuIcons.js"></script>
 <script src="config/MMI.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
+var timerGotoPageMenu = null;
 var iconNum = 0;
 var selThatWasStarted = 0;
 var GRINDER = 0;
@@ -118,35 +124,46 @@ function onAfterLangLoaded2()
 	
 	rhea.onEvent_selectionReqStatus = function (status)
 	{
-		switch (status)
-		{
-			case 1: // wait for credit
-				console.log ("sel waiting..");
-				break;
-				
-			case 2:// selection started
-				gotoPagePreparingSel(0);
-				break;
-				
-			case 5:// selection started, can use btnStop
-				gotoPagePreparingSel(1);
-				break;
-
-			default:				
-			case 3: // selection aborted
-				console.log ("sel aborted [" +status +"]");
-				selThatWasStarted = 0;
-				rheaShowElem(rheaGetElemByID("beverageOptions"));
-				rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
-				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
-				rheaHideElem(rheaGetElemByID("pleaseWait"));	
-				break;
-		}	
+		onSelectionStatusChanged(status, 0);
 	}
 		
 	setupPageContent();
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);	
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+	resetTimerGotoPageMenu();
+}
+
+function onSelectionStatusChanged(status, bSelectionStartedWithREST)
+{
+	switch (parseInt(status))
+	{
+		case 1: // wait for credit
+			console.log ("sel waiting..");
+			break;
+			
+		case 2:// selection started
+			gotoPagePreparingSel(0, bSelectionStartedWithREST);
+			break;
+			
+		case 5:// selection started, can use btnStop
+			gotoPagePreparingSel(1, bSelectionStartedWithREST);
+			break;
+
+		default:				
+		case 3: // selection aborted
+			console.log ("sel aborted [" +status +"]");
+			onSelectionKO();
+			break;
+	}	
+}
+
+function onSelectionKO()
+{
+	selThatWasStarted = 0;
+	rheaShowElem(rheaGetElemByID("beverageOptions"));
+	rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
+	rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+	rheaHideElem(rheaGetElemByID("pleaseWait"));	
 }
 
 function setupPageContent()
@@ -338,34 +355,23 @@ function detectCurrentSelection()
 	return selNum;
 }
 
-
-function onBtnStartSelection()
-{
-	rheaHideElem(rheaGetElemByID("beverageOptions"));
-	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
-	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
-	rheaShowElem(rheaGetElemByID("pleaseWait"));
-
-
-	selThatWasStarted = detectCurrentSelection();
-	console.log ("Starting sel num:" +selThatWasStarted);
-	rhea.selection_start(selThatWasStarted);
-}
-
-function gotoPagePreparingSel(bCanUseBtnStop)
+function gotoPagePreparingSel(bCanUseBtnStop, bSelectionStartedWithREST)
 {
 	var url = "pageSelInProgress.html";
-	url += "?iconMenu=" +iconNum +"&selNum=" +selThatWasStarted +"&btnStop=" +bCanUseBtnStop;
+	url += "?dt=<?php echo time();?>&iconMenu=" +iconNum +"&selNum=" +selThatWasStarted +"&btnStop=" +bCanUseBtnStop +"&rest=" +bSelectionStartedWithREST;
 	window.location = url;
 }
 
-function gotoSelectionInfo()	{ window.location = "pageSelectionInfo.html?iconMenu=" +iconNum; }
-function gotoPageMenu()			{ window.location = "pageMenu.html"; }
+function gotoSelectionInfo()	{ window.location = "pageSelectionInfo.html?dt=<?php echo time();?>&iconMenu=" +iconNum; }
+function gotoPageMenu()			{ window.location = "pageMenu.php"; }
 
+var currentSelectionPrice = 0;
 function onSelectionChanged(selNum)
 {
+	resetTimerGotoPageMenu();
 	var selInfo = rhea.selection_getBySelNumber(selNum);
 	
+	currentSelectionPrice = 0;
 	var price = "";
 	if (rhea.isFreevend == 1)
 		price = "FREEVEND";
@@ -376,7 +382,10 @@ function onSelectionChanged(selNum)
 		if (parseFloat(selInfo.price) <= 0)
 			price = "";
 		else
+		{
+			currentSelectionPrice = parseFloat(selInfo.price);
 			price = selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL;
+		}
 	}
 	if (price != "")
 		price = " - " +price;
@@ -396,5 +405,85 @@ function onSelectionChanged(selNum)
 		rheaShowElem(btnStart);
 	}
 }
+
+function rheaREST(api, callback)
+{
+	var url = "http://192.168.10.1/rhea/REST/" +api;
+    var xmlhttp;
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function()
+    {
+        if (xmlhttp.readyState == 4)
+        {
+			if (xmlhttp.status == 200)
+			{
+				callback(xmlhttp.responseText);
+			}
+			else
+			{
+				//console.log ("ERR");
+				//console.log (xmlhttp);
+			}
+		}
+    }
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function REST_checkSelectionStatus()
+{
+	rheaREST("getSelStatus.php", function(data)
+	{
+		onSelectionStatusChanged(data, 1);
+		setTimeout (function() { REST_checkSelectionStatus(); }, 1000);
+	});
+}
+
+function onBtnStartSelection()
+{
+	resetTimerGotoPageMenu() ;
+	rheaHideElem(rheaGetElemByID("beverageOptions"));
+	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
+	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+	rheaShowElem(rheaGetElemByID("pleaseWait"));
+
+	selThatWasStarted = detectCurrentSelection();
+	if (currentSelectionPrice <= 0)
+	{
+		//per bevande gratuite, uso il solito sistema
+		console.log ("Starting sel num:" +selThatWasStarted);
+		rhea.selection_start(selThatWasStarted);
+	}
+	else
+	{
+		//per quelle a pagamento, devo verificare il credito e poi avviare una transazione
+		var sessionID = <?php echo $ses["sessionID"]?>;
+		var app_userID = <?php echo $ses["app_userID"]?>;
+		var price = GENCODER_encode(currentSelectionPrice);
+		var selName = GENCODER_encode(MMI_getDisplayName(iconNum));
+		rheaREST("tryPayAndStartSel.php?sesID=" +sessionID +"&app_userID=" +app_userID +"&selNum=" +selThatWasStarted +"&price=" +price +"&selName="+selName, function(data)  
+		{ 
+			if (data != "OK")
+			{
+				onSelectionKO();
+				alert(data);
+			}
+			else
+			{
+				//comincia a pollare per conoscere lo stato di avanzamento della selezione
+				REST_checkSelectionStatus();
+			}
+		});
+	}
+}
+
+function resetTimerGotoPageMenu() 
+{
+	console.log ("resetTimerGotoPageMenu");
+	if (null != timerGotoPageMenu)
+		clearInterval(timerGotoPageMenu);
+	timerGotoPageMenu = setInterval(gotoPageMenu, 15000);
+}
+
 </script>
 </html>

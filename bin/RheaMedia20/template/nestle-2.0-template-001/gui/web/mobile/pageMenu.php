@@ -1,16 +1,21 @@
+<?php
+require_once "../REST/DBConn.php";
+require_once "../REST/common.php";
+$db = new DBConn();
+$ses = sessionGetCurrent ($db);
+sessionUpdateTimestamp ($db, $ses["sessionID"]);
+?>
 <html>
 <head>
 	<title>GUI</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta http-equiv='cache-control' content='no-cache'>
-	<meta http-equiv='expires' content='0'>
-	<meta http-equiv='pragma' content='no-cache'>
-	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="style.css?dt=<?php echo time()?>" rel="stylesheet" type="text/css">
 </head>
 
 <body onLoad="rheaBootstrap()">
 <div id="mainWrapper" class="wrapper">
+	<div id="divCredit" class="header-credit">CREDIT <?php echo number_format ($ses["creditCurrent"], 2, ",", ".")?></div>
 	<div class="header-sticky">
 		<div id="divCPUMessage" style="display:none;"></div>	
 	</div>
@@ -24,13 +29,13 @@
 
 
 <!-- le opzioni di layout per questa pagina sono qui -->
-<script src="config/allowedLang.js"></script>
-<script src="config/lang.js"></script>
-<script src="config/mainMenuIcons.js"></script>
-<script src="config/pageMenu.js"></script>
-<script src="config/MMI.js"></script>
-<script src="config/pageStandby.js"></script>
-<script src="js/rheaBootstrap.js"></script>
+<script src="config/allowedLang.js?dt=<?php echo time()?>"></script>
+<script src="config/lang.js?dt=<?php echo time()?>"></script>
+<script src="config/mainMenuIcons.js?dt=<?php echo time()?>"></script>
+<script src="config/pageMenu.js?dt=<?php echo time()?>"></script>
+<script src="config/MMI.js?dt=<?php echo time()?>"></script>
+<script src="config/pageStandby.js?dt=<?php echo time()?>"></script>
+<script src="js/rheaBootstrap.js?dt=<?php echo time()?>"></script>
 <script language="javascript">
 
 var timerGotoPageStandby = null;
@@ -76,7 +81,7 @@ function getTimeMSec() { return Date.now(); }
 
 function resetTimerGotoPageStandby() 
 {
-console.log ("resetTimerGotoPageStandby");
+	console.log ("resetTimerGotoPageStandby");
 	if (null != timerGotoPageStandby)
 		clearInterval(timerGotoPageStandby);
 	timerGotoPageStandby = setInterval(gotoPageStandby, 20000);
@@ -118,7 +123,7 @@ function onIconMenuClicked(iconNum)
 {
 	resetTimerGotoPageStandby();
 	if (MMI_isEnabled(iconNum))
-		window.location = "pageConfirm.html?iconMenu=" + iconNum;
+		window.location = "pageConfirm.php?dt=<?php echo time();?>&iconMenu=" + iconNum;
 }
 
 function setLanguage(twoCharISOCode) 

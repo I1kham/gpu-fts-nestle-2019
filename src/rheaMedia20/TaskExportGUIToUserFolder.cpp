@@ -81,9 +81,9 @@ void TaskExportGUIToUserFolder::run(socketbridge::TaskStatus *status, const u8 *
 			sprintf_s((char*)src, sizeof(src), "%s/web/js", dstPath);
 			rhea::fs::folderCopy (src, dst, NULL);
 
-			//zippo la cartella mobile
+			//zippo la cartella mobile in un unico file di nome mobile.rheaRasGuiTS
 			rhea::CompressUtility cu;
-			sprintf_s((char*)dst, sizeof(dst), "%s/web/mobile.rheazip", dstPath);
+			sprintf_s((char*)dst, sizeof(dst), "%s/web/mobile.rheaRasGuiTS", dstPath);
 			cu.begin (dst, 8);
 				sprintf_s ((char*)dst, sizeof(dst), "%s/temp/%s/web/mobile", rhea::getPhysicalPathToAppFolder(), srcTempFolderName);
 				cu.addFilesInFolder (dst, (const u8*)"", true);

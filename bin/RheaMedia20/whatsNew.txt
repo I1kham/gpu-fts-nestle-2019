@@ -1,4 +1,10 @@
 ================================================================================================
+ver 2.4.0 2020/09/09
+	Features
+		-	Template "nestle-2.0-template-001"
+			- this template now also generate a "mobile" version of the GUI for the raspberry module. The mobile version GUI is zipped in one file named mobile.rheaRasGuiTS
+
+================================================================================================
 ver 2.3.2 2020/08/03
 	Bug fixing:
 		- Fixed a bug when creating more than 33 selection icons.
@@ -9,7 +15,6 @@ ver 2.3.1 2020/07/16
 		-	Fixed a bug when rheaMedia is installed on folder with a space in the path name
 	
 	Features
-		-	Template "nestle-2.0-template-001"
 		-	Template "nestle-2.0-template-001"
 			- added support for JUG preselection
 

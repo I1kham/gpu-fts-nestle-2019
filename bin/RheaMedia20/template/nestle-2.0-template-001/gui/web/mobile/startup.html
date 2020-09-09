@@ -3,9 +3,6 @@
 	<title>GUI</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta http-equiv='cache-control' content='no-cache'>
-	<meta http-equiv='expires' content='0'>
-	<meta http-equiv='pragma' content='no-cache'>	
 	<link href="style.css" rel="stylesheet" type="text/css">
 </head>
 
@@ -19,7 +16,6 @@
 <script src="config/lang.js"></script>
 <script id="rheaBootstrapTag" src="js/rheaBootstrap.js" data-ses-clear="1"></script>
 <script language="javascript">
-
 function onRheaBootstrapFinished()
 {
 	console.log ("onRheaBootstrapFinished");
@@ -28,7 +24,7 @@ function onRheaBootstrapFinished()
 		.then ( function() { return querySelectionAvail(); } )
 		.then ( function() { return lang_loadLang(defaultLang); })
 		.then ( function() { 
-			window.location = "pageMenu.html";
+			window.location = "pageMenu.php?dt=" +rheaGetTimeStamp();
 		})
 		.catch ( function(result)
 		{

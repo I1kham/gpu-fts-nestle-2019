@@ -36,10 +36,7 @@ function onAfterLangLoaded()
 {
 	rhea.onEvent_selectionReqStatus = function (status)
 	{
-		//status=3 => aborted
-		//status=4 => finished
-		if (status == 3 || status == 4)
-			gotoSelFinished();
+		onSelectionStatusChanged(status, 0);
 	}
 	
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
@@ -75,11 +72,63 @@ function onAfterLangLoaded()
 		{
 			rheaSetDivHTMLByName("beverageDesc", rheaMainMenuIconsInfo[iconNum]);
 		});	
+		
+
+	if ( parseInt(rheaGetURLParamOrDefault("rest", 1)) )
+	{
+		//se arrivo qui vuol dire che la selezione è stata fatta partire con un comando REST
+		//E' necessario quindi pollare attivamente lo stato della selezione
+		REST_checkSelectionStatus();
+	}
+
 }
 	
 function gotoSelFinished()
 {
-	window.location = "pageSelFinished.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+	window.location = "pageSelFinished.html?dt=" +rheaGetTimeStamp() +"&iconMenu=" +iconNum +"&selNum=" +selNum;
+}
+
+function rheaREST(api, callback)
+{
+	var url = "http://192.168.10.1/rhea/REST/" +api;
+    var xmlhttp;
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function()
+    {
+        if (xmlhttp.readyState == 4)
+        {
+			if (xmlhttp.status == 200)
+			{
+				callback(xmlhttp.responseText);
+			}
+			else
+			{
+				//console.log ("ERR");
+				//console.log (xmlhttp);
+			}
+		}
+    }
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function REST_checkSelectionStatus()
+{
+	rheaREST("getSelStatus.php", function(data)
+	{
+		onSelectionStatusChanged(data, 1);
+		setTimeout (function() { REST_checkSelectionStatus(); }, 1000);
+	});
+}
+
+
+function onSelectionStatusChanged(status, bSelectionStartedWithREST)
+{
+	status = parseInt(status);
+	//status=3 => aborted
+	//status=4 => finished
+	if (status == 3 || status == 4)
+		gotoSelFinished();
 }
 
 </script>

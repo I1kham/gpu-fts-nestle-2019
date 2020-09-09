@@ -10,7 +10,8 @@ REM li ottimizza rhea_final.js e lo copia nella cartella superiore
 java -jar compiler.jar --js rhea_final.js --js_output_file ../rhea_final.min.js
 del rhea_final.js
 
-
 REM ottimizza rheaBootstrap-release.js e lo copia nella cartella superiore con nome  rheaBootstrap
-del rheaBootstrap.js
 java -jar compiler.jar --js rheaBootstrap-release.js --js_output_file ../rheaBootstrap.js
+
+REM ottimizza gjs.js e lo copia nella cartella superiore con nome gjs-min.js
+java -jar compiler.jar --js gjs.js --js_output_file ../gjs-min.js

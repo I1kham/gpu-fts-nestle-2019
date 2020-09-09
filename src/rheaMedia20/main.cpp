@@ -10,8 +10,8 @@
 #include "TaskImportExistingGUI.h"
 #include "varie.h"
 
-#define		RHEAMEDIA2_VERSIONE L"2.3.2"
-#define		RHEAMEDIA2_DATA		L"2020/08/03"
+#define		RHEAMEDIA2_VERSIONE L"2.4.0"
+#define		RHEAMEDIA2_DATA		L"2020/09/09"
 
 
 wchar_t chromeFullPathAndName[256];
