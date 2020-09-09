@@ -98,6 +98,121 @@ bool checkGUI_TP (const u8 *usb_path)
     return false;
 }
 
+/*********************************************************
+ * Copiata pari pari dal proj rasPIESAPI
+ */
+void priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder)
+{
+    printf("priv_finalizeGUITSInstall [%s]\n", pathToGUIFolder);
+
+    //per prima cosa devo cambiare l'IP usato dalla websocket per collegarsi al server.
+    //Al posto di 127.0.0.1 ci devo mettere l'IP di questa macchina
+    //L'ip si trova all'interno del file js/rhea_final.min.js
+    u8 s[512];
+    u32 filesize = 0;
+    sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
+    u8 *pSRC = rhea::fs::fileCopyInMemory (s, rhea::getScrapAllocator(), &filesize);
+    if (NULL == pSRC)
+    {
+        printf ("ERR: unable to load file [%s] in memory\n", s);
+    }
+    else
+    {
+        const char myIP[] = {"192.168.10.1"};
+        const u32 myIPLen = strlen(myIP);
+        const u8 toFind[] = { "127.0.0.1" };
+        const u32 toFindLen = rhea::string::utf8::lengthInBytes(toFind);
+
+        if (filesize >= toFindLen)
+        {
+            for (u32 i = 0; i < filesize-toFindLen; i++)
+            {
+                if (memcmp (&pSRC[i], toFind, toFindLen) == 0)
+                {
+                    printf ("found [%s], replacing with [%s]\n", toFind, myIP);
+                    u8 *buffer = (u8*)RHEAALLOC(rhea::getScrapAllocator(), filesize + 32);
+                    memcpy (buffer, pSRC, i);
+                    memcpy (&buffer[i], myIP, myIPLen);
+                    memcpy (&buffer[i+myIPLen], &pSRC[i+toFindLen], filesize - i - toFindLen);
+
+
+                    sprintf_s ((char*)s, sizeof(s), "%s/js/rhea_final.min.js", pathToGUIFolder);
+                    printf ("opening file [%s] for write\n", s);
+                    FILE *f = rhea::fs::fileOpenForWriteBinary(s);
+                    if (NULL == f)
+                    {
+                        printf ("ERR: unable to write to file  [%s]\n", s);
+                    }
+                    else
+                    {
+                        rhea::fs::fileWrite (f, buffer, filesize - toFindLen + myIPLen);
+                        fclose(f);
+                        printf ("done\n");
+                    }
+
+                    RHEAFREE(rhea::getScrapAllocator(), buffer);
+                    i = u32MAX-1;
+                }
+            }
+        }
+
+        RHEAFREE(rhea::getScrapAllocator(), pSRC);
+    }
+
+    //Poi devo copiare la cartella coi font
+    u8 s2[512];
+    sprintf_s ((char*)s, sizeof(s), "%s/gui_parts/fonts", rhea::getPhysicalPathToAppFolder());
+    sprintf_s ((char*)s2, sizeof(s2), "%s/fonts", pathToGUIFolder);
+    printf ("copying folder [%s] into [%s]\n", s, s2);
+    rhea::fs::folderCopy (s, s2, NULL);
+
+    printf ("end\n");
+}
+
+/*****************************************************
+ * Se trova un file con estensione .rheaRasGuiTS nella cartella USB_FOLDER, lo copia in WWW_FOLDER/GUITS
+ * e lo scompatta sovrascrivendo gli eventuali file già esistenti
+ * Ritorna true in quel caso, false altrimenti
+ */
+bool checkGUI_TS (const u8 *usb_path)
+{
+    OSFileFind ff;
+    if (!rhea::fs::findFirst (&ff, usb_path, (const u8*)"*.rheaRasGuiTS"))
+        return false;
+
+    do
+    {
+        if (!rhea::fs::findIsDirectory(ff))
+        {
+            const u8 *fname = rhea::fs::findGetFileName(ff);
+            if (fname[0] != '.')
+            {
+                //ho trovato un file con l'estensione corretta
+                //Lo copio in locale e poi lo scompatto
+                u8 s1[512];
+                u8 s2[512];
+
+                sprintf_s ((char*)s1, sizeof(s1), "%s/%s", usb_path, fname);
+                sprintf_s ((char*)s2, sizeof(s2), "%s/GUITS/guiupdate.rheazip", WWW_FOLDER);
+                printf ("copying %s to %s\n", s1, s2);
+                rhea::fs::fileCopy (s1, s2);
+
+                //unzippo
+                sprintf_s ((char*)s1, sizeof(s1), "%s/GUITS", WWW_FOLDER);
+                rhea::CompressUtility::decompresAll (s2, s1);
+                rhea::fs::findClose(ff);
+                rhea::fs::fileDelete (s2);
+
+                //essendo la GUI TS, devo fare quello l'equivalente della fn void Core::priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder) nel prj rasPIESAPI
+                priv_boot_finalizeGUITSInstall (s1);
+                return true;
+            }
+        }
+    } while (rhea::fs::findNext(ff));
+    rhea::fs::findClose(ff);
+    return false;
+}
+
 
 /*****************************************************
  * copia sulla chiavetta USB i file qrcodeTP.png e qrcodeTS.png
@@ -185,6 +300,7 @@ int main()
         copyQRCodesToUSB(path);
         if (checkFWUpdate(path))        bAnyUpdate = true;
         if (checkGUI_TP(path))          bAnyUpdate = true;
+        if (checkGUI_TS(path))          bAnyUpdate = true;
     }
 
     LED_OFF;
