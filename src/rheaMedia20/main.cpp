@@ -8,10 +8,11 @@
 #include "TaskExportGUIToUserFolder.h"
 #include "TaskDeleteFolder.h"
 #include "TaskImportExistingGUI.h"
+#include "TaskExportMobileTPGUIToUserFolder.h"
 #include "varie.h"
 
 #define		RHEAMEDIA2_VERSIONE L"2.4.0"
-#define		RHEAMEDIA2_DATA		L"2020/09/09"
+#define		RHEAMEDIA2_DATA		L"2020/09/16"
 
 
 wchar_t chromeFullPathAndName[256];
@@ -62,6 +63,7 @@ bool startCPUBridge()
 	socketbridge::addTask<TaskExportGUIToUserFolder>(hSocketBridgeThread, "exportGUIToUserFolder");
 	socketbridge::addTask<TaskDeleteFolder>(hSocketBridgeThread, "deleteFolder");
 	socketbridge::addTask<TaskImportExistingGUI>(hSocketBridgeThread, "importExistingGUI");
+	socketbridge::addTask<TaskExportMobileTPGUIToUserFolder>(hSocketBridgeThread, "exportMobileTPGUIToUserFolder");
 
 	//apro chrome
 	printf("opening chrome\n");

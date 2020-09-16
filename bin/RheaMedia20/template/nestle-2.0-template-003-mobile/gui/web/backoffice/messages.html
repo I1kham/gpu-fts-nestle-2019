@@ -1,0 +1,137 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Various messages</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>			
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<div class="box-content">
+						<table border='0' cellspacing='0' cellpadding='2'>
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>YOUR_DRINK_IS_BEING_PREPARED</b><br><textarea id="txt_LAB_YOUR_DRINK_IS_BEING_PREPARED" class="edit" style="height:80px; width:500px"></textarea></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>YOUR_DRINK_IS_READY</b><br><textarea id="txt_LAB_YOUR_DRINK_IS_READY" class="edit" style="height:80px; width:500px"></textarea></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>BUTTON_EXIT</b><br><input type="text" id="txt_LAB_BTN_EXIT" class="edit" style="width:480px"></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>HAVE_ANOTHER_DRINK</b><br><input type="text" id="txt_LAB_BTN_HAVE_ANOTHER_DRINK" class="edit" style="width:480px"></td></tr>
+							
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>PAGE_DISCONNECT</b><br><textarea id="txt_LAB_PAGE_DISCONNECT" class="edit" style="height:80px; width:500px"></textarea></td></tr>
+							
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var db = null;
+
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+
+	await loadTextarea (db, "LAB_YOUR_DRINK_IS_BEING_PREPARED");
+	await loadTextarea (db, "LAB_YOUR_DRINK_IS_READY");
+	await loadTextarea (db, "LAB_BTN_EXIT");
+	await loadTextarea (db, "LAB_BTN_HAVE_ANOTHER_DRINK");
+	await loadTextarea (db, "LAB_PAGE_DISCONNECT");
+
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+}
+
+async function loadTextarea (db, uid)
+{
+	let rst = await db.q("SELECT Message FROM lang WHERE ISO='GB' AND What='MSG' AND UID='" +uid +"'");
+	if (rst.hasError() != "")
+	{
+		alert ("loadExistingRecord::error [" +rst.hasError() +"]");
+		return 0;
+	}
+	
+	var msg = rst.valByColName(0, "Message").trim();
+	if (msg=="NULL")
+		msg = "";
+	
+	document.getElementById("txt_"+uid).value = msg;
+	return 1;
+}
+
+
+async function saveAll()
+{
+	pleaseWait(1);
+
+	await saveTextarea (db, "LAB_YOUR_DRINK_IS_BEING_PREPARED");
+	await saveTextarea (db, "LAB_YOUR_DRINK_IS_READY");
+	await saveTextarea (db, "LAB_BTN_EXIT");
+	await saveTextarea (db, "LAB_BTN_HAVE_ANOTHER_DRINK");
+	await saveTextarea (db, "LAB_PAGE_DISCONNECT");
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+
+async function saveTextarea (db, uid)
+{
+	var msg = db.toDBString(document.getElementById("txt_"+uid).value.trim());
+	var sql = "UPDATE lang SET Message='" +msg +"'  WHERE ISO='GB' AND What='MSG' AND UID='" +uid +"'";
+	await db.exec(sql);
+}
+
+</script>
+</html>

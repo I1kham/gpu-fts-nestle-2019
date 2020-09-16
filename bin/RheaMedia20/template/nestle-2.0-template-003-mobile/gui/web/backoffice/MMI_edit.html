@@ -1,0 +1,212 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+	<style>
+		.box2 { margin:25px 0 25px 0; padding:20px 5px 20px 5px; border:solid 1px #ccc; }
+	</style>
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Main Menù Icon - Edit</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="javascript:gotoMMI()">BACK TO MMI</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>	
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<h2>General settings</h2>
+					<div class="box-content" id="boxGeneralContent_content">					
+						<div style="float:left; width:340px; overflow:hidden; margin-right:10px">
+							<div style="width:300px; text-align:center">
+								<div style="width:300px; height:240px; background-color:#fff; overflow:hidden; text-align:center; margin-top:5px">
+									<img id="pageMenuImg" src="">
+								</div>
+								<div style="padding-bottom:10px; width: 280px; margin: 20px auto 0 auto">
+									<a href="javascript:chooseImage()" class="button oro">Click here to select a beverage image from the repository</a>
+									<br><br>
+									<center>or</center><br>
+									<div id="fileUpload2" style="width:280px" data-message="+<br><i style='font-size:0.3em'>drag an image here<br><br>(max 300x240 jpg/png image)</i>"></div>
+								</div>
+							</div>
+						</div>
+						
+						<div style="float:left; width:600px;">
+							<table border='0' cellspacing='0' cellpadding='2' width="95%">
+								<tr valign="top">
+									<td>
+										<b>Icon display name</b><br>
+										<i>If you leave this field blank, the GUI will use the CPU beverage name, meaning that it will ask the machine for the beverage name</i><br>
+										<input type="text" id="txtIconName" class="edit" style="width:480px">
+										<br><br>
+									</td>
+								</tr>
+								
+								<tr valign="top">
+									<td>
+										<b>Beverage description</b><br>
+										<i>This is a brief description that will shown during the beverage delivery. You can leave it blank if you wish<br>
+										<textarea id="txtDescription" class="edit" style="height:80px; width:500px"></textarea>										
+									</td>
+								</tr>
+							</table>
+						</div>
+						
+						<div class="clear"></div>
+					</div>
+				</div> <!-- general settings -->
+				
+				
+				<br><br><br><br>&nbsp;
+			</div> <!-- page content -->
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+	
+	<div id="divImageBrowser" class="imageBrowser" style="display:none">
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="js/multilangElem.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script src="js/ImageBrowser.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var UID = -1;
+var db = null;
+var imgBrowser = null;
+
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	UID = urlParams["uid"];
+	
+	setupCheckboxes();
+	imgBrowser = new ImageBrowser("divImageBrowser");
+	setupUploader("fileUpload2", upload2_onEnd);
+	
+	$("#main-content-wait").show();
+
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+
+	await loadExistingRecord();
+		
+	pleaseWait(0);		
+}
+
+//*****************************************
+async function loadExistingRecord()
+{
+	let rst = await db.q("SELECT pageMenuImg,name,descr FROM pagemenu_mmi WHERE UID=" +UID);
+	if (rst.hasError() != "")
+	{
+		alert ("loadExistingRecord::error [" +rst.hasError() +"]");
+		return;
+	}
+	$("#pageMenuImg").attr("src", "../upload/" +rst.valByColName(0, "pageMenuImg"));
+	
+	var iconName = rst.valByColName(0, "name").trim();
+	if (iconName=="NULL")
+		iconName = "";
+	document.getElementById("txtIconName").value = iconName;
+
+	var iconDescr = rst.valByColName(0, "descr").trim();
+	if (iconDescr=="NULL")
+		iconDescr = "";
+	document.getElementById("txtDescription").value = iconDescr;
+}
+
+function gotoMMI()
+{
+	window.location = "pageMainMenu.html?his=" +historyID +"&scrollTo=" +UID;
+}
+
+async function saveAll()
+{
+	var selName = db.toDBString(document.getElementById("txtIconName").value.trim());
+	var selDescription = db.toDBString(document.getElementById("txtDescription").value.trim());
+	var pageMenuImg = getFilenameFromPath($("#pageMenuImg").attr("src"));
+		
+	pleaseWait(1);
+
+	var sql = "UPDATE pagemenu_mmi SET pageMenuImg='" +pageMenuImg +"', name='" +selName +"', descr='" +selDescription +"' WHERE UID=" +UID;
+	await db.exec(sql);
+	
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	gotoMMI();
+}
+
+
+function chooseImage()
+{
+	var curPath = rheaGetAbsolutePhysicalPath() +"/img-drinks";
+	imgBrowser.open (curPath, "*.png", chooseImage_onEnd);
+}
+
+function chooseImage_onEnd(selectedFileName, selectedPath)
+{
+	if (selectedFileName=="")
+		return;
+	console.log ("[" +selectedFileName +"] [" +selectedPath +"]");
+	
+	pleaseWait(1);
+	var pDST = rheaGetAbsolutePhysicalPath() +"/../upload";
+	rhea.ajax ("FSCopy", { "pSRC" : selectedPath, "fSRC":selectedFileName, "pDST" : pDST, "fDST":selectedFileName})
+		.then( function(result)
+		{
+			pleaseWait(0);
+			$("#pageMenuImg").attr("src", "../upload/" +selectedFileName);	
+		})
+		.catch ( function(result)
+		{
+			pleaseWait(0);
+		});
+}
+
+function upload2_onEnd (fileName, userValue, error_code)
+{
+	//console.log ("upload2_onEnd [" +userValue +"][" +error_code +"]");
+	if (error_code != 0)
+		return;
+	$("#pageMenuImg").attr("src", "../upload/" +fileName);
+}
+
+
+
+</script>
+</html>

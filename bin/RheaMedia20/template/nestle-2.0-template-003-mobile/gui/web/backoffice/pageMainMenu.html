@@ -1,0 +1,173 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+	<style>
+		table.table_icons { width:100%; }
+		table.table_icons td img { max-width:100px; }
+		table.table_icons td a { color:#000; text-decoration:none; }
+		table.table_icons td a:hover { color:#000; text-decoration:underline; }
+	</style>
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Page main menù</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center">
+						<!--<a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a>-->
+					</td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+			
+			<div id="divWarnings" style="margin:10px; display:none; background-color:#fcc; border:solid 2px #f00; padding:10px"></div>
+			
+			<br>
+			<span class="tip">Click on a drink icon to change its name and/or image</span><br>
+			<div id="divIconList" style="margin-top:10px"></div>
+		</div>	
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var db = null;
+var urlParams = "";
+
+async function onRheaBootstrapFinished()
+{
+	urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+	
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+	
+	imageList_update();
+	pleaseWait(0);
+}
+
+async function imageList_update()
+{
+	let rst = await db.q("SELECT UID,selNum,pageMenuImg,name FROM pagemenu_mmi WHERE HIS_ID=" +historyID +" ORDER BY selNum");
+	if (rst.hasError())
+	{
+		alert ("imageList_update::error [" +rst.hasError() +"]");
+		return;
+	}
+	
+
+	var html = "";
+	html += "<table border='0' cellspacing='0ì cellpadding='0' class='table_icons'>"
+	for (var row=0; row<3; row++)
+	{
+		html += "<tr valign='middle'>";
+		for (var col=0; col<4; col++)
+		{
+			var dbRow = (row) +(3*col);
+			var UID = rst.valByColName(dbRow, "UID");
+			var iconNum = rst.valByColName(dbRow, "selNum");
+			var iconImage = "../upload/" +rst.valByColName(dbRow, "pageMenuImg");
+			var iconName = rst.valByColName(dbRow, "name");
+			if (iconName == "NULL" || iconName=="")
+				iconName = "<i>Use name from CPU</i>";
+				
+			var url = "MMI_edit.html?his=" +historyID +"&uid=" +UID;
+			html += "<td align='center' width='25%'><a href='" + url +"'><img src='" +iconImage +"'><br>" +iconName +"</a></td>";
+		}
+		html += "</tr>";
+		html += "<tr><td colspan='4'>&nbsp;</td></tr>";
+	}
+	html += "</table>";
+
+	var d = rheaGetElemByID("divIconList");
+	rheaSetElemHTML (d, html);
+}
+
+function imageList_delete(progressivo)
+{
+	if (!confirm ("Do you really want to remove the selected MMI?"))
+		return;
+	var id = "#imageList_" +progressivo;
+	$(id).hide();
+}
+
+async function saveAll()
+{
+	pleaseWait(1);
+
+	//*** general setting
+	var sql = "UPDATE pagemenu SET"
+			+ " icon_numRow=" +$("#icon_numRow").val()
+			+ ",icon_numIconPerRow=" +$("#icon_numIconPerRow").val()
+			+ ",gotoPageStandbyAfterMSec=" +(1000 * $("#gotoPageStandbyAfterMSec").val())
+			+ " WHERE HIS_ID=" +historyID +";";
+			
+	await db.exec (sql);
+	
+	//MMI order
+	sql = "";
+	var progr = 1;
+	$("#elencoItem li").each ( function()
+	{
+		var li = $(this);
+		var uid = li.attr("data-itemuid");
+		if (li.css("display") != "none")
+		{
+			sql += "UPDATE pagemenu_mmi SET PROGR=" +progr +" WHERE UID=" +uid +";";
+			progr++;
+		}
+		else
+		{
+			sql += "DELETE FROM pagemenu_mmi WHERE UID=" +uid +";";
+			sql += "DELETE FROM lang WHERE What='" +uid +"' AND (UID='MMI_NAME' OR UID='MMI_DESCR' OR UID='MMI_NUTRI');";
+		}
+	});
+	if (sql != "")
+	{
+		console.log (sql);
+		await db.exec (sql);
+	}
+	
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+
+
+function MMI_edit (UID)
+{
+	window.location = "MMI_edit.html?his=" +historyID +"&uid=" +UID;
+}
+</script>
+</html>

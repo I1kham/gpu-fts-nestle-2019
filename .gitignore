@@ -71,3 +71,4 @@ bin/RheaMedia20/temp/
 bin/fwupdate.tar
 bin/RASPI_RELEASE_rasPIBootLoader
 bin/RASPI_DEBUG_rasPIBootLoader
+MSVC17/rheaUnzip/build/

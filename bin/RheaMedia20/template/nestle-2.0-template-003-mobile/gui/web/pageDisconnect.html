@@ -1,0 +1,23 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<br>
+	<div id="divMsg" style="text-align:center"></div>	
+</div>
+
+<script src="config/allowedLang.js"></script>
+<script src="js/rhea.js"></script>
+<script>
+function rheaBootstrap()				{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
+function onAfterLangLoaded() 			{ rheaSetDivHTMLByName("divMsg", rheaLang.LAB_PAGE_DISCONNECT); }
+</script>
+</html>

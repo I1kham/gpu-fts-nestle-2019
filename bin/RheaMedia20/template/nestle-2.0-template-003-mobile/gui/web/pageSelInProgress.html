@@ -1,0 +1,111 @@
+<html>
+<head>
+	<title>GUI-TP</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div id="divCPUMessage">&nbsp;</div>
+	
+	<div id="beverageName" class="pageConfirm_beverageTitle pageConfirm_bigFont"></div>
+	<div id="beveragePhoto" class="pageConfirm_beveragePhoto"></div>
+	<div id="beverageDesc" class="pageConfirm_bigFont" style="text-align:center"></div>
+	<div id="divTextAtBottom" class="pageInprogress_finalText pageConfirm_bigFont"></div>
+	
+	
+	<div class="clear">&nbsp;</div>
+</div>
+
+
+<script src="config/allowedLang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="js/rhea.js"></script>
+<script language="javascript">
+
+var ASK_CPU_STATUS_EVERY_Msec = 3000;
+var iSelRunning = -1;
+
+function rheaBootstrap()				{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
+
+function onAfterLangLoaded() 
+{
+	//in get ci deve essere il parametro che indica il num selezione in corso
+	iSelRunning = parseInt(rheaGetURLParamOrDefault("selNum", "1"));
+	
+	var i = iSelRunning-1;
+	var html = "<img draggable='false'src='" +MMI_getImgForPageConfirm(i) +"'>";
+	rheaSetDivHTMLByName("beveragePhoto", html);
+	
+	rheaSetDivHTMLByName("divTextAtBottom", rheaLang.LAB_YOUR_DRINK_IS_BEING_PREPARED);
+	
+	//nome della selezione
+	rheaSetDivHTMLByName ("beverageName", Rhea_getCachedSelectionName(iSelRunning));
+		
+	//carica i contenuti in lingua di questa pagina
+	lang_loadJS ("selDescr")
+		.then ( function()
+		{
+			rheaSetDivHTMLByName("beverageDesc", rheaSelDescr[iSelRunning-1]);
+		});
+		
+		
+	setTimeout (chekSelectionStatus(), 3000);
+	askCPUStatus();
+}
+
+function askCPUStatus()
+{
+	rheaREST("getCPULCDMsg.php", function(data) 
+	{
+		rheaSetElemHTML (rheaGetElemByID("divCPUMessage"), data);
+	});	
+	setTimeout(askCPUStatus, ASK_CPU_STATUS_EVERY_Msec);
+}
+
+
+function chekSelectionStatus()
+{
+	console.log ("chekSelectionStatus");
+	rheaREST("getSelStatus.php", function(data)
+	{
+		switch (data)
+		{
+		default: //com error
+			console.log ("com error");
+			onSelFinished();
+			return;
+			
+		case "1": //waiting payment
+			console.log ("waiting payment");
+			break;
+
+		case "2": //delivering in progress
+		case "5": //delivering in progress
+			console.log ("delivering in progress");
+			break;
+
+		case "3": //finished KO
+			console.log ("finished KO");
+			onSelFinished();
+			return;
+			
+		case "4": //finished OK
+			console.log ("finished OK");
+			onSelFinished();
+			return;
+		}
+		
+		setTimeout (function() { chekSelectionStatus(); }, 1000);
+	});
+}
+
+function onSelFinished()
+{
+	window.location = "pageSelFinished.html?selNum=" +iSelRunning +"&dt=" +Rhea_getTimeStamp();
+}
+
+</script>
+</html>

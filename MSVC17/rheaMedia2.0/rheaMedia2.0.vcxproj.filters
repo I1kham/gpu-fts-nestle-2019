@@ -13,6 +13,7 @@
     <ClCompile Include="..\..\src\rheaMedia20\TaskDeleteFolder.cpp" />
     <ClCompile Include="..\..\src\rheaMedia20\TaskImportExistingGUI.cpp" />
     <ClCompile Include="..\..\src\rheaMedia20\varie.cpp" />
+    <ClCompile Include="..\..\src\rheaMedia20\TaskExportMobileTPGUIToUserFolder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\rheaMedia20\TaskExportGUIToUserFolder.h" />
@@ -20,5 +21,6 @@
     <ClInclude Include="..\..\src\rheaMedia20\TaskDeleteFolder.h" />
     <ClInclude Include="..\..\src\rheaMedia20\TaskImportExistingGUI.h" />
     <ClInclude Include="..\..\src\rheaMedia20\varie.h" />
+    <ClInclude Include="..\..\src\rheaMedia20\TaskExportMobileTPGUIToUserFolder.h" />
   </ItemGroup>
 </Project>

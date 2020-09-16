@@ -1,0 +1,88 @@
+<html>
+<head>
+	<title>GUI-TP</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div id="divCPUMessage">&nbsp;</div>
+	
+	<div id="beverageName" class="pageConfirm_beverageTitle pageConfirm_bigFont"></div>
+	<div id="beveragePhoto" class="pageConfirm_beveragePhoto"></div>
+	<div id="divTextAtBottom" class="pageInprogress_finalText pageConfirm_bigFont"></div>
+	
+	<div style="text-align:center">
+		<div id="btnExit" class="btnStart pageConfirm_bigFont" onclick="gotoMenuDisconnect()"></div>
+		<div id="btnAnotherDrink" class="btnStart pageConfirm_bigFont" onclick="gotoMenuPage()"></div>
+	</div>
+	&nbsp;
+</div>
+
+<script src="config/allowedLang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="js/rhea.js"></script>
+<script language="javascript">
+
+var ASK_CPU_STATUS_EVERY_Msec = 1000;
+
+function rheaBootstrap()				{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
+
+function onAfterLangLoaded() 
+{
+	//in get ci deve essere il parametro che indica il num selezione in corso
+	iSelRunning = parseInt(rheaGetURLParamOrDefault("selNum", "1"));
+	
+	var i = iSelRunning-1;
+	
+	var html = "<img draggable='false'src='" +MMI_getImgForPageConfirm(i) +"'>";
+	rheaSetDivHTMLByName("beveragePhoto", html);
+	
+	//nome della selezione
+	rheaSetDivHTMLByName ("beverageName", Rhea_getCachedSelectionName(iSelRunning));
+	
+	rheaSetDivHTMLByName("divTextAtBottom", rheaLang.LAB_YOUR_DRINK_IS_READY);
+	
+	rheaSetElemHTML (rheaGetElemByID("btnExit"), rheaLang.LAB_BTN_EXIT);
+	
+	askCPUStatus();
+	
+	countdown();	
+}
+
+var timeLeftSec = 15;
+function countdown()
+{
+	rheaSetElemHTML (rheaGetElemByID("btnAnotherDrink"), rheaLang.LAB_BTN_HAVE_ANOTHER_DRINK +" " +timeLeftSec);
+	if (timeLeftSec <= 0)
+		gotoMenuDisconnect();
+	else
+	{
+		timeLeftSec--;
+		setTimeout (countdown, 1000);
+	}
+}	
+	
+function askCPUStatus()
+{
+	rheaREST("getCPULCDMsg.php", function(data) 
+	{
+		rheaSetElemHTML (rheaGetElemByID("divCPUMessage"), data);
+	});	
+	setTimeout(askCPUStatus, ASK_CPU_STATUS_EVERY_Msec);
+}
+	
+
+function gotoMenuPage()
+{
+	window.location = "pageMenu.php?dt=" +Rhea_getTimeStamp();
+}
+
+function gotoMenuDisconnect()
+{
+	window.location = "pageDisconnect.html?dt=" +Rhea_getTimeStamp();
+}
+</script>
+</html>
