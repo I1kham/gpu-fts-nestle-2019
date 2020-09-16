@@ -55,17 +55,11 @@ function rasPI_close($socket){ socket_close($socket); }
  */
 function session_debug_begin ($db)
 {
-    $timeNow = time();
-    $app_userID = 999;
-    $app_credit = "123.00";
-    
     $db->Exec ("DELETE FROM thesession");
-    $db->Exec ("INSERT INTO thesession (sessionID,app_userID,app_creditAtStart,creditCurrent,lastTimeUpdated) VALUES($timeNow,$app_userID,'$app_credit','$app_credit',$timeNow)");
-    debug_log_prefix ("  sessionBegin", "new session accepted is [$timeNow]\n");
-    return $timeNow;
+    return sessionBegin ($db, 999, "123", 2, "crd");
 }
 
-function sessionBegin ($db, $app_userID, $app_credit)
+function sessionBegin ($db, $app_userID, $app_credit, $app_numDecimaliPrezzo, $app_simboloValuta)
 {
     $timeNow = time();
     
@@ -96,25 +90,34 @@ function sessionBegin ($db, $app_userID, $app_credit)
     }
     
     //creo la nuova sessione
-    $db->Exec ("INSERT INTO thesession (sessionID,app_userID,app_creditAtStart,creditCurrent,lastTimeUpdated) VALUES($timeNow,$app_userID,'$app_credit','$app_credit',$timeNow)");
+    $app_simboloValuta = $db->toDBString($app_simboloValuta);
+    $db->Exec ("INSERT INTO thesession (sessionID,app_userID,app_creditAtStart,creditCurrent,app_numDecimaliPrezzo,app_simboloValuta,lastTimeUpdated) VALUES($timeNow,$app_userID,'$app_credit','$app_credit',$app_numDecimaliPrezzo,'$app_simboloValuta', $timeNow)");
     debug_log_prefix ("  sessionBegin", "new session accepted is [$timeNow]\n");
     return $timeNow;
 }
 
 function sessionGetCurrent ($db)
 {
-    $rst = $db->Q ("SELECT sessionID,app_userID,creditCurrent FROM thesession ORDER BY sessionID DESC LIMIT 1");
+    $rst = $db->Q ("SELECT * FROM thesession ORDER BY sessionID DESC LIMIT 1");
     if (count($rst))
     {
         return array (
-            "sessionID"     => $rst[0]["sessionID"],
-            "app_userID"    => $rst[0]["app_userID"],
-            "creditCurrent" => $rst[0]["creditCurrent"]
+            "sessionID"     			=> $rst[0]["sessionID"],
+            "app_userID"    			=> $rst[0]["app_userID"],
+            "creditCurrent" 			=> $rst[0]["creditCurrent"],
+            "app_numDecimaliPrezzo" 	=> $rst[0]["app_numDecimaliPrezzo"],
+            "app_simboloValuta" 		=> $rst[0]["app_simboloValuta"]
         );
         return 1;
     }
     
     return false;
+}
+function sessionGetCurrentCredit ($db, $sessionID)
+{ 
+	$rst = $db->Q ("SELECT creditCurrent FROM thesession WHERE sessionID=$sessionID");
+	if (count($rst)) return $rst[0]["creditCurrent"];
+	return 0;
 }
 
 function sessionUpdateTimestamp ($db, $sessionID)                       { $ts = time(); $db->Exec ("UPDATE thesession SET lastTimeUpdated=$ts WHERE sessionID=$sessionID"); }
@@ -122,6 +125,10 @@ function sessionUpdateCurrentCredit ($db, $sessionID, $credit)          { $ts = 
 
 function sessionTryTransaction ($db, $sessionID, $app_userID, $price, $productName)
 {
+	return 1;
+    /* 	2020-09-16
+		Commentata tutta la logica perchè dobbiamo eliminare il discorso dei pagamenti
+		
     $rst = $db->Q ("SELECT creditCurrent FROM thesession WHERE sessionID=$sessionID AND app_userID=$app_userID");
     if (count($rst) == 0)
     {
@@ -144,6 +151,7 @@ function sessionTryTransaction ($db, $sessionID, $app_userID, $price, $productNa
     
     sessionUpdateCurrentCredit ($db, $sessionID, ($creditCurrent - $price));
     return 1;
+    */
 }
 
 function sessionEnd ($db, $sessionID)

@@ -12,6 +12,7 @@ header('Access-Control-Allow-Methods: GET, POST, PUT');
 require_once "common.php";
 require_once "DBConn.php";
 
+
 $userID = GUtils::httpGetOrDefaultInt("userId", 0);
 debug_log_prefix ("updateUser.php", "userID=$userID\n");
 

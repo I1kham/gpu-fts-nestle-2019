@@ -17,10 +17,11 @@ header('Access-Control-Allow-Methods: GET, POST, PUT');
 require_once "common.php";
 require_once "DBConn.php";
 
+
 $in = file_get_contents("php://input");
 if (!isset($in) || $in == "")
 {
-//	debug_log_prefix ("saveUser.php", "nothing in post, ANSWER: none\n");
+	debug_log_prefix ("saveUser.php", "nothing in post, ANSWER: none\n");
 	die();
 }
 
@@ -30,15 +31,22 @@ if (!isset($data))
 	debug_log_prefix ("saveUser.php", "nothing in post, ANSWER: none\n");
 	die();
 }
-debug_log_prefix ("saveUser.php", "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" .print_r($data,true) ."\n");
+debug_log_prefix ("saveUser.php", "***********************************\n" .print_r($data,true) ."\n");
 
 //analizzo i dati in post
 $app_userID = $data->id;
 $app_credit = $data->credit;
+$app_numDecimaliPrezzo = 2;
+if (ISSET($data->numDecimali))
+	$app_numDecimaliPrezzo = $data->numDecimali;
+
+$app_simboloValuta = "";
+if (ISSET($data->simboloValuta))
+	$app_simboloValuta = $data->simboloValuta;
 
 //verifico se posso aprire una sessione
 $db = new DBConn();
-$sessionID = sessionBegin ($db, $app_userID, $app_credit);
+$sessionID = sessionBegin ($db, $app_userID, $app_credit, $app_numDecimaliPrezzo, $app_simboloValuta);
 if ($sessionID == 0)
 {
 	echo "KO";
