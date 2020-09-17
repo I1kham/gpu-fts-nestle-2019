@@ -15,7 +15,11 @@ sessionUpdateTimestamp ($db, $ses["sessionID"]);
 
 <body onLoad="rheaBootstrap()">
 <div id="mainWrapper" class="wrapper">
-	<div id="divCredit" class="header-credit">CREDIT <?php echo number_format ($ses["creditCurrent"], 2, ",", ".")?></div>
+	<!--<div id="divCredit" class="header-credit">CREDIT -->
+	<?php 
+	//echo number_format ($ses["creditCurrent"], 2, ",", ".")
+	?>
+	<!--</div>-->
 	<div class="header-sticky">
 		<div id="divCPUMessage" style="display:none;"></div>	
 	</div>

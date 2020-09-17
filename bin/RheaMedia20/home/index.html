@@ -334,7 +334,7 @@ function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
  */
 function existingGUI_openFileBrowser()
 {
-	fileBrowser1.openFile("c:", "*.rheagui", existingGUI_onFileOpenFinished, "Browse to locate a GUI folder. Look for a file by the name of <b>template.rheagui</b> and click on it");
+	fileBrowser1.openFile("c:", "*.rheagui *.rheaRasGuiTP", existingGUI_onFileOpenFinished, "Browse to locate a GUI folder. Look for a file by the name of <b>template.rheagui</b> and click on it");
 }
 
 async function existingGUI_onFileOpenFinished(fileName, path)
@@ -342,6 +342,20 @@ async function existingGUI_onFileOpenFinished(fileName, path)
 	console.log ("[" +fileName +"][" +path +"]");
 	if (fileName == "")
 		return;
+		
+	if (fileName.indexOf(".rheagui") !== -1)
+		existingGUI_beginImport_rheagui(fileName, path);
+	else if (fileName.indexOf(".rheaRasGuiTP") !== -1)
+		existingGUI_beginImport_rheaRasGuiTP(fileName, path);
+	else
+		alert ("ERROR: invalid file extension");
+}
+	
+/***************************************************************
+ * importazione	di gui con estensione .rheagui
+ */
+async function existingGUI_beginImport_rheagui(fileName, path)
+{
 	var userGUISrcPath = path;
 		
 	pleaseWait(1);
@@ -391,7 +405,7 @@ async function existingGUI_onFileOpenFinished(fileName, path)
 			var templateSrcPath = rheaGetAbsolutePhysicalPath() +"/../template/" +templateList[iTemplate].name +"/gui";
 			tempFolderName = getATempFolderName();
 			var dstPath = rheaGetAbsolutePhysicalPath() +"/../temp/" +tempFolderName;
-			importExistingGUI (templateName, templateVer, templateSrcPath, userGUISrcPath, dstPath, existingGUI_onFinished)
+			importExistingGUI (templateName, templateVer, templateSrcPath, userGUISrcPath, dstPath, existingGUI_beginImport_rheagui_onFinished)
 			return;
 		}
 	}
@@ -401,7 +415,7 @@ async function existingGUI_onFileOpenFinished(fileName, path)
 	pleaseWait(0);
 }
 
-function existingGUI_onFinished(taskFinalMsg)
+function existingGUI_beginImport_rheagui_onFinished(taskFinalMsg)
 {
 	if (taskFinalMsg != "OK")
 	{
@@ -413,6 +427,34 @@ function existingGUI_onFinished(taskFinalMsg)
 	window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
 	
 	pleaseWait(0);
+}
+
+/***************************************************************
+ * importazione	di gui con estensione .rheaRasGuiTP
+ */
+async function existingGUI_beginImport_rheaRasGuiTP(fileName, path)
+{
+	pleaseWait(1);
+	
+	//devo unzippare il file
+	var destUnzippedFolder = rheaGetAbsolutePhysicalPath() +"/../temp/unzip/" +getATempFolderName();
+	let result = await rhea.ajax ("FSUnzip", { "src":path+"/"+fileName, "dst":destUnzippedFolder +"/web", "mkdir":1 }).then( function(result)
+	{
+		if (result != "OK")
+			return 0;
+		return 1;
+	});
+	
+	if (result == 0)
+	{
+		pleaseWait(0);
+		alert ("ERROR unzipping src file");
+		return;
+	}
+	
+	//a questo punto ho la GUI unzippata in [destUnzippedFolder], procedo come al solito
+	existingGUI_beginImport_rheagui("", destUnzippedFolder);
+	
 }
 
 </script>

@@ -284,7 +284,7 @@ void fs::extractFilePathWithOutSlash (const u8* const utf8_filename, u8 *out, u3
 }
 
 //*********************************************
-bool fs::doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_strJolly)
+bool FS_doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_strJolly)
 {
     assert (NULL != utf8_filename && NULL != utf8_strJolly);
 
@@ -342,7 +342,48 @@ bool fs::doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_s
     return true;
 }
 
+//*********************************************
+bool fs::doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_strJolly)
+{
+	//la stringa dei jolly potrebbe contenere più di una sequenza. Le sequenze sono separate da spazio
+	//es: *.txt *.bmp
+	bool ret = false;
 
+	u8 jolly[128];
+	string::utf8::Iter parserJolly;
+	parserJolly.setup (utf8_strJolly);
+
+	u8 ct = 0;
+	while (1)
+	{
+		const UTF8Char ch = parserJolly.getCurChar();
+		if (ch.isEOF())
+		{
+			jolly[ct] = 0x00;
+			if (FS_doesFileNameMatchJolly(utf8_filename, jolly))
+				ret = true;
+			break;
+		}
+		else if (ch.isEqual(' '))
+		{
+			jolly[ct] = 0x00;
+			if (FS_doesFileNameMatchJolly(utf8_filename, jolly))
+				ret = true;
+			
+			parserJolly.advanceOneChar();
+			ct = 0;
+		}
+		else
+		{
+			memcpy (&jolly[ct], ch.data, ch.length());
+			ct += ch.length();
+			parserJolly.advanceOneChar();
+		}
+	}
+
+	return ret;
+
+}
 
 //**************************************************************************
 void fs::findComposeFullFilePathAndName(const OSFileFind &ff, const u8* const pathNoSlash, u8 *out, u32 sizeofOut)

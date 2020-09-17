@@ -16,7 +16,11 @@ sessionUpdateTimestamp ($db, $ses["sessionID"]);
 
 <body onLoad="rheaBootstrap()">
 <div id="mainWrapper" class="wrapper">
-	<div id="divCredit" class="header-credit">CREDIT <?php echo number_format ($ses["creditCurrent"], 2, ",", ".")?></div>
+	<!--<div id="divCredit" class="header-credit">CREDIT -->
+	<?php 
+	//echo number_format ($ses["creditCurrent"], 2, ",", ".")
+	?>
+	<!--</div>-->
 	<div class="header-sticky">
 		<div id="divCPUMessage" style="display:none;"></div>	
 	</div>
@@ -448,6 +452,12 @@ function onBtnStartSelection()
 	rheaShowElem(rheaGetElemByID("pleaseWait"));
 
 	selThatWasStarted = detectCurrentSelection();
+
+
+	console.log ("Starting sel num:" +selThatWasStarted);
+	rhea.selection_start(selThatWasStarted);
+	
+	/*
 	if (currentSelectionPrice <= 0)
 	{
 		//per bevande gratuite, uso il solito sistema
@@ -457,8 +467,12 @@ function onBtnStartSelection()
 	else
 	{
 		//per quelle a pagamento, devo verificare il credito e poi avviare una transazione
-		var sessionID = <?php echo $ses["sessionID"]?>;
-		var app_userID = <?php echo $ses["app_userID"]?>;
+		var sessionID = <?php 
+		//echo $ses["sessionID"]
+		?>;
+		var app_userID = <?php 
+		//echo $ses["app_userID"]
+		?>;
 		var price = GENCODER_encode(currentSelectionPrice);
 		var selName = GENCODER_encode(MMI_getDisplayName(iconNum));
 		rheaREST("tryPayAndStartSel.php?sesID=" +sessionID +"&app_userID=" +app_userID +"&selNum=" +selThatWasStarted +"&price=" +price +"&selName="+selName, function(data)  
@@ -475,6 +489,7 @@ function onBtnStartSelection()
 			}
 		});
 	}
+	*/
 }
 
 function resetTimerGotoPageMenu() 

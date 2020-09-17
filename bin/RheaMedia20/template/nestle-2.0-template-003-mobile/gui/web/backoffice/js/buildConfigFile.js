@@ -29,7 +29,7 @@ async function previewFrame_open()
 	
 	d.show();
 	var f = document.getElementById("previewFrame");
-	f.src = "../startup.html";
+	f.src = "../rheaMediaPreview.html";
 }
 
 function previewFrame_close()

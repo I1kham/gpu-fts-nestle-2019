@@ -71,6 +71,7 @@ namespace rhea
 		void				extractFilePathWithOutSlash (const u8* const utf8_filename, u8 *utf8_out, u32 sizeofOut);
 
         bool				doesFileNameMatchJolly (const u8* const utf8_strFilename, const u8 *utf8_strJolly);
+								//la stringa dei jolly può contenere più di una sequenza. Le sequenze sono separate da spazio (es: "*.txt *.bmp")
 
 		inline bool			findFirstHardDrive(OSDriveEnumerator *h, rheaFindHardDriveResult *out)						{ return platform::FS_findFirstHardDrive(h, out); }
 		inline bool			findNextHardDrive(OSDriveEnumerator &h, rheaFindHardDriveResult *out)						{ return platform::FS_findNextHardDrive(h, out); }

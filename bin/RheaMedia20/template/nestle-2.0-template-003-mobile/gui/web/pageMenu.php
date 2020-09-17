@@ -29,7 +29,11 @@ $_SESSION["currentCredit"] = number_format (sessionGetCurrentCredit($db, $sessio
 
 <body onLoad="rheaBootstrap()">
 <div id="mainWrapper" class="wrapper">
-	<div id="divCredit">CREDIT <?php echo $_SESSION["currentCredit"]; ?></div>
+	<!--<div id="divCredit">CREDIT -->
+		<?php 
+		//echo $_SESSION["currentCredit"]; 
+		?>
+	<!--</div>-->
 	<div id="divCPUMessage">&nbsp;</div>
 	<div id="divIconList"></div>
 	<div id="divPleaseWait" style="display:none"><br><br><br><center><img src="img/animationRound.gif"></center></div>

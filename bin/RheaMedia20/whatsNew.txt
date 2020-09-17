@@ -3,6 +3,9 @@ ver 2.4.0 2020/09/09
 	Features
 		-	Template "nestle-2.0-template-001"
 			- this template now also generate a "mobile" version of the GUI for the raspberry module. The mobile version GUI is zipped in one file named mobile.rheaRasGuiTS
+		
+		-	Added template "nestle-2.0-template-003-mobile"
+			- this template can be used to create and modifiy the mobile GUI for the TP machine
 
 ================================================================================================
 ver 2.3.2 2020/08/03
