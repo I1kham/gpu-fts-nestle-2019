@@ -16,7 +16,7 @@ require_once "DBConn.php";
 $userID = GUtils::httpGetOrDefaultInt("userId", 0);
 debug_log_prefix ("updateUser.php", "userID=$userID\n");
 
-if ($userID > 0)
+if ($userID >= 0)
 {
 	$db = new DBConn();
 	

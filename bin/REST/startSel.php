@@ -3,7 +3,7 @@
 require_once "common.php";
 
 $selNum = GUtils::httpGetOrDefaultInt("selNum", 0);
-if ($selNum>1 && $selNum<100)
+if ($selNum>=1 && $selNum<100)
 {
     $sok = rasPI_connect();
     if (false === $sok)

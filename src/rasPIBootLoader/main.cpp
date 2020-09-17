@@ -292,6 +292,12 @@ int main()
     //attendo che lo script python generi i QRcode (serve solo al primissimo avvio dato che poi i file rimangono sull'hard disk)
     waitForQRCodeToBeGenerated();
 
+    //elimino il file di log generato dalle REST api
+    {
+        const char restLogFile[] = {"/var/www/html/rhea/REST.log"};
+        if (rhea::fs::fileExists((const u8*)restLogFile))
+            rhea::fs::fileDelete((const u8*)restLogFile);
+    }
 
     //se la cartella esiste, verifico se c'è da aggiornare qualcosa
     bool bAnyUpdate = false;

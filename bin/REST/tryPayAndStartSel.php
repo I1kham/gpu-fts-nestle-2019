@@ -2,7 +2,9 @@
 //***è************
 require_once "common.php";
 $selNum = GUtils::httpGetOrDefaultInt("selNum", 0);
-if ($selNum>1 && $selNum<100)
+
+debug_log_prefix ("  tryPayAndStartSel", "[selNum=$selNum]\n");
+if ($selNum>=1 && $selNum<100)
 {
     $sok = rasPI_connect();
     if (false === $sok)
@@ -13,7 +15,12 @@ if ($selNum>1 && $selNum<100)
 
     rasPI_sendString ($sok, "START-SEL|" .$selNum);
     rasPI_close ($sok);
+    echo "OK";
+    debug_log_prefix ("  tryPayAndStartSel", "OK\n");
+    die();
 }
+debug_log_prefix ("  tryPayAndStartSel", "KO\n");
+echo "KO";
 
 /*	2020-09-16 
 	commentato perchè vogliamo eliminare il discorso del pagamento
