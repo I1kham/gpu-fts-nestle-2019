@@ -290,16 +290,22 @@ int main()
 
 
     //attendo che lo script python generi i QRcode (serve solo al primissimo avvio dato che poi i file rimangono sull'hard disk)
+    printf ("waiting for QR to be generated....");
     waitForQRCodeToBeGenerated();
+    printf ("OK\n");
+
 
     //elimino il file di log generato dalle REST api
+    printf ("removing REST.log...");
     {
         const char restLogFile[] = {"/var/www/html/rhea/REST.log"};
         if (rhea::fs::fileExists((const u8*)restLogFile))
             rhea::fs::fileDelete((const u8*)restLogFile);
     }
+    printf ("OK\n");
 
     //se la cartella esiste, verifico se c'è da aggiornare qualcosa
+    printf ("Checking for update...\n");
     bool bAnyUpdate = false;
     if (rhea::fs::folderExists(path))
     {
@@ -309,11 +315,15 @@ int main()
         if (checkGUI_TS(path))          bAnyUpdate = true;
     }
 
+
+    printf ("Turning led OFF\n");
     LED_OFF;
 
 
     if (bAnyUpdate)
     {
+        printf ("Some updates has benn installed, please reboot\n");
+
         //"smonto" la USB
         system ("sudo umount -f " USB_MOUNT_POINT);
 
@@ -329,6 +339,9 @@ int main()
     }
     else
     {
+        printf ("Running mysql clean step\n");
+        system ("mysql -u root -ppredator74 -Bse \"USE raspi; DELETE FROM thesession; DELETE FROM transazioni WHERE bAlive=0\"");
+
         rhea::deinit();
 
         //lancio il programma

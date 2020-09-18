@@ -56,6 +56,7 @@ function rasPI_close($socket){ socket_close($socket); }
 function session_debug_begin ($db)
 {
     $db->Exec ("DELETE FROM thesession");
+    $db->Exec ("DELETE FROM transazioni WHERE app_userID=999");
     return sessionBegin ($db, 999, "123", 2, "crd");
 }
 

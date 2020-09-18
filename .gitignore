@@ -22,6 +22,7 @@ MSVC17/rheaDB/build/
 MSVC17/testDB/build/
 *.o
 QT5/build/
+QT5/build-rasPISerial-Desktop-Release/
 MSVC17/stressTestUpDownDA3/build/
 MSVC17/rheaMedia2.0/build/
 MenuProgTranslator/
