@@ -1,4 +1,6 @@
 import qrcode
+import mysql.connector as mariadb
+
 
 def getMAC(interface='wlan0'):
 	# Return the MAC address of the specified interface
@@ -83,3 +85,11 @@ f = open (saveToFolder+"/ip.txt", "w")
 f.write (wlan0IP)
 f.close()
 
+
+
+dbConn = mariadb.connect(host='localhost', user='test123', password='test123', database='raspi')
+cursor = dbConn.cursor()
+cursor.execute("DELETE FROM thesession")
+cursor.execute("DELETE FROM transazioni WHERE bAlive=0")
+dbConn.commit()
+dbConn.close()

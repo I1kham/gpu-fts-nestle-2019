@@ -339,9 +339,6 @@ int main()
     }
     else
     {
-        printf ("Running mysql clean step\n");
-        system ("mysql -u root -ppredator74 -Bse \"USE raspi; DELETE FROM thesession; DELETE FROM transazioni WHERE bAlive=0\"");
-
         rhea::deinit();
 
         //lancio il programma
