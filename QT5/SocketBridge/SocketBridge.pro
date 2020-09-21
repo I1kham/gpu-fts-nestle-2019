@@ -180,7 +180,8 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeServer.cpp \
     ../../src/SocketBridge/SocketBridgeTask.cpp \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
-    ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
+    ../../src/SocketBridge/SocketBridgeTaskStatus.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSRheaUnzip.cpp
 
 
 HEADERS += \
@@ -278,7 +279,8 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeServer.h \
     ../../src/SocketBridge/SocketBridgeTask.h \
     ../../src/SocketBridge/SocketBridgeTaskFactory.h \
-    ../../src/SocketBridge/SocketBridgeVersion.h
+    ../../src/SocketBridge/SocketBridgeVersion.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSRheaUnzip.h
 
 
 
