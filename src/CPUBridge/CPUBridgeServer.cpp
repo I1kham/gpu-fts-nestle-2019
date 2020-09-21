@@ -3126,6 +3126,11 @@ void Server::priv_handleState_selection()
 				selNumberToSend = runningSel.getSelNum();
 				break;
 
+			case eStartSelectionMode_CPUSpontaneous:
+				//in questo caso, la CPU è già partita da sola con la selezione, quindi io non devo mandare nulla nel msg B
+				selNumberToSend = 0;
+				break;
+
 			case eStartSelectionMode_alreadyPaid:
 				//in questo caso, devo inviare uno specifico comando alla CPU per fargli sapere che deve iniziare una selezione
 				//senza considerare il pagamento in quanto la GPU ha già provveduto a pagare
