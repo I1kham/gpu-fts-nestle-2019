@@ -56,7 +56,7 @@ a:hover	{ text-decoration:none; outline: 0; }
 .pageStandby_galleryContainer { position:absolute; top:0; left:0; height:100%; }
 .pageStandby_galleryContainer_foto { float:left; width:1024px; height:600px; overflow:hidden; }
 .pageStandby_galleryContainer_foto img { width:100%; height:100%;}
-.pageStandby_overlay { position:absolute; top:0; left:0; width:100%; text-align:center; display:none; }
+.pageStandby_overlay { position:absolute; top:5px; left:0; width:100%; text-align:center; display:none; }
 
 .pageMenuLeft	{ float:left; width:60px; height:100%; text-align:center;}
 .pageMenuRight 	{ float:left; width:60px; height:100%; text-align:center;}
