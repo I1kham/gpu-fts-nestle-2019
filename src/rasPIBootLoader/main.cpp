@@ -1,4 +1,5 @@
 #include "main.h"
+#include <sys/time.h>
 
 #define GPIO_LED            29
 #define LED_ON              digitalWrite (GPIO_LED, 1)
@@ -8,6 +9,15 @@
 #define USB_FOLDER          "rhea/rasPI"
 #define BIN_FOLDER          "/home/pi/rhea/gpu-fts-nestle-2019/bin"
 #define WWW_FOLDER          "/var/www/html/rhea"
+
+//*****************************************************
+void setRASPIClock (u16 aaaa, u8 mm, u8 dd, u8 hh, u8 minutes, u8 ss)
+{
+    char s[128];
+    sprintf_s (s, sizeof(s), "sudo date -s '%d-%02d-%02d %02d:%02d:%02d'", aaaa, mm, dd, hh, minutes, ss);
+    printf ("setting clock: %s\n", s);
+    system (s);
+}
 
 /*****************************************************
  * Se trova un file con estensione .rheaRaspi nella cartella USB_FOLDER, lo copia in BIN_FOLDER
@@ -278,6 +288,8 @@ void runRASPI()
 int main()
 {
     rhea::init("rheaRasPIESAPIBootLoader", NULL);
+
+    //setRASPIClock (2020, 9, 22, 8, 45, 00); return 0;
 
     //setup del GPIO per manipolare il LED di segnalazione
     wiringPiSetup();
