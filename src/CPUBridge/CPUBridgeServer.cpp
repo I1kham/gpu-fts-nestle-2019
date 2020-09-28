@@ -388,7 +388,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_RUNNING_SEL_STATUS:
-			notify_CPU_RUNNING_SEL_STATUS(sub->q, handlerID, logger, runningSel.status);
+			priv_notify_CPU_RUNNING_SEL_STATUS(sub, handlerID, runningSel.status);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_FULLSTATE:
@@ -2791,9 +2791,27 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			se == 0x02  =>  la CPU ha capito che deve preparare una bevanda, è in attesa che i sistemi di pagamento rispondano
 			se == 0x03  =>  la CPU ha dato l'OK alla preparazione (equivalente di BEVANDA IN PREP)
 	*/
-	cpuStatus.statoPreparazioneBevanda = (eStatoPreparazioneBevanda)((answer[9] & 0x60) >> 5);
+	{
+		const eStatoPreparazioneBevanda statoPrepBevanda = (eStatoPreparazioneBevanda)((answer[9] & 0x60) >> 5);;
+		if (statoPrepBevanda != cpuStatus.statoPreparazioneBevanda)
+		{
+			cpuStatus.statoPreparazioneBevanda = statoPrepBevanda;
 
-    //u8 selection_CPU_current = answer[10];
+			if (stato.get() != sStato::eStato_selection)
+			{
+				const u8 selection_CPU_current = answer[10];
+				if (selection_CPU_current != 0)
+				{
+					sStartSelectionParams params;
+					params.how = eStartSelectionMode_CPUSpontaneous;
+					params.asCPUSpontaneous.selNum = selection_CPU_current;
+					priv_enterState_selection(params, NULL);
+				}
+			}
+		}
+	}
+
+
 
 
 	//la CPU invia un messaggio testuale, può essere in ASCII o in unicode. Io lo traduco sempre in utf16
@@ -3000,6 +3018,18 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	}
 }
 
+//***************************************************
+void Server::priv_notify_CPU_RUNNING_SEL_STATUS (const sSubscription *sub, u16 handlerID, eRunningSelStatus s)
+{
+	if (NULL == sub)
+	{
+		for (u32 i = 0; i < subscriberList.getNElem(); i++)
+			notify_CPU_RUNNING_SEL_STATUS (subscriberList(i)->q, handlerID, logger, s);
+	}
+	else
+		notify_CPU_RUNNING_SEL_STATUS (sub->q, handlerID, logger, s);
+}
+
 /***************************************************
  * priv_enterState_selection
  *
@@ -3014,24 +3044,21 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
     if (stato.get() != sStato::eStato_normal)
 	{
 		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
-		if (sub)
-			notify_CPU_RUNNING_SEL_STATUS (sub->q, 0, logger, eRunningSelStatus_finished_KO);
+		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus_finished_KO);
 		return false;
 	}
 
 	if (cpuStatus.VMCstate != eVMCState_DISPONIBILE)
 	{
 		logger->log("  invalid request, VMCState != eVMCState_DISPONIBILE, aborting.");
-		if (sub)
-			notify_CPU_RUNNING_SEL_STATUS(sub->q, 0, logger, eRunningSelStatus_finished_KO);
+		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus_finished_KO);
 		return false;
 	}
 
 	if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
 	{
 		logger->log("  invalid selection number, aborting.");
-		if (sub)
-			notify_CPU_RUNNING_SEL_STATUS(sub->q, 0, logger, eRunningSelStatus_finished_KO);
+		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus_finished_KO);
 		return false;
 	}
 
@@ -3041,8 +3068,7 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.sub = sub;
 	runningSel.status = eRunningSelStatus_wait;
-	if (sub)
-		notify_CPU_RUNNING_SEL_STATUS(sub->q, 0, logger, runningSel.status);
+	priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, runningSel.status);
 	return true;
 }
 
@@ -3100,6 +3126,11 @@ void Server::priv_handleState_selection()
 				selNumberToSend = runningSel.getSelNum();
 				break;
 
+			case eStartSelectionMode_CPUSpontaneous:
+				//in questo caso, la CPU è già partita da sola con la selezione, quindi io non devo mandare nulla nel msg B
+				selNumberToSend = 0;
+				break;
+
 			case eStartSelectionMode_alreadyPaid:
 				//in questo caso, devo inviare uno specifico comando alla CPU per fargli sapere che deve iniziare una selezione
 				//senza considerare il pagamento in quanto la GPU ha già provveduto a pagare
@@ -3150,8 +3181,7 @@ void Server::priv_handleState_selection()
 			if (nRetry >= ALLOW_N_RETRY_BEFORE_COMERROR)
 			{
 				runningSel.status = eRunningSelStatus_finished_KO;
-				if (runningSel.sub)
-					notify_CPU_RUNNING_SEL_STATUS(runningSel.sub->q, 0, logger, runningSel.status);
+				priv_notify_CPU_RUNNING_SEL_STATUS(runningSel.sub, 0, runningSel.status);
 				priv_enterState_comError();
 				return;
 			}
@@ -3205,9 +3235,8 @@ void Server::priv_handleState_selection()
 				else
 				{
 					runningSel.status = eRunningSelStatus_wait;
-					if (runningSel.sub)
-						//informo il subscriber che ha richiesto la bevanda che la CPU è ancora in wait
-						notify_CPU_RUNNING_SEL_STATUS (runningSel.sub->q, 0, logger, runningSel.status);
+					//informo il subscriber che ha richiesto la bevanda che la CPU è ancora in wait
+					priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 				}
 				break;
 
@@ -3225,8 +3254,7 @@ void Server::priv_handleState_selection()
 						runningSel.status = eRunningSelStatus_running;
 
 					//la selezione è in preparazione, mando la notifica al subscriber che ha richiesto la bevanda
-					if (runningSel.sub)
-						notify_CPU_RUNNING_SEL_STATUS (runningSel.sub->q, 0, logger, runningSel.status);
+					priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 				}
 
 				//timeout di sicurezza. Diamo per scontato che una bevanda non possa durare più di TIMEOUT_SELEZIONE_2_MSEC
@@ -3243,8 +3271,7 @@ void Server::priv_handleState_selection()
 				{
 					//tutto ok, selezione terminata!!
 					runningSel.status = eRunningSelStatus_finished_OK;
-					if (runningSel.sub)
-						notify_CPU_RUNNING_SEL_STATUS (runningSel.sub->q, 0, logger, runningSel.status);
+					priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 					priv_enterState_normal();
 					return;
 				}
@@ -3265,8 +3292,7 @@ void Server::priv_handleState_selection()
 void Server::priv_onSelezioneTerminataKO()
 {
 	runningSel.status = eRunningSelStatus_finished_KO;
-	if (runningSel.sub)
-		notify_CPU_RUNNING_SEL_STATUS (runningSel.sub->q, 0, logger, runningSel.status);
+	priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 	priv_enterState_normal();
 }
 

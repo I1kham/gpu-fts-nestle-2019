@@ -75,9 +75,10 @@ namespace cpubridge
 
 		enum eStartSelectionMode
 		{
-			eStartSelectionMode_default = 0,
-			eStartSelectionMode_alreadyPaid = 1,
-			eStartSelectionMode_invalid = 0xff
+			eStartSelectionMode_default			= 0,
+			eStartSelectionMode_alreadyPaid		= 1,
+			eStartSelectionMode_CPUSpontaneous	= 2,
+			eStartSelectionMode_invalid			= 0xff
 		};
 
 		struct sStartSelectionParams1
@@ -101,6 +102,7 @@ namespace cpubridge
 			{
 				sStartSelectionParams1	asDefault;
 				sStartSelectionParams2	asAlreadyPaid;
+				sStartSelectionParams1	asCPUSpontaneous;
 			};
 
 		public:
@@ -108,9 +110,10 @@ namespace cpubridge
 			{
 				switch (how)
 				{
-				case eStartSelectionMode_default:		return this->asDefault.selNum;
-				case eStartSelectionMode_alreadyPaid:	return this->asAlreadyPaid.selNum;
-				default:								return 0;
+				case eStartSelectionMode_default:			return this->asDefault.selNum;
+				case eStartSelectionMode_alreadyPaid:		return this->asAlreadyPaid.selNum;
+				case eStartSelectionMode_CPUSpontaneous:	return this->asCPUSpontaneous.selNum;
+				default:									return 0;
 				}			
 			}
 		};
@@ -183,6 +186,7 @@ namespace cpubridge
 		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
 		bool                    priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out);
         u16                     priv_prepareAndSendMsg_readVMCDataFileBlock (u16 blockNum);
+		void					priv_notify_CPU_RUNNING_SEL_STATUS (const sSubscription *sub, u16 handlerID, eRunningSelStatus s);
 		
 		u8						priv_2DigitHexToInt(const u8 *buffer, u32 index) const;
 		bool					priv_WriteByteMasterNext(u8 dato_8, bool isLastFlag, u8 *out_bufferW, u32 &in_out_bufferCT);
