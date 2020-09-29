@@ -33,10 +33,10 @@
 						<!-- option A -->
 						<tr valign="middle" id="divOption1" style="display:none">
 							<td width="50%" align="center">
-								<div id="divOption1-0" class="pageConfirm_iconOptionAL" onclick="onOption1Change(0)"><p>TEXT</p></div>
+								<div id="divOption1-0" class="" onclick="onOption1Change(0)"><p>TEXT</p></div>
 							</td>
 							<td width="50%" align="center">
-								<div id="divOption1-1" class="pageConfirm_iconOptionAR" onclick="onOption1Change(1)"><p>TEXT</p></div>
+								<div id="divOption1-1" class="" onclick="onOption1Change(1)"><p>TEXT</p></div>
 							</td>
 						</tr>
 						
@@ -47,10 +47,10 @@
 						<!-- option B -->					
 						<tr valign="middle" id="divOption2" style="display:none">
 							<td width="50%" align="center">
-								<div id="divOption2-0" class="pageConfirm_iconOptionCL" onclick="onOption2Change(0)"><p>TEXT</p></div>
+								<div id="divOption2-0" class="" onclick="onOption2Change(0)"><p>TEXT</p></div>
 							</td>
 							<td width="50%" align="center">
-								<div id="divOption2-1" class="pageConfirm_iconOptionCR" onclick="onOption2Change(1)"><p>TEXT</p></div>
+								<div id="divOption2-1" class="" onclick="onOption2Change(1)"><p>TEXT</p></div>
 							</td>
 						</tr>						
 								
@@ -320,11 +320,11 @@ function setupPageContent()
 	{
 		n++;
 		var e = document.getElementById("divOption1-0");
-		e.classList = "pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(0,1) +"L";
+		e.classList.add ("pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(0,1) +"L");
 		e.innerHTML = "<p>" +cupOptionButtonText[1] +"</p>";
 		
 		e = document.getElementById("divOption1-1");
-		e.classList = "pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(0,1) +"R";
+		e.classList.add ("pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(0,1) +"R");
 		e.innerHTML = "<p>" +cupOptionButtonText[2] +"</p>";
 		rheaSetDisplayMode(rheaGetElemByID("divOption1"), "table-row");
 	}
@@ -333,11 +333,11 @@ function setupPageContent()
 	{
 		n++;
 		var e = document.getElementById("divOption2-0");
-		e.classList = "pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(1,1) +"L";
+		e.classList.add ("pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(1,1) +"L");
 		e.innerHTML = "<p>" +cupOptionButtonText[3] +"</p>";
 		
 		e = document.getElementById("divOption2-1");
-		e.classList = "pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(1,1) +"R";
+		e.classList.add ("pageConfirm_iconOption" +rheaLang_cupAppearance[iconNum].substr(1,1) +"R");
 		e.innerHTML = "<p>" +cupOptionButtonText[4] +"</p>";
 		
 		rheaSetDisplayMode(rheaGetElemByID("divOption2"), "table-row");

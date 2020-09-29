@@ -6,6 +6,10 @@ ver 2.4.0 2020/09/09
 		
 		-	Added template "nestle-2.0-template-003-mobile"
 			- this template can be used to create and modifiy the mobile GUI for the TP machine
+			
+	Bug fixing:
+		-	Template "nestle-2.0-template-001"
+			- workaround an unsupported browser feature that was preventing the machine to display the custom size button from the advanced cup customization options
 
 ================================================================================================
 ver 2.3.2 2020/08/03
