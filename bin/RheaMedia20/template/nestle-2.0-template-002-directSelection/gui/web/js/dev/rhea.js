@@ -40,6 +40,9 @@ Rhea_clearSessionData = function (defaultLanguage)
 	//selection session clear
 	for (var i=1; i<=RHEA_NUM_MAX_SELECTIONS; i++)
 		Rhea_session_clearObject("selInfo" +i);
+	
+	//qrcode per rasPI-wifi
+	Rhea_session_setValue ("rasPIQRCode", "");
 }
 
 

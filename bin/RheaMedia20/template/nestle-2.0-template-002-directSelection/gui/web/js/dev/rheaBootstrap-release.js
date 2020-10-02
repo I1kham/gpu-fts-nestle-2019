@@ -1,9 +1,6 @@
 var rhea = null;
 var rheaPathPrefix = "";
 
-function rheaDebug_isEnabled()		{ return Rhea_session_getOrDefault("debug", 0); }
-function rheaDebug_enableDebug()	{ Rhea_session_setValue("debug", 1); }
-
 function rheaBootstrap() { rheaBootstrapWithPathPrefix(""); }
 function rheaBootstrapWithPathPrefix (pathPrefix)
 {
@@ -27,13 +24,7 @@ function rheaBootstrap_step2()
 	rhea.webSocket_connect()
 		.then( function() 
 		{
-			if (rheaDebug_isEnabled())
-			{
-				console.log ("loading debug script");
-				return rheaLoadScript(rheaPathPrefix + "js/rheaDebug.js").then( function() { rheaDebug_showWindow(); onRheaBootstrapFinished(); } );
-			}
-			else
-				onRheaBootstrapFinished();
+			onRheaBootstrapFinished();
 		})
 		.catch ( function(result) 
 			{ 

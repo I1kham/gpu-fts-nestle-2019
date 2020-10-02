@@ -1,4 +1,15 @@
 ================================================================================================
+ver 2.4.1 2020/10/02
+	Features
+		-	Template "nestle-2.0-template-001"
+			- added a 15s timeout on page "confirm" so that if the user does not press anything, after 15sec the GUI will go back to main menu
+
+		-	Template "nestle-2.0-template-002"
+			- added a 15s timeout on page "confirm" so that if the user does not press anything, after 15sec the GUI will go back to main menu
+			- added supporto for mobile GUI
+
+
+================================================================================================
 ver 2.4.0 2020/09/09
 	Features
 		-	Template "nestle-2.0-template-001"

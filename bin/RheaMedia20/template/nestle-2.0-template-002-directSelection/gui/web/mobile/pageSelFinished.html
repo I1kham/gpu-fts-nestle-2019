@@ -1,0 +1,96 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css?dt=<?php echo time()?>" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper">
+	<div class="header-sticky">
+		<div id="divCPUMessage" style="display:none;"></div>	
+	</div>
+	
+	<div id="beverageName" class="pageConfirm_beverageTitle pageConfirm_bigFont"></div>
+	<div id="beveragePhoto" class="pageConfirm_beveragePhoto"></div>
+	<div id="divTextAtBottom" class="pageInprogress_finalText pageConfirm_bigFont"></div>
+	
+	<div style="text-align:center">
+		<div id="btnExit" class="btnStart pageConfirm_bigFont" onclick="gotoMenuDisconnect()">EXIT</div>
+		<div id="btnAnotherDrink" class="btnStart pageConfirm_bigFont" onclick="gotoMenuPage()"></div>
+	</div>
+</div>
+
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/MMI.js"></script>
+<script src="config/pageSelFinished.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+
+<script language="javascript">
+function onRheaBootstrapFinished() 	{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
+function onAfterLangLoaded()
+{
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		rheaSetElemHTML(dCPU, msg);
+		rheaShowElem(dCPU);
+	}
+
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+	
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	var iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+	var selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+	
+	var iconDisplayName = MMI_getDisplayName(iconNum);
+	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
+	
+	var d = rheaGetElemByID("beveragePhoto");
+	rheaSetElemHTML(d, image);
+	
+	d = rheaGetElemByID("beverageName");
+	rheaSetElemHTML(d, iconDisplayName);	
+		
+	//your drink is ready msg..
+	var d = rheaGetElemByID("divTextAtBottom");
+	rheaSetElemHTML (d, rheaLang["LAB_YOUR_DRINK_IS_READY"]);
+	rheaShowElem (d);	
+	
+	
+	countdown();	
+}
+
+var timeLeftSec = 15;
+function countdown()
+{
+	rheaSetElemHTML (rheaGetElemByID("btnAnotherDrink"), "HAVE ANOTHER DRINK? " +timeLeftSec);
+	if (timeLeftSec <= 0)
+		gotoMenuDisconnect();
+	else
+	{
+		timeLeftSec--;
+		setTimeout (countdown, 1000);
+	}
+}	
+	
+	
+
+function gotoMenuPage()
+{
+	window.location = "pageMenu.php";
+}
+
+function gotoMenuDisconnect()
+{
+	window.location = "pageDisconnect.html";
+}
+
+
+</script>
+
+
+</html>

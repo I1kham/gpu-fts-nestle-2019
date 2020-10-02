@@ -113,13 +113,9 @@ var selThatWasStarted = 0;
 var GRINDER = 0;
 var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
-
-function isJUG()			{ if (iconDisplayName=="JUG") return true; return false;}
-
-function onRheaBootstrapFinished() 
-{
-	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
-}
+var timerGotoMainMenu = null;
+function isJUG()					{ if (iconDisplayName=="JUG") return true; return false;}
+function onRheaBootstrapFinished() 	{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
 
 function onAfterLangLoaded()
 {
@@ -186,6 +182,7 @@ function onAfterLangLoaded2()
 				selThatWasStarted = 0;
 				rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
 				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+				resetTimerGotoPageMainMenu();
 				break;
 		}
 	
@@ -203,10 +200,13 @@ function onAfterLangLoaded2()
 	{
 		window.location = "pageMenu.html";
 	}, true);	
+	
+	resetTimerGotoPageMainMenu();
 }
 
 function onSelectionChanged(selNum)
 {
+	resetTimerGotoPageMainMenu();
 	var selInfo = rhea.selection_getBySelNumber(selNum);
 	
 	var elemPrice = rheaGetElemByID("divPrice");
@@ -231,9 +231,6 @@ function onSelectionChanged(selNum)
 		rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
 		rheaShowElem(btnStart);
 	}
-
-	if (rheaDebug_isEnabled())
-		rheaDebug_addText ("selection:" +selNum);
 }
 
 function doUpdateCredit()
@@ -446,6 +443,8 @@ function detectCurrentSelection()
 
 function onBtnStartSelection()
 {
+	clearInterval(timerGotoMainMenu);
+
 	selThatWasStarted = detectCurrentSelection();
 
 	//se JUG è attiva, prima mando il "btn" corrispondente al JUG e poi mando la selezione come al solito
@@ -468,6 +467,8 @@ function onBtnStartSelection()
 
 function doStartSelection()
 {
+	clearInterval(timerGotoMainMenu);
+
 	var dContent = rheaGetElemByID("rightPane_content");
 	rheaHideElem(dContent);
 	
@@ -488,10 +489,17 @@ function gotoPagePreparingSel(bCanUseBtnStop)
 	window.location = url;
 }
 
-function gotoSelectionInfo()
+function gotoSelectionInfo()	{ window.location = "pageSelectionInfo.html?iconMenu=" +iconNum; }
+
+function resetTimerGotoPageMainMenu() 
 {
-	window.location = "pageSelectionInfo.html?iconMenu=" +iconNum;
+	if (null != timerGotoMainMenu)
+		clearInterval(timerGotoMainMenu);
+	timerGotoMainMenu = setInterval(gotoPageMainMenu, 15000);
 }
+
+function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
+
 </script>
 
 

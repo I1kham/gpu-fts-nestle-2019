@@ -155,29 +155,56 @@ function onAfterLangLoaded()
 	
 	rhea.onEvent_selectionReqStatus = function (status)
 	{
-		switch (status)
+		//status=1 => wait
+		//status=2 => running
+		//status=5 => running, stop btn can be shown
+		switch (parseInt(status))
 		{
-			case 1: // wait for credit
-				console.log ("sel waiting..");
-				break;
-				
-			case 2:// selection started
-				gotoPagePreparingSel(0);
-				break;
-				
-			case 5:// selection started, can use btnStop
-				gotoPagePreparingSel(1);
-				break;
+		case 1:
+			rheaShowElem (rheaGetElemByID("divPleaseWait"));
+			break;
+			
+		case 2:
+		case 5:
+			//è partita una selezione "spontanea" (probabilmente tramite interfaccia wifi), oppure per via del "direct selection" di questo template
+			//Me ne sono accorto, per cui voglio andare in pagina pageSelInProgress.html
 
-			default:				
-			case 3: // selection aborted
-				console.log ("sel aborted [" +status +"]");
-				rheaHideElem (rheaGetElemByID("divPleaseWait"));
-				selRunning_iconNum = 0;
-				selRunning_selThatWasStarted = 0;
-				break;
-		}
+			//disabilito le icone bevanda
+			var nIcon = MMI_getCount();
+			for (var i=0; i<nIcon; i++)
+			{
+				var d = rheaGetElemByID("divIcon" +i);
+				rheaAddClassToElem(d, "disabled");
+			}
 	
+			//chiedo il num della selezione running
+			rhea.ajax ("getCurSelRunning", "").then( function(result)
+			{
+			console.log ("getCurSelRunning=[" +result +"]");
+				var selNum = parseInt(result);
+				if (selNum >0)
+				{
+				console.log ("qui");
+					var iconNum = MMI_fromSelNumToIconNum(selNum);
+				console.log ("iconnum[" +iconNum +"]");
+					var url = "pageSelInProgress.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+					if (status == 5)
+						url += "&btnStop=1";
+					window.location = url;
+				}
+			})
+			.catch( function(result)
+			{
+			});
+			break;
+			
+		case 3: // selection aborted
+			console.log ("sel aborted [" +status +"]");
+			rheaHideElem (rheaGetElemByID("divPleaseWait"));
+			selRunning_iconNum = 0;
+			selRunning_selThatWasStarted = 0;
+			break;			
+		}
 	}	
 	
 	//rhea.onEvent_selectionPricesUpdated = function () {}

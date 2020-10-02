@@ -69,12 +69,10 @@ var GRINDER = 0;
 var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
 var qrcode = null;
+var timerGotoMainMenu = null;
 
-function onRheaBootstrapFinished() 
-{
-	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
-}
-
+function isJUG()					{ if (iconDisplayName=="JUG") return true; return false;}
+function onRheaBootstrapFinished() 	{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
 function onAfterLangLoaded()
 {
 	lang_loadJS ("cupAppearance")
@@ -140,7 +138,7 @@ function onAfterLangLoaded2()
 				selThatWasStarted = 0;
 				rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
 				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
-				
+				resetTimerGotoPageMainMenu();
 				break;
 		}
 	
@@ -157,10 +155,12 @@ function onAfterLangLoaded2()
 	{
 		window.location = "pageMenu.html";
 	}, true);	
+	resetTimerGotoPageMainMenu();
 }
 
 function onSelectionChanged(selNum)
 {
+	resetTimerGotoPageMainMenu();
 	var selInfo = rhea.selection_getBySelNumber(selNum);
 	
 	var elemPrice = rheaGetElemByID("divPrice");
@@ -248,6 +248,8 @@ function detectCurrentSelection()
 
 function onBtnStartSelection()
 {
+	clearInterval(timerGotoMainMenu);
+
 	var dContent = rheaGetElemByID("rightPane_content");
 	rheaHideElem(dContent);
 	
@@ -262,8 +264,6 @@ function onBtnStartSelection()
 	rhea.selection_start(selThatWasStarted);	
 }
 
-
-
 function gotoPagePreparingSel(bCanUseBtnStop)
 {
 	var url = "pageSelInProgress.html";
@@ -271,10 +271,16 @@ function gotoPagePreparingSel(bCanUseBtnStop)
 	window.location = url;
 }
 
-function gotoSelectionInfo()
+function gotoSelectionInfo() { window.location = "pageSelectionInfo.html?iconMenu=" +iconNum; }
+
+function resetTimerGotoPageMainMenu() 
 {
-	window.location = "pageSelectionInfo.html?iconMenu=" +iconNum;
+	if (null != timerGotoMainMenu)
+		clearInterval(timerGotoMainMenu);
+	timerGotoMainMenu = setInterval(gotoPageMainMenu, 15000);
 }
+
+function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
 </script>
 
 

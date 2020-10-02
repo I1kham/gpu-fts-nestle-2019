@@ -113,15 +113,10 @@ var selThatWasStarted = 0;
 var GRINDER = 0;
 var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
+var timerGotoMainMenu = null;
 
-
-function isJUG()			{ if (iconDisplayName=="JUG") return true; return false;}
-
-function onRheaBootstrapFinished() 
-{
-	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
-}
-
+function isJUG()					{ if (iconDisplayName=="JUG") return true; return false;}
+function onRheaBootstrapFinished() 	{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
 function onAfterLangLoaded()
 {
 	lang_loadJS ("cupAppearance")
@@ -186,6 +181,7 @@ function onAfterLangLoaded2()
 				selThatWasStarted = 0;
 				rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
 				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+				resetTimerGotoPageMainMenu();
 				break;
 		}	
 	}
@@ -203,10 +199,14 @@ function onAfterLangLoaded2()
 	{
 		window.location = "pageMenu.html";
 	}, true);	
+	
+	resetTimerGotoPageMainMenu();
 }
 
 function onSelectionChanged(selNum)
 {
+	resetTimerGotoPageMainMenu();
+
 	var selInfo = rhea.selection_getBySelNumber(selNum);
 	
 	var elemPrice = rheaGetElemByID("divPrice");
@@ -406,8 +406,6 @@ function onCupSelected (whichOne)
 	if (whichOne == 2 && !MMI_canUseLargeCup(iconNum))
 		return;
 		
-		
-		
 	CUP_SIZE = whichOne;
 	
 	for (var i=0; i<3; i++)
@@ -467,6 +465,8 @@ function detectCurrentSelection()
 
 function onBtnStartSelection()
 {
+	clearInterval(timerGotoMainMenu);
+
 	selThatWasStarted = detectCurrentSelection();
 
 	//se sono la preselezione JUG, alla pressione di start, memorizzo in session il fatto che JUG è attiva e torno al menu
@@ -498,6 +498,8 @@ function onBtnStartSelection()
 	
 function doStartSelection()
 {	
+	clearInterval(timerGotoMainMenu);
+	
 	console.log ("doStartSelection()");
 	var dContent = rheaGetElemByID("rightPane_content");
 	rheaHideElem(dContent);
@@ -514,15 +516,23 @@ function doStartSelection()
 
 function gotoPagePreparingSel(bCanUseBtnStop)
 {
+	clearInterval(timerGotoMainMenu);
+	
 	var url = "pageSelInProgress.html";
 	url += "?iconMenu=" +iconNum +"&selNum=" +selThatWasStarted +"&btnStop=" +bCanUseBtnStop;
 	window.location = url;
 }
 
-function gotoSelectionInfo()
+function gotoSelectionInfo()	{ window.location = "pageSelectionInfo.html?iconMenu=" +iconNum; }
+
+function resetTimerGotoPageMainMenu() 
 {
-	window.location = "pageSelectionInfo.html?iconMenu=" +iconNum;
+	if (null != timerGotoMainMenu)
+		clearInterval(timerGotoMainMenu);
+	timerGotoMainMenu = setInterval(gotoPageMainMenu, 15000);
 }
+
+function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
 </script>
 
 
