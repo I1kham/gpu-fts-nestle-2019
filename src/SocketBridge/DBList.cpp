@@ -64,8 +64,10 @@ void DBList::purge(u64 timeNowMSec UNUSED_PARAM)
 }
 
 //*********************************************************
-u16 DBList::getOrCreateDBHandle(u64 timeNowMSec,  const u8* const utf8_fullFilePathAndName)
+u16 DBList::getOrCreateDBHandle(u64 timeNowMSec,  const u8* const utf8_fullFilePathAndNameIN)
 {
+	u8 utf8_fullFilePathAndName[512];
+	rhea::fs::sanitizePath (utf8_fullFilePathAndNameIN, utf8_fullFilePathAndName, sizeof(utf8_fullFilePathAndName));
 	u32 n = list.getNElem();
 	for (u32 i = 0; i < n; i++)
 	{
@@ -128,8 +130,11 @@ bool DBList::exec(u16 dbHandle, u64 timeNowMSec, const u8 * const utf8_sql)
 }
 
 //*********************************************************
-void DBList::closeDBByPath(const u8 * const utf8_fullFilePathAndName)
+void DBList::closeDBByPath(const u8 * const utf8_fullFilePathAndNameIN)
 {
+	u8 utf8_fullFilePathAndName[512];
+	rhea::fs::sanitizePath (utf8_fullFilePathAndNameIN, utf8_fullFilePathAndName, sizeof(utf8_fullFilePathAndName));
+
 	u32 n = list.getNElem();
 	for (u32 i = 0; i < n; i++)
 	{
