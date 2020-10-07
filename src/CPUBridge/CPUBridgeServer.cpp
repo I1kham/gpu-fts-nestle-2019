@@ -3349,7 +3349,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 
 	//in ogni caso metto un limite di tempo massimo per il raggiungimento del target perchè le letture fornite dalla
 	//CPU sono ballerine e potrebbe essere che non arrivo mai esattamente dove voglio
-	u64 timeToExitMSec = rhea::getTimeNowMSec() + 60000;
+	u64 timeToExitMSec = rhea::getTimeNowMSec() + 90000;
 	const u16 TOLLERANZA = 0;
 	while (stato.get() == sStato::eStato_regolazioneAperturaMacina)
 	{
@@ -3413,7 +3413,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	}
 
 	//a questo punto, sono molto vicino al target, generalmente disto 1 o 2 punti dal valore desiderato, vado di fine tuning
-	//In ogni caso, se entro 30 sec non raggiungo l'apertura precisa, esco altrimenti si rischia di stare qui all'infinito visto
+	//In ogni caso, se entro 15 sec non raggiungo l'apertura precisa, esco altrimenti si rischia di stare qui all'infinito visto
 	//che le letture riportate dalla CPU sono un po' ballerine
 	nRetry = NRETRY;
     timeToExitMSec = rhea::getTimeNowMSec() + 15000;
