@@ -439,6 +439,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						for (u8 selNum = 0; selNum < numPrices; selNum++)
 						{
 							u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
+                            if (index > 100)
+                                index = 0;
 							prices[selNum] = cpuParamIniziali.pricesAsInPriceHolding[index];
 						}
 
@@ -455,7 +457,12 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                     {
 						u16 priceToSend = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
 						if (cpu_isPriceHolding)
-							priceToSend = cpuParamIniziali.pricesAsInPriceHolding[cpuParamIniziali.pricesAsInAnswerToCommandC[selNum]];
+                        {
+                            u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
+                            if (index > 100)
+                                index = 0;
+                            priceToSend = cpuParamIniziali.pricesAsInPriceHolding[index];
+                        }
 
                         rhea::string::format::currency (priceToSend, cpu_numDecimalsForPrices, '.', (char*)bufferW, sizeof(bufferW));
                         notify_CPU_SINGLE_SEL_PRICE (sub->q, handlerID, logger, selNum+1, bufferW);
@@ -1186,7 +1193,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			{
 				u8 firstPrice = 0;
 				u8 numPrices = 0;
-				cpubridge:translate_CPU_GET_PRICEHOLDING_PRICELIST (msg, &firstPrice, &numPrices);
+                cpubridge::translate_CPU_GET_PRICEHOLDING_PRICELIST (msg, &firstPrice, &numPrices);
 	
 				u8 bufferW[128];
 				const u16 nBytesToSend = cpubridge::buildMsg_requestPriceHoldingPriceList(firstPrice, numPrices, bufferW, sizeof(bufferW));
@@ -2527,6 +2534,15 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 		if (cpuParamIniziali.pricesAsInAnswerToCommandC[i] > lastPriceList)
 			lastPriceList = cpuParamIniziali.pricesAsInAnswerToCommandC[i];
 	}
+    if (firstPriceList > 100)
+        firstPriceList = 1;
+    if (lastPriceList > 100)
+        lastPriceList = 100;
+    if (firstPriceList > lastPriceList)
+    {
+        firstPriceList = 1;
+        lastPriceList = 100;
+    }
 
 	//reset dei prezzi nel mio buffer interno
 	memset (cpuParamIniziali.pricesAsInPriceHolding, 0xff, sizeof(cpuParamIniziali.pricesAsInPriceHolding));
