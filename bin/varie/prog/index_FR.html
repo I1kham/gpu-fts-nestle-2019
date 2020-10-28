@@ -107,7 +107,7 @@
 				<!--<li onmousedown="menuLang_onUserSelected('DE')"><img src="img/flags/DE.png"> DEUTSCH</li>-->
 				<li onmousedown="menuLang_onUserSelected('ES')"><img src="img/flags/ES.png"> ESPAÑOL</li>
 				<li onmousedown="menuLang_onUserSelected('PT')"><img src="img/flags/PT.png"> PORTUGUÉS</li>
-				<li onmousedown="menuLang_onUserSelected('CN')"><img src="img/flags/CN.png">  中文</li>
+				<li onmousedown="menuLang_onUserSelected('CN')"><img src="img/flags/CN.png"> 中文</li>
 			</ul>
 		</div>
 		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="menuLang_show(0)"></div>
@@ -1709,7 +1709,7 @@ function pageMiscellaneous_show()
 		if (da3.isGruppoMicro())
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		
-		if (da3.isMachine_Multibona())
+		if (da3.isMachine_MultibonaInstant() || da3.isMachine_MinibonaInstant())
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r1"));
 		
 		var objDataAuditBefore = win.getChildByID("pageMiscellaneous_gs_auditBefore");
@@ -3037,11 +3037,11 @@ function pageDevices_show()
 			win.getChildByID("pageDevices_vflex_brewerDiam").changeCaptionByIndex(1,"40mm");
 		}
 
-		//grinder speed test, valido solo per multibona
+		//grinder speed test, valido solo per "multibona espresso"
 		//Il valore viene memorizzato nella loc 7558 del da3
 		//La locazione 7558 è usata sia per indicare se l'auto adjustment su varifilex 1 è attivo, sia per memorizzare lo speed dell'oFF09
 		//Se il gruppo è micro, si usa il secondo caso, se il gruppo è vflex, si usa il primo
-		if (da3.isGruppoMicro() && da3.isMachine_Multibona())
+		if (da3.isGruppoMicro() && da3.isMachine_MultibonaEspresso())
 		{
 			rheaSetDisplayMode(rheaGetElemByID("pageDevices_grinderSpeedTest", "table-row"));
 			rheaHideElem(rheaGetElemByID("pageDevices_vflex_v1AutoAdjust"));

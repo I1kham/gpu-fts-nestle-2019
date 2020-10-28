@@ -140,6 +140,29 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		return false;
 		break;
 
+	case eCPUCommand_requestPriceHoldingPriceList:
+		{
+			u8 firstPriceLine = bufferToSend[3];
+			u8 numPrices = bufferToSend[4];
+
+			out_answer[ct++] = '#';
+			out_answer[ct++] = eCPUCommand_requestPriceHoldingPriceList;
+			out_answer[ct++] = 0; //lunghezza
+			out_answer[ct++] = firstPriceLine;
+			out_answer[ct++] = numPrices;
+			for (u8 i = 0; i < numPrices;i++)
+			{
+				u16 price = 300 + firstPriceLine + i;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], price);
+				ct += 2;
+			}
+
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+		}
+		return true;
+
 	case eCPUCommand_writePartialVMCDataFile:
 		{
             //const u8 packet_uno_di = bufferToSend[3];
@@ -157,9 +180,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 			//simulo estrma lentezza della CPU in risposta
 			//rhea::thread::sleepMSec(8000);
-			return true;
 		}
-		break;
+		return true;
 
 	case eCPUCommand_getVMCDataFileTimeStamp:
 		{
@@ -174,9 +196,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			*in_out_sizeOfAnswer = out_answer[2];
-			return true;
 		}
-		break;
+		return true;
+
 
 	case eCPUCommand_startSelWithPaymentAlreadyHandled_V:
 		{

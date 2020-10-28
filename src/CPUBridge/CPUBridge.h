@@ -160,6 +160,7 @@ namespace cpubridge
 	u8			buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_getMilkerVer (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_requestPriceHoldingPriceList (u8 firstPrice, u8 numPrices, u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 	/***********************************************
@@ -327,6 +328,10 @@ namespace cpubridge
 	
 	void		notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u16 *utf16_LSB_MSB_selectioName);
 	void		translateNotify_CPU_GET_CPU_SELECTION_NAME (const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_utf16_LSB_MSB_selectioName, u32 sizeOfOutUTF16_LSB_MSB_selectioName);
+
+	void		notify_CPU_GET_PRICEHOLDING_PRICELIST (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 firstPrice, u8 numPrices, const u16 *prices);
+	void		translateNotifyCPU_GET_PRICEHOLDING_PRICELIST (const rhea::thread::sMsg &msg, u8 *out_firstPrice, u8 *out_numPrices, u16 *out_prices);
+					//out_prices deve essere di almeno NUM_MAX_SELECTIONS elementi
 
 	/***********************************************
 		ask_xxxx
@@ -552,6 +557,12 @@ namespace cpubridge
 					//chiede alla CPU il nome della selezione [selNum] cos' come riportato nel DA3
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_CPU_SELECTION_NAME
 	
+	void		ask_CPU_GET_PRICEHOLDING_PRICELIST (const sSubscriber &from, u16 handlerID, u8 firstPrice, u8 numPrices);
+	void		translate_CPU_GET_PRICEHOLDING_PRICELIST(const rhea::thread::sMsg &msg, u8 *out_firstPrice, u8 *out_numPrices);
+					//chiede alla CPU un elenco di prezzi che sono mantenuti dalla periferica in PRICE-HOLDING (una gettoniera di solito)
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_PRICEHOLDING_PRICELIST
+
+
 
 } // namespace cpubridge
 

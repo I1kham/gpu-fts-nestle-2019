@@ -145,6 +145,10 @@ void Server::run()
 		case sStato::eStato_grinderSpeedTest:
 			priv_handleState_grinderSpeedTest();
 			break;
+
+		case sStato::eStato_downloadPriceHoldingPriceList:
+			priv_handleState_downloadPriceHoldingPriceList();
+			break;
 		}
 	}
 
@@ -425,16 +429,35 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 				const u8 numPrices = NUM_MAX_SELECTIONS;
 
-                if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES)
-                    notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.prices);
+				if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES)
+				{
+					if (!cpu_isPriceHolding)
+						notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.pricesAsInAnswerToCommandC);
+					else
+					{
+						u16 prices[NUM_MAX_SELECTIONS + 2];
+						for (u8 selNum = 0; selNum < numPrices; selNum++)
+						{
+							u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
+							prices[selNum] = cpuParamIniziali.pricesAsInPriceHolding[index];
+						}
+
+						notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, prices);
+					}
+				}
                 else
                 {
+					//singolo prezzo
                     u8 selNum = 0;
                     translate_CPU_QUERY_SINGLE_SEL_PRICE (msg, &selNum);
                     selNum--;
                     if (selNum < 48)
                     {
-                        rhea::string::format::currency (cpuParamIniziali.prices[selNum], cpu_numDecimalsForPrices, '.', (char*)bufferW, sizeof(bufferW));
+						u16 priceToSend = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
+						if (cpu_isPriceHolding)
+							priceToSend = cpuParamIniziali.pricesAsInPriceHolding[cpuParamIniziali.pricesAsInAnswerToCommandC[selNum]];
+
+                        rhea::string::format::currency (priceToSend, cpu_numDecimalsForPrices, '.', (char*)bufferW, sizeof(bufferW));
                         notify_CPU_SINGLE_SEL_PRICE (sub->q, handlerID, logger, selNum+1, bufferW);
                     }
                 }
@@ -1156,6 +1179,28 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (sub->q, handlerID, logger, selNum, selName);
 					}
 				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_PRICEHOLDING_PRICELIST:
+			{
+				u8 firstPrice = 0;
+				u8 numPrices = 0;
+				cpubridge:translate_CPU_GET_PRICEHOLDING_PRICELIST (msg, &firstPrice, &numPrices);
+	
+				u8 bufferW[128];
+				const u16 nBytesToSend = cpubridge::buildMsg_requestPriceHoldingPriceList(firstPrice, numPrices, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				{
+					firstPrice = answerBuffer[3];
+					numPrices = answerBuffer[4];
+					u16 prices[64];
+					for (u8 i = 0; i < numPrices; i++)
+						prices[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5 +i*2]);
+
+					notify_CPU_GET_PRICEHOLDING_PRICELIST (sub->q, handlerID, logger, firstPrice, numPrices, prices);
+				}				
 			}
 			break;
 
@@ -2017,7 +2062,6 @@ void Server::priv_resetInternalState(cpubridge::eVMCState s)
  */
 void Server::priv_enterState_compatibilityCheck()
 {
-//priv_enterState_comError(); return;
 	logger->log("CPUBridgeServer::priv_enterState_compatibilityCheck()\n");
 
 	stato.set(sStato::eStato_compatibilityCheck);
@@ -2186,8 +2230,7 @@ void Server::priv_handleState_DA3Sync()
 			//se il suo TS è == al mio, ho finito
 			if (myTS.isEqual(cpuTS))
 			{
-				priv_retreiveSomeDataFromLocalDA3();
-				priv_enterState_normal();
+				priv_handleState_DA3Sync_onFinishedOK();
 				return;
 			}
 			break;
@@ -2260,8 +2303,7 @@ void Server::priv_handleState_DA3Sync()
 			fclose(f);
 
 			//finito
-			priv_retreiveSomeDataFromLocalDA3();
-			priv_enterState_normal();
+			priv_handleState_DA3Sync_onFinishedOK();
 			return;
 		}
 	}
@@ -2270,6 +2312,15 @@ void Server::priv_handleState_DA3Sync()
 }
 
 
+//***************************************************
+void Server::priv_handleState_DA3Sync_onFinishedOK()
+{
+	priv_retreiveSomeDataFromLocalDA3();
+	if (!cpu_isPriceHolding)
+		priv_enterState_normal();
+	else
+		priv_enterState_downloadPriceHoldingPriceList();
+}
 
 
 /***************************************************
@@ -2377,7 +2428,7 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 		u8 k = 17;
 		for (u8 i = 0; i < NUM_MAX_SELECTIONS; i++)
 		{
-			cpuParamIniziali.prices[i] = (u16)answer[k] + 256 * (u16)answer[k + 1];
+			cpuParamIniziali.pricesAsInAnswerToCommandC[i] = (u16)answer[k] + 256 * (u16)answer[k + 1];
 			k += 2;
 		}
 	}
@@ -2406,6 +2457,122 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 	system(s);
 	system("hwclock -w");
 #endif
+}
+
+/***************************************************
+ * Questo è uno stato particolare, che si attiva solo se c'è PRICE-HOLDING impostato.
+ * Serve per recuperare la lista prezzi dalla gettoniera price holding
+ */
+void Server::priv_enterState_downloadPriceHoldingPriceList()
+{
+	logger->log("CPUBridgeServer::priv_enterState_downloadPriceHoldingPriceList()\n");
+	stato.set (sStato::eStato_downloadPriceHoldingPriceList);
+}
+
+/***************************************************
+ * priv_handleState_downloadPriceHoldingPriceList
+ * Manda una serie di msg alla CPU allo scopo di recuperare i prezzi memorizzati nella gettoniera in price-holding
+ */
+void Server::priv_handleState_downloadPriceHoldingPriceList()
+{
+	u8 bufferW[64];
+
+	//mi devo assicurare che la CPU sia pronta per rispondere alle query sulla gettoniera
+	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 250;
+	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 5;
+	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
+	u8 nRetry = 0;
+	while ((cpuStatus.flag1 & sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT) == 0)
+	{
+		const u64 timeNowMSec = rhea::getTimeNowMSec();
+
+		//ogni tot, invio un msg di stato alla CPU
+		if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
+		{
+			u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+			if (0 == sizeOfAnswerBuffer)
+			{
+				//la CPU non ha risposto al mio comando di stato, passo in com_error
+				nRetry++;
+				if (nRetry >= ALLOW_N_RETRY_BEFORE_COMERROR)
+				{
+					priv_enterState_comError();
+					return;
+				}
+			}
+			else
+			{
+				//parso la risposta
+				nRetry = 0;
+				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
+			}
+
+			//schedulo il prossimo msg di stato
+			nextTimeSendCheckStatusMsgWasMSec = rhea::getTimeNowMSec() + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
+		}
+
+		//ci sono messaggi in ingresso?
+		priv_handleMsgQueues (timeNowMSec, TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec);
+	}
+
+
+
+	//determino quali e quanti prezzi devo recuperare dalla gettoniera
+	u8 firstPriceList = 100;
+	u8 lastPriceList = 1;
+	for (u8 i = 0; i < NUM_MAX_SELECTIONS; i++)
+	{
+		if (cpuParamIniziali.pricesAsInAnswerToCommandC[i] < firstPriceList)
+			firstPriceList = cpuParamIniziali.pricesAsInAnswerToCommandC[i];
+		if (cpuParamIniziali.pricesAsInAnswerToCommandC[i] > lastPriceList)
+			lastPriceList = cpuParamIniziali.pricesAsInAnswerToCommandC[i];
+	}
+
+	//reset dei prezzi nel mio buffer interno
+	memset (cpuParamIniziali.pricesAsInPriceHolding, 0xff, sizeof(cpuParamIniziali.pricesAsInPriceHolding));
+
+	//devo chiedere tutti i prezzi compresi tra [firstPriceList] e [lastPriceList] in gruppi da NUM_PREZZI_PER_QUERY
+	const u8 NUM_PREZZI_PER_QUERY = 8;
+	const u8 NUM_MAX_RETRY_PER_QUERY = 3;
+	u8 currentFirstPriceInRequest = firstPriceList;
+	nRetry = NUM_MAX_RETRY_PER_QUERY;
+	bool bQuit = false;
+	while (bQuit == false)
+	{
+		u8 numPricesToAsk = (lastPriceList - currentFirstPriceInRequest) + 1;
+		if (numPricesToAsk > NUM_PREZZI_PER_QUERY)
+			numPricesToAsk = NUM_PREZZI_PER_QUERY;
+		if (numPricesToAsk == 0)
+			numPricesToAsk = 1;
+		const u8 nBytesToSend = cpubridge::buildMsg_requestPriceHoldingPriceList (currentFirstPriceInRequest, numPricesToAsk, bufferW, sizeof(bufferW));
+
+		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+		if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+		{
+			//risponde con # H [len] [first] [num] [LSB_price] [MSB_price]..[LSB_price] [MSB_price] [ck]
+			const u8 first = answerBuffer[3];
+			const u8 num = answerBuffer[4];
+			for (u8 i = 0; i < num; i++)
+				cpuParamIniziali.pricesAsInPriceHolding[first + i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5 + 2 * i]);
+
+			currentFirstPriceInRequest = first + num;
+			nRetry = NUM_MAX_RETRY_PER_QUERY;
+
+			if (currentFirstPriceInRequest > lastPriceList)
+				bQuit = true;
+		}
+		else
+		{
+			if (nRetry-- == 0)
+			{
+				//qualcosa è andato storto
+				bQuit = true;
+			}
+		}
+	}
+
+
+	priv_enterState_normal();
 }
 
 
@@ -3515,6 +3682,9 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 
 	//Numero di cifre decimali da utilizzare durante la formattazione dei prezzi. Tale numero lo trovo nel DA3 alla loc 7066
 	this->cpu_numDecimalsForPrices = da3[7066];
+	this->cpu_isPriceHolding = 0;
+	if (da3[7058] == 3)
+		this->cpu_isPriceHolding = 1;
 
 	RHEAFREE(localAllocator, da3);
 }

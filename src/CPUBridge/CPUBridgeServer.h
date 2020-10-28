@@ -40,6 +40,7 @@ namespace cpubridge
 				eStato_DA3_sync = 7,
 				eStato_telemetry = 8,
 				eStato_grinderSpeedTest = 9,
+				eStato_downloadPriceHoldingPriceList = 10,
 
 				eStato_quit = 0xff
             };
@@ -148,10 +149,14 @@ namespace cpubridge
 
 		void					priv_enterState_DA3Sync();
 		void					priv_handleState_DA3Sync();
+		void					priv_handleState_DA3Sync_onFinishedOK();
 
 		void					priv_enterState_comError();
 		void					priv_handleState_comError();
 		void					priv_parseAnswer_initialParam(const u8 *answer, u16 answerLen);
+
+		void					priv_enterState_downloadPriceHoldingPriceList();
+		void					priv_handleState_downloadPriceHoldingPriceList();
 
 		void					priv_enterState_normal();
 		void					priv_handleState_normal();
@@ -208,6 +213,7 @@ namespace cpubridge
 		sCPUStatus				cpuStatus;
 		sRunningSelection		runningSel;
 		u8						cpu_numDecimalsForPrices;
+		u8						cpu_isPriceHolding;
 		rhea::FastArray<sSubscription*>	subscriberList;
 		sLanguage				language;
 		u16						utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];

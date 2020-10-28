@@ -71,6 +71,7 @@
 #define		CPUBRIDGE_NOTIFY_LAST_GRINDER_SPEED					0x0131
 #define		CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB		0x0132
 #define		CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING            0x0133
+#define		CPUBRIDGE_NOTIFY_GET_PRICEHOLDING_PRICELIST			0x0134
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
 
@@ -139,6 +140,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_GRINDER_SPEED							0x0839
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB			0x083A
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE							0x083B
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_PRICEHOLDING_PRICELIST					0x083C
 
 namespace cpubridge
 {
@@ -159,7 +161,8 @@ namespace cpubridge
 		eCPUCommand_getExtendedConfigInfo = 'c',
 		eCPUCommand_getMilkerVer = 'M',
         eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V',
-		eCPUCommand_getNomeSelezioneCPU_d = 'd'
+		eCPUCommand_getNomeSelezioneCPU_d = 'd',
+		eCPUCommand_requestPriceHoldingPriceList = 'H'
 	};
 
 	enum eRunningSelStatus
@@ -432,7 +435,8 @@ namespace cpubridge
 	{
 		char	CPU_version[16];
 		u8		protocol_version;
-		u16		prices[48];
+		u16		pricesAsInAnswerToCommandC[48];	//nel 99% dei casi, questi sono i prezzi delle selezioni. Nel caso di PRICE-HOLDING, questi sono indici ai prezzi mantenuti dalla gettoniera
+		u16		pricesAsInPriceHolding[120];	//Nel casi di price holding, qui ci sono i (max 100 ad partire da indice 1 fino a indice 100 compresi) prezzi contenuti nella gettoniera.
 	};
 
 	struct sCPUSelAvailability

@@ -26,7 +26,7 @@ void CmdHandler_eventReqCPUIniParam::onCPUBridgeNotification (socketbridge::Serv
 	nbw.writeBlob(iniParam.CPU_version, sizeof(iniParam.CPU_version));
 	nbw.writeU8(iniParam.protocol_version);
 	for (u8 i = 0; i < 48; i++)
-		nbw.writeU16(iniParam.prices[i]);
+		nbw.writeU16(iniParam.pricesAsInAnswerToCommandC[i]);
 	
 	server->sendEvent (hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, nbw.length());
 }

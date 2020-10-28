@@ -465,6 +465,15 @@ u8 cpubridge::buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 bl
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_requestPriceHoldingPriceList (u8 firstPrice, u8 numPrices, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	u8 optionalData[2];
+	optionalData[0] = firstPrice;
+	optionalData[1] = numPrices;
+	return cpubridge_buildMsg(cpubridge::eCPUCommand_requestPriceHoldingPriceList, optionalData, 2, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
 u8 cpubridge::buildMsg_writePartialVMCDataFile(const u8 *buffer64byte, u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[VMCDATAFILE_BLOCK_SIZE_IN_BYTE + 3];
@@ -668,6 +677,26 @@ void cpubridge::translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg 
 	const u16 *p = (const u16*)msg.buffer;
 	*out_numPrices = (u8)(p[0] & 0x00FF);
 	*out_numDecimals = (u8)((p[0] & 0xFF00)>>8);
+	memcpy(out_prices, &p[1], sizeof(u16)* (*out_numPrices));
+}
+
+//***************************************************
+void cpubridge::notify_CPU_GET_PRICEHOLDING_PRICELIST (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 firstPrice, u8 numPrices, const u16 *prices)
+{
+	logger->log("notify_CPU_GET_PRICEHOLDING_PRICELIST\n");
+	u16 buffer[96];
+	buffer[0] = (u16)firstPrice | ((u16)numPrices << 8);
+	memcpy(&buffer[1], prices, sizeof(u16)* numPrices);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_PRICEHOLDING_PRICELIST, handlerID, buffer, sizeof(u16) * (numPrices + 1));
+}
+
+//***************************************************
+void cpubridge::translateNotifyCPU_GET_PRICEHOLDING_PRICELIST (const rhea::thread::sMsg &msg, u8 *out_firstPrice, u8 *out_numPrices, u16 *out_prices)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_PRICEHOLDING_PRICELIST);
+	const u16 *p = (const u16*)msg.buffer;
+	*out_firstPrice = (u8)(p[0] & 0x00FF);
+	*out_numPrices = (u8)((p[0] & 0xFF00) >> 8);
 	memcpy(out_prices, &p[1], sizeof(u16)* (*out_numPrices));
 }
 
@@ -1962,6 +1991,26 @@ void cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg 
 	*out_motore = (eCPUProgrammingCommand_motor)p[0];
 	*out_valoreGr = rhea::utils::bufferReadU16(&p[1]);
 }
+
+//***************************************************
+void cpubridge::ask_CPU_GET_PRICEHOLDING_PRICELIST (const sSubscriber &from, u16 handlerID, u8 firstPrice, u8 numPrices)
+{
+	u8 otherData[2];
+	otherData[0] = firstPrice;
+	otherData[1] = numPrices;
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_PRICEHOLDING_PRICELIST, handlerID, otherData, 2);
+}
+
+//***************************************************
+void cpubridge::translate_CPU_GET_PRICEHOLDING_PRICELIST(const rhea::thread::sMsg &msg, u8 *out_firstPrice, u8 *out_numPrices)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_PRICEHOLDING_PRICELIST);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_firstPrice = p[0];
+	*out_numPrices = p[1];
+}
+
+
 
 //***************************************************
 void cpubridge::ask_CPU_GET_STATO_GRUPPO(const sSubscriber &from, u16 handlerID)

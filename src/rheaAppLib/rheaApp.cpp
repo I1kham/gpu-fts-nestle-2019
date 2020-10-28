@@ -528,7 +528,7 @@ void app::CurrentCPUInitParam::decodeAnswer(const sDecodedEventMsg &msg, cpubrid
 	nbr.readBlob(out->CPU_version, sizeof(out->CPU_version));
 	nbr.readU8(out->protocol_version);
 	for (u8 i = 0; i < 48; i++)
-		nbr.readU16(out->prices[i]);
+		nbr.readU16(out->pricesAsInAnswerToCommandC[i]);
 }
 
 /*****************************************************************
