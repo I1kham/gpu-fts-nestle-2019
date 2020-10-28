@@ -2534,15 +2534,17 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 		if (cpuParamIniziali.pricesAsInAnswerToCommandC[i] > lastPriceList)
 			lastPriceList = cpuParamIniziali.pricesAsInAnswerToCommandC[i];
 	}
-    if (firstPriceList > 100)
-        firstPriceList = 1;
-    if (lastPriceList > 100)
-        lastPriceList = 100;
-    if (firstPriceList > lastPriceList)
-    {
-        firstPriceList = 1;
-        lastPriceList = 100;
-    }
+
+	if (firstPriceList > lastPriceList)
+	{
+		u8 swap = firstPriceList;
+		firstPriceList = lastPriceList;
+		lastPriceList = swap;
+	}
+		
+	if (firstPriceList < 1)		firstPriceList = 1;
+	if (firstPriceList > 100)	firstPriceList = 100;
+	if (lastPriceList > 100)	lastPriceList = 100;
 
 	//reset dei prezzi nel mio buffer interno
 	memset (cpuParamIniziali.pricesAsInPriceHolding, 0xff, sizeof(cpuParamIniziali.pricesAsInPriceHolding));
@@ -2550,6 +2552,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 	//devo chiedere tutti i prezzi compresi tra [firstPriceList] e [lastPriceList] in gruppi da NUM_PREZZI_PER_QUERY
 	const u8 NUM_PREZZI_PER_QUERY = 8;
 	const u8 NUM_MAX_RETRY_PER_QUERY = 3;
+	
 	u8 currentFirstPriceInRequest = firstPriceList;
 	nRetry = NUM_MAX_RETRY_PER_QUERY;
 	bool bQuit = false;
@@ -2561,7 +2564,6 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 		if (numPricesToAsk == 0)
 			numPricesToAsk = 1;
 		const u8 nBytesToSend = cpubridge::buildMsg_requestPriceHoldingPriceList (currentFirstPriceInRequest, numPricesToAsk, bufferW, sizeof(bufferW));
-
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 		if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 		{
