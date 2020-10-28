@@ -316,11 +316,22 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = 'U';
 
 			//98 btyes composti da 49 prezzi ciascuno da 2 bytes (byte basso byte alto)
-			for (u8 i = 0; i < 49; i++)
-			{
-				out_answer[ct++] = (i+1);
-				out_answer[ct++] = 0;
-			}
+            {
+                u8 prices[49];
+                memset (prices, 0, sizeof(prices));
+                for (u8 i = 0; i < 49; i++)
+                    prices[i] = (i+1); //questo per dare prezzo 1 a bevanda 1, prezzo 2 a bevanda 2...
+
+                /*prices[0] = 0;
+                prices[1] = 0;
+                prices[2] = 0;
+                */
+                for (u8 i = 0; i < 49; i++)
+                {
+                    out_answer[ct++] = prices[i];
+                    out_answer[ct++] = 0;
+                }
+            }
 
 			//Da qui in poi sono dati nuovi, introdotti a dicembre 2018
 			//115			versione protocollo.Inizialmente = 1, potrebbe cambiare in futuro
