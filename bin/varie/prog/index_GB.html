@@ -173,7 +173,7 @@
 								<div id="pageMaintenance_11" style="float:left" class="bigCaption15">00000</div>
 								<div class="clear"></div>
 							</td>
-							<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000"></div></td>
+							<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000" data-forbidden="1"></div></td>
 							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></td>
 						</tr>
 						<tr id="pageMaintenance_decCofBrew">
@@ -1709,6 +1709,9 @@ function pageMiscellaneous_show()
 		if (da3.isGruppoMicro())
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		
+		if (da3.isMachine_Multibona())
+			rheaHideElem (rheaGetElemByID("pageMiscellaneous_r1"));
+		
 		var objDataAuditBefore = win.getChildByID("pageMiscellaneous_gs_auditBefore");
 		var objFvHWKey = win.getChildByID("pageMiscellaneous_fvHwKey");
 		if (da3.isInduzione())
@@ -1880,14 +1883,23 @@ function  pageMiscellaneous_onSelector()
 function pageMiscellaneous_onPINCodeInserted()
 {
 	var win = ui.getWindowByID("pageMiscellaneous");
-	var pinCodeObj = win.getChildByID("pageMiscellaneous_pincode");
-	
+
 	var pinCode = parseInt(da3.read16(7404));
+	if (pinCode==0)	
+	{
+		//la CPU impone il codice "123" nel caso in cui nel da3 sia memorizzato "000"
+		pinCode=123;
+		win.getChildByID("pageMiscellaneous_newpincode").setValue("123");
+	}
+		
+		
+	var pinCodeObj = win.getChildByID("pageMiscellaneous_pincode");
 	if (parseInt(pinCodeObj.getValue()) != pinCode)
 	{
 		pinCodeObj.setValue("000");
 		return;
 	}
+
 
 	rheaHideElem (rheaGetElemByID("pageMiscellaneous_blockingCt_pwd"));
 	rheaShowElem (rheaGetElemByID("pageMiscellaneous_blockingCt_unblocked"));

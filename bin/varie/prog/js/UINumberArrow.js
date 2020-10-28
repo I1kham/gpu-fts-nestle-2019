@@ -3,18 +3,19 @@
  
  *	attributi consentiti:
  *
- *		data-numfigures="2"					=> numero totale di cifre da visualizzare
- *			opzionale data-value="7"		=> valore da visualizzare (0 se non indicato)
- *			opzionale data-da3="xxx"		=> locazione in memoria dalla quale leggere/scrivere il numero
+ *		data-numfigures="2"						=> numero totale di cifre da visualizzare
+ *			opzionale data-value="7"			=> valore da visualizzare (0 se non indicato)
+ *			opzionale data-da3="xxx"			=> locazione in memoria dalla quale leggere/scrivere il numero
  *			opzionale data-da3bit="4|8|9|16"	=> legge 4,8,9,16,32 bit dal da3, default 16.
-												NEl caso di 9 bit, è necessaria anche l'opzione data-da3bit9
- *			opzionale data-da3bit9="a,b"	=>  indica dove andare a prendere il nono bit.
-												il nono viene preso dalla posizione [da3pos+a] al bit [b] con b che va da 0 a 7
- *			opzionale data-min				=> default = 0
- *			opzionale data-max				=> default = 999999999
- *			opzionale data-decimal			=> numero di cifre decimali dopo il "." 
-												ATTENZIONE che UINumber ritorna sempre e cmq un numero intero, il decimale è solo un fatto estetico
-*			opzionale data-um="sec."		=> scrive l'unità di misura a destra dell'ultimo numero
+													NEl caso di 9 bit, è necessaria anche l'opzione data-da3bit9
+ *			opzionale data-da3bit9="a,b"		=>  indica dove andare a prendere il nono bit.
+													il nono viene preso dalla posizione [da3pos+a] al bit [b] con b che va da 0 a 7
+ *			opzionale data-min					=> default = 0
+ *			opzionale data-max					=> default = 999999999
+ *			opzionale data-decimal				=> numero di cifre decimali dopo il "." 
+													ATTENZIONE che UINumber ritorna sempre e cmq un numero intero, il decimale è solo un fatto estetico
+ *			opzionale data-um="sec."			=> scrive l'unità di misura a destra dell'ultimo numero
+ *			opzionale data-forbidden="3,4,10"	=> lista di valori proibiti. Il controllo farà in modo di skippare questi valori durante gli incrementi/decrementi
  */
 var UINUMBER_TOP_OFFSET = 10;
 var UINUMBER_NUM_HEIGHT = 56;
@@ -43,6 +44,10 @@ function UINumber (parentID, childNum, node)
 	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
 	
 	this.numDecimalAfterPoint = parseInt(UIUtils_getAttributeOrDefault(node, "data-decimal", "0"));
+	
+	//eventuale elenco di numeri proibiti
+	this.forbiddenNumberList = UIUtils_getAttributeOrDefault(node, "data-forbidden", "");
+		
 	
 	//genero l'HTML
 	this.mousedown_relY = [];
@@ -243,6 +248,7 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 			var dStrip = document.getElementById(idStrip);
 			var whichNum = parseInt(dStrip.getAttribute("data-value"));
 			var bVolevoIncrementare = 0;
+			
 			if (me.mousedown_relY[iCifra] < 0)
 			{
 				bVolevoIncrementare = 1;
@@ -262,15 +268,12 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 			var newValue = me.getValue();
 
 			//per assicurarmi di stare all'interno di valueMin/valueMax...
-			//me.setValue(me.getValue());
-			
 			if (newValue < me.valueMin || newValue > me.valueMax) 
 			{
 				console.log ("cur[" +curValue +"], new[" +newValue +"]");
 				if (bVolevoIncrementare)
 				{
 					me.setValue(me.valueMax);
-					//me.flashBackground(curValue);
 					me.flashBackground(me.valueMax);
 				}
 				else
@@ -278,10 +281,28 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 					me.setValue(me.valueMin);
 					me.flashBackground(me.valueMin);
 				}
-				
 			}
 			else
+			{
 				me.setValue(newValue);
+				
+				//possono esserci dei numeri proibiti, nel qual caso li skippo
+				if (me.forbiddenNumberList != "")
+				{
+					var numList = me.forbiddenNumberList.split(",");
+					for (var i=0; i<numList.length; i++)
+					{
+						if (newValue == parseInt(numList[i]))
+						{
+							if (bVolevoIncrementare)
+								newValue++;
+							else
+								newValue--;
+							me.setValue(newValue);	
+						}
+					}
+				}
+			}
 		}
 	}, 
 	true);	

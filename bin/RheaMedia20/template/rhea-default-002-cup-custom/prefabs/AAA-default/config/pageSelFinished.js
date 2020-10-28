@@ -1,0 +1,1 @@
+var selFinishedPageOptions={timeToGoBack:2000}
