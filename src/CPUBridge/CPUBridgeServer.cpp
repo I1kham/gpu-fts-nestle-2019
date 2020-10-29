@@ -440,8 +440,9 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						{
 							u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
                             if (index > 100)
-                                index = 0;
-							prices[selNum] = cpuParamIniziali.pricesAsInPriceHolding[index];
+                                prices[selNum] = 0xffff;
+                            else
+                                prices[selNum] = cpuParamIniziali.pricesAsInPriceHolding[index];
 						}
 
 						notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, prices);
@@ -460,8 +461,9 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                         {
                             u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
                             if (index > 100)
-                                index = 0;
-                            priceToSend = cpuParamIniziali.pricesAsInPriceHolding[index];
+                                priceToSend = 0xffff;
+                            else
+                                priceToSend = cpuParamIniziali.pricesAsInPriceHolding[index];
                         }
 
                         rhea::string::format::currency (priceToSend, cpu_numDecimalsForPrices, '.', (char*)bufferW, sizeof(bufferW));
@@ -2468,7 +2470,8 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 
 /***************************************************
  * Questo è uno stato particolare, che si attiva solo se c'è PRICE-HOLDING impostato.
- * Serve per recuperare la lista prezzi dalla gettoniera price holding
+ * Serve per recuperare la lista prezzi dalla gettoniera price holding.
+ * Questo stato viene invocato automaticamente alla fine del da3Sync (solo se PRICE HOLDING impostato)
  */
 void Server::priv_enterState_downloadPriceHoldingPriceList()
 {
@@ -2548,10 +2551,11 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 
 	//reset dei prezzi nel mio buffer interno
 	memset (cpuParamIniziali.pricesAsInPriceHolding, 0xff, sizeof(cpuParamIniziali.pricesAsInPriceHolding));
+    cpuParamIniziali.pricesAsInPriceHolding[0] = 0;
 
 	//devo chiedere tutti i prezzi compresi tra [firstPriceList] e [lastPriceList] in gruppi da NUM_PREZZI_PER_QUERY
-	const u8 NUM_PREZZI_PER_QUERY = 8;
-	const u8 NUM_MAX_RETRY_PER_QUERY = 3;
+    const u8 NUM_PREZZI_PER_QUERY = 4;
+    const u8 NUM_MAX_RETRY_PER_QUERY = 5;
 	
 	u8 currentFirstPriceInRequest = firstPriceList;
 	nRetry = NUM_MAX_RETRY_PER_QUERY;
@@ -2561,11 +2565,9 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 		u8 numPricesToAsk = (lastPriceList - currentFirstPriceInRequest) + 1;
 		if (numPricesToAsk > NUM_PREZZI_PER_QUERY)
 			numPricesToAsk = NUM_PREZZI_PER_QUERY;
-		if (numPricesToAsk == 0)
-			numPricesToAsk = 1;
 		const u8 nBytesToSend = cpubridge::buildMsg_requestPriceHoldingPriceList (currentFirstPriceInRequest, numPricesToAsk, bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+        if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 		{
 			//risponde con # H [len] [first] [num] [LSB_price] [MSB_price]..[LSB_price] [MSB_price] [ck]
 			const u8 first = answerBuffer[3];
@@ -2583,7 +2585,10 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 		{
 			if (nRetry-- == 0)
 			{
-				//qualcosa è andato storto
+                //qualcosa è andato storto, mi arrendo e lascio i prezzi cosi' come sono.
+                //Avendoli memsettati a 0xffff, i prezzi dovrebbero essere talmente alti da far capire che qualcosa è
+                //andato male. Alla peggio, di fronte ad un prezzo di 655.35 euro, il cliente sicuramente non proverà
+                //ad acquistare
 				bQuit = true;
 			}
 		}
