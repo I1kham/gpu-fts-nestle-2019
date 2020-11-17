@@ -2554,8 +2554,10 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
     cpuParamIniziali.pricesAsInPriceHolding[0] = 0;
 
 	//devo chiedere tutti i prezzi compresi tra [firstPriceList] e [lastPriceList] in gruppi da NUM_PREZZI_PER_QUERY
-    const u8 NUM_PREZZI_PER_QUERY = 4;
+    //const u8 NUM_PREZZI_PER_QUERY = 4;
+	const u8 NUM_PREZZI_PER_QUERY = 1;
     const u8 NUM_MAX_RETRY_PER_QUERY = 5;
+	const u64 TIMEOUT_ANSWER_TO_H_Msec = 1500;
 	
 	u8 currentFirstPriceInRequest = firstPriceList;
 	nRetry = NUM_MAX_RETRY_PER_QUERY;
@@ -2567,7 +2569,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 			numPricesToAsk = NUM_PREZZI_PER_QUERY;
 		const u8 nBytesToSend = cpubridge::buildMsg_requestPriceHoldingPriceList (currentFirstPriceInRequest, numPricesToAsk, bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-        if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+        if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, TIMEOUT_ANSWER_TO_H_Msec))
 		{
 			//risponde con # H [len] [first] [num] [LSB_price] [MSB_price]..[LSB_price] [MSB_price] [ck]
 			const u8 first = answerBuffer[3];
