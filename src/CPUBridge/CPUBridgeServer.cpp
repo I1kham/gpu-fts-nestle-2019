@@ -28,6 +28,8 @@ Server::Server()
 	runningSel.status = eRunningSelStatus_finished_OK;
 
 	showCPUStringModelAndVersionUntil_msec = 0;
+
+	memset (&priceHolding, 0, sizeof(priceHolding));
 }
 
 //***************************************************
@@ -431,7 +433,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 				if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_SEL_PRICES)
 				{
-					if (!cpu_isPriceHolding)
+					if (!priceHolding.isPriceHolding)
 						notify_CPU_SEL_PRICES_CHANGED(sub->q, handlerID, logger, numPrices, cpu_numDecimalsForPrices, cpuParamIniziali.pricesAsInAnswerToCommandC);
 					else
 					{
@@ -457,7 +459,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
                     if (selNum < 48)
                     {
 						u16 priceToSend = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
-						if (cpu_isPriceHolding)
+						if (priceHolding.isPriceHolding)
                         {
                             u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
                             if (index > 100)
@@ -2325,10 +2327,21 @@ void Server::priv_handleState_DA3Sync()
 void Server::priv_handleState_DA3Sync_onFinishedOK()
 {
 	priv_retreiveSomeDataFromLocalDA3();
-	if (!cpu_isPriceHolding)
+	if (!priceHolding.isPriceHolding)
 		priv_enterState_normal();
 	else
-		priv_enterState_downloadPriceHoldingPriceList();
+	{
+		if (priceHolding.alreadyAsked)
+			priv_enterState_normal();
+		else
+		{
+			//voglio che la procedura di richiesta dei prezzi price-holding venga fatta una sola volta, preferibilmente all'avvio e non venga fatta tutte le volte
+			//che si fa un da3 sync. Questo serve ad evitare che ogni volta che si entra in menu prog scatti anche la sync del price holding, visto che è una operazione
+			//che tende ad essere piuttosto lunga
+			priceHolding.alreadyAsked = 1;
+			priv_enterState_downloadPriceHoldingPriceList();
+		}
+	}
 }
 
 
@@ -3707,9 +3720,9 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 
 	//Numero di cifre decimali da utilizzare durante la formattazione dei prezzi. Tale numero lo trovo nel DA3 alla loc 7066
 	this->cpu_numDecimalsForPrices = da3[7066];
-	this->cpu_isPriceHolding = 0;
+	this->priceHolding.isPriceHolding = 0;
 	if (da3[7058] == 3)
-		this->cpu_isPriceHolding = 1;
+		this->priceHolding.isPriceHolding = 1;
 
 	RHEAFREE(localAllocator, da3);
 }

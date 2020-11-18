@@ -131,6 +131,11 @@ namespace cpubridge
 			u8						getSelNum() const					{ return params.getSelNum(); }
 		};
 
+		struct sPriceHolding
+		{
+			u8		isPriceHolding;		//1 se nel DA3 è impostato il price  holding
+			u8		alreadyAsked;		//1 se ho già chiesto i prezzi alla CPU
+		};
 
 	private:
 		void					priv_resetInternalState(cpubridge::eVMCState s);
@@ -213,7 +218,6 @@ namespace cpubridge
 		sCPUStatus				cpuStatus;
 		sRunningSelection		runningSel;
 		u8						cpu_numDecimalsForPrices;
-		u8						cpu_isPriceHolding;
 		rhea::FastArray<sSubscription*>	subscriberList;
 		sLanguage				language;
 		u16						utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
@@ -224,6 +228,7 @@ namespace cpubridge
 		sCalcGrinderSpeed		grinderSpeedTest;
 		u16						utf16_CPUMasterVersionString[34];
 		u64						showCPUStringModelAndVersionUntil_msec;
+		sPriceHolding			priceHolding;
     };
 
 } // namespace cpubridge
