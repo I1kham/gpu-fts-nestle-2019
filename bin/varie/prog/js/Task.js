@@ -252,37 +252,37 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 			switch (me.fase)
 			{
 				default: pleaseWait_freeText_setText(""); break;
-				case 0: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_0"); break;	//Cleaningx is active
+				case 0: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_0"); break;	//Cleaning is active
 				case 1: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1"); break; 	//Put the pastille in the brewer and press CONTINUE
 				case 2: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2"); break; 	//Brewer is closing
 				case 3: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_3"); break; 	//Tablet dissolution 1/2, please wait
 				case 4: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_4"); break; 	//2nd dissolution cycle is about to starting
 				case 5: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_5"); break; 	//Tablet dissolution 1/2, please wait
 
-				case 6: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT"); break; 	//1st Cleaning, please wait
+				case 6: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT 1/3"); break; 	//1st Cleaning, please wait 1/3
 				case 7: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_7"); break; 	//1st Cleaning, active 1/3
-				case 8: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT"); break; 	//1st Cleaning, please wait
+				case 8: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT 2/3"); break; 	//1st Cleaning, please wait 2/3
 				case 9: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_8"); break; 	//1st Cleaning, active 2/3
-				case 10: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT"); break; 	//1st Cleaning, please wait
+				case 10: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT 3/3"); break; 	//1st Cleaning, please wait 3/3
 				case 11: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_9"); break; 	//1st Cleaning, active 3/3
 
 				case 12: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_10"); break; 	//Do you want to repeat clean cycle 1/2 ?
 				
-				case 13: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_11"); break; 	//Brewer goes in open position 			}
+				case 13: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_11"); break; 	//Brewer is going into open position
 				
-				case 14: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_12"); break; 	//Manual brush and then press CONTINUE
+				case 14: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_12"); break; 	//Please, perform a manual brush and then press CONTINUE when finished
 				
-				case 15: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 15: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT 1/6"); break; 	//2nd Cleaning, please wait 1/6
 				case 16: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_13"); break; 	//2nd Cleaning, active 1/6
-				case 17: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 17: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT 2/6"); break; 	//2nd Cleaning, please wait 2/6
 				case 18: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_14"); break; 	//2nd Cleaning, active 2/6
-				case 19: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 19: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT 3/6"); break; 	//2nd Cleaning, please wait 3/6
 				case 20: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_15"); break; 	//2nd Cleaning, active 3/6
-				case 21: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 21: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT 4/6"); break; 	//2nd Cleaning, please wait 4/6
 				case 22: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_16"); break; 	//2nd Cleaning, active 4/6
-				case 23: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 23: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT 5/6"); break; 	//2nd Cleaning, please wait 5/6
 				case 24: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_17"); break; 	//2nd Cleaning, active 5/6
-				case 25: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 25: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT 6/6"); break; 	//2nd Cleaning, please wait 6/6
 				case 26: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_18"); break; 	//2nd Cleaning, active 6/6
 				
 				case 27: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_19"); break; 	//Do you want to repeat clean cycle 2/2 ?
