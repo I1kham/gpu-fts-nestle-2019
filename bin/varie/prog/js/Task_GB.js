@@ -273,17 +273,17 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 				case 14: pleaseWait_freeText_setText("Please, perform a manual brush and then press CONTINUE when finished"); break; 	//Please, perform a manual brush and then press CONTINUE when finished
 				
 				case 15: pleaseWait_freeText_setText("2nd Cleaning, please wait 1/6"); break; 	//2nd Cleaning, please wait 1/6
-				case 16: pleaseWait_freeText_setText("$2nd Cleaning, active 1/6"); break; 	//2nd Cleaning, active 1/6
+				case 16: pleaseWait_freeText_setText("2nd Cleaning, active 1/6"); break; 	//2nd Cleaning, active 1/6
 				case 17: pleaseWait_freeText_setText("2nd Cleaning, please wait 2/6"); break; 	//2nd Cleaning, please wait 2/6
-				case 18: pleaseWait_freeText_setText("$2nd Cleaning, active 2/6"); break; 	//2nd Cleaning, active 2/6
+				case 18: pleaseWait_freeText_setText("2nd Cleaning, active 2/6"); break; 	//2nd Cleaning, active 2/6
 				case 19: pleaseWait_freeText_setText("2nd Cleaning, please wait 3/6"); break; 	//2nd Cleaning, please wait 3/6
-				case 20: pleaseWait_freeText_setText("$2nd Cleaning, active 3/6"); break; 	//2nd Cleaning, active 3/6
+				case 20: pleaseWait_freeText_setText("2nd Cleaning, active 3/6"); break; 	//2nd Cleaning, active 3/6
 				case 21: pleaseWait_freeText_setText("2nd Cleaning, please wait 4/6"); break; 	//2nd Cleaning, please wait 4/6
-				case 22: pleaseWait_freeText_setText("$2nd Cleaning, active 4/6"); break; 	//2nd Cleaning, active 4/6
+				case 22: pleaseWait_freeText_setText("2nd Cleaning, active 4/6"); break; 	//2nd Cleaning, active 4/6
 				case 23: pleaseWait_freeText_setText("2nd Cleaning, please wait 5/6"); break; 	//2nd Cleaning, please wait 5/6
-				case 24: pleaseWait_freeText_setText("$2nd Cleaning, active 5/6"); break; 	//2nd Cleaning, active 5/6
+				case 24: pleaseWait_freeText_setText("2nd Cleaning, active 5/6"); break; 	//2nd Cleaning, active 5/6
 				case 25: pleaseWait_freeText_setText("2nd Cleaning, please wait 6/6"); break; 	//2nd Cleaning, please wait 6/6
-				case 26: pleaseWait_freeText_setText("$2nd Cleaning, active 6/6"); break; 	//2nd Cleaning, active 6/6
+				case 26: pleaseWait_freeText_setText("2nd Cleaning, active 6/6"); break; 	//2nd Cleaning, active 6/6
 				
 				case 27: pleaseWait_freeText_setText("Do you want to repeat clean cycle 2/2 ?"); break; 	//Do you want to repeat clean cycle 2/2 ?
 				
