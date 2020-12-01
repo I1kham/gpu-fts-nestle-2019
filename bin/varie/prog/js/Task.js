@@ -89,7 +89,12 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 	var timeElapsedMSec = timeNowMsec - this.timeStarted;
 	
 	if (this.whichWash == 8)
-		this.priv_handleSanWashing(timeElapsedMSec);
+	{
+		if (da3.isGruppoMicro())
+			this.priv_handleSanWashingMicro(timeElapsedMSec);
+		else
+			this.priv_handleSanWashingVFlex(timeElapsedMSec);
+	}
 	else if (this.whichWash == 5)
 		this.priv_handleMilkWashing(timeElapsedMSec);
 	else
@@ -108,7 +113,7 @@ TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPr
 TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)						{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 
-TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
+TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 {
 	//termino quando lo stato della CPU diventa != da SAN_WASHING
 	if (timeElapsedMSec > 3000 && this.cpuStatus != 20) //20==sanitary washing
@@ -134,22 +139,22 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 			me.btn2 = parseInt(obj.btn2);
 			switch (me.fase)
 			{
-				case 0: pleaseWait_freeText_setText("$LAB_CLEANSAN_1"); break;	//Brewer Cleaning is not started (or ended)
-				case 1: pleaseWait_freeText_setText("$LAB_CLEANSAN_2"); break; 	//Brewer Cleaning is started
-				case 2: pleaseWait_freeText_setText("$LAB_CLEANSAN_3"); break; 	//Brewer placed
-				case 3: pleaseWait_freeText_setText("$LAB_CLEANSAN_4"); break; //Put pastille and push START
-				case 4: pleaseWait_freeText_setText("$LAB_CLEANSAN_5"); break; //Infusion
-				case 5: pleaseWait_freeText_setText("$LAB_CLEANSAN_6 1"); break; // Brewer cleaning cycles 1
-				case 6: pleaseWait_freeText_setText("$LAB_CLEANSAN_6 2"); break;	// Brewer cleaning cycles 2
-				case 7: pleaseWait_freeText_setText("$LAB_CLEANSAN_6 3"); break;	// Brewer cleaning cycles 3
-				case 8: pleaseWait_freeText_setText("$LAB_CLEANSAN_6 4"); break;	// Brewer cleaning cycles 4
-				case 9: pleaseWait_freeText_setText("$LAB_CLEANSAN_6 5"); break;	// Brewer cleaning cycles 56
-				case 10: pleaseWait_freeText_setText("$LAB_CLEANSAN_6 6"); break;	// HC_STEP_BRW_6
+				case 0: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_1"); break;	//Brewer Cleaning is not started (or ended)
+				case 1: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_2"); break; 	//Brewer Cleaning is started
+				case 2: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_3"); break; 	//Brewer placed
+				case 3: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_4"); break; //Put pastille and push START
+				case 4: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_5"); break; //Infusion
+				case 5: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_6 1"); break; // Brewer cleaning cycles 1
+				case 6: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_6 2"); break;	// Brewer cleaning cycles 2
+				case 7: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_6 3"); break;	// Brewer cleaning cycles 3
+				case 8: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_6 4"); break;	// Brewer cleaning cycles 4
+				case 9: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_6 5"); break;	// Brewer cleaning cycles 56
+				case 10: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_6 6"); break;	// HC_STEP_BRW_6
 				
-				case 11: pleaseWait_freeText_setText("$LAB_CLEANSAN_7"); break;	//Repeat cleaning ?
-				case 12: pleaseWait_freeText_setText("$LAB_CLEANSAN_8"); break;	//Brewer placed in brush position, press CONTINUE when finished
-				case 13: pleaseWait_freeText_setText("$LAB_CLEANSAN_9"); break; //Skip final coffee or make a coffee
-				case 14: pleaseWait_freeText_setText("$LAB_CLEANSAN_10"); break; //Coffee delivery
+				case 11: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_7"); break;	//Repeat cleaning ?
+				case 12: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_8"); break;	//Brewer placed in brush position, press CONTINUE when finished
+				case 13: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_9"); break; //Skip final coffee or make a coffee
+				case 14: pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_10"); break; //Coffee delivery
 				
 				case 15:	//HC_STEP_MIXER_1
 				case 16:	//HC_STEP_MIXER_2
@@ -158,7 +163,7 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					cleanMixNum = me.fase-14;
 					if (me.isEspresso)
 						cleanMixNum++;
-					pleaseWait_freeText_setText("$LAB_CLEANSAN_11 " +cleanMixNum); //rinsing
+					pleaseWait_freeText_setText("$LAB_CLEANSAN_MICRO_11 " +cleanMixNum); //rinsing
 					break; 	
 				default: pleaseWait_freeText_setText(""); break;
 			}
@@ -204,6 +209,140 @@ TaskCleaning.prototype.priv_handleSanWashing = function (timeElapsedMSec)
 					{
 						case 11: btnText = "$LAB_YES"; break;//HC_STEP_BRW_REPEAT
 						case 13: btnText = "$LAB_HAVE_A_COFFEE"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
+					}
+					pleaseWait_btn2_setText (btnText);
+					pleaseWait_btn2_show();	
+				}
+			} //if (me.fase != me.prevFase)
+		})
+		.catch( function(result)
+		{
+			//console.log ("SANWASH: error[" +result +"]");
+			pleaseWait_btn1_hide();
+			pleaseWait_btn2_hide();
+		});	
+	
+}
+
+
+TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
+{
+	//termino quando lo stato della CPU diventa != da SAN_WASHING
+	if (timeElapsedMSec > 3000 && this.cpuStatus != 20) //20==sanitary washing
+	{
+		pageCleaning_onFinished();
+		return;
+	}
+
+	//ogni tot mando una richiesta per conoscere lo stato attuale del lavaggio
+	if (timeElapsedMSec < this.nextTimeSanWashStatusCheckMSec)
+		return;
+	this.nextTimeSanWashStatusCheckMSec += 2000;
+
+	//periodicamente richiedo lo stato del lavaggio
+	var me = this;
+	rhea.ajax ("sanWashStatus", "")
+		.then( function(result) 
+		{
+			var obj = JSON.parse(result);
+			//console.log ("SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
+			me.fase = parseInt(obj.fase);
+			me.btn1 = parseInt(obj.btn1);
+			me.btn2 = parseInt(obj.btn2);
+			switch (me.fase)
+			{
+				default: pleaseWait_freeText_setText(""); break;
+				case 0: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_0"); break;	//Cleaningx is active
+				case 1: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1"); break; 	//Put the pastille in the brewer and press CONTINUE
+				case 2: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2"); break; 	//Brewer is closing
+				case 3: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_3"); break; 	//Tablet dissolution 1/2, please wait
+				case 4: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_4"); break; 	//2nd dissolution cycle is about to starting
+				case 5: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_5"); break; 	//Tablet dissolution 1/2, please wait
+
+				case 6: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT"); break; 	//1st Cleaning, please wait
+				case 7: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_7"); break; 	//1st Cleaning, active 1/3
+				case 8: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT"); break; 	//1st Cleaning, please wait
+				case 9: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_8"); break; 	//1st Cleaning, active 2/3
+				case 10: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_1st_CLEAN_WAIT"); break; 	//1st Cleaning, please wait
+				case 11: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_9"); break; 	//1st Cleaning, active 3/3
+
+				case 12: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_10"); break; 	//Do you want to repeat clean cycle 1/2 ?
+				
+				case 13: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_11"); break; 	//Brewer goes in open position 			}
+				
+				case 14: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_12"); break; 	//Manual brush and then press CONTINUE
+				
+				case 15: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 16: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_13"); break; 	//2nd Cleaning, active 1/6
+				case 17: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 18: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_14"); break; 	//2nd Cleaning, active 2/6
+				case 19: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 20: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_15"); break; 	//2nd Cleaning, active 3/6
+				case 21: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 22: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_16"); break; 	//2nd Cleaning, active 4/6
+				case 23: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 24: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_17"); break; 	//2nd Cleaning, active 5/6
+				case 25: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_2nd_CLEAN_WAIT"); break; 	//2nd Cleaning, please wait
+				case 26: pleaseWait_freeText_setText("$$LAB_CLEANSAN_VFLEX_18"); break; 	//2nd Cleaning, active 6/6
+				
+				case 27: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_19"); break; 	//Do you want to repeat clean cycle 2/2 ?
+				
+				case 28: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_SKIP_COFFEE"); break; //Do you want to skip the final coffee ?
+				case 29: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_COFFEE_DELIVER"); break; //Coffee delivery, please wait
+
+				case 30: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_20"); break; //Brewer Rinsing 
+				case 31: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_21"); break; //Mixer 1 Rinsing
+				case 32: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_22"); break; //Mixer 2 Rinsing
+				case 33: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_23"); break; //Mixer 3 Rinsing 
+				case 34: pleaseWait_freeText_setText("$LAB_CLEANSAN_VFLEX_24"); break; //Brewer Cleaning Done. Press CLOSE to exit
+
+			}
+			pleaseWait_freeText_show();
+				
+			if (me.fase != me.prevFase)
+			{
+				me.prevFase = me.fase;
+
+				if (me.btn1 == 0)
+					pleaseWait_btn1_hide();
+				else
+				{
+					if (me.fase == 3 || me.fase == 5)
+					{
+						//qui, la CPU dovrebbe inviare il BTN 3 che serve per "debug" per saltare la fase di dissoluzione della tab.
+						//Non mostro il tasto, ma uso il btn trick che è in semi trasparenza nell'angolo in alto a dx. Gli operatore
+						//che conoscono il trucco, possono cliccare sul btn invisibile per skippare questa fase
+						me.btnTrick = 3;
+						pleaseWait_btnTrick_show();	
+					}
+					else
+					{
+						var btnText = "$LAB_BUTTON " +me.btn1;
+						switch (me.fase)
+						{
+							case 1:  btnText = "$LAB_CONTINUE"; break;
+							case 12: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 1/2 ?
+							case 14:  btnText = "$LAB_CONTINUE"; break;
+							case 27: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 2/2 ?
+							case 28: btnText = "$LAB_SKIP_COFFEE"; break; //Do you want to skip the final coffee ?
+							case 34: btnText = "$LAB_CLOSE"; break; //Do you want to skip the final coffee ?
+							
+						}
+						pleaseWait_btn1_setText (btnText);
+						pleaseWait_btn1_show();	
+					}
+				}
+				
+				if (me.btn2 == 0)
+					pleaseWait_btn2_hide();
+				else
+				{
+					var btnText = "$LAB_BUTTON " +me.btn2;
+					switch (me.fase)
+					{
+						case 12: btnText = "$LAB_YES"; break; //Do you want to repeat clean cycle 1/2 ?
+						case 27: btnText = "$LAB_YES"; break; //Do you want to repeat clean cycle 2/2 ?
+						case 28: btnText = "$LAB_HAVE_A_COFFEE"; break; //Do you want to skip the final coffee ?
 					}
 					pleaseWait_btn2_setText (btnText);
 					pleaseWait_btn2_show();	
