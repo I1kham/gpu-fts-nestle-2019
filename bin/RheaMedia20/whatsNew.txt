@@ -1,4 +1,12 @@
 ================================================================================================
+ver 2.4.2 2020/12/10
+	Bug fixing:
+		-	Template "nestle-2.0-template-001"
+			- fixed a bug in some prefabs GUI that was preventing the standby screen to go awat when someone start a selection via mobile app
+		-	Template "nestle-2.0-template-002"
+			- fixed a bug in some prefabs GUI that was preventing the standby screen to go awat when someone start a selection via mobile app
+			
+================================================================================================
 ver 2.4.1 2020/10/02
 	Features
 		-	Template "nestle-2.0-template-001"

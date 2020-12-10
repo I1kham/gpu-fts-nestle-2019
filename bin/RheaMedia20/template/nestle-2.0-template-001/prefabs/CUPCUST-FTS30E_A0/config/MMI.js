@@ -320,16 +320,24 @@ function MMI_fromSelNumToIconNum (selNum)
 {
 	for (var iIcon=0; iIcon<MMI_getCount(); iIcon++)
 	{
-		for (var grinder=0; grinder<=1; grinder++)
+		if (rheaMainMenuIcons[iIcon].selNum == 0)
 		{
-			for (var cupSize=0; cupSize<=2; cupSize++)
+			for (var grinder=0; grinder<=1; grinder++)
 			{
-				for (var shotType=0; shotType<=1; shotType++)
+				for (var cupSize=0; cupSize<=2; cupSize++)
 				{
-					if (selNum == rheaMainMenuIcons[iIcon].linkedSelection[grinder][cupSize][shotType])
-						return iIcon;
+					for (var shotType=0; shotType<=1; shotType++)
+					{
+						if (selNum == rheaMainMenuIcons[iIcon].linkedSelection[grinder][cupSize][shotType])
+							return iIcon;
+					}
 				}
 			}
+		}
+		else
+		{
+			if (rheaMainMenuIcons[iIcon].selNum == selNum)
+				return iIcon;			
 		}
 	}	
 	return 0;

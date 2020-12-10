@@ -309,3 +309,36 @@ function  MMI_isEnabled (iIcon)
 	}
 	return 0;
 }
+
+
+/*********************************************************
+ * MMI_fromSelNumToIconNum
+ *
+ *	Data una [selNum], ritorna l'indice della iconNum che la contiene
+ */
+function MMI_fromSelNumToIconNum (selNum)
+{
+	for (var iIcon=0; iIcon<MMI_getCount(); iIcon++)
+	{
+		if (rheaMainMenuIcons[iIcon].selNum == 0)
+		{
+			for (var grinder=0; grinder<=1; grinder++)
+			{
+				for (var cupSize=0; cupSize<=2; cupSize++)
+				{
+					for (var shotType=0; shotType<=1; shotType++)
+					{
+						if (selNum == rheaMainMenuIcons[iIcon].linkedSelection[grinder][cupSize][shotType])
+							return iIcon;
+					}
+				}
+			}
+		}
+		else
+		{
+			if (rheaMainMenuIcons[iIcon].selNum == selNum)
+				return iIcon;			
+		}
+	}	
+	return 0;
+}
