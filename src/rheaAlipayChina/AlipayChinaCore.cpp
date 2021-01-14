@@ -719,7 +719,17 @@ bool Core::priv_orderStart (OSSocket &sok, const u8 *selectionName, u8 selection
 
 	u8 buffer[512];
 	char s[256];
-	sprintf_s (s, sizeof(s), "%s|%d|%s", selectionName, selectionNum, selectionPrice);
+
+    //2020-12-01
+    //I cinesi lamentano il fatto che "alcune selezioni" non funzionano con Alipay perchè il QR inviato dal server non è valido.
+    //Hanno ragione. Il problema però è lato loro in quanto il server cinese crasha se si mandano certi nomi selezione, anche se la codifa del nome in utf8
+    //è corretta. Per maggiori dettagli vedi #1554 su redmine.
+    //Comunque, la soluzione al momento è di non mandare più il nome della selezione in cinese, ma mandare una stringa ASCII del tipo SELxx in modo che il server
+    //cinese non crashi mai
+    //
+    //sprintf_s (s, sizeof(s), "%s|%d|%s", selectionName, selectionNum, selectionPrice);
+    sprintf_s (s, sizeof(s), "SEL%02d|%d|%s", selectionNum, selectionNum, selectionPrice);
+
 	const u32 nBytesToSend = priv_buildCommand ("E13", (const u8*)s, buffer, sizeof(buffer));
 	priv_sendCommand (sok, buffer, nBytesToSend);
 	return true;
