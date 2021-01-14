@@ -331,7 +331,14 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			params.how = eStartSelectionMode_default;
 			params.asDefault.selNum = 0;
 			translate_CPU_START_SELECTION(msg, &params.asDefault.selNum);
-			priv_enterState_selection(params, sub);
+			
+			//GB 2021-01-14
+			//inizialmente l'evento "stato selezione in corso" veniva comunicato solo al "sub" che aveva fatto la richiesta di "inizio selezione".
+			//Adesso invece l'evento "stato selezione in corso" viene comunicato a tutti i subscriber attivi. In questo modo se lo "start selezione" arriva da un subsriuber, anche tutti gli altri diventano
+			//consapevoli del fatto che c'è una selezione in corso e possono prendere le loro decisioni
+			//
+			//priv_enterState_selection(params, sub);
+			priv_enterState_selection(params, NULL);
 		}
 		break;
 
@@ -350,7 +357,13 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				else if ((cpuStatus.flag1 & sCPUStatus::FLAG1_IS_TESTVEND) != 0)
 					params.asAlreadyPaid.paymentMode = ePaymentMode_testvend;
 
-				priv_enterState_selection(params, sub);
+				//GB 2021-01-14
+				//inizialmente l'evento "stato selezione in corso" veniva comunicato solo al "sub" che aveva fatto la richiesta di "inizio selezione".
+				//Adesso invece l'evento "stato selezione in corso" viene comunicato a tutti i subscriber attivi. In questo modo se lo "start selezione" arriva da un subsriuber, anche tutti gli altri diventano
+				//consapevoli del fatto che c'è una selezione in corso e possono prendere le loro decisioni
+				//
+				//priv_enterState_selection(params, sub);
+				priv_enterState_selection(params, NULL);
 			}
 			break;
 
