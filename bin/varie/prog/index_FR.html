@@ -2395,7 +2395,7 @@ function pageSingleSelection_build()
 			+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3ProductLM+2) +"' data-da3bit='4'></div></td>"
 		+"</tr>";
 	
-	if (da3.isGruppoVariflex())
+	if (da3.isGruppoVariflex() || da3.isInstant())
 		htmlP += "<tr><td>SACHET TEA</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
 	htmlP += "</table>";
 
