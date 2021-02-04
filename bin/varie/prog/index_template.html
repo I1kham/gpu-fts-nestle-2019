@@ -510,6 +510,10 @@
 						<td>$LAB_ENABLED</td>
 						<td><div id='pageMilker_enabled' class='UIOption' data-option='1|$LAB_YES|0|$LAB_NO' data-onclick="pageMilker_onEnabledYesNo()"></div></td>
 					</tr>
+					<tr>
+						<td>$LAB_MILKER_MODEL_TYPE</td>
+						<td><div id='pageMilker_model' class='UISelect' data-option='0|$LAB_MILKER_MODEL_NONE|1|$LAB_MILKER_MODEL_VENTURI|2|$LAB_MILKER_MODEL_INDUX' data-da3="69" data-onchange="pageMilker_onMilkerTypeChange()"></div></td>
+					</tr>
 				</table>
 				
 				<div id="pageMilker_params" style="display:none">
@@ -542,11 +546,75 @@
 							<td>$LAB_MILKER_AUTO_RINSING_AT_TIME</td>
 							<td colspan="3"><div id="pageMilker_time1" class="UITime24" data-da3="7468"></div></td>
 						</tr>
-						<tr>
+						<tr id="pageMilker_row_autoUpdateWashTime">
 							<td>$LAB_MILKER_AUTO_UPDATE_WASH_TIME</td>
-							<td><div class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7630"></div></td>
+							<td><div class="UIOption" id="pageMilker_autoUpdateWashTime" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7630"></div></td>
 						</tr>
 					</table>
+					
+					<!-- parametri relativi al capp induzione -->
+					<div id="pageMilker_capp_induzione" style="margin-top:20px; display:none">
+						<table border='0' class='elenco'>					
+							<tr>
+								<td style="width:410px">$LAB_MILKER2_ENABLE_WASTE_TANKL_SENSOR</td>
+								<td><div class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7630"></div></td>
+							</tr>
+							<tr>
+								<td>$LAB_MILKER2_TEMPO_PASTIGLIA</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7668" data-da3bit="16" data-max="240" data-um="sec."></div></td>
+							</tr>
+						</table>
+						
+						
+						<table border='0' class='elenco'>	
+							<tbody>
+							<tr>
+								<th align="left">$LAB_MILKER2_FOAM</th>
+								<th align="left">$LAB_MILKER2_AIR</th>
+								<th align="left">$LAB_MILKER2_PUMP_SPEED</th>
+								<th align="left">$LAB_MILKER2_MILK_PRESSURE</th>
+							</tr>
+							
+							<tr>
+								<td style="color:#f99">$LAB_MILKER2_HOT_FOAM 1</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7632" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7634" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7636" data-da3bit="16" data-max="500" data-um="?"></div></td>
+							</tr>
+							<tr>
+								<td style="color:#f99">$LAB_MILKER2_HOT_FOAM 2</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7638" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7640" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7642" data-da3bit="16" data-max="500" data-um="?"></div></td>
+							</tr>
+							<tr>
+								<td style="color:#f99">$LAB_MILKER2_HOT_FOAM 3</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7644" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7646" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7648" data-da3bit="16" data-max="500" data-um="?"></div></td>
+							</tr>
+							
+							<tr>
+								<td style="color:#00f">$LAB_MILKER2_COLD_FOAM 1</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7650" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7652" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7654" data-da3bit="16" data-max="500" data-um="?"></div></td>
+							</tr>
+							<tr>
+								<td style="color:#00f">$LAB_MILKER2_COLD_FOAM 2</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7656" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7658" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7660" data-da3bit="16" data-max="500" data-um="?"></div></td>
+							</tr>
+							<tr>
+								<td style="color:#00f">$LAB_MILKER2_COLD_FOAM 3</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7662" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7664" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7666" data-da3bit="16" data-max="500" data-um="?"></div></td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div><!-- page Milker -->
@@ -2080,7 +2148,7 @@ function pageMilker_show()
 {
 	if (showPage("pageMilker", "$LAB_MM_MILKER", 1,1))
 	{
-		//è la prima volta che visualizziamo la pagina
+		//è la prima volta che visualizziamo la pagina.
 	}
 	
 	btnSave_setCallback ("pageMilker_onBtnSave()");
@@ -2095,7 +2163,45 @@ function pageMilker_show()
 		yesNo.selectOptionByValue(0);
 	else
 		yesNo.selectOptionByValue(1);
+		
+	pageMilker_onMilkerTypeChange();
+}
+
+function pageMilker_onMilkerTypeChange()
+{
+	var win = ui.getWindowByID("pageMilker");
+	var milkerModule = win.getChildByID("pageMilker_model");
+	var yesNo = win.getChildByID("pageMilker_enabled");
+
+	switch (parseInt(milkerModule.getSelectedOptionValue()))
+	{
+	case 0: //se milkerType==none, allora metto yesNo==no
+		yesNo.selectOptionByValue(0);
+		break;
+		
+	case 1: //milkerType==venturi
+		//La loc 7630 del da3 è usata sia per "$LAB_MILKER_AUTO_UPDATE_WASH_TIME" che per "$LAB_MILKER2_ENABLE_WASTE_TANKL_SENSOR".
+		//A seconda che ci sia un capp venturi o uno a induzione, disabilito una delle 2 voci
+		yesNo.selectOptionByValue(1);
+		win.getChildByID ("pageMilker_capp_induzione_enableWasteTankSensor").dontSaveToDa3();
+		win.getChildByID("pageMilker_autoUpdateWashTime").allowSaveToDa3();
+		rheaSetDisplayMode(rheaGetElemByID("pageMilker_row_autoUpdateWashTime"),"table-row");
+		rheaHideElem(rheaGetElemByID("pageMilker_capp_induzione"));
+		break;
+
+	case 2: //milkerType==indux
+		//La loc 7630 del da3 è usata sia per "$LAB_MILKER_AUTO_UPDATE_WASH_TIME" che per "$LAB_MILKER2_ENABLE_WASTE_TANKL_SENSOR".
+		//A seconda che ci sia un capp venturi o uno a induzione, disabilito una delle 2 voci
+		yesNo.selectOptionByValue(1);
+		win.getChildByID ("pageMilker_capp_induzione_enableWasteTankSensor").allowSaveToDa3();
+		win.getChildByID("pageMilker_autoUpdateWashTime").dontSaveToDa3();
+		rheaHideElem(rheaGetElemByID("pageMilker_row_autoUpdateWashTime"));
+		rheaShowElem(rheaGetElemByID("pageMilker_capp_induzione"));
+		break;
+	}
+
 	pageMilker_onEnabledYesNo();
+	win.showHideScrollBar();
 }
 
 function pageMilker_onEnabledYesNo()
@@ -2351,10 +2457,14 @@ function pageSingleSelection_build()
 		if (da3.isGruppoVariflex())
 		{
 			htmlE  += "<tr><td>$LAB_SEL_EV_FRESHMILK_QTY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
-					 +"<tr><td>$LAB_SEL_EV_FRESHMILK_DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
-				     +"<tr><td>$LAB_SEL_EV_AIR_FRESHMILK</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+					 +"<tr><td>$LAB_SEL_EV_FRESHMILK_DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>";
+					
+			if (da3.isCappuccinatoreInduzione())
+				htmlE  += "<tr><td>$LAB_SEL_FRESHMILK_FOAM_TYPE</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|$LAB_MILKER2_HOT_NO_FOAM|1|$LAB_MILKER2_HOT_FOAM 1|2|$LAB_MILKER2_HOT_FOAM 2|3|$LAB_MILKER2_HOT_FOAM 3|4|$LAB_MILKER2_COLD_NO_FOAM|5|$LAB_MILKER2_COLD_FOAM 1|6|$LAB_MILKER2_COLD_FOAM 2|7|$LAB_MILKER2_COLD_FOAM 3' data-da3='164' data-da3bit='4'></div></td></tr>";
+		
+			htmlE  += "<tr><td>$LAB_SEL_EV_AIR_FRESHMILK</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td></tr>"
 				     +"<tr><td>$LAB_SEL_EV_AIR_FRESHMILK_DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
-				     +"<tr><td>$LAB_SEL_SELECT_GRINDER2</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
+				     +"<tr><td>$LAB_GRINDER</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|1|1|2' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
 		}
 
 		htmlE += "<tr><td>$LAB_SEL_COFFEE REPEAT</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"

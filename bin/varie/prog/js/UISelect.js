@@ -7,7 +7,7 @@
  *			opzionale data-selected="value"	=> indica l'opzione selezionata. Default "" == nessuna selezione
  *			opzionale data-da3="xxx"		=> locazione in memoria dalla quale leggere/scrivere il [data-selected]
  *			opzionale data-da3bit="4|8|16"	=> legge 4 o 8 bit dal da3, default 8
- *			opzionale data-onclick ="showPage('pageMaintenance')"
+ *			opzionale data-onchange ="showPage('pageMaintenance')"
  */
 function UISelect (parentID, childNum, node)
 {
@@ -18,7 +18,7 @@ function UISelect (parentID, childNum, node)
 		node.setAttribute("id", this.id);
 	}
 	
-	this.jsOnClick = UIUtils_getAttributeOrDefault(node, "data-onclick", "");
+	this.jsOnChange = UIUtils_getAttributeOrDefault(node, "data-onchange", "");
 
 	//elenco opzioni
 	this.optionValue = [];
@@ -37,6 +37,7 @@ function UISelect (parentID, childNum, node)
 	}
 	
 	//binding a da3
+	this.allowDa3Save=1;
 	this.da3offset = 0;
 	this.da3bit = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3bit", "8"));
 	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
@@ -91,6 +92,8 @@ UISelect.prototype.changeOptions = function (str)
 }
 
 
+UIOption.prototype.dontSaveToDa3 = function () 					{ this.allowDa3Save = 0; }
+UIOption.prototype.allowSaveToDa3 = function () 				{ this.allowDa3Save = 1; }
 UISelect.prototype.setDA3Offset = function(da3offset)			{ this.da3offset = da3offset;}
 UISelect.prototype.loadFromDA3 = function(da3)					
 { 
@@ -107,6 +110,8 @@ UISelect.prototype.loadFromDA3 = function(da3)
 }	
 UISelect.prototype.saveToDA3 = function(da3)					
 { 
+	if (this.allowDa3Save==0)
+		return;
 	var loc = this.da3Pos + this.da3offset; 
 	if (loc >= 0) 
 	{
@@ -153,8 +158,6 @@ UISelect.prototype.bindEvents = function()
 		if (timeElapsedMSec <650 && xdiff <60 &&ydiff<40)
 		{
 			me.priv_openSelectPanel();
-			if (me.jsOnClick!="")
-				eval(me.jsOnClick);
 		}
 	}, 
 	true);		
@@ -212,8 +215,10 @@ function UISelect_hideFullPage()	{ rheaHideElem (rheaGetElemByID("UISelectFullPa
 function UISelect_onUserSelected(iSelected)
 {
 	UISelect_cur.selectOptionByIndex(iSelected);
-	UISelect_cur = null;
 	UISelect_hideFullPage();
+	if (UISelect_cur.jsOnChange!="")
+		eval(UISelect_cur.jsOnChange);
+	UISelect_cur = null;
 }
 	
 UISelect.prototype.priv_openSelectPanel = function()

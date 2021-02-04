@@ -65,6 +65,8 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
+DA3.prototype.isCappuccinatoreVenturi = function ()					{ if (parseInt(this.da3_current[69]) == 1) return 1; return 0; }
+DA3.prototype.isCappuccinatoreInduzione = function ()				{ if (parseInt(this.da3_current[69]) == 2) return 1; return 0; }
 DA3.prototype.isAlipayChinaActive = function()						{ return this.aliChinaActivated; }
 DA3.prototype.isMachine_MultibonaEspresso = function()				{ return (this.machineModel==86); }
 DA3.prototype.isMachine_MultibonaInstant  = function()				{ return (this.machineModel==88); }
