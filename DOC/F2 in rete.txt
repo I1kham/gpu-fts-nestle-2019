@@ -1,0 +1,87 @@
+F2 	= macchina Fusion2
+SRV = server
+OPT = opzionale per la versione 1. Generalmente si tratta di ottimizzazioni del protocollo da realizzare in versioni successive
+
+
+F2 all'accensione contatta SRV ad un indirizzo IP predefinito impostabile tramite menu prog direttamente in macchina.
+L'IP di SRV non deve necessariamente esistere "nell'internet", può anche essere un IP intranet ovvero SRV può esistere in una rete locale (all'edificio, alla stuttura,
+all'hotel..), non deve necessariamente esistere nel web (questo però pone alcune restrizioni nell'utilizzo dell'app, vedi fine documento).
+
+La fase di contatto prevede che F2 si registri su SRV dichiarando il suo stato di funzionamento ed una serie di parametri tra i quali l'elenco delle bevande, i nomi e le icone.
+
+OPT: La trasmissione dell'elenco bevande idealmente può avvenire anche "una tantum", non è sempre necessario che F2 ribadisca tale elenco delle in quanto generalmente
+le selezioni non cambiano molto spesso su una macchina. All'accensione, F2 verifica se il suo elenco di selezioni è lo stesso oppure se è cambiato dall'ultima volta.
+Se è cambiato, comunica le nuove selezioni a SRV. Si tratta cmq di uno step di ottimizzazione che è possibile rimandare ad una successiva versione.
+
+Rimane il concetto che, all'accensione, F2 comunica a SRV che è attiva e disponibile e fornisce l'elenco di selezioni che può erogare.
+Insieme all'IP, la fase di connessione prevede che F2 invii un codice unico identificativo di se stessa (il serial number ad esempio, anch'esso inseribile via menu prog,
+nella stessa pagina di configurazione dell'IP di SRV ad esempio) in modo che la macchina, dall'esterno, sia univocamente identificabile tramite il suo SN.
+
+In ogni momento quindi, SRV conosce l'IP di tutte le macchine "vive" e, per ogni macchina, conosce il SN che la identifica.
+Dato un SN, SRV può comunicare con la specifica macchina semplicemente mantenendo una tabella associativa tra SN e IP delle macchine e inviando messaggi TCP/IP all'IP specifico.
+
+Supponendo di avere un SRV nel web all'indirizzo www.server.com, allora una cosa del tipo www.server.com/gui.php?sn=12345 identifica univocamente la macchina il cui SN è 12345.
+Una pagina web del genere potrebbe presentare una semplice GUI con n icone, una per ogni selezione specifica della macchina.
+L'elenco delle bevande che la macchina può fornire lo conosciamo già in quanto fornito da F2 durante la fase di registrazione.
+La pagina web è dinamica, ovvero in base al SN che riceve come input, presenta un elenco di bevande differenti che riflette l'effetivo elenco di bevande disponibili sulla specifica macchina.
+Ogni volta che viene fatto un accesso alla pagina web di una specifica macchina, SRV invia una sorta di ping per verificare se la specifica F2 è ancora viva.
+Se la macchina è stata spenta, la pagina semplicemente mostra una scritta che dice che F2 è offline.
+Se la macchina è viva, la risposta al ping prevede una maschera di bit che sta ad andicare lo stato di disponibilità attuale delle bevande (così, se il caffè è esaurito, la GUI web può mostrare l'icona
+in semitrasparenza ad indicare che la bevanda non è disponibile).
+
+Da qui in poi, il funzionamento è semplice. L'utente clicca una icona sulla pagina web, SRV invia la richiesta di esecuzione della selezione e via cosi'.
+
+Il vantaggio di questa soluzione è che non è richiesta nessuna APP speciale per i cellulari, basta solo che abbiano una comune app di scansione di QR code.
+La scansione del QR rivela un indirizzo web (https://www.server.com/xxx..?SN=12345) che non fa altro che fare aprire il browser del cellulare all'indirizzo indicato.
+Da li in poi, è tutto in mano del browser, non c'è nulla da installare o da configurare sul cellulare.
+
+Va da se che lo stesso indirizzo web funziona anche da PC. Posto di conoscere il SN di una macchina, la stessa URL usata dal cellulare funziona anche se usata tramite browser di un PC.
+A tale proposito, è da implementare un sistema di token a tempo, in modo che il QR code della macchina cambi diciamo ogni 5 minuti. Insieme all'IP da contattare,
+nel QR è bene prevedere anche un token stringa da almeno 8 caratteri (ma anche 16 o 32) che F2 genera ogni 5 minuti.
+Tale token s'ha da passare alla pagina web insieme al SN per identificare sia la macchina che una sessione valida. Se il token non è uno degli ultimi 2 o 3 generati da F2, la pagina
+web non funziona (riporta un messaggio di sessione scaduta per es).
+Questo serve per evitare che, una volta nota l'URL di accesso ad una macchina, qualche buontempone si diverta da casa a spammare bevande tanto per dispetto.
+Essendo necessario passare anche il token, ed essendo il token generato dinamicamente ogni 5 minuti, è mandatorio scannerizzare il QR attuale della macchina per poter davvero avere accesso
+alla macchina; è necessario quindi essere fisicamente vicini alla macchina per poter ordinare.
+PS: 5 minuti è un tempo che ho scelto a caso, è chiaro che questo tempo di refresh del token di sessione lo possiamo rendere parametrico e modificabile tramite
+menu prog direttamente in macchina.
+
+Come dicevo all'inizio, SRV non deve necessariamente esistere nel web, potrebbe anche essere parte di una LAN locale non accessibile dal web.
+In questo caso, il vantaggio è che il mondo esterno non avrebbe accesso alla macchina, la macchina non necessiterebbe di una connessione internet (nel senso che non deve avere
+una SIM in grado di andare sul web), basterebbe collegare con cavo LAN (o simili) la macchina al router della rete locale e indicare come indirizzo di SRV un indirizzo nella LAN locale.
+La vera "limitazione" a questo punto è che anche il cellulare deve avere accesso alla LAN locale per poter comunicare con SRV. L'ip riportato dal QR code sarebbe un
+indirizzo locale, quindi il cellulare deve poter aver accesso alla LAN.
+Per esempio, all'interno dell'engineering di rhea, F2 potrebbe riportare un indirizzo di SRV mappato sulla rete rheaGuest. Se il cellulare è a sua volta collegato a rheaGuest,
+allora tutto funziona come nello scenario web.
+Se il cellulare non ha accesso a rheaGuest, allora non ha accesso nemmeno alla macchina.
+In scenari come hotel e risoranti questo significa che, per usufruire dell'intefaccia remota, i clienti devono prima registrarsi e collegarsi alla rete wi-fi itnerna del
+locale e, una volta connessi, avrebbero accesso alle macchine tramite scansione del QR; è necessario inoltre un PC che funga da SRV all'interno della rete locale.
+Per realtà piccole (~30 macchine), un normale PC di casa, con l'adeguato SW installato, può sicuramente svolgere il compito egregiamente, non è necessaria una macchina
+particolarmente potente per far girare un server web il  cui numero di accessi contemporanei sarebbe piuttosto limitato.
+
+OPT: è necessario fare esperimenti di carico per verificare effettivamente quante macchine un PC consumer del 2020 è in grado di gestire, posto che su tale PC sia installato
+il sw necessario che comprende il SRV di rhea e, presumibilmente, cose tipo MySQL/MariaDB e PHP, IIS (se parliamo di sitemi windows che sono sicuramente i più diffusi
+all'interno delle strutture commerciali). Rhea potrebbe anche vendere direttamente un PC SRV già configurato e pronto all'uso...
+
+L'opzione server sul web invece prevede necessariamente che F2 sia in grado di raggiungere il web in qualche modo, sia tramite router del locale, sia tramite dispositivo
+autonomo dotato di scheda SIM. F2 ha una porta di rete LAN. In ogni caso è necessario collegare "qualcosa" a questa porta LAN per fare in modo che la macchina sia in grado
+di contattare SRV. Questo "qualcosa" può essere un cavo di rete che si collega al router del locale, un dispositivo stand alone che fornisce connettività internet o
+qualunque altra soluzione che passi per la connessione tramite porta LAN.
+
+I costi di affitto di un SRV su web al giorno d'oggi partono da pochi euro al mese. Non è necessario avere un unico server centrale che gestisca tutte le macchine del mondo,
+ogni cliente può affitare il proprio server al quale sono collegate solo le proprie macchine; Rhea non deve fornire altro che il SW, l'affitto del server sarebbe a carico
+del cliente. Realtà grosse come Nestlè, possono pensare di avere n SRV, a livell regionale per esempio, o cittadino, a seconda dei costi di gestione e del traffico generato
+dalle varie macchine. La soluzione è distribuita, la dislocazione ed il numero dei server è lasciata alla saggezza del cliente.
+
+A partire da questa soluzione, si possono poi immaginare scenari di gestione remota delle macchine F2. Cosi' come è possibile avere accesso alla GUI di una macchina via web,
+sarebbe anche possibile avere accesso al suo menu di programmazione, all'aggiornamento SW, allo scaricamento dei dati audit e via dicendo (non dico ora, dico che sarebbe
+possibile realizzare degli strumenti per avere queste funzionalità).
+Il tutto ovviamente andrebbe pensato anche in un'ottica di sicurezza e protezione dei dati, ma il meccanismo di base per lo scambio delle informazione tra SRV e F2 sarebbe
+già in piedi e pronto per tutti gli scenario di operazioni da remoto.
+
+OPT: si può pensare anche ad un SRV dei SRV. Posto che una azienda abbia N server in giro per il mondo ai quali sono collegate X macchine, si può pensare ad un SRV che
+conosca gli N indirizzi dei vari sotto SRV. Tramite questo singolo SRV, si avrebbe accesso a tutte le macchine distribuite sui vari SRV (giusto per avere una interfaccia
+unica che mostra tutte le macchine senza dover saltare manualmente di SRV in SRV per verificare/interrogare lo stato delle F2)
+
+
+

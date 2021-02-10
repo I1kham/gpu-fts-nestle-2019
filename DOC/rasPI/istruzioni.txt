@@ -1,0 +1,31 @@
+RASPBERRY
+
+Info utili:
+	password per hotspot wifi: fertysnd7789
+	
+Creazione immagine:
+	Utilizzare Win32DiskImager e clonare l'immagine. All'avvio della procedura, il prg potrebbe informare che l'img è leggermente più grossa
+	della SD card sulla quale la si vuole copiare. Cliccare su "procedi" confermando che si vuole procedere con la scrittura
+	
+Prima accensione:
+	La prima volta che il rasPI viene acceso, deve recuperare il proprio MAC address per generare i QR. Il recupero del MAC è un po' lento per cui sono necessari
+	circa 40/50 secondi prima che questo avvenga.
+	In assenza del LED rosso di segnalazione quindi, accendere il rasPI e aspettare 1 minuto circa, poi spegnere.
+	Se il LED è presente invece, basta solo aspettare che si spenga. Nel momento in cui si spegne vuol dire che il rasPI è pronto.
+	
+	
+Recupero dei codici QR.
+	Inserire una chiavetta USB con dentro la cartella rhea/rasPI
+	Accendere il rasPI
+	Se il LED è presente, attendere quei 10/15 sec fino a che non si vede un breve lampeggio del LED (acceso/spento).
+	A quel punto, sulla chivetta USB, nella cartella rhea/rasPI si troveranno i 2 file "qrcodeTP.png" e "qrcodeTS.png" che rappresentano i QR per le macchine TP e TS.
+	Se il LED non è presente, contare una 20a di secondi dall'accensione prima di estrarre la chiavetta USB.
+	
+	
+Aggiornamento GUI TP
+	RheaMedia 2.4 contiene il template "mobile" per generare le GUI mobile per le TP.
+	Quando da rheaMedia si salva la GUI TP mobile, viene generato un file di nome "mobile.rheaRasGuiTP".
+	Caricare questo file in una chiavetta USB nella cartella rhea/rasPI
+	Inserire la chiavetta nel rasPI, accendere e attendere che il LED rosso si accenda e poi si spegna.
+	Al termine dell'operazione, il LED rosso lampeggia. Questo vuol dire che è necessario riavviare il rasPI.
+	Togliere la chiavetta USB e riavviare.
