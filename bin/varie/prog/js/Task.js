@@ -96,7 +96,12 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 			this.priv_handleSanWashingVFlex(timeElapsedMSec);
 	}
 	else if (this.whichWash == 5)
-		this.priv_handleMilkWashing(timeElapsedMSec);
+	{
+		if (da3.isCappuccinatoreInduzione())
+			this.priv_handleMilkWashingIndux(timeElapsedMSec);
+		else
+			this.priv_handleMilkWashingVenturi(timeElapsedMSec);
+	}
 	else
 	{
 		if (timeElapsedMSec < 2000)
@@ -358,7 +363,7 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 	
 }
 
-TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
+TaskCleaning.prototype.priv_handleMilkWashingVenturi = function (timeElapsedMSec)
 {
 	//termino quando lo stato della CPU diventa != da LAVAGGIO_MILKER
 	if (timeElapsedMSec > 3000 && this.cpuStatus != 23) //23==LAVAGGIO_MILKER
@@ -425,6 +430,64 @@ TaskCleaning.prototype.priv_handleMilkWashing = function (timeElapsedMSec)
 			pleaseWait_btn2_hide();
 		});	
 	
+}
+
+TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
+{
+	//termino quando lo stato della CPU diventa != da eVMCState_LAVAGGIO_MILKER_INDUX
+	if (timeElapsedMSec > 3000 && this.cpuStatus != 24) //24==eVMCState_LAVAGGIO_MILKER_INDUX
+	{
+		pageCleaning_onFinished();
+		return;
+	}
+
+	//ogni tot mando una richiesta per conoscere lo stato attuale del lavaggio
+	if (timeElapsedMSec < this.nextTimeSanWashStatusCheckMSec)
+		return;
+	this.nextTimeSanWashStatusCheckMSec += 2000;
+
+	//periodicamente richiedo lo stato del lavaggio
+	var me = this;
+	rhea.ajax ("sanWashStatus", "")
+		.then( function(result) 
+		{
+			var obj = JSON.parse(result);
+			me.fase = parseInt(obj.fase);
+			me.btn1 = parseInt(obj.btn1);
+			me.btn2 = parseInt(obj.btn2);
+			pleaseWait_freeText_setText("INDUX WASH response: fase[" +me.fase +"] b1[" +me.btn1 +"] b2[" +me.btn2 +"], buffer["
+										+obj.buffer8[0] +"," 
+										+obj.buffer8[1] +"," 
+										+obj.buffer8[2] +"," 
+										+obj.buffer8[3] +"," 
+										+obj.buffer8[4] +"," 
+										+obj.buffer8[5] +"," 
+										+obj.buffer8[6] +"," 
+										+obj.buffer8[7] +"]");
+			pleaseWait_freeText_show();
+			
+			if (me.btn1 == 0)
+				pleaseWait_btn1_hide();
+			else
+			{
+				pleaseWait_btn1_setText (me.btn1);
+				pleaseWait_btn1_show();	
+			}
+			
+			if (me.btn2 == 0)
+				pleaseWait_btn2_hide();
+			else
+			{
+				pleaseWait_btn2_setText (me.btn2);
+				pleaseWait_btn2_show();	
+			}			
+		})
+		.catch( function(result)
+		{
+			console.log ("INDUX WASH: error[" +result +"]");
+			pleaseWait_btn1_hide();
+			pleaseWait_btn2_hide();
+		});		
 }
 
 

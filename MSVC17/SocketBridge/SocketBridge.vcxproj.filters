@@ -34,6 +34,9 @@
     <Filter Include="CmdHandler\event\AlipayChina">
       <UniqueIdentifier>{9197cb86-50b0-4d57-8b82-db8e8a71f008}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CmdHandler\ajax\milker">
+      <UniqueIdentifier>{05e38b8c-2774-4c61-abc6-52b8cadaeb4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler.cpp" />
@@ -261,9 +264,6 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_M_MilkerVer.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_V_StartSelAlreadyPaid.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
@@ -296,6 +296,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSRheaUnzip.cpp">
       <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_M_MilkerVer.cpp">
+      <Filter>CmdHandler\ajax\milker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqMilkerType.cpp">
+      <Filter>CmdHandler\ajax\milker</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -525,9 +531,6 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.h">
       <Filter>CmdHandler\event\Prog</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_M_MilkerVer.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_V_StartSelAlreadyPaid.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
@@ -560,6 +563,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqFSRheaUnzip.h">
       <Filter>CmdHandler\ajax\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_M_MilkerVer.h">
+      <Filter>CmdHandler\ajax\milker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqMilkerType.h">
+      <Filter>CmdHandler\ajax\milker</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -228,8 +228,8 @@ namespace cpubridge
 	void		notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, enum eWriteCPUFWFileStatus status, u16 param);
 	void		translateNotify_WRITE_CPUFW_PROGRESS(const rhea::thread::sMsg &msg, eWriteCPUFWFileStatus *out_status, u16 *out_param);
 
-	void		notify_SAN_WASHING_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2);
-	void		translateNotify_SAN_WASHING_STATUS (const rhea::thread::sMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2);
+	void		notify_SAN_WASHING_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2, const u8 *buffer8);
+	void		translateNotify_SAN_WASHING_STATUS (const rhea::thread::sMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2, u8 *out_bufferDiAlmeno8Byte);
 
 	void		notify_WRITE_PARTIAL_VMCDATAFILE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 blockNumOffset);
 	void		translateNotify_WRITE_PARTIAL_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_blockNumOffset);
@@ -284,7 +284,7 @@ namespace cpubridge
 						strLingua1UTF16 è codificato in UTF16 e termina con uno 0x0000
 						out_strLingua1UTF16 deve poter accorgliere almeno 32 caratteri UTF16 più il terminatore 0x0000
 					*/
-	
+
 	void		notify_EVA_RESET_PARTIALDATA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
 	void		translateNotify_EVA_RESET_PARTIALDATA(const rhea::thread::sMsg &msg, bool *out_result);
 
@@ -332,6 +332,9 @@ namespace cpubridge
 	void		notify_CPU_GET_PRICEHOLDING_PRICELIST (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 firstPrice, u8 numPrices, const u16 *prices);
 	void		translateNotifyCPU_GET_PRICEHOLDING_PRICELIST (const rhea::thread::sMsg &msg, u8 *out_firstPrice, u8 *out_numPrices, u16 *out_prices);
 					//out_prices deve essere di almeno NUM_MAX_SELECTIONS elementi
+
+	void		notify_MILKER_TYPE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUMilkerType milkerType);
+	void		translateNotify_MILKER_TYPE(const rhea::thread::sMsg &msg, eCPUMilkerType *out_milkerType);
 
 	/***********************************************
 		ask_xxxx
@@ -562,6 +565,8 @@ namespace cpubridge
 					//chiede alla CPU un elenco di prezzi che sono mantenuti dalla periferica in PRICE-HOLDING (una gettoniera di solito)
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_PRICEHOLDING_PRICELIST
 
+	void		ask_CPU_GET_MILKER_TYPE (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_MILKER_TYPE
 
 
 } // namespace cpubridge

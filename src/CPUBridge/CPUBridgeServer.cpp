@@ -30,6 +30,7 @@ Server::Server()
 	showCPUStringModelAndVersionUntil_msec = 0;
 
 	memset (&priceHolding, 0, sizeof(priceHolding));
+	milkerType = eCPUMilkerType_none;
 }
 
 //***************************************************
@@ -1228,6 +1229,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_MILKER_TYPE:
+			notify_MILKER_TYPE(sub->q, handlerID, logger, milkerType);
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -1397,7 +1402,17 @@ bool Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 				//	b2 => come sopra (in pratica la CPU può essere in attesa della pressione del tasto b1 oppure del tasto b2
 				//In ogni caso, io ignoro queste cose, mi limito a notificare i miei client
 				if (NULL != sub && answerBuffer[2] >= 8)
-					notify_SAN_WASHING_STATUS(sub->q, handlerID, logger, answerBuffer[4], answerBuffer[5], answerBuffer[6]);
+				{
+					if (NULL != sub)
+					{
+						//a partire da 2021-02-04, sono stati aggiunti 8 byte in coda a quanto già esistente
+						u8 buffer8[8];
+						memset (buffer8, 0, sizeof(buffer8));
+						if (answerBuffer[2] >= 16)
+							memcpy (buffer8, &answerBuffer[7], 8);
+						notify_SAN_WASHING_STATUS(sub->q, handlerID, logger, answerBuffer[4], answerBuffer[5], answerBuffer[6], buffer8);
+					}
+				}
 				break;
 			}
 		}
@@ -3733,9 +3748,16 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 
 	//Numero di cifre decimali da utilizzare durante la formattazione dei prezzi. Tale numero lo trovo nel DA3 alla loc 7066
 	this->cpu_numDecimalsForPrices = da3[7066];
+
 	this->priceHolding.isPriceHolding = 0;
 	if (da3[7058] == 3)
 		this->priceHolding.isPriceHolding = 1;
+
+	//il modello di cappuccinatore collegato è indicato nel DA3 alla loc [69]
+	if (da3[69] <= 2)
+		milkerType = (eCPUMilkerType)da3[69];
+	else
+		milkerType = eCPUMilkerType_none;
 
 	RHEAFREE(localAllocator, da3);
 }

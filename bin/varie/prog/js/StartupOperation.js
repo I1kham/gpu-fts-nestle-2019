@@ -61,6 +61,7 @@ function priv_askMachineTypeAndModel()
 	})
 	.catch( function(result)
 	{
+		alert ("err[" +result);
 		setTimeout(function() { priv_askMachineTypeAndModel(); }, 200);
 	});	
 }

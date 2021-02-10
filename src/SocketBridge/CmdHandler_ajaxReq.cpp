@@ -51,6 +51,7 @@
 #include "CmdHandler/CmdHandler_ajaxReq_AliChina_activate.h"
 #include "CmdHandler/CmdHandler_ajaxReq_AliChina_getConnDetail.h"
 #include "CmdHandler/CmdHandler_ajaxReqFSRheaUnzip.h"
+#include "CmdHandler/CmdHandler_ajaxReqMilkerType.h"
 
 using namespace socketbridge;
 
@@ -134,6 +135,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_AliChina_activate);
 	CHECK(CmdHandler_ajaxReq_AliChina_getConnDetail);
 	CHECK(CmdHandler_ajaxReqFSRheaUnzip);
+	CHECK(CmdHandler_ajaxReqMilkerType);
 
 #undef CHECK
     return NULL;

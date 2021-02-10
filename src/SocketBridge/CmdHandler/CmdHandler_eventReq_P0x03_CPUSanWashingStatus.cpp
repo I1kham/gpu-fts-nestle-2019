@@ -15,7 +15,7 @@ void CmdHandler_eventReq_P0x03_CPUSanWashingStatus::onCPUBridgeNotification (soc
 {
 	//NB: se modifichi questo, modifica anche rhea::app::SanWashingStatus::decodeAnswer()
 
-	u8 buffer[4] = { 0,0,0,0 };
-	cpubridge::translateNotify_SAN_WASHING_STATUS(msgFromCPUBridge, &buffer[0], &buffer[1], &buffer[2]);
-	server->sendEvent(hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, 3);
+	u8 buffer[16] = { 0,0,0,0 };
+	cpubridge::translateNotify_SAN_WASHING_STATUS(msgFromCPUBridge, &buffer[0], &buffer[1], &buffer[2], &buffer[3]);
+	server->sendEvent(hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, 11);
 }
