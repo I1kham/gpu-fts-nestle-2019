@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.4.5"
+#define GPU_VERSION     "2.4.5cappIndux"
 
 
 //nome della porta seriale
