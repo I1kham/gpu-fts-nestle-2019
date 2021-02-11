@@ -620,7 +620,7 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
             else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
                 retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
             //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO del cappucinatore. Funziona come sopra
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER)
+            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_INDUX)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
         }
         break;
@@ -673,18 +673,30 @@ void MainWindow::priv_showNewProgrammazione_onCPUBridgeNotification (rhea::threa
 //********************************************************************************
 void MainWindow::on_webView_urlChanged(const QUrl &arg1)
 {
-    if (currentForm < eForm_newprog)
-        return;
+    if (currentForm >= eForm_newprog || currentForm == eForm_main_showBrowser)
+    {
+        QString url = arg1.toString();
 
-    QString url = arg1.toString();
-    if (url.indexOf("gotoLegacyMenu.html") > 0)
-    {
-        //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
-        retCode = eRetCode_gotoFormOldMenuProg;
-    }
-    else if (url.indexOf("gotoHMI.html") > 0)
-    {
-        //dal nuovo menu di programmazione, vogliamo tornare alla GUI utente
-        retCode = eRetCode_gotoFormBrowser;
+        if (currentForm >= eForm_newprog)
+        {
+            if (url.indexOf("gotoLegacyMenu.html") > 0)
+            {
+                //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
+                retCode = eRetCode_gotoFormOldMenuProg;
+            }
+            else if (url.indexOf("gotoHMI.html") > 0)
+            {
+                //dal nuovo menu di programmazione, vogliamo tornare alla GUI utente
+                retCode = eRetCode_gotoFormBrowser;
+            }
+        }
+        else if (currentForm == eForm_main_showBrowser)
+        {
+            if (url.indexOf("gotoMilkerCleaning.html") > 0)
+            {
+                //dalla GUI utente al nuovo menu prog > lavaggio milker
+                retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
+            }
+        }
     }
 }
