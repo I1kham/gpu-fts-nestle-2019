@@ -21,7 +21,7 @@
 					<tr valign="top">
 						<td>
 							<h2>Milker oneTouch Cleaning</h2>
-							Before starting the cleaning, please check:<ol><li>Water supply is available</li><li>Waste tank is empy</li><li>The milk tube is in the cleaning jug</li><li>The detergent is filled into the jug</li></ol>
+							Before starting the cleaning, please check that:<ol><li>water supply is available</li><li>waste tank is empty</li><li>the milk tube is in the cleaning jug</li><li>the detergent is filled into the jug</li></ol>
 						</td>
 						<td style="width:310px; text-align:center;:center"><img src="img/milkerInduxClean01.jpg" style="width:260px"></td>
 					</tr>
@@ -1273,9 +1273,13 @@ function onRheaBootstrapFinished()
 {
 	pleaseWait_setup();
 	
-	rhea.onEvent_cpuMessage = 	function(msg, importanceLevel)	 	{ currentTask.onEvent_cpuMessage(msg, importanceLevel); }
+	rhea.onEvent_cpuMessage = 	function(msg, importanceLevel)	 	{ 
+	
+	msg = "ciao {0}, io sono {1}".translateLang("amico", "Mario");
+	currentTask.onEvent_cpuMessage(msg, importanceLevel); }
 	rhea.onEvent_cpuStatus  = 	function(statusID, statusStr, flag16)
-								{					
+								{		
+								
 									//se il milker è collegato, abilito i suoi menu, e viceversa
 									if (isMilkerAlive)
 									{
