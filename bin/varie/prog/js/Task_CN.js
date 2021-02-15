@@ -485,16 +485,22 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					break;
 
 				case 4:	//CIC_RINSING_PHASE1
-				case 5:	//CIC_RINSING_PHASE2
-				case 6: //CIC_RINSING_PHASE3
 					var ciclo_num = parseInt(obj.buffer8[0]);
 					var ciclo_di = parseInt(obj.buffer8[3]);
 					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
 					pleaseWait_freeText_setText("Rinsing " +ciclo_num +" of " +ciclo_di +", please wait.<br>Water conducibility: " +cond_uS +" uS");
 					break;
+
+				case 5:	//CIC_RINSING_PHASE2
+				case 6: //CIC_RINSING_PHASE3
+					var ciclo_num = parseInt(obj.buffer8[0]);
+					var ciclo_di = parseInt(obj.buffer8[3]);
+					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
+					pleaseWait_freeText_setText("Cleaning " +ciclo_num +" of " +ciclo_di +", please wait.<br>Water conducibility: " +cond_uS +" uS");
+					break;
 				
 				case 7: //CIC_WAIT_FOR_MILK_TUBE
-					pleaseWait_freeText_setText("Put the <b>milk pipe</b> into position and then press CONTINUE");
+					pleaseWait_freeText_setText("the cleaning procedure is finished.<br>Put the <b>milk pipe</b> back into position and then press CLOSE");
 					break;
 
 				case 97: //CIC_TOO_MUCH_DETERGENTE
@@ -528,7 +534,7 @@ pleaseWait_freeText_appendText("<br><br>INDUX WASH response: fase[" +me.fase +"]
 				{
 				default: 	pleaseWait_btn1_setText (me.btn1); break;
 				case 1:		pleaseWait_btn1_setText ("继续"); break;
-				case 7:		pleaseWait_btn1_setText ("继续"); break;
+				case 7:		pleaseWait_btn1_setText ("关闭"); break;
 				}
 				pleaseWait_btn1_show();	
 			}
