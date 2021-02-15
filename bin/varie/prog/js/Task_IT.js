@@ -455,22 +455,45 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 			me.fase = parseInt(obj.fase);
 			me.btn1 = parseInt(obj.btn1);
 			me.btn2 = parseInt(obj.btn2);
-			pleaseWait_freeText_setText("INDUX WASH response: fase[" +me.fase +"] b1[" +me.btn1 +"] b2[" +me.btn2 +"],. buffer["
-										+obj.buffer8[0] +"," 
-										+obj.buffer8[1] +"," 
-										+obj.buffer8[2] +"," 
-										+obj.buffer8[3] +"," 
-										+obj.buffer8[4] +"," 
-										+obj.buffer8[5] +"," 
-										+obj.buffer8[6] +"," 
-										+obj.buffer8[7] +"]");
-			pleaseWait_freeText_show();
+			if (me.fase == 1)
+			{
+				//la fase 1 del milker indux è particolare, bisogna mostrare una specifica schermata con immagini di riepilogo
+				pleaseWait_rotella_hide();
+				rheaShowElem (rheaGetElemByID("pagePleaseWait_milkerInduxWashing"));
+				pleaseWait_freeText_hide();
+			}
+			else
+			{
+				rheaHideElem (rheaGetElemByID("pagePleaseWait_milkerInduxWashing"));
+				pleaseWait_rotella_show();
+				
+				switch (me.fase)
+				{					
+				default:
+					pleaseWait_freeText_setText("INDUX WASH response: fase[" +me.fase +"] b1[" +me.btn1 +"] b2[" +me.btn2 +"], buffer["
+											+obj.buffer8[0] +"," 
+											+obj.buffer8[1] +"," 
+											+obj.buffer8[2] +"," 
+											+obj.buffer8[3] +"," 
+											+obj.buffer8[4] +"," 
+											+obj.buffer8[5] +"," 
+											+obj.buffer8[6] +"," 
+											+obj.buffer8[7] +"]");
+					break;
+				}
+				pleaseWait_freeText_show();
+			}
+			
 			
 			if (me.btn1 == 0)
 				pleaseWait_btn1_hide();
 			else
 			{
-				pleaseWait_btn1_setText (me.btn1);
+				switch (me.fase)
+				{
+				default: pleaseWait_btn1_setText (me.btn1); break;
+				case 1:	 pleaseWait_btn1_setText ("CONTINUA"); break;
+				}
 				pleaseWait_btn1_show();	
 			}
 			
@@ -478,7 +501,13 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				pleaseWait_btn2_hide();
 			else
 			{
-				pleaseWait_btn2_setText (me.btn2);
+				switch (me.fase)
+				{
+				default: pleaseWait_btn2_setText (me.btn2); break;
+				case 1:	 pleaseWait_btn2_setText ("ABORT"); break;
+				}
+				pleaseWait_btn1_show();	
+
 				pleaseWait_btn2_show();	
 			}			
 		})
@@ -487,6 +516,7 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 			console.log ("INDUX WASH: error[" +result +"]");
 			pleaseWait_btn1_hide();
 			pleaseWait_btn2_hide();
+			rheaHideElem (rheaGetElemByID("pagePleaseWait_milkerInduxWashing"));
 		});		
 }
 

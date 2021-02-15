@@ -322,9 +322,10 @@ namespace cpubridge
 		eCPUProgrammingCommand_cleaningType_mixer2 = 0x02,
 		eCPUProgrammingCommand_cleaningType_mixer3 = 0x03,
 		eCPUProgrammingCommand_cleaningType_mixer4 = 0x04,
-		eCPUProgrammingCommand_cleaningType_milker = 0x05,
+		eCPUProgrammingCommand_cleaningType_milker = 0x05,			//questo dice alla CPU di far partire il lav san del milker considerando che il comando arrriva da dentro il menu prog
 		eCPUProgrammingCommand_cleaningType_sanitario = 0x08,
-		eCPUProgrammingCommand_cleaningType_rinsing = 0xa0
+		eCPUProgrammingCommand_cleaningType_rinsing = 0xa0,
+		eCPUProgrammingCommand_cleaningType_milkerQuick = 0x20		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
 	};
 
 	enum eCPUProgrammingCommand_decounter

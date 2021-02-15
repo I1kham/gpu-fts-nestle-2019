@@ -81,9 +81,10 @@ namespace cpubridge
 		};
 
 	private:
-		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
-		void					priv_updateCPUMessageToBeSent (u64 timeNowMSec);
-		void					priv_DA3_reload();
+		void						priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
+		void						priv_updateCPUMessageToBeSent (u64 timeNowMSec);
+		void						priv_DA3_reload();
+		void						priv_advanceFakeCleaning();
 
 	private:
 		bool						bShowDialogStopSelezione;
