@@ -469,16 +469,46 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				
 				switch (me.fase)
 				{					
+				case 2:	//CIC_STEP_FILL_WATER
+					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
+					pleaseWait_freeText_setText("Water refilling in progress, please wait.<br>Water conducibility: " +cond_uS +" uS");
+					break;
+
+				case 3:	//CIC_WAIT_FOR_TABLET_DISSOLVING
+					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
+					pleaseWait_freeText_setText("Water refilling in progress, please wait.<br>Water conducibility: " +cond_uS +" uS");
+					break;
+					
+#define CIC_WAIT_FOR_TABLET_DISSOLVING 3 // tablet dissolving phase
+messaggio: rinsing   -<numsec>
+
+				case 4:	//CIC_RINSING_PHASE1
+				case 5:	//CIC_RINSING_PHASE2
+				case 6: //CIC_RINSING_PHASE3
+					var ciclo_num = parseInt(obj.buffer8[0]);
+					var ciclo_di = parseInt(obj.buffer8[3]);
+					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
+					pleaseWait_freeText_setText("Rinsing " +ciclo_num +" of " +ciclo_di +", please wait.<br>Water conducibility: " +cond_uS +" uS");
+					break;
+				
+				case 7: //CIC_WAIT_FOR_MILK_TUBE
+					pleaseWait_freeText_setText("Put the <b>milk pipe</b> into position and then press CONTINUE");
+					break;
+
+				case 97: //CIC_TOO_MUCH_DETERGENTE
+					pleaseWait_freeText_setText("WARNING: too much detergent!");
+					break;
+				
+				case 98: //CIC_DET_TOO_LOW
+					pleaseWait_freeText_setText("WARNING: too few detergent has been detected!<br>A new cleaning is recomended");
+					break;
+
+				case 99: //CIC_DET_TOO_AGGRESSIVE
+					pleaseWait_freeText_setText("WARNING: detergent too aggressive");
+					break;
+
 				default:
-					pleaseWait_freeText_setText("INDUX WASH response: fase[" +me.fase +"] b1[" +me.btn1 +"] b2[" +me.btn2 +"], buffer["
-											+obj.buffer8[0] +"," 
-											+obj.buffer8[1] +"," 
-											+obj.buffer8[2] +"," 
-											+obj.buffer8[3] +"," 
-											+obj.buffer8[4] +"," 
-											+obj.buffer8[5] +"," 
-											+obj.buffer8[6] +"," 
-											+obj.buffer8[7] +"]");
+					pleaseWait_freeText_setText("INDUX WASH response: fase[" +me.fase +"] b1[" +me.btn1 +"] b2[" +me.btn2 +"], buffer["+obj.buffer8[0] +"," +obj.buffer8[1] +"," +obj.buffer8[2] +"," +obj.buffer8[3] +"," +obj.buffer8[4] +"," +obj.buffer8[5] +"," +obj.buffer8[6] +"," +obj.buffer8[7] +"]");
 					break;
 				}
 				pleaseWait_freeText_show();
@@ -489,10 +519,12 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				pleaseWait_btn1_hide();
 			else
 			{
+				
 				switch (me.fase)
 				{
-				default: pleaseWait_btn1_setText (me.btn1); break;
-				case 1:	 pleaseWait_btn1_setText ("CONTINUER"); break;
+				default: 	pleaseWait_btn1_setText (me.btn1); break;
+				case 1:		pleaseWait_btn1_setText ("CONTINUER"); break;
+				case 7:		pleaseWait_btn1_setText ("CONTINUER"); break;
 				}
 				pleaseWait_btn1_show();	
 			}
@@ -506,8 +538,6 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				default: pleaseWait_btn2_setText (me.btn2); break;
 				case 1:	 pleaseWait_btn2_setText ("ABORT"); break;
 				}
-				pleaseWait_btn1_show();	
-
 				pleaseWait_btn2_show();	
 			}			
 		})
