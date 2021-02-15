@@ -513,6 +513,8 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					pleaseWait_freeText_setText("INDUX WASH response: fase[" +me.fase +"] b1[" +me.btn1 +"] b2[" +me.btn2 +"], buffer["+obj.buffer8[0] +"," +obj.buffer8[1] +"," +obj.buffer8[2] +"," +obj.buffer8[3] +"," +obj.buffer8[4] +"," +obj.buffer8[5] +"," +obj.buffer8[6] +"," +obj.buffer8[7] +"]");
 					break;
 				}
+				
+pleaseWait_freeText_appendText("<br><br>INDUX WASH response: fase[" +me.fase +"] b1[" +me.btn1 +"] b2[" +me.btn2 +"], buffer["+obj.buffer8[0] +"," +obj.buffer8[1] +"," +obj.buffer8[2] +"," +obj.buffer8[3] +"," +obj.buffer8[4] +"," +obj.buffer8[5] +"," +obj.buffer8[6] +"," +obj.buffer8[7] +"]");
 				pleaseWait_freeText_show();
 			}
 			
