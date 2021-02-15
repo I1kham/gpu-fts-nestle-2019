@@ -479,8 +479,10 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					pleaseWait_freeText_setText("Water refilling in progress, please wait.<br>Water conducibility: " +cond_uS +" uS");
 					break;
 					
-#define CIC_WAIT_FOR_TABLET_DISSOLVING 3 // tablet dissolving phase
-messaggio: rinsing   -<numsec>
+				case 3:	//CIC_WAIT_FOR_TABLET_DISSOLVING
+					var timeSec = parseInt(obj.buffer8[0]);
+					pleaseWait_freeText_setText("Rinsing -" +timeSec);
+					break;
 
 				case 4:	//CIC_RINSING_PHASE1
 				case 5:	//CIC_RINSING_PHASE2
