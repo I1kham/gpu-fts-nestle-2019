@@ -34,7 +34,7 @@
 typedef uintptr_t IntPointer;
 
 
-#ifdef PLATFORM_RASPI
+#if defined(PLATFORM_RASPI) || defined(PLATFORM_ROCKCHIP)
     #undef NULL
     #define NULL nullptr
 #endif
