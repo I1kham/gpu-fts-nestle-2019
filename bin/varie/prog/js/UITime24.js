@@ -25,6 +25,7 @@ function UITime24 (parentID, childNum, node, parentObj)
 	this.numCifre = 4;
 	
 	//binding a da3
+	this.allowDa3Save=1;
 	this.da3offset = 0;
 	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
 	
@@ -74,7 +75,9 @@ UITime24.prototype.priv_getHTMLForAFigure = function(i)
 	return html;
 }
 
-UITime24.prototype.setDA3Offset = function (da3offset) { this.da3offset = da3offset; }
+UITime24.prototype.dontSaveToDa3 = function () 					{ this.allowDa3Save = 0; }
+UITime24.prototype.allowSaveToDa3 = function () 				{ this.allowDa3Save = 1; }
+UITime24.prototype.setDA3Offset = function (da3offset) 			{ this.da3offset = da3offset; }
 UITime24.prototype.loadFromDA3 = function(da3)
 { 
 	var loc = this.da3Pos + this.da3offset; 
@@ -90,6 +93,8 @@ UITime24.prototype.loadFromDA3 = function(da3)
 
 UITime24.prototype.saveToDA3 = function(da3)		
 { 
+	if (this.allowDa3Save==0)
+		return;
 	var loc = this.da3Pos + this.da3offset; 
 	if (loc >= 0) 
 	{

@@ -92,8 +92,8 @@ UISelect.prototype.changeOptions = function (str)
 }
 
 
-UIOption.prototype.dontSaveToDa3 = function () 					{ this.allowDa3Save = 0; }
-UIOption.prototype.allowSaveToDa3 = function () 				{ this.allowDa3Save = 1; }
+UISelect.prototype.dontSaveToDa3 = function () 					{ this.allowDa3Save = 0; }
+UISelect.prototype.allowSaveToDa3 = function () 				{ this.allowDa3Save = 1; }
 UISelect.prototype.setDA3Offset = function(da3offset)			{ this.da3offset = da3offset;}
 UISelect.prototype.loadFromDA3 = function(da3)					
 { 

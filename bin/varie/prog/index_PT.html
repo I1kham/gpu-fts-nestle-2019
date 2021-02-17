@@ -539,100 +539,120 @@
 				</table>
 				
 				<div id="pageMilker_params" style="display:none">
+					<!-- parametri comuni a tutti i milker -->
 					<table border='0' class='elenco'>
 						<tr>
 							<td style="width:400px">TEMPERATURA DO VAPOR<br><span class="tip">max 128</span></td>
 							<td><div class="UINumber" id="pageMilker_temperature" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
 						</tr>
-						<tr>
-							<td>TEMPO DE ENXAGUE<br><span class="tip">max 900</span></td>
-							<td><div class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
-						</tr>
-						<tr>
-							<td>HABILITAR ENXAGUE</td>
-							<td><div class="UIOption" data-option="1|SIM|0|NO" data-da3="7622"></div></td>
-						</tr>
-						<tr>
-							<td>ATRASO DO ENXAGUE<br><span class="tip">max 10.0</span></td>
-							<td><div class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
-						</tr>
-						<tr>
-							<td>HABILITAR SENSOR DO LEITE</td>
-							<td><div class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
-						</tr>
-						<tr>
-							<td>MOSTRAR BOTÃO<br>&quot;ENXAGUE DO CAPPUCCINADOR&quot;<br>AO INICIAR</td>
-							<td><div class="UIOption" data-option="1|SIM|0|NO" data-da3="7628"></div></td>
-						</tr>
-						<tr>
-							<td>ENXAGUE  AUTOMATICO<br>NO HORARIO</td>
-							<td colspan="3"><div id="pageMilker_time1" class="UITime24" data-da3="7468"></div></td>
-						</tr>
-						<tr id="pageMilker_row_autoUpdateWashTime">
-							<td>ATUALIZA AUTOMATICAMENTE<br>HORARIO DE ENXAGUE</td>
-							<td><div class="UIOption" id="pageMilker_autoUpdateWashTime" data-option="1|SIM|0|NO" data-da3="7630"></div></td>
-						</tr>
 					</table>
+				
+					<!-- parametri relativi al capp venturi -->
+					<div id="pageMilker_capp_venturi" style="margin-top:20px; display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:400px">TEMPO DE ENXAGUE<br><span class="tip">max 900</span></td>
+								<td><div id="pageMilker_capp_venturi_1" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
+							</tr>
+							<tr>
+								<td>HABILITAR ENXAGUE</td>
+								<td><div id="pageMilker_capp_venturi_2" class="UIOption" data-option="1|SIM|0|NO" data-da3="7622"></div></td>
+							</tr>
+							<tr>
+								<td>ATRASO DO ENXAGUE<br><span class="tip">max 10.0</span></td>
+								<td><div id="pageMilker_capp_venturi_3" class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
+							</tr>
+							<tr>
+								<td>HABILITAR SENSOR DO LEITE</td>
+								<td><div id="pageMilker_capp_venturi_4" class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
+							</tr>
+							<tr>
+								<td>MOSTRAR BOTÃO<br>&quot;ENXAGUE DO CAPPUCCINADOR&quot;<br>AO INICIAR</td>
+								<td><div id="pageMilker_capp_venturi_5" class="UIOption" data-option="1|SIM|0|NO" data-da3="7628"></div></td>
+							</tr>
+							<tr>
+								<td>ENXAGUE  AUTOMATICO<br>NO HORARIO</td>
+								<td colspan="3"><div id="pageMilker_capp_venturi_6" class="UITime24" data-da3="7468"></div></td>
+							</tr>
+							<tr>
+								<td>ATUALIZA AUTOMATICAMENTE<br>HORARIO DE ENXAGUE</td>
+								<td><div id="pageMilker_capp_venturi_7" class="UIOption" data-option="1|SIM|0|NO" data-da3="7630"></div></td>
+							</tr>
+						</table>
+					</div>
 					
 					<!-- parametri relativi al capp induzione -->
 					<div id="pageMilker_capp_induzione" style="margin-top:20px; display:none">
-						<table border='0' class='elenco'>					
+						<table border='0' class='elenco'>
 							<tr>
-								<td style="width:410px">ENABLE WASTE TANKE SENSOR</td>
-								<td><div class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|SIM|0|NO" data-da3="7632"></div></td>
+								<td style="width:410px">HIDRODYNAMIC EMPTYING PERIOD<br><span class="tip">max 900</span></td>
+								<td><div id="pageMilker_capp_indux_1" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
+							</tr>
+							<tr>
+								<td>ENABLE CONDUCIBILITY SENSOR</td>
+								<td><div id="pageMilker_capp_indux_2" class="UIOption" data-option="1|SIM|0|NO" data-da3="7624"></div></td>
+							</tr>
+							<tr>
+								<td>HABILITAR SENSOR DO LEITE</td>
+								<td><div id="pageMilker_capp_indux_3" class="UIOption" data-option="1|SIM|0|NO" data-da3="7626"></div></td>
+							</tr>
+				
+							<tr>
+								<td>ENABLE WASTE TANKE SENSOR</td>
+								<td><div id="pageMilker_capp_indux_4" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|SIM|0|NO" data-da3="7632"></div></td>
 							</tr>
 							<tr>
 								<td>PASTILLE DISSOLVE TIME</td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7670" data-da3bit="16" data-max="240" data-um="sec."></div></td>
+								<td><div id="pageMilker_capp_indux_5" class="UINumber" data-numfigures="3" data-da3="7670" data-da3bit="16" data-max="240" data-um="sec."></div></td>
 							</tr>
 						</table>
 						
 						
 						<table border='0' class='elenco'>	
 							<tbody>
-							<tr>
-								<th align="left">FOAM</th>
-								<th align="left">AIR</th>
-								<th align="left">PUMP SPEED</th>
-								<th align="left">MILK PRESSURE</th>
+							<tr style="background-color:#fff">
+								<th style="color:#000" align="left">FOAM</th>
+								<th style="color:#000" align="left">AIR</th>
+								<th style="color:#000" align="left">PUMP SPEED</th>
+								<th style="color:#000" align="left">MILK PRESSURE</th>
 							</tr>
 							
 							<tr>
 								<td style="color:#f99">HOT FOAM 1</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7634" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7636" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7638" data-da3bit="16" data-max="500" data-um="?"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7638" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
 								<td style="color:#f99">HOT FOAM 2</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7640" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7642" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7644" data-da3bit="16" data-max="500" data-um="?"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7644" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
 								<td style="color:#f99">HOT FOAM 3</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7646" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7648" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7650" data-da3bit="16" data-max="500" data-um="?"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7650" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							
 							<tr>
 								<td style="color:#00f">COLD FOAM 1</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7652" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7654" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7656" data-da3bit="16" data-max="500" data-um="?"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7656" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
 								<td style="color:#00f">COLD FOAM 2</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7658" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7660" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7662" data-da3bit="16" data-max="500" data-um="?"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7662" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
 								<td style="color:#00f">COLD FOAM 3</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7664" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7666" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7668" data-da3bit="16" data-max="500" data-um="?"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7668" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							</tbody>
 						</table>
@@ -1744,7 +1764,7 @@ function pageCleaning_onFinished()
 		rhea.ajax ("getTimeLavSanCapp", "").then( function(result)
 		{
 			var win = ui.getWindowByID("pageMilker");
-			var obj = win.getChildByID("pageMilker_time1");
+			var obj = win.getChildByID("pageMilker_capp_venturi_6"); //auto clean at time
 			var data = JSON.parse(result);
 			console.log ("obj:" +obj);
 			if (null != obj)
@@ -2192,6 +2212,8 @@ function pageMilker_show()
 
 function pageMilker_onMilkerTypeChange()
 {
+	var NUM_PARAM_CAPP_VENTURI=7;
+	var NUM_PARAM_CAPP_INDUX=5;
 	var win = ui.getWindowByID("pageMilker");
 	var milkerModule = win.getChildByID("pageMilker_model");
 	var yesNo = win.getChildByID("pageMilker_enabled");
@@ -2204,14 +2226,22 @@ function pageMilker_onMilkerTypeChange()
 		
 	case 1: //milkerType==venturi
 		yesNo.selectOptionByValue(1);
-		rheaSetDisplayMode(rheaGetElemByID("pageMilker_row_autoUpdateWashTime"),"table-row");
+		rheaShowElem(rheaGetElemByID("pageMilker_capp_venturi"));
 		rheaHideElem(rheaGetElemByID("pageMilker_capp_induzione"));
+		for (var i=1; i<=NUM_PARAM_CAPP_VENTURI; i++)
+			win.getChildByID("pageMilker_capp_venturi_" +i).allowSaveToDa3();
+		for (var i=1; i<=NUM_PARAM_CAPP_INDUX; i++)
+			win.getChildByID("pageMilker_capp_indux_" +i).dontSaveToDa3();
 		break;
 
 	case 2: //milkerType==indux
 		yesNo.selectOptionByValue(1);
-		rheaHideElem(rheaGetElemByID("pageMilker_row_autoUpdateWashTime"));
 		rheaShowElem(rheaGetElemByID("pageMilker_capp_induzione"));
+		rheaHideElem(rheaGetElemByID("pageMilker_capp_venturi"));
+		for (var i=1; i<=NUM_PARAM_CAPP_INDUX; i++)
+			win.getChildByID("pageMilker_capp_indux_" +i).allowSaveToDa3();
+		for (var i=1; i<=NUM_PARAM_CAPP_VENTURI; i++)
+			win.getChildByID("pageMilker_capp_venturi_" +i).dontSaveToDa3();
 		break;
 	}
 

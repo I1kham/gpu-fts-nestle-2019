@@ -498,7 +498,7 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					break;
 				
 				case 7: //CIC_WAIT_FOR_MILK_TUBE
-					pleaseWait_freeText_setText("La procedura di pulizia è terminata.<br><br>Si prega di:<ul><li>svuotare la vaschetta dell'acqua</li><li>riportare il tubo del latte nella posizione iniziale</li></ol><br>Premere CHIUDI per chiudere questa finestra"); //The cleaning procedure is finished.<br><br>Please, remember to:<ul><li>empty Waste tank</li><li>put the milk pipe back into position</li></ol><br>Press CLOSE to close this window
+					pleaseWait_freeText_setText("La procedura di pulizia è terminata.<br><br>Si prega di:<ul><li>svuotare la vaschetta dell'acqua</li><li>riportare il tubo del latte nella posizione iniziale</li></ul><br>Premere CHIUDI per chiudere questa finestra"); //The cleaning procedure is finished.<br><br>Please, remember to:<ul><li>empty Waste tank</li><li>put the milk pipe back into position</li></ol><br>Press CLOSE to close this window
 					break;
 
 				case 97: //CIC_TOO_MUCH_DETERGENTE
