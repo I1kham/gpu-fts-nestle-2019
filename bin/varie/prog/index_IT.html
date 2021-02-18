@@ -585,25 +585,29 @@
 					<div id="pageMilker_capp_induzione" style="margin-top:20px; display:none">
 						<table border='0' class='elenco'>
 							<tr>
-								<td style="width:410px">HIDRODYNAMIC EMPTYING PERIOD<br><span class="tip">max 900</span></td>
-								<td><div id="pageMilker_capp_indux_1" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
+								<td style="width:410px">LAVAGGIO AUTOMATICO<br>ALLE ORE</td>
+								<td colspan="3"><div id="pageMilker_capp_indux_1" class="UITime24" data-da3="7468"></div></td>
+							</tr>
+							<tr>
+								<td>HIDRODYNAMIC EMPTYING PERIOD<br><span class="tip">max 900</span></td>
+								<td><div id="pageMilker_capp_indux_2" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 							</tr>
 							<tr>
 								<td>ENABLE CONDUCIBILITY SENSOR</td>
-								<td><div id="pageMilker_capp_indux_2" class="UIOption" data-option="1|SI|0|NO" data-da3="7624"></div></td>
+								<td><div id="pageMilker_capp_indux_3" class="UIOption" data-option="1|SI|0|NO" data-da3="7624"></div></td>
 							</tr>
 							<tr>
 								<td>ABILITA SENSORE LATTE</td>
-								<td><div id="pageMilker_capp_indux_3" class="UIOption" data-option="1|SI|0|NO" data-da3="7626"></div></td>
+								<td><div id="pageMilker_capp_indux_4" class="UIOption" data-option="1|SI|0|NO" data-da3="7626"></div></td>
 							</tr>
 				
 							<tr>
 								<td>ABILITA SENSORE WASTE TANKE</td>
-								<td><div id="pageMilker_capp_indux_4" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|SI|0|NO" data-da3="7632"></div></td>
+								<td><div id="pageMilker_capp_indux_5" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|SI|0|NO" data-da3="7632"></div></td>
 							</tr>
 							<tr>
 								<td>TEMPO SCIOGLIMENTO PASTIGLIA</td>
-								<td><div id="pageMilker_capp_indux_5" class="UINumber" data-numfigures="3" data-da3="7670" data-da3bit="16" data-max="240" data-um="sec."></div></td>
+								<td><div id="pageMilker_capp_indux_6" class="UINumber" data-numfigures="3" data-da3="7670" data-da3bit="16" data-max="240" data-um="sec."></div></td>
 							</tr>
 						</table>
 						
@@ -2213,7 +2217,7 @@ function pageMilker_show()
 function pageMilker_onMilkerTypeChange()
 {
 	var NUM_PARAM_CAPP_VENTURI=7;
-	var NUM_PARAM_CAPP_INDUX=5;
+	var NUM_PARAM_CAPP_INDUX=6;
 	var win = ui.getWindowByID("pageMilker");
 	var milkerModule = win.getChildByID("pageMilker_model");
 	var yesNo = win.getChildByID("pageMilker_enabled");
