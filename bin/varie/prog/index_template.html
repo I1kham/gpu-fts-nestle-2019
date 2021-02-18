@@ -545,6 +545,14 @@
 							<td style="width:400px">$LAB_MILKER_STEAM_TEMPERATURE<br><span class="tip">max 128</span></td>
 							<td><div class="UINumber" id="pageMilker_temperature" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
 						</tr>
+						<tr>
+							<td>$LAB_MILKER_AUTO_RINSING_AT_TIME</td>
+							<td colspan="3"><div class="UITime24" data-da3="7468"></div></td>
+						</tr>
+						<tr>
+							<td>$LAB_MILKER_AUTO_UPDATE_WASH_TIME</td>
+							<td><div class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7630"></div></td>
+						</tr>
 					</table>
 				
 					<!-- parametri relativi al capp venturi -->
@@ -570,14 +578,6 @@
 								<td>$LAB_MILKER_SHOW_MILKER_RINSING_BTN_AT_STARTUP</td>
 								<td><div id="pageMilker_capp_venturi_5" class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7628"></div></td>
 							</tr>
-							<tr>
-								<td>$LAB_MILKER_AUTO_RINSING_AT_TIME</td>
-								<td colspan="3"><div id="pageMilker_capp_venturi_6" class="UITime24" data-da3="7468"></div></td>
-							</tr>
-							<tr>
-								<td>$LAB_MILKER_AUTO_UPDATE_WASH_TIME</td>
-								<td><div id="pageMilker_capp_venturi_7" class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7630"></div></td>
-							</tr>
 						</table>
 					</div>
 					
@@ -585,29 +585,25 @@
 					<div id="pageMilker_capp_induzione" style="margin-top:20px; display:none">
 						<table border='0' class='elenco'>
 							<tr>
-								<td style="width:410px">$LAB_MILKER_AUTO_RINSING_AT_TIME</td>
-								<td colspan="3"><div id="pageMilker_capp_indux_1" class="UITime24" data-da3="7468"></div></td>
-							</tr>
-							<tr>
-								<td>$LAB_MILKER2_HIDR_EMPTYING_PERIOD<br><span class="tip">max 900</span></td>
-								<td><div id="pageMilker_capp_indux_2" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
+								<td style="width:410px">$LAB_MILKER2_HIDR_EMPTYING_PERIOD<br><span class="tip">max 900</span></td>
+								<td><div id="pageMilker_capp_indux_1" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 							</tr>
 							<tr>
 								<td>$LAB_MILKER2_ENABLE_CONDUCIBILITY_SENSOR</td>
-								<td><div id="pageMilker_capp_indux_3" class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7624"></div></td>
+								<td><div id="pageMilker_capp_indux_2" class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7624"></div></td>
 							</tr>
 							<tr>
 								<td>$LAB_MILKER_ENABLE_MILK_SENSOR</td>
-								<td><div id="pageMilker_capp_indux_4" class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7626"></div></td>
+								<td><div id="pageMilker_capp_indux_3" class="UIOption" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7626"></div></td>
 							</tr>
 				
 							<tr>
 								<td>$LAB_MILKER2_ENABLE_WASTE_TANKL_SENSOR</td>
-								<td><div id="pageMilker_capp_indux_5" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7632"></div></td>
+								<td><div id="pageMilker_capp_indux_4" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|$LAB_YES|0|$LAB_NO" data-da3="7632"></div></td>
 							</tr>
 							<tr>
 								<td>$LAB_MILKER2_TEMPO_PASTIGLIA</td>
-								<td><div id="pageMilker_capp_indux_6" class="UINumber" data-numfigures="3" data-da3="7670" data-da3bit="16" data-max="240" data-um="sec."></div></td>
+								<td><div id="pageMilker_capp_indux_5" class="UINumber" data-numfigures="3" data-da3="7670" data-da3bit="16" data-max="240" data-um="sec."></div></td>
 							</tr>
 						</table>
 						
@@ -2216,8 +2212,8 @@ function pageMilker_show()
 
 function pageMilker_onMilkerTypeChange()
 {
-	var NUM_PARAM_CAPP_VENTURI=7;
-	var NUM_PARAM_CAPP_INDUX=6;
+	var NUM_PARAM_CAPP_VENTURI=5;
+	var NUM_PARAM_CAPP_INDUX = 5;
 	var win = ui.getWindowByID("pageMilker");
 	var milkerModule = win.getChildByID("pageMilker_model");
 	var yesNo = win.getChildByID("pageMilker_enabled");
