@@ -7,13 +7,16 @@
 
 
 //nome della porta seriale
-#ifdef PLATFORM_UBUNTU_DESKTOP
-    #define CPU_COMPORT  "/dev/ttyUSB0"
-    #define ESAPI_COMPORT  "/dev/ttyUSB1"
-#else
+#if defined(PLATFORM_UBUNTU_DESKTOP)
+    #define CPU_COMPORT     "/dev/ttyUSB0"
+    #define ESAPI_COMPORT   "/dev/ttyUSB1"
+#elif defined(PLATFORM_YOCTO_EMBEDDED)
     #define CPU_COMPORT     "/dev/ttymxc3"
     #define ESAPI_COMPORT   "/dev/ttymxc2"
     #define USB_MOUNTPOINT  "/run/media/sda1"
+#elif defined(PLATFORM_ROCKCHIP)
+    #define CPU_COMPORT     "/dev/ttyUSB0"
+    #define ESAPI_COMPORT    "/dev/ttyS1"
 #endif
 
 

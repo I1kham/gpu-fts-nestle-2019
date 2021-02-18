@@ -4,7 +4,19 @@ QT       += webkitwidgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++0x -pthread -Wno-unused-result -Wno-expansion-to-defined -Wcomment
+QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -pthread
+QMAKE_CXXFLAGS += -Wno-unused-result
+QMAKE_CXXFLAGS += -Wno-expansion-to-defined
+QMAKE_CXXFLAGS += -Wcomment
+QMAKE_CXXFLAGS += -Wno-zero-as-null-pointer-constant
+QMAKE_CXXFLAGS += -Wno-unused-parameter
+QMAKE_CXXFLAGS += -Wno-unused-variable
+#QMAKE_CXXFLAGS += -O2
+#QMAKE_CFLAGS += -O2
+#CONFIG += optimize_full
+
+
 QMAKE_CFLAGS += -std=gnu++0x -pthread -Wcomment
 LIBS += -pthread
 
@@ -88,12 +100,6 @@ LIBRARY_NAME="rheaCommonLib"
 LIBS += -ldl
 
 
-CONFIG(release, debug|release) {
-	#QMAKE_CXXFLAGS += -O2
-	#QMAKE_CFLAGS += -O2
-	#CONFIG += optimize_full
-	QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable
-}
 
 SOURCES += \
     ../../src/GPU/formboot.cpp \

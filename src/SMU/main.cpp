@@ -10,9 +10,12 @@
 #ifdef PLATFORM_UBUNTU_DESKTOP
     #define CPU_COMPORT     "/dev/ttyUSB0"
     #define ESAPI_COMPORT	"/dev/ttyUSB1"
-#elif PLATFORM_YOCTO_EMBEDDED
+#elif defined(PLATFORM_YOCTO_EMBEDDED)
     #define CPU_COMPORT     "/dev/ttymxc3"
     #define ESAPI_COMPORT   "/dev/ttymxc2"
+#elif defined(PLATFORM_ROCKCHIP)
+    #define CPU_COMPORT     "/dev/ttyUSB0"
+    #define ESAPI_COMPORT    "/dev/ttyS1"
 #else
 	#define CPU_COMPORT		"COM5"
 	#define ESAPI_COMPORT	"COM4"
