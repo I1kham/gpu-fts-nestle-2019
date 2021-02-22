@@ -61,6 +61,7 @@ function priv_askMachineTypeAndModel()
 	})
 	.catch( function(result)
 	{
+		console.log ("ERR priv_askMachineTypeAndModel::[" +result +"]");
 		setTimeout(function() { priv_askMachineTypeAndModel(); }, 200);
 	});	
 }

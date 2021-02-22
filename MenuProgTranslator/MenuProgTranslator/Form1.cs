@@ -10,23 +10,110 @@ namespace MenuProgTranslator
 {
     public partial class Form1 : Form
     {
+        private string pathOfTranslationFile = "";
+        private string pathOfMenuProgFolder = "";
+
         public Form1()
         {
             InitializeComponent();
+            priv_loadSettings();
+        }
+
+        private void priv_saveSettings()
+        {
+            string result = pathOfTranslationFile + "\r\n" + pathOfMenuProgFolder;
+            string curFolder = Path.GetDirectoryName(Application.ExecutablePath);
+            File.WriteAllText(curFolder + "\\MenuProgTranslator.ini", result);
+        }
+
+        private void priv_loadSettings()
+        {
+            pathOfTranslationFile = pathOfMenuProgFolder = "";
+            string curFolder = Path.GetDirectoryName(Application.ExecutablePath);
+
+            try
+            {
+                System.IO.StreamReader file = new System.IO.StreamReader(curFolder + "\\MenuProgTranslator.ini");
+
+                string line;
+                int ct = 0;
+                while ((line = file.ReadLine()) != null)
+                {
+                    if (ct == 0)
+                        pathOfTranslationFile = line.Trim();
+                    else if (ct == 1)
+                        pathOfMenuProgFolder = line.Trim();
+                    ct++;
+                    if (ct >= 2)
+                        break;
+                }
+
+                file.Close();
+            }
+            catch
+            {
+            }
+
+            if (File.Exists(pathOfTranslationFile + "\\translations.xlsx"))
+            {
+                labPathOfTranslationFile.BackColor = System.Drawing.Color.YellowGreen;
+                labPathOfTranslationFile.Text = pathOfTranslationFile;
+            }
+            else
+            {
+                labPathOfTranslationFile.BackColor = System.Drawing.Color.Red;
+                labPathOfTranslationFile.Text = "invalid";
+                pathOfTranslationFile = "";
+            }
+
+            if (File.Exists(pathOfMenuProgFolder + "\\index_template.html"))
+            {
+                labPathOfMenuProgFolder.BackColor = System.Drawing.Color.YellowGreen;
+                labPathOfMenuProgFolder.Text = pathOfMenuProgFolder;
+            }
+            else
+            {
+                labPathOfMenuProgFolder.BackColor = System.Drawing.Color.Red;
+                labPathOfMenuProgFolder.Text = "invalid";
+                pathOfMenuProgFolder = "";
+            }
+
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string curFolder = Path.GetDirectoryName(Application.ExecutablePath);
-            string progMenuPath = Path.GetFullPath (curFolder +"\\..\\bin\\varie\\prog");
-            string xlsPath = curFolder + "\\translations.xlsx";
-            translate(progMenuPath, xlsPath);
-            //translate(@"C:\rhea\rheaSRC\gpu-fts-nestle-2019\bin\varie\prog", @"C:\rhea\rheaSRC\gpu-fts-nestle-2019\MenuProgTranslator\translations.xlsx");
+            priv_start(false);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            priv_start(true);
+        }
+
+        private void priv_start(bool bDebugOnlyGB)
+        {
+            priv_loadSettings();
+            if (pathOfMenuProgFolder == "" || pathOfTranslationFile == "")
+            {
+                MessageBox.Show("Invalid path, please set both 'path of translation file' and 'path of menuprog folder'");
+                return;
+            }
+            button1.Enabled = false;
+            button2.Enabled = false;
+            btnChangePathOfMenuProgFolder.Enabled = false;
+            btnChangePathOfTranslationFile.Enabled = false;
+
+            translate(pathOfMenuProgFolder, pathOfTranslationFile + "\\translations.xlsx", bDebugOnlyGB);
+
+            button1.Enabled = true;
+            button2.Enabled = true;
+            btnChangePathOfMenuProgFolder.Enabled = true;
+            btnChangePathOfTranslationFile.Enabled = true;
         }
 
         private void log(string s)
         {
-            txtLogger.AppendText(logSpacer +s + "\r\n");
+            txtLogger.AppendText(logSpacer + s + "\r\n");
             txtLogger.ScrollToCaret();
         }
 
@@ -37,8 +124,8 @@ namespace MenuProgTranslator
         {
             logSpacer = "";
             logTab++;
-            for (int i=0; i<logTab; i++)
-                logSpacer+= " ";
+            for (int i = 0; i < logTab; i++)
+                logSpacer += " ";
         }
 
         private void logDecTab()
@@ -103,7 +190,7 @@ namespace MenuProgTranslator
 
             fileIN = "Task.js";
             fileOUT = "Task_" + langISO + ".js";
-            translateSpecificFile(fullPathToMainMenuProgFolder+"/js", fileIN, fileOUT, sheets, lastGoodRow, langColumn, langISO);
+            translateSpecificFile(fullPathToMainMenuProgFolder + "/js", fileIN, fileOUT, sheets, lastGoodRow, langColumn, langISO);
 
             logDecTab();
         }
@@ -112,7 +199,7 @@ namespace MenuProgTranslator
         {
             log("reading " + folderPath + "/" + inputFileName);
             string template = File.ReadAllText(folderPath + "/" + inputFileName, Encoding.UTF8);
-            
+
 
             //bandiera della lingua corrente
             string label = "$_CUR_LANG_ISO_2_LETTERS";
@@ -124,6 +211,14 @@ namespace MenuProgTranslator
                 template = template.Substring(0, iFound) + langISO + template.Substring(iFound + label.Length);
             }
 
+            //Task.js deve diventare Task_[CUR_LANG].js
+            while (true)
+            {
+                int iFound = template.IndexOf("Task.js");
+                if (iFound < 0)
+                    break;
+                template = template.Substring(0, iFound + 4) + "_" + langISO + template.Substring(iFound + 4);
+            }
 
 
             for (int iSheet = 1; iSheet <= sheets.Count; iSheet++)
@@ -168,20 +263,32 @@ namespace MenuProgTranslator
                 }
             }
 
-            log("writing " +folderPath + "/" + outputFileName);
+            log("writing " + folderPath + "/" + outputFileName);
             System.Text.Encoding encoder = new System.Text.UTF8Encoding(false);
-            File.WriteAllText (folderPath + "/" + outputFileName, template, encoder);
+            File.WriteAllText(folderPath + "/" + outputFileName, template, encoder);
         }
 
-        private void translate(String fullPathToMainMenuProgFolder, String fullPathToExcelFileWithTranslation)
+        private void translate(String fullPathToMainMenuProgFolder, String fullPathToExcelFileWithTranslation, bool bDebugOnlyGB)
         {
             log("STARTING");
             logIncTab();
-                log("xls = " + fullPathToExcelFileWithTranslation);
-                log("prog folder = " + fullPathToMainMenuProgFolder);
+            log("xls = " + fullPathToExcelFileWithTranslation);
+            log("prog folder = " + fullPathToMainMenuProgFolder);
             logDecTab();
 
-            bool bCanDoJob = true;
+            //elimina tutti i file index_LANG.html
+            string[] elencoIndex = Directory.GetFiles(fullPathToMainMenuProgFolder);
+            foreach (string s in elencoIndex)
+            {
+                string fname = Path.GetFileName(s);
+                if (fname == "index_template.html")
+                    continue;
+                if (fname.IndexOf("index_") == 0)
+                    File.Delete(s);
+            }
+
+
+                bool bCanDoJob = true;
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook wb = xlApp.Workbooks.Open(fullPathToExcelFileWithTranslation);
             Excel.Sheets sheets = xlApp.Worksheets;
@@ -189,13 +296,18 @@ namespace MenuProgTranslator
             //recupera un elenco di lingue (dal foglio 1)
             int numLanguages = 0;
             Excel.Worksheet sheet1 = (Excel.Worksheet)sheets[1];
-            for (int i=2; i<100; i++)
+            if (bDebugOnlyGB)
+                numLanguages = 1;
+            else
             {
-                string langISO = getValue(sheet1, 1, i);
-                if (langISO == "")
+                for (int i = 2; i < 100; i++)
                 {
-                    numLanguages = i - 2;
-                    break;
+                    string langISO = getValue(sheet1, 1, i);
+                    if (langISO == "")
+                    {
+                        numLanguages = i - 2;
+                        break;
+                    }
                 }
             }
 
@@ -209,7 +321,7 @@ namespace MenuProgTranslator
 
                 for (int t = 0; t < numLanguages; t++)
                 {
-                    string langISO = getValue(sheet1, 1, t+2);
+                    string langISO = getValue(sheet1, 1, t + 2);
                     if (getValue(sheet, 1, t + 2) != langISO)
                     {
                         MessageBox.Show("ATTENZIONE: il foglio di lavoro numero " + (t + 2) + " non contiene la colonna con la lingua " + langISO);
@@ -226,7 +338,7 @@ namespace MenuProgTranslator
                     int langCol = iLang + 2;
                     string langISO = getValue(sheet1, 1, langCol);
                     Application.DoEvents();
-                    translateSpecificLang (fullPathToMainMenuProgFolder, sheets, lastGoodRow, langCol, langISO);
+                    translateSpecificLang(fullPathToMainMenuProgFolder, sheets, lastGoodRow, langCol, langISO);
                 }
                 log("Finished");
             }
@@ -237,5 +349,51 @@ namespace MenuProgTranslator
             Marshal.ReleaseComObject(xlApp);
             Application.Exit();
         }
+
+        private void btnChangePathOfTranslationFile_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                openFileDialog1.InitialDirectory = pathOfTranslationFile;
+            }
+            catch
+            {
+                openFileDialog1.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
+            }
+
+            openFileDialog1.Filter = "translation file|translations.xlsx";
+            openFileDialog1.FileName = "translations.xlsx";
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                //Get the path of specified file
+                pathOfTranslationFile = Path.GetDirectoryName(openFileDialog1.FileName);
+                priv_saveSettings();
+                priv_loadSettings();
+            }
+        }
+
+        private void btnChangePathOfMenuProgFolder_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                openFileDialog1.InitialDirectory = pathOfMenuProgFolder;
+            }
+            catch
+            {
+                openFileDialog1.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath);
+            }
+
+            openFileDialog1.Filter = "menuprog folder|index_template.html";
+            openFileDialog1.FileName = "index_template.html";
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                //Get the path of specified file
+                pathOfMenuProgFolder = Path.GetDirectoryName(openFileDialog1.FileName);
+                priv_saveSettings();
+                priv_loadSettings();
+
+            }
+        }
+
     }
 }
