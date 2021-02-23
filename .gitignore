@@ -96,3 +96,4 @@ QT-Linaro-Rockchip/SocketBridge/build/
 
 
 
+*.gitignore.swp
