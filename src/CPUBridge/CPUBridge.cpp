@@ -554,13 +554,14 @@ void cpubridge::notify_CPUBRIDGE_DYING (const sSubscriber &to)
 //***************************************************
 void cpubridge::notify_CPU_STATE_CHANGED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, cpubridge::eVMCState VMCstate, u8 VMCerrorCode, u8 VMCerrorType, u16 flag1)
 {
-	logger->log("notify_CPU_STATE_CHANGED\n");
-
 	u8 state[8];
 	state[0] = (u8)VMCstate;
 	state[1] = (u8)VMCerrorCode;
 	state[2] = (u8)VMCerrorType;
 	rhea::utils::bufferWriteU16(&state[3], flag1);
+
+	logger->log("notify_CPU_STATE_CHANGED [%d] [%d] [%d]\n", VMCstate, VMCerrorCode, VMCerrorType);
+
 	rhea::thread::pushMsg (to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED, handlerID, state, 5);
 }
 
@@ -922,15 +923,19 @@ void cpubridge::translateNotify_CPU_VMCDATAFILE_TIMESTAMP(const rhea::thread::sM
 
 
 //***************************************************
-void cpubridge::notify_SAN_WASHING_STATUS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2)
+void cpubridge::notify_SAN_WASHING_STATUS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2, const u8 *buffer8)
 {
 	logger->log("notify_SAN_WASHING_STATUS\n");
-	u8 buffer[4] = { b0, b1, b2, 0 };
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS, handlerID, buffer, 3);
+	u8 buffer[16];
+	buffer[0] = b0;
+	buffer[1] = b1;
+	buffer[2] = b2;
+	memcpy (&buffer[3], buffer8, 8);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS, handlerID, buffer, 11);
 }
 
 //***************************************************
-void cpubridge::translateNotify_SAN_WASHING_STATUS(const rhea::thread::sMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2)
+void cpubridge::translateNotify_SAN_WASHING_STATUS(const rhea::thread::sMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2, u8 *out_bufferDiAlmeno8Byte)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS);
 
@@ -938,6 +943,7 @@ void cpubridge::translateNotify_SAN_WASHING_STATUS(const rhea::thread::sMsg &msg
 	*out_b0 = p[0];
 	*out_b1 = p[1];
 	*out_b2 = p[2];
+	memcpy (out_bufferDiAlmeno8Byte, &p[3], 8);
 }
 
 
@@ -1902,6 +1908,12 @@ void cpubridge::ask_CPU_GET_EXTENDED_CONFIG_INFO(const sSubscriber &from, u16 ha
 }
 
 //***************************************************
+void cpubridge::ask_CPU_GET_MILKER_TYPE (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_MILKER_TYPE, handlerID);
+}
+
+//***************************************************
 void cpubridge::ask_CPU_ATTIVAZIONE_MOTORE(const sSubscriber &from, u16 handlerID, u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec)
 {
 	u8 otherData[4];
@@ -2304,3 +2316,22 @@ void cpubridge::translate_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const rhea::
 	const u8 *p = (const u8*)msg.buffer;
 	*out_selNum = p[0];
 }
+
+
+//***************************************************
+void cpubridge::notify_MILKER_TYPE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUMilkerType milkerType)
+{
+	logger->log("notify_MILKER_TYPE\n");
+
+	u8 buffer[4] = { (u8)milkerType, 0, 0, 0 };
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_MILKER_TYPE, handlerID, buffer, 1);
+}
+
+//***************************************************
+void cpubridge::translateNotify_MILKER_TYPE(const rhea::thread::sMsg &msg, eCPUMilkerType *out_milkerType) 
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_MILKER_TYPE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_milkerType = (eCPUMilkerType)p[0];
+}
+

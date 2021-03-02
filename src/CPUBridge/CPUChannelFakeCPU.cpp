@@ -8,6 +8,7 @@ using namespace cpubridge;
 //*****************************************************************
 CPUChannelFakeCPU::CPUChannelFakeCPU()
 {
+	da3 = NULL;
 	bShowDialogStopSelezione = true;
 	statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
 	VMCState = eVMCState_DISPONIBILE;
@@ -79,6 +80,11 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 //*****************************************************************
 CPUChannelFakeCPU::~CPUChannelFakeCPU()
 {
+	if (NULL != da3)
+	{
+		RHEAFREE(rhea::getSysHeapAllocator(), da3);
+		da3 = NULL;
+	}
 }
 
 //*****************************************************************
@@ -117,6 +123,16 @@ void CPUChannelFakeCPU::priv_updateCPUMessageToBeSent(u64 timeNowMSec)
 	}
 }
 
+//*****************************************************************
+void CPUChannelFakeCPU::priv_DA3_reload()
+{
+	if (NULL != da3)
+		RHEAFREE(rhea::getSysHeapAllocator(), da3);
+	u8 s[256];
+	sprintf_s((char*)s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	u32 sizeOfBuffer = 0;
+	this->da3 = rhea::fs::fileCopyInMemory(s, rhea::getSysHeapAllocator(), &sizeOfBuffer);
+}
 
 
 /*****************************************************************
@@ -641,9 +657,12 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 				break;
 
+			// si vuole iniziare un cleaning di qualche dispositivo
 			case eCPUProgrammingCommand_cleaning:
 				//fingo un cleaning
 				memset(&cleaning, 0, sizeof(cleaning));
+				cleaning.freeBuffer8[0] = 0x00;	cleaning.freeBuffer8[1] = 0x01;	cleaning.freeBuffer8[2] = 0x02;	cleaning.freeBuffer8[3] = 0x03;
+				cleaning.freeBuffer8[4] = 0x04;	cleaning.freeBuffer8[5] = 0x05;	cleaning.freeBuffer8[6] = 0x06;	cleaning.freeBuffer8[7] = 0x07;
 				cleaning.cleaningType = (eCPUProgrammingCommand_cleaningType)bufferToSend[4];
 				cleaning.fase = 1;
 				cleaning.timeToEnd = rhea::getTimeNowMSec() + 4000;
@@ -651,8 +670,17 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
 					this->VMCState = eVMCState_LAVAGGIO_SANITARIO;
-				else if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker)
-					this->VMCState = eVMCState_LAVAGGIO_MILKER;
+				else if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker || cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milkerQuick)
+				{
+					priv_DA3_reload();
+					if (da3[69] == 2)
+					{
+						this->VMCState = eVMCState_LAVAGGIO_MILKER_INDUX;
+						cleaning.timeToEnd = rhea::getTimeNowMSec() + 12000;
+					}
+					else
+						this->VMCState = eVMCState_LAVAGGIO_MILKER_VENTURI;
+				}
 				else
 					this->VMCState = eVMCState_LAVAGGIO_MANUALE;
 
@@ -665,9 +693,12 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
+			//periodicamente la SMU fa delle query per conoscere lo stato del cleaning. La simulazione dell'avanzamento del processo di cleaning
+			//si trova dentro priv_advanceFakeCleaning()
 			case eCPUProgrammingCommand_querySanWashingStatus:
 				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario ||
-					cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker)
+					cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker ||
+					cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milkerQuick)
 				{
 					out_answer[ct++] = '#';
 					out_answer[ct++] = 'P';
@@ -676,6 +707,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					out_answer[ct++] = cleaning.fase; //fase
 					out_answer[ct++] = cleaning.btn1;
 					out_answer[ct++] = cleaning.btn2;
+					memcpy (&out_answer[ct], cleaning.freeBuffer8, 8);
+					ct += 8;
 
 					out_answer[2] = (u8)ct + 1;
 					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
@@ -1013,19 +1046,62 @@ u32 CPUChannelFakeCPU::waitForAMessage (u8 *out_answer UNUSED_PARAM, u32 sizeOf_
 }
 
 //*****************************************************************
-void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
+void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 {
-    bool CPUFLAG_isMilkerAlive = true;
-	bool CPUFLAG_isFreevend = false;
-	bool CPUFLAG_isTestvend = false;
-				
-				
-				
-	memset(out_answer, 0, *in_out_sizeOfAnswer);
-	//gestione fake del cleaning
-	if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
+	if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
 	{
-		if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
+		//cleaning sanitario del gruppo
+		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+		{
+			cleaning.timeToEnd += 2000;
+			cleaning.btn1 = cleaning.btn2 = 0;
+			++cleaning.fase;
+
+			if (cleaning.fase == 3 || cleaning.fase == 12)
+			{
+				cleaning.btn1 = 10;
+				cleaning.timeToEnd += 3000;
+			}
+			if (cleaning.fase == 11 || cleaning.fase == 13)
+			{
+				cleaning.btn1 = 10;
+				cleaning.btn2 = 1;
+				cleaning.timeToEnd += 3000;
+			}
+
+			if (cleaning.fase >= 19)
+			{
+				cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
+				this->VMCState = cleaning.prevState;
+			}
+		}
+	}
+	else if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker || cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milkerQuick)
+	{
+		//cleaning del milker
+		if (cleaning.fase == 1)
+		{
+			cleaning.btn1 = 10;
+			cleaning.btn2 = 1;
+		}
+
+		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+		{
+			cleaning.timeToEnd += 2000;
+			cleaning.btn1 = cleaning.btn2 = 0;
+			++cleaning.fase;
+
+			if (cleaning.fase >= 6)
+			{
+				cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
+				this->VMCState = cleaning.prevState;
+			}
+		}
+	}
+	else if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
+	{
+		//tutti gli altri cleaning
+		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
 		{
 			if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
 			{
@@ -1033,34 +1109,27 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 				cleaning.btn1 = cleaning.btn2 = 0;
 				++cleaning.fase;
 
-				if (cleaning.fase == 3 || cleaning.fase == 12)
-				{
-					cleaning.btn1 = 10;
-					cleaning.timeToEnd += 3000;
-				}
-				if (cleaning.fase == 11 || cleaning.fase == 13)
-				{
-					cleaning.btn1 = 10;
-					cleaning.btn2 = 1;
-					cleaning.timeToEnd += 3000;
-				}
-
-				if (cleaning.fase >= 19)
+				if (cleaning.fase >= 4)
 				{
 					cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
 					this->VMCState = cleaning.prevState;
 				}
 			}
 		}
-		else
-		{
-			if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
-			{
-				cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
-				this->VMCState = cleaning.prevState;
-			}
-		}
 	}
+}
+//*****************************************************************
+void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
+{
+    bool CPUFLAG_isMilkerAlive = true;
+	bool CPUFLAG_isFreevend = false;
+	bool CPUFLAG_isTestvend = false;
+				
+	memset(out_answer, 0, *in_out_sizeOfAnswer);
+	
+	//gestione fake del cleaning
+	if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
+		priv_advanceFakeCleaning();
 
 	//gestione fake del "test selezione"
 	if (VMCState == eVMCState_TEST_ATTUATORE_SELEZIONE)

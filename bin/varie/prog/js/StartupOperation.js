@@ -145,7 +145,7 @@ function onGUIInfoLoaded()
 			bGotoHMIAfterLavaggio = 1;
 			pleaseWait_show(); 
 			pleaseWait_freeText_show();
-			pleaseWait_freeText_setText("MILK MODULE RINSING<br>Waiting for machine to be ready");
+			pleaseWait_freeText_setText("MILK MODULE CLEANING<br>Waiting for machine to be ready");
 			setTimeout (waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3), 100);
 			break;
 	}	
@@ -156,7 +156,7 @@ function waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(howManyTimesLeft)
 {
 	pleaseWait_freeText_appendText(".");
 	
-	if (currentCPUStatusID == 23) //23==MILK_WASHING
+	if (currentCPUStatusID == 23 || currentCPUStatusID == 24) //23==MILK_WASHING_VENTURI, 24=MILK_WASHING_INDUX
 	{
 		//la CPU è già in lavaggio milker, non devo aspettare alcun cambio di stato
 		pageCleaning_startLavSanitario(5,0); 

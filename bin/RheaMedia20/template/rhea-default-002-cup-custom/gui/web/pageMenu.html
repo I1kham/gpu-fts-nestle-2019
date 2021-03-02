@@ -663,7 +663,30 @@ function showFastMenu()
 }
 function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }
 function onBtnCleaning()		{ rhea.requestGPUCleaning(160); hideFastMenu(); }
-function onBtnMilkerCleaning()	{ rhea.requestGPUCleaning(5); hideFastMenu(); }
+function onBtnMilkerCleaning()
+{
+	rhea.ajax ("getMilkerType", "").then( function(result)
+	{
+		var data = JSON.parse(result);
+		switch (parseInt(data.mType))
+		{
+			default: //venturi:
+				rhea.requestGPUCleaning(32);
+				hideFastMenu();
+				break;
+				
+			case 2: //indux
+				rhea.requestGPUCleaning(32);
+				window.location = "gotoMilkerCleaning.html";
+				break;
+		}
+	})
+	.catch( function(result)
+	{
+		rhea.requestGPUCleaning(32);
+	});
+}
+
 
 
 //--------------------------------------------------------

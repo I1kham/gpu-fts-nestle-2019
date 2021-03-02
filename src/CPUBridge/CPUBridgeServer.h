@@ -229,6 +229,7 @@ namespace cpubridge
 		u16						utf16_CPUMasterVersionString[34];
 		u64						showCPUStringModelAndVersionUntil_msec;
 		sPriceHolding			priceHolding;
+		eCPUMilkerType			milkerType;
     };
 
 } // namespace cpubridge

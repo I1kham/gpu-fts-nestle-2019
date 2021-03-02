@@ -20,6 +20,7 @@ namespace socketbridge
             fase: numero intero 8bit che indica la fase del lavaggio
             btn1: numero intero 8bit che indica se la CPU è in attesa della pressione di uno specifico btn (0==nessun bottone)
             btn2: numero intero 8bit che indica se la CPU è in attesa della pressione di uno specifico btn (0==nessun bottone)
+			buffer8[] : 8 byte valorizzati in maniera diversa a seconda dei casi
         }
      */
 

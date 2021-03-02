@@ -72,6 +72,7 @@
 #define		CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB		0x0132
 #define		CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING            0x0133
 #define		CPUBRIDGE_NOTIFY_GET_PRICEHOLDING_PRICELIST			0x0134
+#define		CPUBRIDGE_NOTIFY_GET_MILKER_TYPE					0x0135
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
 
@@ -141,6 +142,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB			0x083A
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE							0x083B
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_PRICEHOLDING_PRICELIST					0x083C
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_MILKER_TYPE							0x083D
 
 namespace cpubridge
 {
@@ -204,7 +206,8 @@ namespace cpubridge
         eVMCState_LAVAGGIO_SANITARIO = 20,
 		eVMCState_TEST_ATTUATORE_SELEZIONE = 21,
 		eVMCState_TEST_MODEM = 22,
-		eVMCState_LAVAGGIO_MILKER = 23,
+		eVMCState_LAVAGGIO_MILKER_VENTURI = 23,
+		eVMCState_LAVAGGIO_MILKER_INDUX = 24,
 		
 		eVMCState_COM_ERROR     = 101,
 		eVMCState_REG_APERTURA_MACINA = 102,
@@ -319,9 +322,10 @@ namespace cpubridge
 		eCPUProgrammingCommand_cleaningType_mixer2 = 0x02,
 		eCPUProgrammingCommand_cleaningType_mixer3 = 0x03,
 		eCPUProgrammingCommand_cleaningType_mixer4 = 0x04,
-		eCPUProgrammingCommand_cleaningType_milker = 0x05,
+		eCPUProgrammingCommand_cleaningType_milker = 0x05,			//questo dice alla CPU di far partire il lav san del milker considerando che il comando arrriva da dentro il menu prog
 		eCPUProgrammingCommand_cleaningType_sanitario = 0x08,
-		eCPUProgrammingCommand_cleaningType_rinsing = 0xa0
+		eCPUProgrammingCommand_cleaningType_rinsing = 0xa0,
+		eCPUProgrammingCommand_cleaningType_milkerQuick = 0x20		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
 	};
 
 	enum eCPUProgrammingCommand_decounter
@@ -420,6 +424,13 @@ namespace cpubridge
         eCPUGruppoCaffe_Variflex = 'V',
         eCPUGruppoCaffe_Micro = 'M',
         eCPUGruppoCaffe_None = 'N'
+	};
+
+	enum eCPUMilkerType
+	{
+		eCPUMilkerType_none = 0,
+		eCPUMilkerType_venturi = 1,
+		eCPUMilkerType_indux = 2
 	};
 
 	struct sSubscriber

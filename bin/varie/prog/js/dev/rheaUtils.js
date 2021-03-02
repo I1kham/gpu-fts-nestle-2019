@@ -1,4 +1,4 @@
-function rheaLog(s)
+4function rheaLog(s)
 {
 	console.log (s);
 }

@@ -47,6 +47,7 @@ namespace cpubridge
 			u8									btn2;
 			eVMCState							prevState;
 			u64									timeToEnd;
+			u8									freeBuffer8[8];
 		};
 
 		struct sMovimentoMacina
@@ -80,8 +81,10 @@ namespace cpubridge
 		};
 
 	private:
-		void					priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
-		void					priv_updateCPUMessageToBeSent (u64 timeNowMSec);
+		void						priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
+		void						priv_updateCPUMessageToBeSent (u64 timeNowMSec);
+		void						priv_DA3_reload();
+		void						priv_advanceFakeCleaning();
 
 	private:
 		bool						bShowDialogStopSelezione;
@@ -100,6 +103,7 @@ namespace cpubridge
 		u64							timeToEndTestSelezioneMSec;
 		sTestAssorbGruppo			testAssorbGruppo;
 		u16							decounterVari[32];
+		u8							*da3;
     };
 
 } // namespace cpubridge

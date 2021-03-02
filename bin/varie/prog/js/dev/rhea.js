@@ -344,7 +344,8 @@ Rhea.prototype.webSocket_onRcv = function (evt)
 						case 20: statusStr ="BREWER CLEANING"; break;
 						case 21: statusStr ="TEST SEL"; break;
 						case 22: statusStr ="TEST MODEM"; break;
-						case 23: statusStr ="MILKER CLEANING"; break;
+						case 23: statusStr ="CLEANING MILKER"; break; //VENTURI
+						case 24: statusStr ="CLEANING MILKER"; break; //INDUX
 						case 101: statusStr ="COM_ERROR"; break;
 						case 102: statusStr ="GRINDER OPENING"; break;
 						

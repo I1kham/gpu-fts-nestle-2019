@@ -37,6 +37,7 @@ function UINumber (parentID, childNum, node)
 	else if (this.numCifre > 12) this.numCifre = 12;
 	
 	//binding a da3
+	this.allowDa3Save=1;
 	this.da3offset = 0;
 	this.da3bit = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3bit", "16"));	
 	if (this.da3bit == 9)
@@ -152,12 +153,14 @@ UINumber.prototype.priv_getHTMLForAFigure = function(i)
 	return html;
 }
 
-UINumber.prototype.dontSaveToDa3 = function () 			{  this.da3offset = -1; this.da3Pos = -1; }
-
+UINumber.prototype.dontSaveToDa3 = function () 					{ this.allowDa3Save = 0; }
+UINumber.prototype.allowSaveToDa3 = function () 				{ this.allowDa3Save = 1; }
 UINumber.prototype.setDA3Offset = function (da3offset) 	{ this.da3offset = da3offset; }
 UINumber.prototype.loadFromDA3 = function(da3)			{ var loc = this.da3Pos + this.da3offset; if (loc >= 0) this.setValue (this.priv_getValueFromDA3(da3,loc)); }
 UINumber.prototype.saveToDA3 = function(da3)		
-{ 
+{
+	if (this.allowDa3Save==0)
+		return;	
 	var loc = this.da3Pos + this.da3offset; 
 	if (loc >= 0) 
 	{

@@ -151,7 +151,7 @@ void FormPreGui::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
                 retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
             //come sopra ma per il cappucinatore
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER)
+            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_INDUX)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
 
         }
