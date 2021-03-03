@@ -81,6 +81,14 @@ UI.prototype.setupStandaloneNumber = function(elemID)
 	return o;
 }
 
+//crea un UIOption anche se questo non è all'interno di un UIPanel
+UI.prototype.setupStandaloneUIOption = function(elemID)
+{
+	var o = new UIOption ("", 0, document.getElementById(elemID));
+	o.bindEvents();
+	return o;
+}
+
 //********************************************************
 function UIWindowScrollable (elem, contentH, wrapperH) 
 { 

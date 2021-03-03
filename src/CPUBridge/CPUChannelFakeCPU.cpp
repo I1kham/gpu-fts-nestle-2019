@@ -912,11 +912,12 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				memset(&out_answer[ct], ' ', 32);
 				{
 					u8 i = ct;
-					out_answer[i++] = 'V'; out_answer[i++] = 'E'; out_answer[i++] = 'R';
+					out_answer[i++] = 'V'; out_answer[i++] = 'E'; out_answer[i++] = 'R'; out_answer[i++] = ' ';
+					out_answer[i++] = '0'; out_answer[i++] = '.'; out_answer[i++] = '1';
 					out_answer[i++] = ' '; 
-					out_answer[i++] = 'A'; out_answer[i++] = 'N'; out_answer[i++] = 'D';
-					out_answer[i++] = ' '; 
+					out_answer[i++] = ','; out_answer[i++] = ' ';
 					out_answer[i++] = 'M'; out_answer[i++] = 'O'; out_answer[i++] = 'D'; out_answer[i++] = 'E'; out_answer[i++] = 'L';
+					out_answer[i++] = '1'; out_answer[i++] = '2'; out_answer[i++] = '3';
 				}
 				ct += 32;
 

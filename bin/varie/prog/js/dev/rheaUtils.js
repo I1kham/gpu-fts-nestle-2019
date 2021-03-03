@@ -1,7 +1,4 @@
-4function rheaLog(s)
-{
-	console.log (s);
-}
+function rheaLog(s)	{ console.log (s); }
 
 /**************************************************
  * RheaAjaxAnswer
