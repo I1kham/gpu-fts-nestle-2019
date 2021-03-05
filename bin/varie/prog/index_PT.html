@@ -1556,7 +1556,9 @@ function pageGrinderCleaning_show()
 function pageGrinderCleaning_goBack()			
 { 
 	rheaHideElem(rheaGetElemByID("pagePleaseWait_grinderCleaning"));
-	btnBack_defaultCallback(); 
+	//btnBack_defaultCallback(); 
+	currentTask = voidTask;
+	pageCleaning_show();
 }
 
 
