@@ -276,5 +276,9 @@ void TaskImportExistingGUI::priv_updateLanguageName(const u8 *dbPath)
 	//db.exec(u8"UPDATE allLanguages SET LocalName = 'Italiano' WHERE ISO = 'IT'");
 	//db.exec(u8"UPDATE allLanguages SET LocalName = 'English' WHERE ISO = 'GB'");
 
+
+	//2021-05-03
+	db.exec((const u8*)u8"UPDATE allLanguages SET ISO='SE' WHERE ISO = 'SV'");
+
 	db.closeDB();
 }
