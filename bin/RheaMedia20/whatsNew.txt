@@ -1,4 +1,14 @@
 ================================================================================================
+ver 2.4.4 2021/03/05
+	Bug fixing:
+		-	All templates
+			- flag for Sweden was not the right one
+			
+	Features
+		-	Template "nestle-2.0-template-002"
+			- changed "AAA default" beverage icons order 
+
+================================================================================================
 ver 2.4.3 2021/02/15
 	Features
 		-	All templates
