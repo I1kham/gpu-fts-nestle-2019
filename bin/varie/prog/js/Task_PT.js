@@ -2812,9 +2812,9 @@ TaskGrinderClean.prototype.runGrinderCycle_1 = function()
 	this.priv_show ("Running grinder cycle " +this.curCiclo +" of " +this.numCicli, "", "");	
 
 	var me = this;
-	rhea.ajax ("runMotor", { "m":10+this.grinder1o2, "d":this.tempoGrinderONSec, "n":1, "p":0}).then( function(result)
+	rhea.ajax ("runMotor", { "m":10+this.grinder1o2, "d":this.tempoGrinderONSec*10, "n":1, "p":0}).then( function(result)
 	{
-		setTimeout ( function() { me.runGrinderCycle_2(); }, me.tempoGrinderONSec*1000 + 200);
+		setTimeout ( function() { me.runGrinderCycle_2(); }, me.tempoGrinderONSec*1000 + 100);
 	})
 	.catch( function(result)
 	{
