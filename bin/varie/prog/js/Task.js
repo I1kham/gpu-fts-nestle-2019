@@ -2950,7 +2950,7 @@ TaskGrinderClean.prototype.step20 = function()
 {
 	this.fase = 20;
 	pleaseWait_rotella_hide();
-	this.priv_show ("Do you want to repeat the cleaning procedure?", "$LAB_NO", "$LAB_YES");
+	this.priv_show ("Do you want to repeat the grinding cycles?", "$LAB_NO", "$LAB_YES");
 }
 
 TaskGrinderClean.prototype.step21 = function()
@@ -2975,7 +2975,7 @@ TaskGrinderClean.prototype.step25 = function()
 {
 	this.fase = 25;
 	pleaseWait_rotella_hide();
-	this.priv_show ("Do you want to repeat the cleaning procedure?", "$LAB_NO", "$LAB_YES");
+	this.priv_show ("Do you want to repeat the grinding cycles?", "$LAB_NO", "$LAB_YES");
 }
 
 
