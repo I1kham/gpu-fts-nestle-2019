@@ -73,3 +73,6 @@ bin/fwupdate.tar
 bin/RASPI_RELEASE_rasPIBootLoader
 bin/RASPI_DEBUG_rasPIBootLoader
 MSVC17/rheaUnzip/build/
+*.tlog
+bin/DA2Parser.txt
+MSVC17/Da2Parser/build/WINDebug/Da2Parser.log

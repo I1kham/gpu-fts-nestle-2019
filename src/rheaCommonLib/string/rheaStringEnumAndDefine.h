@@ -47,7 +47,7 @@ namespace rhea
 		bool				operator==(const UTF8Char& b) const						{ return (memcmp(data, b.data, 4) == 0); }
 		bool				operator!=(const UTF8Char& b) const						{ return (memcmp(data, b.data, 4) != 0); }
 		bool				operator==(char ansiChar) const							{ return (data[0] == (u8)ansiChar && data[1] == 0x00); }
-		bool				operator!=(char ansiChar) const							{ return (data[0] != (u8)ansiChar && data[1] == 0x00); }
+		bool				operator!=(char ansiChar) const							{ return (data[0] != (u8)ansiChar || data[1] != 0x00); }
 		bool				operator==(const char* const utf8CharSequence) const	{ UTF8Char b(utf8CharSequence); return (memcmp(data, b.data, 4) == 0); }
 		bool				operator!=(const char* const utf8CharSequence) const	{ UTF8Char b(utf8CharSequence); return (memcmp(data, b.data, 4) != 0); }
 
