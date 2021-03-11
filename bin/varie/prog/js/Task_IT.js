@@ -474,10 +474,6 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					break;
 
 				case 3:	//CIC_WAIT_FOR_TABLET_DISSOLVING
-					pleaseWait_freeText_setText("Scioglimento della pastiglia in corso, attendere prego"); //Wait for tablet dissolving
-					break;
-					
-				case 3:	//CIC_WAIT_FOR_TABLET_DISSOLVING
 					var timeSec = parseInt(obj.buffer8[0]);
 					pleaseWait_freeText_setText("Risciacquo in corso:  -{0}".translateLang(timeSec)); //Rinsing -{0}
 					break;
