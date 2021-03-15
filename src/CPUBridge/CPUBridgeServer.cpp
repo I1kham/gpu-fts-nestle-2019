@@ -1233,6 +1233,15 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			notify_MILKER_TYPE(sub->q, handlerID, logger, milkerType);
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_REPETITONS:
+			{
+				u8	len = sizeof(jugRepetitions) / sizeof jugRepetitions[0];
+				u8	buffer[sizeof(jugRepetitions) / sizeof jugRepetitions[0]];
+				memcpy(buffer, jugRepetitions, sizeof jugRepetitions);
+
+				notify_CPU_GET_JUG_REPETITIONS(sub->q, handlerID, logger, len, buffer);
+			}
+			break;
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -2089,6 +2098,8 @@ void Server::priv_resetInternalState(cpubridge::eVMCState s)
 
 	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
 	cpuStatus.VMCstate = s;
+
+	memset(jugRepetitions, '0', sizeof jugRepetitions);
 }
 
 /***************************************************
@@ -2141,6 +2152,7 @@ void Server::priv_handleState_compatibilityCheck()
                 sCPUVMCDataFileTimeStamp myTS;
                 myTS.setInvalid();
                 saveVMCDataFileTimeStamp(myTS);
+				priv_retreiveSomeDataFromLocalDA3();
                 //priv_handleState_DA3Sync();
 				//return;
 			}
@@ -3758,6 +3770,17 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 		milkerType = (eCPUMilkerType)da3[69];
 	else
 		milkerType = eCPUMilkerType_none;
+
+	// copia il valore delle ripetizioni per il jug
+	for (u16 count = 0, address = 0xb1;
+		count < sizeof jugRepetitions / sizeof jugRepetitions[0];
+		count++, address += 0x64)
+	{
+		if (da3[address] < 10)
+			jugRepetitions[count] = da3[address] + '0';
+		else
+			jugRepetitions[count] = da3[address] - 10 + 'A';
+	}
 
 	RHEAFREE(localAllocator, da3);
 }

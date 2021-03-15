@@ -73,9 +73,8 @@
 #define		CPUBRIDGE_NOTIFY_SINGLE_SEL_PRICE_STRING            0x0133
 #define		CPUBRIDGE_NOTIFY_GET_PRICEHOLDING_PRICELIST			0x0134
 #define		CPUBRIDGE_NOTIFY_GET_MILKER_TYPE					0x0135
+#define		CPUBRIDGE_NOTIFY_GET_JUG_REPETITIONS				0x0136
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
-
-
 
  /**********************************************************************
   * msg che i subscriber di CPUBridge possono inviare usando la loro coda di write verso CPUBridge (vedi le fn ask_xxx in CPUBridge.h)
@@ -143,6 +142,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE							0x083B
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_PRICEHOLDING_PRICELIST					0x083C
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_MILKER_TYPE							0x083D
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_REPETITONS								0x083E
 
 namespace cpubridge
 {
