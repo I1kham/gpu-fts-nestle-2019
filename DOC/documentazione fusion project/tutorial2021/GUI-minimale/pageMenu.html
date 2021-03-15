@@ -1,0 +1,131 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<style>
+	body { background-color: #666; color:#fff; }
+	.bottone { display:inline-block; border:solid 2px #000; border-radius:5px; background-color:#000; color:#fff; text-align:center; padding:10px; cursor:pointer; }
+	</style>
+</head>
+
+<body onLoad="rheaBootstrap()">
+<p>Esempio di GUI minimale</p>
+
+<div id="divBottoniera">
+	<div class="bottone" onclick="startSelection(2)">SELEZIONE 2</div>
+	<div class="bottone" onclick="startSelection(13)">SELEZIONE 13</div>
+	<div class="bottone" onclick="getCPUModelAndVer()">GET CPU MODEL AND VERSION</div>
+</div>
+
+<div id="divPleaseWait" style="display:none">
+	<img src="img/animationRound.gif">
+</div>
+
+
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+function onRheaBootstrapFinished() 
+{
+	//Entry point dell'applicazione. Questa fn viene chiamata non appena la pagina html finisce di caricarsi e la connessione con la SMU è stata stabilita
+	//Da questo momento in poi, l'oggetto globale rhea è disponibile
+	
+	
+	//OPZIONALE
+	//implementare l'handler che scatta quando la disponibilità delle selezioni cambia
+	rhea.onEvent_selectionAvailabilityUpdated = function () 
+	{
+		/*
+		var nSelection = rhea.selection_getCount();			//recupera il numero di selezioni disponibili (vedi bin/RheaMedia20/template/nestle-2.0-template-001/gui/web/js/dev/rheaSelection.js)
+		for (var i=0; i<nSelection; i++)
+		{
+			var sel = rhea.selection_getBySelNumber(i);
+			if (sel.enabled)
+				...
+			else
+				...
+		}
+		*/
+	}
+
+	//OPZIONALE
+	//implementare l'handler che scatta quando lo stato della CPU cambia (READY, ERROR, CLEANING....)
+	//Vedi anche bin/RheaMedia20/template/nestle-2.0-template-001/gui/web/js/dev/rhea.js
+	rhea.onEvent_cpuStatus = function (statusID, statusStr, flag16)
+	{
+		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+	}
+	
+	//OPZIONALE
+	//implementare l'handler che scatta quando il messaggio di CPU cambia
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		console.log ("onEvent_cpuMessage[" +msg +"]");
+	}
+	
+	//OPZIONALE
+	//implementare l'handler che scatta quando la CPU da inizio ad una selezione
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		//status=1 => wait
+		//status=2 => running
+		//status=3 => finished KO
+		//status=4 => finished OK
+		//status=5 => running, stop btn can be shown
+		console.log ("onEvent_selectionReqStatus[" +status +"]");
+		switch (status)
+		{
+			case 1:
+			case 2:
+			case 5:
+				showPleaseWait();
+				break;
+				
+			default:
+				hidePleaseWait();
+				break;
+		}
+	}	
+}
+
+//****************************************************
+function showPleaseWait()
+{
+	rheaHideElem (rheaGetElemByID("divBottoniera"));
+	rheaShowElem (rheaGetElemByID("divPleaseWait"));
+}
+
+//****************************************************
+function hidePleaseWait()
+{
+	rheaShowElem (rheaGetElemByID("divBottoniera"));
+	rheaHideElem (rheaGetElemByID("divPleaseWait"));
+}
+
+//****************************************************
+function startSelection (iSel)
+{
+	rhea.selection_start(iSel);
+}
+
+//****************************************************
+function getCPUModelAndVer()
+{
+	showPleaseWait();
+	rhea.ajax ("getCPUStrModelAndVer", "").then( function(result)
+	{
+		hidePleaseWait();
+		alert (result);
+	})
+	.catch( function(result)
+	{
+		hidePleaseWait();
+		alert ("ERRORE: " +result);
+	});
+}
+</script>
+</html>
+
+
