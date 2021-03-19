@@ -41,6 +41,7 @@ bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, r
     cpubridge_helper_folder_create("current/lang", logger);
     cpubridge_helper_folder_create("current/da3", logger);
     cpubridge_helper_folder_create("current/cpu", logger);
+    cpubridge_helper_folder_create("current/gpu", logger);
     cpubridge_helper_folder_create("last_installed", logger);
     cpubridge_helper_folder_create("/last_installed/da3", logger);
     cpubridge_helper_folder_create("last_installed/cpu", logger);
