@@ -29,7 +29,9 @@
         
     Nel caso 2), la gestione dell'evento è tutta interna a SocketBridge, non è richiesta la collaborazione della CPU.
     Il procedimento è analogo al punto precedente, tranne per il fatto che non viene fatta alcuna richiesta a CPUBridge.
-    Il metodo onCPUBridgeNotification() dell'istanza del comando viene chiamato in modo da poter fornire una risposta al client che ha fatto la richiesta.
+    Per questi comandi, è necessario che la fn needToPassDownToCPUBridge() ritorni false.
+	La risposta al client avviene all'interno della handleRequestFromSocketBridge()
+	Per un esempio, vedi CmdHandler_ajaxReqIsManualInstalled.h
 
 */
 #ifndef _CmdHandler_ajaxReq_h_

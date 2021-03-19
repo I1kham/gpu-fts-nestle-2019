@@ -27,10 +27,15 @@ namespace socketbridge
                                 { }
 
 		bool				needToPassDownToCPUBridge() const			{ return false; }
+								//ritorna false in quanto questo comando non deve essere propagato a CPUBridge
+
 		void				handleRequestFromSocketBridge(socketbridge::Server *server, HSokServerClient &hClient, const u8 *params);
 
-        void                passDownRequestToCPUBridge(cpubridge::sSubscriber &from UNUSED_PARAM, const u8 *params UNUSED_PARAM) {}
-        void                onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM) {}
+        void                passDownRequestToCPUBridge(cpubridge::sSubscriber &from UNUSED_PARAM, const u8 *params UNUSED_PARAM) { }
+								//vuota in quanto questo comando non viene propagato a CPUBrdige
+
+        void                onCPUBridgeNotification(socketbridge::Server *server UNUSED_PARAM, HSokServerClient &hClient UNUSED_PARAM, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM) { }
+								//vuota in quanto questo comando non viene propagato a CPUBrdige
 
         static const char*  getCommandName()                            { return "isManInstalled"; }
     };
