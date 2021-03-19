@@ -2805,7 +2805,12 @@ TaskGrinderClean.prototype.runGrinderCycle = function (numCicli, tempoGrinderONS
 TaskGrinderClean.prototype.runGrinderCycle_1 = function()
 {
 	this.fase = 201;
-	this.priv_show ("Running grinder cycle " +this.curCiclo +" of " +this.numCicli, "", "");	
+
+	//var msg = "Running grinder cycle " +this.curCiclo +" of " +this.numCicli;
+	//msg += "<br><br><b>Catch the product</b>";
+	var msg = "Running grinder cycle {0} of {1}".translateLang(this.curCiclo,this.numCicli);
+	msg += "<br><br><b>Catch the product</b>";
+	this.priv_show (msg, "", "");	
 
 	var me = this;
 	rhea.ajax ("runMotor", { "m":10+this.grinder1o2, "d":this.tempoGrinderONSec*10, "n":1, "p":0}).then( function(result)
@@ -2842,7 +2847,11 @@ TaskGrinderClean.prototype.runGrinderCycle_3 = function(timeNowMsec)
 	var timeLeftMSec = this.waitUntilMSec - timeNowMsec;
 	var timeLeftSec= Math.floor(timeLeftMSec / 1000);
 	
-	this.priv_show ("Running grinder cycle " +(this.curCiclo-1) +" of " +this.numCicli +"<br>Waiting " +timeLeftSec +" sec.", "", "");	
+	//var msg = "Running grinder cycle " +(this.curCiclo-1) +" of " +this.numCicli;
+	//msg += "<br>Waiting " +timeLeftSec +" sec.";
+	var msg = "Running grinder cycle {0} of {1}".translateLang(this.curCiclo-1,this.numCicli);
+	msg += "<br>" +"Waiting {0} sec.".translateLang(timeLeftSec);
+	this.priv_show (msg, "", "");	
 	if (timeLeftMSec <= 0)
 		this.runGrinderCycle_1();
 }
@@ -2892,13 +2901,19 @@ TaskGrinderClean.prototype.step2 = function()
 	this.grinder1o2 = parseInt(uiStandAloneOptionGrinderCleaning1or2.getSelectedOptionValue());
 	rheaHideElem(rheaGetElemByID("pagePleaseWait_grinderCleaning"));
 
-	this.priv_show ("Close bean hopper shutter to avoid loss of beans.<br>Press CONTINUE when done.", "CONTINUER", "");
+	//Close bean hopper shutter to avoid loss of beans.<br>Press CONTINUE when done.
+	var msg = "Close bean hopper shutter to avoid loss of beans.";
+	msg += "<br>Press CONTINUE when done.";
+	this.priv_show (msg, "CONTINUER", "");
 }
 
 TaskGrinderClean.prototype.step3 = function()
 {
 	this.fase = 3;
-	this.priv_show ("Remove brewer and bean hopper.<br>Press CONTINUE when done.", "CONTINUER", "");
+	//Remove brewer and bean hopper.<br>Press CONTINUE when done.
+	var msg = "Remove brewer and bean hopper.";
+	msg += "<br>Press CONTINUE when done.";
+	this.priv_show (msg, "CONTINUER", "");
 }
 
 TaskGrinderClean.prototype.step4 = function()
@@ -2927,13 +2942,22 @@ TaskGrinderClean.prototype.step5 = function()
 {
 	this.fase = 5;
 	pleaseWait_rotella_hide();
-	this.priv_show ("Install grinder cleaning device.<br>Press CONTINUE when done.", "CONTINUER", "");	
+	//Install grinder cleaning device.<br>Press CONTINUE when done.
+	var msg = "Install grinder cleaning device.";
+	msg += "<br>Press CONTINUE when done.";	
+	this.priv_show (msg, "CONTINUER", "");	
 }
 
 TaskGrinderClean.prototype.step6 = function()
 {
 	this.fase = 6;
-	this.priv_show ("Refill cleaning device.<br>When done, press CONTINUE.<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running", "CONTINUER", "");	
+	
+	//var msg = "Refill cleaning device.<br>When done, press CONTINUE.";
+	//msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
+	var msg = "Refill cleaning device.";
+	msg += "<br>Press CONTINUE when done.";
+	msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
+	this.priv_show (msg, "CONTINUER", "");	
 }
 
 TaskGrinderClean.prototype.step7 = function()
@@ -2946,19 +2970,28 @@ TaskGrinderClean.prototype.step20 = function()
 {
 	this.fase = 20;
 	pleaseWait_rotella_hide();
+	//Do you want to repeat the grinding cycles?
 	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "OUI");
 }
 
 TaskGrinderClean.prototype.step21 = function()
 {
 	this.fase = 21;
-	this.priv_show ("Put back  bean hopper. Press CONTINUE when done.", "CONTINUER", "");
+	
+	//"Put back  bean hopper. Press CONTINUE when done."
+	var msg = "Put back  bean hopper.";
+	msg += "<br>Press CONTINUE when done.";
+	this.priv_show (msg, "CONTINUER", "");
 }
 
 TaskGrinderClean.prototype.step23 = function()
 {
 	this.fase = 23;
-	this.priv_show ("Open hopper shutter. When done, press CONTINUE.<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running.", "CONTINUER", "");	
+	//Open hopper shutter. When done, press CONTINUE.<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running.
+	var msg = "Open hopper shutter.";
+	msg += "<br>Press CONTINUE when done.";
+	msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
+	this.priv_show (msg, "CONTINUER", "");	
 }
 
 TaskGrinderClean.prototype.step24 = function()
@@ -2971,6 +3004,8 @@ TaskGrinderClean.prototype.step25 = function()
 {
 	this.fase = 25;
 	pleaseWait_rotella_hide();
+	
+	//Do you want to repeat the grinding cycles?
 	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "OUI");
 }
 
@@ -2978,7 +3013,10 @@ TaskGrinderClean.prototype.step25 = function()
 TaskGrinderClean.prototype.step26 = function()
 {
 	this.fase = 26;
-	this.priv_show ("Put brewer back into position, press CONTINUE when done.", "CONTINUER", "");
+	//Put brewer back into position, press CONTINUE when done.
+	var msg = "Put brewer back into position.";
+	msg += "<br>Press CONTINUE when done.";
+	this.priv_show (msg, "CONTINUER", "");
 }
 
 
@@ -3008,7 +3046,9 @@ TaskGrinderClean.prototype.step28 = function()
 {
 	this.fase = 28;
 	pleaseWait_rotella_hide();
-	this.priv_show ("Do you want do dispense a coffe?<br><br><b>N.B.:</b> for DEMO purpose, whatever is in selection 1 will be used for coffee delivery.", "NO", "OUI");
+	
+	//Do you want do dispense a coffe?
+	this.priv_show ("Do you want do dispense a coffe?", "NO", "OUI");
 }
 
 TaskGrinderClean.prototype.step40 = function()
