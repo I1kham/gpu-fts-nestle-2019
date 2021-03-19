@@ -108,8 +108,10 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
 {
 #if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
     //apro un canale di comunicazione con la CPU fisica sulla porta seriale COM_PORT (vedi header.h)
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();
-    bool b = chToCPU->open(CPU_COMPORT, logger);
+    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
+
+    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+
 #else
     //apro un canale di comunicazione con una finta CPU
     cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);

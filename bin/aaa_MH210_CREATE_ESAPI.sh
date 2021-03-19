@@ -1,6 +1,8 @@
+#questo script genera il pacchetto GPU da caricare sulle schede SECO
+#L'estensione del file è mh210, differente da mh6 usato per le versioni imx6
 clear
 DATA=`date '+%y%m%d'`
-estensione="_commit.mh6"
+estensione="_commit.mh210"
 filename="GPU_TS_v.2.4.5_$DATA$estensione"
 
 

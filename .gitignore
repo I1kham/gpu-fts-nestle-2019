@@ -87,13 +87,7 @@ QT-Linaro-Rockchip/rheaDB/build/
 QT-Linaro-Rockchip/rheaExternalSerialAPI/
 QT-Linaro-Rockchip/SMU/build/
 QT-Linaro-Rockchip/SocketBridge/build/
-
-
-
-
-
-
-
-
+bin/ROCKCHIP_DEBUG_GPUBoot
+bin/ROCKCHIP_RELEASE_GPUBoot
 
 *.gitignore.swp
