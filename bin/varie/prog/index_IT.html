@@ -90,7 +90,7 @@
 			</div>
 			
 			<div id="pagePleaseWait_grinderCleaning" style="display:none; position:absolute; top:80px; left:20px; width:1006;">
-			   Please select which grinder you'd like to clean, then press CONTINUE to continue or ABORT to terminate.<br>
+			   Prego selezionare la macina che si desidera pulire. Premere CONTINUA per proseguire, ABORT per terminare.<br>
 				<div id="pagePleaseWait_grinderCleaning_1or2" class="UIOption" data-option="1|MACINA 1|2|MACINA 2"></div></td>
 			</div>
 			
@@ -128,15 +128,24 @@
 	
 	<div id="divMenuLang">
 		<div style="padding:10px">
-			<ul>
-				<li onmousedown="menuLang_onUserSelected('GB')"><img src="img/flags/GB.png"> ENGLISH</li>
-				<li onmousedown="menuLang_onUserSelected('IT')"><img src="img/flags/IT.png"> ITALIANO</li>
-				<li onmousedown="menuLang_onUserSelected('FR')"><img src="img/flags/FR.png"> FRANÇAIS</li>
-				<!--<li onmousedown="menuLang_onUserSelected('DE')"><img src="img/flags/DE.png"> DEUTSCH</li>-->
-				<li onmousedown="menuLang_onUserSelected('ES')"><img src="img/flags/ES.png"> ESPAÑOL</li>
-				<li onmousedown="menuLang_onUserSelected('PT')"><img src="img/flags/PT.png"> PORTUGUÉS</li>
-				<li onmousedown="menuLang_onUserSelected('CN')"><img src="img/flags/CN.png"> 中文</li>
-			</ul>
+			<div style="float:left; width:49%">
+				<ul>
+					<li onmousedown="menuLang_onUserSelected('GB')"><img src="img/flags/GB.png"> ENGLISH</li>
+					<li onmousedown="menuLang_onUserSelected('IT')"><img src="img/flags/IT.png"> ITALIANO</li>
+					<li onmousedown="menuLang_onUserSelected('FR')"><img src="img/flags/FR.png"> FRANÇAIS</li>
+					<li onmousedown="menuLang_onUserSelected('DE')"><img src="img/flags/DE.png"> DEUTSCH</li>
+					<li onmousedown="menuLang_onUserSelected('ES')"><img src="img/flags/ES.png"> ESPAÑOL</li>
+					<li onmousedown="menuLang_onUserSelected('PT')"><img src="img/flags/PT.png"> PORTUGUÉS</li>
+					
+				</ul>
+			</div>
+			<div style="float:right; width:49%">
+				<ul>
+					<li onmousedown="menuLang_onUserSelected('CN')"><img src="img/flags/CN.png"> 中文</li>
+					<li onmousedown="menuLang_onUserSelected('RU')"><img src="img/flags/RU.png"> РУССКИЙ</li>
+				</ul>
+			</div>
+			<div class="clear"></div>
 		</div>
 		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="menuLang_show(0)"></div>
 	</div>
@@ -269,7 +278,7 @@
 					<tr valign="middle">
 						<td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="LAVAGGIO" data-onclick="pageCleaning_action(160)"></div></td>
 						<td width="25%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="LAVAGGIO SANITARIO" data-onclick="pageCleaning_action(8)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="PULIZIA<br>MACINA" data-onclick="pageGrinderCleaning_show()"></div></td>
 						<td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="LAVAGGIO CAPPUCCINATORE" data-onclick="pageCleaning_action(5)"></div></td>
 					</tr>
 				</table>
@@ -1544,7 +1553,7 @@ function pageMainMenu_show()
  */
 function pageGrinderCleaning_show()
 {
-	if (showPage("pageGrinderCleaning", "GRINDER CLEANING", 0, 0))
+	if (showPage("pageGrinderCleaning", "PULIZIA MACINA", 0, 0))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}

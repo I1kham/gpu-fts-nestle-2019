@@ -192,13 +192,13 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 					}
 					else
 					{
-						var btnText = "BOTAO " +me.btn1;
+						var btnText = "TASTE " +me.btn1;
 						switch (me.fase)
 						{
-							case 3:  btnText = "INICIAR"; break; //HC_STEP_TABLET
+							case 3:  btnText = "START"; break; //HC_STEP_TABLET
 							case 11: btnText = "NO"; break; //HC_STEP_BRW_REPEAT
-							case 12: btnText = "CONTINUAR"; break; //HC_STEP_BRW_BRUSH_POSITION
-							case 13: btnText = "PULAR O CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
+							case 12: btnText = "CONTINUE"; break; //HC_STEP_BRW_BRUSH_POSITION
+							case 13: btnText = "SKIP COFFEE"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 						}
 						pleaseWait_btn1_setText (btnText);
 						pleaseWait_btn1_show();	
@@ -209,11 +209,11 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 					pleaseWait_btn2_hide();
 				else
 				{
-					var btnText = "BOTAO " +me.btn2;
+					var btnText = "TASTE " +me.btn2;
 					switch (me.fase)
 					{
-						case 11: btnText = "SIM"; break;//HC_STEP_BRW_REPEAT
-						case 13: btnText = "TOME UM CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
+						case 11: btnText = "YES"; break;//HC_STEP_BRW_REPEAT
+						case 13: btnText = "HAVE A COFFEE"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 					}
 					pleaseWait_btn2_setText (btnText);
 					pleaseWait_btn2_show();	
@@ -322,15 +322,15 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 					}
 					else
 					{
-						var btnText = "BOTAO " +me.btn1;
+						var btnText = "TASTE " +me.btn1;
 						switch (me.fase)
 						{
-							case 1:  btnText = "CONTINUAR"; break;
+							case 1:  btnText = "CONTINUE"; break;
 							case 12: btnText = "NO"; break; //Do you want to repeat clean cycle 1/2 ?
-							case 14:  btnText = "CONTINUAR"; break;
+							case 14:  btnText = "CONTINUE"; break;
 							case 27: btnText = "NO"; break; //Do you want to repeat clean cycle 2/2 ?
-							case 28: btnText = "PULAR O CAFÉ"; break; //Do you want to skip the final coffee ?
-							case 34: btnText = "FECHAR"; break; //Do you want to skip the final coffee ?
+							case 28: btnText = "SKIP COFFEE"; break; //Do you want to skip the final coffee ?
+							case 34: btnText = "CLOSE"; break; //Do you want to skip the final coffee ?
 							
 						}
 						pleaseWait_btn1_setText (btnText);
@@ -342,12 +342,12 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 					pleaseWait_btn2_hide();
 				else
 				{
-					var btnText = "BOTAO " +me.btn2;
+					var btnText = "TASTE " +me.btn2;
 					switch (me.fase)
 					{
-						case 12: btnText = "SIM"; break; //Do you want to repeat clean cycle 1/2 ?
-						case 27: btnText = "SIM"; break; //Do you want to repeat clean cycle 2/2 ?
-						case 28: btnText = "TOME UM CAFÉ"; break; //Do you want to skip the final coffee ?
+						case 12: btnText = "YES"; break; //Do you want to repeat clean cycle 1/2 ?
+						case 27: btnText = "YES"; break; //Do you want to repeat clean cycle 2/2 ?
+						case 28: btnText = "HAVE A COFFEE"; break; //Do you want to skip the final coffee ?
 					}
 					pleaseWait_btn2_setText (btnText);
 					pleaseWait_btn2_show();	
@@ -405,10 +405,10 @@ TaskCleaning.prototype.priv_handleMilkWashingVenturi = function (timeElapsedMSec
 			{
 				switch (me.fase)
 				{
-					default: pleaseWait_btn1_setText ("BOTAO " +me.btn2); break;
-					case 2:  pleaseWait_btn1_setText ("INICIAR"); break;
+					default: pleaseWait_btn1_setText ("TASTE " +me.btn2); break;
+					case 2:  pleaseWait_btn1_setText ("START"); break;
 					case 3:
-					case 5:  pleaseWait_btn1_setText ("CONTINUAR"); break;
+					case 5:  pleaseWait_btn1_setText ("CONTINUE"); break;
 					case 6:  pleaseWait_btn1_setText ("CONFIRM"); break;
 				}
 				pleaseWait_btn1_show();	
@@ -418,7 +418,7 @@ TaskCleaning.prototype.priv_handleMilkWashingVenturi = function (timeElapsedMSec
 				pleaseWait_btn2_hide();
 			else
 			{
-				pleaseWait_btn2_setText ("BOTAO " +me.btn2);
+				pleaseWait_btn2_setText ("TASTE " +me.btn2);
 				pleaseWait_btn2_show();	
 			}			
 		})
@@ -527,8 +527,8 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				switch (me.fase)
 				{
 				default: 	pleaseWait_btn1_setText (me.btn1); break;
-				case 1:		pleaseWait_btn1_setText ("CONTINUAR"); break;
-				case 7:		pleaseWait_btn1_setText ("FECHAR"); break;
+				case 1:		pleaseWait_btn1_setText ("CONTINUE"); break;
+				case 7:		pleaseWait_btn1_setText ("SCHLIESSEN"); break;
 				}
 				pleaseWait_btn1_show();	
 			}
@@ -540,7 +540,7 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				switch (me.fase)
 				{
 				default: pleaseWait_btn2_setText (me.btn2); break;
-				case 1:	 pleaseWait_btn2_setText ("ABORTA"); break;
+				case 1:	 pleaseWait_btn2_setText ("ABORT"); break;
 				}
 				pleaseWait_btn2_show();	
 			}			
@@ -654,7 +654,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.fase = 10;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Espere enquanto o motor está girando"); //Please wait while motor is running
+		pleaseWait_calibration_setText("Please wait while motor is running"); //Please wait while motor is running
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -677,10 +677,10 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		pleaseWait_calibration_varigrind_hide();		
 
 		
-		pleaseWait_calibration_setText("Quando terminar, digite a quantidade de café que foi moído, em Gramas"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("When you're done, please enter the quantity in grams of the LAST ground, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
 		break;
 		
@@ -692,12 +692,12 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		me.value = pleaseWait_calibration_num_getValue();
 		if (parseFloat(me.value) == 0)
 		{
-			pleaseWait_calibration_setText("Valor inválido");
+			pleaseWait_calibration_setText("Invalid value");
 			me.fase = 20;
 			break;
 		}
 	
-		pleaseWait_calibration_setText("Gravando valor ...");
+		pleaseWait_calibration_setText("Storing value ...");
 		me.value = pleaseWait_calibration_num_getValue();
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
@@ -748,10 +748,10 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Remova o Grupo, e pressione CONTINUAR"); //Please remove the brewer, then press CONTINUE
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();	
 		uiStandAloneVarigringTargetPos.setValue(0);
 		break;
@@ -780,7 +780,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 	case 10:  //attivo le macinate
 		me.fase = 11;
-		pleaseWait_calibration_setText("Espere enquanto o motor está girando"); //Please wait while motor is running
+		pleaseWait_calibration_setText("Please wait while motor is running"); //Please wait while motor is running
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -801,10 +801,10 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_calibration_motor_hide();
 		pleaseWait_calibration_varigrind_show();		
 		
-		pleaseWait_calibration_setText("Quando terminar, digite a quantidade de café que foi moído, em Gramas"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("When you're done, please enter the quantity in grams of the LAST ground, then press CONTINUE"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
 		break;
 		
@@ -834,7 +834,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		
 		
 	case 25:	//qui ci andiamo se siamo in fase 21 e l'utente preme il btn SET per impostare una nuova apertura del VGrind
-		pleaseWait_calibration_setText("Espere enquanto o Varigrind esta ajustando a posição"); //Please wait while the varigrind is adjusting its position
+		pleaseWait_calibration_setText("Please wait while the varigrind is adjusting its position"); //Please wait while the varigrind is adjusting its position
 		rhea.sendStartPosizionamentoMacina((me.motor-10), uiStandAloneVarigringTargetPos.getValue());
 		me.fase = 26;
 		break;
@@ -848,7 +848,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 			{
 				var obj = JSON.parse(result);
 				rheaSetDivHTMLByName("pagePleaseWait_calibration_1_vg", obj.v);
-				pleaseWait_calibration_setText("Espere enquanto o Varigrind esta ajustando a posição" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position  [current pos]
+				pleaseWait_calibration_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position  [current pos]
 			})
 			.catch( function(result)
 			{
@@ -872,13 +872,13 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.value = pleaseWait_calibration_num_getValue();
 		if (parseFloat(me.value) == 0)
 		{
-			pleaseWait_calibration_setText("Valor inválido");
+			pleaseWait_calibration_setText("Invalid value");
 			me.fase = 20;
 			break;
 		}
 		
 		pleaseWait_calibration_varigrind_hide();
-		pleaseWait_calibration_setText("Gravando valor ...");
+		pleaseWait_calibration_setText("Storing value ...");
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
@@ -897,7 +897,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 		
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Coloque o Grupo em posição, e pressione CONTINUAR"); //Place the brewer into position, then press CONTINUE
+		pleaseWait_calibration_setText("Place the brewer into position, then press CONTINUE"); //Place the brewer into position, then press CONTINUE
 		pleaseWait_btn1_show();
 		me.fase = 41;
 		break;
@@ -931,7 +931,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		{
 			me.fase = 65;
 			pleaseWait_calibration_show();
-			pleaseWait_calibration_setText("Calculando impulsos, favor esperar..."); //Impulse calculation in progress, please wait
+			pleaseWait_calibration_setText("Impulse calculation in progress, please wait"); //Impulse calculation in progress, please wait
 			rhea.ajax ("startImpulseCalc", { "m":me.motor, "v":me.value}).then( function(result)
 			{
 				//me.fase = 70;
@@ -1089,10 +1089,10 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Remova o Grupo, e pressione CONTINUAR"); //Please remove the brewer, then press CONTINUE
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_calibration_setText("Please remove the brewer, then press CONTINUE"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();
 		break;
 		
@@ -1120,7 +1120,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		
 	case 10:  //ok, il gruppo è scollegato, chiedo a CPU di attivare la macina
 		me.fase = 11;
-		pleaseWait_calibration_setText ("O Moinho está girando"); //Grinder is running
+		pleaseWait_calibration_setText ("Grinder is running"); //Grinder is running
 		rhea.ajax ("testSelection", {"s":me.selNum, "d":me.iAttuatore} ).then( function(result)
 		{
 			if (result == "OK")
@@ -1147,9 +1147,9 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		break;
 	
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Coloque o Grupo na posição, e pressione CONTINUAR, ou REPETIR para moer novamente"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
+		pleaseWait_calibration_setText("Place the brewer into position and then press CONTINUE, or press REPEAT to grind again"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("REPETIR");
+		pleaseWait_btn2_setText("REPEAT");
 		pleaseWait_btn2_show();		
 		me.fase = 41;
 		break;
@@ -1450,7 +1450,7 @@ TaskDevices.prototype.priv_handleRegolazionePosizioneMacina = function()
 		case 0: 
 			this.fase=1; 
 			
-			pleaseWait_freeText_setText("Espere enquanto o Varigrind esta ajustando a posição"); //Please wait while the varigrind is adjusting its position
+			pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position"); //Please wait while the varigrind is adjusting its position
 			pleaseWait_freeText_show();
 			/*pleaseWait_freeText_setText("While the varigrind is opening/closing, you can press RUN GRINDER to run the grinder in order to facilitate the operation.");
 			pleaseWait_freeText_show();
@@ -1486,7 +1486,7 @@ TaskDevices.prototype.priv_queryMacina = function(macina_1o2)
 	{
 		var obj = JSON.parse(result);
 		rheaSetDivHTMLByName("pageDevices_vg" +macina_1o2, obj.v);
-		pleaseWait_freeText_setText("Espere enquanto o Varigrind esta ajustando a posição" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
+		pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
 	})
 	.catch( function(result)
 	{
@@ -1560,7 +1560,7 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 	switch (me.fase)
 	{
 	case 0:
-		pleaseWait_freeText_setText ("Iniciando Teste...");
+		pleaseWait_freeText_setText ("Test is starting...");
 		pleaseWait_freeText_show();
 		pleaseWait_rotella_show();
 		me.fase = 1;
@@ -1585,7 +1585,7 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 		
 	case 10:
 		//ho ricevuto l'OK dal comando start Test. Da ora in poi, pollo lo stato del test fino a che non finisce
-		pleaseWait_freeText_setText ("Teste em curso, espere...<br>etapa atual " +me.test_fase +"/5");
+		pleaseWait_freeText_setText ("Test is running, please wait...<br>Current phase: " +me.test_fase +"/5");
 		me.fase = 11;
 		break;
 		
@@ -1599,10 +1599,10 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 			if (obj.esito != 0)
 			{
 				//errore
-				pleaseWait_freeText_setText ("Teste Encerrado.<br>Result: FAILED<br><br>");
-				pleaseWait_btn1_setText("FECHAR");
+				pleaseWait_freeText_setText ("Test is complete.<br>Result: FAILED<br><br>");
+				pleaseWait_btn1_setText("SCHLIESSEN");
 				pleaseWait_btn1_show();	
-				pleaseWait_btn2_setText("REPETIR");
+				pleaseWait_btn2_setText("REPEAT");
 				pleaseWait_btn2_show();	
 				me.fase = 80;
 			}
@@ -1622,10 +1622,10 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 								+"<tr><td>Medium absorption during cycle 2</td><td align='center'>" +obj.r5up +"</td><td align='center'>" +obj.r5down +"</td></tr>"
 								+"<tr><td>Medium absorption during cycle 3</td><td align='center'>" +obj.r6up +"</td><td align='center'>" +obj.r6down +"</td></tr>"
 								+"</table>";
-					pleaseWait_freeText_setText ("Teste Encerrado.<br>Results:<br><br>" +html);		
-					pleaseWait_btn1_setText("FECHAR");
+					pleaseWait_freeText_setText ("Test is complete.<br>Results:<br><br>" +html);		
+					pleaseWait_btn1_setText("SCHLIESSEN");
 					pleaseWait_btn1_show();	
-					pleaseWait_btn2_setText("REPETIR");
+					pleaseWait_btn2_setText("REPEAT");
 					pleaseWait_btn2_show();	
 					me.fase = 80;
 				}
@@ -1656,11 +1656,11 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 	case 0: //prego rimuovere il gruppo
 		me.fase = 1;
 		pleaseWait_show();
-		pleaseWait_freeText_setText ("Remova o Grupo, e pressione CONTINUAR");
+		pleaseWait_freeText_setText ("Please remove the brewer, then press CONTINUE");
 		pleaseWait_freeText_show();
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();	
 		break;
 		
@@ -1688,7 +1688,7 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		
 		
 	case 10: //inizio del test
-		pleaseWait_freeText_setText ("Iniciando Teste ...");
+		pleaseWait_freeText_setText ("Test is starting ...");
 		pleaseWait_rotella_show();
 		me.fase = 11;
 		me.test_fase = 0;
@@ -1712,7 +1712,7 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		
 	case 20:
 		//ho ricevuto l'OK dal comando start Test. Da ora in poi, pollo lo stato del test fino a che non finisce
-		pleaseWait_freeText_setText ("Teste em curso, espere...<br>etapa atual " +me.test_fase +"/4");
+		pleaseWait_freeText_setText ("Test is running, please wait...<br>Current phase: " +me.test_fase +"/4");
 		me.fase = 21;
 		break;
 		
@@ -1726,10 +1726,10 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 			if (obj.esito != 0)
 			{
 				//errore
-				pleaseWait_freeText_setText ("Teste Encerrado.<br>Result: FAILED<br><br>");
-				pleaseWait_btn1_setText("FECHAR");
+				pleaseWait_freeText_setText ("Test is complete.<br>Result: FAILED<br><br>");
+				pleaseWait_btn1_setText("SCHLIESSEN");
 				pleaseWait_btn1_show();	
-				pleaseWait_btn2_setText("REPETIR");
+				pleaseWait_btn2_setText("REPEAT");
 				pleaseWait_btn2_show();	
 				me.fase = 80;
 			}
@@ -1742,10 +1742,10 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 								+"<tr><td>&nbsp;</td><td align='center'><b>ASCENT</b></td><td align='center'><b>DESCENT</b></td></tr>"
 								+"<tr><td>Medium absorption</td><td align='center'>" +obj.r1up +"</td><td align='center'>" +obj.r1down +"</td></tr>"
 								+"</table>";
-					pleaseWait_freeText_setText ("Teste Encerrado.<br>Results:<br><br>" +html);		
-					pleaseWait_btn1_setText("CONTINUAR");
+					pleaseWait_freeText_setText ("Test is complete.<br>Results:<br><br>" +html);		
+					pleaseWait_btn1_setText("CONTINUE");
 					pleaseWait_btn1_show();	
-					pleaseWait_btn2_setText("REPETIR");
+					pleaseWait_btn2_setText("REPEAT");
 					pleaseWait_btn2_show();	
 					me.fase = 80;
 				}
@@ -1765,8 +1765,8 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		break;
 		
 	case 85: //prego rimettere a posto il gruppo
-		pleaseWait_freeText_setText("Coloque o Grupo em posição, e pressione CONTINUAR"); //Place the brewer into position, then press CONTINUE
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_freeText_setText("Place the brewer into position, then press CONTINUE"); //Place the brewer into position, then press CONTINUE
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
 		pleaseWait_rotella_show();
 		me.fase = 86;
@@ -1815,11 +1815,11 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>Remova o Grupo, e pressione CONTINUAR"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>Please remove the brewer, then press CONTINUE"); //Please remove the brewer, then press CONTINUE
 		pleaseWait_freeText_show();
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();	
 		break;
 		
@@ -1856,9 +1856,9 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		pleaseWait_rotella_hide();
 		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 1<br>Please, <b>close the coffee bell</b> (orange lever) and press CONTINUE. The grinder will run for about 10 seconds in order to empty the grinder itself.");
 		pleaseWait_freeText_show();
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();	
 		break;
 		
@@ -1901,9 +1901,9 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		pleaseWait_rotella_hide();
 		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 2<br>Now that the grinder is empty, we can test to detect the average sensor value reported when the grinder is empty. Press CONTINUE to proceed. The grinder will run for about 10 seconds.");		
 		pleaseWait_freeText_show();
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();
 		break;
 		
@@ -1964,9 +1964,9 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		pleaseWait_rotella_hide();
 		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 3<br>Now <b>open the coffee bell</b> (orange lever) and  then press CONTINUE to proceed. The grinder will run for about 10 seconds.");
 		pleaseWait_freeText_show();
-		pleaseWait_btn1_setText("CONTINUAR");
+		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn2_show();
 		break;
 		
@@ -2027,7 +2027,7 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		pleaseWait_rotella_hide();
 		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>RESULT:<br>Average speed when grinder is empty: <b>" +me.speed1 +"</b><br>Average speed when grinder is not empty: <b>" +me.speed2 +"</b><br>");		
 		pleaseWait_freeText_show();
-		pleaseWait_btn1_setText("FECHAR");
+		pleaseWait_btn1_setText("CLOSE");
 		pleaseWait_btn1_show();
 		break;
 
@@ -2045,9 +2045,9 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		{
 			me.fase = 71;
 			pleaseWait_rotella_hide();
-			pleaseWait_freeText_setText("<b>GRINDER SPEED FOR OFF09</b><br><br>Coloque o Grupo em posição, e pressione CONTINUAR"); //Place the brewer into position, then press CONTINUE
+			pleaseWait_freeText_setText("<b>GRINDER SPEED FOR OFF09</b><br><br>Place the brewer into position, then press CONTINUE"); //Place the brewer into position, then press CONTINUE
 			pleaseWait_freeText_show();
-			pleaseWait_btn1_setText("CONTINUAR");
+			pleaseWait_btn1_setText("CONTINUE");
 			pleaseWait_btn1_show();
 		}
 		break;
@@ -2144,9 +2144,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		this.fase = 1;
 		pleaseWait_show();
 		pleaseWait_freeText_show();
-		pleaseWait_freeText_setText("DESINSTALAÇÃO<br><br>A bandeja de respingos está vazia?"); //DISINTALLATION<br><br>Is driptray empty?
-		pleaseWait_btn1_setText("SIM - CONTINUAR");
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Is driptray empty?"); //DISINTALLATION<br><br>Is driptray empty?
+		pleaseWait_btn1_setText("YES - CONTINUE");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -2156,9 +2156,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 10:
 		this.fase = 11;
-		pleaseWait_freeText_setText("DESINSTALAÇÃO<br><br>Remova a borra do café e pressione CONTINUAR"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
-		pleaseWait_btn1_setText("CONTINUAR");
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Please remove coffee grounds, then press CONTINUE"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
+		pleaseWait_btn1_setText("CONTINUE");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -2168,9 +2168,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 20:
 		this.fase = 21;
-		pleaseWait_freeText_setText("DESINSTALAÇÃO<br><br>Pressione INICIAR DESINSTALACAO para continuar, ABORTAR para cancelar a operação"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
-		pleaseWait_btn1_setText("INICIAR DESINSTALAÇÃO");
-		pleaseWait_btn2_setText("ABORTA");
+		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
+		pleaseWait_btn1_setText("START DISINSTALLATION");
+		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -2180,7 +2180,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 30:
 		this.fase = 31;
-		pleaseWait_freeText_setText("DESINSTALAÇÂO está rodando, espere... ..."); //DISINTALLATION is running, please wait
+		pleaseWait_freeText_setText("DISINSTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
 		rhea.sendStartDisintallation();
 		break;
 		
@@ -2197,7 +2197,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		{
 			this.fase = 33;
 			pleaseWait_freeText_setText("DISINSTALLATION<br><br>Open boiler tap then press CONTINUE ..."); //DISINSTALLATION<br><br>Open boiler tap then press CONTINUE
-			pleaseWait_btn1_setText("CONTINUAR");
+			pleaseWait_btn1_setText("CONTINUE");
 			pleaseWait_btn1_show();
 		}		
 		break;
@@ -2207,7 +2207,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 35:
 		this.fase = 36;
-		pleaseWait_freeText_setText("DESINSTALAÇÂO está rodando, espere... ..."); //DISINTALLATION is running, please wait
+		pleaseWait_freeText_setText("DISINSTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
 		break;
 		
 	
@@ -2224,7 +2224,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		if (bBollitore400cc)
 			pleaseWait_freeText_setText("DISINSTALLATION finished, please CLOSE the boiler tap and SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
 		else
-			pleaseWait_freeText_setText("DESINSTALAÇÃO encerrada, favor DESLIGAR a máquina"); //DISINTALLATION finished, please shut down the machine
+			pleaseWait_freeText_setText("DISINSTALLATION finished, please SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
 		break;
 		
@@ -2309,7 +2309,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 		case 10: //eva dts scaricato
 			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
 			me.fase = 20;
-			pleaseWait_freeText_appendText ("<br>Terminado. Processando informações, favor esperar<br>"); //Done, processing data, please wait
+			pleaseWait_freeText_appendText ("<br>Done. Now processing data, please wait<br>"); //Done, processing data, please wait
 			break;
 			
 		case 20: //inizio il download della versione "packed" dell'eva-dts che la GPU ha generato durante la fase precedente
@@ -2324,12 +2324,12 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 			
 		case 200: //errore downloading eva-dts
 			rhea.onEvent_readDataAudit = function(status, kbSoFar, fileID) {};
-			pleaseWait_freeText_appendText("Erro baixando arquivo EVA-DTS. Tente novamente mais tarde"); //Error downloading EVA-DTS. Please try again later
+			pleaseWait_freeText_appendText("Error downloading EVA-DTS. Please try again later"); //Error downloading EVA-DTS. Please try again later
 			me.fase = 201;
 			break;
 			
 		case 201: //mostra btn close e ne aspetta la pressione
-			pleaseWait_btn1_setText("FECHAR");
+			pleaseWait_btn1_setText("SCHLIESSEN");
 			pleaseWait_btn1_show();
 			me.fase = 202;
 			break;			
@@ -2695,7 +2695,7 @@ TaskEspressoCalib.prototype.priv_handleRegolazionePosizioneMacina = function()
 		case 0: 
 			this.fase=1; 
 			
-			pleaseWait_freeText_setText("Espere enquanto o Varigrind esta ajustando a posição"); //Please wait while the varigrind is adjusting its position
+			pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position"); //Please wait while the varigrind is adjusting its position
 			pleaseWait_freeText_show();
 			break;
 		case 1: this.fase=2; break;
@@ -2726,7 +2726,7 @@ TaskEspressoCalib.prototype.priv_queryMacina = function()
 	{
 		var obj = JSON.parse(result);
 		rheaSetDivHTMLByName("pageExpCalib_vgCurPos", obj.v);
-		pleaseWait_freeText_setText("Espere enquanto o Varigrind esta ajustando a posição" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
+		pleaseWait_freeText_setText("Please wait while the varigrind is adjusting its position" +"  [" +obj.v +"]"); //Please wait while the varigrind is adjusting its position [current_value]
 	})
 	.catch( function(result)
 	{
@@ -2890,7 +2890,7 @@ TaskGrinderClean.prototype.step1 = function()
 	pleaseWait_show();
 	pleaseWait_rotella_hide();
 
-	this.priv_show ("&nbsp;", "CONTINUAR", "ABORTA");
+	this.priv_show ("&nbsp;", "CONTINUE", "ABORT");
 	rheaShowElem (rheaGetElemByID("pagePleaseWait_grinderCleaning")); //mostra i btn per la scelta di grinder 1 o 2
 }
 
@@ -2904,7 +2904,7 @@ TaskGrinderClean.prototype.step2 = function()
 	//Close bean hopper shutter to avoid loss of beans.<br>Press CONTINUE when done.
 	var msg = "Close bean hopper shutter to avoid loss of beans.";
 	msg += "<br>Press CONTINUE when done.";
-	this.priv_show (msg, "CONTINUAR", "");
+	this.priv_show (msg, "CONTINUE", "");
 }
 
 TaskGrinderClean.prototype.step3 = function()
@@ -2913,7 +2913,7 @@ TaskGrinderClean.prototype.step3 = function()
 	//Remove brewer and bean hopper.<br>Press CONTINUE when done.
 	var msg = "Remove brewer and bean hopper.";
 	msg += "<br>Press CONTINUE when done.";
-	this.priv_show (msg, "CONTINUAR", "");
+	this.priv_show (msg, "CONTINUE", "");
 }
 
 TaskGrinderClean.prototype.step4 = function()
@@ -2945,7 +2945,7 @@ TaskGrinderClean.prototype.step5 = function()
 	//Install grinder cleaning device.<br>Press CONTINUE when done.
 	var msg = "Install grinder cleaning device.";
 	msg += "<br>Press CONTINUE when done.";	
-	this.priv_show (msg, "CONTINUAR", "");	
+	this.priv_show (msg, "CONTINUE", "");	
 }
 
 TaskGrinderClean.prototype.step6 = function()
@@ -2957,7 +2957,7 @@ TaskGrinderClean.prototype.step6 = function()
 	var msg = "Refill cleaning device.";
 	msg += "<br>Press CONTINUE when done.";
 	msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
-	this.priv_show (msg, "CONTINUAR", "");	
+	this.priv_show (msg, "CONTINUE", "");	
 }
 
 TaskGrinderClean.prototype.step7 = function()
@@ -2971,7 +2971,7 @@ TaskGrinderClean.prototype.step20 = function()
 	this.fase = 20;
 	pleaseWait_rotella_hide();
 	//Do you want to repeat the grinding cycles?
-	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "SIM");
+	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "YES");
 }
 
 TaskGrinderClean.prototype.step21 = function()
@@ -2981,7 +2981,7 @@ TaskGrinderClean.prototype.step21 = function()
 	//"Put back  bean hopper. Press CONTINUE when done."
 	var msg = "Put back  bean hopper.";
 	msg += "<br>Press CONTINUE when done.";
-	this.priv_show (msg, "CONTINUAR", "");
+	this.priv_show (msg, "CONTINUE", "");
 }
 
 TaskGrinderClean.prototype.step23 = function()
@@ -2991,7 +2991,7 @@ TaskGrinderClean.prototype.step23 = function()
 	var msg = "Open hopper shutter.";
 	msg += "<br>Press CONTINUE when done.";
 	msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
-	this.priv_show (msg, "CONTINUAR", "");	
+	this.priv_show (msg, "CONTINUE", "");	
 }
 
 TaskGrinderClean.prototype.step24 = function()
@@ -3006,7 +3006,7 @@ TaskGrinderClean.prototype.step25 = function()
 	pleaseWait_rotella_hide();
 	
 	//Do you want to repeat the grinding cycles?
-	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "SIM");
+	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "YES");
 }
 
 
@@ -3016,7 +3016,7 @@ TaskGrinderClean.prototype.step26 = function()
 	//Put brewer back into position, press CONTINUE when done.
 	var msg = "Put brewer back into position.";
 	msg += "<br>Press CONTINUE when done.";
-	this.priv_show (msg, "CONTINUAR", "");
+	this.priv_show (msg, "CONTINUE", "");
 }
 
 
@@ -3048,7 +3048,7 @@ TaskGrinderClean.prototype.step28 = function()
 	pleaseWait_rotella_hide();
 	
 	//Do you want do dispense a coffe?
-	this.priv_show ("Do you want do dispense a coffe?", "NO", "SIM");
+	this.priv_show ("Do you want do dispense a coffe?", "NO", "YES");
 }
 
 TaskGrinderClean.prototype.step40 = function()

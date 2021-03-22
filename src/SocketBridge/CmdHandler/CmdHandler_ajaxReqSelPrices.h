@@ -6,9 +6,9 @@
 namespace socketbridge
 {
     /*********************************************************
-     * CmdHandler_ajaxReqSelAvailability
+     * CmdHandler_ajaxReqSelPrices
      *
-     * Il client ha mandato una richiesta AJAX per conosce la disponibilità delle selezioni
+     * Il client ha mandato una richiesta AJAX per conoscere i prezzi delle selezioni
      *
         Input:
             command: selPrice

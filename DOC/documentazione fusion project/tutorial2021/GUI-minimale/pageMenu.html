@@ -14,6 +14,11 @@
 <body onLoad="rheaBootstrap()">
 <p>Esempio di GUI minimale</p>
 
+<div style="border:solid 1px #000; padding:5px; margin-bottom:10px; background-color:#88ff88; color:#000">
+	Si consiglia vivamente di aprire la CONSOLE del broswer (premi F12 su chrome e/o Firefox) in modo da vedere i messaggi di debug/console
+	che questa app produce come risposta ai vari eventi spontanei inviati da SMU
+</div>
+
 <div id="divBottoniera">
 	<div class="bottone" onclick="startSelection(2)">SELEZIONE 2</div>
 	<div class="bottone" onclick="startSelection(13)">SELEZIONE 13</div>
@@ -90,38 +95,65 @@ function onRheaBootstrapFinished()
 	}	
 }
 
-//****************************************************
+/****************************************************
+ * mostra a video la rotellina di "attendere prego" e nasconde i pulsanti
+ */
 function showPleaseWait()
 {
 	rheaHideElem (rheaGetElemByID("divBottoniera"));
 	rheaShowElem (rheaGetElemByID("divPleaseWait"));
 }
 
-//****************************************************
+/****************************************************
+ * nasconde la rotellina di "attendere prego" e visualizza i pulsanti
+ */
 function hidePleaseWait()
 {
 	rheaShowElem (rheaGetElemByID("divBottoniera"));
 	rheaHideElem (rheaGetElemByID("divPleaseWait"));
 }
 
-//****************************************************
+/****************************************************
+ * 	chiede a SMU di avviare la selezione numero [iSel]
+ *	SMU non risponde direttamente a questo comando, ma invierà una serie di notifiche spontanee che 
+ *	riporteranno lo stato di avanzamento della selezione.
+ *	Queste notifioche spontanee sono gestite da questa GUI nell'handler "rhea.onEvent_selectionReqStatus" definito nella funzione onRheaBootstrapFinished() qualche riga sopra.
+ * 	L'handler in questione si limita a stampre su console le notifiche che riceve
+ */
 function startSelection (iSel)
 {
 	rhea.selection_start(iSel);
 }
 
-//****************************************************
+/****************************************************
+ * 	Invia a SMU il comando ajax "getCPUStrModelAndVer".
+ *	La risposta attesa di SMU è una stringa con lòa versione di CPU ed il modello di macchina
+ */
 function getCPUModelAndVer()
 {
+	//nasconde i bottoni e mostra la rotellina di "attendere prego"
 	showPleaseWait();
+	
+	//invia il comando a SMU
 	rhea.ajax ("getCPUStrModelAndVer", "").then( function(result)
 	{
+		//qui siamo nel caso in cui SMU ha risposto al nostro comando.
+		//In [result] abbiamo la stringa con la risposta
+		
+		//nascondiamo la rotellina "attendere prego" e mostriamo nuovamente i bottoni
 		hidePleaseWait();
+		
+		//stampiamo a video la risposta ricevuta da SMU
 		alert (result);
 	})
 	.catch( function(result)
 	{
+		//qui siamo nel caso in cui SMU non ha risposto al nostro comando, oppure la richiesta è andata in timeout (ie: SMU non ha risposto entro 4 secondi)
+		
+		//nascondiamo la rotellina "attendere prego" e mostriamo nuovamente i bottoni
 		hidePleaseWait();
+		
+		//stampiamo a video un messaggio di errore ed un eventuale possibile indizio sulla causa del problema
 		alert ("ERRORE: " +result);
 	});
 }

@@ -253,6 +253,25 @@ void unsetupFolderInformation (sGlobal *glob)
     RHEAFREE(allocator, glob->usbFolder_AutoF2);
 }
 
+/****************************************************
+ * creo un file di testo in current/gpu per riportare l'attuale versione della GPU
+ * Questo file mi serve perchè esiste un comando ajax che chiede la versione GPU e dato che la versione
+ * GPU è nell'header.h di questo progetto, SocketBridge non avrebbe modo di conoscerla. Creo il file
+ * current/gpu/ver.txt in modo che SocketBridge possa leggerlo e rispondere
+ */
+void createGPUVerFile (const sGlobal *glob)
+{
+    u8 s[256];
+    sprintf_s ((char*)s, sizeof(s), "%s/gpu/ver.txt", glob->current);
+    FILE *f = rhea::fs::fileOpenForWriteBinary (s);
+    if (NULL != f)
+    {
+        sprintf_s ((char*)s, sizeof(s), "%s", GPU_VERSION);
+        rhea::fs::fileWrite (f, s, rhea::string::utf8::lengthInBytes(s));
+        fclose (f);
+    }
+}
+
 //****************************************************
 void run(int argc, char *argv[])
 {
@@ -277,6 +296,8 @@ void run(int argc, char *argv[])
     //recupero informazioni sui vari folder
     setupFolderInformation (&glob);
     glob.logger->log ("current folder is: %s\n", rhea::getPhysicalPathToAppFolder());
+
+    createGPUVerFile (&glob);
 
     //Avvio della SMU
     HThreadMsgW hCPUServiceChannelW;

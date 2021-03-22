@@ -14,10 +14,17 @@
 <body onLoad="rheaBootstrap()">
 <p>TUTORIAL 01</p>
 
+<div style="border:solid 1px #000; padding:5px; margin-bottom:10px; background-color:#88ff88; color:#000">
+	Si consiglia vivamente di aprire la CONSOLE del broswer (premi F12 su chrome e/o Firefox) in modo da vedere i messaggi di debug/console
+	che questa app produce come risposta ai vari eventi spontanei inviati da SMU
+</div>
+
 <div id="divBottoniera">
 	<div class="bottone" onclick="startSelection(2)">SELEZIONE 2</div>
 	<div class="bottone" onclick="startSelection(13)">SELEZIONE 13</div>
 	<div class="bottone" onclick="getCPUModelAndVer()">GET CPU MODEL AND VERSION</div>
+	
+	<!-- questo è il nuovo bottone che fa partire il comando "startErogBicchiere", vedi funzione startErogazioneBicchiere() più sotto -->
 	<div class="bottone" onclick="startErogazioneBicchiere()">START EROGAZIONE BICCHIERE</div>
 </div>
 
@@ -91,52 +98,91 @@ function onRheaBootstrapFinished()
 	}
 }
 
-//****************************************************
+/****************************************************
+ * mostra a video la rotellina di "attendere prego" e nasconde i pulsanti
+ */
 function showPleaseWait()
 {
 	rheaHideElem (rheaGetElemByID("divBottoniera"));
 	rheaShowElem (rheaGetElemByID("divPleaseWait"));
 }
 
-//****************************************************
+/****************************************************
+ * nasconde la rotellina di "attendere prego" e visualizza i pulsanti
+ */
 function hidePleaseWait()
 {
 	rheaShowElem (rheaGetElemByID("divBottoniera"));
 	rheaHideElem (rheaGetElemByID("divPleaseWait"));
 }
 
-//****************************************************
+/****************************************************
+ * 	chiede a SMU di avviare la selezione numero [iSel]
+ *	SMU non risponde direttamente a questo comando, ma invierà una serie di notifiche spontanee che 
+ *	riporteranno lo stato di avanzamento della selezione.
+ *	Queste notifioche spontanee sono gestite da questa GUI nell'handler "rhea.onEvent_selectionReqStatus" definito nella funzione onRheaBootstrapFinished() qualche riga sopra.
+ * 	L'handler in questione si limita a stampre su console le notifiche che riceve
+ */
 function startSelection (iSel)
 {
 	rhea.selection_start(iSel);
 }
 
-//****************************************************
+/****************************************************
+ * 	Invia a SMU il comando ajax "getCPUStrModelAndVer".
+ *	La risposta attesa di SMU è una stringa con lòa versione di CPU ed il modello di macchina
+ */
 function getCPUModelAndVer()
 {
-rhea.requestGPUEvent(id)
-
-
+	//nasconde i bottoni e mostra la rotellina di "attendere prego"
 	showPleaseWait();
+	
+	//invia il comando a SMU
 	rhea.ajax ("getCPUStrModelAndVer", "").then( function(result)
 	{
+		//qui siamo nel caso in cui SMU ha risposto al nostro comando.
+		//In [result] abbiamo la stringa con la risposta
+		
+		//nascondiamo la rotellina "attendere prego" e mostriamo nuovamente i bottoni
 		hidePleaseWait();
+		
+		//stampiamo a video la risposta ricevuta da SMU
 		alert (result);
 	})
 	.catch( function(result)
 	{
+		//qui siamo nel caso in cui SMU non ha risposto al nostro comando, oppure la richiesta è andata in timeout (ie: SMU non ha risposto entro 4 secondi)
+		
+		//nascondiamo la rotellina "attendere prego" e mostriamo nuovamente i bottoni
 		hidePleaseWait();
+		
+		//stampiamo a video un messaggio di errore ed un eventuale possibile indizio sulla causa del problema
 		alert ("ERRORE: " +result);
 	});
 }
 
-//****************************************************
+/****************************************************
+ *	Questa funzione invia il nuovo comando "startErogBicchiere" tramite rhea.ajax
+ */
 function startErogazioneBicchiere()
 {
-	//showPleaseWait();
+	//nasconde i bottoni e mostra la rotellina di "attendere prego"
+	showPleaseWait();
+	
+	
+	//invia il comando "startErogBicchiere".
+	//La risposta è asincrona il che vuol dire che potrebbero passare anche dei secondi prima che uno dei 2 handler sottostanti venga invocato
 	rhea.ajax ("startErogBicchiere", "").then( function(result)
 	{
-		//hidePleaseWait();
+		//qui siamo nel caso in cui SMU ha risposto al nostro comando.
+		//In [result] abbiamo la stringa con la risposta che, in questo caso, sara "OK" se la CPU ha avviato l'erogazione bicchiere, "KO" in caso contrario
+		
+		//nascondiamo la rotellina "attendere prego" e mostriamo nuovamente i bottoni
+		hidePleaseWait();
+		
+		//se CPU ha detto "OK", avvisiamo con un messaggio a video e iniziamo a "pollare" la CPU per verificare lo stato dell'erogazione
+		//PS: 	questa seconda parte relativa al polling dello stato erogazione non è implementata nel codice tutorial, lo si lascia come esercizio per il lettore.
+		//		Tuttavia, nel paragrafo 5.2 è stato suggerito il formato di un ipotetico comando P 0x25 da utilizzarsi per implementare questa funzionalità
 		if (result == "OK")
 		{
 			alert ("Erogazione bicchiere in corso");
@@ -144,40 +190,65 @@ function startErogazioneBicchiere()
 		}
 		else
 		{
+			//CPU ha risposta "KO", informiamo della cosa l'utente e terminiano
 			alert ("Impossibile inziare l'erogazione del bicchiere");
 		}
 	})
 	.catch( function(result)
 	{
-		//hidePleaseWait();
-		alert ("TIMEOUT: Impossibile inziare l'erogazione del bicchiere. [" +result +"]");
+		//nascondiamo la rotellina "attendere prego" e mostriamo nuovamente i bottoni
+		hidePleaseWait();
+		
+		//SMU non ha risposto, oppure la richiesta è andata in timeout.
+		//Avvisiamo l'utente e terminiamo
+		alert ("TIMEOUT durante 'startErogazioneBicchiere': Impossibile inziare l'erogazione del bicchiere. [" +result +"]");
 	});
 }
 
 
-//****************************************************
+/****************************************************
+ * 	NB: questa parte di codice è destinata a FALLIRE fino a che il comando "queryStatoErogBicchiere" non viene implementato in SMU.
+ *	Al momento infatti, il codice tutorial-01 non prevede il comando "queryStatoErogBicchiere" e quindi la richiesta fallirà il 100% delle volte
+ *
+ *	Questa funzione ha lo scopo di "pollare" SMU ogni 1000ms per conoscere lo stato dell'erogazione del bicchiere.
+ *	Viene chiamata inzialmente a seguito di una risposta "OK" da parte di SMU al comando "startErogBicchiere".
+ *	Successivamente, questa funzione si "auto chiama" ogni 1000ms
+ */
 function queryStatusErgazioneBicchiere()
 {
+	//invia a SMU il comando "queryStatoErogBicchiere"
 	rhea.ajax ("queryStatoErogBicchiere", "").then( function(result)
 	{
+		//SMU ha risposto, dentro result abbiamo lo stato di erogazione del bicchiere riportato
+		//da CPU (NB: questo è tutto codice IPOTETICO dato che l'implementazione del comando
+		//al momento non esiste in SMU)
+
 		switch (parseInt(result))
 		{
 		case 0: //waiting
+			//SMU ci informa che è ancora impegnata nell'erogazione del bicchiere, per cui noi
+			//scheduliamo un nuovo polling fra 1000ms
 			setTimeout (queryStatusErgazioneBicchiere, 1000);
 			break;
 			
 		case 1: //finished OK
+			//SMU ci comunica che l'erogazione bicchiere è terminata con successo.
+			//Informiamo l'utente della cosa e terminiamo
 			alert ("Bicchiere erogato");
 			break;
 
-		case 2: //finished OK
+		case 2: //finished KO
+			//SMU ci comunica che l'erogazione bicchiere è fallita.
+			//Informiamo l'utente della cosa e terminiamo
 			alert ("Bicchiere NON erogato");
 			break;
 		}
 	})
 	.catch( function(result)
 	{
-		alert ("TIMEOUT: Bicchiere NON erogato");
+		//SMU non ha risposto, oppure la richiesta è andata in timeout.
+		//Avvisiamo l'utente e terminiamo
+		alert ("TIMEOUT durante 'queryStatusErgazioneBicchiere': [" +result +"]");
 	});	
 
 }
