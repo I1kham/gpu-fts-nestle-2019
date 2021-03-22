@@ -303,6 +303,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqMilkerType.cpp">
       <Filter>CmdHandler\ajax\milker</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqJugRepetitions.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -569,6 +572,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqMilkerType.h">
       <Filter>CmdHandler\ajax\milker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqJugRepetitions.h">
+      <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
