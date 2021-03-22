@@ -2336,3 +2336,37 @@ void cpubridge::translateNotify_MILKER_TYPE(const rhea::thread::sMsg &msg, eCPUM
 	*out_milkerType = (eCPUMilkerType)p[0];
 }
 
+//***************************************************
+void cpubridge::ask_CPU_GET_JUG_REPETITIONS(const sSubscriber& from, u16 handlerId)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_REPETITONS, handlerId);
+}
+
+void cpubridge::notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const u8 bufLen, const u8* buffer)
+{
+	logger->log("notify_CPU_GET_JUG_REPETITIONS\n");
+
+	u8	buf[NUM_MAX_SELECTIONS + 1];
+	u8	l = bufLen;
+
+	if (l > NUM_MAX_SELECTIONS)
+		l = NUM_MAX_SELECTIONS;
+
+	buf[0] = l;
+	memcpy(&buf[1], buffer, l);
+
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_JUG_REPETITIONS, handlerID, buf, l + 1);
+}
+
+void cpubridge::translateNotify_CPU_GET_JUG_REPETITIONS(const rhea::thread::sMsg& msg, u8* out_len, u8* out_buf, u32 sizeof_out_buf)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_JUG_REPETITIONS);
+	const u8* p = (const u8*)msg.buffer;
+	*out_len = p[0];
+	if (*out_len > sizeof_out_buf)
+	{
+		DBGBREAK;
+		*out_len = sizeof_out_buf;
+	}
+	memcpy(out_buf, &p[1], *out_len);
+}

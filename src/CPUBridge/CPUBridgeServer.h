@@ -137,6 +137,11 @@ namespace cpubridge
 			u8		alreadyAsked;		//1 se ho già chiesto i prezzi alla CPU
 		};
 
+		struct sJugRepetitions
+		{
+			u8		jugRepetitions[48];
+		};
+
 	private:
 		void					priv_resetInternalState(cpubridge::eVMCState s);
 		bool					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
@@ -230,6 +235,8 @@ namespace cpubridge
 		u64						showCPUStringModelAndVersionUntil_msec;
 		sPriceHolding			priceHolding;
 		eCPUMilkerType			milkerType;
+
+		u8						jugRepetitions[NUM_MAX_SELECTIONS];
     };
 
 } // namespace cpubridge

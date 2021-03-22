@@ -336,6 +336,9 @@ namespace cpubridge
 	void		notify_MILKER_TYPE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUMilkerType milkerType);
 	void		translateNotify_MILKER_TYPE(const rhea::thread::sMsg &msg, eCPUMilkerType *out_milkerType);
 
+	void		notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const u8 bufLen, const u8* buffer);
+	void		translateNotify_CPU_GET_JUG_REPETITIONS(const rhea::thread::sMsg& msg, u8 *out_len, u8 *out_buf, u32 sizeof_out_buffer);
+
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -568,6 +571,9 @@ namespace cpubridge
 	void		ask_CPU_GET_MILKER_TYPE (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_MILKER_TYPE
 
+	void		ask_CPU_GET_JUG_REPETITIONS(const sSubscriber& from, u16 handlerId);
+					//viene richiesta alla CPU le impostazioni delle ripetizione per i JUG per tutte le bevande disponibili
+					// alla ricezione di questo messaggio GPUBridge risponera con notify_CPU_GET_JUG_REPETITIONS
 
 } // namespace cpubridge
 
