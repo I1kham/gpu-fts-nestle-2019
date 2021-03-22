@@ -42,7 +42,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{ab40add8-e3c3-4154-8e8f-b1110151763c}</ProjectGuid>
     <RootNamespace>rheaExternalSerialAPI</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

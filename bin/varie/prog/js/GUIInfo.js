@@ -41,4 +41,3 @@ function GUIInfo_load_onEnd (theGUIInfo, reasonRefused, obj)
 	//console.log (theGUIInfo.selInfo);
 	onGUIInfoLoaded();
 }
-

@@ -53,8 +53,12 @@
 #include "CmdHandler/CmdHandler_ajaxReqFSRheaUnzip.h"
 #include "CmdHandler/CmdHandler_ajaxReqMilkerType.h"
 
-using namespace socketbridge;
+#include "CmdHandler/CmdHandler_ajaxReqGetGPUver.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetDA3info.h"
 
+using namespace socketbridge;
 
 /***************************************************
  * Factory
@@ -136,6 +140,10 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_AliChina_getConnDetail);
 	CHECK(CmdHandler_ajaxReqFSRheaUnzip);
 	CHECK(CmdHandler_ajaxReqMilkerType);
+	CHECK(CmdHandler_ajaxReqGetGPUVer);
+	CHECK(CmdHandler_ajaxReqGetLastInstalledGUIFilename);
+	CHECK(CmdHandler_ajaxReqGetLastInstalledCPUFilename);
+	CHECK(CmdHandler_ajaxReqGetDA3info);
 
 #undef CHECK
     return NULL;
