@@ -191,7 +191,7 @@ void setupFolderInformation (sGlobal *glob)
 
     //USB folders
     u8 baseUSBFolder[256];
-#ifdef PLATFORM_YOCTO_EMBEDDED
+#if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
     sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
 #else
     sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
@@ -267,7 +267,7 @@ void run(int argc, char *argv[])
 #ifdef _DEBUG
     glob.logger = new rhea::StdoutLogger();
 #else
-#ifdef PLATFORM_YOCTO_EMBEDDED
+#if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
     glob.logger = new rhea::NullLogger();
     //u8 s[256]; sprintf_s ((char*)s, sizeof(s), "%s/output.log", rhea::getPhysicalPathToAppFolder()); glob.logger = new rhea::FileLogger(s);
 #else

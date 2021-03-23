@@ -15,8 +15,9 @@
     #define ESAPI_COMPORT   "/dev/ttymxc2"
     #define USB_MOUNTPOINT  "/run/media/sda1"
 #elif defined(PLATFORM_ROCKCHIP)
-    #define CPU_COMPORT     "/dev/ttyUSB0"
-    #define ESAPI_COMPORT    "/dev/ttyS1"
+    #define CPU_COMPORT         "/dev/ttyUSB0"
+    #define ESAPI_COMPORT       "/dev/ttyS1"
+    #define USB_MOUNTPOINT      "/media/SDA1"
 #endif
 
 

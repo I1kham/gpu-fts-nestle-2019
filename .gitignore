@@ -89,5 +89,7 @@ QT-Linaro-Rockchip/SMU/build/
 QT-Linaro-Rockchip/SocketBridge/build/
 bin/ROCKCHIP_DEBUG_GPUBoot
 bin/ROCKCHIP_RELEASE_GPUBoot
+QT-Linaro-Rockchip/GPUBoot/build-GPUBoot-Desktop-Debug/
+QT-Linaro-Rockchip/GPUBoot/build-GPUBoot-Desktop-Release/
 
 *.gitignore.swp

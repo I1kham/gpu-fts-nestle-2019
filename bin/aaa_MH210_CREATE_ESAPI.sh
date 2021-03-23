@@ -6,19 +6,13 @@ estensione="_commit.mh210"
 filename="GPU_TS_v.2.4.5_$DATA$estensione"
 
 
-FILE_GPU="./EMBEDDED_RELEASE_GPU"
+FILE_GPU="./ROCKCHIP_RELEASE_GPU"
 if [ ! -f "$FILE_GPU" ]; then
     echo "$FILE_GPU does not exist"
-	cp ./aaa_MH6_CREATE.sh ./error_EMBEDDED_RELEASE_GPU_does_not_exists
+	cp ./aaa_MH210_CREATE_ESAPI.sh ./error_ROCKCHIP_RELEASE_GPU_does_not_exists
 	exit 1
 fi
 
-FILE_startRhea="../src/startRhea.sh"
-if [ ! -f "$FILE_startRhea" ]; then
-    echo "$FILE_startRhea does not exist"
-	cp ./aaa_MH6_CREATE.sh ./error_startRhea_does_not_exists
-	exit 1
-fi
 
 #la roba che mi interessa la metto tutta in GPUPackage2019
 rm -r ./GPUPackage2019
@@ -35,12 +29,6 @@ chmod 777 ./GPUPackage2019/makeRheaServicePack.sh
 chmod 777 ./GPUPackage2019/current/lang
 rm ./GPUPackage2019/varie/prog/js/dev/compiler.jar
 
-#fuori da package c'e' solo startRhea.sh e il miniboot
-cp "$FILE_startRhea" ./
-chmod 777 ./startRhea.sh
-
 rm ./$filename
-tar -czvf $filename ./GPUPackage2019 ./startRhea.sh
-
-rm ./startRhea.sh
+tar -czvf $filename ./GPUPackage2019
 rm -r ./GPUPackage2019

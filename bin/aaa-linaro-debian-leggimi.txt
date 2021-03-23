@@ -9,3 +9,4 @@ per fare questo, editare /etc/fstab inserendo le seguenti 4 linee:
 /dev/sda1	/media/SDA1	auto	nofail,defaults	0	1
 /dev/sdb1	/media/SDB1	auto	nofail,defaults	0	1
 /dev/sdc1	/media/SDC1	auto	nofail,defaults	0	1
+

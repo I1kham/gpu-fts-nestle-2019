@@ -2473,7 +2473,7 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 	if (answerLen >= 117)
 		cpuParamIniziali.protocol_version = answer[115];
 
-#ifdef PLATFORM_YOCTO_EMBEDDED
+#if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
 	u16 date_year = answer[3] + 2000;
 	u16 date_month = answer[4];
 	u16 date_dayOfMonth = answer[5];
