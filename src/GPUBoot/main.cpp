@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
     if (folder.exists())
     {
         QApplication a(argc, argv);
+        APPLICATION_FOLDER = QApplication::applicationDirPath();
+
         MainWindow w;
         w.show();
         a.exec();

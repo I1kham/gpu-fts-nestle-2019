@@ -40,7 +40,7 @@
      <string notr="true">background-color:#888; color:#fff</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="labVersion">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -60,7 +60,7 @@
      <string notr="true">color:#fff;</string>
     </property>
     <property name="text">
-     <string>SMU BootLoader v1.0</string>
+     <string>SMU BootLoader vx.x</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnStartVMC">

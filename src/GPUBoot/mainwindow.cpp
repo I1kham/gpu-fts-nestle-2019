@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->btnCloseErrorLog->setVisible(false);
     ui->labError->setVisible(false);
 
+    //versione
+    ui->labVersion->setText ("SMU Bootloader v" VERSION);
+
     //ridimensionamento degli elementi grafici
     {
         const int BORDER_X = 10;

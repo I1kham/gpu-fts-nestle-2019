@@ -2,6 +2,7 @@
 #define _main_h_
 #include <qstring.h>
 
+#define VERSION             "0.9"
 
 #define UNUSED_PARAM        __attribute__((unused))
 #define USB_MOUNTPOINT      "/media/SDA1"

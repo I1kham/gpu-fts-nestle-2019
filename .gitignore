@@ -89,7 +89,10 @@ QT-Linaro-Rockchip/SMU/build/
 QT-Linaro-Rockchip/SocketBridge/build/
 bin/ROCKCHIP_DEBUG_GPUBoot
 bin/ROCKCHIP_RELEASE_GPUBoot
+bin/ROCKCHIP_DEBUG_GPUPreBoot
+bin/ROCKCHIP_RELEASE_GPUPreBoot
 QT-Linaro-Rockchip/GPUBoot/build-GPUBoot-Desktop-Debug/
 QT-Linaro-Rockchip/GPUBoot/build-GPUBoot-Desktop-Release/
-
+*.mh210
+*.mh211
 *.gitignore.swp
