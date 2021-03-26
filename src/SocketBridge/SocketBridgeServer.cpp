@@ -322,7 +322,7 @@ bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum,
 						break;
 
 					default:
-						DBGBREAK;
+						//DBGBREAK;
 						rhea::thread::deleteMsg(msg);
 						return false;
 						break;

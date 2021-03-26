@@ -6,7 +6,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link href="style.css" rel="stylesheet" type="text/css">
 	<link href="styleOptionButtons.css" rel="stylesheet" type="text/css">
-	<link href="noFilters.css" rel="stylesheet" type="text/css">
 </head>
 
 <body onLoad="rheaBootstrap()">
@@ -14,20 +13,12 @@
 <div id="mainWrapper" class="wrapper1024x600">
 	<div class="pageConfirm">
 		<div class="pageConfirm_center">
-			<div id="divSelectionImage" class="pageConfirm_selectionImage" style="display:none"></div>
+			<div id="divSelectionImage" class="pageConfirm_selectionImage"></div>
 			<div id="divBtnSelectionInfo" class="pageConfirm_selectionInfo" style="display:none" onclick="gotoSelectionInfo()"><img draggable='false' src="img/info.png"></div>
-			<div class="pageConfirm_selectionName pageConfirm_bigFont" id="divSelectionName" style="display:none"></div>
+			<div class="pageConfirm_selectionName pageConfirm_bigFont" id="divSelectionName"></div>
 			<div class="pageConfirm_selectionBottom pageConfirm_bigFont" id="divPrice"></div>
 		</div>
 		
-		<!-- Content on center -->
-		<div id="pageConfirmNoFilters" class="pageConfirm_noFilters" style="display: none">
-			<div id="divSelectionImageCenter" class="pageConfirm_selectionImage">
-				<img draggable="false" src="">
-			</div>
-			
-			<div class="pageConfirm_selectionName pageConfirm_bigFont" id="divSelectionNameCenter"></div>
-		</div>
 		
 		<div class="pageConfirm_right" style="position:relative;">
 			<div id="rightPane_wait" style="display:none; text-align:center; margin-top:160px"><img draggable='false' src="img/animationRound.gif"></div>
@@ -269,47 +260,6 @@ function doUpdateCredit()
 	//rheaSetDivHTMLByName("divCredit", rhea.credit);	
 }
 
-/**
- * Switch cup visualization if selection not has menu icons and option buttton
- */
-function setupInfoOnCenter(mnuIcons, optButtons) {
-	var isEmpty = false;
-	
-	isEmpty = (mnuIcons === '');
-
-	optButtons && optButtons.forEach( e => {
-		if (e !== '') {
-			isEmpty = false;
-		}		
-	});
-	
-	if (isEmpty) {
-		// Hide standard elements
-		var stdCupImgElem = rheaGetElemByID ("divSelectionImage");
-		var stdCupNmeElem = rheaGetElemByID ("divSelectionName");
-		
-		rheaHideElem( stdCupImgElem ); rheaHideElem( stdCupNmeElem );
-		
-		// Setup center elements
-		var divContainer = rheaGetElemByID ("pageConfirmNoFilters");
-		rheaShowElem(divContainer);
-		
-		var centerCupImgElem = rheaGetElemByID ("divSelectionImageCenter");
-		var centerCupNmeElem = rheaGetElemByID ("divSelectionNameCenter");
-		var centerCupPrice 	 = rheaGetElemByID ("divPrice");
-		
-		centerCupImgElem.querySelector( 'img' ).src = stdCupImgElem.querySelector( 'img' ).src;
-		centerCupNmeElem.innerHTML = stdCupNmeElem.innerHTML;
-		
-		centerCupPrice.classList.add( 'noFilters' );
-	} else {
-		// Hide standard elements
-		var stdCupImgElem = rheaGetElemByID ("divSelectionImage");
-		var stdCupNmeElem = rheaGetElemByID ("divSelectionName");
-		
-		rheaShowElem( stdCupImgElem ); rheaShowElem( stdCupNmeElem );
-	}
-}
 
 var iconDisplayName="";
 function setupPageContent()
@@ -332,10 +282,6 @@ function setupPageContent()
 	var bShowOption2 = 0;
 	var bShowCupDiv = 1;
 	
-	//a seconda delle opzioni disponibili, mostro o nascondo i div
-	var n = 0;
-	var cupOptionButtonText = rheaLang_cupAppearance[iconNum].split("§");	// btns cup
-	
 	if (selNum == 0)
 	{
 		//se arriviamo qui, vuol dire che stiamo gestendo una selezione virtuale
@@ -352,8 +298,6 @@ function setupPageContent()
 		if (MMI_canUseLargeCup(iconNum)) bShowCupDiv++;
 		if (bShowCupDiv<2)
 			bShowCupDiv=0;
-			
-		setupInfoOnCenter('', cupOptionButtonText);
 	}
 	else
 	{
@@ -365,12 +309,13 @@ function setupPageContent()
 			var e = document.getElementById("tdSelDescription");
 			e.innerHTML = rheaMainMenuIconsInfo[iconNum];
 			
-			setupInfoOnCenter(e.innerHTML, cupOptionButtonText);
-			
 			rheaSetDisplayMode(rheaGetElemByID("rowSelDescription"), "table-row");
 		});	
 	}		
-	
+
+	//a seconda delle opzioni disponibili, mostro o nascondo i div
+	var n = 0;
+	var cupOptionButtonText = rheaLang_cupAppearance[iconNum].split("§");
 	if (bShowOption1)
 	{
 		n++;

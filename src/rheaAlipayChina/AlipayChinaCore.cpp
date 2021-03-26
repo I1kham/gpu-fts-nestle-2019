@@ -258,6 +258,10 @@ void Core::run ()
 				logger->log ("Order [%s] finished, FAIL\n", theOrder.orderNumber);
 				priv_orderClose (sok, Core::eOrderCloseStatus_FAILED);
 			}
+			else if (theOrder.status == Core::eOrderStatus_closing)
+			{
+				//ho inviato la richiesta di "chiusura ordine" (E15) e sto aspettando che il server confermi
+			}
 		}
 	
 
@@ -756,7 +760,7 @@ void Core::priv_orderClose (OSSocket &sok, eOrderCloseStatus statusForServer)
 	const u32 nBytesToSend = priv_buildCommand ("E15", (const u8*)s, buffer, sizeof(buffer));
 	priv_sendCommand (sok, buffer, nBytesToSend);
 
-	theOrder.status = Core::eOrderStatus_none;
+	theOrder.status = Core::eOrderStatus_closing;
 
 }
 

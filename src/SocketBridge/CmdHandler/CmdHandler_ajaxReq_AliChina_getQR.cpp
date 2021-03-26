@@ -46,14 +46,24 @@ void CmdHandler_ajaxReq_AliChina_getQR::handleRequestFromSocketBridge(socketbrid
 		return;
 
 	u8 urlToBeEmbeddedInQr[256];
-	if (server->module_alipayChina_askQR (data.name, data.selNum, data.price, urlToBeEmbeddedInQr, sizeof(urlToBeEmbeddedInQr)))
-		 server->sendAjaxAnwer (hClient, ajaxRequestID, urlToBeEmbeddedInQr, rhea::string::utf8::lengthInBytes(urlToBeEmbeddedInQr)+1);
-	else
+	const u32 timeToExitMSec = rhea::getTimeNowMSec() + 10000;
+	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
-		urlToBeEmbeddedInQr[0] = 'K';
-		urlToBeEmbeddedInQr[1] = 'O';
-		urlToBeEmbeddedInQr[2] = 0x00;
-		server->sendAjaxAnwer (hClient, ajaxRequestID, urlToBeEmbeddedInQr, 3);
+		if (server->module_alipayChina_askQR (data.name, data.selNum, data.price, urlToBeEmbeddedInQr, sizeof(urlToBeEmbeddedInQr)))
+		{
+			server->sendAjaxAnwer (hClient, ajaxRequestID, urlToBeEmbeddedInQr, rhea::string::utf8::lengthInBytes(urlToBeEmbeddedInQr) + 1);
+			return;
+		}
+		else
+		{
+			rhea::thread::sleepMSec(1000);
+		}
 	}
-	
+
+	//richiesta fallita
+	urlToBeEmbeddedInQr[0] = 'K';
+	urlToBeEmbeddedInQr[1] = 'O';
+	urlToBeEmbeddedInQr[2] = 0x00;
+	server->sendAjaxAnwer (hClient, ajaxRequestID, urlToBeEmbeddedInQr, 3);
+
 }

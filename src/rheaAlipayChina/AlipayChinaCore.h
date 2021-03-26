@@ -83,7 +83,8 @@ namespace rhea
                 eOrderStatus_paymentOK = 3,
                 eOrderStatus_waitingBeverageEnd = 4,
                 eOrderStatus_finishedOK = 5,
-                eOrderStatus_finishedKO = 6
+                eOrderStatus_finishedKO = 6,
+				eOrderStatus_closing = 7
             };
 
             enum eOrderCloseStatus

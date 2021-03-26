@@ -1,0 +1,15 @@
+.pageConfirm_noFilters {
+	position: absolute;
+    
+	margin: 0 auto;
+	right: 0; left: 0;
+	
+    text-align: center;
+}    
+	
+.pageConfirm_selectionBottom.noFilters {
+    top: unset!important;
+    bottom: 55px!important;
+    position: absolute;
+
+}
