@@ -183,7 +183,11 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSRheaUnzip.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMilkerType.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqJugRepetitions.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqJugRepetitions.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDA3info.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetGPUVer.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.cpp
 
 
 HEADERS += \
@@ -284,7 +288,11 @@ HEADERS += \
     ../../src/SocketBridge/SocketBridgeVersion.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSRheaUnzip.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMilkerType.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqJugRepetitions.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqJugRepetitions.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDA3info.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetGPUVer.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h
 
 
 

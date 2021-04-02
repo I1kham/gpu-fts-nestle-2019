@@ -53,8 +53,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqFSRheaUnzip.h"
 #include "CmdHandler/CmdHandler_ajaxReqMilkerType.h"
 #include "CmdHandler/CmdHandler_ajaxReqJugRepetitions.h"
-
-#include "CmdHandler/CmdHandler_ajaxReqGetGPUver.h"
+#include "CmdHandler/CmdHandler_ajaxReqGetGPUVer.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetDA3info.h"
