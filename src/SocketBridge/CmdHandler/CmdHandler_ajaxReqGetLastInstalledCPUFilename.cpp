@@ -38,8 +38,10 @@ void CmdHandler_ajaxReqGetLastInstalledCPUFilename::handleRequestFromSocketBridg
 
 	if (fileName[0] == 0x00)
 	{
-		fileName[0] = 'K';
-		fileName[1] = 'O';
+		fileName[0] = '?';
+		fileName[1] = '?';
+		fileName[2] = '?';
+		fileName[3] = 0x00;
 	}
 
 	server->sendAjaxAnwer(hClient, ajaxRequestID, fileName, (u16)rhea::string::utf8::lengthInBytes(fileName));

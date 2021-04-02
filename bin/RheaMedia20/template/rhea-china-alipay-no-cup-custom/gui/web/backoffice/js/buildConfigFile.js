@@ -140,7 +140,7 @@ console.time("page menu");
 	await buildConfigFile_pageMenu(db, historyID);
 console.timeEnd("page menu");	
 
-console.time("page confirm");
+console.time("page confirm finished");
 	pleaseWait_addMessage("creating page confirm files..");
 	await buildConfigFile_pageConfirm(db, historyID);
 console.timeEnd("page confirm finished");	

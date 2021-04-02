@@ -62,11 +62,23 @@
 			<div style="margin:160px 60px 0 90px">
 				<div id="btnBO_cleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:205px;" onclick="onBtnCleaning()"></div>
 				<div id="btnBO_milkerCleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:555px;" onclick="onBtnMilkerCleaning()"></div>
+				<div id="btnBO_FileInfo" class="btnQuadratoGrosso" style="position:absolute; top:120px; left:205px;" onclick="onBtnFileInfo()"></div>
 			</div>
 			<div class="btnQuadratoGrosso" style="position:absolute; top:300px; left:700px; color:#f00" onclick="hideFastMenu()"><p>CLOSE</p></div>
-			
 		</div>
 	</div>
+
+	<!-- menu sw version -->
+	<div id="FileInfo_div" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
+		<div style="width:94%; margin:20px auto auto auto; position:relative">
+			<p>CPU: <b id="FileInfo_CpuModel">...</b></p>
+			<p>&nbsp;&nbsp;&nbsp;<b id="FileInfo_CpuFilename">...</b></p><br>
+			<p>GPU: <b id="FileInfo_GpuVersion">...</b></p><br>
+			<p>GUI: <b id="FileInfo_GuiFilename">...</b></p><br>
+			<p>VMC SETTINGS: <b id="FileInfo_Da3Filename">...</b></p>
+			<div class="btnQuadratoGrosso" style="position:absolute; top:400px; left:700px; color:#f00" onclick="onFileInfoClose()"><p>CLOSE</p></div>
+		</div>
+	</div>	
 	
 	<!-- menu lingue -->
 	<div id="divLangMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
@@ -659,6 +671,9 @@ function showFastMenu()
 	else
 		rheaHideElem (d);
 		
+	d = rheaGetElemByID("btnBO_FileInfo");
+	rheaSetElemHTML(d, "<p>SW VERSION</p>");
+		
 	rheaShowElem (rheaGetElemByID("divFastMenu")); 
 }
 function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }
@@ -687,7 +702,51 @@ function onBtnMilkerCleaning()
 	});
 }
 
+function onBtnFileInfo()
+{
+	var cpu = rheaGetElemByID("FileInfo_CpuFilename");
+	var cpuModel = rheaGetElemByID("FileInfo_CpuModel");
+	var gui = rheaGetElemByID("FileInfo_GuiFilename");
+	var gpuVer = rheaGetElemByID("FileInfo_GpuVersion");
+	var da3 = rheaGetElemByID("FileInfo_Da3Filename");
 
+	resetTimerGotoPageStandby();
+
+	hideFastMenu();
+	rheaShowElem(rheaGetElemByID("FileInfo_div"));
+
+	rhea.ajax ("getLastInstalledCPUFilename", "").then( function(result)
+	{
+		rheaSetElemHTML(cpu, result);
+	});
+
+	rhea.ajax ("getLastInstalledGUIFilename", "").then( function(result)
+	{
+		rheaSetElemHTML(gui, result);
+	});
+
+	rhea.ajax ("getDA3info", "").then( function(result)
+	{
+		var resJson = JSON.parse(result);
+		rheaSetElemHTML(da3, resJson.filename + "<br><i>last time updated: " + resJson.lastUpdate + "</i>"); 
+	});
+	
+	rhea.ajax("getGPUVer", "").then( function(result)
+	{
+		rheaSetElemHTML(gpuVer, result);
+	});
+	
+	rhea.ajax("getCPUStrModelAndVer", "").then( function(result)
+	{
+		rheaSetElemHTML(cpuModel, result);
+	});
+}
+
+function onFileInfoClose()
+{
+	resetTimerGotoPageStandby();
+	rheaHideElem(rheaGetElemByID("FileInfo_div"));
+}
 
 //--------------------------------------------------------
 function divLangMenu_setup(currentLangISO)

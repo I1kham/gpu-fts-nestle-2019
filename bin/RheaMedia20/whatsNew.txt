@@ -1,4 +1,14 @@
 ================================================================================================
+ver 2.4.5 2021/04/02
+	Features
+		-	Template "nestle-2.0-template-001"
+		-	Template "nestle-2.0-template-002"
+		-	Template "rhea-china-alipay-no-cup-custom"
+		-	Template "rhea-default-001-no-cup-custom"
+		-	Template "rhea-default-002-cup-custom"
+			- added "SW Version" button in FastMenu
+			
+================================================================================================
 ver 2.4.4 2021/03/05
 	Bug fixing:
 		-	All templates

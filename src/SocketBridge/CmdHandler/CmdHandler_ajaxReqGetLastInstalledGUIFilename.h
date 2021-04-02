@@ -15,7 +15,7 @@ namespace socketbridge
         Output
 			filename:	stringa con il nome del file della GUI installato
 								oppure
-								KO
+						'???'
         }
      */
     class CmdHandler_ajaxReqGetLastInstalledGUIFilename : public CmdHandler_ajaxReq

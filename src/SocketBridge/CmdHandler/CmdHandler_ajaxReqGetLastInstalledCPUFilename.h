@@ -15,7 +15,7 @@ namespace socketbridge
         Output
 			filename:	stringa con il nome del file della CPU installato
 								oppure
-								KO
+						'???'
         }
      */
     class CmdHandler_ajaxReqGetLastInstalledCPUFilename : public CmdHandler_ajaxReq

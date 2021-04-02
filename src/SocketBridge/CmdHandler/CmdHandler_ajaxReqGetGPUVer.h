@@ -14,9 +14,8 @@ namespace socketbridge
 
         Output
 			GPUver:	stringa con la versione corrente del sw di GPU
-								oppure
-								KO
-        }
+					    oppure
+					???
      */
     class CmdHandler_ajaxReqGetGPUVer : public CmdHandler_ajaxReq
     {

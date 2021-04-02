@@ -28,10 +28,10 @@ void CmdHandler_ajaxReqGetDA3info::handleRequestFromSocketBridge(socketbridge::S
 		{
 			if (!rhea::fs::findIsDirectory(h))
 			{
-				const u8* folderName = rhea::fs::findGetFileName(h);
-				if (folderName[0] != '.')
+				const u8* fName = rhea::fs::findGetFileName(h);
+				if (fName[0] != '.')
 				{
-					sprintf_s((char*)fileName, sizeof fileName, "%s", folderName);
+					sprintf_s((char*)fileName, sizeof fileName, "%s", fName);
 					exitLoop = true;
 				}
 			}
@@ -40,26 +40,31 @@ void CmdHandler_ajaxReqGetDA3info::handleRequestFromSocketBridge(socketbridge::S
 	}
 
 	if (fileName[0] == 0x00)
-		strcpy_s((char*)fileName, sizeof fileName, "???");
-
-	// caricamento della data
-	memset(&datetime, 0, sizeof datetime);
-	strcat_s((char*)fullPath, sizeof fullPath, "/dateUM.bin");
-	fd = rhea::fs::fileOpenForReadText(fullPath);
-	if (NULL != fd && sizeof(u64) <= (fileSize = rhea::fs::filesize(fd)))
 	{
-		rhea::DateTime dt;
-
-		fread(&lastUpdate, sizeof lastUpdate, 1, fd);
-		fclose(fd);
-
-		dt.setFromInternalRappresentation(lastUpdate);
-		dt.formatAs_YYYYMMDDHHMMSS((char *)datetime, sizeof(datetime), ' ', '/', ':');
+		strcpy_s((char*)fileName, sizeof(fileName), "???");
+		strcpy_s((char*)datetime, sizeof(datetime), "???");
 	}
 	else
-		strcpy_s((char *)datetime, sizeof datetime, "???");
+	{
+		// caricamento della data
+		memset(&datetime, 0, sizeof datetime);
+		strcat_s((char*)fullPath, sizeof fullPath, "/dateUM.bin");
+		fd = rhea::fs::fileOpenForReadText(fullPath);
+		if (NULL != fd && sizeof(u64) <= (fileSize = rhea::fs::filesize(fd)))
+		{
+			rhea::DateTime dt;
 
-	sprintf_s((char *)fullPath, sizeof fullPath,
+			fread(&lastUpdate, sizeof lastUpdate, 1, fd);
+			fclose(fd);
+
+			dt.setFromInternalRappresentation(lastUpdate);
+			dt.formatAs_YYYYMMDDHHMMSS((char*)datetime, sizeof(datetime), ' ', '/', ':');
+		}
+		else
+			strcpy_s((char*)datetime, sizeof datetime, "???");
+	}
+
+	sprintf_s((char *)fullPath, sizeof(fullPath),
 				"{ \"filename\" : \"%s\", \"lastUpdate\" : \"%s\"}",
 				fileName, 
 				datetime);

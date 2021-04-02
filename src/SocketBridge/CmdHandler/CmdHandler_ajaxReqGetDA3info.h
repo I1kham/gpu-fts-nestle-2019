@@ -14,8 +14,9 @@ namespace socketbridge
 
         Output
 			filename: json structure
-                { filename : nome del file oppure 'null' se non trovato,
-                'lastUpdate' : data dell'ultimo aggiornamento formato YYYYMMDDhhmmss oppure 'null' se non trovato
+                { 
+                    filename : nome del file oppure '???' se non trovato,
+                    lastUpdate : data dell'ultimo aggiornamento formato stringa 'YYYY/MM/DD hh:mm:ss' oppure '???' se non trovato
                 }
      */
     class CmdHandler_ajaxReqGetDA3info : public CmdHandler_ajaxReq
