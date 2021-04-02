@@ -13,7 +13,7 @@ namespace rhea
 		static void		getDateNow(u16 *out_year, u16 *out_month, u16 *out_day);
 
     public:
-						Date()																{ }
+                        Date()                                                              { ts = 0; }
 						Date(u32 year, u32 month, u32 day)									{ setYMD(year, month, day); }
 
 		Date&			operator= (const Date& b)											{ ts = b.ts; return *this; }

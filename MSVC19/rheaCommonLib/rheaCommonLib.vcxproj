@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\miniz.c" />
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompress.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompressUtility.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\mtrand.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSEvent.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSFS.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSerialPort.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSocket.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSThread.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSWaitableGrp.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOS.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSFS.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSSerialPort.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSSocket.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSThread.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSWaitableGrp.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\IProtocol.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\IProtocolChannell.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolSocketServer.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolChSocketTCP.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rhea.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaAllocator.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaBase64.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaBit.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaDate.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaDateTime.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaFS.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFile.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFileSection.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaJSONParser.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLinearBuffer.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLogger.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLoggerContext.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLogTargetConsole.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLogTargetFile.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheamd5.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaMemory.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaMemoryTracker.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaSha1.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaStaticBuffer.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaThread.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaThreadMsgQ.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaTime24.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaUtils.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaString.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringANSI.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringFormat.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringIter.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF16.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF32.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8Char.cpp" />
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8String.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\miniz.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\rheaCompress.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\mtrand.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSInclude.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSerialPort.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSocket.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSWaitableGrp.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOS.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSInclude.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSSerialPort.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSSocket.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSWaitableGrp.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\IProtocol.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\IProtocolChannell.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\Protocol.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolSocketServer.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolChSocketTCP.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rhea.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocator.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorSimple.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorTrackingPolicy.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaArray.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaBit.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaBufferView.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaCriticalSection.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaDataTypes.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaDate.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaDateTime.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaEvent.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaFastArray.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaFIFO.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleArray.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleBaseArray.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleUID040210.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleUID88.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaIniFile.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaIntrusiveFreeList.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaJSONParser.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLIFO.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLinearBuffer.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLogger.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLogTargetConsole.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLogTargetFile.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheamd5.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaMemory.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaMemoryTracker.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaNetBufferView.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaRandom.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaStaticBuffer.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaString.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaThread.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaThreadSafePolicy.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaTime24.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaUtils.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaWaitableFIFO.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\ISimpleLogger.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\NullLogger.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaStringEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaUTF8String.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{CB34C216-01F2-4928-BD25-FAE1B18D7F20}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>rheaCommonLib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet_LIB_DEBUG_x86.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet_LIB_RELEASE_x86.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

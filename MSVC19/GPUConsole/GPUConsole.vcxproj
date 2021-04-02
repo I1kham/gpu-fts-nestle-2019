@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommandFactory.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_btnpress.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_cpuprogcmd.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_download.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_getAperturaVgrind.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setdec.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setmotoremacina.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_setAperturaVgrind.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_startsel.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\command\UserCommand_upload.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\main.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\Terminal.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\videoBuffer.cpp" />
+    <ClCompile Include="..\..\src\GPUConsole\winTerminal.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_btnpress.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuextendedinfo.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuiniparam.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpumsg.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpuprogcmd.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_cpustatus.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_da3ts.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_download.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getalldec.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_getAperturaVgrind.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_list.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDA3.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_readDataAudit.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_sanwashstatus.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_selavail.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setdec.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setmotoremacina.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_setAperturaVgrind.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startcleaning.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_startsel.h" />
+    <ClInclude Include="..\..\src\GPUConsole\command\UserCommand_upload.h" />
+    <ClInclude Include="..\..\src\GPUConsole\enumAndDefine.h" />
+    <ClInclude Include="..\..\src\GPUConsole\Terminal.h" />
+    <ClInclude Include="..\..\src\GPUConsole\videoBuffer.h" />
+    <ClInclude Include="..\..\src\GPUConsole\winTerminal.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{C7F35A62-FC73-4BF0-A617-DB5BC53534B3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>GPUConsole</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet_LIB_DEBUG_x86.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet_LIB_RELEASE_x86.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAppLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAppLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

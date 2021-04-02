@@ -454,7 +454,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						u16 prices[NUM_MAX_SELECTIONS + 2];
 						for (u8 selNum = 0; selNum < numPrices; selNum++)
 						{
-							u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
+							u16 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
                             if (index > 100)
                                 prices[selNum] = 0xffff;
                             else
@@ -475,7 +475,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						u16 priceToSend = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
 						if (priceHolding.isPriceHolding)
                         {
-                            u8 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
+                            const u16 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
                             if (index > 100)
                                 priceToSend = 0xffff;
                             else
@@ -2581,8 +2581,8 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 
 
 	//determino quali e quanti prezzi devo recuperare dalla gettoniera
-	u8 firstPriceList = 100;
-	u8 lastPriceList = 1;
+	u16 firstPriceList = 100;
+	u16 lastPriceList = 1;
 	for (u8 i = 0; i < NUM_MAX_SELECTIONS; i++)
 	{
 		if (cpuParamIniziali.pricesAsInAnswerToCommandC[i] < firstPriceList)
@@ -2593,7 +2593,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 
 	if (firstPriceList > lastPriceList)
 	{
-		u8 swap = firstPriceList;
+		u16 swap = firstPriceList;
 		firstPriceList = lastPriceList;
 		lastPriceList = swap;
 	}
@@ -2612,7 +2612,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
     const u8 NUM_MAX_RETRY_PER_QUERY = 5;
 	const u64 TIMEOUT_ANSWER_TO_H_Msec = 1500;
 	
-	u8 currentFirstPriceInRequest = firstPriceList;
+	u8 currentFirstPriceInRequest = (u8)firstPriceList;
 	nRetry = NUM_MAX_RETRY_PER_QUERY;
 	bool bQuit = false;
 	while (bQuit == false)

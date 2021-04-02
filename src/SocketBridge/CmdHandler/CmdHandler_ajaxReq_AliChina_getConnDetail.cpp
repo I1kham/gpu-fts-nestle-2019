@@ -25,7 +25,7 @@ void CmdHandler_ajaxReq_AliChina_getConnDetail::handleRequestFromSocketBridge(so
 		sprintf_s (answer, sizeof(answer), "{\"ip1\":0,\"ip2\":0,\"ip3\":0, \"ip4\":0,\"port\":0,\"mid\":\"???\",\"key\":\"???\"}");
 	}
 	
-	server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)answer, strlen(answer));
+	server->sendAjaxAnwer (hClient, ajaxRequestID, (const u8*)answer, (u16)strlen(answer));
 
 
 }

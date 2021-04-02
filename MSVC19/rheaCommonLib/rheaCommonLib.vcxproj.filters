@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="OS">
+      <UniqueIdentifier>{8790dd1e-e349-46da-b6b4-fdf89f236786}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OS\linux">
+      <UniqueIdentifier>{d3fcd07d-be9b-47f3-b943-835d2e542b98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OS\windows">
+      <UniqueIdentifier>{3d632613-5576-4cc8-ab25-dd8166ca90d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea">
+      <UniqueIdentifier>{cbd64d24-e84f-4320-a87a-3d8e88255372}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{170e7cd7-0255-46d5-9be6-0b396e2c4e63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocol\channel">
+      <UniqueIdentifier>{11342bd8-fb26-4c82-9f1d-ec2ac23cf63d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocol\protocols">
+      <UniqueIdentifier>{a02074dd-86b8-4d42-8bec-b4b7d3286654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\buffer">
+      <UniqueIdentifier>{96669584-808f-4e5b-965b-43c301f0275e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\containers">
+      <UniqueIdentifier>{f8fbc1a5-75ee-4d39-9426-c699a17ef135}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\data types">
+      <UniqueIdentifier>{2a389fd5-c1de-432e-96e4-33a72db22cb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\memory">
+      <UniqueIdentifier>{6d97cee8-68f5-4788-b557-d3223866dabf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\string">
+      <UniqueIdentifier>{2215c278-02ee-428a-b004-635c30545852}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\thread">
+      <UniqueIdentifier>{46443c59-c8ff-4baa-9d82-9a89e5d71cae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\utils">
+      <UniqueIdentifier>{6b2f169a-cbba-4702-be4e-116da2178038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\utils\bit">
+      <UniqueIdentifier>{ca8039a8-6b1c-402b-8e8b-079c487e107a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\utils\json">
+      <UniqueIdentifier>{4dc92a67-7991-430f-97d1-49a115cabc8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\utils\log">
+      <UniqueIdentifier>{37ee30a1-f1fd-4476-b829-aee7ce578234}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\buffer\views">
+      <UniqueIdentifier>{f4229b80-51cc-4007-8531-b196923b5bfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SimpleLogger">
+      <UniqueIdentifier>{b6177456-7dcb-4536-84bb-3875fbf5fb03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\utils\compress">
+      <UniqueIdentifier>{86d51767-cd39-4cb7-9200-97f204f25b86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rhea\utils\iniFile">
+      <UniqueIdentifier>{28abacbb-71cc-428c-bb82-c0398cdacc25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSEvent.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSerialPort.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSocket.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSThread.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSWaitableGrp.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOS.cpp">
+      <Filter>OS\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSSerialPort.cpp">
+      <Filter>OS\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSSocket.cpp">
+      <Filter>OS\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSThread.cpp">
+      <Filter>OS\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSWaitableGrp.cpp">
+      <Filter>OS\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rhea.cpp">
+      <Filter>rhea</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.cpp">
+      <Filter>SimpleLogger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.cpp">
+      <Filter>Protocol\protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\IProtocol.cpp">
+      <Filter>Protocol\protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.cpp">
+      <Filter>Protocol\protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\IProtocolChannell.cpp">
+      <Filter>Protocol\channel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolSocketServer.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\Protocol\ProtocolChSocketTCP.cpp">
+      <Filter>Protocol\channel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLinearBuffer.cpp">
+      <Filter>rhea\buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaDate.cpp">
+      <Filter>rhea\data types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaDateTime.cpp">
+      <Filter>rhea\data types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaAllocator.cpp">
+      <Filter>rhea\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaMemory.cpp">
+      <Filter>rhea\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaMemoryTracker.cpp">
+      <Filter>rhea\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaTime24.cpp">
+      <Filter>rhea\data types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaThread.cpp">
+      <Filter>rhea\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaThreadMsgQ.cpp">
+      <Filter>rhea\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaBit.cpp">
+      <Filter>rhea\utils\bit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaJSONParser.cpp">
+      <Filter>rhea\utils\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLogger.cpp">
+      <Filter>rhea\utils\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLoggerContext.cpp">
+      <Filter>rhea\utils\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLogTargetConsole.cpp">
+      <Filter>rhea\utils\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaLogTargetFile.cpp">
+      <Filter>rhea\utils\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\mtrand.cpp">
+      <Filter>rhea\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaBase64.cpp">
+      <Filter>rhea\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaSha1.cpp">
+      <Filter>rhea\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaUtils.cpp">
+      <Filter>rhea\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaStaticBuffer.cpp">
+      <Filter>rhea\buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaFS.cpp">
+      <Filter>rhea</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\win\winOSFS.cpp">
+      <Filter>OS\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\OS\linux\linuxOSFS.cpp">
+      <Filter>OS\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheamd5.cpp">
+      <Filter>rhea\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaString.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringANSI.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringIter.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8Char.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF8String.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF16.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaUTF32.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\string\rheaStringFormat.cpp">
+      <Filter>rhea\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\miniz.c">
+      <Filter>rhea\utils\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompress.cpp">
+      <Filter>rhea\utils\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\compress\rheaCompressUtility.cpp">
+      <Filter>rhea\utils\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.cpp">
+      <Filter>SimpleLogger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFile.cpp">
+      <Filter>rhea\utils\iniFile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rheaCommonLib\rheaIniFileSection.cpp">
+      <Filter>rhea\utils\iniFile</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\OS.h">
+      <Filter>OS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOS.h">
+      <Filter>OS\linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSInclude.h">
+      <Filter>OS\linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSerialPort.h">
+      <Filter>OS\linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSSocket.h">
+      <Filter>OS\linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\linux\linuxOSWaitableGrp.h">
+      <Filter>OS\linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOS.h">
+      <Filter>OS\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSInclude.h">
+      <Filter>OS\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSSerialPort.h">
+      <Filter>OS\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSSocket.h">
+      <Filter>OS\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\OS\win\winOSWaitableGrp.h">
+      <Filter>OS\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rhea.h">
+      <Filter>rhea</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\ISimpleLogger.h">
+      <Filter>SimpleLogger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\NullLogger.h">
+      <Filter>SimpleLogger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\StdoutLogger.h">
+      <Filter>SimpleLogger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolConsole.h">
+      <Filter>Protocol\protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\IProtocol.h">
+      <Filter>Protocol\protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolWebsocket.h">
+      <Filter>Protocol\protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\IProtocolChannell.h">
+      <Filter>Protocol\channel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\Protocol.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolSocketServer.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\Protocol\ProtocolChSocketTCP.h">
+      <Filter>Protocol\channel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLinearBuffer.h">
+      <Filter>rhea\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaFIFO.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaFastArray.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleArray.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleBaseArray.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaDataTypes.h">
+      <Filter>rhea\data types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaDate.h">
+      <Filter>rhea\data types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaDateTime.h">
+      <Filter>rhea\data types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaEnumAndDefine.h">
+      <Filter>rhea\data types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleUID88.h">
+      <Filter>rhea\data types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaHandleUID040210.h">
+      <Filter>rhea\data types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaIntrusiveFreeList.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocator.h">
+      <Filter>rhea\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorSimple.h">
+      <Filter>rhea\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaAllocatorTrackingPolicy.h">
+      <Filter>rhea\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaMemory.h">
+      <Filter>rhea\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaMemoryTracker.h">
+      <Filter>rhea\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaTime24.h">
+      <Filter>rhea\data types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaThreadSafePolicy.h">
+      <Filter>rhea\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaWaitableFIFO.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaThread.h">
+      <Filter>rhea\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaBit.h">
+      <Filter>rhea\utils\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaJSONParser.h">
+      <Filter>rhea\utils\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLIFO.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLogger.h">
+      <Filter>rhea\utils\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLogTargetConsole.h">
+      <Filter>rhea\utils\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaLogTargetFile.h">
+      <Filter>rhea\utils\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\mtrand.h">
+      <Filter>rhea\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaRandom.h">
+      <Filter>rhea\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaUtils.h">
+      <Filter>rhea\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaStaticBuffer.h">
+      <Filter>rhea\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaBufferView.h">
+      <Filter>rhea\buffer\views</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaNetBufferView.h">
+      <Filter>rhea\buffer\views</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaEvent.h">
+      <Filter>rhea\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaCriticalSection.h">
+      <Filter>rhea\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheamd5.h">
+      <Filter>rhea\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaArray.h">
+      <Filter>rhea\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaStringEnumAndDefine.h">
+      <Filter>rhea\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\string\rheaUTF8String.h">
+      <Filter>rhea\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaString.h">
+      <Filter>rhea\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\miniz.h">
+      <Filter>rhea\utils\compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\compress\rheaCompress.h">
+      <Filter>rhea\utils\compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\SimpleLogger\FileLogger.h">
+      <Filter>SimpleLogger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rheaCommonLib\rheaIniFile.h">
+      <Filter>rhea\utils\iniFile</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

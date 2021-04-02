@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\rasPI\main.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIIdentifiedClientList.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIMITMCore.cpp" />
+    <ClCompile Include="..\..\src\rasPI\rasPIMITM.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\rasPI\rasPIIdentifiedClientList.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITM.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITMCore.h" />
+    <ClInclude Include="..\..\src\rasPI\rasPIMITMCoreEnumAndDefine.h" />
+  </ItemGroup>
+</Project>

@@ -48,30 +48,6 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x03_CPUSanWashingStatus.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.cpp">
-      <Filter>CmdHandler\event</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_T_VMCDataFileTimestamp.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
@@ -146,6 +122,30 @@
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\SocketBridgeTaskStatus.cpp">
       <Filter>Task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x03_CPUSanWashingStatus.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.cpp">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.cpp">
+      <Filter>CmdHandler\event\AlipayChina</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_abort.cpp">
       <Filter>CmdHandler\ajax\AlipayChina</Filter>
@@ -335,30 +335,6 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqTestSelection.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x03_CPUSanWashingStatus.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h">
-      <Filter>CmdHandler\event</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_T_VMCDataFileTimestamp.h">
       <Filter>CmdHandler\event</Filter>
     </ClInclude>
@@ -430,6 +406,30 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\SocketBridgeTaskFactory.h">
       <Filter>Task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x03_CPUSanWashingStatus.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x04_SetDecounter.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x06_GetAllDecounters.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x10_getAperturaVGrind.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x11_SetMotoreMacina.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x14_StartDisintallation.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_P0x15_RecalcFasciaOrariaFV.h">
+      <Filter>CmdHandler\event\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReq_AliChina_onlineStatus.h">
+      <Filter>CmdHandler\event\AlipayChina</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_AliChina_abort.h">
       <Filter>CmdHandler\ajax\AlipayChina</Filter>
@@ -569,34 +569,40 @@
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CmdHandler">
-      <UniqueIdentifier>{7c78bf6c-2687-4517-9454-fb919c40f24f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Task">
-      <UniqueIdentifier>{1863196c-adaa-4fa8-9018-a80032e7e9f2}</UniqueIdentifier>
+      <UniqueIdentifier>{c919e57e-0711-4aac-8731-601480b9f064}</UniqueIdentifier>
     </Filter>
     <Filter Include="CmdHandler\ajax">
-      <UniqueIdentifier>{cd6552d6-be57-4bac-9421-1ca4163bad94}</UniqueIdentifier>
+      <UniqueIdentifier>{d76c858d-f2a2-482d-b7d3-b352b04c2b3c}</UniqueIdentifier>
     </Filter>
     <Filter Include="CmdHandler\event">
-      <UniqueIdentifier>{ad50d381-c897-4410-8704-1301335908f9}</UniqueIdentifier>
+      <UniqueIdentifier>{6c6a22fb-a845-4eb3-a8ea-c3d4b4a36b74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Task">
+      <UniqueIdentifier>{e86c3107-84cf-4751-944a-d2e5766104ae}</UniqueIdentifier>
     </Filter>
     <Filter Include="CmdHandler\ajax\AlipayChina">
-      <UniqueIdentifier>{0a8080d4-a255-4d98-9698-e89ffde925e3}</UniqueIdentifier>
+      <UniqueIdentifier>{c70af342-5b72-471a-b59b-6d94ba6b6e9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="CmdHandler\ajax\DB">
-      <UniqueIdentifier>{2a88c584-5bfb-4b3e-b3e6-bdba378ee3b5}</UniqueIdentifier>
+    <Filter Include="CmdHandler\event\AlipayChina">
+      <UniqueIdentifier>{9f70c2c3-b3bb-478b-9fc6-d9dd22228490}</UniqueIdentifier>
     </Filter>
     <Filter Include="CmdHandler\ajax\Prog">
-      <UniqueIdentifier>{bbef8d38-dd13-4a73-903a-ce674f5a12f6}</UniqueIdentifier>
+      <UniqueIdentifier>{6f6bbe39-7438-4060-9696-ff4c1956fae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\event\Prog">
+      <UniqueIdentifier>{7f2cbd8a-edec-424d-aab7-e63b1fd5b7dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\ajax\DB">
+      <UniqueIdentifier>{4aa835ac-6fa9-451a-81fc-2f3c98d8f7af}</UniqueIdentifier>
     </Filter>
     <Filter Include="CmdHandler\ajax\FileSystem">
-      <UniqueIdentifier>{24928498-150d-49d8-afa8-629f4f2de34c}</UniqueIdentifier>
+      <UniqueIdentifier>{b868e840-b021-4548-88f3-ab0af6a33ce6}</UniqueIdentifier>
     </Filter>
     <Filter Include="CmdHandler\ajax\Milker">
-      <UniqueIdentifier>{80cd28c0-a1da-43f6-b12d-3bc3888f3ca4}</UniqueIdentifier>
+      <UniqueIdentifier>{0d76906e-821d-4c93-98e2-29159b16c193}</UniqueIdentifier>
     </Filter>
     <Filter Include="CmdHandler\ajax\Task">
-      <UniqueIdentifier>{3eec6834-d878-403d-a388-9e5521154bab}</UniqueIdentifier>
+      <UniqueIdentifier>{3719124b-cde8-464b-98a8-c10a0eae0e38}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

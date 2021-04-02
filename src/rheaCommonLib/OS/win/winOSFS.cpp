@@ -84,7 +84,7 @@ FILE* platform::FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPa
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
 	{
 		DBGBREAK;
-		return false;
+		return NULL;
 	}
 
 	return _wfopen(filename, L"rb");
@@ -97,7 +97,7 @@ FILE* platform::FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndP
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
 	{
 		DBGBREAK;
-		return false;
+		return NULL;
 	}
 
 	return _wfopen(filename, L"wb");
@@ -110,7 +110,7 @@ FILE* platform::FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
 	{
 		DBGBREAK;
-		return false;
+		return NULL;
 	}
 
 	return _wfopen(filename, L"rt");
@@ -123,7 +123,7 @@ FILE* platform::FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPat
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
 	{
 		DBGBREAK;
-		return false;
+		return NULL;
 	}
 
 	return _wfopen(filename, L"wt");
@@ -136,7 +136,7 @@ FILE* platform::FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPa
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
 	{
 		DBGBREAK;
-		return false;
+		return NULL;
 	}
 
 	return _wfopen(filename, L"at");

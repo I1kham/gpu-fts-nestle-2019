@@ -1628,7 +1628,7 @@ void Core::priv_2281_handle_singleCommand (OSSocket &sok, const u8 *command, rhe
         logger->log ("2281: [%s] [%d]\n", command, timeSec);
 
         logger->log ("2281: turn off hotspot\n");
-        hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (u64)(timeSec*1000);
+        hotspot.timeToTurnOnMSec = rhea::getTimeNowMSec() + (u64)((u64)timeSec*1000);
         hotspot.turnOFF();
         return;
     }
@@ -1700,7 +1700,7 @@ void Core::priv_REST_getSelAvail (OSSocket &sok)
     {
         //non suportato dalle TP
         const char ko[] = {"48|111111111111111111111111111111111111111111111111"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), true);
+        priv_2281_sendAnswer (sok, (const u8*)ko, (u16)strlen(ko), true);
         return;
     }
 
@@ -1713,7 +1713,7 @@ void Core::priv_REST_getSelAvail (OSSocket &sok)
     if (!priv_rs232_waitAnswer('C','2',20,0,0,rs232BufferOUT, 1000))
     {
         const char ko[] = {"48|000000000000000000000000000000000000000000000000"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), true);
+        priv_2281_sendAnswer (sok, (const u8*)ko, (u16)strlen(ko), true);
         return;
     }
 
@@ -1749,7 +1749,7 @@ void Core::priv_REST_get12LEDStatus (OSSocket &sok)
         //non supportato dalle TS
         //const char ko[] = {"111111111111"};
         const char ko[] = {"101010101010"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), false);
+        priv_2281_sendAnswer (sok, (const u8*)ko, (u16)strlen(ko), false);
         return;
     }
 
@@ -1762,7 +1762,7 @@ void Core::priv_REST_get12LEDStatus (OSSocket &sok)
     if (!priv_rs232_waitAnswer('C','4',6,0,0,rs232BufferOUT, 1000))
     {
         const char ko[] = {"000000000000"};
-        priv_2281_sendAnswer (sok, (const u8*)ko, strlen(ko), false);
+        priv_2281_sendAnswer (sok, (const u8*)ko, (u16)strlen(ko), false);
         return;
     }
 

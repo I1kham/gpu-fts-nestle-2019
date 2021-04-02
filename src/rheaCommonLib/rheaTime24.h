@@ -20,7 +20,7 @@ namespace rhea
 		static void		getTimeNow(u8 *out_hour, u8 *out_min, u8 *out_sec);
 
     public:
-						Time24()																{ }
+                        Time24()                                                                { ts = 0; }
 						Time24(u32 h, u32 m,u32 s, u32 ms=0)									{ setHMS(h,m,s,ms); }
 
 		Time24&			operator= (const Time24& b)												{ ts = b.ts; return *this; }
@@ -35,7 +35,7 @@ namespace rhea
         u8				getHour() const															{ return (u8)((ts & 0x07C00000) >> 22); }
         u8				getMin() const															{ return (u8)((ts & 0x003F0000) >> 16); }
         u8				getSec() const															{ return (u8)((ts & 0x0000FC00) >> 10); }
-        u8				getMSec() const															{ return (u8)((ts & 0x000003FF)); }
+        u16				getMSec() const															{ return (u16)((ts & 0x000003FF)); }
         
 		void			formatAs_HHMMSS(char *out, u32 sizeofout, char time_sep = 0x00) const;
 		u32				formatAs_HHMMSS() const;
@@ -47,7 +47,7 @@ namespace rhea
         void			sub (u32 h, u32 m, u32 s, u32 ms);
 							//sub = this - b. Se b > this, allora this = 0
 
-        u64				calcTimeInMSec () const													{ u64 ret = getMSec() + 1000*getSec() + 60000*getMin() +3600000*getHour(); return ret; }
+        u64				calcTimeInMSec () const													{ u64 ret =(u64)getMSec() + 1000*(u64)getSec() + 60000* (u64)getMin() +3600000* (u64)getHour(); return ret; }
         void			setFromMSec (u64 msec);
 
 

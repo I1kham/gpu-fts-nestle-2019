@@ -15,6 +15,8 @@
 #include "../../rheaDataTypes.h"
 #include "../../rheaEnumAndDefine.h"
 
+#pragma warning(disable:26495)	//Variable 'sOSFileFind::findData' is uninitialized.Always initialize a member variable(type.6)
+#pragma warning(disable:26812)	//The enum type 'cpubridge::eCPUProgrammingCommand_cleaningType' is unscoped.Prefer 'enum class' over 'enum' (Enum.3)
 
 
 /***********************************************
