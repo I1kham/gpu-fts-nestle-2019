@@ -304,6 +304,16 @@
       <Filter>CmdHandler\ajax\milker</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqJugRepetitions.cpp">
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetGPUVer.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetLastInstalledCPUFilename.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetLastInstalledGUIFilename.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetDA3info.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
   </ItemGroup>
@@ -574,6 +584,16 @@
       <Filter>CmdHandler\ajax\milker</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqJugRepetitions.h">
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetGPUVer.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetLastInstalledCPUFilename.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetLastInstalledGUIFilename.h">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReqGetDA3info.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>
