@@ -53,7 +53,7 @@ bool Core::open (const char *serialPort)
     }
 
 	logger->log ("opening com=%s   ", serialPort);
-	if (!rhea::rs232::open(&com, serialPort, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, false))
+	if (!rhea::rs232::open(&com, serialPort, eRS232BaudRate::b115200, false, false, eRS232DataBits::b8, eRS232Parity::No, eRS232StopBits::One, eRS232FlowControl::No, false))
 	{
 		logger->log ("FAILED. unable to open port [%s]\n", serialPort);
 		logger->decIndent();
@@ -209,7 +209,7 @@ void Core::priv_identify_run()
 {
 	reportedESAPIVerMajor = 0;
 	reportedESAPIVerMinor = 0;
-	reportedGPUType = esapi::eGPUType_unknown;
+	reportedGPUType = esapi::eGPUType::unknown;
 
     //flush del buffer seriale nel caso ci sia qualche schifezza
     rhea::rs232::readBuffer(com, rs232BufferIN.buffer, rs232BufferIN.SIZE);
@@ -257,11 +257,11 @@ void Core::priv_identify_run()
         }
     }
 
-    if (reportedGPUType == esapi::eGPUType::eGPUType_TS)
+    if (reportedGPUType == esapi::eGPUType::TS)
     {
         while (1)
         {
-            const u8 data[4] = { (u8)esapi::eExternalModuleType_rasPI_wifi_REST, VER_MAJOR, VER_MINOR, 0 };
+            const u8 data[4] = { (u8)esapi::eExternalModuleType::rasPI_wifi_REST, VER_MAJOR, VER_MINOR, 0 };
             const u32 nBytesToSend = priv_esapi_buildMsg ('R', '1', data, 3, rs232BufferOUT, SIZE_OF_RS232BUFFEROUT);
             priv_rs232_sendBuffer (rs232BufferOUT, nBytesToSend);
             if (priv_rs232_waitAnswer('R', '1', 5, 0, 0, rs232BufferOUT, 1000))
@@ -481,7 +481,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                 {
 					//rispondo con errore
 					logger->log ("ERR: file transfer already in progress\n");
-					const u8 error = (u8)esapi::eFileUploadStatus_raspi_fileTransfAlreadyInProgress;
+					const u8 error = (u8)esapi::eFileUploadStatus::raspi_fileTransfAlreadyInProgress;
 					priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
                 }
                 else
@@ -494,7 +494,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
                     {
                         //rispondo con errore
 						logger->log ("ERR: cant' open file [%s]\n", s);
-                        const u8 error = (u8)esapi::eFileUploadStatus_raspi_cantCreateFileInTempFolder;
+                        const u8 error = (u8)esapi::eFileUploadStatus::raspi_cantCreateFileInTempFolder;
                         priv_boot_buildMsgBufferAndSend (rs232BufferOUT, SIZE_OF_RS232BUFFEROUT, 0x03, &error, 1);
                     }
                     else
@@ -724,7 +724,7 @@ void Core::priv_openSocket2280()
 {
     logger->log ("opening socket on 2280...");
     eSocketError err = rhea::socket::openAsTCPServer(&sok2280, 2280);
-    if (err != eSocketError_none)
+    if (err != eSocketError::none)
     {
         logger->log ("ERR code[%d]\n", err);
         logger->log("\n");
@@ -755,7 +755,7 @@ void Core::priv_openSocket2281()
 {
     logger->log ("opening socket on 2281...");
     eSocketError err = rhea::socket::openAsTCPServer(&sok2281, 2281);
-    if (err != eSocketError_none)
+    if (err != eSocketError::none)
     {
         logger->log ("ERR code[%d]\n", err);
         logger->log("\n");
@@ -791,7 +791,7 @@ void Core::run()
 	logger->decIndent();
 
     //se la GPU che mi ha risposto è una TS...
-    if (reportedGPUType == esapi::eGPUType_TS)
+    if (reportedGPUType == esapi::eGPUType::TS)
         priv_runTS();
     else
         priv_runTP();
@@ -834,7 +834,7 @@ void Core::priv_runTS()
 #endif
 		for (u8 i = 0; i < nEvents; i++)
 		{
-			if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
+			if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::eEventOrigin::socket)
 			{
                 if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2280)
 				{
@@ -859,7 +859,7 @@ void Core::priv_runTS()
 				}
 			}
 #ifdef LINUX
-            else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_serialPort)
+            else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::eEventOrigin::serialPort)
             {
                 if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_RS232)
                 {
@@ -929,7 +929,7 @@ void Core::priv_runTP()
         const u8 nEvents = waitableGrp.wait(5000);
         for (u8 i = 0; i < nEvents; i++)
         {
-            if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
+            if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::eEventOrigin::socket)
             {
                 if (waitableGrp.getEventUserParamAsU32(i) == WAITGRP_SOCKET2281)
                 {
@@ -1696,7 +1696,7 @@ void Core::priv_REST_getCPULCDMsg (OSSocket &sok)
 //*********************************************************
 void Core::priv_REST_getSelAvail (OSSocket &sok)
 {
-    if (reportedGPUType == esapi::eGPUType_TP)
+    if (reportedGPUType == esapi::eGPUType::TP)
     {
         //non suportato dalle TP
         const char ko[] = {"48|111111111111111111111111111111111111111111111111"};
@@ -1744,7 +1744,7 @@ void Core::priv_REST_getSelAvail (OSSocket &sok)
 //*********************************************************
 void Core::priv_REST_get12LEDStatus (OSSocket &sok)
 {
-    if (reportedGPUType == esapi::eGPUType_TS)
+    if (reportedGPUType == esapi::eGPUType::TS)
     {
         //non supportato dalle TS
         //const char ko[] = {"111111111111"};

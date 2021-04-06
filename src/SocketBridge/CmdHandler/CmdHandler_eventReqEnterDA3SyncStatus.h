@@ -17,7 +17,7 @@ namespace socketbridge
     class CmdHandler_eventReqEnterDA3SyncStatus : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_enterDA3Sync;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::enterDA3Sync;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_MAX_ALLOWED;		//vuol dire che questa classe non risponde ad alcuna notifica di CPUBridge
 
                     CmdHandler_eventReqEnterDA3SyncStatus (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

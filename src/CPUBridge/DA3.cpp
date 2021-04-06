@@ -132,25 +132,25 @@ void DA3::writeU16(u32 location, u16 value)
 }
 
 //*********************************************
-u32 DA3::priv_getDecounterLimitLocation (cpubridge::eCPUProgrammingCommand_decounter d) const
+u32 DA3::priv_getDecounterLimitLocation (cpubridge::eCPUProg_decounter d) const
 {
-    if (d == cpubridge::eCPUProgrammingCommand_decounter_waterFilter)
+    if (d == cpubridge::eCPUProg_decounter::waterFilter)
         return LOC_DECOUNTER_WATER_FILTER;
-    if (d == cpubridge::eCPUProgrammingCommand_decounter_coffeeBrewer)
+    if (d == cpubridge::eCPUProg_decounter::coffeeBrewer)
         return LOC_DECOUNTER_COFFEE_BREWER;
-    if (d == cpubridge::eCPUProgrammingCommand_decounter_coffeeGround)
+    if (d == cpubridge::eCPUProg_decounter::coffeeGround)
         return LOC_DECOUNTER_COFFEE_GROUND;
 
-    if (d >= cpubridge::eCPUProgrammingCommand_decounter_prodotto1 && d <= cpubridge::eCPUProgrammingCommand_decounter_prodotto10)
+    if (d >= cpubridge::eCPUProg_decounter::prodotto1 && d <= cpubridge::eCPUProg_decounter::prodotto10)
     {
-        const u8 i = (u8)d - (u8)cpubridge::eCPUProgrammingCommand_decounter_prodotto1;
+        const u8 i = (u8)d - (u8)cpubridge::eCPUProg_decounter::prodotto1;
         return (LOC_DECOUNTER_PROD +i*2);
     }
     return 0;
 }
 
 //*********************************************
-u16 DA3::getDecounterLimit (cpubridge::eCPUProgrammingCommand_decounter d) const
+u16 DA3::getDecounterLimit (cpubridge::eCPUProg_decounter d) const
 {
     u32 loc = priv_getDecounterLimitLocation(d);
     if (0 == loc)
@@ -159,7 +159,7 @@ u16 DA3::getDecounterLimit (cpubridge::eCPUProgrammingCommand_decounter d) const
 }
 
 //*********************************************
-void DA3::setDecounterLimit(cpubridge::eCPUProgrammingCommand_decounter d, u16 value)
+void DA3::setDecounterLimit(cpubridge::eCPUProg_decounter d, u16 value)
 {
     u32 loc = priv_getDecounterLimitLocation(d);
     if (0 == loc)
@@ -170,17 +170,17 @@ void DA3::setDecounterLimit(cpubridge::eCPUProgrammingCommand_decounter d, u16 v
 //*********************************************
 u16 DA3::getProductQty_cannisterCapacity (u8 iProdotto_1_10) const
 {
-    u8 u = (u8)cpubridge::eCPUProgrammingCommand_decounter_prodotto1;
+    u8 u = (u8)cpubridge::eCPUProg_decounter::prodotto1;
     u += (iProdotto_1_10-1);
-    return getDecounterLimit ((cpubridge::eCPUProgrammingCommand_decounter)u);
+    return getDecounterLimit ((cpubridge::eCPUProg_decounter)u);
 }
 
 //*********************************************
 void DA3::setProductQty_cannisterCapacity (u8 iProdotto_1_10, u16 value)
 {
-    u8 u = (u8)cpubridge::eCPUProgrammingCommand_decounter_prodotto1;
+    u8 u = (u8)cpubridge::eCPUProg_decounter::prodotto1;
     u += (iProdotto_1_10-1);
-    setDecounterLimit ((cpubridge::eCPUProgrammingCommand_decounter)u, value);
+    setDecounterLimit ((cpubridge::eCPUProg_decounter)u, value);
 }
 
 //*********************************************

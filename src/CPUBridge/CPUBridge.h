@@ -128,11 +128,11 @@ namespace cpubridge
 	u8			buildMsg_richiestaNomeSelezioneDiCPU_d (u8 selNum, u8 *out_buffer, u8 sizeOfOutBuffer);
 					/* chiede alla CPU il nome della selezione [selNum]. Il nome ritornato è quello utilizzato dalla CPU, impostato nel DA3 */
 
-	u8			buildMsg_setDecounter  (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_setDecounter  (eCPUProg_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getAllDecounterValues (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoCalcoloImpulsiGruppo (u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_setFattoreCalibMotore (eCPUProgrammingCommand_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_setFattoreCalibMotore (eCPUProg_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_calcolaImpulsiGruppo (u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getTime (u8 *out_buffer, u8 sizeOfOutBuffer);
@@ -140,8 +140,8 @@ namespace cpubridge
 	u8			buildMsg_setTime(u8 *out_buffer, u8 sizeOfOutBuffer, u8 hh, u8 mm, u8 ss);
 	u8			buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 month, u8 day);
 	u8			buildMsg_getPosizioneMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2);
-	u8			buildMsg_setMotoreMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
-	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
+	u8			buildMsg_setMotoreMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProg_macinaMove m);
+	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProg_testSelectionDevice d);
 	u8			buildMsg_getNomiLingueCPU (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_ricaricaFasciaOrariaFreevend (u8 *out_buffer, u8 sizeOfOutBuffer);
@@ -225,7 +225,7 @@ namespace cpubridge
 	void		notify_CPU_VMCDATAFILE_TIMESTAMP (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sCPUVMCDataFileTimeStamp &ts);
 	void		translateNotify_CPU_VMCDATAFILE_TIMESTAMP (const rhea::thread::sMsg &msg, sCPUVMCDataFileTimeStamp *out);
 
-	void		notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, enum eWriteCPUFWFileStatus status, u16 param);
+	void		notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eWriteCPUFWFileStatus status, u16 param);
 	void		translateNotify_WRITE_CPUFW_PROGRESS(const rhea::thread::sMsg &msg, eWriteCPUFWFileStatus *out_status, u16 *out_param);
 
 	void		notify_SAN_WASHING_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 b0, u8 b1, u8 b2, const u8 *buffer8);
@@ -234,8 +234,8 @@ namespace cpubridge
 	void		notify_WRITE_PARTIAL_VMCDATAFILE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 blockNumOffset);
 	void		translateNotify_WRITE_PARTIAL_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_blockNumOffset);
 
-	void		notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_decounter which, u16 valore);
-	void		translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore);
+	void		notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProg_decounter which, u16 valore);
+	void		translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg, eCPUProg_decounter *out_which, u16 *out_valore);
 
 	void		notify_CPU_ALL_DECOUNTER_VALUES (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *arrayDiAlmeno14Elementi, u32 sizeof_in_array);
 	void		translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u16 *out_arrayDiAlmeno14Elementi, u32 sizeof_out_array);
@@ -251,11 +251,11 @@ namespace cpubridge
 	void		notify_STATO_CALCOLO_IMPULSI_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 stato, u16 valore);
 	void		translateNotify_STATO_CALCOLO_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_stato, u16 *out_valore);
 
-	void		notify_SET_FATTORE_CALIB_MOTORE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_motor motore, u16 valore);
-	void		translateNotify_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valore);
+	void		notify_SET_FATTORE_CALIB_MOTORE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProg_motor motore, u16 valore);
+	void		translateNotify_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProg_motor *out_motore, u16 *out_valore);
 
-	void		notify_STATO_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_statoGruppo stato);
-	void		translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_statoGruppo *out);
+	void		notify_STATO_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProg_statoGruppo stato);
+	void		translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPUProg_statoGruppo *out);
 
 	void		notify_GET_TIME (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm, u8 ss);
 	void		translateNotify_GET_TIME(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm, u8 *out_ss);
@@ -272,11 +272,11 @@ namespace cpubridge
 	void		notify_CPU_POSIZIONE_MACINA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, u16 posizione);
 	void		translateNotify_CPU_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_posizione);
 
-	void		notify_CPU_MOTORE_MACINA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
-	void		translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProgrammingCommand_macinaMove *out_m);
+	void		notify_CPU_MOTORE_MACINA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, eCPUProg_macinaMove m);
+	void		translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m);
 	
-	void		notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
-	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d);
+	void		notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProg_testSelectionDevice d);
+	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProg_testSelectionDevice *out_d);
 
 	void		notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *strLingua1UTF16, const u16 *strLingua2UTF16);
 	void		translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16);
@@ -345,7 +345,7 @@ namespace cpubridge
 	*/
 	void		ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber);
 				//alla ricezione di questo msg, CPUBridge inzierà a inviare uno o più notify_CPU_RUNNING_SEL_STATUS() ogni decimo di secondo circa.
-				//L'ultimo notify_CPU_RUNNING_SEL_STATUS() conterrà un result "eRunningSelStatus_finished_OK" oppure "eRunningSelStatus_finished_KO" ad indicare che la selezione
+				//L'ultimo notify_CPU_RUNNING_SEL_STATUS() conterrà un result "eRunningSelStatus::finished_OK" oppure "eRunningSelStatus::finished_KO" ad indicare che la selezione
 				//è terminata, nel bene o nel male
 	void		translate_CPU_START_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNumber);
 
@@ -416,10 +416,10 @@ namespace cpubridge
                     //alla ricezione di quest msg, CPUBridge non notificherà alcunche
     void		translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCPUProgrammingCommand *out, const u8 **out_optionalData);
 
-	inline void ask_CPU_PROGRAMMING_CMD_CLEANING (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_cleaningType what)					{ u8 optionalData = (u8)what; ask_CPU_PROGRAMMING_CMD(from, handlerID, eCPUProgrammingCommand_cleaning, &optionalData, 1); }
+	inline void ask_CPU_PROGRAMMING_CMD_CLEANING (const sSubscriber &from, u16 handlerID, eCPUProg_cleaningType what)					{ u8 optionalData = (u8)what; ask_CPU_PROGRAMMING_CMD(from, handlerID, eCPUProgrammingCommand::cleaning, &optionalData, 1); }
 					//alla ricezione di quest msg, CPUBridge non notificherà alcunche
 
-	inline void ask_CPU_PROGRAMMING_CMD_QUERY_SANWASH_STATUS (const sSubscriber &from, u16 handlerID)												{ ask_CPU_PROGRAMMING_CMD(from, handlerID, eCPUProgrammingCommand_querySanWashingStatus, NULL, 0); }
+	inline void ask_CPU_PROGRAMMING_CMD_QUERY_SANWASH_STATUS (const sSubscriber &from, u16 handlerID)												{ ask_CPU_PROGRAMMING_CMD(from, handlerID, eCPUProgrammingCommand::querySanWashingStatus, NULL, 0); }
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SAN_WASHING_STATUS
 
 
@@ -428,8 +428,8 @@ namespace cpubridge
 					//Per la spiegazione dei parametri, vedi cpubridge::buildMsg_writePartialVMCDataFile
 	void		translate_PARTIAL_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_buffer64byte, u8 *out_blocco_n_di, u8 *out_tot_num_blocchi, u8 *out_blockNumOffset);
 
-	void		ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_decounter which, u16 valore);
-	void		translate_CPU_SET_DECOUNTER(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore);
+	void		ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, eCPUProg_decounter which, u16 valore);
+	void		translate_CPU_SET_DECOUNTER(const rhea::thread::sMsg &msg, eCPUProg_decounter *out_which, u16 *out_valore);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_DECOUNTER_SET
 
 	void		ask_CPU_GET_ALL_DECOUNTER_VALUES (const sSubscriber &from, u16 handlerID);
@@ -449,8 +449,8 @@ namespace cpubridge
 	void		ask_CPU_GET_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_STATO_CALCOLO_IMPULSI_GRUPPO
 
-	void		ask_CPU_SET_FATTORE_CALIB_MOTORE (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_motor motore, u16 valoreGr);
-	void		translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valoreGr);
+	void		ask_CPU_SET_FATTORE_CALIB_MOTORE (const sSubscriber &from, u16 handlerID, eCPUProg_motor motore, u16 valoreGr);
+	void		translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProg_motor *out_motore, u16 *out_valoreGr);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SET_FATTORE_CALIB_MOTORE
 
 	void		ask_CPU_GET_STATO_GRUPPO(const sSubscriber &from, u16 handlerID);
@@ -474,24 +474,24 @@ namespace cpubridge
 	void		translate_CPU_GET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_POSIZIONE_MACINA
 
-	void		ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
-	void		translate_CPU_SET_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProgrammingCommand_macinaMove *out_m);
+	void		ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, eCPUProg_macinaMove m);
+	void		translate_CPU_SET_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_MOTORE_MACINA
 
 	void		ask_CPU_SET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 target);
 	void		translate_CPU_SET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_target);
-					//alla ricezione di questo msg, CPUBridge non notificherà alcunchè. Lo stato di CPUBridge dovrebbe passare a eVMCState_REG_APERTURA_MACINA
+					//alla ricezione di questo msg, CPUBridge non notificherà alcunchè. Lo stato di CPUBridge dovrebbe passare a eVMCState::REG_APERTURA_MACINA
 
-	void		ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d);
-	void		translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d);
+	void		ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProg_testSelectionDevice d);
+	void		translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProg_testSelectionDevice *out_d);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_TEST_SELECTION
 
 	void		ask_CPU_GET_NOMI_LINGE_CPU(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_NOMI_LINGE_CPU
 
 	void		ask_CPU_DISINTALLAZIONE(const sSubscriber &from);
-					//alla ricezione di questo msg, CPUBridge non risponderà. Lo stato di CPU dovrebbe passare in breve tempo a eVMCState_DISINSTALLAZIONE.
-					//Al termine della procedura, lo stato CPU diventa eVMCState_FINE_DISINSTALLAZIONE
+					//alla ricezione di questo msg, CPUBridge non risponderà. Lo stato di CPU dovrebbe passare in breve tempo a eVMCState::DISINSTALLAZIONE.
+					//Al termine della procedura, lo stato CPU diventa eVMCState::FINE_DISINSTALLAZIONE
 
 	void		ask_CPU_RICARICA_FASCIA_ORARIA_FREEVEND(const sSubscriber &from);
 					//alla ricezione di questo msg, CPUBridge non risponderà. La CPU dovrebbe controllare i dati nel DA3 e reimpostare la fine dell'orario di freevend
@@ -518,7 +518,7 @@ namespace cpubridge
 
 	void		ask_CPU_DA3SYNC(const sSubscriber &from);
 					//Si richiede la sincronizzazione del file DA3 tra CPU e SMU
-					//Alla ricezione di questo messaggio, lo stato di SMU passerà in eVMCState_DA3_SYNC e ci rimarrà fino alla fine
+					//Alla ricezione di questo messaggio, lo stato di SMU passerà in eVMCState::DA3_SYNC e ci rimarrà fino alla fine
 					//delle operazioni. Quando lo stato diventa != da DA3_SYNC, siamo sicuro che il da3 locale è aggiornato a quello della CPU
 
 	void		ask_CPU_START_MODEM_TEST(const sSubscriber &from, u16 handlerID);

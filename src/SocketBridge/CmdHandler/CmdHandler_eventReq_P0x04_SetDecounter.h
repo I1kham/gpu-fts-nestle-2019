@@ -17,7 +17,7 @@ namespace socketbridge
     class CmdHandler_eventReq_P0x04_SetDecounter : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_setDecounter;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::setDecounter;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET;
 
 		CmdHandler_eventReq_P0x04_SetDecounter(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

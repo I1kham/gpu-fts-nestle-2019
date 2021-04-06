@@ -14,11 +14,11 @@ void CmdHandler_ajaxReq_P0x0B_StatoGruppo::passDownRequestToCPUBridge (cpubridge
 //***********************************************************
 void CmdHandler_ajaxReq_P0x0B_StatoGruppo::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
-	cpubridge::eCPUProgrammingCommand_statoGruppo info;
+	cpubridge::eCPUProg_statoGruppo info;
 	cpubridge::translateNotify_STATO_GRUPPO(msgFromCPUBridge, &info);
 	
 	char resp[16];
-	if (info == cpubridge::eCPUProgrammingCommand_statoGruppo_nonAttaccato)
+	if (info == cpubridge::eCPUProg_statoGruppo::nonAttaccato)
 		sprintf_s(resp, sizeof(resp), "0");
 	else
 		sprintf_s(resp, sizeof(resp), "1");

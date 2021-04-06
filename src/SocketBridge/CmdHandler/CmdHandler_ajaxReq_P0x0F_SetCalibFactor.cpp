@@ -45,14 +45,14 @@ void CmdHandler_ajaxReq_P0x0F_SetCalibFactor::passDownRequestToCPUBridge (cpubri
 	if (rhea::json::parse(params, ajaxReqSetCalibFactor_jsonTrapFunction, &data))
 	{
 		if (data.m >= 1 && data.m <= 12)
-			cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(from, getHandlerID(), (cpubridge::eCPUProgrammingCommand_motor)data.m, data.v);
+			cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(from, getHandlerID(), (cpubridge::eCPUProg_motor)data.m, data.v);
 	}
 }
 
 //***********************************************************
 void CmdHandler_ajaxReq_P0x0F_SetCalibFactor::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
-	cpubridge::eCPUProgrammingCommand_motor motor = cpubridge::eCPUProgrammingCommand_motor_unknown;
+	cpubridge::eCPUProg_motor motor = cpubridge::eCPUProg_motor::unknown;
 	u16 valore = 0;
 	cpubridge::translateNotify_SET_FATTORE_CALIB_MOTORE (msgFromCPUBridge, &motor, &valore);
 

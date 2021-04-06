@@ -15,7 +15,7 @@ namespace socketbridge
     class CmdHandler_eventReq_P0x14_StartDisintallation : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_startDisinstallation;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::startDisinstallation;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_MAX_ALLOWED;		//vuol dire che questa classe non risponde ad alcuna notifica di CPUBridge
 
                     CmdHandler_eventReq_P0x14_StartDisintallation (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

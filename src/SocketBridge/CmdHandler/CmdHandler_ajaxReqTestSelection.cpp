@@ -42,7 +42,7 @@ void CmdHandler_ajaxReqTestSelection::passDownRequestToCPUBridge (cpubridge::sSu
 	if (rhea::json::parse(params, ajaxReqTestSelection_jsonTrapFunction, &data))
 	{
 		if (data.selNum != 0)
-			cpubridge::ask_CPU_TEST_SELECTION(from, getHandlerID(), data.selNum, (cpubridge::eCPUProgrammingCommand_testSelectionDevice)data.deviceID);
+			cpubridge::ask_CPU_TEST_SELECTION(from, getHandlerID(), data.selNum, (cpubridge::eCPUProg_testSelectionDevice)data.deviceID);
 	}
 }
 
@@ -50,11 +50,11 @@ void CmdHandler_ajaxReqTestSelection::passDownRequestToCPUBridge (cpubridge::sSu
 void CmdHandler_ajaxReqTestSelection::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
 	u8 selNum = 0;
-	cpubridge::eCPUProgrammingCommand_testSelectionDevice devID = cpubridge::eCPUProgrammingCommand_testSelectionDevice_unknown;
+	cpubridge::eCPUProg_testSelectionDevice devID = cpubridge::eCPUProg_testSelectionDevice::unknown;
 	cpubridge::translateNotify_CPU_TEST_SELECTION(msgFromCPUBridge, &selNum, &devID);
 
 	char text[4] = { 'O', 'K', 0, 0 };
-	if (selNum == 0xFF || devID == cpubridge::eCPUProgrammingCommand_testSelectionDevice_unknown)
+	if (selNum == 0xFF || devID == cpubridge::eCPUProg_testSelectionDevice::unknown)
 	{
 		text[0] = 'K';
 		text[1] = 'O';

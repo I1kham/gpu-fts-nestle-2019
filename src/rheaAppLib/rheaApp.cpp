@@ -23,7 +23,7 @@ using namespace rhea;
  * Se ritorna true, allora[out_buffer] è stato fillato con i dati necessari per inviare l'evento a SocketBridge.
  * [in_out_bufferLength] contiene il num di bytes messi in[out_buffer];
  */
-bool priv_prepareCommandBuffer (char commandChar, u8 requestID, const void *optionalData, u16 lenOfOptionalData, u8 *out_buffer, u16 *in_out_bufferLength)
+bool priv_prepareCommandBuffer (socketbridge::eOpcode commandChar, u8 requestID, const void *optionalData, u16 lenOfOptionalData, u8 *out_buffer, u16 *in_out_bufferLength)
 {
 	const u16 bytesNeeded =
 
@@ -72,7 +72,7 @@ void priv_event_sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::IProtocol
 	u8	sendBuffer[128]; //128 bytes dovrebbero essere più che suff per il 99% delle richieste che le app inviano a socketbridge
 	u16 sizeOSendfBuffer = sizeof(sendBuffer);
 
-	if (priv_prepareCommandBuffer(socketbridge::eOpcode_event_E, 0xff, optionalData, sizeoOfOptionalData, sendBuffer, &sizeOSendfBuffer))
+	if (priv_prepareCommandBuffer(socketbridge::eOpcode::event_E, 0xff, optionalData, sizeoOfOptionalData, sendBuffer, &sizeOSendfBuffer))
 	{
 		proto->write(ch, sendBuffer, sizeOSendfBuffer, 1000);
 		return;
@@ -82,7 +82,7 @@ void priv_event_sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::IProtocol
 
 	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	u8 *temp = (u8*)RHEAALLOC(allocator, sizeOSendfBuffer);
-	priv_prepareCommandBuffer(socketbridge::eOpcode_event_E, 0xff, optionalData, sizeoOfOptionalData, temp, &sizeOSendfBuffer);
+	priv_prepareCommandBuffer(socketbridge::eOpcode::event_E, 0xff, optionalData, sizeoOfOptionalData, temp, &sizeOSendfBuffer);
 	proto->write(ch, temp, sizeOSendfBuffer, 1000);
 	RHEAFREE(allocator, temp);
 }
@@ -167,7 +167,7 @@ bool app::decodeSokBridgeMessage(const u8 *bufferIN, u16 nBytesInBufferIN, sDeco
 			u16 ret = priv_event_decode (buffer, nBytesInBuffer, &out->data.asEvent);
 			if (ret)
 			{
-				out->what = eDecodedMsgType_event;
+				out->what = eDecodedMsgType::event;
 				*out_nBytesConsumed += ret;
 				return true;
 			}
@@ -176,7 +176,7 @@ bool app::decodeSokBridgeMessage(const u8 *bufferIN, u16 nBytesInBufferIN, sDeco
 			ret = priv_RawFileTrans_decodeMsg (buffer, nBytesInBuffer, &out->data.asFileTransf);
 			if (ret)
 			{
-				out->what = eDecodedMsgType_fileTransf;
+				out->what = eDecodedMsgType::fileTransf;
 				*out_nBytesConsumed += ret;
 				return true;
 			}
@@ -184,7 +184,7 @@ bool app::decodeSokBridgeMessage(const u8 *bufferIN, u16 nBytesInBufferIN, sDeco
 		i++;
 	}
 
-	out->what = eDecodedMsgType_unknown;
+	out->what = eDecodedMsgType::unknown;
 	*out_nBytesConsumed = nBytesInBufferIN;
 	return false;
 }
@@ -204,7 +204,7 @@ void app::send_requestIDCodeAfterConnection(rhea::IProtocolChannell *ch, rhea::I
 	optionalData[2] = (u8)version.unused2;
 	optionalData[3] = (u8)version.unused3;
 
-	if (priv_prepareCommandBuffer(socketbridge::eOpcode_request_idCode, 0xff, optionalData, sizeof(optionalData), buffer, &sizeOfBuffer))
+	if (priv_prepareCommandBuffer(socketbridge::eOpcode::request_idCode, 0xff, optionalData, sizeof(optionalData), buffer, &sizeOfBuffer))
 	{
 		proto->write(ch, buffer, sizeOfBuffer, 1000);
 		return;
@@ -229,7 +229,7 @@ void app::send_identifyAfterConnection (rhea::IProtocolChannell *ch, rhea::IProt
 	optionalData[6] = (u8)idCode.data.buffer[2];
 	optionalData[7] = (u8)idCode.data.buffer[3];
 
-	if (priv_prepareCommandBuffer(socketbridge::eOpcode_identify_W, 0xff, optionalData, sizeof(optionalData), buffer, &sizeOfBuffer))
+	if (priv_prepareCommandBuffer(socketbridge::eOpcode::identify_W, 0xff, optionalData, sizeof(optionalData), buffer, &sizeOfBuffer))
 	{
 		proto->write(ch, buffer, sizeOfBuffer, 1000);
 		return;
@@ -270,7 +270,7 @@ bool app::handleInitialRegistrationToSocketBridge (rhea::ISimpleLogger *logIN, r
 		u16 nUsed = rhea::app::decodeSokBridgeMessage(buffer, nRead, &decoded, &nBytesConsumed);
 		if (nUsed > 0)
 		{
-			if (decoded.what != eDecodedMsgType_event)
+			if (decoded.what != eDecodedMsgType::event)
 			{
 				log->log("invalid message rcv. Was expecting an event\n");
 				log->decIndent();
@@ -279,9 +279,9 @@ bool app::handleInitialRegistrationToSocketBridge (rhea::ISimpleLogger *logIN, r
 			}
 
 			app::sDecodedEventMsg *decEvent = &decoded.data.asEvent;
-			if (decEvent->payloadLen != 6 || decEvent->eventType != socketbridge::eEventType_answer_to_idCodeRequest)
+			if (decEvent->payloadLen != 6 || decEvent->eventType != socketbridge::eEventType::answer_to_idCodeRequest)
 			{
-				log->log("invalid message rcv. payload len is [%d], expect was 6. Eventtype is[%d], expected was %d\n", decEvent->payloadLen, decEvent->eventType, socketbridge::eEventType_answer_to_idCodeRequest);
+				log->log("invalid message rcv. payload len is [%d], expect was 6. Eventtype is[%d], expected was %d\n", decEvent->payloadLen, decEvent->eventType, socketbridge::eEventType::answer_to_idCodeRequest);
 				log->decIndent();
 				log->decIndent();
 				return false;
@@ -321,7 +321,7 @@ bool app::handleInitialRegistrationToSocketBridge (rhea::ISimpleLogger *logIN, r
  */
 void app::CurrentSelectionRunningStatus::decodeAnswer (const sDecodedEventMsg &msg, cpubridge::eRunningSelStatus *out)
 {
-	assert(msg.eventType == socketbridge::eEventType_selectionRequestStatus);
+	assert(msg.eventType == socketbridge::eEventType::selectionRequestStatus);
 	assert(msg.payloadLen >= 1);
 	*out = (cpubridge::eRunningSelStatus)msg.payload[0];
 }
@@ -333,13 +333,13 @@ void app::CurrentSelectionRunningStatus::decodeAnswer (const sDecodedEventMsg &m
 void app::CurrentCredit::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_creditUpdated;
+	optionalData[0] = (u8)socketbridge::eEventType::creditUpdated;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::CurrentCredit::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_creditoInFormatoStringa, u32 sizeOfOut)
 {
-	assert(msg.eventType == socketbridge::eEventType_creditUpdated);
+	assert(msg.eventType == socketbridge::eEventType::creditUpdated);
 	assert(msg.payloadLen >= 8);
 	
 	u32 n = msg.payloadLen;
@@ -357,13 +357,13 @@ void app::CurrentCredit::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_credi
 void app::CurrentCPUMessage::ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_cpuMessage;
+	optionalData[0] = (u8)socketbridge::eEventType::cpuMessage;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::CurrentCPUMessage::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_msgImportanceLevel, u16 *out_msgLenInBytes, u8 *out_messageInUTF8, u32 sizeOfOutMessage)
 {
-	assert(msg.eventType == socketbridge::eEventType_cpuMessage);
+	assert(msg.eventType == socketbridge::eEventType::cpuMessage);
 	assert(msg.payloadLen >= 2);
 	*out_msgImportanceLevel = msg.payload[0];
 	*out_msgLenInBytes = (((u16)msg.payload[1]) << 8) | msg.payload[2];
@@ -396,18 +396,18 @@ void app::CurrentCPUMessage::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_m
 void app::CurrentCPUStatus::ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_cpuStatus;
+	optionalData[0] = (u8)socketbridge::eEventType::cpuStatus;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::CurrentCPUStatus::decodeAnswer (const sDecodedEventMsg &msg, cpubridge::eVMCState *out_VMCstate, u8 *out_VMCerrorCode, u8 *out_VMCerrorType, u16 *out_flag1)
 {
-	assert(msg.eventType == socketbridge::eEventType_cpuStatus);
+	assert(msg.eventType == socketbridge::eEventType::cpuStatus);
 	assert(msg.payloadLen >= 5);
 
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
 	u8 u;
 	nbr.readU8(u);
@@ -425,17 +425,17 @@ void app::CurrentCPUStatus::decodeAnswer (const sDecodedEventMsg &msg, cpubridge
 void app::ClientList::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_reqClientList;
+	optionalData[0] = (u8)socketbridge::eEventType::reqClientList;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::ClientList::decodeAnswer (const sDecodedEventMsg &msg, rhea::Allocator *allocator,u16 *out_nClientConnected, u16 *out_nClientInfo, rhea::DateTime *out_dtCPUBridgeStarted, socketbridge::sIdentifiedClientInfo **out_list)
 {
-	assert(msg.eventType == socketbridge::eEventType_reqClientList);
+	assert(msg.eventType == socketbridge::eEventType::reqClientList);
 
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
     u16 nClient = 0, nClientInfo = 0;
     u64 u = 0;
@@ -480,13 +480,13 @@ void app::ClientList::decodeAnswer (const sDecodedEventMsg &msg, rhea::Allocator
 void app::CurrentSelectionAvailability::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_selectionAvailabilityUpdated;
+	optionalData[0] = (u8)socketbridge::eEventType::selectionAvailabilityUpdated;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::CurrentSelectionAvailability::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_numSel, u8 *out_selectionAvailability, u32 sizeOfSelecionAvailability)
 {
-	assert(msg.eventType == socketbridge::eEventType_selectionAvailabilityUpdated);
+	assert(msg.eventType == socketbridge::eEventType::selectionAvailabilityUpdated);
 	assert(msg.payloadLen > 1);
 	
 	u8 n = *out_numSel = msg.payload[0];
@@ -505,7 +505,7 @@ void app::CurrentSelectionAvailability::decodeAnswer(const sDecodedEventMsg &msg
  */
 void app::ButtonProgPressed::decodeAnswer(const sDecodedEventMsg &msg)
 {
-	assert(msg.eventType == socketbridge::eEventType_btnProgPressed);
+	assert(msg.eventType == socketbridge::eEventType::btnProgPressed);
 }
 
 /*****************************************************************
@@ -514,16 +514,16 @@ void app::ButtonProgPressed::decodeAnswer(const sDecodedEventMsg &msg)
 void app::CurrentCPUInitParam::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_reqIniParam;
+	optionalData[0] = (u8)socketbridge::eEventType::reqIniParam;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::CurrentCPUInitParam::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sCPUParamIniziali *out)
 {
-	assert(msg.eventType == socketbridge::eEventType_reqIniParam);
+	assert(msg.eventType == socketbridge::eEventType::reqIniParam);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
 	nbr.readBlob(out->CPU_version, sizeof(out->CPU_version));
 	nbr.readU8(out->protocol_version);
@@ -537,17 +537,17 @@ void app::CurrentCPUInitParam::decodeAnswer(const sDecodedEventMsg &msg, cpubrid
 void app::ReadDataAudit::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_reqDataAudit;
+	optionalData[0] = (u8)socketbridge::eEventType::reqDataAudit;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::ReadDataAudit::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eReadDataFileStatus *status, u16 *totKbSoFar, u16 *out_fileID)
 {
-	assert(msg.eventType == socketbridge::eEventType_reqDataAudit);
+	assert(msg.eventType == socketbridge::eEventType::reqDataAudit);
 	assert(msg.payloadLen >= 5);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
     u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
@@ -563,17 +563,17 @@ void app::ReadDataAudit::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eR
 void app::ReadVMCDataFile::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_reqVMCDataFile;
+	optionalData[0] = (u8)socketbridge::eEventType::reqVMCDataFile;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::ReadVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eReadDataFileStatus *status, u16 *totKbSoFar, u16 *out_fileID)
 {
-	assert(msg.eventType == socketbridge::eEventType_reqVMCDataFile);
+	assert(msg.eventType == socketbridge::eEventType::reqVMCDataFile);
 	assert(msg.payloadLen >= 5);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
     u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
@@ -589,7 +589,7 @@ void app::ReadVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::
 void app::WriteLocalVMCDataFile::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, const char *localFilePathAndName)
 {
 	u8 optionalData[256];
-	optionalData[0] = (u8)socketbridge::eEventType_reqWriteLocalVMCDataFile;
+	optionalData[0] = (u8)socketbridge::eEventType::reqWriteLocalVMCDataFile;
 	u32 n = strlen(localFilePathAndName);
 	memcpy(&optionalData[1], localFilePathAndName, n+1);
 	priv_event_sendToSocketBridge(ch, proto, optionalData, n+2);
@@ -597,11 +597,11 @@ void app::WriteLocalVMCDataFile::ask(rhea::IProtocolChannell *ch, rhea::IProtoco
 
 void app::WriteLocalVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eWriteDataFileStatus *status, u16 *totKbSoFar)
 {
-	assert(msg.eventType == socketbridge::eEventType_reqWriteLocalVMCDataFile);
+	assert(msg.eventType == socketbridge::eEventType::reqWriteLocalVMCDataFile);
 	assert(msg.payloadLen >= 3);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
     u16 u = 0;
 	nbr.readU16(u); *totKbSoFar = u;
@@ -618,13 +618,13 @@ void app::WriteLocalVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, cpubr
 void app::CurrentVMCDataFileTimestamp::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_reqVMCDataFileTimestamp;
+	optionalData[0] = (u8)socketbridge::eEventType::reqVMCDataFileTimestamp;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::CurrentVMCDataFileTimestamp::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sCPUVMCDataFileTimeStamp *out)
 {
-	assert(msg.eventType == socketbridge::eEventType_reqVMCDataFileTimestamp);
+	assert(msg.eventType == socketbridge::eEventType::reqVMCDataFileTimestamp);
 	assert(msg.payloadLen >= out->getLenInBytes());
 	out->readFromBuffer(msg.payload);
 }
@@ -636,7 +636,7 @@ void app::CurrentVMCDataFileTimestamp::decodeAnswer(const sDecodedEventMsg &msg,
 void app::ExecuteSelection::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 selNum)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_startSelection;
+	optionalData[0] = (u8)socketbridge::eEventType::startSelection;
 	optionalData[1] = selNum;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
 }
@@ -648,7 +648,7 @@ void app::ExecuteSelection::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *pr
 void app::ExecuteProgramCmd::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand cmd, u8 param1, u8 param2, u8 param3, u8 param4)
 {
 	u8 optionalData[8];
-	optionalData[0] = (u8)socketbridge::eEventType_cpuProgrammingCmd;
+	optionalData[0] = (u8)socketbridge::eEventType::cpuProgrammingCmd;
 	optionalData[1] = (u8)cmd;
 	optionalData[2] = param1;
 	optionalData[3] = param2;
@@ -663,13 +663,13 @@ void app::ExecuteProgramCmd::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *p
 void app::SanWashingStatus::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_cpuSanWashingStatus;
+	optionalData[0] = (u8)socketbridge::eEventType::cpuSanWashingStatus;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::SanWashingStatus::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_b0, u8 *out_b1, u8 *out_b2)
 {
-	assert(msg.eventType == socketbridge::eEventType_cpuSanWashingStatus);
+	assert(msg.eventType == socketbridge::eEventType::cpuSanWashingStatus);
 	*out_b0 = msg.payload[0];
 	*out_b1 = msg.payload[1];
 	*out_b2 = msg.payload[2];
@@ -681,7 +681,7 @@ void app::SanWashingStatus::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_b0
 void app::SendButton::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 btnNum)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_cpuBtnPressed;
+	optionalData[0] = (u8)socketbridge::eEventType::cpuBtnPressed;
 	optionalData[1] = btnNum;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
 }
@@ -691,7 +691,7 @@ void app::SendButton::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u
  */
 void app::WritePartialVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_blockWritten)
 {
-	assert(msg.eventType == socketbridge::eEventType_cpuWritePartialVMCDataFile);
+	assert(msg.eventType == socketbridge::eEventType::cpuWritePartialVMCDataFile);
 	*out_blockWritten = msg.payload[0];
 }
 
@@ -702,17 +702,17 @@ void app::WritePartialVMCDataFile::decodeAnswer(const sDecodedEventMsg &msg, u8 
 void app::ExtendedConfigInfo::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[4];
-	optionalData[0] = (u8)socketbridge::eEventType_cpuExtendedConfigInfo;
+	optionalData[0] = (u8)socketbridge::eEventType::cpuExtendedConfigInfo;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::ExtendedConfigInfo::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::sExtendedCPUInfo *out)
 {
-	assert(msg.eventType == socketbridge::eEventType_cpuExtendedConfigInfo);
+	assert(msg.eventType == socketbridge::eEventType::cpuExtendedConfigInfo);
 
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
 	u8 u;
 	nbr.readU8(out->msgVersion);
@@ -726,28 +726,28 @@ void app::ExtendedConfigInfo::decodeAnswer(const sDecodedEventMsg &msg, cpubridg
 /*****************************************************************
  * namespace SetDecounter
  */
-void app::SetDecounter::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_decounter which, u16 value)
+void app::SetDecounter::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProg_decounter which, u16 value)
 {
 	u8 optionalData[4];
 	NetStaticBufferViewW nbw;
-	nbw.setup(optionalData, sizeof(optionalData), rhea::eBigEndian);
-	nbw.writeU8((u8)socketbridge::eEventType_setDecounter);
+	nbw.setup(optionalData, sizeof(optionalData), rhea::eEndianess::eBigEndian);
+	nbw.writeU8((u8)socketbridge::eEventType::setDecounter);
 	nbw.writeU8((u8)which);
 	nbw.writeU16(value);
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 4);
 }
 
-void app::SetDecounter::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCPUProgrammingCommand_decounter *out_which, u16 *out_value)
+void app::SetDecounter::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCPUProg_decounter *out_which, u16 *out_value)
 {
-	assert(msg.eventType == socketbridge::eEventType_setDecounter);
+	assert(msg.eventType == socketbridge::eEventType::setDecounter);
 
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
     u8 u = 0;
 	nbr.readU8(u);	
-	*out_which  = (cpubridge::eCPUProgrammingCommand_decounter)u;
+	*out_which  = (cpubridge::eCPUProg_decounter)u;
 	
     u16 uu = 0;
 	nbr.readU16(uu);
@@ -761,17 +761,17 @@ void app::SetDecounter::decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCP
 void app::GetAllDecounters::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto)
 {
 	u8 optionalData[2];
-	optionalData[0] = socketbridge::eEventType_getAllDecounters;
+	optionalData[0] = (u8)socketbridge::eEventType::getAllDecounters;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 1);
 }
 
 void app::GetAllDecounters::decodeAnswer (const sDecodedEventMsg &msg, u16 *out_arrayDi14valori)
 {
-	assert(msg.eventType == socketbridge::eEventType_getAllDecounters);
+	assert(msg.eventType == socketbridge::eEventType::getAllDecounters);
 
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
 	for (u8 i = 0; i < 14; i++)
 		nbr.readU16(out_arrayDi14valori[i]);
@@ -781,20 +781,20 @@ void app::GetAllDecounters::decodeAnswer (const sDecodedEventMsg &msg, u16 *out_
 /*****************************************************************
  * namespace SetMotoreMacina
  */
-void app::SetMotoreMacina::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, cpubridge::eCPUProgrammingCommand_macinaMove m)
+void app::SetMotoreMacina::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, cpubridge::eCPUProg_macinaMove m)
 {
 	u8 optionalData[4];
-	optionalData[0] = socketbridge::eEventType_setMotoreMacina;
+	optionalData[0] = (u8)socketbridge::eEventType::setMotoreMacina;
 	optionalData[1] = macina_1o2;
 	optionalData[2] = (u8)m;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 3);
 }
-void app::SetMotoreMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, cpubridge::eCPUProgrammingCommand_macinaMove *out_m)
+void app::SetMotoreMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, cpubridge::eCPUProg_macinaMove *out_m)
 {
-	assert(msg.eventType == socketbridge::eEventType_setMotoreMacina);
+	assert(msg.eventType == socketbridge::eEventType::setMotoreMacina);
 
 	*out_macina_1o2 = msg.payload[0];
-	*out_m = (cpubridge::eCPUProgrammingCommand_macinaMove)msg.payload[1];
+	*out_m = (cpubridge::eCPUProg_macinaMove)msg.payload[1];
 }
 
 /*****************************************************************
@@ -803,17 +803,17 @@ void app::SetMotoreMacina::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_mac
 void app::GetAperturaVGrind::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2)
 {
 	u8 optionalData[4];
-    optionalData[0] = socketbridge::eEventType_getAperturaVGrind;
+    optionalData[0] = (u8)socketbridge::eEventType::getAperturaVGrind;
 	optionalData[1] = macina_1o2;
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 2);
 }
 void app::GetAperturaVGrind::decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, u16 *out_pos)
 {
-    assert(msg.eventType == socketbridge::eEventType_getAperturaVGrind);
+    assert(msg.eventType == socketbridge::eEventType::getAperturaVGrind);
 
 	//NetBufferView per poter leggere i dati in maniera "indian indipendent"
 	NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
 	nbr.readU16(*out_pos);
 	nbr.readU8(*out_macina_1o2);
@@ -827,8 +827,8 @@ void app::SetAperturaVGrind::ask(rhea::IProtocolChannell *ch, rhea::IProtocol *p
 {
 	u8 optionalData[4];
 	NetStaticBufferViewW nbw;
-	nbw.setup(optionalData, sizeof(optionalData), rhea::eBigEndian);
-    nbw.writeU8((u8)socketbridge::eEventType_setAperturaVGrind);
+	nbw.setup(optionalData, sizeof(optionalData), rhea::eEndianess::eBigEndian);
+    nbw.writeU8((u8)socketbridge::eEventType::setAperturaVGrind);
 	nbw.writeU8((u8)macina_1o2);
 	nbw.writeU16(target);
 	priv_event_sendToSocketBridge(ch, proto, optionalData, 4);
@@ -842,7 +842,7 @@ void app::RawFileTrans::sendToSocketBridge (rhea::IProtocolChannell *ch, rhea::I
 {
 	u16 sizeOSendfBuffer = sizeOfSendBufferIN;
 
-	if (priv_prepareCommandBuffer(socketbridge::eOpcode_fileTransfer, 0xfe, optionalData, sizeoOfOptionalData, sendBuffer, &sizeOSendfBuffer))
+	if (priv_prepareCommandBuffer(socketbridge::eOpcode::fileTransfer, 0xfe, optionalData, sizeoOfOptionalData, sendBuffer, &sizeOSendfBuffer))
 	{
 		proto->write(ch, sendBuffer, sizeOSendfBuffer, 1000);
 		return;

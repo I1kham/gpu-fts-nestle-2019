@@ -9,7 +9,7 @@ void CmdHandler_eventReq_P0x11_SetMotoreMacina::passDownRequestToCPUBridge (cpub
 {
     assert (payloadLen >= 2);
     const u8 macina_1o2 = payload[1];
-	const cpubridge::eCPUProgrammingCommand_macinaMove m = (cpubridge::eCPUProgrammingCommand_macinaMove)payload[2];
+	const cpubridge::eCPUProg_macinaMove m = (cpubridge::eCPUProg_macinaMove)payload[2];
 
 	cpubridge::ask_CPU_SET_MOTORE_MACINA(from, getHandlerID(), macina_1o2, m);
 }
@@ -23,7 +23,7 @@ void CmdHandler_eventReq_P0x11_SetMotoreMacina::onCPUBridgeNotification(socketbr
 	//  1 byte per il numero macina
 	//  1 byte per il tipo di movimento
 	u8 macina_1o2 = 0;
-	cpubridge::eCPUProgrammingCommand_macinaMove m;
+	cpubridge::eCPUProg_macinaMove m;
 	cpubridge::translateNotify_CPU_MOTORE_MACINA(msgFromCPUBridge, &macina_1o2, &m);
 
 

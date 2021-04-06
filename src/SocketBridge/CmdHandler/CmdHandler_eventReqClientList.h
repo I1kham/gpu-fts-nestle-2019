@@ -18,7 +18,7 @@ namespace socketbridge
     class CmdHandler_eventReqClientList : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_reqClientList;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::reqClientList;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_MAX_ALLOWED;		//vuol dire che questa classe non risponde ad alcuna notifica di CPUBridge
 
 		CmdHandler_eventReqClientList(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

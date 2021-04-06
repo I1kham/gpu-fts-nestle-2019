@@ -29,12 +29,12 @@ namespace rhea
 			Core			*core;
         };
 
-        enum eOrderStatus
+        enum class eOrderStatus: u8
         {
-            eOrderStatus_waitingQR = 0,
-            eOrderStatus_pollingPaymentStatus = 1,
-            eOrderStatus_paymentOK = 2,
-            eOrderStatus_paymentTimeout = 3
+            waitingQR = 0,
+            pollingPaymentStatus = 1,
+            paymentOK = 2,
+            paymentTimeout = 3
         };
     } //namespace AlipayChina
 } // namespace rhea

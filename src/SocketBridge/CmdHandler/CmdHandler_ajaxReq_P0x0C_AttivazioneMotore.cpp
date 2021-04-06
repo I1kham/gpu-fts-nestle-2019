@@ -66,7 +66,7 @@ void CmdHandler_ajaxReq_P0x0C_AttivazioneMotore::passDownRequestToCPUBridge (cpu
 		{
 			if (data.n < 1)
 				data.n = 1;
-			cpubridge::ask_CPU_ATTIVAZIONE_MOTORE(from, getHandlerID(), (cpubridge::eCPUProgrammingCommand_motor)data.m, data.d, data.n, data.p);
+			cpubridge::ask_CPU_ATTIVAZIONE_MOTORE(from, getHandlerID(), (u8)data.m, data.d, data.n, data.p);
 		}
 	}
 }

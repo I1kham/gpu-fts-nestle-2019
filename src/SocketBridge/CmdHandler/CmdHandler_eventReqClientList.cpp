@@ -40,7 +40,7 @@ void CmdHandler_eventReqClientList::handleRequestFromSocketBridge (socketbridge:
 
 	//NetBufferView per poter inserire i dati in maniera "indian indipendent"
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, bufferSize, rhea::eBigEndian);
+	nbw.setup(buffer, bufferSize, rhea::eEndianess::eBigEndian);
 
 	//serializzo i dati nel buffer
 	nbw.writeU16(nClient);

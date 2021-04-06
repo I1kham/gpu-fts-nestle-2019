@@ -34,28 +34,28 @@
 
 namespace esapi
 {
-	enum eExternalModuleType
+	enum class eExternalModuleType: u8
 	{
-        eExternalModuleType_none			= 0x00,
-		eExternalModuleType_rasPI_wifi_REST = 0x01
+        none			= 0x00,
+		rasPI_wifi_REST = 0x01
 	};
 
-	enum eGPUType
+	enum class eGPUType: u8
 	{
-		eGPUType_unknown	= 0x00,
-		eGPUType_TS			= 0x01,
-		eGPUType_TP			= 0x02
+		unknown	= 0x00,
+		TS			= 0x01,
+		TP			= 0x02
 	};
 
-	enum eFileUploadStatus
+	enum class eFileUploadStatus: u8
 	{
-		eFileUploadStatus_inProgress		= 0x00,
-		eFileUploadStatus_finished_OK		= 0x01,
-		eFileUploadStatus_cantOpenSrcFile	= 0x02,
-		eFileUploadStatus_timeout			= 0x03,
+		inProgress		= 0x00,
+		finished_OK		= 0x01,
+		cantOpenSrcFile	= 0x02,
+		timeout			= 0x03,
 
-		eFileUploadStatus_raspi_fileTransfAlreadyInProgress = 0x10,
-		eFileUploadStatus_raspi_cantCreateFileInTempFolder = 0x11,
+		raspi_fileTransfAlreadyInProgress = 0x10,
+		raspi_cantCreateFileInTempFolder = 0x11,
 	};
 
 	struct sESAPIModule

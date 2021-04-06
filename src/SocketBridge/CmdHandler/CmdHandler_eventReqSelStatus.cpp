@@ -15,7 +15,7 @@ void CmdHandler_eventReqSelStatus::onCPUBridgeNotification (socketbridge::Server
 {
 	//NB: se modifichi questo, modifica anche rhea::app::CurrentSelectionRunningStatus::decodeAnswer()
 
-	cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus_finished_KO;
+	cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus::finished_KO;
 	cpubridge::translateNotify_CPU_RUNNING_SEL_STATUS (msgFromCPUBridge, &s);
 
 	const u8 status = (u8)s;

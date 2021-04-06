@@ -117,7 +117,7 @@ namespace rhea
 			void		decodeAnswer (const sDecodedEventMsg &msg, cpubridge::eReadDataFileStatus *status, u16 *totKbSoFar, u16 *out_fileID);
 			//ask_		=> chiede a SocketBridge il file di audit
 			//decode_	=> il recupero del dataAudit avviene in step. Ad ogni step si riceve un messaggio la cui decodifica ci dice come siamo messi con il download
-			//				Quando [status] == eReadDataFileStatus_finishedOK, vuol dire che è download è terminato con successo
+			//				Quando [status] == eReadDataFileStatus::finishedOK, vuol dire che è download è terminato con successo
 		}
 			   
 		namespace ReadVMCDataFile
@@ -159,7 +159,7 @@ namespace rhea
 			//ask_		=> chiede a SocketBridge di inviare uno specifico comando di programmazione alla CPU
 			//decode_	=> non esiste, una appa non riceve mai una notifica di questo tipo
 
-			inline void	askCleaning(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_cleaningType cleanType) { ExecuteProgramCmd::ask(ch, proto, cpubridge::eCPUProgrammingCommand_cleaning, (u8)cleanType, 0, 0, 0); }
+			inline void	askCleaning(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProg_cleaningType cleanType) { ExecuteProgramCmd::ask(ch, proto, cpubridge::eCPUProgrammingCommand::cleaning, (u8)cleanType, 0, 0, 0); }
 			//decode_	=> non esiste, una appa non riceve mai una notifica di questo tipo
 		}
 
@@ -193,8 +193,8 @@ namespace rhea
 
 		namespace SetDecounter
 		{
-			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProgrammingCommand_decounter which, u16 value);
-			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCPUProgrammingCommand_decounter *out_which, u16 *out_value);
+			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, cpubridge::eCPUProg_decounter which, u16 value);
+			void		decodeAnswer(const sDecodedEventMsg &msg, cpubridge::eCPUProg_decounter *out_which, u16 *out_value);
 		}
 
 		namespace GetAllDecounters
@@ -205,8 +205,8 @@ namespace rhea
 
 		namespace SetMotoreMacina
 		{
-			void		ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, cpubridge::eCPUProgrammingCommand_macinaMove m);
-			void		decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, cpubridge::eCPUProgrammingCommand_macinaMove *out_m);
+			void		ask (rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, cpubridge::eCPUProg_macinaMove m);
+			void		decodeAnswer(const sDecodedEventMsg &msg, u8 *out_macina_1o2, cpubridge::eCPUProg_macinaMove *out_m);
 		}
 
         namespace GetAperturaVGrind
@@ -218,7 +218,7 @@ namespace rhea
         namespace SetAperturaVGrind
 		{
 			void		ask(rhea::IProtocolChannell *ch, rhea::IProtocol *proto, u8 macina_1o2, u16 target);
-			//decode_	=> non esiste. Capisci che la CPU sta lavorando controllando il suo stato. Durante la regolazione è in stato [eVMCState_REG_APERTURA_MACINA]
+			//decode_	=> non esiste. Capisci che la CPU sta lavorando controllando il suo stato. Durante la regolazione è in stato [eVMCState::REG_APERTURA_MACINA]
 		}
 
 		/******************************************************************************

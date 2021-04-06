@@ -35,7 +35,7 @@ namespace rhea
 								bufferNumBytes = numBytesIN;
 								cursor = 0;
 
-								if (endianessOfTheBuffer == rhea::eLittleEndian)
+								if (endianessOfTheBuffer == rhea::eEndianess::eLittleEndian)
 								{
 									if (rhea::isLittleEndian())
 										bNeedendianConversion = false;
@@ -53,23 +53,23 @@ namespace rhea
 
 		void				reset ()															{ cursor = 0; }
 		u32					tell() const														{ return cursor; }
-		void				seek (u32 pos, eSeek from = eSeekStart)
+		void				seek (u32 pos, eSeek from = eSeek::start)
 							{
 								switch (from)
 								{
-								case rhea::eSeekStart:
+								case rhea::eSeek::start:
 									cursor = pos;
 									if (cursor >= bufferNumBytes)
 										cursor = bufferNumBytes;
 									break;
 
-								case rhea::eSeekCurrent:
+								case rhea::eSeek::current:
 									cursor += pos;
 									if (cursor >= bufferNumBytes)
 										cursor = bufferNumBytes;
 									break;
 
-								case rhea::eSeekEnd:
+								case rhea::eSeek::end:
 									if (pos >= bufferNumBytes)
 										cursor = 0;
 									else
@@ -154,7 +154,7 @@ namespace rhea
 								bufferBytesWritten = 0;
 								cursor = 0;
 
-								if (endianessOfTheBuffer == rhea::eLittleEndian)
+								if (endianessOfTheBuffer == rhea::eEndianess::eLittleEndian)
 								{
 									if (rhea::isLittleEndian())
 										bNeedendianConversion = false;
@@ -172,19 +172,19 @@ namespace rhea
 
 		void				reset ()															{ cursor = bufferBytesWritten = 0; }
 		u32					tell() const														{ return cursor; }
-		void				seek (u32 pos, eSeek from = eSeekStart)
+		void				seek (u32 pos, eSeek from = eSeek::start)
 							{
 								switch (from)
 								{
-								case rhea::eSeekStart:
+								case rhea::eSeek::start:
 									cursor = pos;
 									break;
 
-								case rhea::eSeekCurrent:
+								case rhea::eSeek::current:
 									cursor += pos;
 									break;
 
-								case rhea::eSeekEnd:
+								case rhea::eSeek::end:
 									if (pos >= bufferBytesWritten)
 										cursor = 0;
 									else

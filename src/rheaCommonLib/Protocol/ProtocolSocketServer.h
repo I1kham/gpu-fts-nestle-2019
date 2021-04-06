@@ -22,19 +22,19 @@ namespace rhea
     class ProtocolSocketServer
     {
     public:
-        enum eEventType
+        enum class eEventType: u8
         {
 			//eventi da 1 a 99 sono relativi a OSEvent
-            evt_osevent_fired = 1,      //un OSEvent è stato fired
-			evt_osevent_max   = 99,
+            osevent_fired = 1,      //un OSEvent è stato fired
+			osevent_max   = 99,
 
 			//eventi da 100 a 199 sono relativi a socket di client connessi
-            evt_new_client_connected = 100,
-            evt_client_has_data_avail = 101,
-			evt_client_max = 199,
+            new_client_connected = 100,
+            client_has_data_avail = 101,
+			client_max = 199,
 
-			evt_ignore  = 0xfe,
-            evt_unknown = 0xff
+			ignore  = 0xfe,
+            unknown = 0xff
         };
 
     public:
@@ -92,16 +92,6 @@ namespace rhea
 
         u32                 client_getNumConnected() const              { return clientList.getNElem(); }
         HSokServerClient    client_getByIndex (u32 i) const             { return clientList(i); }
-
-    private:
-        enum eClientType
-        {
-            eClientType_unknown = 0,
-            eClientType_websocket = 1,
-            eClientType_console = 2
-        };
-
-
 
     private:
 		struct sDataForEvent_event

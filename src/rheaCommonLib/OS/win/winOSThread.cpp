@@ -37,9 +37,9 @@ eThreadError platform::createThread (OSThread &out_handle, OSThreadFunction thre
 	out_handle = ::CreateThread(NULL, 0, Win32InternalThreadProc, (void*)init, flag, NULL);
 
 	if (NULL == INVALID_HANDLE_VALUE)
-		return eThreadError_unknown;
+		return eThreadError::unknown;
 
-	return eThreadError_none;
+	return eThreadError::none;
 }
 
 //*******************************************************************

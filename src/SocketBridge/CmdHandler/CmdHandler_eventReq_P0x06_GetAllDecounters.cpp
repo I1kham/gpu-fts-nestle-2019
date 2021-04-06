@@ -19,7 +19,7 @@ void CmdHandler_eventReq_P0x06_GetAllDecounters::onCPUBridgeNotification (socket
 
 	u8 buffer[32 * sizeof(u16)];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	for (u8 i = 0; i < 14; i++)
 		nbw.writeU16(values[i]);
 

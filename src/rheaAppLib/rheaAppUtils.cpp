@@ -43,36 +43,36 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 	switch (s)
 	{
 	default:											return UNKNOWN;
-	case cpubridge::eVMCState_DISPONIBILE:				return v[0];
-	case cpubridge::eVMCState_PREPARAZIONE_BEVANDA:		return v[1];
-	case cpubridge::eVMCState_PROGRAMMAZIONE:			return v[2];
-	case cpubridge::eVMCState_INITIAL_CHECK:			return v[3];
-	case cpubridge::eVMCState_ERROR:					return v[4];
-	case cpubridge::eVMCState_LAVAGGIO_MANUALE:			return v[5];
-	case cpubridge::eVMCState_LAVAGGIO_AUTO:			return v[6];
-	case cpubridge::eVMCState_RICARICA_ACQUA:			return v[7];
-	case cpubridge::eVMCState_ATTESA_TEMPERATURA:		return v[8];
+	case cpubridge::eVMCState::DISPONIBILE:				return v[0];
+	case cpubridge::eVMCState::PREPARAZIONE_BEVANDA:		return v[1];
+	case cpubridge::eVMCState::PROGRAMMAZIONE:			return v[2];
+	case cpubridge::eVMCState::INITIAL_CHECK:			return v[3];
+	case cpubridge::eVMCState::eERROR:					return v[4];
+	case cpubridge::eVMCState::LAVAGGIO_MANUALE:			return v[5];
+	case cpubridge::eVMCState::LAVAGGIO_AUTO:			return v[6];
+	case cpubridge::eVMCState::RICARICA_ACQUA:			return v[7];
+	case cpubridge::eVMCState::ATTESA_TEMPERATURA:		return v[8];
 
-	case cpubridge::eVMCState_ATTESA_CARICA_MASTER:		return v[9];
-	case cpubridge::eVMCState_INSTALLAZIONE:			return v[10];
-	case cpubridge::eVMCState_DISINSTALLAZIONE:			return v[11];
-	case cpubridge::eVMCState_FINE_INSTALLAZIONE:		return v[12];
-	case cpubridge::eVMCState_FINE_DISINSTALLAZIONE:	return v[13];
-	case cpubridge::eVMCState_ENERGY_SAVING:			return v[14];
-    case cpubridge::eVMCState_TEST_DB:                  return v[15];
-	case cpubridge::eVMCState_DATA_AUDIT:				return v[16];
-    case cpubridge::eVMCState_LAVAGGIO_SANITARIO:		return v[17];
+	case cpubridge::eVMCState::ATTESA_CARICA_MASTER:		return v[9];
+	case cpubridge::eVMCState::INSTALLAZIONE:			return v[10];
+	case cpubridge::eVMCState::DISINSTALLAZIONE:			return v[11];
+	case cpubridge::eVMCState::FINE_INSTALLAZIONE:		return v[12];
+	case cpubridge::eVMCState::FINE_DISINSTALLAZIONE:	return v[13];
+	case cpubridge::eVMCState::ENERGY_SAVING:			return v[14];
+    case cpubridge::eVMCState::TEST_DB:                  return v[15];
+	case cpubridge::eVMCState::DATA_AUDIT:				return v[16];
+    case cpubridge::eVMCState::LAVAGGIO_SANITARIO:		return v[17];
 
-    case cpubridge::eVMCState_TEST_ATTUATORE_SELEZIONE:	return v[23];
-    case cpubridge::eVMCState_TEST_MODEM:               return v[24];
-	case cpubridge::eVMCState_LAVAGGIO_MILKER_VENTURI:  return v[25];
+    case cpubridge::eVMCState::TEST_ATTUATORE_SELEZIONE:	return v[23];
+    case cpubridge::eVMCState::TEST_MODEM:               return v[24];
+	case cpubridge::eVMCState::LAVAGGIO_MILKER_VENTURI:  return v[25];
 
-    case cpubridge::eVMCState_COM_ERROR:				return v[18];
-	case cpubridge::eVMCState_REG_APERTURA_MACINA:		return v[19];
-	case cpubridge::eVMCState_COMPATIBILITY_CHECK:		return v[20];
-	case cpubridge::eVMCState_CPU_NOT_SUPPORTED:		return v[21];
-	case cpubridge::eVMCState_DA3_SYNC:					return v[22];
-	case cpubridge::eVMCState_LAVAGGIO_MILKER_INDUX:	return v[26];
+    case cpubridge::eVMCState::COM_ERROR:				return v[18];
+	case cpubridge::eVMCState::REG_APERTURA_MACINA:		return v[19];
+	case cpubridge::eVMCState::COMPATIBILITY_CHECK:		return v[20];
+	case cpubridge::eVMCState::CPU_NOT_SUPPORTED:		return v[21];
+	case cpubridge::eVMCState::DA3_SYNC:					return v[22];
+	case cpubridge::eVMCState::LAVAGGIO_MILKER_INDUX:	return v[26];
 	}
 }
 
@@ -90,11 +90,11 @@ const char*	utils::verbose_eRunningSelStatus(cpubridge::eRunningSelStatus s)
 	switch (s)
 	{
 	default:												return UNKNOWN;
-	case cpubridge::eRunningSelStatus_wait:					return v[0];
-	case cpubridge::eRunningSelStatus_running:				return v[1];
-	case cpubridge::eRunningSelStatus_finished_KO:			return v[2];
-	case cpubridge::eRunningSelStatus_finished_OK:			return v[3];
-	case cpubridge::eRunningSelStatus_runningCanUseStopBtn:	return v[4];
+	case cpubridge::eRunningSelStatus::wait:					return v[0];
+	case cpubridge::eRunningSelStatus::running:				return v[1];
+	case cpubridge::eRunningSelStatus::finished_KO:			return v[2];
+	case cpubridge::eRunningSelStatus::finished_OK:			return v[3];
+	case cpubridge::eRunningSelStatus::runningCanUseStopBtn:	return v[4];
 	}
 
 }
@@ -134,9 +134,9 @@ const char*	utils::verbose_fileTransferStatus(eFileTransferStatus s)
 	switch (s)
 	{
 	default:								return UNKNOWN;
-	case eFileTransferStatus_finished_OK:	return v[0];
-	case eFileTransferStatus_finished_KO:	return v[1];
-	case eFileTransferStatus_inProgress:	return v[2];
+	case eFileTransferStatus::finished_OK:	return v[0];
+	case eFileTransferStatus::finished_KO:	return v[1];
+	case eFileTransferStatus::inProgress:	return v[2];
 	}
 }
 
@@ -155,12 +155,12 @@ const char*	utils::verbose_fileTransferFailReason(socketbridge::eFileTransferFai
 	switch (s)
 	{
 	default:														return UNKNOWN;
-	case socketbridge::eFileTransferFailReason_none:				return v[0];
-	case socketbridge::eFileTransferFailReason_timeout:				return v[1];
-	case socketbridge::eFileTransferFailReason_smuRefused:			return v[2];
-	case socketbridge::eFileTransferFailReason_localReadBufferTooShort: return v[3];
-	case socketbridge::eFileTransferFailReason_smuErrorOpeningFile: return v[4];
-	case socketbridge::eFileTransferFailReason_smuFileTooBigOrEmpty: return v[5];
+	case socketbridge::eFileTransferFailReason::none:				return v[0];
+	case socketbridge::eFileTransferFailReason::timeout:				return v[1];
+	case socketbridge::eFileTransferFailReason::smuRefused:			return v[2];
+	case socketbridge::eFileTransferFailReason::localReadBufferTooShort: return v[3];
+	case socketbridge::eFileTransferFailReason::smuErrorOpeningFile: return v[4];
+	case socketbridge::eFileTransferFailReason::smuFileTooBigOrEmpty: return v[5];
 	}
 }	
 
@@ -179,11 +179,11 @@ const char* utils::verbose_readDataFileStatus(cpubridge::eReadDataFileStatus sta
 	switch (status)
 	{
 	default:																	return UNKNOWN;
-	case cpubridge::eReadDataFileStatus_inProgress:								return v[0];
-	case cpubridge::eReadDataFileStatus_finishedOK:								return v[1];
-	case cpubridge::eReadDataFileStatus_finishedKO_cantStart_invalidState:		return v[2];
-	case cpubridge::eReadDataFileStatus_finishedKO_cpuDidNotAnswer:				return v[3];
-	case cpubridge::eReadDataFileStatus_finishedKO_unableToCreateFile:			return v[4];
+	case cpubridge::eReadDataFileStatus::inProgress:								return v[0];
+	case cpubridge::eReadDataFileStatus::finishedOK:								return v[1];
+	case cpubridge::eReadDataFileStatus::finishedKO_cantStart_invalidState:		return v[2];
+	case cpubridge::eReadDataFileStatus::finishedKO_cpuDidNotAnswer:				return v[3];
+	case cpubridge::eReadDataFileStatus::finishedKO_unableToCreateFile:			return v[4];
 	}
 }
 
@@ -204,13 +204,13 @@ const char* utils::verbose_writeDataFileStatus(cpubridge::eWriteDataFileStatus s
 	switch (status)
 	{
 	default:																	return UNKNOWN;
-	case cpubridge::eWriteDataFileStatus_inProgress:							return v[0];
-	case cpubridge::eWriteDataFileStatus_finishedOK:							return v[1];
-	case cpubridge::eWriteDataFileStatus_finishedKO_cantStart_invalidState:		return v[2];
-	case cpubridge::eWriteDataFileStatus_finishedKO_cpuDidNotAnswer:			return v[3];
-	case cpubridge::eWriteDataFileStatus_finishedKO_unableToCopyFile:			return v[4];
-	case cpubridge::eWriteDataFileStatus_finishedKO_unableToOpenLocalFile:		return v[5];
-	case cpubridge::eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2:			return v[6];
+	case cpubridge::eWriteDataFileStatus::inProgress:							return v[0];
+	case cpubridge::eWriteDataFileStatus::finishedOK:							return v[1];
+	case cpubridge::eWriteDataFileStatus::finishedKO_cantStart_invalidState:		return v[2];
+	case cpubridge::eWriteDataFileStatus::finishedKO_cpuDidNotAnswer:			return v[3];
+	case cpubridge::eWriteDataFileStatus::finishedKO_unableToCopyFile:			return v[4];
+	case cpubridge::eWriteDataFileStatus::finishedKO_unableToOpenLocalFile:		return v[5];
+	case cpubridge::eWriteDataFileStatus::finishedKO_cpuDidNotAnswer2:			return v[6];
 	}
 }
 
@@ -233,16 +233,16 @@ const char* utils::verbose_WriteCPUFWFileStatus (cpubridge::eWriteCPUFWFileStatu
 	switch (status)
 	{
 	default:																	return UNKNOWN;
-	case cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash:				return v[0];
-	case cpubridge::eWriteCPUFWFileStatus_inProgress: 							return v[1];
-	case cpubridge::eWriteCPUFWFileStatus_finishedOK: 							return v[2];
-	case cpubridge::eWriteCPUFWFileStatus_finishedKO_cantStart_invalidState:	return v[3];
-	case cpubridge::eWriteCPUFWFileStatus_finishedKO_unableToCopyFile:			return v[4];
-	case cpubridge::eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile:		return v[5];
-	case cpubridge::eWriteCPUFWFileStatus_finishedKO_k_notReceived: 			return v[6];
-	case cpubridge::eWriteCPUFWFileStatus_finishedKO_M_notReceived: 			return v[7];
-	case cpubridge::eWriteCPUFWFileStatus_finishedKO_h_notReceived: 			return v[8];
-	case cpubridge::eWriteCPUFWFileStatus_finishedKO_generalError: 				return v[9];
+	case cpubridge::eWriteCPUFWFileStatus::inProgress_erasingFlash:				return v[0];
+	case cpubridge::eWriteCPUFWFileStatus::inProgress: 							return v[1];
+	case cpubridge::eWriteCPUFWFileStatus::finishedOK: 							return v[2];
+	case cpubridge::eWriteCPUFWFileStatus::finishedKO_cantStart_invalidState:	return v[3];
+	case cpubridge::eWriteCPUFWFileStatus::finishedKO_unableToCopyFile:			return v[4];
+	case cpubridge::eWriteCPUFWFileStatus::finishedKO_unableToOpenLocalFile:		return v[5];
+	case cpubridge::eWriteCPUFWFileStatus::finishedKO_k_notReceived: 			return v[6];
+	case cpubridge::eWriteCPUFWFileStatus::finishedKO_M_notReceived: 			return v[7];
+	case cpubridge::eWriteCPUFWFileStatus::finishedKO_h_notReceived: 			return v[8];
+	case cpubridge::eWriteCPUFWFileStatus::finishedKO_generalError: 				return v[9];
 	}
 }
 
@@ -258,8 +258,8 @@ const char* utils::verbose_CPUMachineType(cpubridge::eCPUMachineType type)
 	switch (type)
 	{
 	default:												return UNKNOWN;
-	case cpubridge::eCPUMachineType_instant: 				return v[0];
-    case cpubridge::eCPUMachineType_espresso1:				return v[1];
-    case cpubridge::eCPUMachineType_espresso2:				return v[2];
+	case cpubridge::eCPUMachineType::instant: 				return v[0];
+    case cpubridge::eCPUMachineType::espresso1:				return v[1];
+    case cpubridge::eCPUMachineType::espresso2:				return v[2];
 	}
 }

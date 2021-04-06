@@ -11,7 +11,7 @@ void CmdHandler_eventReqSetAperturaVGrind::passDownRequestToCPUBridge (cpubridge
     assert (payloadLen >= 2);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(&payload[1], payloadLen-1, rhea::eBigEndian);
+	nbr.setup(&payload[1], payloadLen-1, rhea::eEndianess::eBigEndian);
 	
 	u8 macina_1o2 = 0;
 	u16 target = 100;

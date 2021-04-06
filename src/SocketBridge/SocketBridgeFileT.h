@@ -29,11 +29,11 @@ namespace socketbridge
 		static const u8			NUM_PACKET_IN_A_CHUNK = 24;
 
 	private:
-		enum eTransferStatus
+		enum class eTransferStatus: u8
 		{
-			eTransferStatus_pending = 0,
-			eTransferStatus_finished_OK = 1,
-			eTransferStatus_finished_KO = 2
+			pending = 0,
+			finished_OK = 1,
+			finished_KO = 2
 		};
 
 		struct sWhenAPPisUploading

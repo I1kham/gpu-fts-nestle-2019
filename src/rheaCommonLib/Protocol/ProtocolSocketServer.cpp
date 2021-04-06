@@ -32,7 +32,7 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
     logger->incIndent();
 
     eSocketError err = rhea::socket::openAsTCPServer(&sok, portNumber);
-    if (err != eSocketError_none)
+    if (err != eSocketError::none)
     {
         logger->log ("FAIL, error code=%d\n", err);
         logger->decIndent();
@@ -49,7 +49,7 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
         logger->log ("FAIL\n", err);
         logger->decIndent();
         rhea::socket::close(sok);
-        return eSocketError_errorListening;
+        return eSocketError::errorListening;
     }
     logger->log ("OK\n");
 
@@ -66,12 +66,12 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
 	//apro la socket UDP per il broadcastr hello
     logger->log ("opening UDP port [%d]...", portNumber+1);
 	err = rhea::socket::openAsUDP(&sokUDP);
-    if (err != eSocketError_none)
+    if (err != eSocketError::none)
         logger->log ("FAILED (open)[%d]\n", err);
     else
     {
         err = rhea::socket::UDPbind (sokUDP, portNumber + 1);
-        if (err != eSocketError_none)
+        if (err != eSocketError::none)
             logger->log ("FAILED (bind)[%d]\n", err);
         else
         {
@@ -85,7 +85,7 @@ eSocketError ProtocolSocketServer::start (u16 portNumber)
 
     logger->log ("Done!\n");
     logger->decIndent();
-    return eSocketError_none;
+    return eSocketError::none;
 }
 
 //****************************************************
@@ -134,16 +134,16 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
     //scanno gli eventi perchè non tutti vanno ritornati, ce ne sono alcuni che devo gesire da me
     for (u8 i=0; i<n; i++)
     {
-        if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_osevent)
+        if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::eEventOrigin::osevent)
         {
             //un OSEvent è stato fired(), lo segnalo negli eventi che ritorno
-            eventList[nEvents].evtType = ProtocolSocketServer::evt_osevent_fired;
+            eventList[nEvents].evtType = ProtocolSocketServer::eEventType::osevent_fired;
 			eventList[nEvents].data.if_event.osEvent = &waitableGrp.getEventSrcAsOSEvent(i);
 			eventList[nEvents++].data.if_event.userParam = waitableGrp.getEventUserParamAsU32(i);
             continue;
         }
 
-        else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::evt_origin_socket)
+        else if (waitableGrp.getEventOrigin(i) == OSWaitableGrp::eEventOrigin::socket)
         {
             //l'evento è stato generato da una socket
             if (waitableGrp.getEventUserParamAsU32(i) == u32MAX)
@@ -152,7 +152,7 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
                 HSokServerClient clientHandle;
                 if (priv_checkIncomingConnection (&clientHandle))
                 {
-                    eventList[nEvents].evtType = ProtocolSocketServer::evt_new_client_connected;
+                    eventList[nEvents].evtType = ProtocolSocketServer::eEventType::new_client_connected;
                     eventList[nEvents++].data.if_socket.clientHandleAsU32 = clientHandle.asU32();
                 }
             }
@@ -187,7 +187,7 @@ u8 ProtocolSocketServer::wait (u32 timeoutMSec)
                 //altimenti la socket che si è svegliata deve essere una dei miei client già  connessi, segnalo
                 //e ritorno l'evento
                 const u32 clientHandleAsU32 = waitableGrp.getEventUserParamAsU32(i);
-                eventList[nEvents].evtType = ProtocolSocketServer::evt_client_has_data_avail;
+                eventList[nEvents].evtType = ProtocolSocketServer::eEventType::client_has_data_avail;
                 eventList[nEvents++].data.if_socket.clientHandleAsU32 = clientHandleAsU32;
             }
             continue;
@@ -224,10 +224,10 @@ void ProtocolSocketServer::priv_onClientDeath (sRecord *r)
 	for (u8 i = 0; i < nEvents; i++)
 	{
 		const u16 ev = (u16)eventList[i].evtType;
-		if (ev >= evt_new_client_connected && ev <= evt_client_max)
+		if (ev >= (u16)eEventType::new_client_connected && ev <= (u16)eEventType::client_max)
 		{
 			if (eventList[i].data.if_socket.clientHandleAsU32 == r->handle.asU32())
-				eventList[i].evtType = evt_ignore;
+				eventList[i].evtType = eEventType::ignore;
 		}
 	}
 
@@ -270,7 +270,7 @@ u32 ProtocolSocketServer::getEventSrcUserParam(u8 iEvent) const
 OSEvent* ProtocolSocketServer::getEventSrcAsOSEvent(u8 iEvent) const
 {
     assert (iEvent < nEvents);
-    assert (eventList[iEvent].evtType == ProtocolSocketServer::evt_osevent_fired);
+    assert (eventList[iEvent].evtType == ProtocolSocketServer::eEventType::osevent_fired);
     return eventList[iEvent].data.if_event.osEvent;
 }
 
@@ -278,7 +278,7 @@ OSEvent* ProtocolSocketServer::getEventSrcAsOSEvent(u8 iEvent) const
 HSokServerClient ProtocolSocketServer::getEventSrcAsClientHandle(u8 iEvent) const
 {
     assert (iEvent < nEvents);
-    assert (eventList[iEvent].evtType >= 100);
+    assert ((u16)eventList[iEvent].evtType >= 100);
 
     HSokServerClient h;
     h.initFromU32(eventList[iEvent].data.if_socket.clientHandleAsU32);

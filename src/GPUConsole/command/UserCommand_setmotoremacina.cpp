@@ -41,7 +41,7 @@ void UserCommand_setmotoremacina::handle(const char *command, rhea::IProtocolCha
 	{
 		if (value >= 0 && value <= 2)
 		{
-			rhea::app::SetMotoreMacina::ask(ch, proto, (u8)macina_1o2, (cpubridge::eCPUProgrammingCommand_macinaMove)value);
+			rhea::app::SetMotoreMacina::ask(ch, proto, (u8)macina_1o2, (cpubridge::eCPUProg_macinaMove)value);
 			log->log("request sent\n");
 		}
 		else

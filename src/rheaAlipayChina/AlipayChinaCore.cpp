@@ -63,7 +63,7 @@ bool Core::priv_openSocket (OSSocket *sok)
 	logger->log("opening socket at %s:%d\n", serverIP, serverPort);
 	
 	eSocketError err = socket::openAsTCPClient (sok, serverIP, serverPort);
-	if (eSocketError_none != err)
+	if (eSocketError::none != err)
 	{
 		logger->log("error [%d]\n", (u32)err);
 		return false;
@@ -98,7 +98,7 @@ void Core::run ()
             default:
                 break;
 
-            case OSWaitableGrp::evt_origin_osevent:
+            case OSWaitableGrp::eEventOrigin::osevent:
                 if (waitableGrp.getEventUserParamAsU32(i) == MSGQ_WAITID)
                 {
                     priv_handleIncomingThreadMsg(sok);
@@ -113,7 +113,7 @@ void Core::run ()
 
 
     memset (&theOrder, 0, sizeof(theOrder));
-	theOrder.status = Core::eOrderStatus_none;
+	theOrder.status = Core::eOrderStatus::none;
 
 	bool bIsSocketConnected = false;
 	u64 nextTimeSendHeartBeatMSec = 0;
@@ -131,10 +131,10 @@ void Core::run ()
 			nInRCVBuffer = 0;
 			lastTimeHeartBeatRCVMSec = 0;
 
-			if (theOrder.status != Core::eOrderStatus_none)
+			if (theOrder.status != Core::eOrderStatus::none)
 			{
-				priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
-				priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentTimeout);
+				priv_orderClose (sok, Core::eOrderCloseStatus::TIMEOUT);
+				priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentTimeout);
 			}
 			bIsSocketConnected = priv_openSocket (&sok);
 			if (bIsSocketConnected)
@@ -161,10 +161,10 @@ void Core::run ()
 			if (timeNowMSec >= nextTimeSendHeartBeatMSec)
 			{
 				nextTimeSendHeartBeatMSec = timeNowMSec + SEND_HEARTBEAT_EVERY_MSEC;
-				if (theOrder.status != Core::eOrderStatus_none)
+				if (theOrder.status != Core::eOrderStatus::none)
 				{
-					priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
-					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentTimeout);
+					priv_orderClose (sok, Core::eOrderCloseStatus::TIMEOUT);
+					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentTimeout);
 				}
 				priv_sendLogin(sok);
 			}
@@ -182,10 +182,10 @@ void Core::run ()
 			if (lastTimeHeartBeatRCVMSec > 0 && timeNowMSec - lastTimeHeartBeatRCVMSec > 65000)
 			{
 				logger->log ("AlipayChinaCore::run() => last heartbeat was rcv more than [%d] ms ago, disconnecting\n", (u32)(timeNowMSec - lastTimeHeartBeatRCVMSec));
-				if (theOrder.status != Core::eOrderStatus_none)
+				if (theOrder.status != Core::eOrderStatus::none)
 				{
-					priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
-					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentTimeout);
+					priv_orderClose (sok, Core::eOrderCloseStatus::TIMEOUT);
+					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentTimeout);
 				}
 				bIsLoggedIntoChinaServer = false;
 				bIsSocketConnected = false;
@@ -197,30 +197,30 @@ void Core::run ()
 
 
 			//gestione dell'ordine in corso
-			if (theOrder.status == Core::eOrderStatus_requestSent)
+			if (theOrder.status == Core::eOrderStatus::requestSent)
 			{
 				//ho chiesto il QR al server, sto aspettando risposta
 				if (timeNowMSec >= theOrder.timeoutMSec)
 				{
 					logger->log ("Order timed out waiting for QR code\n");
-					if (theOrder.status != Core::eOrderStatus_none)
+					if (theOrder.status != Core::eOrderStatus::none)
 					{
-						priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
-						priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentTimeout);
+						priv_orderClose (sok, Core::eOrderCloseStatus::TIMEOUT);
+						priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentTimeout);
 					}
 				}
 			}
-			else if (theOrder.status == Core::eOrderStatus_pollingPaymentStatus)
+			else if (theOrder.status == Core::eOrderStatus::pollingPaymentStatus)
 			{
 				//ho ricevuto il qr, ora pollo il server per sapere se l'utente ha pagato
 				if (timeNowMSec >= theOrder.timeoutMSec)
 				{
 					//l'utente non ha pagato nel tempo prestabilito, termino l'ordine
 					logger->log ("Order timed out, user did not pay in time, order aborted\n");
-					if (theOrder.status != Core::eOrderStatus_none)
+					if (theOrder.status != Core::eOrderStatus::none)
 					{
-						priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
-						priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentTimeout);
+						priv_orderClose (sok, Core::eOrderCloseStatus::TIMEOUT);
+						priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentTimeout);
 					}
 				}
 				else if (timeNowMSec >= theOrder.nextTimePollPaymentoMSec)
@@ -230,35 +230,35 @@ void Core::run ()
 					theOrder.nextTimePollPaymentoMSec += PAYMENT_POLL_MSec;
 				}
 			}
-			else if (theOrder.status == Core::eOrderStatus_paymentOK)
+			else if (theOrder.status == Core::eOrderStatus::paymentOK)
 			{
 				//l'utente ha pagato, ora aspetto che qualcuno mi comunichi se la bevanda è stata servita con successo
 				logger->log ("Order [%s] has been paid, now waiting to know when beverage has been delivered\n", theOrder.orderNumber);
-				priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentOK);
-				theOrder.status = Core::eOrderStatus_waitingBeverageEnd;
+				priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentOK);
+				theOrder.status = Core::eOrderStatus::waitingBeverageEnd;
 				theOrder.timeoutMSec = rhea::getTimeNowMSec() + 120000;
 			}
-			else if (theOrder.status == Core::eOrderStatus_waitingBeverageEnd)
+			else if (theOrder.status == Core::eOrderStatus::waitingBeverageEnd)
 			{
 				//sono in attesa che la selezione termini e che qualcuno mi dica il risultato dell'erogazione
 				if (timeNowMSec >= theOrder.timeoutMSec)
 				{
 					//la selezione ci ha messo troppo, qualcosa non va, abortisco l'ordine sul server
 					logger->log ("Order timed out while waiting for beverage ends, order aborted\n");
-					priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
+					priv_orderClose (sok, Core::eOrderCloseStatus::TIMEOUT);
 				}
 			}
-			else if (theOrder.status == Core::eOrderStatus_finishedOK)
+			else if (theOrder.status == Core::eOrderStatus::finishedOK)
 			{
 				logger->log ("Order [%s] finished, SUCCESS\n", theOrder.orderNumber);
-				priv_orderClose (sok, Core::eOrderCloseStatus_SUCCESS);
+				priv_orderClose (sok, Core::eOrderCloseStatus::SUCCESS);
 			}
-			else if (theOrder.status == Core::eOrderStatus_finishedKO)
+			else if (theOrder.status == Core::eOrderStatus::finishedKO)
 			{
 				logger->log ("Order [%s] finished, FAIL\n", theOrder.orderNumber);
-				priv_orderClose (sok, Core::eOrderCloseStatus_FAILED);
+				priv_orderClose (sok, Core::eOrderCloseStatus::FAILED);
 			}
-			else if (theOrder.status == Core::eOrderStatus_closing)
+			else if (theOrder.status == Core::eOrderStatus::closing)
 			{
 				//ho inviato la richiesta di "chiusura ordine" (E15) e sto aspettando che il server confermi
 			}
@@ -275,7 +275,7 @@ void Core::run ()
 				logger->log ("AlipayChinaCore::run(), unknown event origin: %d\n", waitableGrp.getEventOrigin(i));
 				break;
 
-			case OSWaitableGrp::evt_origin_socket:
+			case OSWaitableGrp::eEventOrigin::socket:
 				if (waitableGrp.getEventUserParamAsU32(i) == THIS_SOCKET_WAITID)
 				{
 					if (bIsSocketConnected)
@@ -295,7 +295,7 @@ void Core::run ()
 				}
 				break;
 
-			case OSWaitableGrp::evt_origin_osevent:
+			case OSWaitableGrp::eEventOrigin::osevent:
 				if (waitableGrp.getEventUserParamAsU32(i) == MSGQ_WAITID)
 					priv_handleIncomingThreadMsg(sok);
 				else
@@ -363,10 +363,10 @@ bool Core::priv_handleIncomingSocketMsg(OSSocket &sok)
 			//elaboro il comando
 			switch (response.command)
 			{
-			case Core::eResponseCommand_none:
+			case Core::eResponseCommand::none:
 				break;
 
-			case Core::eResponseCommand_E11:	//login
+			case Core::eResponseCommand::E11:	//login
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E11 response, status [%c]\n", response.asE11.status);
 				if (response.asE11.status == '0')
 				{
@@ -387,24 +387,24 @@ bool Core::priv_handleIncomingSocketMsg(OSSocket &sok)
 						priv_notify_ONLINE_STATUS_CHANGED();
 					}
 					
-					theOrder.status = Core::eOrderStatus_none;
+					theOrder.status = Core::eOrderStatus::none;
 				}
 				break;
 
-			case Core::eResponseCommand_E12:	//heartbeat
+			case Core::eResponseCommand::E12:	//heartbeat
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E12 response, status [%c]\n", response.asE12.status);
 				lastTimeHeartBeatRCVMSec = rhea::getTimeNowMSec();
 				break;
 
-			case Core::eResponseCommand_E13: //risposta a priv_orderStart()
+			case Core::eResponseCommand::E13: //risposta a priv_orderStart()
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E13, [%s] [%s] [%s]\n", response.asE13.orderNumber, response.asE13.qrCodeURL, response.asE13.paymentMethod);
 
 				if (response.asE13.orderNumber[0] == 0x00)
 				{
 					//il server ha generato un errore, devo abortire l'ordine
 					logger->log ("Server error while generating QR, aborting order\n");
-					priv_orderClose (sok, Core::eOrderCloseStatus_TIMEOUT);
-					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentTimeout);
+					priv_orderClose (sok, Core::eOrderCloseStatus::TIMEOUT);
+					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentTimeout);
 				}
 				else
 				{
@@ -414,24 +414,24 @@ bool Core::priv_handleIncomingSocketMsg(OSSocket &sok)
 					strcpy_s (theOrder.acceptedPaymentMethods, sizeof(theOrder.acceptedPaymentMethods), response.asE13.paymentMethod);
 					theOrder.timeoutMSec = rhea::getTimeNowMSec() + TIMEOUT_FOR_PAYMENT_MSec;
 					theOrder.nextTimePollPaymentoMSec = rhea::getTimeNowMSec() + PAYMENT_POLL_MSec;
-					theOrder.status = Core::eOrderStatus_pollingPaymentStatus;
+					theOrder.status = Core::eOrderStatus::pollingPaymentStatus;
 					
-					priv_notify_ORDER_STATUS (AlipayChina::eOrderStatus_pollingPaymentStatus, theOrder.qrCodeURL, strlen(theOrder.qrCodeURL)+1);
+					priv_notify_ORDER_STATUS (AlipayChina::eOrderStatus::pollingPaymentStatus, theOrder.qrCodeURL, strlen(theOrder.qrCodeURL)+1);
 				}
 				break;
 
-			case Core::eResponseCommand_E14: //risposta a priv_orderAskForPaymentStatus()
+			case Core::eResponseCommand::E14: //risposta a priv_orderAskForPaymentStatus()
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E14 response, status [%d], order [%s]\n", response.asE14.status, response.asE14.orderNumber);
 				if (response.asE14.status == '3')
 				{
-					theOrder.status = Core::eOrderStatus_paymentOK;
-					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus_paymentOK);
+					theOrder.status = Core::eOrderStatus::paymentOK;
+					priv_notify_ORDER_STATUS(AlipayChina::eOrderStatus::paymentOK);
 				}
 				break;
 
-			case Core::eResponseCommand_E15: //risposta a priv_orderClose()
+			case Core::eResponseCommand::E15: //risposta a priv_orderClose()
 				logger->log ("AlipayChinaCore::priv_handleIncomingSocketMsg() => rcv E15 response, status [%d], order [%s]\n", response.asE15.status, response.asE15.orderNumber);
-				theOrder.status = Core::eOrderStatus_none;
+				theOrder.status = Core::eOrderStatus::none;
 				break;
 			}
 		}
@@ -443,7 +443,7 @@ bool Core::priv_handleIncomingSocketMsg(OSSocket &sok)
 //***************************************************
 u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *out)
 {
-	out->command = Core::eResponseCommand_none;
+	out->command = Core::eResponseCommand::none;
 	
 	//La risposta del server inizia sempre con
 	// machineID|CCC|YYYYMMDDHHMMSS|....#
@@ -490,7 +490,7 @@ u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *
 		//C20190001 | E11 | 20191029223012 | 0 #
 		if (sizeOfBuffer < minSizeOfAMsg + 1)
 			return 0;
-		out->command = Core::eResponseCommand_E11;
+		out->command = Core::eResponseCommand::E11;
 		out->asE11.status = buffer[n++];
 	}
 	else if (strncasecmp(command, "E12", 3) == 0)
@@ -498,7 +498,7 @@ u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *
 		//C20190001 | E12 | 20191029223012 | 0 #
 		if (sizeOfBuffer < minSizeOfAMsg + 1)
 			return 0;
-		out->command = Core::eResponseCommand_E12;
+		out->command = Core::eResponseCommand::E12;
 		out->asE12.status = buffer[n++];
 	}
 	else if (strncasecmp(command, "E13", 3) == 0)
@@ -512,7 +512,7 @@ u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *
 		if (buffer[n] == 'E' && buffer[n + 1] == 'E' && buffer[n + 2] == '|')
 		{
 			//cerco # di fine messaggi e ritorno
-			out->command = Core::eResponseCommand_E13;
+			out->command = Core::eResponseCommand::E13;
 			out->asE13.orderNumber[0] = 0x00;
 			while (n < sizeOfBuffer)
 			{
@@ -549,7 +549,7 @@ u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *
 			if (pipe2Found >= sharpFound)
 				return 0;
 
-			out->command = Core::eResponseCommand_E13;
+			out->command = Core::eResponseCommand::E13;
 
 			memcpy (out->asE13.orderNumber, &buffer[n], pipe1Found - n);
 			out->asE13.orderNumber[pipe1Found - n] = 0x00;
@@ -593,7 +593,7 @@ u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *
 		if (pipeFound >= sharpFound)
 			return 0;
 
-		out->command = Core::eResponseCommand_E14;
+		out->command = Core::eResponseCommand::E14;
 
 		memcpy (out->asE14.orderNumber, &buffer[n], pipeFound - n);
 		out->asE14.orderNumber[pipeFound - n] = 0x00;
@@ -628,7 +628,7 @@ u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *
 		if (pipeFound >= sharpFound)
 			return 0;
 
-		out->command = Core::eResponseCommand_E15;
+		out->command = Core::eResponseCommand::E15;
 
 		memcpy (out->asE15.orderNumber, &buffer[n], pipeFound - n);
 		out->asE15.orderNumber[pipeFound - n] = 0x00;
@@ -640,7 +640,7 @@ u32 Core::priv_parserRCVCommand (const u8 *buffer, u32 sizeOfBuffer, sResponse *
 	{
 		//comando non riconosciuto
 		logger->log ("AlipayChinaCore::priv_parserRCVCommand() => command [%s] not handled\n", out->command);
-		out->command = Core::eResponseCommand_none;
+		out->command = Core::eResponseCommand::none;
 		return minSizeOfAMsg;
 	}
 
@@ -706,7 +706,7 @@ void Core::priv_getTimestamp(char *out, u32 sizeofOut) const
 bool Core::priv_orderStart (OSSocket &sok, const u8 *selectionName, u8 selectionNum, const char *selectionPrice)
 {
 	logger->log ("AlipayChinaCore::priv_orderStart()\n");
-	if (theOrder.status != Core::eOrderStatus_none)
+	if (theOrder.status != Core::eOrderStatus::none)
 	{
 		logger->incIndent();
 		logger->log ("ERR: theOrder.status != none [status=%d]\n", (u8)theOrder.status);
@@ -718,7 +718,7 @@ bool Core::priv_orderStart (OSSocket &sok, const u8 *selectionName, u8 selection
 	theOrder.param_selectionNumber = selectionNum;
 	sprintf_s (theOrder.param_selectionPrice, sizeof(theOrder.param_selectionPrice), "%s", selectionPrice);
 	theOrder.orderNumber[0] = 0x00;
-	theOrder.status = Core::eOrderStatus_requestSent;
+	theOrder.status = Core::eOrderStatus::requestSent;
 	theOrder.timeoutMSec = rhea::getTimeNowMSec() + 3000;
 
 	u8 buffer[512];
@@ -750,7 +750,7 @@ void Core::priv_orderAskForPaymentStatus (OSSocket &sok)
 //***************************************************
 void Core::priv_orderClose (OSSocket &sok, eOrderCloseStatus statusForServer)
 {
-	if (theOrder.status == eOrderStatus_none)
+	if (theOrder.status == eOrderStatus::none)
 		return;
 	
 	char s[128];
@@ -760,7 +760,7 @@ void Core::priv_orderClose (OSSocket &sok, eOrderCloseStatus statusForServer)
 	const u32 nBytesToSend = priv_buildCommand ("E15", (const u8*)s, buffer, sizeof(buffer));
 	priv_sendCommand (sok, buffer, nBytesToSend);
 
-	theOrder.status = Core::eOrderStatus_closing;
+	theOrder.status = Core::eOrderStatus::closing;
 
 }
 
@@ -850,7 +850,7 @@ void Core::priv_handleIncomingThreadMsg(OSSocket &sok)
 			break;
 
 		case ALIPAYCHINA_ASK_ABORT_ORDER:
-			if (theOrder.status != Core::eOrderStatus_pollingPaymentStatus)
+			if (theOrder.status != Core::eOrderStatus::pollingPaymentStatus)
 			{
 				logger->log ("AlipayChinaCore::ALIPAYCHINA_ASK_ABORT_ORDER() => error, order was in wrong status [%d]\n", (u8)theOrder.status);
 			}
@@ -862,7 +862,7 @@ void Core::priv_handleIncomingThreadMsg(OSSocket &sok)
 			break;
 
 		case ALIPAYCHINA_ASK_END_ORDER:
-			if (theOrder.status != Core::eOrderStatus_waitingBeverageEnd)
+			if (theOrder.status != Core::eOrderStatus::waitingBeverageEnd)
 			{
 				logger->log ("AlipayChinaCore::ALIPAYCHINA_ASK_END_ORDER() => error, order was in wrong status [%d]\n", (u8)theOrder.status);
 			}
@@ -870,9 +870,9 @@ void Core::priv_handleIncomingThreadMsg(OSSocket &sok)
 			{
 				logger->log ("AlipayChinaCore::ALIPAYCHINA_ASK_END_ORDER(%d)\n", msg.paramU32);
 				if (msg.paramU32 == 1)
-					theOrder.status = eOrderStatus_finishedOK;
+					theOrder.status = eOrderStatus::finishedOK;
 				else
-					theOrder.status = eOrderStatus_finishedKO;
+					theOrder.status = eOrderStatus::finishedKO;
 			}
 			break;
 		}
@@ -899,5 +899,5 @@ void Core::priv_notify_ONLINE_STATUS_CHANGED()
 //***************************************************
 void Core::priv_notify_ORDER_STATUS (AlipayChina::eOrderStatus s, const void *data, u32 sizeOfData)
 {
-	priv_doNotifyAll (ALIPAYCHINA_NOTIFY_ORDER_STATUS, s, data, sizeOfData);
+	priv_doNotifyAll (ALIPAYCHINA_NOTIFY_ORDER_STATUS, (u32)s, data, sizeOfData);
 }

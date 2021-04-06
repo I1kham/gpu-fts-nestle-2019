@@ -25,7 +25,7 @@ void CmdHandler_eventReqWriteLocalVMCDataFile::onCPUBridgeNotification (socketbr
 
 	u8 buffer[8];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(&buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(&buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
 

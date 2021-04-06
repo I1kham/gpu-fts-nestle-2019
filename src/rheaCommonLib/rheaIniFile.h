@@ -123,12 +123,12 @@ namespace rhea
 		utf8::String			name;
 
 	private:
-		enum eElem
+		enum class eElem : u8
 		{
-			eElemComment			= 0,
-			eElemSubsection			= 1,
-			eElemIdentifierValue	= 2,
-			eElemBlob				= 3
+			comment				= 0,
+			subsection			= 1,
+			identifierValue		= 2,
+			blob				= 3
 		};
 		class sElem
 		{

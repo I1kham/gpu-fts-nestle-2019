@@ -136,19 +136,19 @@ void FileTransfer::priv_fillTransferInfo (const sRecord *s, sTansferInfo *out) c
 	switch (s->status)
 	{
 	case STATUS_IN_PROGRESS:
-		out->status = app::eFileTransferStatus_inProgress; 
-		out->failReason = socketbridge::eFileTransferFailReason_none;
+		out->status = app::eFileTransferStatus::inProgress; 
+		out->failReason = socketbridge::eFileTransferFailReason::none;
 		break;
 	
 	case STATUS_FINISHED_OK: 
-		out->status = app::eFileTransferStatus_finished_OK; 
-		out->failReason = socketbridge::eFileTransferFailReason_none;
+		out->status = app::eFileTransferStatus::finished_OK; 
+		out->failReason = socketbridge::eFileTransferFailReason::none;
 		out->currentTransferSizeInBytes = s->fileSizeInBytes;
 		break;
 	
 	default:
 	case STATUS_FINISHED_KO:
-		out->status = app::eFileTransferStatus_finished_KO; 
+		out->status = app::eFileTransferStatus::finished_KO; 
 		out->failReason = (socketbridge::eFileTransferFailReason)s->whatAmIDoing;
 		break;
 	}
@@ -172,7 +172,7 @@ FileTransfer::sRecord* FileTransfer::priv_fromHandleAsU32(u32 hAsU32) const
 void FileTransfer::onMessage (u64 timeNowMSec, const sDecodedFileTransfMsg &msg)
 {
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.payload, msg.payloadLen, rhea::eBigEndian);
+	nbr.setup(msg.payload, msg.payloadLen, rhea::eEndianess::eBigEndian);
 
 	u8 opcode; 
 	nbr.readU8(opcode);
@@ -183,11 +183,11 @@ void FileTransfer::onMessage (u64 timeNowMSec, const sDecodedFileTransfMsg &msg)
 		//logger->log("ERR: FileTransfer::onMessage() => invalid opcode [%d]\n", opcode);
 		break;
 
-	case socketbridge::eFileTransferOpcode_upload_request_fromApp_answ:				priv_on0x02(timeNowMSec, nbr); break;
-	case socketbridge::eFileTransferOpcode_upload_request_fromApp_packet_answ:		priv_on0x04(timeNowMSec, nbr); break;
+	case socketbridge::eFileTransferOpcode::upload_request_fromApp_answ:			priv_on0x02(timeNowMSec, nbr); break;
+	case socketbridge::eFileTransferOpcode::upload_request_fromApp_packet_answ:		priv_on0x04(timeNowMSec, nbr); break;
 
-	case socketbridge::eFileTransferOpcode_download_request_fromApp_answ:			priv_on0x52(timeNowMSec, nbr); break;
-	case socketbridge::eFileTransferOpcode_download_request_fromApp_packet:			priv_on0x53(timeNowMSec, nbr); break;
+	case socketbridge::eFileTransferOpcode::download_request_fromApp_answ:			priv_on0x52(timeNowMSec, nbr); break;
+	case socketbridge::eFileTransferOpcode::download_request_fromApp_packet:		priv_on0x53(timeNowMSec, nbr); break;
 	}
 }
 
@@ -232,7 +232,7 @@ bool FileTransfer::update(u64 timeNowMSec)
 		if (timeNowMSec >= s->timeoutMSec)
 		{
 			//libero le risorse, genero un evento e rimuovo l'handler dalla activeList
-			priv_failed (s, socketbridge::eFileTransferFailReason_timeout, true);
+			priv_failed (s, socketbridge::eFileTransferFailReason::timeout, true);
 			activeHandleList.removeAndSwapWithLast(i);
 			--i;
 			--n;
@@ -343,12 +343,12 @@ void FileTransfer::priv_sendChunkOfPackets(sRecord *s, u16 nPacket)
 	if (s->packetSize > (SIZE_OF_READ_BUFFER_FROM_FILE - 32))
 	{
 		DBGBREAK;
-		priv_failed(s, socketbridge::eFileTransferFailReason_localReadBufferTooShort, true);
+		priv_failed(s, socketbridge::eFileTransferFailReason::localReadBufferTooShort, true);
 		return;
 	}
 
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(bufferReadFromFile, SIZE_OF_READ_BUFFER_FROM_FILE, rhea::eBigEndian);
+	nbw.setup(bufferReadFromFile, SIZE_OF_READ_BUFFER_FROM_FILE, rhea::eEndianess::eBigEndian);
 
 	u32 iPacket = s->other.whenUploading.packetNum;
 	u32 fileOffset = iPacket * s->packetSize;
@@ -367,8 +367,8 @@ void FileTransfer::priv_sendChunkOfPackets(sRecord *s, u16 nPacket)
 		else
 			nBytesLeft -= nByteToRead;
 
-		nbw.seek(0, rhea::eSeekStart);
-		nbw.writeU8((u8)socketbridge::eFileTransferOpcode_upload_request_fromApp_packet);
+		nbw.seek(0, rhea::eSeek::start);
+		nbw.writeU8((u8)socketbridge::eFileTransferOpcode::upload_request_fromApp_packet);
 		nbw.writeU32(s->smuFileTransfUID);
 		nbw.writeU32(iPacket);
 		nbw.writeU8(chunkSeq);
@@ -403,7 +403,7 @@ void FileTransfer::priv_on0x02 (u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr
 	if (data.reason_refused != 0)
 	{
 		//SMU ha rifiutato la mia richiesta
-		priv_failed (s, socketbridge::eFileTransferFailReason_smuRefused, true);
+		priv_failed (s, socketbridge::eFileTransferFailReason::smuRefused, true);
 		return;
 	}
 
@@ -458,7 +458,7 @@ void FileTransfer::priv_on0x04 (u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr
 	{
 		//ho finito!!
 		s->status = STATUS_FINISHED_OK;
-		s->whatAmIDoing = (u8)socketbridge::eFileTransferFailReason_none;
+		s->whatAmIDoing = (u8)socketbridge::eFileTransferFailReason::none;
 		s->timeoutMSec = 0;
 
 		//aggiungo un evento di uscita per segnalare che il transfert è terminato
@@ -568,7 +568,7 @@ void FileTransfer::priv_on0x52(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
 	if (data.reason_refused != 0)
 	{
 		//SMU ha rifiutato la mia richiesta
-		priv_failed(s, socketbridge::eFileTransferFailReason_smuRefused, true);
+		priv_failed(s, socketbridge::eFileTransferFailReason::smuRefused, true);
 		return;
 	}
 

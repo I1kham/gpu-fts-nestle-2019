@@ -12,7 +12,7 @@ namespace socketbridge
         Input:
             command: runMotor
             params:
-				m: motor, da 1 a 13 vedi enum cpubridge::eCPUProgrammingCommand_motor
+				m: motor, da 1 a 13 vedi enum cpubridge::eCPUProg_motor
 				d: durata in dSec (intero)
 				n: numero di ripetuzioni (intero)
 				p: pausa tra una rip e l'altra (dsec)

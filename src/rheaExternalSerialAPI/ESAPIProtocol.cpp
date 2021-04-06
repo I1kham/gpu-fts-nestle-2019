@@ -14,7 +14,7 @@ Protocol::Protocol()
     cpuBridgeSubscriber = NULL;
     waitableGrp = NULL;
     bufferOUT = NULL;
-    runningSel.status = cpubridge::eRunningSelStatus_finished_OK;
+    runningSel.status = cpubridge::eRunningSelStatus::finished_OK;
 }
 
 //*********************************************************
@@ -27,7 +27,7 @@ bool Protocol::setup (rhea::Allocator *allocator, cpubridge::sSubscriber *cpuBri
     //apertura rs232
 	logger->log ("esapi::Protocol::setup => opening com=%s   ", serialPort);
     const bool SERIAL_IS_BLOCKING = false;
-    if (!rhea::rs232::open(&rs232, serialPort, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No, SERIAL_IS_BLOCKING))
+    if (!rhea::rs232::open(&rs232, serialPort, eRS232BaudRate::b115200, false, false, eRS232DataBits::b8, eRS232Parity::No, eRS232StopBits::One, eRS232FlowControl::No, SERIAL_IS_BLOCKING))
     {
         logger->log ("FAILED. unable to open port [%s]\n", serialPort);
         logger->decIndent();
@@ -297,7 +297,7 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
 				return 2;
 
 			//rispondo.
-			const u8 data[4] = { ESAPI_VERSION_MAJOR, ESAPI_VERSION_MINOR, esapi::eGPUType_TS, 0 };
+			const u8 data[4] = { ESAPI_VERSION_MAJOR, ESAPI_VERSION_MINOR, (u8)esapi::eGPUType::TS, 0 };
 			rs232_esapiSendAnswer ('A', '1', data, 3);
 		}
 		return 4;
@@ -430,7 +430,7 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
             //indicare lo stato di avanzamento della selezione
 			if (selNumber > 0)
 			{
-				runningSel.status = cpubridge::eRunningSelStatus_wait;
+				runningSel.status = cpubridge::eRunningSelStatus::wait;
 				cpubridge::ask_CPU_START_SELECTION (*cpuBridgeSubscriber, selNumber);
 			}
 
@@ -478,8 +478,8 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 			else
 			{
 				const u16 price = rhea::utils::bufferReadU16_LSB_MSB(&b.buffer[4]);
-				runningSel.status = cpubridge::eRunningSelStatus_wait;
-				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (*cpuBridgeSubscriber, selNum, price, cpubridge::eGPUPaymentType_unknown);
+				runningSel.status = cpubridge::eRunningSelStatus::wait;
+				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (*cpuBridgeSubscriber, selNum, price, cpubridge::eGPUPaymentType::unknown);
 			}
 
 			//rispondo

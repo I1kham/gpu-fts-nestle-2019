@@ -51,7 +51,7 @@ IniFileSection* IniFileSection::addSubsection (const u8* const name)
 		subSection[n] = ret;
 
 		u32 n2 = elements.getNElem();
-		elements[n2].what = eElemSubsection;
+		elements[n2].what = eElem::subsection;
 		elements[n2].index = n;
 	}
 	return ret;
@@ -92,7 +92,7 @@ void IniFileSection::set (const u8* const identifierName, const u8* const valueI
 				identifier[index] = identifierName;
 
 				u32 n2 = elements.getNElem();
-				elements[n2].what = eElemIdentifierValue;
+				elements[n2].what = eElem::identifierValue;
 				elements[n2].index = index;
 				value[index].setFrom (valueIN, (u32)string::utf8::lengthInBytes(valueIN));
 			}
@@ -132,7 +132,7 @@ void IniFileSection::priv_set (const u8* const identifierName, const u8* const v
 		identifier[i] = identifierName;
 
 		u32 n2 = elements.getNElem();
-		elements[n2].what = eElemIdentifierValue;
+		elements[n2].what = eElem::identifierValue;
 		elements[n2].index = i;
 	}
 
@@ -149,7 +149,7 @@ void IniFileSection::addComment (const u8* const c, u32 len)
 	comments[n].setFrom (c, len);
 		
 	u32 n2 = elements.getNElem();
-	elements[n2].what = eElemComment;
+	elements[n2].what = eElem::comment;
 	elements[n2].index = n;
 }
 
@@ -163,7 +163,7 @@ void IniFileSection::addBlob (const u8* const c, u32 len)
 	blob[n].setFrom (c, len);
 		
 	u32 n2 = elements.getNElem();
-	elements[n2].what = eElemBlob;
+	elements[n2].what = eElem::blob;
 	elements[n2].index = n;
 }
 
@@ -207,21 +207,21 @@ void IniFileSection::save (FILE *f, u32 tabCount) const
 			DBGBREAK;
 			break;
 
-		case eElemBlob:
+		case eElem::blob:
 			rhea::fs::fileWrite (f, blob(elements(i2).index).getBuffer(), blob(elements(i2).index).lengthInBytes());
 			break;
 
-		case eElemComment:
+		case eElem::comment:
 			BW_WRITE_TABS
 			rhea::fs::fileWrite (f, comments(elements(i2).index).getBuffer(), comments(elements(i2).index).lengthInBytes());
 			BW_WRITE_EOL
 			break;
 
-		case eElemSubsection:
+		case eElem::subsection:
 			subSection(elements(i2).index)->save (f, tabCount);
 			break;
 
-		case eElemIdentifierValue:
+		case eElem::identifierValue:
 			{
 				u32 i = elements(i2).index;
 

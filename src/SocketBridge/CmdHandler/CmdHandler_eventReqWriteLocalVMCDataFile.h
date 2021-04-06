@@ -24,7 +24,7 @@ namespace socketbridge
     class CmdHandler_eventReqWriteLocalVMCDataFile : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_reqWriteLocalVMCDataFile;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::reqWriteLocalVMCDataFile;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS;
 		
 		CmdHandler_eventReqWriteLocalVMCDataFile(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

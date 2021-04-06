@@ -50,7 +50,7 @@ TaskStatus*	TaskFactory::spawnAndRunTask (rhea::Allocator *allocator, const char
 
 	rhea::HThread hThread;
 	eThreadError err = rhea::thread::create(&hThread, socketbridge::SocketBridgeTaskThreadFn, status, 1024);
-	if (err != eThreadError_none)
+	if (err != eThreadError::none)
 	{
 		RHEADELETE(allocator, status->_task);
 		RHEADELETE(allocator, status);

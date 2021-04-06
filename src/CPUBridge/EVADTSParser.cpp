@@ -257,14 +257,14 @@ int EVADTSParser::priv_toInt(const char *s) const
 EVADTSParser::ePaymentDevice EVADTSParser::priv_fromStringToPaymentDevice(const char *s) const
 {
 	if (strncasecmp(s, "CA", 2) == 0)
-		return ePaymentDevice_cash;
+		return ePaymentDevice::cash;
 	if (strncasecmp(s, "DA", 2) == 0)
-		return ePaymentDevice_cashless1;
+		return ePaymentDevice::cashless1;
 	if (strncasecmp(s, "DB", 2) == 0)
-		return ePaymentDevice_cashless2;
+		return ePaymentDevice::cashless2;
 	if (strncasecmp(s, "TA", 2) == 0)
-		return ePaymentDevice_token;
-	return ePaymentDevice_unknown;
+		return ePaymentDevice::token;
+	return ePaymentDevice::unknown;
 }
 
 
@@ -277,7 +277,7 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	u8 * ret = (u8*)RHEAALLOC(allocator, SIZE);
 
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(ret, SIZE, rhea::eBigEndian);
+	nbw.setup(ret, SIZE, rhea::eEndianess::eBigEndian);
 
 	const u8 nSelezioni = (u8)selezioni.getNElem();
 

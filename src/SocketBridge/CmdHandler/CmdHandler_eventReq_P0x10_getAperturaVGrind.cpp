@@ -28,7 +28,7 @@ void CmdHandler_eventReq_P0x10_getAperturaVGrind::onCPUBridgeNotification(socket
 
 	u8 buffer[4];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	nbw.writeU16(pos);
 	nbw.writeU8(macina_1o2);
 	server->sendEvent(hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, nbw.length());

@@ -16,7 +16,7 @@ namespace socketbridge
     class CmdHandler_eventReqStartSel : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_startSelection;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::startSelection;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_MAX_ALLOWED;		//vuol dire che questa classe non risponde ad alcuna notifica di CPUBridge
 
                     CmdHandler_eventReqStartSel (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

@@ -43,20 +43,20 @@ void CmdHandler_ajaxReq_P0x04_SetDecounter::passDownRequestToCPUBridge (cpubridg
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqResetDecounter_jsonTrapFunction, &data))
-		cpubridge::ask_CPU_SET_DECOUNTER(from, getHandlerID(), (cpubridge::eCPUProgrammingCommand_decounter)data.d, data.v);
+		cpubridge::ask_CPU_SET_DECOUNTER(from, getHandlerID(), (cpubridge::eCPUProg_decounter)data.d, data.v);
 }
 
 //***********************************************************
 void CmdHandler_ajaxReq_P0x04_SetDecounter::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
-	cpubridge::eCPUProgrammingCommand_decounter which = cpubridge::eCPUProgrammingCommand_decounter_unknown;
+	cpubridge::eCPUProg_decounter which = cpubridge::eCPUProg_decounter::unknown;
 	u16 valore = 0;
 	cpubridge::translateNotify_CPU_DECOUNTER_SET (msgFromCPUBridge, &which, &valore);
 
 
 	char text[4] = { 'O', 'K', 0, 0 };
 
-	if (which == cpubridge::eCPUProgrammingCommand_decounter_error)
+	if (which == cpubridge::eCPUProg_decounter::error)
 	{
 		text[0] = 'K';
 		text[1] = 'O';

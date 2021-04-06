@@ -66,7 +66,7 @@ void OSWaitableGrp::removeSocket (OSSocket &sok)
 	sRecord *p = base;
 	while (p)
 	{
-		if (p->originType == evt_origin_socket)
+		if (p->originType == eEventOrigin::socket)
 		{
 
 			if (platform::socket_compare(sok, p->origin.osSocket.sok))
@@ -78,11 +78,11 @@ void OSWaitableGrp::removeSocket (OSSocket &sok)
 				//rimuovo eventuali eventi che sono ancora nel miobuffer di eventi-generati
 				for (u32 i = 0; i < nEventsReady; i++)
 				{
-					if (generatedEventList[i]->originType == evt_origin_socket)
+					if (generatedEventList[i]->originType == eEventOrigin::socket)
 					{
 						if (platform::socket_compare (sok, generatedEventList[i]->origin.osSocket.sok))
 						{
-							generatedEventList[i]->originType = evt_origin_deleted;
+							generatedEventList[i]->originType = eEventOrigin::deleted;
 						}
 					}
 				}
@@ -107,7 +107,7 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_addSocket (OSSocket &sok)
 {
 	assert(debug_bWaiting == 0);
 	sRecord *s = priv_newRecord();
-	s->originType = (u8)evt_origin_socket;
+	s->originType = eEventOrigin::socket;
 	s->origin.osSocket.sok = sok;
 	s->origin.osSocket.hEventNotify = WSACreateEvent();
 
@@ -128,7 +128,7 @@ void OSWaitableGrp::removeEvent (const OSEvent &evt)
 	sRecord *p = base;
 	while (p)
 	{
-		if (p->originType == evt_origin_osevent)
+		if (p->originType == eEventOrigin::osevent)
 		{
 			if (platform::event_compare(p->origin.osEvent.evt, evt))
 			{
@@ -137,11 +137,11 @@ void OSWaitableGrp::removeEvent (const OSEvent &evt)
 				//rimuovo eventuali eventi che sono ancora nel miobuffer di eventi-generati
 				for (u32 i = 0; i < nEventsReady; i++)
 				{
-					if (generatedEventList[i]->originType == evt_origin_osevent)
+					if (generatedEventList[i]->originType == eEventOrigin::osevent)
 					{
 						if (platform::event_compare(evt, generatedEventList[i]->origin.osEvent.evt))
 						{
-							generatedEventList[i]->originType = evt_origin_deleted;
+							generatedEventList[i]->originType = eEventOrigin::deleted;
 						}
 					}
 				}
@@ -165,7 +165,7 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_addEvent (const OSEvent &evt)
 {
 	assert(debug_bWaiting == 0);
 	sRecord *s = priv_newRecord();
-	s->originType = (u8)evt_origin_osevent;
+	s->originType = eEventOrigin::osevent;
     s->origin.osEvent.evt = evt;
     return s;
 }
@@ -210,11 +210,11 @@ u8 OSWaitableGrp::priv_wait(u32 timeoutMSec)
 			DBGBREAK;
 			break;
 
-		case (u8)evt_origin_socket:
+		case eEventOrigin::socket:
 			eventsHandle[n++] = p->origin.osSocket.hEventNotify;
 			break;
 
-		case (u8)evt_origin_osevent:
+		case eEventOrigin::osevent:
 			eventsHandle[n++] = p->origin.osEvent.evt.h;
 			break;
 		}
@@ -276,86 +276,89 @@ u8 OSWaitableGrp::priv_wait(u32 timeoutMSec)
 		
 
 	//cerco l'handle che ha generato l'interruzione
-	p = base;
-	while (p)
+	if (index < MAX_EVENTS_HANDLE_PER_CALL)
 	{
-		bool bFound = false;
-		switch (p->originType)
+		p = base;
+		while (p)
 		{
-		default:
-			DBGBREAK;
-			break;
-
-		case (u8)evt_origin_socket:
-			if (eventsHandle[index] == p->origin.osSocket.hEventNotify)
-				bFound = true;
-			break;
-
-		case (u8)evt_origin_osevent:
-			if (eventsHandle[index] == p->origin.osEvent.evt.h)
-				bFound = true;
-			break;
-		}
-
-		if (bFound)
-		{
-			if (p->originType == evt_origin_socket)
+			bool bFound = false;
+			switch (p->originType)
 			{
-				WSANETWORKEVENTS networkEvents;
-				if (0 != WSAEnumNetworkEvents(p->origin.osSocket.sok.socketID, p->origin.osSocket.hEventNotify, &networkEvents))
-				{
-					int errCode = WSAGetLastError();
-					switch (errCode)
-					{
-					case WSANOTINITIALISED:
-						//A successful WSAStartup call must occur before using this function.
-						DBGBREAK;
-						break;
-					case WSAENETDOWN:
-						//The network subsystem has failed.
-						DBGBREAK;
-						break;
-					case WSAEINVAL:
-						//One of the specified parameters was invalid.
-						DBGBREAK;
-						break;
-					case WSAEINPROGRESS:
-						//A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.
-						DBGBREAK;
-						break;
-					case WSAENOTSOCK:
-						//The descriptor is not a socket.
-						DBGBREAK;
-						break;
-					case WSAEFAULT:
-						//The lpNetworkEvents parameter is not a valid part of the user address space.
-						DBGBREAK;
-						break;
+			default:
+				DBGBREAK;
+				break;
 
+			case eEventOrigin::socket:
+				if (eventsHandle[index] == p->origin.osSocket.hEventNotify)
+					bFound = true;
+				break;
+
+			case eEventOrigin::osevent:
+				if (eventsHandle[index] == p->origin.osEvent.evt.h)
+					bFound = true;
+				break;
+			}
+
+			if (bFound)
+			{
+				if (p->originType == eEventOrigin::socket)
+				{
+					WSANETWORKEVENTS networkEvents;
+					if (0 != WSAEnumNetworkEvents(p->origin.osSocket.sok.socketID, p->origin.osSocket.hEventNotify, &networkEvents))
+					{
+						int errCode = WSAGetLastError();
+						switch (errCode)
+						{
+						case WSANOTINITIALISED:
+							//A successful WSAStartup call must occur before using this function.
+							DBGBREAK;
+							break;
+						case WSAENETDOWN:
+							//The network subsystem has failed.
+							DBGBREAK;
+							break;
+						case WSAEINVAL:
+							//One of the specified parameters was invalid.
+							DBGBREAK;
+							break;
+						case WSAEINPROGRESS:
+							//A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.
+							DBGBREAK;
+							break;
+						case WSAENOTSOCK:
+							//The descriptor is not a socket.
+							DBGBREAK;
+							break;
+						case WSAEFAULT:
+							//The lpNetworkEvents parameter is not a valid part of the user address space.
+							DBGBREAK;
+							break;
+
+						}
 					}
+
+					//if (networkEvents.lNetworkEvents == 0) ::ResetEvent(p->origin.osSocket.hEventNotify);
+
+					DEBUG_PRINTF("  was a socket [userparam=%d], event bits = 0x%X\n", p->userParam.asU32, networkEvents.lNetworkEvents);
+					if ((networkEvents.lNetworkEvents & FD_CLOSE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CLOSE")
+					if ((networkEvents.lNetworkEvents & FD_READ) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_READ")
+					if ((networkEvents.lNetworkEvents & FD_WRITE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_WRITE")
+					if ((networkEvents.lNetworkEvents & FD_OOB) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_OOB")
+					if ((networkEvents.lNetworkEvents & FD_ACCEPT) != 0)					ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ACCEPT")
+					if ((networkEvents.lNetworkEvents & FD_CONNECT) != 0)					ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CONNECT")
+					if ((networkEvents.lNetworkEvents & FD_QOS) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_QOS")
+					if ((networkEvents.lNetworkEvents & FD_ROUTING_INTERFACE_CHANGE) != 0)	ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ROUTING_INTERFACE_CHANGE")
+					if ((networkEvents.lNetworkEvents & FD_ADDRESS_LIST_CHANGE) != 0)		ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ADDRESS_LIST_CHANGE")
+				}
+				else if (p->originType == eEventOrigin::osevent)
+				{
+					generatedEventList[nEventsReady++] = p;
 				}
 
-				//if (networkEvents.lNetworkEvents == 0) ::ResetEvent(p->origin.osSocket.hEventNotify);
-				
-				DEBUG_PRINTF("  was a socket [userparam=%d], event bits = 0x%X\n", p->userParam.asU32, networkEvents.lNetworkEvents);
-				if ((networkEvents.lNetworkEvents & FD_CLOSE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CLOSE")
-				if ((networkEvents.lNetworkEvents & FD_READ) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_READ")
-				if ((networkEvents.lNetworkEvents & FD_WRITE) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_WRITE")
-				if ((networkEvents.lNetworkEvents & FD_OOB) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_OOB")
-				if ((networkEvents.lNetworkEvents & FD_ACCEPT) != 0)					ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ACCEPT")
-				if ((networkEvents.lNetworkEvents & FD_CONNECT) != 0)					ADD_EVENT_AND_DEBUG_TEXT(p, "FD_CONNECT")
-				if ((networkEvents.lNetworkEvents & FD_QOS) != 0)						ADD_EVENT_AND_DEBUG_TEXT(p, "FD_QOS")
-				if ((networkEvents.lNetworkEvents & FD_ROUTING_INTERFACE_CHANGE) != 0)	ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ROUTING_INTERFACE_CHANGE")
-				if ((networkEvents.lNetworkEvents & FD_ADDRESS_LIST_CHANGE) != 0)		ADD_EVENT_AND_DEBUG_TEXT(p, "FD_ADDRESS_LIST_CHANGE")
+				return nEventsReady;
 			}
-			else if (p->originType == evt_origin_osevent)
-			{
-				generatedEventList[nEventsReady++] = p;
-			}
-
-			return nEventsReady;
+			p = p->next;
 		}
-		p = p->next;
 	}
 
 	DEBUG_PRINTF("  handle not found\n", ret);
@@ -371,7 +374,7 @@ OSWaitableGrp::eEventOrigin OSWaitableGrp::getEventOrigin (u8 iEvent) const
 {
 	assert(debug_bWaiting == 0);
     assert (iEvent < nEventsReady);
-	return (eEventOrigin)generatedEventList[iEvent]->originType;
+	return generatedEventList[iEvent]->originType;
 }
 
 //***********************************************
@@ -394,7 +397,7 @@ u32 OSWaitableGrp::getEventUserParamAsU32 (u8 iEvent) const
 OSSocket& OSWaitableGrp::getEventSrcAsOSSocket (u8 iEvent) const
 {
 	assert(debug_bWaiting == 0);
-    assert (getEventOrigin(iEvent) == evt_origin_socket);
+    assert (getEventOrigin(iEvent) == eEventOrigin::socket);
     return generatedEventList[iEvent]->origin.osSocket.sok;
 }
 
@@ -402,14 +405,14 @@ OSSocket& OSWaitableGrp::getEventSrcAsOSSocket (u8 iEvent) const
 OSEvent& OSWaitableGrp::getEventSrcAsOSEvent (u8 iEvent) const
 {
 	assert(debug_bWaiting == 0);
-    assert (getEventOrigin(iEvent) == evt_origin_osevent);
+    assert (getEventOrigin(iEvent) == eEventOrigin::osevent);
 	return generatedEventList[iEvent]->origin.osEvent.evt;
 }
 
 /***********************************************
 OSSerialPort& OSWaitableGrp::getEventSrcAsOSSerialPort (u8 iEvent) const
 {
-    assert (getEventOrigin(iEvent) == evt_origin_serialPort);
+    assert (getEventOrigin(iEvent) == eEventOrigin::serialPort);
     return currentEvent->origin.osSerialPort;
 }
 */

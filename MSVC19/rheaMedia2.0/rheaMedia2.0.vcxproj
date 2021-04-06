@@ -112,7 +112,6 @@
     <ClCompile>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SolutionDir)..\lib\WIN$(Configuration)_rheaCommonLib.lib;$(SolutionDir)..\lib\WIN$(Configuration)_CPUBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_SocketBridge.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaDB.lib;$(SolutionDir)..\lib\WIN$(Configuration)_rheaAlipayChina.lib;%(AdditionalDependencies)</AdditionalDependencies>

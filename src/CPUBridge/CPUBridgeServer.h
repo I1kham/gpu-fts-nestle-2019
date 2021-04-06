@@ -28,26 +28,26 @@ namespace cpubridge
         struct sStato
         {
         public:
-            enum eStato
+            enum class eStato: u8
             {
-                eStato_comError = 0,
-                eStato_normal = 1,
-                eStato_selection = 2,
-                eStato_programmazione = 3,
-				eStato_regolazioneAperturaMacina = 4,
-				eStato_compatibilityCheck = 5,
-				eStato_CPUNotSupported = 6,
-				eStato_DA3_sync = 7,
-				eStato_telemetry = 8,
-				eStato_grinderSpeedTest = 9,
-				eStato_downloadPriceHoldingPriceList = 10,
+                comError = 0,
+                normal = 1,
+                selection = 2,
+                programmazione = 3,
+				regolazioneAperturaMacina = 4,
+				compatibilityCheck = 5,
+				CPUNotSupported = 6,
+				DA3_sync = 7,
+				telemetry = 8,
+				grinderSpeedTest = 9,
+				downloadPriceHoldingPriceList = 10,
 
-				eStato_quit = 0xff
+				quit = 0xff
             };
 
 
         public:
-                        sStato()                        { set(eStato_comError); }
+                        sStato()                        { set(eStato::comError); }
             void        set (eStato s)					{ stato=s; }
             eStato      get() const                     { return stato; }
 
@@ -180,7 +180,7 @@ namespace cpubridge
 
 		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target);
 		void                    priv_handleState_regolazioneAperturaMacina();
-		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProgrammingCommand_macinaMove m);
+		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProg_macinaMove m);
 		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1o2, u16 *out);
 
 		bool					priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec);

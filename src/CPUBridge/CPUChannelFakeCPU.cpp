@@ -10,8 +10,8 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 {
 	da3 = NULL;
 	bShowDialogStopSelezione = true;
-	statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
-	VMCState = eVMCState_DISPONIBILE;
+	statoPreparazioneBevanda = eStatoPreparazioneBevanda::doing_nothing;
+	VMCState = eVMCState::DISPONIBILE;
 	memset(&runningSel, 0, sizeof(runningSel));
 	memset(&cleaning, 0, sizeof(cleaning));
 	memset(&testModem, 0, sizeof(testModem));
@@ -156,13 +156,13 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		return false;
 		break;
 
-	case eCPUCommand_requestPriceHoldingPriceList:
+	case eCPUCommand::requestPriceHoldingPriceList:
 		{
 			u8 firstPriceLine = bufferToSend[3];
 			u8 numPrices = bufferToSend[4];
 
 			out_answer[ct++] = '#';
-			out_answer[ct++] = eCPUCommand_requestPriceHoldingPriceList;
+			out_answer[ct++] = (u8)cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
 			out_answer[ct++] = firstPriceLine;
 			out_answer[ct++] = numPrices;
@@ -179,7 +179,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		return true;
 
-	case eCPUCommand_writePartialVMCDataFile:
+	case eCPUCommand::writePartialVMCDataFile:
 		{
             //const u8 packet_uno_di = bufferToSend[3];
             //const u8 packet_num_toto = bufferToSend[4];
@@ -199,7 +199,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		return true;
 
-	case eCPUCommand_getVMCDataFileTimeStamp:
+	case eCPUCommand::getVMCDataFileTimeStamp:
 		{
 			cpubridge::sCPUVMCDataFileTimeStamp ts;
 			ts.setInvalid();
@@ -216,10 +216,10 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		return true;
 
 
-	case eCPUCommand_startSelWithPaymentAlreadyHandled_V:
+	case eCPUCommand::startSelWithPaymentAlreadyHandled_V:
 		{
 			out_answer[ct++] = '#';
-			out_answer[ct++] = cpuCommand;
+			out_answer[ct++] = (u8)cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
 			out_answer[ct++] = bufferToSend[3];
 			out_answer[ct++] = bufferToSend[4];
@@ -232,22 +232,22 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			*in_out_sizeOfAnswer = out_answer[2];
 
 			//hanno richiesto una selezione!!!
-			statoPreparazioneBevanda = eStatoPreparazioneBevanda_wait;
+			statoPreparazioneBevanda = eStatoPreparazioneBevanda::wait;
 			runningSel.selNum = bufferToSend[3];
 			runningSel.timeStartedMSec = rhea::getTimeNowMSec();
-			VMCState = eVMCState_PREPARAZIONE_BEVANDA;
+			VMCState = eVMCState::PREPARAZIONE_BEVANDA;
 			return true;
 		}
 		break;
 
-	case eCPUCommand_getNomeSelezioneCPU_d:
+	case eCPUCommand::getNomeSelezioneCPU_d:
 		{
 			//ricevuto:	# d [len] [numSel] [ck]
 			//rispondo: # d [len] [numSel] [isUnicode] [msgLenInByte] [msg…..] [ck]
 			const u8 selNum = bufferToSend[3];
 			
 			out_answer[ct++] = '#';
-			out_answer[ct++] = cpuCommand;
+			out_answer[ct++] = (u8)cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
 			out_answer[ct++] = selNum;
 			out_answer[ct++] = 0;	//is unicode
@@ -265,38 +265,38 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		break;
 
-	case eCPUCommand_checkStatus_B:
+	case eCPUCommand::checkStatus_B:
 		//ho ricevuto una richiesta di stato, rispondo in maniera appropriata
 		{
 			priv_updateCPUMessageToBeSent(rhea::getTimeNowMSec());
 
 			const u8 tastoPremuto = bufferToSend[3];
 
-			if (statoPreparazioneBevanda == eStatoPreparazioneBevanda_doing_nothing)
+			if (statoPreparazioneBevanda == eStatoPreparazioneBevanda::doing_nothing)
 			{
 				if (tastoPremuto != 0)
 				{
 					//hanno richiesto una selezione!!!
-					statoPreparazioneBevanda = eStatoPreparazioneBevanda_wait;
+					statoPreparazioneBevanda = eStatoPreparazioneBevanda::wait;
 					runningSel.selNum = tastoPremuto;
 					runningSel.timeStartedMSec = rhea::getTimeNowMSec();
-					VMCState = eVMCState_PREPARAZIONE_BEVANDA;
+					VMCState = eVMCState::PREPARAZIONE_BEVANDA;
 				}
 			}
 			else
 			{
-				//sto facendo una selezione, rispondo "eStatoPreparazioneBevanda_wait" per un paio di secondi, poi vado in running per un altro paio di secondo
+				//sto facendo una selezione, rispondo "eStatoPreparazioneBevanda::wait" per un paio di secondi, poi vado in running per un altro paio di secondo
 				const u64 timeElapsedMSec = rhea::getTimeNowMSec() - runningSel.timeStartedMSec;
 				bool bFinished = false;
 				if (timeElapsedMSec < 1500)
 				{
-					statoPreparazioneBevanda = eStatoPreparazioneBevanda_wait;
+					statoPreparazioneBevanda = eStatoPreparazioneBevanda::wait;
 					if (tastoPremuto != 0)
 						bFinished = true; //simula il tasto stop
 				}
 				else if (timeElapsedMSec < 12000)
 				{
-					statoPreparazioneBevanda = eStatoPreparazioneBevanda_running;
+					statoPreparazioneBevanda = eStatoPreparazioneBevanda::running;
 					if (tastoPremuto != 0)
 						bFinished = true; //simula il tasto stop
 				}
@@ -308,8 +308,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 				if (bFinished)
 				{
-					VMCState = eVMCState_DISPONIBILE;
-					statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
+					VMCState = eVMCState::DISPONIBILE;
+					statoPreparazioneBevanda = eStatoPreparazioneBevanda::doing_nothing;
 				}
 			}
 
@@ -319,7 +319,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		break;
 
-	case eCPUCommand_initialParam_C:
+	case eCPUCommand::initialParam_C:
 		//ho ricevuto i parametri iniziali, devo rispondere in maniera appropriata
 		{
 			assert(*in_out_sizeOfAnswer >= 116);
@@ -386,14 +386,14 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		break;
 
 
-	case eCPUCommand_getExtendedConfigInfo:
+	case eCPUCommand::getExtendedConfigInfo:
 		{
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_instant;	const u8 isInduzione = 0;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso1;	const u8 isInduzione = 1;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 1;
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType_espresso2;	const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::instant;	const u8 isInduzione = 0;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso1;	const u8 isInduzione = 1;
+			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 1;
+			const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 0;
 			out_answer[ct++] = '#';
-			out_answer[ct++] = cpuCommand;
+			out_answer[ct++] = (u8)cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
 			out_answer[ct++] = 0x02;	//versione
 			out_answer[ct++] = machine_type;
@@ -410,13 +410,13 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		return true;
 
-	case eCPUCommand_restart:
+	case eCPUCommand::restart:
 		*in_out_sizeOfAnswer = 0;
 		return true;
 
-	case eCPUCommand_getMilkerVer:
+	case eCPUCommand::getMilkerVer:
 		out_answer[ct++] = '#';
-		out_answer[ct++] = cpuCommand;
+		out_answer[ct++] = (u8)cpuCommand;
 		out_answer[ct++] = 0; //lunghezza
 		out_answer[ct++] = 'x';
 		out_answer[ct++] = 'y';
@@ -428,7 +428,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		return true;
 
 
-	case eCPUCommand_programming:
+	case eCPUCommand::programming:
 		{
 			// [#] [P] [len] [subcommand] [optional_data] [ck]
 			const eCPUProgrammingCommand subcommand = (eCPUProgrammingCommand)bufferToSend[3];
@@ -437,7 +437,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			default:
 				return false;
 
-			case eCPUProgrammingCommand_attivazioneMotore:
+			case eCPUProgrammingCommand::attivazioneMotore:
 				//rispondo con lo stesso msg che ho ricevuto
 				{
 					const u8 len = bufferToSend[2];
@@ -447,7 +447,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				break;
 
-			case eCPUProgrammingCommand_getLastGrinderSpeed:
+			case eCPUProgrammingCommand::getLastGrinderSpeed:
 				//# P [len] 0x23 [velocità macina LSB MSB] [ck]
 				{
 					const u16 speed = rhea::randomU32(1000);
@@ -465,11 +465,11 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				break;
 
-			case eCPUProgrammingCommand_testSelezione:
+			case eCPUProgrammingCommand::testSelezione:
 				if (timeToEndTestSelezioneMSec == 0)
 				{
 					timeToEndTestSelezioneMSec = rhea::getTimeNowMSec() + 8000;
-					VMCState = eVMCState_TEST_ATTUATORE_SELEZIONE;
+					VMCState = eVMCState::TEST_ATTUATORE_SELEZIONE;
 				}
 				
 				out_answer[ct++] = '#';
@@ -485,8 +485,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 				break;
 
-			case eCPUProgrammingCommand_setTime:
-			case eCPUProgrammingCommand_setDate:
+			case eCPUProgrammingCommand::setTime:
+			case eCPUProgrammingCommand::setDate:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -501,7 +501,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 				break;
 
-			case eCPUProgrammingCommand_setFattoreCalibrazioneMotore:
+			case eCPUProgrammingCommand::setFattoreCalibrazioneMotore:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -516,7 +516,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 				break;
 
-			case eCPUProgrammingCommand_getStatoGruppo:
+			case eCPUProgrammingCommand::getStatoGruppo:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -528,7 +528,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 				break;
 
-			case eCPUProgrammingCommand_calcolaImpulsiMacina:
+			case eCPUProgrammingCommand::calcolaImpulsiMacina:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -543,7 +543,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 				break;
 
-			case eCPUProgrammingCommand_getTime:
+			case eCPUProgrammingCommand::getTime:
 			{
 				rhea::DateTime dt;
 				dt.setNow();
@@ -562,7 +562,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			}
 			break;
 
-			case eCPUProgrammingCommand_getDate:
+			case eCPUProgrammingCommand::getDate:
 			{
 				rhea::DateTime dt;
 				dt.setNow();
@@ -581,7 +581,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			}
 			break;
 
-			case eCPUProgrammingCommand_getNomiLinguaCPU:
+			case eCPUProgrammingCommand::getNomiLinguaCPU:
 			{
 				const char isUnicode = 1;
 				out_answer[ct++] = '#';
@@ -633,7 +633,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			}
 			break;
 
-			case eCPUProgrammingCommand_getStatoCalcoloImpulsi:
+			case eCPUProgrammingCommand::getStatoCalcoloImpulsi:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -658,31 +658,31 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				break;
 
 			// si vuole iniziare un cleaning di qualche dispositivo
-			case eCPUProgrammingCommand_cleaning:
+			case eCPUProgrammingCommand::cleaning:
 				//fingo un cleaning
 				memset(&cleaning, 0, sizeof(cleaning));
 				cleaning.freeBuffer8[0] = 0x00;	cleaning.freeBuffer8[1] = 0x01;	cleaning.freeBuffer8[2] = 0x02;	cleaning.freeBuffer8[3] = 0x03;
 				cleaning.freeBuffer8[4] = 0x04;	cleaning.freeBuffer8[5] = 0x05;	cleaning.freeBuffer8[6] = 0x06;	cleaning.freeBuffer8[7] = 0x07;
-				cleaning.cleaningType = (eCPUProgrammingCommand_cleaningType)bufferToSend[4];
+				cleaning.cleaningType = (eCPUProg_cleaningType)bufferToSend[4];
 				cleaning.fase = 1;
 				cleaning.timeToEnd = rhea::getTimeNowMSec() + 4000;
 				cleaning.prevState = this->VMCState;
 
-				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
-					this->VMCState = eVMCState_LAVAGGIO_SANITARIO;
-				else if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker || cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milkerQuick)
+				if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario)
+					this->VMCState = eVMCState::LAVAGGIO_SANITARIO;
+				else if (cleaning.cleaningType == eCPUProg_cleaningType::milker || cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
 				{
 					priv_DA3_reload();
 					if (da3[69] == 2)
 					{
-						this->VMCState = eVMCState_LAVAGGIO_MILKER_INDUX;
+						this->VMCState = eVMCState::LAVAGGIO_MILKER_INDUX;
 						cleaning.timeToEnd = rhea::getTimeNowMSec() + 12000;
 					}
 					else
-						this->VMCState = eVMCState_LAVAGGIO_MILKER_VENTURI;
+						this->VMCState = eVMCState::LAVAGGIO_MILKER_VENTURI;
 				}
 				else
-					this->VMCState = eVMCState_LAVAGGIO_MANUALE;
+					this->VMCState = eVMCState::LAVAGGIO_MANUALE;
 
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
@@ -695,10 +695,10 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 			//periodicamente la SMU fa delle query per conoscere lo stato del cleaning. La simulazione dell'avanzamento del processo di cleaning
 			//si trova dentro priv_advanceFakeCleaning()
-			case eCPUProgrammingCommand_querySanWashingStatus:
-				if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario ||
-					cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker ||
-					cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milkerQuick)
+			case eCPUProgrammingCommand::querySanWashingStatus:
+				if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario ||
+					cleaning.cleaningType == eCPUProg_cleaningType::milker ||
+					cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
 				{
 					out_answer[ct++] = '#';
 					out_answer[ct++] = 'P';
@@ -717,7 +717,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				break;
 
-			case eCPUProgrammingCommand_setDecounter:
+			case eCPUProgrammingCommand::setDecounter:
 				{
 					out_answer[ct++] = '#';
 					out_answer[ct++] = 'P';
@@ -736,32 +736,32 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				return true;
 
-			case eCPUProgrammingCommand_getAllDecounterValues:
+			case eCPUProgrammingCommand::getAllDecounterValues:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
 				out_answer[ct++] = (u8)subcommand;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto1]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto2]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto3]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto4]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto5]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto6]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto7]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto8]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto9]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_prodotto10]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_waterFilter]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_coffeeBrewer]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_decounter_coffeeGround]); ct += 2;
-				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[cpubridge::eCPUProgrammingCommand_blocking_counter]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto1]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto2]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto3]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto4]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto5]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto6]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto7]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto8]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto9]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::prodotto10]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::waterFilter]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::coffeeBrewer]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::coffeeGround]); ct += 2;
+				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::blocking_counter]); ct += 2;
 
 				out_answer[2] = (u8)ct + 1;
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_getPosizioneMacina:
+			case eCPUProgrammingCommand::getPosizioneMacina:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -794,7 +794,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_setMotoreMacina:
+			case eCPUProgrammingCommand::setMotoreMacina:
 				if (bufferToSend[4] == 11)
 					macine[0].tipoMovimentoMacina = bufferToSend[5];
 				else if (bufferToSend[4] == 12)
@@ -816,7 +816,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_EVAresetPartial:
+			case eCPUProgrammingCommand::EVAresetPartial:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -827,7 +827,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_EVAresetTotals:
+			case eCPUProgrammingCommand::EVAresetTotals:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -838,7 +838,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_getVoltAndTemp:
+			case eCPUProgrammingCommand::getVoltAndTemp:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -855,7 +855,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_getCPUOFFReportDetails:
+			case eCPUProgrammingCommand::getCPUOFFReportDetails:
 				{
 					const u8 startIndex = bufferToSend[4];
 					out_answer[ct++] = '#';
@@ -884,7 +884,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				return true;
 
-			case eCPUProgrammingCommand_getLastFluxInformation:
+			case eCPUProgrammingCommand::getLastFluxInformation:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -901,7 +901,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_getStringVersionAndModel:
+			case eCPUProgrammingCommand::getStringVersionAndModel:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -926,7 +926,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_startModemTest:
+			case eCPUProgrammingCommand::startModemTest:
 				//fingo un modem test. CPU deve andare in stato TEST_MODEM(22) e rimanerci per un po' di tempo
 				testModem.timeToEndMSec = rhea::getTimeNowMSec() + 5000;
 
@@ -939,7 +939,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore:
+			case eCPUProgrammingCommand::getTimeNextLavaggioCappuccinatore:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -952,7 +952,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_startTestAssorbGruppo:
+			case eCPUProgrammingCommand::startTestAssorbGruppo:
 				//fingo un test di "assorbimento gruppo"
 				testAssorbGruppo.timeToEndMSec = rhea::getTimeNowMSec() + 5000;
 				testAssorbGruppo.fase = 0;
@@ -979,7 +979,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_getStatusTestAssorbGruppo:
+			case eCPUProgrammingCommand::getStatusTestAssorbGruppo:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -997,7 +997,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_startTestAssorbMotoriduttore:
+			case eCPUProgrammingCommand::startTestAssorbMotoriduttore:
 				//fingo un test di "assorbimento motoriduttore"
 				testAssorbGruppo.timeToEndMSec = rhea::getTimeNowMSec() + 5000;
 				testAssorbGruppo.fase = 0;
@@ -1016,7 +1016,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
-			case eCPUProgrammingCommand_getStatusTestAssorbMotoriduttore:
+			case eCPUProgrammingCommand::getStatusTestAssorbMotoriduttore:
 				out_answer[ct++] = '#';
 				out_answer[ct++] = 'P';
 				out_answer[ct++] = 0; //lunghezza
@@ -1049,7 +1049,7 @@ u32 CPUChannelFakeCPU::waitForAMessage (u8 *out_answer UNUSED_PARAM, u32 sizeOf_
 //*****************************************************************
 void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 {
-	if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_sanitario)
+	if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario)
 	{
 		//cleaning sanitario del gruppo
 		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
@@ -1072,12 +1072,12 @@ void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 
 			if (cleaning.fase >= 19)
 			{
-				cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
+				cleaning.cleaningType = eCPUProg_cleaningType::invalid;
 				this->VMCState = cleaning.prevState;
 			}
 		}
 	}
-	else if (cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milker || cleaning.cleaningType == eCPUProgrammingCommand_cleaningType_milkerQuick)
+	else if (cleaning.cleaningType == eCPUProg_cleaningType::milker || cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
 	{
 		//cleaning del milker
 		if (cleaning.fase == 1)
@@ -1094,12 +1094,12 @@ void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 
 			if (cleaning.fase >= 6)
 			{
-				cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
+				cleaning.cleaningType = eCPUProg_cleaningType::invalid;
 				this->VMCState = cleaning.prevState;
 			}
 		}
 	}
-	else if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
+	else if (cleaning.cleaningType != eCPUProg_cleaningType::invalid)
 	{
 		//tutti gli altri cleaning
 		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
@@ -1112,7 +1112,7 @@ void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 
 				if (cleaning.fase >= 4)
 				{
-					cleaning.cleaningType = eCPUProgrammingCommand_cleaningType_invalid;
+					cleaning.cleaningType = eCPUProg_cleaningType::invalid;
 					this->VMCState = cleaning.prevState;
 				}
 			}
@@ -1129,27 +1129,27 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	memset(out_answer, 0, *in_out_sizeOfAnswer);
 	
 	//gestione fake del cleaning
-	if (cleaning.cleaningType != eCPUProgrammingCommand_cleaningType_invalid)
+	if (cleaning.cleaningType != eCPUProg_cleaningType::invalid)
 		priv_advanceFakeCleaning();
 
 	//gestione fake del "test selezione"
-	if (VMCState == eVMCState_TEST_ATTUATORE_SELEZIONE)
+	if (VMCState == eVMCState::TEST_ATTUATORE_SELEZIONE)
 	{
 		if (rhea::getTimeNowMSec() > timeToEndTestSelezioneMSec)
 		{
 			timeToEndTestSelezioneMSec = 0;
-			VMCState = eVMCState_DISPONIBILE;
+			VMCState = eVMCState::DISPONIBILE;
 		}
 	}
 
 	//gestione fake del "test modem"
 	if (testModem.timeToEndMSec > 0)
 	{
-		VMCState = eVMCState_TEST_MODEM;
+		VMCState = eVMCState::TEST_MODEM;
 		if (rhea::getTimeNowMSec() >= testModem.timeToEndMSec)
 		{
 			testModem.timeToEndMSec = 0;
-			VMCState = eVMCState_DISPONIBILE;
+			VMCState = eVMCState::DISPONIBILE;
 		}
 	}
 

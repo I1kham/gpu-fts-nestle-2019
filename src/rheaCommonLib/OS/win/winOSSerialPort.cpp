@@ -33,36 +33,36 @@ bool platform::serialPort_open (OSSerialPort *out_serialPort, const char *device
 
 	switch (baudRate)
 	{
-		case eRS232BaudRate_1200: dcbSerialParams.BaudRate = CBR_1200; break;
-		case eRS232BaudRate_2400: dcbSerialParams.BaudRate = CBR_2400; break;
-		case eRS232BaudRate_4800: dcbSerialParams.BaudRate = CBR_4800; break;
-		case eRS232BaudRate_9600: dcbSerialParams.BaudRate = CBR_9600; break;
-		case eRS232BaudRate_19200: dcbSerialParams.BaudRate = CBR_19200; break;
-		case eRS232BaudRate_38400: dcbSerialParams.BaudRate = CBR_38400; break;
-		case eRS232BaudRate_57600: dcbSerialParams.BaudRate = CBR_57600; break;
-		case eRS232BaudRate_115200: dcbSerialParams.BaudRate = CBR_115200; break;
-		case eRS232BaudRate_230400: dcbSerialParams.BaudRate = CBR_256000; break;
+		case eRS232BaudRate::b1200: dcbSerialParams.BaudRate = CBR_1200; break;
+		case eRS232BaudRate::b2400: dcbSerialParams.BaudRate = CBR_2400; break;
+		case eRS232BaudRate::b4800: dcbSerialParams.BaudRate = CBR_4800; break;
+		case eRS232BaudRate::b9600: dcbSerialParams.BaudRate = CBR_9600; break;
+		case eRS232BaudRate::b19200: dcbSerialParams.BaudRate = CBR_19200; break;
+		case eRS232BaudRate::b38400: dcbSerialParams.BaudRate = CBR_38400; break;
+		case eRS232BaudRate::b57600: dcbSerialParams.BaudRate = CBR_57600; break;
+		case eRS232BaudRate::b115200: dcbSerialParams.BaudRate = CBR_115200; break;
+		case eRS232BaudRate::b230400: dcbSerialParams.BaudRate = CBR_256000; break;
 	}
 
 	switch (dataBits)
 	{
-	case eRS232DataBits_5: dcbSerialParams.ByteSize = 5; break;
-	case eRS232DataBits_6: dcbSerialParams.ByteSize = 6; break;
-	case eRS232DataBits_7: dcbSerialParams.ByteSize = 7; break;
-	case eRS232DataBits_8: dcbSerialParams.ByteSize = 8; break;
+	case eRS232DataBits::b5: dcbSerialParams.ByteSize = 5; break;
+	case eRS232DataBits::b6: dcbSerialParams.ByteSize = 6; break;
+	case eRS232DataBits::b7: dcbSerialParams.ByteSize = 7; break;
+	case eRS232DataBits::b8: dcbSerialParams.ByteSize = 8; break;
 	}
 
 	switch (stopBits)
 	{
-		case eRS232StopBits_One: dcbSerialParams.StopBits = ONESTOPBIT; break;
-		case eRS232StopBits_Two: dcbSerialParams.StopBits = TWOSTOPBITS; break;
+		case eRS232StopBits::One: dcbSerialParams.StopBits = ONESTOPBIT; break;
+		case eRS232StopBits::Two: dcbSerialParams.StopBits = TWOSTOPBITS; break;
 	}
 
 	switch (parity)
 	{
-		case eRS232Parity_No: dcbSerialParams.Parity = NOPARITY; break;
-		case eRS232Parity_Even: dcbSerialParams.Parity = EVENPARITY; break;
-		case eRS232Parity_Odd: dcbSerialParams.Parity = ODDPARITY; break;
+		case eRS232Parity::No: dcbSerialParams.Parity = NOPARITY; break;
+		case eRS232Parity::Even: dcbSerialParams.Parity = EVENPARITY; break;
+		case eRS232Parity::Odd: dcbSerialParams.Parity = ODDPARITY; break;
 	}
 	
 	if (!SetCommState(out_serialPort->hComm, &dcbSerialParams))

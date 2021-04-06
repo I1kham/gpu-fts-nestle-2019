@@ -47,13 +47,13 @@ int OSWaitableGrp::priv_getFd (const sRecord *s) const
 {
     switch (s->originType)
     {
-    case evt_origin_socket:
+    case eEventOrigin::socket:
         return s->origin.osSocket.socketID;
 
-    case evt_origin_osevent:
+    case eEventOrigin::osevent:
         return s->origin.osEvent.evfd;
 
-    case evt_origin_serialPort:
+    case eEventOrigin::serialPort:
         return s->origin.osSerialPort.fd;
 
     default:
@@ -110,7 +110,7 @@ void OSWaitableGrp::priv_onRemove (int fd)
 OSWaitableGrp::sRecord* OSWaitableGrp::priv_addSocket (const OSSocket &sok)
 {
     sRecord *s = priv_newRecord (EPOLLIN | EPOLLRDHUP | EPOLLPRI | EPOLLERR | EPOLLHUP);
-    s->originType = (u8)evt_origin_socket;
+    s->originType = eEventOrigin::socket;
     s->origin.osSocket = sok;
 
     int fd = sok.socketID;
@@ -129,7 +129,7 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_addSocket (const OSSocket &sok)
 OSWaitableGrp::sRecord* OSWaitableGrp::priv_addEvent (const OSEvent &evt)
 {
     sRecord *s = priv_newRecord (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP | EPOLLET);
-    s->originType = (u8)evt_origin_osevent;
+    s->originType = eEventOrigin::osevent;
     s->origin.osEvent = evt;
 
     int fd = evt.evfd;
@@ -148,7 +148,7 @@ OSWaitableGrp::sRecord* OSWaitableGrp::priv_addEvent (const OSEvent &evt)
 OSWaitableGrp::sRecord* OSWaitableGrp::priv_addSerialPort (const OSSerialPort &sp)
 {
     sRecord *s = priv_newRecord (EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP);
-    s->originType = (u8)evt_origin_serialPort;
+    s->originType = eEventOrigin::serialPort;
     s->origin.osSerialPort = sp;
 
     int fd = sp.fd;
@@ -190,7 +190,7 @@ OSWaitableGrp::eEventOrigin OSWaitableGrp::getEventOrigin (u8 iEvent) const
     assert (iEvent < nEventsReady);
 
     sRecord *s = (sRecord*)events[iEvent].data.ptr;
-    return (eEventOrigin)s->originType;
+    return s->originType;
 }
 
 //***********************************************
@@ -214,7 +214,7 @@ u32 OSWaitableGrp::getEventUserParamAsU32 (u8 iEvent) const
 //***********************************************
 OSSocket& OSWaitableGrp::getEventSrcAsOSSocket (u8 iEvent) const
 {
-    assert (getEventOrigin(iEvent) == evt_origin_socket);
+    assert (getEventOrigin(iEvent) == eEventOrigin::socket);
 
     sRecord *s = (sRecord*)events[iEvent].data.ptr;
     return s->origin.osSocket;
@@ -223,7 +223,7 @@ OSSocket& OSWaitableGrp::getEventSrcAsOSSocket (u8 iEvent) const
 //***********************************************
 OSEvent& OSWaitableGrp::getEventSrcAsOSEvent (u8 iEvent) const
 {
-    assert (getEventOrigin(iEvent) == evt_origin_osevent);
+    assert (getEventOrigin(iEvent) == eEventOrigin::osevent);
 
     sRecord *s = (sRecord*)events[iEvent].data.ptr;
     return s->origin.osEvent;
@@ -232,7 +232,7 @@ OSEvent& OSWaitableGrp::getEventSrcAsOSEvent (u8 iEvent) const
 //***********************************************
 OSSerialPort& OSWaitableGrp::getEventSrcAsOSSerialPort (u8 iEvent) const
 {
-    assert (getEventOrigin(iEvent) == evt_origin_serialPort);
+    assert (getEventOrigin(iEvent) == eEventOrigin::serialPort);
 
     sRecord *s = (sRecord*)events[iEvent].data.ptr;
     return s->origin.osSerialPort;

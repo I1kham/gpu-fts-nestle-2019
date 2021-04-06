@@ -15,13 +15,13 @@ public:
 	static const u8 NUM_LISTE_PREZZI = 4;
 	static const u8 NUM_PAYMENT_DEVICE = 4;
 
-	enum ePaymentDevice
+	enum class ePaymentDevice: u8
 	{
-		ePaymentDevice_cash = 0,           //equivale a CA in evadts
-		ePaymentDevice_cashless1 = 1,      //equivale a DA in evadts
-		ePaymentDevice_cashless2 = 2,      //equivale a DB in evadts
-		ePaymentDevice_token = 3,          //equivale a TA in evadts
-		ePaymentDevice_unknown = 99
+		cash = 0,           //equivale a CA in evadts
+		cashless1 = 1,      //equivale a DA in evadts
+		cashless2 = 2,      //equivale a DB in evadts
+		token = 3,          //equivale a TA in evadts
+		unknown = 99
 	};
 
 	class ContatoreValNumValNum

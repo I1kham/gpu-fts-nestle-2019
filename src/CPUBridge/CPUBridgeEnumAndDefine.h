@@ -146,291 +146,291 @@
 
 namespace cpubridge
 {
-	enum eCPUCommand
+	enum class eCPUCommand : u8
 	{
-		eCPUCommand_checkStatus_B = 'B',
-        eCPUCommand_checkStatus_B_Unicode = 'Z',
-        eCPUCommand_initialParam_C = 'C',
-		eCPUCommand_restart = 'U',
-        eCPUCommand_readDataAudit = 'L',
-		eCPUCommand_writeVMCDataFile = 'D',
-        eCPUCommand_readVMCDataFile= 'E',
-        //eCPUCommand_writeHexFile = 'H'
-        //eCPUCommand_readHexFile= 'h',
-        eCPUCommand_getVMCDataFileTimeStamp = 'T',
-        eCPUCommand_programming = 'P',
-		eCPUCommand_writePartialVMCDataFile = 'X',
-		eCPUCommand_getExtendedConfigInfo = 'c',
-		eCPUCommand_getMilkerVer = 'M',
-        eCPUCommand_startSelWithPaymentAlreadyHandled_V = 'V',
-		eCPUCommand_getNomeSelezioneCPU_d = 'd',
-		eCPUCommand_requestPriceHoldingPriceList = 'H'
+		checkStatus_B = 'B',
+        checkStatus_B_Unicode = 'Z',
+        initialParam_C = 'C',
+		restart = 'U',
+        readDataAudit = 'L',
+		writeVMCDataFile = 'D',
+        readVMCDataFile= 'E',
+        //writeHexFile = 'H'
+        //readHexFile= 'h',
+        getVMCDataFileTimeStamp = 'T',
+        programming = 'P',
+		writePartialVMCDataFile = 'X',
+		getExtendedConfigInfo = 'c',
+		getMilkerVer = 'M',
+        startSelWithPaymentAlreadyHandled_V = 'V',
+		getNomeSelezioneCPU_d = 'd',
+		requestPriceHoldingPriceList = 'H'
 	};
 
-	enum eRunningSelStatus
+	enum class eRunningSelStatus: u8
 	{
-		eRunningSelStatus_wait = 1,
-		eRunningSelStatus_running = 2,
-		eRunningSelStatus_finished_KO = 3,
-		eRunningSelStatus_finished_OK = 4,
-		eRunningSelStatus_runningCanUseStopBtn = 5
+		wait = 1,
+		running = 2,
+		finished_KO = 3,
+		finished_OK = 4,
+		runningCanUseStopBtn = 5
 	};
 
-	enum eStatoPreparazioneBevanda
+	enum class eStatoPreparazioneBevanda: u8
 	{
-		eStatoPreparazioneBevanda_unsupported = 0,
-		eStatoPreparazioneBevanda_doing_nothing = 0x01,
-		eStatoPreparazioneBevanda_wait = 0x02,
-		eStatoPreparazioneBevanda_running = 0x03
+		unsupported = 0,
+		doing_nothing = 0x01,
+		wait = 0x02,
+		running = 0x03
 	};
 	
-	enum eVMCState
+	enum class eVMCState:u8
 	{
-		eVMCState_DISPONIBILE = 2,
-		eVMCState_PREPARAZIONE_BEVANDA = 3,
-		eVMCState_PROGRAMMAZIONE = 4,
-		eVMCState_INITIAL_CHECK = 5,
-		eVMCState_ERROR = 6,
-		eVMCState_LAVAGGIO_MANUALE = 7,
-		eVMCState_LAVAGGIO_AUTO = 8,
-		eVMCState_RICARICA_ACQUA = 9,
-		eVMCState_ATTESA_TEMPERATURA = 10,
-		eVMCState_ATTESA_CARICA_MASTER = 11,
-		eVMCState_INSTALLAZIONE = 12,
-		eVMCState_DISINSTALLAZIONE = 13,
-		eVMCState_FINE_INSTALLAZIONE = 14,
-		eVMCState_FINE_DISINSTALLAZIONE = 15,
-		eVMCState_ENERGY_SAVING = 16,
-        eVMCState_TEST_DB = 17,
-		eVMCState_DATA_AUDIT = 18,
-        eVMCState_LAVAGGIO_SANITARIO = 20,
-		eVMCState_TEST_ATTUATORE_SELEZIONE = 21,
-		eVMCState_TEST_MODEM = 22,
-		eVMCState_LAVAGGIO_MILKER_VENTURI = 23,
-		eVMCState_LAVAGGIO_MILKER_INDUX = 24,
+		DISPONIBILE = 2,
+		PREPARAZIONE_BEVANDA = 3,
+		PROGRAMMAZIONE = 4,
+		INITIAL_CHECK = 5,
+		eERROR = 6,
+		LAVAGGIO_MANUALE = 7,
+		LAVAGGIO_AUTO = 8,
+		RICARICA_ACQUA = 9,
+		ATTESA_TEMPERATURA = 10,
+		ATTESA_CARICA_MASTER = 11,
+		INSTALLAZIONE = 12,
+		DISINSTALLAZIONE = 13,
+		FINE_INSTALLAZIONE = 14,
+		FINE_DISINSTALLAZIONE = 15,
+		ENERGY_SAVING = 16,
+        TEST_DB = 17,
+		DATA_AUDIT = 18,
+        LAVAGGIO_SANITARIO = 20,
+		TEST_ATTUATORE_SELEZIONE = 21,
+		TEST_MODEM = 22,
+		LAVAGGIO_MILKER_VENTURI = 23,
+		LAVAGGIO_MILKER_INDUX = 24,
 		
-		eVMCState_COM_ERROR     = 101,
-		eVMCState_REG_APERTURA_MACINA = 102,
-		eVMCState_COMPATIBILITY_CHECK = 103,
-		eVMCState_CPU_NOT_SUPPORTED = 104,
-		eVMCState_DA3_SYNC = 105,
-		eVMCState_GRINDER_SPEED_TEST = 106
+		COM_ERROR     = 101,
+		REG_APERTURA_MACINA = 102,
+		COMPATIBILITY_CHECK = 103,
+		CPU_NOT_SUPPORTED = 104,
+		DA3_SYNC = 105,
+		GRINDER_SPEED_TEST = 106
 
 	};
 
-    enum eReadDataFileStatus
+    enum class eReadDataFileStatus: u8
     {
-        eReadDataFileStatus_inProgress = 0,
-        eReadDataFileStatus_finishedOK = 1,
-        eReadDataFileStatus_finishedKO_cantStart_invalidState = 2,
-        eReadDataFileStatus_finishedKO_cpuDidNotAnswer = 3,
-		eReadDataFileStatus_finishedKO_unableToCreateFile = 4
+        inProgress = 0,
+        finishedOK = 1,
+        finishedKO_cantStart_invalidState = 2,
+        finishedKO_cpuDidNotAnswer = 3,
+		finishedKO_unableToCreateFile = 4
     };
 
-	enum eWriteDataFileStatus
+	enum class eWriteDataFileStatus: u8
 	{
-		eWriteDataFileStatus_inProgress = 0,
-		eWriteDataFileStatus_finishedOK = 1,
-		eWriteDataFileStatus_finishedKO_cantStart_invalidState = 2,
-		eWriteDataFileStatus_finishedKO_cpuDidNotAnswer = 3,
-		eWriteDataFileStatus_finishedKO_unableToCopyFile = 4,
-		eWriteDataFileStatus_finishedKO_unableToOpenLocalFile = 5,
-        eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2 = 6,
+		inProgress = 0,
+		finishedOK = 1,
+		finishedKO_cantStart_invalidState = 2,
+		finishedKO_cpuDidNotAnswer = 3,
+		finishedKO_unableToCopyFile = 4,
+		finishedKO_unableToOpenLocalFile = 5,
+        finishedKO_cpuDidNotAnswer2 = 6,
 	};
 
-	enum eWriteCPUFWFileStatus
+	enum class eWriteCPUFWFileStatus: u8
 	{
-		eWriteCPUFWFileStatus_inProgress_erasingFlash = 0,
-		eWriteCPUFWFileStatus_inProgress,
-		eWriteCPUFWFileStatus_finishedOK,
-		eWriteCPUFWFileStatus_finishedKO_cantStart_invalidState,
-		eWriteCPUFWFileStatus_finishedKO_unableToCopyFile,
-		eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile,
-		eWriteCPUFWFileStatus_finishedKO_k_notReceived,
-		eWriteCPUFWFileStatus_finishedKO_M_notReceived,
-		eWriteCPUFWFileStatus_finishedKO_h_notReceived,
-		eWriteCPUFWFileStatus_finishedKO_generalError
+		inProgress_erasingFlash = 0,
+		inProgress,
+		finishedOK,
+		finishedKO_cantStart_invalidState,
+		finishedKO_unableToCopyFile,
+		finishedKO_unableToOpenLocalFile,
+		finishedKO_k_notReceived,
+		finishedKO_M_notReceived,
+		finishedKO_h_notReceived,
+		finishedKO_generalError
 	};
 
-	enum eCPUMachineType
+	enum class eCPUMachineType: u8
 	{
-		eCPUMachineType_instant = 0x00,
-        eCPUMachineType_espresso1 = 0x01,
-        eCPUMachineType_espresso2 = 0x02,
-        eCPUMachineType_unknown = 0xff
+		instant = 0x00,
+        espresso1 = 0x01,
+        espresso2 = 0x02,
+        unknown = 0xff
 	};
 
-	enum ePaymentMode
+	enum class ePaymentMode: u8
 	{
-		ePaymentMode_normal = 0,
-		ePaymentMode_freevend = 1,
-		ePaymentMode_testvend = 2,
-		ePaymentMode_invalid = 0xff
+		normal = 0,
+		freevend = 1,
+		testvend = 2,
+		invalid = 0xff
 	};
 
-	enum eGPUPaymentType
+	enum class eGPUPaymentType: u8
 	{
-		eGPUPaymentType_unknown = 0,
-		eGPUPaymentType_alipayChina = 1,
-		eGPUPaymentType_invalid = 0xff
+		unknown = 0,
+		alipayChina = 1,
+		invalid = 0xff
 	};
 
-    enum eCPUProgrammingCommand
+    enum class eCPUProgrammingCommand: u8
     {
-        eCPUProgrammingCommand_enterProg = 0x01,
-        eCPUProgrammingCommand_cleaning = 0x02,
-		eCPUProgrammingCommand_querySanWashingStatus = 0x03,
-		eCPUProgrammingCommand_setDecounter = 0x04,
-		//ELIMINATO eCPUProgrammingCommand_resetCounter = 0x05,
-		eCPUProgrammingCommand_getAllDecounterValues = 0x06,
-		eCPUProgrammingCommand_getTime = 0x07,
-		eCPUProgrammingCommand_getDate = 0x08,
-		eCPUProgrammingCommand_setTime = 0x09,
-		eCPUProgrammingCommand_setDate = 0x0A,
-		eCPUProgrammingCommand_getStatoGruppo = 0x0B,
-		eCPUProgrammingCommand_attivazioneMotore = 0x0C,
-		eCPUProgrammingCommand_calcolaImpulsiMacina = 0x0D,
-		eCPUProgrammingCommand_getStatoCalcoloImpulsi = 0x0E,
-		eCPUProgrammingCommand_setFattoreCalibrazioneMotore = 0x0F,
-		eCPUProgrammingCommand_getPosizioneMacina = 0x10,
-		eCPUProgrammingCommand_setMotoreMacina = 0x11,
-		eCPUProgrammingCommand_testSelezione = 0x12,
-		eCPUProgrammingCommand_getNomiLinguaCPU = 0x13,
-		eCPUProgrammingCommand_disinstallazione = 0x14,
-		eCPUProgrammingCommand_ricaricaFasciaOrariaFV = 0x15,
-		eCPUProgrammingCommand_EVAresetPartial = 0x16,
-		eCPUProgrammingCommand_getVoltAndTemp = 0x17,
-		eCPUProgrammingCommand_getCPUOFFReportDetails = 0x18,
+        enterProg = 0x01,
+        cleaning = 0x02,
+		querySanWashingStatus = 0x03,
+		setDecounter = 0x04,
+		//ELIMINATO resetCounter = 0x05,
+		getAllDecounterValues = 0x06,
+		getTime = 0x07,
+		getDate = 0x08,
+		setTime = 0x09,
+		setDate = 0x0A,
+		getStatoGruppo = 0x0B,
+		attivazioneMotore = 0x0C,
+		calcolaImpulsiMacina = 0x0D,
+		getStatoCalcoloImpulsi = 0x0E,
+		setFattoreCalibrazioneMotore = 0x0F,
+		getPosizioneMacina = 0x10,
+		setMotoreMacina = 0x11,
+		testSelezione = 0x12,
+		getNomiLinguaCPU = 0x13,
+		disinstallazione = 0x14,
+		ricaricaFasciaOrariaFV = 0x15,
+		EVAresetPartial = 0x16,
+		getVoltAndTemp = 0x17,
+		getCPUOFFReportDetails = 0x18,
 		//CPU EVENTS report details = 0x19 non implementato
-		eCPUProgrammingCommand_getLastFluxInformation = 0x1A,
-		eCPUProgrammingCommand_getStringVersionAndModel = 0x1B,
-		eCPUProgrammingCommand_startModemTest = 0x1C,
-		eCPUProgrammingCommand_EVAresetTotals = 0x1D,
-		eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore = 0x1E,
-		eCPUProgrammingCommand_startTestAssorbGruppo = 0x1F,
-		eCPUProgrammingCommand_getStatusTestAssorbGruppo = 0x20,
-		eCPUProgrammingCommand_startTestAssorbMotoriduttore = 0x21,
-		eCPUProgrammingCommand_getStatusTestAssorbMotoriduttore = 0x22,
-		eCPUProgrammingCommand_getLastGrinderSpeed = 0x23,
-		eCPUProgrammingCommand_unknown = 0xff
+		getLastFluxInformation = 0x1A,
+		getStringVersionAndModel = 0x1B,
+		startModemTest = 0x1C,
+		EVAresetTotals = 0x1D,
+		getTimeNextLavaggioCappuccinatore = 0x1E,
+		startTestAssorbGruppo = 0x1F,
+		getStatusTestAssorbGruppo = 0x20,
+		startTestAssorbMotoriduttore = 0x21,
+		getStatusTestAssorbMotoriduttore = 0x22,
+		getLastGrinderSpeed = 0x23,
+		unknown = 0xff
     };
 
-	enum eCPUProgrammingCommand_cleaningType
+	enum class eCPUProg_cleaningType: u8
 	{
-		eCPUProgrammingCommand_cleaningType_invalid = 0x00,
-		eCPUProgrammingCommand_cleaningType_mixer1 = 0x01,
-		eCPUProgrammingCommand_cleaningType_mixer2 = 0x02,
-		eCPUProgrammingCommand_cleaningType_mixer3 = 0x03,
-		eCPUProgrammingCommand_cleaningType_mixer4 = 0x04,
-		eCPUProgrammingCommand_cleaningType_milker = 0x05,			//questo dice alla CPU di far partire il lav san del milker considerando che il comando arrriva da dentro il menu prog
-		eCPUProgrammingCommand_cleaningType_sanitario = 0x08,
-		eCPUProgrammingCommand_cleaningType_rinsing = 0xa0,
-		eCPUProgrammingCommand_cleaningType_milkerQuick = 0x20		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
+		invalid = 0x00,
+		mixer1 = 0x01,
+		mixer2 = 0x02,
+		mixer3 = 0x03,
+		mixer4 = 0x04,
+		milker = 0x05,			//questo dice alla CPU di far partire il lav san del milker considerando che il comando arrriva da dentro il menu prog
+		sanitario = 0x08,
+		rinsing = 0xa0,
+		milkerQuick = 0x20		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
 	};
 
-	enum eCPUProgrammingCommand_decounter
+	enum class eCPUProg_decounter: u8
 	{
-		eCPUProgrammingCommand_decounter_unknown = 0,
-		eCPUProgrammingCommand_decounter_prodotto1 = 1,
-		eCPUProgrammingCommand_decounter_prodotto2 = 2,
-		eCPUProgrammingCommand_decounter_prodotto3 = 3,
-		eCPUProgrammingCommand_decounter_prodotto4 = 4,
-		eCPUProgrammingCommand_decounter_prodotto5 = 5,
-		eCPUProgrammingCommand_decounter_prodotto6 = 6,
-		eCPUProgrammingCommand_decounter_prodotto7 = 7,
-		eCPUProgrammingCommand_decounter_prodotto8 = 8,
-		eCPUProgrammingCommand_decounter_prodotto9 = 9,
-		eCPUProgrammingCommand_decounter_prodotto10 = 10,
-		eCPUProgrammingCommand_decounter_waterFilter = 11,
-		eCPUProgrammingCommand_decounter_coffeeBrewer = 12,
-		eCPUProgrammingCommand_decounter_coffeeGround = 13,
-		eCPUProgrammingCommand_blocking_counter = 14,
-		eCPUProgrammingCommand_decounter_error = 0xff
+		unknown = 0,
+		prodotto1 = 1,
+		prodotto2 = 2,
+		prodotto3 = 3,
+		prodotto4 = 4,
+		prodotto5 = 5,
+		prodotto6 = 6,
+		prodotto7 = 7,
+		prodotto8 = 8,
+		prodotto9 = 9,
+		prodotto10 = 10,
+		waterFilter = 11,
+		coffeeBrewer = 12,
+		coffeeGround = 13,
+		blocking_counter = 14,
+		error = 0xff
 	};
 
-	enum eCPUProgrammingCommand_statoGruppo
+	enum class eCPUProg_statoGruppo: u8
 	{
-		eCPUProgrammingCommand_statoGruppo_nonAttaccato = 0x00,
-		eCPUProgrammingCommand_statoGruppo_attaccato = 0x01
+		nonAttaccato = 0x00,
+		attaccato = 0x01
 	};
 
-	enum eCPUProgrammingCommand_motor
+	enum class eCPUProg_motor
 	{
-		eCPUProgrammingCommand_motor_unknown = 0,
-		eCPUProgrammingCommand_motor_prod1 = 1,
-		eCPUProgrammingCommand_motor_prod2 = 2,
-		eCPUProgrammingCommand_motor_prod3 = 3,
-		eCPUProgrammingCommand_motor_prod4 = 4,
-		eCPUProgrammingCommand_motor_prod5 = 5,
-		eCPUProgrammingCommand_motor_prod6 = 6,
-		eCPUProgrammingCommand_motor_prod7 = 7,
-		eCPUProgrammingCommand_motor_prod8 = 8,
-		eCPUProgrammingCommand_motor_prod9 = 9,
-		eCPUProgrammingCommand_motor_prod10 = 10,
-		eCPUProgrammingCommand_motor_macina1 = 11,
-		eCPUProgrammingCommand_motor_macina2 = 12
+		unknown = 0,
+		prod1 = 1,
+		prod2 = 2,
+		prod3 = 3,
+		prod4 = 4,
+		prod5 = 5,
+		prod6 = 6,
+		prod7 = 7,
+		prod8 = 8,
+		prod9 = 9,
+		prod10 = 10,
+		macina1 = 11,
+		macina2 = 12
 	};
 
-	enum eCPUProgrammingCommand_testSelectionDevice
+	enum class eCPUProg_testSelectionDevice: u8
 	{
-		eCPUProgrammingCommand_testSelectionDevice_wholeSelection = 0,
-		eCPUProgrammingCommand_testSelectionDevice_prod1 = 1,
-		eCPUProgrammingCommand_testSelectionDevice_prod2 = 2,
-		eCPUProgrammingCommand_testSelectionDevice_prod3 = 3,
-		eCPUProgrammingCommand_testSelectionDevice_prod4 = 4,
-		eCPUProgrammingCommand_testSelectionDevice_prod5 = 5,
-		eCPUProgrammingCommand_testSelectionDevice_prod6 = 6,
-		eCPUProgrammingCommand_testSelectionDevice_prod7 = 7,
-		eCPUProgrammingCommand_testSelectionDevice_prod8 = 8,
-		eCPUProgrammingCommand_testSelectionDevice_prod9 = 9,
-		eCPUProgrammingCommand_testSelectionDevice_prod10 = 10,
+		wholeSelection = 0,
+		prod1 = 1,
+		prod2 = 2,
+		prod3 = 3,
+		prod4 = 4,
+		prod5 = 5,
+		prod6 = 6,
+		prod7 = 7,
+		prod8 = 8,
+		prod9 = 9,
+		prod10 = 10,
 		
-		eCPUProgrammingCommand_testSelectionDevice_macina = 11,
+		macina = 11,
 
-		eCPUProgrammingCommand_testSelectionDevice_water1 = 21,
-		eCPUProgrammingCommand_testSelectionDevice_water2 = 22,
-		eCPUProgrammingCommand_testSelectionDevice_water3 = 23,
-		eCPUProgrammingCommand_testSelectionDevice_water4 = 24,
-		eCPUProgrammingCommand_testSelectionDevice_water5 = 25,
-		eCPUProgrammingCommand_testSelectionDevice_water6 = 26,
-		eCPUProgrammingCommand_testSelectionDevice_water7 = 27,
-		eCPUProgrammingCommand_testSelectionDevice_water8 = 28,
-		eCPUProgrammingCommand_testSelectionDevice_water9 = 29,
-		eCPUProgrammingCommand_testSelectionDevice_water10 = 30,
+		water1 = 21,
+		water2 = 22,
+		water3 = 23,
+		water4 = 24,
+		water5 = 25,
+		water6 = 26,
+		water7 = 27,
+		water8 = 28,
+		water9 = 29,
+		water10 = 30,
 
-		eCPUProgrammingCommand_testSelectionDevice_mixer1 = 31,
-		eCPUProgrammingCommand_testSelectionDevice_mixer2 = 32,
-		eCPUProgrammingCommand_testSelectionDevice_mixer3 = 33,
-		eCPUProgrammingCommand_testSelectionDevice_mixer4 = 34,
-		eCPUProgrammingCommand_testSelectionDevice_mixer5 = 35,
-		eCPUProgrammingCommand_testSelectionDevice_mixer6 = 36,
-		eCPUProgrammingCommand_testSelectionDevice_mixer7 = 37,
-		eCPUProgrammingCommand_testSelectionDevice_mixer8 = 38,
-		eCPUProgrammingCommand_testSelectionDevice_mixer9 = 39,
-		eCPUProgrammingCommand_testSelectionDevice_mixer10 = 40,
+		mixer1 = 31,
+		mixer2 = 32,
+		mixer3 = 33,
+		mixer4 = 34,
+		mixer5 = 35,
+		mixer6 = 36,
+		mixer7 = 37,
+		mixer8 = 38,
+		mixer9 = 39,
+		mixer10 = 40,
 
-		eCPUProgrammingCommand_testSelectionDevice_unknown = 0xff
+		unknown = 0xff
 	};
 
-	enum eCPUProgrammingCommand_macinaMove
+	enum class eCPUProg_macinaMove: u8
 	{
-		eCPUProgrammingCommand_macinaMove_stop = 0,
-		eCPUProgrammingCommand_macinaMove_open = 1,
-		eCPUProgrammingCommand_macinaMove_close = 2
+		stop = 0,
+		open = 1,
+		close = 2
 	};
 
-    enum eCPUGruppoCaffe
+    enum class eCPUGruppoCaffe : u8
 	{
-        eCPUGruppoCaffe_Variflex = 'V',
-        eCPUGruppoCaffe_Micro = 'M',
-        eCPUGruppoCaffe_None = 'N'
+        Variflex = 'V',
+        Micro = 'M',
+        None = 'N'
 	};
 
-	enum eCPUMilkerType
+	enum class eCPUMilkerType: u8
 	{
-		eCPUMilkerType_none = 0,
-		eCPUMilkerType_venturi = 1,
-		eCPUMilkerType_indux = 2
+		none = 0,
+		venturi = 1,
+		indux = 2
 	};
 
 	struct sSubscriber

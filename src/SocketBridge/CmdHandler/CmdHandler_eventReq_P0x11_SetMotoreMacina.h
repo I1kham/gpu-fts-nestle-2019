@@ -11,13 +11,13 @@ namespace socketbridge
      *
      * params:
 		u8 macina 1 o 2
-		u8 tipo di movimento (apri chiudi stop), vedi cpubridge::eCPUProgrammingCommand_macinaMove
+		u8 tipo di movimento (apri chiudi stop), vedi cpubridge::eCPUProg_macinaMove
      *
      */
     class CmdHandler_eventReq_P0x11_SetMotoreMacina : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_setMotoreMacina;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::setMotoreMacina;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTITFY_MOTORE_MACINA;
 
 		CmdHandler_eventReq_P0x11_SetMotoreMacina(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

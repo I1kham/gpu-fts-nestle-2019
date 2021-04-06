@@ -43,7 +43,7 @@ void CmdHandler_ajaxReq_P0x23_startGrinderSpeedTest::passDownRequestToCPUBridge 
 {
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqStartGrinderSpeedTest_jsonTrapFunction, &data))
-		cpubridge::ask_CPU_START_GRINDER_SPEED_TEST (from, getHandlerID(), (cpubridge::eCPUProgrammingCommand_motor)data.macina1o2, data.durataSec);
+		cpubridge::ask_CPU_START_GRINDER_SPEED_TEST (from, getHandlerID(), data.macina1o2, data.durataSec);
 }
 
 //***********************************************************

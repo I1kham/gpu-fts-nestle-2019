@@ -41,7 +41,7 @@ void CmdHandler_ajaxReqTaskStatus::handleRequestFromSocketBridge(socketbridge::S
 	else
 	{
 		u8 reportedStatus = 1;
-		if (status == TaskStatus::eStatus_finished)
+		if (status == TaskStatus::eStatus::finished)
 			reportedStatus = 0;
 		sprintf_s(resp, sizeof(resp), "{\"status\":%d,\"msg\":\"%s\"}", reportedStatus, taskMsg);
 	}

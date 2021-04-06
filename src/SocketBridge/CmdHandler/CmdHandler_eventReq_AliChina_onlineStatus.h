@@ -21,7 +21,7 @@ namespace socketbridge
     class CmdHandler_eventReq_AliChina_onlineStatus : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT	= eEventType_AlipayChina_onlineStatusChanged;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT	= eEventType::AlipayChina_onlineStatusChanged;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE         = CPUBRIDGE_NOTIFY_MAX_ALLOWED;
 
                     CmdHandler_eventReq_AliChina_onlineStatus (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

@@ -16,7 +16,7 @@ namespace socketbridge
     class CmdHandler_eventReqCPUExtendedConfigInfo : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_cpuExtendedConfigInfo;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::cpuExtendedConfigInfo;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_EXTENDED_CONFIG_INFO;
 
 		CmdHandler_eventReqCPUExtendedConfigInfo(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

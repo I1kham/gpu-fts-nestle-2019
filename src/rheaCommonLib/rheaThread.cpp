@@ -44,7 +44,7 @@ void* threadFunctionWrapper (void *userParam)
  * thread_create
  *
  * Prova a creare un thread.
- * Se tutto ok, ritorna eThreadError_none, filla [out_thHandle] con l'handle del thread
+ * Se tutto ok, ritorna eThreadError::none, filla [out_thHandle] con l'handle del thread
  */
 eThreadError rhea::thread::create (HThread *out_hThread, ThMainFunction threadFunction, void *userParam, u16 stackSizeInKb)
 {
@@ -59,7 +59,7 @@ eThreadError rhea::thread::create (HThread *out_hThread, ThMainFunction threadFu
 
     eThreadError err = platform::createThread (th->osThreadHandle, threadFunctionWrapper, stackSizeInKb, th);
 
-    if (err == eThreadError_none)
+    if (err == eThreadError::none)
         *out_hThread = th;
     else
         allocator->dealloc(th);

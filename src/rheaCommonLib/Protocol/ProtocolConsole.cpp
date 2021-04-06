@@ -134,7 +134,7 @@ u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer,
 	//in decoded c'è un messaggio buono, vediamo di cosa si tratta
 	switch (decoded.what)
 	{
-		case eOpcode_msg:
+		case eOpcode::msg:
 			//copio il payload appena ricevuto nel buffer utente
 			if (decoded.payloadLen)
 			{
@@ -144,7 +144,7 @@ u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer,
 			return nBytesConsumed;
 			break;
 
-		case eOpcode_close:
+		case eOpcode::close:
 		{
 			//rispondoa a mia volta con close e chiudo
 			virt_sendCloseMessage(ch);
@@ -152,7 +152,7 @@ u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer,
 		}
 		break;
 
-		case eOpcode_unknown:
+		case eOpcode::unknown:
 			return nBytesConsumed;
 
 		default:
@@ -173,7 +173,7 @@ u16 ProtocolConsole::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffer,
  */
 u16 ProtocolConsole::priv_decodeOneMessage (const u8 *buffer, u16 nBytesInBuffer, sDecodeResult *out_result) const
 {
-	out_result->what = eOpcode_unknown;
+	out_result->what = eOpcode::unknown;
 	if (nBytesInBuffer == 0)
 		return 0;
 
@@ -199,22 +199,22 @@ u16 ProtocolConsole::priv_decodeOneMessage (const u8 *buffer, u16 nBytesInBuffer
 			default:
 				//Errore, opcode non riconosciuto
 				printf("ERR ProtocolConsole::priv_decodeOneMessage() => invalid opcode [%d]\n", out_result->what);
-				out_result->what = eOpcode_unknown;
+				out_result->what = eOpcode::unknown;
 				out_result->payloadLen = 0;
 				break;
 
-			case eOpcode_close:
+			case eOpcode::close:
 				//ho ricevuto una esplicita richiesta di chiudere il canale
 				return protocol::RES_PROTOCOL_CLOSED;
 
-			case eOpcode_internal_simpledMsg:
+			case eOpcode::internal_simpledMsg:
 			{
 				/*  messaggio semplice, payloadLen <=255 byte, ck8 semplice a fine messaggio:
 						MAGIC1 MAGIC2 WHAT LEN data data data CK
 				*/
 				if (ct >= nBytesInBuffer)
 					return nBytesInBuffer;
-				out_result->what = eOpcode_msg;
+				out_result->what = eOpcode::msg;
 				out_result->payloadLen = buffer[ct++];
 
 				//se non ci sono abbastanza bytes per il playload e la ck, ritorno "startOfThisMessage" perchè vuol dire che il buffer non ha ricevuto ancora abbastanza dati
@@ -231,16 +231,16 @@ u16 ProtocolConsole::priv_decodeOneMessage (const u8 *buffer, u16 nBytesInBuffer
 					return ct;
 
 				printf("ERR ProtocolConsole::decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
-				out_result->what = eOpcode_unknown;
+				out_result->what = eOpcode::unknown;
 			}
 			break;
 
-			case eOpcode_internal_extendedMsg:
+			case eOpcode::internal_extendedMsg:
 			{
 				//MAGIC1 MAGIC2 WHAT LEN_MSB LEN_LSB payload...payload CK(u16)
 				if ((ct+1) >= nBytesInBuffer)
 					return nBytesInBuffer;
-				out_result->what = eOpcode_msg;
+				out_result->what = eOpcode::msg;
 				out_result->payloadLen = buffer[ct++];
 				out_result->payloadLen <<= 8;
 				out_result->payloadLen |= buffer[ct++];
@@ -260,7 +260,7 @@ u16 ProtocolConsole::priv_decodeOneMessage (const u8 *buffer, u16 nBytesInBuffer
 					return ct;
 
 				printf("ERR ProtocolConsole::decodeBuffer() => bad CK [%d] expected [%d]\n", ck, calc_ck);
-				out_result->what = eOpcode_unknown;
+				out_result->what = eOpcode::unknown;
 			}
 			break;
 		}
@@ -279,7 +279,7 @@ u16 ProtocolConsole::priv_decodeOneMessage (const u8 *buffer, u16 nBytesInBuffer
  */
 u16 ProtocolConsole::virt_encodeBuffer(const u8 *bufferToEncode, u16 nBytesToEncode, u8 *out_buffer, u16 sizeOfOutBuffer)
 {
-	return priv_encodeAMessage(eOpcode_msg, bufferToEncode, nBytesToEncode, out_buffer, sizeOfOutBuffer);
+	return priv_encodeAMessage(eOpcode::msg, bufferToEncode, nBytesToEncode, out_buffer, sizeOfOutBuffer);
 }
 
 /****************************************************
@@ -294,14 +294,14 @@ u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToS
 		return 0;
 	}
 
-	if (opcode == eOpcode_msg)
+	if (opcode == eOpcode::msg)
 	{
 		if (payloadLen == 0)
 			return 0;
 		if (payloadLen <= 0xff)
-			opcode = eOpcode_internal_simpledMsg;
+			opcode = eOpcode::internal_simpledMsg;
 		else
-			opcode = eOpcode_internal_extendedMsg;
+			opcode = eOpcode::internal_extendedMsg;
 	}
 
     u16 ct = 0;
@@ -315,10 +315,10 @@ u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToS
 			DBGBREAK;
 			return 0;
 
-		case eOpcode_close:
+		case eOpcode::close:
 			return ct;
 
-		case eOpcode_internal_simpledMsg:
+		case eOpcode::internal_simpledMsg:
 			//MAGIC1 MAGIC2 WHAT LEN(byte) payload...payload CK(byte)
 			if (sizeOfOutBuffer < 5 + payloadLen)
 				return protocol::RES_PROTOCOL_WRITEBUFFER_TOOSMALL;
@@ -331,7 +331,7 @@ u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToS
 			return ct;
     
 
-		case eOpcode_internal_extendedMsg:
+		case eOpcode::internal_extendedMsg:
 			if (payloadLen == 0)
 				return 0;
 
@@ -358,7 +358,7 @@ u16 ProtocolConsole::priv_encodeAMessage (eOpcode opcode, const void *payloadToS
 void ProtocolConsole::virt_sendCloseMessage(IProtocolChannell *ch)
 {
 	u8 wBuffer[32];
-	u16 n = priv_encodeAMessage (eOpcode_close, NULL, 0, wBuffer, sizeof(wBuffer));
+	u16 n = priv_encodeAMessage (eOpcode::close, NULL, 0, wBuffer, sizeof(wBuffer));
 	ch->write (wBuffer, n, 1000);
 }
 

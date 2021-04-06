@@ -17,7 +17,7 @@ Core::Core()
 	shared.protocol = NULL;
     shared.logger = &nullLogger;
     bIsSubscribedToCPUBridge = false;
-    shared.moduleInfo.type = esapi::eExternalModuleType_none;
+    shared.moduleInfo.type = esapi::eExternalModuleType::none;
     shared.moduleInfo.verMajor = shared.moduleInfo.verMinor = 0;
 }
 
@@ -181,7 +181,7 @@ void Core::run()
             bQuit = true;
             break;
 
-        case sShared::RETCODE_START_MODULE_RASPI:
+        case sShared::eRetCode::START_MODULE_RASPI:
             {
                 shared.logger->log ("esapi::Core::run() => instancing moduleRasPI\n");
                 ModuleRasPI *m = RHEANEW(shared.localAllocator, ModuleRasPI)();

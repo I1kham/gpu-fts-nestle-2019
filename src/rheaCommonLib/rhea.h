@@ -220,10 +220,10 @@ namespace rhea
 			eRS232BaudRate baudRate,
 			bool RST_on,
 			bool DTR_on,
-            eRS232DataBits dataBits = eRS232DataBits_8,
-            eRS232Parity parity = eRS232Parity_No,
-            eRS232StopBits stop = eRS232StopBits_One,
-            eRS232FlowControl flowCtrl = eRS232FlowControl_No,
+            eRS232DataBits dataBits = eRS232DataBits::b8,
+            eRS232Parity parity = eRS232Parity::No,
+            eRS232StopBits stop = eRS232StopBits::One,
+            eRS232FlowControl flowCtrl = eRS232FlowControl::No,
 			bool bBlocking = true)																		{ return platform::serialPort_open(out_serialPort, deviceName, baudRate, RST_on, DTR_on, dataBits, parity, stop, flowCtrl, bBlocking); }
 
 		inline void     close(OSSerialPort &sp)															{ return platform::serialPort_close(sp); }

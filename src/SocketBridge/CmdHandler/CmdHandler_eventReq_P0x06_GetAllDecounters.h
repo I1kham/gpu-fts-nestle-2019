@@ -15,7 +15,7 @@ namespace socketbridge
     class CmdHandler_eventReq_P0x06_GetAllDecounters : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_getAllDecounters;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::getAllDecounters;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES;
 
 		CmdHandler_eventReq_P0x06_GetAllDecounters(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

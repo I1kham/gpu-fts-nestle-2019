@@ -166,7 +166,7 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_b
 	optionalData[ct++] = 0;
 	optionalData[ct++] = langErrorCode;
 
-	return cpubridge_buildMsg (cpubridge::eCPUCommand_checkStatus_B, optionalData, ct, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg (cpubridge::eCPUCommand::checkStatus_B, optionalData, ct, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -180,31 +180,31 @@ u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum
 	optionalData[ct++] = (u8)paymentMode;
 	optionalData[ct++] = (u8)paymentType;
 
-	return cpubridge_buildMsg (cpubridge::eCPUCommand_startSelWithPaymentAlreadyHandled_V, optionalData, ct, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg (cpubridge::eCPUCommand::startSelWithPaymentAlreadyHandled_V, optionalData, ct, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_richiestaNomeSelezioneDiCPU_d (u8 selNum, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return cpubridge_buildMsg (cpubridge::eCPUCommand_getNomeSelezioneCPU_d, &selNum, 1, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg (cpubridge::eCPUCommand::getNomeSelezioneCPU_d, &selNum, 1, out_buffer, sizeOfOutBuffer);
 }
 
 
 //***************************************************
-u8 cpubridge::buildMsg_setDecounter (eCPUProgrammingCommand_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_setDecounter (eCPUProg_decounter which, u16 valore, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[3];
 	optionalData[0] = (u8)which;
 	optionalData[1] = (u8)(valore & 0x00FF);			//LSB
 	optionalData[2] = (u8)((valore & 0xFF00) >> 8);		//MSB
 	
-	return buildMsg_Programming(eCPUProgrammingCommand_setDecounter, optionalData, 3, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::setDecounter, optionalData, 3, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getAllDecounterValues(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getAllDecounterValues, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getAllDecounterValues, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -217,25 +217,25 @@ u8 cpubridge::buildMsg_calcolaImpulsiGruppo (u8 macina_1o2, u16 totalePesata_dGr
 	else
 		optionalData[0] = 11;
 	rhea::utils::bufferWriteU16_LSB_MSB(&optionalData[1], totalePesata_dGrammi);
-	return buildMsg_Programming(eCPUProgrammingCommand_calcolaImpulsiMacina, optionalData, 3, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::calcolaImpulsiMacina, optionalData, 3, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getStatoCalcoloImpulsi, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getStatoCalcoloImpulsi, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getTime(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getTime, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getTime, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getDate(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getDate, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getDate, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -245,7 +245,7 @@ u8 cpubridge::buildMsg_setTime(u8 *out_buffer, u8 sizeOfOutBuffer, u8 hh, u8 mm,
 	optionalData[0] = hh;
 	optionalData[1] = mm;
 	optionalData[2] = ss;
-	return buildMsg_Programming(eCPUProgrammingCommand_setTime, optionalData, 3, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::setTime, optionalData, 3, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -255,7 +255,7 @@ u8 cpubridge::buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 
 	optionalData[0] = (u8)(year-2000);
 	optionalData[1] = month;
 	optionalData[2] = day;
-	return buildMsg_Programming(eCPUProgrammingCommand_setDate, optionalData, 3, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::setDate, optionalData, 3, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -271,11 +271,11 @@ u8 cpubridge::buildMsg_getPosizioneMacina(u8 *out_buffer, u8 sizeOfOutBuffer, u8
 
 	u8 optionalData[2];
 	optionalData[0] = macina_1o2;
-	return buildMsg_Programming(eCPUProgrammingCommand_getPosizioneMacina, optionalData, 1, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getPosizioneMacina, optionalData, 1, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_setMotoreMacina(u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+u8 cpubridge::buildMsg_setMotoreMacina(u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProg_macinaMove m)
 {
 	if (macina_1o2 != 2)
 		macina_1o2 = 1;
@@ -288,54 +288,54 @@ u8 cpubridge::buildMsg_setMotoreMacina(u8 *out_buffer, u8 sizeOfOutBuffer, u8 ma
 	u8 optionalData[2];
 	optionalData[0] = macina_1o2;
 	optionalData[1] = (u8)m;
-	return buildMsg_Programming(eCPUProgrammingCommand_setMotoreMacina, optionalData, 2, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::setMotoreMacina, optionalData, 2, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d)
+u8 cpubridge::buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProg_testSelectionDevice d)
 {
 	u8 optionalData[4];
 	optionalData[0] = selNum;
 	optionalData[1] = (u8)d;
 
-	return buildMsg_Programming(eCPUProgrammingCommand_testSelezione, optionalData, 2, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::testSelezione, optionalData, 2, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getNomiLingueCPU(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getNomiLinguaCPU, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getNomiLinguaCPU, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_disinstallazione, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::disinstallazione, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_ricaricaFasciaOrariaFreevend(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_ricaricaFasciaOrariaFV, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::ricaricaFasciaOrariaFV, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_EVAresetPartial(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_EVAresetPartial, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::EVAresetPartial, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_EVAresetTotals(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_EVAresetTotals, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::EVAresetTotals, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 
 //***************************************************
 u8 cpubridge::buildMsg_getVoltAndTemp(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getVoltAndTemp, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getVoltAndTemp, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -343,37 +343,37 @@ u8 cpubridge::buildMsg_getCPUOFFReportDetails(u8 *out_buffer, u8 sizeOfOutBuffer
 {
 	u8 optionalData[4];
 	optionalData[0] = indexNum;
-	return buildMsg_Programming(eCPUProgrammingCommand_getCPUOFFReportDetails, optionalData, 1, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getCPUOFFReportDetails, optionalData, 1, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getLastFluxInformation(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getLastFluxInformation, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getLastFluxInformation, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getCPUStringVersionAndModel(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getStringVersionAndModel, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getStringVersionAndModel, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_startModemTest(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_startModemTest, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::startModemTest, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_startTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_startTestAssorbGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::startTestAssorbGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_startTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_startTestAssorbMotoriduttore, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::startTestAssorbMotoriduttore, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -385,40 +385,40 @@ u8 cpubridge::buildMsg_attivazioneMotore(u8 motore_1_10, u8 durata_dSec, u8 numR
 	optionalData[2] = numRipetizioni;
 	optionalData[3] = pausaTraRipetizioni_dSec;
 
-	return buildMsg_Programming(eCPUProgrammingCommand_attivazioneMotore, optionalData, 4, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::attivazioneMotore, optionalData, 4, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_setFattoreCalibMotore(eCPUProgrammingCommand_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_setFattoreCalibMotore(eCPUProg_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[4];
 	optionalData[0] = (u8)motore;
 	rhea::utils::bufferWriteU16_LSB_MSB(&optionalData[1], valoreInGr);
-	return buildMsg_Programming(eCPUProgrammingCommand_setFattoreCalibrazioneMotore, optionalData, 3, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::setFattoreCalibrazioneMotore, optionalData, 3, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getExtendedConfigInfo(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return cpubridge_buildMsg(cpubridge::eCPUCommand_getExtendedConfigInfo, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand::getExtendedConfigInfo, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getStatoGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getStatoGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getStatoTestAssorbimentoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getStatusTestAssorbGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getStatusTestAssorbGruppo, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getStatoTestAssorbimentoMotoriduttore(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getStatusTestAssorbMotoriduttore, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getStatusTestAssorbMotoriduttore, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 
@@ -432,27 +432,27 @@ u8 cpubridge::buildMsg_initialParam_C(u8 gpuVersionMajor, u8 gpuVersionMinor, u8
 	optionalData[ct++] = gpuVersionMinor;
 	optionalData[ct++] = gpuVersionBuild;
 
-	return cpubridge_buildMsg (cpubridge::eCPUCommand_initialParam_C, optionalData, ct, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg (cpubridge::eCPUCommand::initialParam_C, optionalData, ct, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_restart_U(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return cpubridge_buildMsg (cpubridge::eCPUCommand_restart, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg (cpubridge::eCPUCommand::restart, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_readDataAudit (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
     u8 optionalData[2] = {0,0};
-    return cpubridge_buildMsg (cpubridge::eCPUCommand_readDataAudit, optionalData, 2, out_buffer, sizeOfOutBuffer);
+    return cpubridge_buildMsg (cpubridge::eCPUCommand::readDataAudit, optionalData, 2, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[2] = { blockNum, 0 };
-	return cpubridge_buildMsg(cpubridge::eCPUCommand_readVMCDataFile, optionalData, 2, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand::readVMCDataFile, optionalData, 2, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -462,7 +462,7 @@ u8 cpubridge::buildMsg_writeVMCDataFile(const u8 *buffer64yteLettiDalFile, u8 bl
 	optionalData[0] = blockNum;
 	optionalData[1] = totNumBlocks;
 	memcpy(&optionalData[2], buffer64yteLettiDalFile, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
-	return cpubridge_buildMsg(cpubridge::eCPUCommand_writeVMCDataFile, optionalData, sizeof(optionalData), out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand::writeVMCDataFile, optionalData, sizeof(optionalData), out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -471,7 +471,7 @@ u8 cpubridge::buildMsg_requestPriceHoldingPriceList (u8 firstPrice, u8 numPrices
 	u8 optionalData[2];
 	optionalData[0] = firstPrice;
 	optionalData[1] = numPrices;
-	return cpubridge_buildMsg(cpubridge::eCPUCommand_requestPriceHoldingPriceList, optionalData, 2, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand::requestPriceHoldingPriceList, optionalData, 2, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -482,19 +482,19 @@ u8 cpubridge::buildMsg_writePartialVMCDataFile(const u8 *buffer64byte, u8 blocco
 	optionalData[1] = tot_num_blocchi;
 	optionalData[2] = blockNumOffset;
 	memcpy(&optionalData[3], buffer64byte, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
-	return cpubridge_buildMsg(cpubridge::eCPUCommand_writePartialVMCDataFile, optionalData, sizeof(optionalData), out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand::writePartialVMCDataFile, optionalData, sizeof(optionalData), out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return cpubridge_buildMsg(cpubridge::eCPUCommand_getVMCDataFileTimeStamp, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand::getVMCDataFileTimeStamp, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getMilkerVer(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return cpubridge_buildMsg(cpubridge::eCPUCommand_getMilkerVer, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return cpubridge_buildMsg(cpubridge::eCPUCommand::getMilkerVer, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 
@@ -506,19 +506,19 @@ u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *option
     optionalData[0] = (u8)cmd;
 	if (NULL != optionalDataIN && sizeOfOptionalDataIN > 0)
 		memcpy(&optionalData[1], optionalDataIN, sizeOfOptionalDataIN);
-    return cpubridge_buildMsg (cpubridge::eCPUCommand_programming, optionalData, 1+ sizeOfOptionalDataIN, out_buffer, sizeOfOutBuffer);
+    return cpubridge_buildMsg (cpubridge::eCPUCommand::programming, optionalData, 1+ sizeOfOptionalDataIN, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getTimeNextLavaggioSanCappuccinatore(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getTimeNextLavaggioCappuccinatore, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
 u8 cpubridge::buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
-	return buildMsg_Programming(eCPUProgrammingCommand_getLastGrinderSpeed, NULL, 0, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming(eCPUProgrammingCommand::getLastGrinderSpeed, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
 
@@ -731,7 +731,7 @@ void cpubridge::notify_CPU_RUNNING_SEL_STATUS(const sSubscriber &to, u16 handler
 {
 	logger->log("notify_CPU_RUNNING_SEL_STATUS [%d]\n", (u8)status);
 
-	u32 paramU32 = status;
+	u32 paramU32 = (u32)status;
 	paramU32 <<= 16;
 	paramU32 |= handlerID;
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS, paramU32);
@@ -792,7 +792,7 @@ void cpubridge::notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 hand
 
 	u8 buffer[8];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	nbw.writeU16(fileID);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
@@ -805,7 +805,7 @@ void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sM
     assert(msg.what == CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
+	nbr.setup(msg.buffer, msg.bufferSize, rhea::eEndianess::eBigEndian);
 
     u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
@@ -822,7 +822,7 @@ void cpubridge::notify_READ_VMCDATAFILE_PROGRESS(const sSubscriber &to, u16 hand
 
 	u8 buffer[8];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	nbw.writeU16(fileID);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
@@ -835,7 +835,7 @@ void cpubridge::translateNotify_READ_VMCDATAFILE_PROGRESS(const rhea::thread::sM
 	assert(msg.what == CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
+	nbr.setup(msg.buffer, msg.bufferSize, rhea::eEndianess::eBigEndian);
 
     u16 u = 0;
 	nbr.readU16(u); *out_fileID = u;
@@ -852,7 +852,7 @@ void cpubridge::notify_WRITE_VMCDATAFILE_PROGRESS(const sSubscriber &to, u16 han
 
 	u8 buffer[8];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS, handlerID, buffer, nbw.length());
@@ -864,7 +864,7 @@ void cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS(const rhea::thread::s
 	assert(msg.what == CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
+	nbr.setup(msg.buffer, msg.bufferSize, rhea::eEndianess::eBigEndian);
 
     u16 u = 0;
 	nbr.readU16(u); *out_totKbSoFar = u;
@@ -874,13 +874,13 @@ void cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS(const rhea::thread::s
 }
 
 //***************************************************
-void cpubridge::notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, enum eWriteCPUFWFileStatus status, u16 param)
+void cpubridge::notify_WRITE_CPUFW_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eWriteCPUFWFileStatus status, u16 param)
 {
 	logger->log("notify_WRITE_CPUFW_PROGRESS\n");
 
 	u8 buffer[8];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	nbw.writeU16(param);
 	nbw.writeU8((u8)status);
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS, handlerID, buffer, nbw.length());
@@ -892,7 +892,7 @@ void cpubridge::translateNotify_WRITE_CPUFW_PROGRESS(const rhea::thread::sMsg &m
 	assert(msg.what == CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS);
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(msg.buffer, msg.bufferSize, rhea::eBigEndian);
+	nbr.setup(msg.buffer, msg.bufferSize, rhea::eEndianess::eBigEndian);
 
     u16 u = 0;
 	nbr.readU16(u); *out_param = u;
@@ -966,7 +966,7 @@ void cpubridge::translateNotify_WRITE_PARTIAL_VMCDATAFILE(const rhea::thread::sM
 }
 
 //***************************************************
-void cpubridge::notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_decounter which, u16 valore)
+void cpubridge::notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProg_decounter which, u16 valore)
 {
 	logger->log("notify_CPU_DECOUNTER_SET [%d] [%d]\n", (u8)which, valore);
 	u8 buffer[4];
@@ -977,12 +977,12 @@ void cpubridge::notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, r
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore)
+void cpubridge::translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg, eCPUProg_decounter *out_which, u16 *out_valore)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET);
 
 	const u8 *p = (const u8*)msg.buffer;
-	*out_which = (eCPUProgrammingCommand_decounter)p[0];
+	*out_which = (eCPUProg_decounter)p[0];
 	*out_valore = ((u16)p[1] << 8) | p[2];
 }
 
@@ -1073,7 +1073,7 @@ void cpubridge::translateNotify_STATO_CALCOLO_IMPULSI_GRUPPO(const rhea::thread:
 }
 
 //***************************************************
-void cpubridge::notify_SET_FATTORE_CALIB_MOTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_motor motore, u16 valore)
+void cpubridge::notify_SET_FATTORE_CALIB_MOTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProg_motor motore, u16 valore)
 {
 	logger->log("notify_SET_FATTORE_CALIB_MOTORE\n");
 
@@ -1084,16 +1084,16 @@ void cpubridge::notify_SET_FATTORE_CALIB_MOTORE(const sSubscriber &to, u16 handl
 }
 
 //***************************************************
-void cpubridge::translateNotify_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valore)
+void cpubridge::translateNotify_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProg_motor *out_motore, u16 *out_valore)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_SET_FATTORE_CALIB_MOTORE);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_valore = rhea::utils::bufferReadU16(p);
-	*out_motore = (eCPUProgrammingCommand_motor)p[2];
+	*out_motore = (eCPUProg_motor)p[2];
 }
 
 //***************************************************
-void cpubridge::notify_STATO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProgrammingCommand_statoGruppo stato)
+void cpubridge::notify_STATO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProg_statoGruppo stato)
 {
 	logger->log("notify_STATO_GRUPPO\n");
 
@@ -1103,11 +1103,11 @@ void cpubridge::notify_STATO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::
 }
 
 //***************************************************
-void cpubridge::translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_statoGruppo *out)
+void cpubridge::translateNotify_STATO_GRUPPO(const rhea::thread::sMsg &msg, eCPUProg_statoGruppo *out)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_STATO_GRUPPO);
 	const u8 *p = (const u8*)msg.buffer;
-	*out = (eCPUProgrammingCommand_statoGruppo)p[0];
+	*out = (eCPUProg_statoGruppo)p[0];
 }
 
 //***************************************************
@@ -1220,7 +1220,7 @@ void cpubridge::translateNotify_CPU_POSIZIONE_MACINA(const rhea::thread::sMsg &m
 }
 
 //***************************************************
-void cpubridge::notify_CPU_MOTORE_MACINA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+void cpubridge::notify_CPU_MOTORE_MACINA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, eCPUProg_macinaMove m)
 {
 	logger->log("notify_CPU_MOTORE_MACINA\n");
 
@@ -1231,16 +1231,16 @@ void cpubridge::notify_CPU_MOTORE_MACINA(const sSubscriber &to, u16 handlerID, r
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProgrammingCommand_macinaMove *out_m)
+void cpubridge::translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m)
 {
 	assert(msg.what == CPUBRIDGE_NOTITFY_MOTORE_MACINA);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_macina_1o2 = p[0];
-	*out_m = (eCPUProgrammingCommand_macinaMove)p[1];
+	*out_m = (eCPUProg_macinaMove)p[1];
 }
 
 //***************************************************
-void cpubridge::notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d)
+void cpubridge::notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProg_testSelectionDevice d)
 {
 	logger->log("notify_CPU_TEST_SELECTION\n");
 
@@ -1250,12 +1250,12 @@ void cpubridge::notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, 
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_TEST_SELECTION, handlerID, buffer, 2);
 }
 //***************************************************
-void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d)
+void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProg_testSelectionDevice *out_d)
 {
 	assert(msg.what == CPUBRIDGE_NOTITFY_TEST_SELECTION);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_selNum = p[0];
-	*out_d = (eCPUProgrammingCommand_testSelectionDevice)p[1];
+	*out_d = (eCPUProg_testSelectionDevice)p[1];
 }
 
 //***************************************************
@@ -1878,7 +1878,7 @@ void cpubridge::translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCP
 }
 
 //***************************************************
-void cpubridge::ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_decounter which, u16 valore)
+void cpubridge::ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, eCPUProg_decounter which, u16 valore)
 {
 	u8 otherData[3];
 	otherData[0] = (u8)which;
@@ -1888,11 +1888,11 @@ void cpubridge::ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, e
 }
 
 //***************************************************
-void cpubridge::translate_CPU_SET_DECOUNTER (const rhea::thread::sMsg &msg, eCPUProgrammingCommand_decounter *out_which, u16 *out_valore)
+void cpubridge::translate_CPU_SET_DECOUNTER (const rhea::thread::sMsg &msg, eCPUProg_decounter *out_which, u16 *out_valore)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER);
 	const u8 *p = (const u8*)msg.buffer;
-	*out_which = (eCPUProgrammingCommand_decounter)p[0];
+	*out_which = (eCPUProg_decounter)p[0];
 	*out_valore = ((u16)p[1] << 8) | p[2];
 }
 
@@ -1988,7 +1988,7 @@ void cpubridge::ask_CPU_GET_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &from
 }
 
 //***************************************************
-void cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(const sSubscriber &from, u16 handlerID, eCPUProgrammingCommand_motor motore, u16 valoreGr)
+void cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(const sSubscriber &from, u16 handlerID, eCPUProg_motor motore, u16 valoreGr)
 {
 	u8 otherData[4];
 	otherData[0] = (u8)motore;
@@ -1997,11 +1997,11 @@ void cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(const sSubscriber &from, u16 ha
 }
 
 //***************************************************
-void cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProgrammingCommand_motor *out_motore, u16 *out_valoreGr)
+void cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(const rhea::thread::sMsg &msg, eCPUProg_motor *out_motore, u16 *out_valoreGr)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE);
 	const u8 *p = (const u8*)msg.buffer;
-	*out_motore = (eCPUProgrammingCommand_motor)p[0];
+	*out_motore = (eCPUProg_motor)p[0];
 	*out_valoreGr = rhea::utils::bufferReadU16(&p[1]);
 }
 
@@ -2158,7 +2158,7 @@ void cpubridge::translate_CPU_GET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg
 }
 
 //***************************************************
-void cpubridge::ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+void cpubridge::ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, eCPUProg_macinaMove m)
 {
 	if (macina_1o2 != 2)
 		macina_1o2 = 1;
@@ -2170,12 +2170,12 @@ void cpubridge::ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID
 }
 
 //***************************************************
-void cpubridge::translate_CPU_SET_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProgrammingCommand_macinaMove *out_m)
+void cpubridge::translate_CPU_SET_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_macina_1o2 = p[0];
-	*out_m = (eCPUProgrammingCommand_macinaMove)p[1];
+	*out_m = (eCPUProg_macinaMove)p[1];
 }
 
 //***************************************************
@@ -2200,7 +2200,7 @@ void cpubridge::translate_CPU_SET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg
 }
 
 //***************************************************
-void cpubridge::ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProgrammingCommand_testSelectionDevice d)
+void cpubridge::ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProg_testSelectionDevice d)
 {
 	u8 otherData[4];
 	otherData[0] = selNum;
@@ -2209,12 +2209,12 @@ void cpubridge::ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u
 }
 
 //***************************************************
-void cpubridge::translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProgrammingCommand_testSelectionDevice *out_d)
+void cpubridge::translate_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProg_testSelectionDevice *out_d)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_selNum = p[0];
-	*out_d = (eCPUProgrammingCommand_testSelectionDevice)p[1];
+	*out_d = (eCPUProg_testSelectionDevice)p[1];
 }
 
 //***************************************************

@@ -22,7 +22,7 @@ void CmdHandler_eventReqCPUStatus::onCPUBridgeNotification (socketbridge::Server
 
 	u8 buffer[8];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 
 	nbw.writeU8((u8)vmcState);
 	nbw.writeU8(errorCode);

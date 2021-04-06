@@ -61,7 +61,7 @@ bool Server::open (u16 SERVER_PORT, const HThreadMsgW &hCPUServiceChannelW, bool
 	//apro la socket TCP
 	logger->log("opening TCP socket...");
     eSocketError err = server->start (SERVER_PORT);
-    if (err != eSocketError_none)
+    if (err != eSocketError::none)
     {
         logger->log("FAIL\n");
         logger->decIndent();
@@ -292,11 +292,11 @@ bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum,
 				case ALIPAYCHINA_NOTIFY_ORDER_STATUS:
 					switch ((rhea::AlipayChina::eOrderStatus)msg.paramU32)
 					{
-					case rhea::AlipayChina::eOrderStatus_waitingQR:
+					case rhea::AlipayChina::eOrderStatus::waitingQR:
 						//siamo ancora in attesa di una risposta
 						break;
 
-					case rhea::AlipayChina::eOrderStatus_pollingPaymentStatus:
+					case rhea::AlipayChina::eOrderStatus::pollingPaymentStatus:
 						//ok, il thread alipay è in polling quindi vuol dire che ha ricevuto il qrcode.
 						//Questo msg contiene anche l'url da visualizzare nel qrcode
                         memcpy (out_urlForQRCode, msg.buffer, msg.bufferSize);
@@ -653,10 +653,10 @@ void Server::run()
                 logger->log ("SocketBridgeServer::run(), unknown event type: %d\n", server->getEventType(i));
                 break;
 
-			case rhea::ProtocolSocketServer::evt_ignore:
+			case rhea::ProtocolSocketServer::eEventType::ignore:
 				break;
 
-            case rhea::ProtocolSocketServer::evt_new_client_connected:
+            case rhea::ProtocolSocketServer::eEventType::new_client_connected:
                 {
                     //un client vuole connettersi. Accetto la socket in ingresso, ma mi riservo di chiudere la
                     //connessione se il prossimo msg che manda è != dal messaggio di identificazione.
@@ -665,12 +665,12 @@ void Server::run()
                 }
                 break;
 
-            case rhea::ProtocolSocketServer::evt_client_has_data_avail:
+            case rhea::ProtocolSocketServer::eEventType::client_has_data_avail:
 				//uno dei clienti già  connessi ha mandato qualcosa
                 priv_onClientHasDataAvail (i, timeNowMSec);
                 break;
 
-            case rhea::ProtocolSocketServer::evt_osevent_fired:
+            case rhea::ProtocolSocketServer::eEventType::osevent_fired:
                 {
 					//un OSEvent associato alla waitList è stato attivato.
 					//Al momento la cosa significa solo che CPUBridge ha mandato un msg lungo la msgQ
@@ -745,7 +745,7 @@ u16 Server::priv_getANewHandlerID ()
 //**************************************************************************
 void Server::priv_handleIdentification (const HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded)
 {
-	if (decoded.opcode == socketbridge::eOpcode_request_idCode && decoded.payloadLen == 4)
+	if (decoded.opcode == socketbridge::eOpcode::request_idCode && decoded.payloadLen == 4)
 	{
 		//il client mi sta chiedendo di inviargli un idCode univoco che lui userà  da ora in avanti per indentificarsi.
 		//Mi sta anche già  comunicando la sua clientVer, che rimarrà  immutata di qui in avanti
@@ -766,12 +766,12 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 		//rispodo al client inviandogli il suo idCode
         //u32 version = (((u32)cpuBridgeVersion) << 8) | SOCKETBRIDGE_VERSION;
 		u8 toSend[8] = { cpuBridgeVersion, SOCKETBRIDGE_VERSION, idCode.data.buffer[0], idCode.data.buffer[1], idCode.data.buffer[2], idCode.data.buffer[3], 0 ,0 };
-		sendEvent(h, eEventType_answer_to_idCodeRequest, toSend, 6);
+		sendEvent(h, eEventType::answer_to_idCodeRequest, toSend, 6);
 		return;
 	}
-	else if (decoded.opcode == socketbridge::eOpcode_identify_W && decoded.payloadLen == 8)
+	else if (decoded.opcode == socketbridge::eOpcode::identify_W && decoded.payloadLen == 8)
 	{
-		assert(decoded.opcode == socketbridge::eOpcode_identify_W);
+		assert(decoded.opcode == socketbridge::eOpcode::identify_W);
 
 		SokBridgeClientVer clientVer;
 		clientVer.zero();
@@ -813,7 +813,7 @@ void Server::priv_handleIdentification (const HSokServerClient &h, const sIdenti
 		}
 
 		//gli mando l'attuale messaggio di CPU (uso la stessa procedura che userei se fosse stato davvero il client a chiedermelo)
-		CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, identifiedClient->handle, eEventType_cpuMessage, priv_getANewHandlerID(), 10000);
+		CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, identifiedClient->handle, eEventType::cpuMessage, priv_getANewHandlerID(), 10000);
 		if (NULL != handler)
 		{
 			cmdHandlerList.add(handler);
@@ -891,7 +891,7 @@ void Server::priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec)
 void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded)
 {
 	//se la socket in questione non è stata ancora bindata ad un client, allora il cliente mi deve per
-	//forza aver mandato un messaggio di tipo [eOpcode_request_idCode] oppure [eOpcode_identify_W], altrimenti killo la connessione.
+	//forza aver mandato un messaggio di tipo [eOpcode::request_idCode] oppure [eOpcode::identify_W], altrimenti killo la connessione.
 	//Se invece la socket è già  bindata ad un identified-client, nessun problema, passo ad analizzare il messaggio perchè il client è stato già  identificato ad 
 	//un giro precedente
 	if (NULL == identifiedClient)
@@ -909,7 +909,7 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 		logger->log("unkown command [%c]\n", decoded.opcode);
 		return;
 
-	case socketbridge::eOpcode_event_E:
+	case socketbridge::eOpcode::event_E:
 		/*ho ricevuto una richiesta di tipo "scatena un evento"
 		Istanzio un "handler" appropriato che possa gestire la richiesta. Se quest'handler esiste, allora ci sono 2 possibiità :
 			1- la richiesta deve essere passata a CPUBridge (per es mi stanno chiedendo un aggiornamento sullo stati di disp delle selezioni)
@@ -949,7 +949,7 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 		}
 		break;
 
-	case socketbridge::eOpcode_ajax_A:
+	case socketbridge::eOpcode::ajax_A:
 		/*	ho ricevuto una richiesta di tipo "ajax"
 			Funziona allo stesso modo di cui sopra
 		*/
@@ -972,7 +972,7 @@ void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, co
 		}
 		break;
 
-	case socketbridge::eOpcode_fileTransfer:
+	case socketbridge::eOpcode::fileTransfer:
 		/*	messaggio di gestione dei file transfer */
 		fileTransfer.handleMsg(this, h, decoded, timeNowMSec);
 		break;
@@ -1095,7 +1095,7 @@ bool Server::taskGetStatusAndMesssage (u32 taskID, TaskStatus::eStatus *out_stat
 		if (runningTask(i)->getUID() == taskID)
 		{
 			runningTask[i]->getStatusAndMesssage(out_status, out_msg, sizeofmsg);
-			if (*out_status == TaskStatus::eStatus_finished)
+			if (*out_status == TaskStatus::eStatus::finished)
 			{
 				TaskStatus::FREE(runningTask[i]);
 				runningTask.removeAndSwapWithLast(i);
@@ -1148,7 +1148,7 @@ void Server::priv_onAlipayChinaNotification (rhea::thread::sMsg &msg)
 						HSokServerClient hServerHandle;
 						if (identifiedClientList.isBoundToSocket (hClientHandle, &hServerHandle))
 						{
-							CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, hClientHandle, eEventType_AlipayChina_onlineStatusChanged, priv_getANewHandlerID(), 10000);
+							CmdHandler_eventReq *handler = CmdHandler_eventReqFactory::spawnFromSocketClientEventType(localAllocator, hClientHandle, eEventType::AlipayChina_onlineStatusChanged, priv_getANewHandlerID(), 10000);
 							if (NULL != handler)
 							{
 								handler->handleRequestFromSocketBridge (this, hServerHandle);
@@ -1164,18 +1164,18 @@ void Server::priv_onAlipayChinaNotification (rhea::thread::sMsg &msg)
 	case ALIPAYCHINA_NOTIFY_ORDER_STATUS:
 		switch ((rhea::AlipayChina::eOrderStatus)msg.paramU32)
 		{
-		case rhea::AlipayChina::eOrderStatus_paymentOK:
+		case rhea::AlipayChina::eOrderStatus::paymentOK:
 			//L'utente ha pagato, possiamo procedere con la selezione
 			if (moduleAlipayChina.curSelRunning)
 			{
-				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (subscriber, moduleAlipayChina.curSelRunning, moduleAlipayChina.curSelPrice, cpubridge::eGPUPaymentType_alipayChina);
+				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (subscriber, moduleAlipayChina.curSelRunning, moduleAlipayChina.curSelPrice, cpubridge::eGPUPaymentType::alipayChina);
 				moduleAlipayChina.curSelRunning = 0;
 				moduleAlipayChina.curSelPrice = 0;
 				rhea::AlipayChina::ask_endOrder (moduleAlipayChina.ctx, true);
 			}
 			break;
 
-		case rhea::AlipayChina::eOrderStatus_paymentTimeout:
+		case rhea::AlipayChina::eOrderStatus::paymentTimeout:
 			//L'utente non ha pagato, selezione terminata
 			moduleAlipayChina.curSelRunning = 0;
 			moduleAlipayChina.curSelPrice = 0;

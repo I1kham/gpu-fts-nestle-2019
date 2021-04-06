@@ -26,23 +26,23 @@ namespace rhea
 		u32					tell() const													{ return cursor; }
 		bool				read (void *dst, u32 numBytesToread)							{ if (!readAt (dst, numBytesToread, cursor)) return false;  cursor+=numBytesToread; return true; }
 		bool				readAt (void *dst, u32 numBytesToread, u32 offset) const		{ assert (offset + numBytesToread  <= bufferNumBytes); return buffer->read (dst, bufferOffset + offset, numBytesToread); }
-		void				seek (u32 pos, eSeek from = eSeekStart)
+		void				seek (u32 pos, eSeek from = eSeek::start)
 							{
 								switch (from)
 								{
-								case rhea::eSeekStart:
+								case rhea::eSeek::start:
 									cursor = pos;
 									if (cursor >= bufferNumBytes)
 										cursor = bufferNumBytes;
 									break;
 
-								case rhea::eSeekCurrent:
+								case rhea::eSeek::current:
 									cursor += pos;
 									if (cursor >= bufferNumBytes)
 										cursor = bufferNumBytes;
 									break;
 
-								case rhea::eSeekEnd:
+								case rhea::eSeek::end:
 									if (pos >= bufferNumBytes)
 										cursor = 0;
 									else
@@ -89,19 +89,19 @@ namespace rhea
 		bool				write (const void *src, u32 numBytesTowrite)							{ if (!writeAt (src, numBytesTowrite, cursor)) return false;  cursor+=numBytesTowrite; return true; }
 		bool				writeAt (const void *src, u32 numBytesTowrite, u32 offset)				{ if (!buffer->write (src, bufferOffset + offset, numBytesTowrite, bufferCangrow)) return false; u32 d = offset + numBytesTowrite; if (d > bufferBytesWritten) bufferBytesWritten = d; return true; }
 
-		void				seek (u32 pos, eSeek from = eSeekStart)
+		void				seek (u32 pos, eSeek from = eSeek::start)
 							{
 								switch (from)
 								{
-								case rhea::eSeekStart:
+								case rhea::eSeek::start:
 									cursor = pos;
 									break;
 
-								case rhea::eSeekCurrent:
+								case rhea::eSeek::current:
 									cursor += pos;
 									break;
 
-								case rhea::eSeekEnd:
+								case rhea::eSeek::end:
 									if (pos >= bufferBytesWritten)
 										cursor = 0;
 									else

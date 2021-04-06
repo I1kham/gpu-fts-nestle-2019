@@ -21,7 +21,7 @@ void CmdHandler_eventReqCPUIniParam::onCPUBridgeNotification (socketbridge::Serv
 
 	u8 buffer[sizeof(cpubridge::sCPUParamIniziali) + 32];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 
 	nbw.writeBlob(iniParam.CPU_version, sizeof(iniParam.CPU_version));
 	nbw.writeU8(iniParam.protocol_version);

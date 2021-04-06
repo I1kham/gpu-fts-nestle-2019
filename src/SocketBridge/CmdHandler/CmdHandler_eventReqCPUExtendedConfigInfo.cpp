@@ -21,7 +21,7 @@ void CmdHandler_eventReqCPUExtendedConfigInfo::onCPUBridgeNotification (socketbr
 
 	u8 buffer[8];
 	rhea::NetStaticBufferViewW nbw;
-	nbw.setup(buffer, sizeof(buffer), rhea::eBigEndian);
+	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 
 	nbw.writeU8(info.msgVersion);
 	nbw.writeU8((u8)info.machineType);

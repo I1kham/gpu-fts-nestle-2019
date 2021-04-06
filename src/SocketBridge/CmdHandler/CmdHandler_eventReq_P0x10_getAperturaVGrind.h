@@ -15,7 +15,7 @@ namespace socketbridge
     class CmdHandler_eventReq_P0x10_getAperturaVGrind : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_getAperturaVGrind;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::getAperturaVGrind;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTITFY_POSIZIONE_MACINA;
 
 		CmdHandler_eventReq_P0x10_getAperturaVGrind(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

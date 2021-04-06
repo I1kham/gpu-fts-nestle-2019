@@ -21,11 +21,11 @@ namespace socketbridge
 	class TaskStatus
 	{
 	public:
-		enum eStatus
+		enum class eStatus: u8
 		{
-			eStatus_pending = 0,
-			eStatus_running = 1,
-			eStatus_finished = 2
+			pending = 0,
+			running = 1,
+			finished = 2
 		};
 
 	public:
@@ -101,7 +101,7 @@ namespace socketbridge
 
 		rhea::HThread hThread;
 		eThreadError err = rhea::thread::create(&hThread, socketbridge::SocketBridgeTaskThreadFn, status, 1024);
-		if (err != eThreadError_none)
+		if (err != eThreadError::none)
 		{
 			RHEADELETE(localAllocator, status->_task);
 			RHEADELETE(localAllocator, status);

@@ -25,11 +25,11 @@ class OSWaitableGrp
 public:
     static const u8 MAX_EVENTS_HANDLE_PER_CALL = 16;
 
-    enum eEventOrigin
+    enum class eEventOrigin: u8
     {
-        evt_origin_socket = 1,
-        evt_origin_osevent = 2,
-        evt_origin_serialPort = 3
+        socket = 1,
+        osevent = 2,
+        serialPort = 3
     };
 public:
                     OSWaitableGrp();
@@ -72,7 +72,7 @@ public:
                      */
 
     OSSocket&       getEventSrcAsOSSocket (u8 iEvent) const;
-                    /* se getEventOrigin() == evt_origin_socket, ritorna la soket che ha scatenato l'evento
+                    /* se getEventOrigin() == eEventOrigin::socket, ritorna la soket che ha scatenato l'evento
                      */
 
     OSEvent&        getEventSrcAsOSEvent (u8 iEvent) const;
@@ -100,11 +100,11 @@ private:
 
     struct sRecord
     {
-        epoll_event eventInfo;
-        sOrigin     origin;
-        u8          originType;
-        uUserParam  userParam;
-        sRecord     *next;
+        epoll_event     eventInfo;
+        sOrigin         origin;
+        eEventOrigin    originType;
+        uUserParam      userParam;
+        sRecord         *next;
     };
 
 private:

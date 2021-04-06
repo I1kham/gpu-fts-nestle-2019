@@ -73,7 +73,7 @@ namespace esapi
 
 
 	/***********************************************
-		Posto che a seguito della notify_MODULE_TYPE_AND_VER() si sia capito che stiamo parlando con un modulo eExternalModuleType_rasPI_wifi_REST,
+		Posto che a seguito della notify_MODULE_TYPE_AND_VER() si sia capito che stiamo parlando con un modulo eExternalModuleType::rasPI_wifi_REST,
 		allora i seguenti sono validi
 		ask_xxxx
 			Un subscriber di ESAPI può richiedere le seguenti cose

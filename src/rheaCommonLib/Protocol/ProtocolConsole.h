@@ -44,13 +44,13 @@ namespace rhea
         static const u8     MAGIC_CODE_2 = 0xa6;
 
     private:
-        enum eOpcode
+        enum class eOpcode : u8
         {
-            eOpcode_msg						= 0x01,
-            eOpcode_close					= 0x02,
-			eOpcode_internal_simpledMsg		= 0xfd,
-			eOpcode_internal_extendedMsg	= 0xfe,
-            eOpcode_unknown					= 0xff
+            msg						= 0x01,
+            close					= 0x02,
+			internal_simpledMsg		= 0xfd,
+			internal_extendedMsg	= 0xfe,
+            unknown					= 0xff
         };
 
         struct sDecodeResult

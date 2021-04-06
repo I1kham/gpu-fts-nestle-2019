@@ -116,7 +116,7 @@ bool ProtocolWebsocket::priv_server_isAValidHandshake(const void *bufferIN, u32 
 
 	//parsing dell'handshake ricevuto
 	char *token = NULL;
-	char *tokState;
+	char *tokState = NULL;
 	token = strtok_r(buffer, "\r\n", &tokState);
 	while (token)
 	{
@@ -213,8 +213,8 @@ u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffe
 	//in decoded c'è un messaggio buono, vediamo di cosa si tratta
 	switch (decoded.opcode)
 	{
-		case eWebSocketOpcode_TEXT:
-		case eWebSocketOpcode_BINARY:
+		case eWebSocketOpcode::TEXT:
+		case eWebSocketOpcode::BINARY:
 			//copio il payload appena ricevuto nel buffer utente
 			if (decoded.payloadLen)
 			{
@@ -232,7 +232,7 @@ u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffe
 			return nBytesConsumed;
 			break;
 
-		case eWebSocketOpcode_PING:
+		case eWebSocketOpcode::PING:
 		{
 			//unmask del payload se necessario
 			if (decoded.isMasked)
@@ -245,19 +245,19 @@ u16 ProtocolWebsocket::virt_decodeBuffer (IProtocolChannell *ch, const u8 *buffe
 			
 			//rispondo con pong
 			u8 wBuffer[32];
-			u16 n = priv_encodeAMessage(true, eWebSocketOpcode_PONG, decoded.payload, decoded.payloadLen, wBuffer, sizeof(wBuffer));
+			u16 n = priv_encodeAMessage(true, eWebSocketOpcode::PONG, decoded.payload, decoded.payloadLen, wBuffer, sizeof(wBuffer));
 			ch->write(wBuffer, n, 500);
 			return nBytesConsumed;
 		}
 		break;
 
 
-		case eWebSocketOpcode_PONG:
+		case eWebSocketOpcode::PONG:
 			//ho ricevuto un pong
 			return nBytesConsumed;
 			break;
 
-		case eWebSocketOpcode_CLOSE:
+		case eWebSocketOpcode::CLOSE:
 		{
 			//rispondo a mia volta con close e chiudo
 			sendClose(ch);
@@ -305,15 +305,15 @@ u16 ProtocolWebsocket::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffe
         //opcode
         switch ((b & 0x0F))
         {
-        case 0x00:  out_result->opcode = eWebSocketOpcode_CONTINUATION; 
+        case 0x00:  out_result->opcode = eWebSocketOpcode::CONTINUATION; 
 			break;
-        case 0x01:  out_result->opcode = eWebSocketOpcode_TEXT; break;
-        case 0x02:  out_result->opcode = eWebSocketOpcode_BINARY; break;
-        case 0x08:  out_result->opcode = eWebSocketOpcode_CLOSE; break;
-        case 0x09:  out_result->opcode = eWebSocketOpcode_PING; break;
-        case 0x0A:  out_result->opcode = eWebSocketOpcode_PONG; break;
+        case 0x01:  out_result->opcode = eWebSocketOpcode::TEXT; break;
+        case 0x02:  out_result->opcode = eWebSocketOpcode::BINARY; break;
+        case 0x08:  out_result->opcode = eWebSocketOpcode::CLOSE; break;
+        case 0x09:  out_result->opcode = eWebSocketOpcode::PING; break;
+        case 0x0A:  out_result->opcode = eWebSocketOpcode::PONG; break;
 
-        default:    out_result->opcode = eWebSocketOpcode_UNKNOWN; break;
+        default:    out_result->opcode = eWebSocketOpcode::UNKNOWN; break;
         }
     }
 
@@ -338,7 +338,7 @@ u16 ProtocolWebsocket::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffe
     else if (out_result->payloadLen == 127)
     {
         //non lo sto nemmeno ad implementare. Se voglio mandare più di 65K di roba in un messaggio è certamente un errore
-        out_result->opcode = eWebSocketOpcode_UNKNOWN;
+        out_result->opcode = eWebSocketOpcode::UNKNOWN;
         return protocol::RES_PROTOCOL_CLOSED;
     }
 
@@ -369,7 +369,7 @@ u16 ProtocolWebsocket::priv_decodeOneMessage(const u8 *buffer, u16 nBytesInBuffe
  */
 u16 ProtocolWebsocket::virt_encodeBuffer(const u8 *bufferToEncode, u16 nBytesToEncode, u8 *out_buffer, u16 sizeOfOutBuffer)
 {
-	return priv_encodeAMessage (true, eWebSocketOpcode_BINARY, bufferToEncode, nBytesToEncode, out_buffer, sizeOfOutBuffer);
+	return priv_encodeAMessage (true, eWebSocketOpcode::BINARY, bufferToEncode, nBytesToEncode, out_buffer, sizeOfOutBuffer);
 }
 
 /****************************************************
@@ -432,7 +432,7 @@ i16 ProtocolWebsocket::writeText (IProtocolChannell *ch, const char *strIN)
         return 1;
     }
 
-	u16 nToWrite = priv_encodeAMessage (true, eWebSocketOpcode_TEXT, strIN, (u16)n, bufferW, BUFFERW_CUR_SIZE);
+	u16 nToWrite = priv_encodeAMessage (true, eWebSocketOpcode::TEXT, strIN, (u16)n, bufferW, BUFFERW_CUR_SIZE);
 	if (nToWrite)
 	{
 		ch->write (bufferW, nToWrite, 1000);
@@ -444,7 +444,7 @@ i16 ProtocolWebsocket::writeText (IProtocolChannell *ch, const char *strIN)
 //****************************************************
 i16 ProtocolWebsocket::writeBuffer (IProtocolChannell *ch, const void *bufferIN, u16 nBytesToWrite)
 {
-    u16 nToWrite = priv_encodeAMessage(true, eWebSocketOpcode_BINARY, bufferIN, nBytesToWrite, bufferW, BUFFERW_CUR_SIZE);
+    u16 nToWrite = priv_encodeAMessage(true, eWebSocketOpcode::BINARY, bufferIN, nBytesToWrite, bufferW, BUFFERW_CUR_SIZE);
 	if (nToWrite)
 	{
 		ch->write(bufferW, nToWrite, 1000);
@@ -457,7 +457,7 @@ i16 ProtocolWebsocket::writeBuffer (IProtocolChannell *ch, const void *bufferIN,
 void ProtocolWebsocket::sendPing (IProtocolChannell *ch)
 {
 	u8 wBuffer[32];
-	u16 n = priv_encodeAMessage(true, eWebSocketOpcode_PING, NULL, 0, wBuffer, sizeof(wBuffer));
+	u16 n = priv_encodeAMessage(true, eWebSocketOpcode::PING, NULL, 0, wBuffer, sizeof(wBuffer));
 	ch->write(wBuffer, n, 1000);
 }
 
@@ -465,6 +465,6 @@ void ProtocolWebsocket::sendPing (IProtocolChannell *ch)
 void ProtocolWebsocket::sendClose(IProtocolChannell *ch)
 {
 	u8 wBuffer[32];
-	u16 n = priv_encodeAMessage(true, eWebSocketOpcode_CLOSE, NULL, 0, wBuffer, sizeof(wBuffer));
+	u16 n = priv_encodeAMessage(true, eWebSocketOpcode::CLOSE, NULL, 0, wBuffer, sizeof(wBuffer));
 	ch->write(wBuffer, n, 200);
 }

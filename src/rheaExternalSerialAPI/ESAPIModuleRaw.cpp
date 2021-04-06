@@ -14,7 +14,7 @@ ModuleRaw::ModuleRaw()
 //********************************************************
 bool ModuleRaw::setup (sShared *shared)
 {
-    shared->moduleInfo.type = esapi::eExternalModuleType_none;
+    shared->moduleInfo.type = esapi::eExternalModuleType::none;
     shared->moduleInfo.verMajor = esapi::Protocol::ESAPI_VERSION_MAJOR;
     shared->moduleInfo.verMinor = esapi::Protocol::ESAPI_VERSION_MINOR;
     return true;
@@ -92,12 +92,12 @@ void ModuleRaw::virt_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
             u8 result = 0x00;
 			switch (moduleInfo.type)
 			{
-			case eExternalModuleType_rasPI_wifi_REST:
+			case eExternalModuleType::rasPI_wifi_REST:
 				result = 0x01;
                 shared->moduleInfo.type = moduleInfo.type;
                 shared->moduleInfo.verMajor = moduleInfo.verMajor;
                 shared->moduleInfo.verMinor = moduleInfo.verMinor;
-                shared->retCode = sShared::RETCODE_START_MODULE_RASPI;
+                shared->retCode = sShared::eRetCode::START_MODULE_RASPI;
 				break;
 
 			default:

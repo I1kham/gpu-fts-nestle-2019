@@ -11,7 +11,7 @@ u32 TaskStatus::nextUID = 0x01;
 TaskStatus::TaskStatus ()
 {
 	rhea::criticalsection::init(&cs);
-	status = eStatus_pending;
+	status = eStatus::pending;
 	msg[0] = 0;
 	timeFinishedMSec = 0;
 	params = NULL;
@@ -38,12 +38,12 @@ void TaskStatus::priv_doSetStatusNoCS (eStatus s)
 {
 	//la prima volta che vado in "finished", memorizzo l'ora 
 	//Una volta entrato in "finished", non c'è modo di modificare ulteriormente lo stato
-	if (s == eStatus_finished)
+	if (s == eStatus::finished)
 	{
-		if (status != eStatus_finished)
+		if (status != eStatus::finished)
 		{
 			timeFinishedMSec = rhea::getTimeNowMSec();
-			status = eStatus_finished;
+			status = eStatus::finished;
 		}
 		return;
 	}

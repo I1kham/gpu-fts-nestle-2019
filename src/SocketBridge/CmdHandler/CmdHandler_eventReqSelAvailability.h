@@ -16,7 +16,7 @@ namespace socketbridge
     class CmdHandler_eventReqSelAvailability : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_selectionAvailabilityUpdated;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::selectionAvailabilityUpdated;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED;
 
                     CmdHandler_eventReqSelAvailability (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

@@ -39,15 +39,15 @@ namespace rhea
 		u16					virt_encodeBuffer (const u8 *bufferToEncode, u16 nBytesToEncode, u8 *out_buffer, u16 sizeOfOutBuffer);
 
     private:
-        enum eWebSocketOpcode
+        enum class eWebSocketOpcode : u8
         {
-            eWebSocketOpcode_CONTINUATION = 0x0,
-            eWebSocketOpcode_TEXT = 0x1,
-            eWebSocketOpcode_BINARY = 0x2,
-            eWebSocketOpcode_CLOSE = 0x8,
-            eWebSocketOpcode_PING = 0x9,
-            eWebSocketOpcode_PONG = 0x0A,
-            eWebSocketOpcode_UNKNOWN = 0xff
+            CONTINUATION = 0x0,
+            TEXT = 0x1,
+            BINARY = 0x2,
+            CLOSE = 0x8,
+            PING = 0x9,
+            PONG = 0x0A,
+            UNKNOWN = 0xff
         };
 
         struct sDecodeResult

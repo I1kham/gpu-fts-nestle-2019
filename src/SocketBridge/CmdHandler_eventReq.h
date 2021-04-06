@@ -50,8 +50,8 @@
         Il client vuole conoscere l'attuale messaggio di CPU.
         Questo comando necessita di essere passato alla CPU dato che SocketBrdige non conosce l'informazione richiesta.
         Nella classe CmdHandler_eventReqCPUMessage quindi:
-            1)  static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_cpuMessage;
-                Per prima cosa la classe indicare l'eEventType per il quale è stata creata. Tutti i messaggi evento di tipo eEventType_cpuMessage verrano
+            1)  static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::cpuMessage;
+                Per prima cosa la classe indicare l'eEventType per il quale è stata creata. Tutti i messaggi evento di tipo eEventType::cpuMessage verrano
                 quindi gestiti da una istanza di questa classe
 
             2)	static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE;
@@ -72,8 +72,8 @@
         CmdHandler_eventReqClientList.h/cpp
         Il client vuole conoscere l'elenco dei client connessi.
         Questo comando non necessita dell'intervento di CPU quindi:
-            1)  static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_reqClientList;
-                Per prima cosa la classe indicare l'eEventType per il quale è stata creata. Tutti i messaggi evento di tipo eEventType_reqClientList verrano
+            1)  static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::reqClientList;
+                Per prima cosa la classe indicare l'eEventType per il quale è stata creata. Tutti i messaggi evento di tipo eEventType::reqClientList verrano
                 quindi gestiti da una istanza di questa classe
 
             2)	static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_MAX_ALLOWED;

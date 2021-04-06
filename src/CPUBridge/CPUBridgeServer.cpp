@@ -25,12 +25,12 @@ Server::Server()
 	runningSel.params.how = eStartSelectionMode_invalid;
 	runningSel.sub = NULL;
 	runningSel.stopSelectionWasRequested = 0;
-	runningSel.status = eRunningSelStatus_finished_OK;
+	runningSel.status = eRunningSelStatus::finished_OK;
 
 	showCPUStringModelAndVersionUntil_msec = 0;
 
 	memset (&priceHolding, 0, sizeof(priceHolding));
-	milkerType = eCPUMilkerType_none;
+	milkerType = eCPUMilkerType::none;
 }
 
 //***************************************************
@@ -104,52 +104,52 @@ void Server::run()
 {
 	priv_enterState_compatibilityCheck();
 
-	while (stato.get() != sStato::eStato_quit)
+	while (stato.get() != sStato::eStato::quit)
 	{
         switch (stato.get())
 		{
-		case sStato::eStato_compatibilityCheck:
+		case sStato::eStato::compatibilityCheck:
 			priv_handleState_compatibilityCheck();
 			break;
 
-		case sStato::eStato_CPUNotSupported:
+		case sStato::eStato::CPUNotSupported:
 			priv_handleState_CPUNotSupported();
 			break;
 
-		case sStato::eStato_DA3_sync:
+		case sStato::eStato::DA3_sync:
 			priv_handleState_DA3Sync();
 			break;
 
 		default:
-        case sStato::eStato_comError:
+        case sStato::eStato::comError:
 			priv_handleState_comError();
 			break;
 
-        case sStato::eStato_normal:
+        case sStato::eStato::normal:
 			priv_handleState_normal();
 			break;
 
-        case sStato::eStato_selection:
+        case sStato::eStato::selection:
 			priv_handleState_selection();
 			break;
 
-        case sStato::eStato_programmazione:
+        case sStato::eStato::programmazione:
 			priv_handleState_programmazione();
             break;
 
-		case sStato::eStato_regolazioneAperturaMacina:
+		case sStato::eStato::regolazioneAperturaMacina:
 			priv_handleState_regolazioneAperturaMacina();
 			break;
 
-		case sStato::eStato_telemetry:
+		case sStato::eStato::telemetry:
 			priv_handleState_telemetry();
 			break;
 
-		case sStato::eStato_grinderSpeedTest:
+		case sStato::eStato::grinderSpeedTest:
 			priv_handleState_grinderSpeedTest();
 			break;
 
-		case sStato::eStato_downloadPriceHoldingPriceList:
+		case sStato::eStato::downloadPriceHoldingPriceList:
 			priv_handleState_downloadPriceHoldingPriceList();
 			break;
 		}
@@ -193,7 +193,7 @@ bool Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 			DBGBREAK;
 			break;
 
-		case OSWaitableGrp::evt_origin_osevent:
+		case OSWaitableGrp::eEventOrigin::osevent:
 			if (waitList.getEventUserParamAsU32(i) == 0x0001)
 			{
 				//evento generato dalla msgQ di uno dei miei subscriber
@@ -299,7 +299,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			cpubridge::translate_CPU_PROGRAMMING_CMD(msg, &cmd, &optionalData);
 			switch (cmd)
 			{
-			case eCPUProgrammingCommand_getTimeNextLavaggioCappuccinatore:
+			case eCPUProgrammingCommand::getTimeNextLavaggioCappuccinatore:
 				msg.what = CPUBRIDGE_SUBSCRIBER_ASK_TIME_NEXT_LAVSAN_CAPPUCC;
 				break;
 
@@ -315,7 +315,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_DIE:
-			stato.set(sStato::eStato_quit);
+			stato.set(sStato::eStato::quit);
 			break;
 
 		case CPUBRIDGE_SERVICECH_UNSUBSCRIPTION_REQUEST:
@@ -349,14 +349,14 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				params.how = eStartSelectionMode_alreadyPaid;
 				params.asAlreadyPaid.selNum = 0;
 				params.asAlreadyPaid.price = 0;
-				params.asAlreadyPaid.paymentType = eGPUPaymentType_invalid;
+				params.asAlreadyPaid.paymentType = eGPUPaymentType::invalid;
 				translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(msg, &params.asAlreadyPaid.selNum, &params.asAlreadyPaid.price, &params.asAlreadyPaid.paymentType);
 
-				params.asAlreadyPaid.paymentMode = ePaymentMode_normal;
+				params.asAlreadyPaid.paymentMode = ePaymentMode::normal;
 				if ((cpuStatus.flag1 & sCPUStatus::FLAG1_IS_FREEVEND) != 0)
-					params.asAlreadyPaid.paymentMode = ePaymentMode_freevend;
+					params.asAlreadyPaid.paymentMode = ePaymentMode::freevend;
 				else if ((cpuStatus.flag1 & sCPUStatus::FLAG1_IS_TESTVEND) != 0)
-					params.asAlreadyPaid.paymentMode = ePaymentMode_testvend;
+					params.asAlreadyPaid.paymentMode = ePaymentMode::testvend;
 
 				//GB 2021-01-14
 				//inizialmente l'evento "stato selezione in corso" veniva comunicato solo al "sub" che aveva fatto la richiesta di "inizio selezione".
@@ -373,7 +373,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_SELECTION:
-			if (stato.get() == sStato::eStato_selection)
+			if (stato.get() == sStato::eStato::selection)
 				runningSel.stopSelectionWasRequested = 1;
 			break;
 
@@ -504,37 +504,37 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_QUERY_CUR_SEL_RUNNING:
-			if (cpuStatus.VMCstate == eVMCState_PREPARAZIONE_BEVANDA)
+			if (cpuStatus.VMCstate == eVMCState::PREPARAZIONE_BEVANDA)
 				notify_CPU_CUR_SEL_RUNNING(sub->q, handlerID, logger, this->runningSel.getSelNum());
 			else
 				notify_CPU_CUR_SEL_RUNNING(sub->q, handlerID, logger, 0);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
-			if (stato.get() == sStato::eStato_normal)
+			if (stato.get() == sStato::eStato::normal)
 				priv_downloadDataAudit(&sub->q, handlerID);
 			else
 				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
-				notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus_finishedKO_cantStart_invalidState, 0, 0);
+				notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE:
-			if (stato.get() == sStato::eStato_normal)
+			if (stato.get() == sStato::eStato::normal)
 				priv_downloadVMCDataFile(&sub->q, handlerID);
 			else
 				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del file
-				notify_READ_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus_finishedKO_cantStart_invalidState, 0, 0);
+				notify_READ_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE:
 		{
 			u8 srcFullFileNameAndPath[512];
 			translate_WRITE_VMCDATAFILE(msg, srcFullFileNameAndPath, sizeof(srcFullFileNameAndPath));
-            if (stato.get() == sStato::eStato_normal || stato.get() == sStato::eStato_CPUNotSupported)
+            if (stato.get() == sStato::eStato::normal || stato.get() == sStato::eStato::CPUNotSupported)
 				priv_uploadVMCDataFile(&sub->q, handlerID, srcFullFileNameAndPath);
 			else
 				//rifiuto la richiesta perchè non sono in uno stato valido per la scrittura del file
-				notify_WRITE_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eWriteDataFileStatus_finishedKO_cantStart_invalidState, 0);
+				notify_WRITE_VMCDATAFILE_PROGRESS(sub->q, handlerID, logger, eWriteDataFileStatus::finishedKO_cantStart_invalidState, 0);
 		}
 		break;
 
@@ -619,7 +619,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER:
 		{
-			eCPUProgrammingCommand_decounter which = eCPUProgrammingCommand_decounter_unknown;
+			eCPUProg_decounter which = eCPUProg_decounter::unknown;
 			u16 valore = 0;
 			cpubridge::translate_CPU_SET_DECOUNTER(msg, &which, &valore);
 
@@ -629,12 +629,12 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 			{
-				which = (eCPUProgrammingCommand_decounter)answerBuffer[4];
+				which = (eCPUProg_decounter)answerBuffer[4];
 				valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
 				notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, which, valore);
 			}
 			else
-				notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, eCPUProgrammingCommand_decounter_error, 0);
+				notify_CPU_DECOUNTER_SET(sub->q, handlerID, logger, eCPUProg_decounter::error, 0);
 		}
 		break;
 
@@ -708,7 +708,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_FATTORE_CALIB_MOTORE:
 		{
-			eCPUProgrammingCommand_motor motore;
+			eCPUProg_motor motore;
 			u16 valore;
 			cpubridge::translate_CPU_SET_FATTORE_CALIB_MOTORE(msg, &motore, &valore);
 
@@ -717,7 +717,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
-				eCPUProgrammingCommand_motor motore = (eCPUProgrammingCommand_motor)answerBuffer[4];
+				eCPUProg_motor motore = (eCPUProg_motor)answerBuffer[4];
 				u16 valore = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
 				notify_SET_FATTORE_CALIB_MOTORE(sub->q, handlerID, logger, motore, valore);
 			}
@@ -731,11 +731,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
-				eCPUProgrammingCommand_statoGruppo stato;
+				eCPUProg_statoGruppo stato;
 				switch (answerBuffer[4])
 				{
-				case 0:		stato = eCPUProgrammingCommand_statoGruppo_nonAttaccato; break;
-				default:	stato = eCPUProgrammingCommand_statoGruppo_attaccato; break;
+				case 0:		stato = eCPUProg_statoGruppo::nonAttaccato; break;
+				default:	stato = eCPUProg_statoGruppo::attaccato; break;
 				}
 				notify_STATO_GRUPPO(sub->q, handlerID, logger, stato);
 			}
@@ -836,7 +836,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA:
 		{
 			u8 macina_1o2 = 0;
-			eCPUProgrammingCommand_macinaMove m;
+			eCPUProg_macinaMove m;
 			cpubridge::translate_CPU_SET_MOTORE_MACINA(msg, &macina_1o2, &m);
 
 			if (priv_sendAndHandleSetMotoreMacina(macina_1o2, m))
@@ -844,7 +844,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				macina_1o2 = answerBuffer[4];
 				if (macina_1o2 == 11) macina_1o2 = 1;
 				else if (macina_1o2 == 12) macina_1o2 = 2;
-				notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1o2, (eCPUProgrammingCommand_macinaMove)answerBuffer[5]);
+				notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1o2, (eCPUProg_macinaMove)answerBuffer[5]);
 			}
 		}
 		break;
@@ -862,7 +862,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_TEST_SELEZIONE:
 		{
 			u8 selNum = 0;
-			eCPUProgrammingCommand_testSelectionDevice m;
+			eCPUProg_testSelectionDevice m;
 			cpubridge::translate_CPU_TEST_SELECTION(msg, &selNum, &m);
 			
 			u8 bufferW[16];
@@ -871,11 +871,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 			{
 				selNum = answerBuffer[4];
-				m = (eCPUProgrammingCommand_testSelectionDevice)answerBuffer[5];
+				m = (eCPUProg_testSelectionDevice)answerBuffer[5];
 				notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, selNum, m);
 			}
 			else
-				notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, 0xff, eCPUProgrammingCommand_testSelectionDevice_unknown);
+				notify_CPU_TEST_SELECTION(sub->q, handlerID, logger, 0xff, eCPUProg_testSelectionDevice::unknown);
 		}
 		break;
 
@@ -1272,35 +1272,35 @@ bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedC
 	switch (answerBuffer[4])
 	{
 	default: 
-		out->machineType = eCPUMachineType_unknown; 
+		out->machineType = eCPUMachineType::unknown; 
 		break;
 
 	case 0x00: 
-		out->machineType = eCPUMachineType_instant; 
+		out->machineType = eCPUMachineType::instant; 
 		break;
 
 	case 0x01:
-        out->machineType = eCPUMachineType_espresso1;
+        out->machineType = eCPUMachineType::espresso1;
         break;
         
 	case 0x02:
-		out->machineType = eCPUMachineType_espresso2;
+		out->machineType = eCPUMachineType::espresso2;
 		break;
 	}
 	out->machineModel = answerBuffer[5];
 	out->isInduzione = answerBuffer[6];
 	
 	//Tipo gruppo caffè
-	out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex;
+	out->tipoGruppoCaffe = eCPUGruppoCaffe::Variflex;
 	if (out->msgVersion >= 2)
 	{
 		if (answerBuffer[2] > 8)
 		{
 			switch (answerBuffer[7])
 			{
-			case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Variflex; break;
-			case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe_Micro; break;
-			default:	out->tipoGruppoCaffe = eCPUGruppoCaffe_None; break;
+			case 'V':	out->tipoGruppoCaffe = eCPUGruppoCaffe::Variflex; break;
+			case 'M':	out->tipoGruppoCaffe = eCPUGruppoCaffe::Micro; break;
+			default:	out->tipoGruppoCaffe = eCPUGruppoCaffe::None; break;
 			}
 		}
 	}
@@ -1372,18 +1372,18 @@ bool Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 		return false;
 		break;
 
-	case eCPUProgrammingCommand_enterProg:
+	case eCPUProgrammingCommand::enterProg:
 		//il comando "vai in modalità prog" lo mando solo se la CPU non è già in modalità PROG
-		if (cpuStatus.VMCstate != eVMCState_PROGRAMMAZIONE)
+		if (cpuStatus.VMCstate != eVMCState::PROGRAMMAZIONE)
 			nBytesToSend = cpubridge::buildMsg_Programming(cmd, NULL, 0, bufferW, sizeof(bufferW));
 		break;
 
 
-	case eCPUProgrammingCommand_querySanWashingStatus:
+	case eCPUProgrammingCommand::querySanWashingStatus:
 		nBytesToSend = cpubridge::buildMsg_Programming (cmd, NULL, 0, bufferW, sizeof(bufferW));
 		break;
 
-	case eCPUProgrammingCommand_cleaning:
+	case eCPUProgrammingCommand::cleaning:
 		//in [optionalData] c'è un byte che indica il tipo di lavaggio
 		nBytesToSend = cpubridge::buildMsg_Programming(cmd, optionalData, 1, bufferW, sizeof(bufferW));
 		break;
@@ -1402,9 +1402,9 @@ bool Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 			//in generale, non mi interessa la risposta della CPU ai comandi prog, a parte per alcune eccezioni.
 			//La cpu risponde sempre con:
 			// [#] [P] [len] [subcommand] [optional_data] [ck]
-			switch (answerBuffer[3])
+			switch ((eCPUProgrammingCommand)answerBuffer[3])
 			{
-			case eCPUProgrammingCommand_querySanWashingStatus:
+			case eCPUProgrammingCommand::querySanWashingStatus:
 				//la CPU risponde con 3 bytes che indicano:
 				//	b0 => fase del lavaggio
 				//	b1 => se != da 0 allora vuol dire che la CPU è in attesa della pressione del tasto b-esimo
@@ -1492,8 +1492,8 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
 		{
 			if (NULL != subscriber)
-				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToCopyFile, 0);
-			return eWriteCPUFWFileStatus_finishedKO_unableToCopyFile;
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_unableToCopyFile, 0);
+			return eWriteCPUFWFileStatus::finishedKO_unableToCopyFile;
 		}
 	}
 
@@ -1501,8 +1501,8 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	if (!rhea::fs::fileExists(tempFilePathAndName))
 	{
 		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS (*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile, 0);
-		return eWriteCPUFWFileStatus_finishedKO_unableToOpenLocalFile;
+			notify_WRITE_CPUFW_PROGRESS (*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_unableToOpenLocalFile, 0);
+		return eWriteCPUFWFileStatus::finishedKO_unableToOpenLocalFile;
 	}
 
 	//invalido il timestamp del mio da3 locale in modo che al termine dell'operazione di upload
@@ -1524,8 +1524,8 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
     if (!chToCPU->waitForASpecificChar('k', 10000))
 	{
 		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_k_notReceived, 0);
-		return eWriteCPUFWFileStatus_finishedKO_k_notReceived;
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_k_notReceived, 0);
+		return eWriteCPUFWFileStatus::finishedKO_k_notReceived;
 	}
 
 	bufferW[0] = 'k';
@@ -1538,13 +1538,13 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	if (!chToCPU->waitForASpecificChar('M', 10000))
 	{
 		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_M_notReceived, 0);
-		return eWriteCPUFWFileStatus_finishedKO_M_notReceived;
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_M_notReceived, 0);
+		return eWriteCPUFWFileStatus::finishedKO_M_notReceived;
 	}
 
 	//erasing flash
 	if (NULL != subscriber)
-		notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus_inProgress_erasingFlash, 0);
+		notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus::inProgress_erasingFlash, 0);
 
 	u8 s[512];
 	sprintf_s((char*)s, sizeof(s), "%s/last_installed/cpu", rhea::getPhysicalPathToAppFolder());
@@ -1555,8 +1555,8 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	if (!chToCPU->waitForASpecificChar('h', 15000))
 	{
 		if (NULL != subscriber)
-			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_h_notReceived, 0);
-		return eWriteCPUFWFileStatus_finishedKO_h_notReceived;
+			notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_h_notReceived, 0);
+		return eWriteCPUFWFileStatus::finishedKO_h_notReceived;
 	}
 
 
@@ -1573,12 +1573,12 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	u32 bufferWCT = 0;
 	u16 lastKbWriteSent = u16MAX;
 	u16 kbWrittenSoFar = 0;
-	eWriteCPUFWFileStatus ret = eWriteCPUFWFileStatus_finishedOK;
+	eWriteCPUFWFileStatus ret = eWriteCPUFWFileStatus::finishedOK;
 	do
 	{
 		if (fileInMemory[ct] != 'S')
 		{
-			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+			ret = eWriteCPUFWFileStatus::finishedKO_generalError;
 			if (NULL != subscriber)
 				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, ret, 5);
 			break;
@@ -1596,7 +1596,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 
 		if (!priv_WriteByteMasterNext(numByte, false, bufferW, bufferWCT))
 		{
-			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+			ret = eWriteCPUFWFileStatus::finishedKO_generalError;
 			if (NULL != subscriber)
 				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, ret, 6);
 			break;
@@ -1608,7 +1608,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 			ct += 2;
 			if (!priv_WriteByteMasterNext(dato8, false, bufferW, bufferWCT))
 			{
-				ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+				ret = eWriteCPUFWFileStatus::finishedKO_generalError;
 				if (NULL != subscriber)
 					notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, ret, 7);
 				break;
@@ -1623,12 +1623,12 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 			lastKbWriteSent = kbWrittenSoFar;
 
 			if (NULL != subscriber)
-				notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus_inProgress, kbWrittenSoFar);
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, 0, logger, eWriteCPUFWFileStatus::inProgress, kbWrittenSoFar);
 		}
 
 	} while (recType < '7');
 	
-	if (ret == eWriteCPUFWFileStatus_finishedOK)
+	if (ret == eWriteCPUFWFileStatus::finishedOK)
 	{
 		priv_WriteByteMasterNext(4, false, bufferW, bufferWCT);
 		priv_WriteByteMasterNext(0, true, bufferW, bufferWCT);
@@ -1638,20 +1638,20 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 			ck += bufferW[i];
 		if (!chToCPU->waitForASpecificChar(ck, 90))
 		{
-			ret = eWriteCPUFWFileStatus_finishedKO_generalError;
+			ret = eWriteCPUFWFileStatus::finishedKO_generalError;
 			if (NULL != subscriber)
-				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedKO_generalError, 8);
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_generalError, 8);
 		}
 		else	
 		{
 			if (NULL != subscriber)
-				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus_finishedOK, kbWrittenSoFar);
+				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedOK, kbWrittenSoFar);
 		}
 	}
 	RHEAFREE(allocator, fileInMemory);
 
 	//in caso di successo, copio il file mhx nella mia cartella app/last_installed/cpu/nomeFileSrc.mhx
-	if (ret == eWriteCPUFWFileStatus_finishedOK)
+	if (ret == eWriteCPUFWFileStatus::finishedOK)
 	{
 		sprintf_s((char*)s, sizeof(s), "%s/last_installed/cpu/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
 		rhea::fs::fileCopy(tempFilePathAndName, s);
@@ -1689,16 +1689,16 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
 		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
 		{
-			notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_unableToCopyFile, 0);
-			return eWriteDataFileStatus_finishedKO_unableToCopyFile;
+			notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_unableToCopyFile, 0);
+			return eWriteDataFileStatus::finishedKO_unableToCopyFile;
 		}
 	}
 
 	FILE *f = rhea::fs::fileOpenForReadBinary(tempFilePathAndName);
 	if (NULL == f)
 	{
-		notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_unableToOpenLocalFile, 0);
-		return eWriteDataFileStatus_finishedKO_unableToOpenLocalFile;
+		notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_unableToOpenLocalFile, 0);
+		return eWriteDataFileStatus::finishedKO_unableToOpenLocalFile;
 	}
 
 	//il meccanismo attuale prevedere che la io mandi pacchetti da 64b di dati alla CPU fino al raggiungimento della
@@ -1723,9 +1723,9 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		{
 			//errore, la CPU non ha risposto, abortisco l'operazione
 			if (NULL != subscriber)
-				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_cpuDidNotAnswer, kbWrittenSoFar);
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_cpuDidNotAnswer, kbWrittenSoFar);
 			fclose(f);
-			return eWriteDataFileStatus_finishedKO_cpuDidNotAnswer;
+			return eWriteDataFileStatus::finishedKO_cpuDidNotAnswer;
 		}
 
 		//aggiorno contatore di byte scritti
@@ -1738,7 +1738,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 			lastKbWriteSent = kbWrittenSoFar;
 
 			if (NULL != subscriber)
-				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, 0, logger, eWriteDataFileStatus_inProgress, kbWrittenSoFar);
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, 0, logger, eWriteDataFileStatus::inProgress, kbWrittenSoFar);
 		}
 	}
 
@@ -1756,8 +1756,8 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		if (!priv_prepareAndSendMsg_readVMCDataFileBlock(block))
 		{
 			if (NULL != subscriber)
-				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2, kbWrittenSoFar);
-			return eWriteDataFileStatus_finishedKO_cpuDidNotAnswer2;
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_cpuDidNotAnswer2, kbWrittenSoFar);
+			return eWriteDataFileStatus::finishedKO_cpuDidNotAnswer2;
 		}
 		memcpy (&tempBuffer[block*VMCDATAFILE_BLOCK_SIZE_IN_BYTE], &answerBuffer[5], VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
 
@@ -1811,9 +1811,9 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 
 	//notifico il client e finisco
 	if (NULL != subscriber)
-		notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus_finishedOK, kbWrittenSoFar);
+		notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedOK, kbWrittenSoFar);
 
-	return eWriteDataFileStatus_finishedOK;
+	return eWriteDataFileStatus::finishedOK;
 }
 
 //***************************************************
@@ -1850,8 +1850,8 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 	FILE *f = rhea::fs::fileOpenForWriteBinary(fullFilePathAndName);
 	if (NULL == f)
 	{
-		notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_unableToCreateFile, 0, fileID);
-		return eReadDataFileStatus_finishedKO_unableToCreateFile;
+		notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID);
+		return eReadDataFileStatus::finishedKO_unableToCreateFile;
 	}
 
 	//il meccanismo attuale prevedere che la CPU mandi pacchetti da 64b di dati fino al raggiungimento della
@@ -1869,13 +1869,13 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 			if (NULL == subscriber)
 			{
 				for (u32 i = 0; i < subscriberList.getNElem(); i++)
-					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus_finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
 			}
 			else
-				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
 
 			fclose(f);
-			return eReadDataFileStatus_finishedKO_cpuDidNotAnswer;
+			return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
 		}
 
 		//scrivo su file i dati ricevuti
@@ -1896,13 +1896,13 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 			if (NULL == subscriber)
 			{
 				for (u32 i = 0; i < subscriberList.getNElem(); i++)
-					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
+					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID);
 			}
 			else
-				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
+				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID);
 
 			fclose(f);
-			return eReadDataFileStatus_finishedOK;
+			return eReadDataFileStatus::finishedOK;
 		}
 
 		//notifico che ho letto un altro Kb
@@ -1914,10 +1914,10 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 			if (NULL == subscriber)
 			{
 				for (u32 i = 0; i < subscriberList.getNElem(); i++)
-					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
+					notify_READ_VMCDATAFILE_PROGRESS(subscriberList(i)->q, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID);
 			}
 			else
-				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
+				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID);
 		}
 	}
 }
@@ -1950,9 +1950,9 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 		rhea::fs::fileCopy(debug_src_eva, fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)
-			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, 15, fileID);
+			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, 15, fileID);
 
-		return eReadDataFileStatus_finishedOK;
+		return eReadDataFileStatus::finishedOK;
 	}
 #endif
 
@@ -1960,8 +1960,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	if (NULL == f)
 	{
 		if (NULL != subscriber)
-			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_unableToCreateFile, 0, fileID);
-		return eReadDataFileStatus_finishedKO_unableToCreateFile;
+			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID);
+		return eReadDataFileStatus::finishedKO_unableToCreateFile;
 	}
 
 
@@ -1978,9 +1978,9 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
         {
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus_finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
             fclose(f);
-            return eReadDataFileStatus_finishedKO_cpuDidNotAnswer;
+            return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
         }
 
         //scrivo su file i dati ricevuti
@@ -2002,9 +2002,9 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 			
 			//notifico
 			if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus_finishedOK, kbReadSoFar, fileID);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID);
 
-            return eReadDataFileStatus_finishedOK;
+            return eReadDataFileStatus::finishedOK;
         }
 
         //notifico che ho letto un altro Kb
@@ -2013,7 +2013,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
             lastKbReadSent = kbReadSoFar;
 
             if (NULL!= subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus_inProgress, kbReadSoFar, fileID);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID);
         }
     }
 }
@@ -2096,7 +2096,7 @@ void Server::priv_resetInternalState(cpubridge::eVMCState s)
 	lastBtnProgStatus = 0;
 	keepOnSendingThisButtonNum = 0;
 
-	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
+	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda::doing_nothing;
 	cpuStatus.VMCstate = s;
 
 	memset(jugRepetitions, '0', sizeof jugRepetitions);
@@ -2107,15 +2107,15 @@ void Server::priv_resetInternalState(cpubridge::eVMCState s)
  *
  *	Ci si entra all'inizio, quando la connessione con la CPU è stata stabilita.
  *	Serve per verificare che il FW di CPU sia quello giusto
- *	In caso di errore, va nello stato eVMCState_CPU_NOT_COMPATIBLE dal quale non si esce più
+ *	In caso di errore, va nello stato eVMCState::CPU_NOT_COMPATIBLE dal quale non si esce più
  *  In caso di successo, si va nello stato DA3SYNC
  */
 void Server::priv_enterState_compatibilityCheck()
 {
 	logger->log("CPUBridgeServer::priv_enterState_compatibilityCheck()\n");
 
-	stato.set(sStato::eStato_compatibilityCheck);
-	priv_resetInternalState(eVMCState_COMPATIBILITY_CHECK);
+	stato.set(sStato::eStato::compatibilityCheck);
+	priv_resetInternalState(eVMCState::COMPATIBILITY_CHECK);
 
 	cpuStatus.LCDMsg.utf16LCDString[0] = 0x00;
 	rhea::string::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "COMPATIBILITY    CHECK");
@@ -2210,8 +2210,8 @@ void Server::priv_enterState_CPUNotSupported()
 {
 	logger->log("CPUBridgeServer::priv_enterState_CPUNotSupported()\n");
 
-	stato.set(sStato::eStato_CPUNotSupported);
-	priv_resetInternalState(eVMCState_CPU_NOT_SUPPORTED);
+	stato.set(sStato::eStato::CPUNotSupported);
+	priv_resetInternalState(eVMCState::CPU_NOT_SUPPORTED);
 
 	cpuStatus.LCDMsg.utf16LCDString[0] = 0;
 	rhea::string::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "CPU NOT SUPPORTED");
@@ -2246,10 +2246,10 @@ void Server::priv_enterState_DA3Sync()
 {
 	logger->log("CPUBridgeServer::priv_enterState_DA3Sync()\n");
 
-	stato.set(sStato::eStato_DA3_sync);
+	stato.set(sStato::eStato::DA3_sync);
 
-	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda_doing_nothing;
-	cpuStatus.VMCstate = cpubridge::eVMCState_DA3_SYNC;
+	cpuStatus.statoPreparazioneBevanda = eStatoPreparazioneBevanda::doing_nothing;
+	cpuStatus.VMCstate = cpubridge::eVMCState::DA3_SYNC;
 
 	//segnalo ai miei subscriber lo stato corrente
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
@@ -2304,7 +2304,7 @@ void Server::priv_handleState_DA3Sync()
 	while (nRetry--)
 	{
 		u16 fileID = 0;
-		if (eReadDataFileStatus_finishedOK == priv_downloadVMCDataFile(NULL, 0, &fileID))
+		if (eReadDataFileStatus::finishedOK == priv_downloadVMCDataFile(NULL, 0, &fileID))
 		{
 			//tutto ok, il file è stato scaricato in temp/vmcDataFile%d.da3
 			//Lo copio in current/da3, aggiorno il timestamp, aggiorno la data di ultima modifica
@@ -2395,8 +2395,8 @@ void Server::priv_enterState_comError()
 {
 	logger->log("CPUBridgeServer::priv_enterState_comError()\n");
 
-    stato.set (sStato::eStato_comError);
-	priv_resetInternalState(eVMCState_COM_ERROR);
+    stato.set (sStato::eStato::comError);
+	priv_resetInternalState(eVMCState::COM_ERROR);
 
 	cpuStatus.LCDMsg.utf16LCDString[0] = 0;
 	rhea::string::utf16::concatFromASCII(cpuStatus.LCDMsg.utf16LCDString, sizeof(cpuStatus.LCDMsg.utf16LCDString), "COM ERROR");
@@ -2415,7 +2415,7 @@ void Server::priv_enterState_comError()
  * priv_handleState_comError()
  *
  *	continua a mandare il comando "initialParam" fino a che la CPU non risponde.
- *	Quando la CPU risponde, this passa in stato eStato_normal e ritorna
+ *	Quando la CPU risponde, this passa in stato eStato::normal e ritorna
  */
 void Server::priv_handleState_comError()
 {
@@ -2424,7 +2424,7 @@ void Server::priv_handleState_comError()
 	const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 
 	//provo a mandarlo ad oltranza
-    while (stato.get() == sStato::eStato_comError)
+    while (stato.get() == sStato::eStato::comError)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -2529,7 +2529,7 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 void Server::priv_enterState_downloadPriceHoldingPriceList()
 {
 	logger->log("CPUBridgeServer::priv_enterState_downloadPriceHoldingPriceList()\n");
-	stato.set (sStato::eStato_downloadPriceHoldingPriceList);
+	stato.set (sStato::eStato::downloadPriceHoldingPriceList);
 }
 
 /***************************************************
@@ -2661,7 +2661,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 void Server::priv_enterState_normal()
 {
 	logger->log("CPUBridgeServer::priv_enterState_normal()\n");
-    stato.set (sStato::eStato_normal);
+    stato.set (sStato::eStato::normal);
 }
 
 /***************************************************
@@ -2679,7 +2679,7 @@ void Server::priv_handleState_normal()
 	u8 nRetry = 0;
 
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
-    while (stato.get() == sStato::eStato_normal)
+    while (stato.get() == sStato::eStato::normal)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -2703,7 +2703,7 @@ void Server::priv_handleState_normal()
 				nRetry = 0;
 				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
 
-                if (this->cpuStatus.VMCstate == eVMCState_PROGRAMMAZIONE)
+                if (this->cpuStatus.VMCstate == eVMCState::PROGRAMMAZIONE)
                 {
                     priv_enterState_programmazione();
                     return;
@@ -2735,7 +2735,7 @@ void Server::priv_handleState_normal()
 void Server::priv_enterState_programmazione()
 {
     logger->log("CPUBridgeServer::priv_enterState_programmazione()\n");
-    stato.set (sStato::eStato_programmazione);
+    stato.set (sStato::eStato::programmazione);
 }
 
 //***************************************************
@@ -2746,7 +2746,7 @@ void Server::priv_handleState_programmazione()
     u8 nRetry = 0;
 
     u64	nextTimeSendCheckStatusMsgWasMSec = 0;
-    while (stato.get() == sStato::eStato_programmazione)
+    while (stato.get() == sStato::eStato::programmazione)
     {
         const u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -2770,7 +2770,7 @@ void Server::priv_handleState_programmazione()
                 nRetry = 0;
                 priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
 
-                if (this->cpuStatus.VMCstate != eVMCState_PROGRAMMAZIONE)
+                if (this->cpuStatus.VMCstate != eVMCState::PROGRAMMAZIONE)
                 {
                     //priv_enterState_normal();
                     priv_enterState_DA3Sync();
@@ -2798,7 +2798,7 @@ void Server::priv_handleState_programmazione()
 void Server::priv_enterState_telemetry()
 {
 	logger->log("CPUBridgeServer::priv_enterState_telemetry()\n");
-	stato.set(sStato::eStato_telemetry);
+	stato.set(sStato::eStato::telemetry);
 }
 
 //***************************************************
@@ -2807,7 +2807,7 @@ void Server::priv_handleState_telemetry()
 	const u32 TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec = 500;
 
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
-	while (stato.get() == sStato::eStato_telemetry)
+	while (stato.get() == sStato::eStato::telemetry)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -2862,7 +2862,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	u16 newCpuStatusFlag1 = cpuStatus.flag1;
 	newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_MILKER_ALIVE; 
 
-	if (answer[1] != eCPUCommand_checkStatus_B && answer[1] != eCPUCommand_checkStatus_B_Unicode)
+	if (answer[1] != (u8)eCPUCommand::checkStatus_B && answer[1] != (u8)eCPUCommand::checkStatus_B_Unicode)
 	{
 		//mi aspettavo la risposta al mio comando B, invece ho ricevuto dell'altro
 		logger->log("WARN: I was expecintg B or Z, received [%c]\n", (char)answer[1]);
@@ -2872,7 +2872,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	if (cpuParamIniziali.protocol_version >= 1)
 	{
 		u8 z = 17 + 32;
-		if (answer[1] != eCPUCommand_checkStatus_B)
+		if (answer[1] != (u8)eCPUCommand::checkStatus_B)
 			z += 32;
 		cpuStatus.beepSelezioneLenMSec = answer[z + 1];
 		cpuStatus.beepSelezioneLenMSec *= 256;
@@ -3042,7 +3042,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		{
 			cpuStatus.statoPreparazioneBevanda = statoPrepBevanda;
 
-			if (stato.get() != sStato::eStato_selection)
+			if (stato.get() != sStato::eStato::selection)
 			{
 				const u8 selection_CPU_current = answer[10];
 				if (selection_CPU_current != 0)
@@ -3121,7 +3121,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	}
 	else
 	{
-		if (cpuStatus.VMCstate == eVMCState_DISPONIBILE || cpuStatus.VMCstate == eVMCState_PREPARAZIONE_BEVANDA)
+		if (cpuStatus.VMCstate == eVMCState::DISPONIBILE || cpuStatus.VMCstate == eVMCState::PREPARAZIONE_BEVANDA)
 		{
 			u8 mask = 0x01;
 			for (u8 i = 0; i < NUM_MAX_SELECTIONS; i++)
@@ -3278,7 +3278,7 @@ void Server::priv_notify_CPU_RUNNING_SEL_STATUS (const sSubscription *sub, u16 h
 /***************************************************
  * priv_enterState_selection
  *
- *	ritorna true se ci sono le condizioni per iniziare una selezione. In questo caso, lo stato passa a stato = eStato_selection.
+ *	ritorna true se ci sono le condizioni per iniziare una selezione. In questo caso, lo stato passa a stato = eStato::selection.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  */
 bool Server::priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub)
@@ -3286,33 +3286,33 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
 	const u8 selNumber = params.getSelNum();
 	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d]\n", (u8)params.how, selNumber);
 
-    if (stato.get() != sStato::eStato_normal)
+    if (stato.get() != sStato::eStato::normal)
 	{
-		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
-		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus_finished_KO);
+		logger->log("  invalid request, CPUServer != eStato::normal, aborting.");
+		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
 		return false;
 	}
 
-	if (cpuStatus.VMCstate != eVMCState_DISPONIBILE)
+	if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
 	{
-		logger->log("  invalid request, VMCState != eVMCState_DISPONIBILE, aborting.");
-		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus_finished_KO);
+		logger->log("  invalid request, VMCState != eVMCState::DISPONIBILE, aborting.");
+		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
 		return false;
 	}
 
 	if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
 	{
 		logger->log("  invalid selection number, aborting.");
-		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus_finished_KO);
+		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
 		return false;
 	}
 
 
-    stato.set (sStato::eStato_selection);
+    stato.set (sStato::eStato::selection);
 	memcpy (&runningSel.params, &params, sizeof(sStartSelectionParams));
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.sub = sub;
-	runningSel.status = eRunningSelStatus_wait;
+	runningSel.status = eRunningSelStatus::wait;
 	priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, runningSel.status);
 	return true;
 }
@@ -3347,7 +3347,7 @@ void Server::priv_handleState_selection()
 
 	//loop fino alla fine della selezione
 	u64	nextTimeSendCheckStatusMsgMSec = 0;
-    while (stato.get() == sStato::eStato_selection)
+    while (stato.get() == sStato::eStato::selection)
 	{
 		u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -3425,7 +3425,7 @@ void Server::priv_handleState_selection()
 			nRetry++;
 			if (nRetry >= ALLOW_N_RETRY_BEFORE_COMERROR)
 			{
-				runningSel.status = eRunningSelStatus_finished_KO;
+				runningSel.status = eRunningSelStatus::finished_KO;
 				priv_notify_CPU_RUNNING_SEL_STATUS(runningSel.sub, 0, runningSel.status);
 				priv_enterState_comError();
 				return;
@@ -3445,13 +3445,13 @@ void Server::priv_handleState_selection()
 
 
 		/* Teoricamente l'intero processo è ora pilotato da "statoPreparazioneBevanda"
-		 * Voglio però essere sicuro di aver letto almeno una volta uno stato != da eStatoPreparazioneBevanda_doing_nothing
+		 * Voglio però essere sicuro di aver letto almeno una volta uno stato != da eStatoPreparazioneBevanda::doing_nothing
 		 * prima di imbarcarmi nel processo.
-		 * Appena vedo uno stato != da eStatoPreparazioneBevanda_doing_nothing setto bBevandaInPreparazione e parto.
+		 * Appena vedo uno stato != da eStatoPreparazioneBevanda::doing_nothing setto bBevandaInPreparazione e parto.
 		 * Se non vedo questa condizione entro 4/5 second, vuol dire che c'è qualcosa che non va e abortisco*/
 		if (bBevandaInPreparazione == 0)
 		{
-			if (cpuStatus.statoPreparazioneBevanda != eStatoPreparazioneBevanda_doing_nothing)
+			if (cpuStatus.statoPreparazioneBevanda != eStatoPreparazioneBevanda::doing_nothing)
 				bBevandaInPreparazione = 1;
 			else if (timeNowMSec - timeStartedMSec >= TIMEOUT_SELEZIONE_1_MSEC)
 			{
@@ -3469,9 +3469,9 @@ void Server::priv_handleState_selection()
 				priv_onSelezioneTerminataKO();
 				return;
 
-			case eStatoPreparazioneBevanda_wait:
+			case eStatoPreparazioneBevanda::wait:
 				//sto aspettando che la CPU decida il da farsi
-				if (cpuStatus.VMCstate != eVMCState_DISPONIBILE && cpuStatus.VMCstate != eVMCState_PREPARAZIONE_BEVANDA)
+				if (cpuStatus.VMCstate != eVMCState::DISPONIBILE && cpuStatus.VMCstate != eVMCState::PREPARAZIONE_BEVANDA)
 				{
 					logger->log("priv_handleState_selection() => aborting, ero in WAIT ma CPU è andata in uno stato != da DISP o PREP");
 					priv_onSelezioneTerminataKO();
@@ -3479,13 +3479,13 @@ void Server::priv_handleState_selection()
 				}
 				else
 				{
-					runningSel.status = eRunningSelStatus_wait;
+					runningSel.status = eRunningSelStatus::wait;
 					//informo il subscriber che ha richiesto la bevanda che la CPU è ancora in wait
 					priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 				}
 				break;
 
-			case eStatoPreparazioneBevanda_running:
+			case eStatoPreparazioneBevanda::running:
 				//la cpu ha dato l'OK, sta preparando la bevanda
 				if (bBevandaInPreparazione == 1)
 				{
@@ -3494,9 +3494,9 @@ void Server::priv_handleState_selection()
 					timeStartedMSec = timeNowMSec;
 
 					if (cpuStatus.bShowDialogStopSelezione)
-						runningSel.status = eRunningSelStatus_runningCanUseStopBtn;
+						runningSel.status = eRunningSelStatus::runningCanUseStopBtn;
 					else
-						runningSel.status = eRunningSelStatus_running;
+						runningSel.status = eRunningSelStatus::running;
 
 					//la selezione è in preparazione, mando la notifica al subscriber che ha richiesto la bevanda
 					priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
@@ -3511,11 +3511,11 @@ void Server::priv_handleState_selection()
 				}
 				break;
 
-			case eStatoPreparazioneBevanda_doing_nothing:
+			case eStatoPreparazioneBevanda::doing_nothing:
 				if (bBevandaInPreparazione == 2)
 				{
 					//tutto ok, selezione terminata!!
-					runningSel.status = eRunningSelStatus_finished_OK;
+					runningSel.status = eRunningSelStatus::finished_OK;
 					priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 					priv_enterState_normal();
 					return;
@@ -3536,7 +3536,7 @@ void Server::priv_handleState_selection()
 //***************************************************
 void Server::priv_onSelezioneTerminataKO()
 {
-	runningSel.status = eRunningSelStatus_finished_KO;
+	runningSel.status = eRunningSelStatus::finished_KO;
 	priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 	priv_enterState_normal();
 }
@@ -3544,27 +3544,27 @@ void Server::priv_onSelezioneTerminataKO()
 /***************************************************
  * priv_enterState_regolazioneAperturaMacina
  *
- *	ritorna true se ci sono le condizioni per iniziare una regolazione della macina. In questo caso, lo stato passa a stato = eStato_regolazioneAperturaMacina.
+ *	ritorna true se ci sono le condizioni per iniziare una regolazione della macina. In questo caso, lo stato passa a stato = eStato::regolazioneAperturaMacina.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  */
 bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target)
 {
 	logger->log("CPUBridgeServer::priv_enterState_regolazioneAperturaMacina() => [%d] [%d]\n", macina_1o2, target);
 
-	if (stato.get() != sStato::eStato_normal && (stato.get() != sStato::eStato_regolazioneAperturaMacina))
+	if (stato.get() != sStato::eStato::normal && (stato.get() != sStato::eStato::regolazioneAperturaMacina))
 	{
-		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
+		logger->log("  invalid request, CPUServer != eStato::normal, aborting.");
 		return false;
 	}
 
-	if (cpuStatus.VMCstate != eVMCState_DISPONIBILE)
+	if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
 	{
-		logger->log("  invalid request, VMCState != eVMCState_DISPONIBILE, aborting.");
+		logger->log("  invalid request, VMCState != eVMCState::DISPONIBILE, aborting.");
 		return false;
 	}
 
 
-	stato.set(sStato::eStato_regolazioneAperturaMacina);
+	stato.set(sStato::eStato::regolazioneAperturaMacina);
 	regolazioneAperturaMacina.macina_1o2 = macina_1o2;
 	regolazioneAperturaMacina.target = target;
 	return true;
@@ -3576,12 +3576,12 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	static const u8 NRETRY = 5;
 	u8 nRetry = NRETRY;
 
-	eCPUProgrammingCommand_macinaMove move = eCPUProgrammingCommand_macinaMove_stop;
+	eCPUProg_macinaMove move = eCPUProg_macinaMove::stop;
 	priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
 
 
 	//dico a tutti che sono in uno stato speciale
-	cpuStatus.VMCstate = eVMCState_REG_APERTURA_MACINA;
+	cpuStatus.VMCstate = eVMCState::REG_APERTURA_MACINA;
 	cpuStatus.VMCerrorCode = 0;
 	cpuStatus.VMCerrorType = 0;
 	cpuStatus.selAvailability.reset();
@@ -3596,7 +3596,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	//CPU sono ballerine e potrebbe essere che non arrivo mai esattamente dove voglio
 	u64 timeToExitMSec = rhea::getTimeNowMSec() + 90000;
 	const u16 TOLLERANZA = 0;
-	while (stato.get() == sStato::eStato_regolazioneAperturaMacina)
+	while (stato.get() == sStato::eStato::regolazioneAperturaMacina)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
 
@@ -3618,28 +3618,28 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (diff <= TOLLERANZA || timeNowMSec >= timeToExitMSec)
 			{
 				//fine
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
 				//priv_enterState_normal();
 				break;
 			}
 
 			if (regolazioneAperturaMacina.target > curpos)
 			{
-				if (move != eCPUProgrammingCommand_macinaMove_open)
+				if (move != eCPUProg_macinaMove::open)
 				{
-					if (move != eCPUProgrammingCommand_macinaMove_stop)
-						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
-					move = eCPUProgrammingCommand_macinaMove_open;
+					if (move != eCPUProg_macinaMove::stop)
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+					move = eCPUProg_macinaMove::open;
 					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
 				}
 			}
 			else
 			{
-				if (move != eCPUProgrammingCommand_macinaMove_close)
+				if (move != eCPUProg_macinaMove::close)
 				{
-					if (move != eCPUProgrammingCommand_macinaMove_stop)
-						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
-					move = eCPUProgrammingCommand_macinaMove_close;
+					if (move != eCPUProg_macinaMove::stop)
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+					move = eCPUProg_macinaMove::close;
 					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
 				}
 			}
@@ -3650,7 +3650,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (nRetry == 0)
 			{
 				//abortisco
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
@@ -3690,17 +3690,17 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (curpos == regolazioneAperturaMacina.target || rhea::getTimeNowMSec() > timeToExitMSec)
 			{
 				//fine
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
 
 			if (curpos > regolazioneAperturaMacina.target)
-				priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_close);
+				priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::close);
 			else
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_open);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::open);
 
-			priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+			priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
 		}
 		else
 		{
@@ -3708,7 +3708,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (nRetry == 0)
 			{
 				//abortisco
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProgrammingCommand_macinaMove_stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
@@ -3730,7 +3730,7 @@ bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1o2, u16 *out)
 }
 
 //**********************************************
-bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProgrammingCommand_macinaMove m)
+bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProg_macinaMove m)
 {
 	u8 bufferW[16];
 	const u16 nBytesToSend = cpubridge::buildMsg_setMotoreMacina(bufferW, sizeof(bufferW), macina_1o2, m);
@@ -3769,7 +3769,7 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 	if (da3[69] <= 2)
 		milkerType = (eCPUMilkerType)da3[69];
 	else
-		milkerType = eCPUMilkerType_none;
+		milkerType = eCPUMilkerType::none;
 
 	// copia il valore delle ripetizioni per il jug
 	for (u16 count = 0, address = 0xb1;
@@ -3788,7 +3788,7 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 /***************************************************
  * priv_enterState_grinderSpeedTest
  *
- *	ritorna true se ci sono le condizioni per iniziare il test. In questo caso, lo stato passa a stato = eStato_grinderSpeedTest.
+ *	ritorna true se ci sono le condizioni per iniziare il test. In questo caso, lo stato passa a stato = eStato::grinderSpeedTest.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  *	Lo scopo di questo test è quello di muovere la macina per un tot di tempo e leggere (chiedendo alla CPU) il valore di un certo sensore.
  *	Alla fine della macinata, si ritorna la media delle letture del sensore
@@ -3797,20 +3797,20 @@ bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinata
 {
 	logger->log("CPUBridgeServer::priv_enterState_calcGrinderSpeed() => [%d]\n", macina_1o2);
 
-	if (stato.get() != sStato::eStato_normal)
+	if (stato.get() != sStato::eStato::normal)
 	{
-		logger->log("  invalid request, CPUServer != eStato_normal, aborting.");
+		logger->log("  invalid request, CPUServer != eStato::normal, aborting.");
 		return false;
 	}
 
-	if (cpuStatus.VMCstate != eVMCState_DISPONIBILE)
+	if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
 	{
-		logger->log("  invalid request, VMCState != eVMCState_DISPONIBILE, aborting.");
+		logger->log("  invalid request, VMCState != eVMCState::DISPONIBILE, aborting.");
 		return false;
 	}
 
 	
-	stato.set(sStato::eStato_grinderSpeedTest);
+	stato.set(sStato::eStato::grinderSpeedTest);
 	grinderSpeedTest.motoreID = 11;
 	if (macina_1o2 == 2)
 		grinderSpeedTest.motoreID = 12;
@@ -3823,7 +3823,7 @@ bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinata
 void Server::priv_handleState_grinderSpeedTest()
 {
 	//dico a tutti che sono in uno stato speciale
-	cpuStatus.VMCstate = eVMCState_GRINDER_SPEED_TEST;
+	cpuStatus.VMCstate = eVMCState::GRINDER_SPEED_TEST;
 	cpuStatus.VMCerrorCode = 0;
 	cpuStatus.VMCerrorType = 0;
 	cpuStatus.selAvailability.reset();

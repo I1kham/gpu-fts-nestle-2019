@@ -12,8 +12,8 @@ sShared::sShared()
 //*****************************************
 sShared::eRetCode sShared::run(Module *module)
 {
-    retCode = sShared::RETCODE_UNKNOWN;
-    while (retCode == sShared::RETCODE_UNKNOWN)
+    retCode = sShared::eRetCode::UNKNOWN;
+    while (retCode == sShared::eRetCode::UNKNOWN)
     {
         //qui sarebbe bello rimanere in wait per sempre fino a che un evento non scatta oppure la seriale ha dei dati in input.
         //TODO: trovare un modo multipiattaforma per rimanere in wait sulla seriale (in linux è facile, è windows che rogna un po')
@@ -26,7 +26,7 @@ sShared::eRetCode sShared::run(Module *module)
 		{
 			switch (waitableGrp.getEventOrigin(i))
 			{
-			case OSWaitableGrp::evt_origin_osevent:
+			case OSWaitableGrp::eEventOrigin::osevent:
 				{
                     switch (waitableGrp.getEventUserParamAsU32(i))
                     {
@@ -64,7 +64,7 @@ sShared::eRetCode sShared::run(Module *module)
 				}
 				break;
 
-			case OSWaitableGrp::evt_origin_socket:
+			case OSWaitableGrp::eEventOrigin::socket:
 				{
 					//Ho ricevuto dei dati lungo una socket
 					OSSocket sok = waitableGrp.getEventSrcAsOSSocket (i);
@@ -74,7 +74,7 @@ sShared::eRetCode sShared::run(Module *module)
 				break;
 
 #ifdef LINUX
-            case OSWaitableGrp::evt_origin_serialPort:
+            case OSWaitableGrp::eEventOrigin::serialPort:
                 priv_handleRS232(module);
                 break;
 #endif

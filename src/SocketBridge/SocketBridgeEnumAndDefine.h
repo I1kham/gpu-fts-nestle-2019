@@ -18,53 +18,53 @@ namespace socketbridge
 {
 	class Server;
 
-	enum eOpcode
+	enum class eOpcode: u8
 	{
-		eOpcode_ajax_A = 'A',
-		eOpcode_event_E = 'E',
-		eOpcode_request_idCode = 'I',
-		eOpcode_identify_W = 'W',
-		eOpcode_fileTransfer = 'F',
-		eOpcode_unknown = 0x00
+		ajax_A = 'A',
+		event_E = 'E',
+		request_idCode = 'I',
+		identify_W = 'W',
+		fileTransfer = 'F',
+		unknown = 0x00
 	};
 
-    enum eEventType
+    enum class eEventType: u8
     {
-        eEventType_selectionAvailabilityUpdated  = 'a',		//97	0x61
-        eEventType_selectionPricesUpdated  = 'b',			//98	0x62
-        eEventType_creditUpdated = 'c',						//99	0x63
-        eEventType_cpuMessage = 'd',						//100	0x64
+        selectionAvailabilityUpdated  = 'a',	//97	0x61
+        selectionPricesUpdated  = 'b',			//98	0x62
+        creditUpdated = 'c',					//99	0x63
+        cpuMessage = 'd',						//100	0x64
 
-        eEventType_selectionRequestStatus = 'e',			//101	0x65
-        eEventType_startSelection = 'f',					//102	0x66
-        eEventType_stopSelection = 'g',						//103	0x67
+        selectionRequestStatus = 'e',			//101	0x65
+        startSelection = 'f',					//102	0x66
+        stopSelection = 'g',					//103	0x67
 
-		eEventType_cpuStatus = 'h',							//104	0x68
-		eEventType_answer_to_idCodeRequest = 'i',			//105	0x69
+		cpuStatus = 'h',						//104	0x68
+		answer_to_idCodeRequest = 'i',			//105	0x69
 		
-		eEventType_reqClientList ='j',						//106	0x6A
-		eEventType_btnProgPressed ='k',						//107	0x6B
-		eEventType_reqDataAudit = 'l',						//108	0x6C
-		eEventType_reqIniParam = 'm',						//109	0x6D
-		eEventType_reqVMCDataFile = 'n',					//110	0x6E
-		eEventType_reqVMCDataFileTimestamp = 'o',			//111	0x6F
-		eEventType_reqWriteLocalVMCDataFile = 'p',			//112	0x70
-		eEventType_cpuProgrammingCmd = 'q',					//113	0x71
-		eEventType_cpuSanWashingStatus = 'r',				//114	0x72
-		eEventType_cpuBtnPressed = 's',						//115	0x73
-		eEventType_cpuWritePartialVMCDataFile = 't',		//116	0x74
-		eEventType_cpuExtendedConfigInfo = 'u',				//117	0x75
-		eEventType_setDecounter = 'v',						//118	0x76
-		eEventType_getAllDecounters = 'w',					//119	0x77
-		eEventType_setMotoreMacina = 'x',					//120	0x78
-		eEventType_getAperturaVGrind = 'y',					//121	0x79
-		eEventType_setAperturaVGrind = 'z',					//122	0x80
-		eEventType_startDisinstallation = 'A',				//65	0x41
-		eEventType_recalcFasciaOrariaFV = 'B',				//66	0x42
-		eEventType_enterDA3Sync = 'C',						//67	0x43
-		eEventType_startSelectionAlreadyPaid = 'D',			//68	0x44
-		eEventType_AlipayChina_onlineStatusChanged = 'E',	//69	0x45
-        eEventType_unknown = 0xff
+		reqClientList ='j',						//106	0x6A
+		btnProgPressed ='k',					//107	0x6B
+		reqDataAudit = 'l',						//108	0x6C
+		reqIniParam = 'm',						//109	0x6D
+		reqVMCDataFile = 'n',					//110	0x6E
+		reqVMCDataFileTimestamp = 'o',			//111	0x6F
+		reqWriteLocalVMCDataFile = 'p',			//112	0x70
+		cpuProgrammingCmd = 'q',				//113	0x71
+		cpuSanWashingStatus = 'r',				//114	0x72
+		cpuBtnPressed = 's',					//115	0x73
+		cpuWritePartialVMCDataFile = 't',		//116	0x74
+		cpuExtendedConfigInfo = 'u',			//117	0x75
+		setDecounter = 'v',						//118	0x76
+		getAllDecounters = 'w',					//119	0x77
+		setMotoreMacina = 'x',					//120	0x78
+		getAperturaVGrind = 'y',				//121	0x79
+		setAperturaVGrind = 'z',				//122	0x80
+		startDisinstallation = 'A',				//65	0x41
+		recalcFasciaOrariaFV = 'B',				//66	0x42
+		enterDA3Sync = 'C',						//67	0x43
+		startSelectionAlreadyPaid = 'D',		//68	0x44
+		AlipayChina_onlineStatusChanged = 'E',	//69	0x45
+        unknown = 0xff
     };
 
 	struct sDecodedMessage

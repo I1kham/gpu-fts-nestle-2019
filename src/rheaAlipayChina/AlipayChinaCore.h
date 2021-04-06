@@ -26,14 +26,14 @@ namespace rhea
             static const u32        PAYMENT_POLL_MSec = 2000; //posto che un ordine sia stato inizializzato, ogni quanto chiedo al server se il cliente ha pagato?
 
         private:
-            enum eResponseCommand
+            enum class eResponseCommand: u8
             {
-                eResponseCommand_E11 = 11,
-                eResponseCommand_E12 = 12,
-                eResponseCommand_E13 = 13,
-                eResponseCommand_E14 = 14,
-                eResponseCommand_E15 = 15,
-                eResponseCommand_none = 0xff
+                E11 = 11,
+                E12 = 12,
+                E13 = 13,
+                E14 = 14,
+                E15 = 15,
+                none = 0xff
             };
 
             struct sResponseE11
@@ -75,23 +75,23 @@ namespace rhea
                 };
             };
 
-            enum eOrderStatus
+            enum class eOrderStatus: u8
             {
-                eOrderStatus_none = 0,
-                eOrderStatus_requestSent = 1,
-                eOrderStatus_pollingPaymentStatus = 2,
-                eOrderStatus_paymentOK = 3,
-                eOrderStatus_waitingBeverageEnd = 4,
-                eOrderStatus_finishedOK = 5,
-                eOrderStatus_finishedKO = 6,
-				eOrderStatus_closing = 7
+                none = 0,
+                requestSent = 1,
+                pollingPaymentStatus = 2,
+                paymentOK = 3,
+                waitingBeverageEnd = 4,
+                finishedOK = 5,
+                finishedKO = 6,
+				closing = 7
             };
 
-            enum eOrderCloseStatus
+            enum class eOrderCloseStatus: u8
             {
-                eOrderCloseStatus_SUCCESS = 0,
-                eOrderCloseStatus_FAILED = 1,
-                eOrderCloseStatus_TIMEOUT = 2,
+                SUCCESS = 0,
+                FAILED = 1,
+                TIMEOUT = 2,
             };
 
             struct sOrder

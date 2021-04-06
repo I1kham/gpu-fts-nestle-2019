@@ -21,7 +21,7 @@ namespace socketbridge
     class CmdHandler_eventReqCreditUpdated : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_creditUpdated;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::creditUpdated;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_CPU_CREDIT_CHANGED;
 
                     CmdHandler_eventReqCreditUpdated (const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

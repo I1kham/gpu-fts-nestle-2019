@@ -15,7 +15,7 @@ namespace socketbridge
     class CmdHandler_eventReq_P0x03_CPUSanWashingStatus : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_cpuSanWashingStatus;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::cpuSanWashingStatus;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_CPU_SANWASH_STATUS;
 
 		CmdHandler_eventReq_P0x03_CPUSanWashingStatus(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

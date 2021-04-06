@@ -16,7 +16,7 @@ namespace socketbridge
     class CmdHandler_eventReq_T_VMCDataFileTimestamp : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_reqVMCDataFileTimestamp;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::reqVMCDataFileTimestamp;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_VMCDATAFILE_TIMESTAMP;
 
 		CmdHandler_eventReq_T_VMCDataFileTimestamp(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

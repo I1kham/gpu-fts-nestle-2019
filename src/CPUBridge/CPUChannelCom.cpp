@@ -68,7 +68,7 @@ bool CPUChannelCom::open (const char *COMPORT, rhea::ISimpleLogger *logger)
 
 	logger->log ("CPUChannelCom::open\n");
 	logger->incIndent();
-    bool ret = rhea::rs232::open(&comPort, COMPORT, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No);
+    bool ret = rhea::rs232::open(&comPort, COMPORT, eRS232BaudRate::b115200, false, false, eRS232DataBits::b8, eRS232Parity::No, eRS232StopBits::One, eRS232FlowControl::No);
 
 	if (ret)
 		logger->log("OK\n");
@@ -97,7 +97,7 @@ void CPUChannelCom::closeAndReopen()
 {
 	rhea::rs232::flushIO(comPort);
 	rhea::rs232::close(comPort);
-    rhea::rs232::open(&comPort, sCOMPORT, eRS232BaudRate_115200, false, false, eRS232DataBits_8, eRS232Parity_No, eRS232StopBits_One, eRS232FlowControl_No);
+    rhea::rs232::open(&comPort, sCOMPORT, eRS232BaudRate::b115200, false, false, eRS232DataBits::b8, eRS232Parity::No, eRS232StopBits::One, eRS232FlowControl::No);
 }
 
 

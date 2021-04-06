@@ -13,7 +13,7 @@ namespace socketbridge
             command: testSelection
             params:
 				s: sel num
-				d: deviceID (vedi cpubridge::eCPUProgrammingCommand_testSelectionDevice)
+				d: deviceID (vedi cpubridge::eCPUProg_testSelectionDevice)
 
 		Output
 			OK

@@ -134,7 +134,7 @@ void FileTransfer::update(u64 timeNowMSec)
 	{
 		switch (activeTransferList(i).status)
 		{
-		case eTransferStatus_finished_OK:
+		case eTransferStatus::finished_OK:
 			logger->log("Transfer [0x%08X] finished OK\n", activeTransferList(i).smuFileTransfUID);
 			priv_freeResources(i);
 			activeTransferList.removeAndSwapWithLast(i);
@@ -142,7 +142,7 @@ void FileTransfer::update(u64 timeNowMSec)
 			--n;
 			break;
 
-		case eTransferStatus_finished_KO:
+		case eTransferStatus::finished_KO:
 			logger->log("Transfer [0x%08X] finished KO\n", activeTransferList(i).smuFileTransfUID);
 			priv_freeResources(i);
 			activeTransferList.removeAndSwapWithLast(i);
@@ -150,10 +150,10 @@ void FileTransfer::update(u64 timeNowMSec)
 			--n;
 			break;
 
-		case eTransferStatus_pending:
+		case eTransferStatus::pending:
 			if (timeNowMSec > activeTransferList(i).timeoutMSec)
 			{
-				activeTransferList[i].status = eTransferStatus_finished_KO;
+				activeTransferList[i].status = eTransferStatus::finished_KO;
 				logger->log("Transfer [0x%08X] time out\n", activeTransferList(i).smuFileTransfUID);
 			}
 			break;
@@ -171,7 +171,7 @@ void FileTransfer::handleMsg (Server *server, const HSokServerClient &h, socketb
 	}
 
 	rhea::NetStaticBufferViewR nbr;
-	nbr.setup(decoded.payload, decoded.payloadLen, rhea::eBigEndian);
+	nbr.setup(decoded.payload, decoded.payloadLen, rhea::eEndianess::eBigEndian);
 
 	u8 opcode;
 	nbr.readU8(opcode);
@@ -181,20 +181,20 @@ void FileTransfer::handleMsg (Server *server, const HSokServerClient &h, socketb
 		logger->log("ERR: FileTransfer::handleMsg() unkwnown opcode [0x%02X]\n", opcode);
 		return;
 
-	case eFileTransferOpcode_upload_request_fromApp:
+	case eFileTransferOpcode::upload_request_fromApp:
 		//qualcuno vuole iniziare un upload verso di me
 		priv_on0x01 (server, h, nbr, timeNowMSec);
 		break;
 
-	case eFileTransferOpcode_upload_request_fromApp_packet:
+	case eFileTransferOpcode::upload_request_fromApp_packet:
 		priv_on0x03(server, h, nbr, timeNowMSec);
 		break;
 
-	case eFileTransferOpcode_download_request_fromApp:
+	case eFileTransferOpcode::download_request_fromApp:
 		priv_on0x51(server, h, nbr, timeNowMSec);
 		break;
 
-	case eFileTransferOpcode_download_request_fromApp_packet_answ:
+	case eFileTransferOpcode::download_request_fromApp_packet_answ:
 		priv_on0x54(server, h, nbr, timeNowMSec);
 		break;
 
@@ -204,7 +204,7 @@ void FileTransfer::handleMsg (Server *server, const HSokServerClient &h, socketb
 //**********************************************************************
 void FileTransfer::priv_sendChunkOfPackets (Server *server, const HSokServerClient &h, sActiveUploadRequest *s, u16 nPacket)
 {
-	if (s->status != eTransferStatus_pending)
+	if (s->status != eTransferStatus::pending)
 		return;
 	if (s->isAppUploading != 0)
 	{
@@ -221,7 +221,7 @@ void FileTransfer::priv_sendChunkOfPackets (Server *server, const HSokServerClie
 
 	rhea::NetStaticBufferViewW nbw;
 	u8 *serializedDataBuffer = s->other.whenAPPisDownloading.sendBuffer;
-	nbw.setup (serializedDataBuffer, s->other.whenAPPisDownloading.sizeOfSendBuffer, rhea::eBigEndian);
+	nbw.setup (serializedDataBuffer, s->other.whenAPPisDownloading.sizeOfSendBuffer, rhea::eEndianess::eBigEndian);
 
 	u32 iPacket = s->other.whenAPPisDownloading.nextPacketToSend;
 	u32 fileOffset = iPacket * s->packetSize;
@@ -240,8 +240,8 @@ void FileTransfer::priv_sendChunkOfPackets (Server *server, const HSokServerClie
 		else
 			nBytesLeft -= nByteToRead;
 		
-		nbw.seek(0, rhea::eSeekStart);
-		nbw.writeU8((u8)socketbridge::eFileTransferOpcode_download_request_fromApp_packet);
+		nbw.seek(0, rhea::eSeek::start);
+		nbw.writeU8((u8)socketbridge::eFileTransferOpcode::download_request_fromApp_packet);
 		nbw.writeU32(s->appFileTransfUID);
 		nbw.writeU32(iPacket);
 		nbw.writeU8(chunkSeq);
@@ -286,7 +286,7 @@ void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea:
 		sprintf_s(s, sizeof(s), "%s/test.upload", rhea::getPhysicalPathToWritableFolder());
 		fDest = fopen(s, "wb");
 		if (NULL == fDest)
-			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			answ.reason_refused = (u8)eFileTransferFailReason::smuErrorOpeningFile;
 	}
 	else if (strncmp(data.usage, "saveas:", 7) == 0)
 	{
@@ -296,7 +296,7 @@ void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea:
 		fDest = fopen(&data.usage[7], "wb");
 		if (NULL == fDest)
 		{
-			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			answ.reason_refused = (u8)eFileTransferFailReason::smuErrorOpeningFile;
 			logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() error opening file\n", data.usage);
 		}
 	}
@@ -308,13 +308,13 @@ void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea:
 		fDest = fopen(s, "wb");
 		if (NULL == fDest)
 		{
-			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			answ.reason_refused = (u8)eFileTransferFailReason::smuErrorOpeningFile;
 			logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() error opening file\n", data.usage);
 		}
 	}
 	else 
 	{
-		answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+		answ.reason_refused = (u8)eFileTransferFailReason::smuErrorOpeningFile;
 		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s]\n", data.usage);
 	}
 
@@ -325,7 +325,7 @@ void FileTransfer::priv_on0x01 (Server *server, const HSokServerClient &h, rhea:
 		//genero un UID per il trasferimento
 		//aggiungo il recordo alla lista dei trasferimenti attivi
 		sActiveUploadRequest info;
-		info.status = eTransferStatus_pending;
+		info.status = eTransferStatus::pending;
 		info.isAppUploading = 1;
 		info.f = fDest;
 		info.smuFileTransfUID = priv_generateUID();
@@ -381,7 +381,7 @@ void FileTransfer::priv_on0x03 (Server *server, const HSokServerClient &h, rhea:
 
 	sActiveUploadRequest *req = &activeTransferList.getElem(index);
 
-	if (req->status != eTransferStatus_pending)
+	if (req->status != eTransferStatus::pending)
 	{
 		return;
 	}
@@ -424,7 +424,7 @@ void FileTransfer::priv_on0x03 (Server *server, const HSokServerClient &h, rhea:
 			nbr.readBlob(bufferW, lastPacketSize);
 			fwrite(bufferW, lastPacketSize, 1, req->f);
 
-			req->status = eTransferStatus_finished_OK;
+			req->status = eTransferStatus::finished_OK;
 			fclose(req->f);
 			req->f = NULL;
 		}
@@ -436,7 +436,7 @@ void FileTransfer::priv_on0x03 (Server *server, const HSokServerClient &h, rhea:
 
 		//rispondo confermando la ricezione
 		req->other.whenAPPisUploading.nextTimeSendNACKMsec = 0;
-		if (chunkSeq == req->numPacketInAChunk || req->status == eTransferStatus_finished_OK)
+		if (chunkSeq == req->numPacketInAChunk || req->status == eTransferStatus::finished_OK)
 		{
 			fileT::sData0x04 answ;
 			answ.appTransfUID = req->appFileTransfUID;
@@ -535,7 +535,7 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 	}
 	else
 	{
-		answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+		answ.reason_refused = (u8)eFileTransferFailReason::smuErrorOpeningFile;
 		logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() invalid usage [%s]\n");
 	}
 
@@ -547,7 +547,7 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 		fSRC = fopen(s, "rb");
 		if (NULL == fSRC)
 		{
-			answ.reason_refused = (u8)eFileTransferFailReason_smuErrorOpeningFile;
+			answ.reason_refused = (u8)eFileTransferFailReason::smuErrorOpeningFile;
 			logger->log("ERR: FileTransfer::priv_on_Opcode_upload_request_fromApp() error opening file [%s]\n", s);
 		}
 		else
@@ -559,7 +559,7 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 			{
 				fclose(fSRC);
 				fSRC = NULL;
-				answ.reason_refused = (u8)eFileTransferFailReason_smuFileTooBigOrEmpty;
+				answ.reason_refused = (u8)eFileTransferFailReason::smuFileTooBigOrEmpty;
 			}
 			else
 				filesize = (u32)fsize;
@@ -567,7 +567,7 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 			//genero un UID per il trasferimento
 			//aggiungo il recordo alla lista dei trasferimenti attivi
 			sActiveUploadRequest info;
-			info.status = eTransferStatus_pending;
+			info.status = eTransferStatus::pending;
 			info.isAppUploading = 0;
 			info.f = fSRC;
 			info.smuFileTransfUID = priv_generateUID();
@@ -629,7 +629,7 @@ void FileTransfer::priv_on0x54(Server *server, const HSokServerClient &h, rhea::
 
 	//app ha confermato la ricezione di un chunk
 	sActiveUploadRequest *req = &activeTransferList.getElem(index);
-	if (req->status != eTransferStatus_pending)
+	if (req->status != eTransferStatus::pending)
 		return;
 
 	//aggiorno il timeout per questo tranfert
@@ -640,7 +640,7 @@ void FileTransfer::priv_on0x54(Server *server, const HSokServerClient &h, rhea::
 	if (req->other.whenAPPisDownloading.nextPacketToSend >= req->other.whenAPPisDownloading.numOfPacketToBeSentInTotal)
 	{
 		//ho finito!!
-		req->status = eTransferStatus_finished_OK;
+		req->status = eTransferStatus::finished_OK;
 		req->timeoutMSec = 0;
 	}
 	else

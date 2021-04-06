@@ -12,18 +12,18 @@ namespace rhea
 	{
 		extern rhea::NullLogger nullLogger;
 
-		enum eDecodedMsgType
+		enum class eDecodedMsgType: u8
 		{
-			eDecodedMsgType_event		= 0x01,
-			eDecodedMsgType_fileTransf	= 0x02,
-			eDecodedMsgType_unknown		= 0xff
+			event		= 0x01,
+			fileTransf	= 0x02,
+			unknown		= 0xff
 		};
 		
-		enum eFileTransferStatus
+		enum class eFileTransferStatus: u8
 		{
-			eFileTransferStatus_finished_KO	= 0,
-			eFileTransferStatus_finished_OK	= 1,
-			eFileTransferStatus_inProgress	= 2
+			finished_KO	= 0,
+			finished_OK	= 1,
+			inProgress	= 2
 		};
 
 

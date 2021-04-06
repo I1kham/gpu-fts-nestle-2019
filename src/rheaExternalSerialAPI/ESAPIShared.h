@@ -13,11 +13,11 @@ namespace esapi
 	class sShared
 	{
 	public:
-		enum eRetCode
+		enum class eRetCode: u32
 		{
-			RETCODE_QUIT					= 0x00000001,
-			RETCODE_START_MODULE_RASPI		= 0x00000002,
-			RETCODE_UNKNOWN					= 0xFFFFFFFF
+			QUIT					= 0x00000001,
+			START_MODULE_RASPI		= 0x00000002,
+			UNKNOWN					= 0xFFFFFFFF
 		};
 
 

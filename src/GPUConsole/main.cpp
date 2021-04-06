@@ -188,7 +188,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		log->outText(true, false, false, "UNHANDLED event [0x%02X], payloadLen [%d]\n", decoded.eventType, decoded.payloadLen);
 		break;
 
-	case socketbridge::eEventType_cpuMessage:
+	case socketbridge::eEventType::cpuMessage:
 		{
 			u8 msgImportanceLevel;
 			u16 msgLenInBytes;
@@ -203,7 +203,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_creditUpdated:
+	case socketbridge::eEventType::creditUpdated:
 		{
 			char credit[16];
 			rhea::app::CurrentCredit::decodeAnswer(decoded, (u8*)&credit, sizeof(credit));
@@ -211,7 +211,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_selectionRequestStatus:
+	case socketbridge::eEventType::selectionRequestStatus:
 		{
 			cpubridge::eRunningSelStatus runningSelStatus;
 			rhea::app::CurrentSelectionRunningStatus::decodeAnswer(decoded, &runningSelStatus);
@@ -219,7 +219,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_cpuStatus:
+	case socketbridge::eEventType::cpuStatus:
 		{
 			cpubridge::eVMCState vmcState;
 			u8 vmcErrorCode, vmcErrorType;
@@ -230,7 +230,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_reqClientList:
+	case socketbridge::eEventType::reqClientList:
 		{
 			log->outText(true, true, false, "RCV [reqClientList]\n");
 			log->incIndent();
@@ -282,7 +282,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_selectionAvailabilityUpdated:
+	case socketbridge::eEventType::selectionAvailabilityUpdated:
 		{
 			u8 numSel = 0;
 			u8 selAvailability[128];
@@ -311,12 +311,12 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_btnProgPressed:
+	case socketbridge::eEventType::btnProgPressed:
 		rhea::app::ButtonProgPressed::decodeAnswer(decoded);
 		log->outText(true, true, false, "RCV [btn prog pressed]\n");
 		break;
 
-	case socketbridge::eEventType_reqDataAudit:
+	case socketbridge::eEventType::reqDataAudit:
 		{
 			cpubridge::eReadDataFileStatus status;
 			u16 toKbSoFar;
@@ -327,7 +327,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_reqIniParam:
+	case socketbridge::eEventType::reqIniParam:
 		{
 			cpubridge::sCPUParamIniziali iniParam;
 			rhea::app::CurrentCPUInitParam::decodeAnswer(decoded, &iniParam);
@@ -335,7 +335,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_reqVMCDataFile:
+	case socketbridge::eEventType::reqVMCDataFile:
 		{
 			cpubridge::eReadDataFileStatus status;
 			u16 toKbSoFar;
@@ -345,7 +345,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_reqVMCDataFileTimestamp:
+	case socketbridge::eEventType::reqVMCDataFileTimestamp:
 		{
 			char text[128];
 			sprintf_s(text, sizeof(text), "da3 timestamp:");
@@ -368,7 +368,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_reqWriteLocalVMCDataFile:
+	case socketbridge::eEventType::reqWriteLocalVMCDataFile:
 		{
 			cpubridge::eWriteDataFileStatus status;
 			u16 toKbSoFar;
@@ -377,7 +377,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_cpuSanWashingStatus:
+	case socketbridge::eEventType::cpuSanWashingStatus:
 		{
 			u8 b0, b1, b2;
 			rhea::app::SanWashingStatus::decodeAnswer (decoded, &b0, &b1, &b2);
@@ -385,7 +385,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_cpuWritePartialVMCDataFile:
+	case socketbridge::eEventType::cpuWritePartialVMCDataFile:
 		{
 			u8 blockWritten = 0;
 			rhea::app::WritePartialVMCDataFile::decodeAnswer(decoded, &blockWritten);
@@ -393,7 +393,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_cpuExtendedConfigInfo:
+	case socketbridge::eEventType::cpuExtendedConfigInfo:
 		{
 			cpubridge::sExtendedCPUInfo info;			
 			rhea::app::ExtendedConfigInfo::decodeAnswer(decoded, &info);
@@ -401,7 +401,7 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_getAllDecounters:
+	case socketbridge::eEventType::getAllDecounters:
 		{
 			u16 valori[32];
 			rhea::app::GetAllDecounters::decodeAnswer(decoded, valori);
@@ -419,16 +419,16 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;		
 
-	case socketbridge::eEventType_setDecounter:
+	case socketbridge::eEventType::setDecounter:
 		{
-			cpubridge::eCPUProgrammingCommand_decounter which;
+			cpubridge::eCPUProg_decounter which;
 			u16 value = 0;
 			rhea::app::SetDecounter::decodeAnswer(decoded, &which, &value);
 			log->outText(true, true, false, "setDecounter: which[%d] value[%d]\n", (u8)which, value);
 		}
 		break;		
 
-	case socketbridge::eEventType_getAperturaVGrind:
+	case socketbridge::eEventType::getAperturaVGrind:
 		{
 			u8 macina_1o2 = 0;
 			u16 value = 0;
@@ -437,10 +437,10 @@ void handleDecodedMsg (const rhea::app::sDecodedEventMsg &decoded, WinTerminal *
 		}
 		break;
 
-	case socketbridge::eEventType_setMotoreMacina:
+	case socketbridge::eEventType::setMotoreMacina:
 		{
 			u8 macina_1o2 = 0;
-			cpubridge::eCPUProgrammingCommand_macinaMove m;
+			cpubridge::eCPUProg_macinaMove m;
 			rhea::app::SetMotoreMacina::decodeAnswer(decoded, &macina_1o2, &m);
 			log->outText(true, true, false, "SetMotoreMacina: macina[%d] movimento[%d]\n", macina_1o2, (u8)m);
 		}
@@ -466,11 +466,11 @@ void handleMsgFromSocketServer (rhea::IProtocolChannell *ch, rhea::IProtocol *pr
 		{
 			switch (decoded.what)
 			{
-			case rhea::app::eDecodedMsgType_event:
+			case rhea::app::eDecodedMsgType::event:
 				handleDecodedMsg(decoded.data.asEvent, log);
 				break;
 
-			case rhea::app::eDecodedMsgType_fileTransf:
+			case rhea::app::eDecodedMsgType::fileTransf:
 				ftransf->onMessage(rhea::getTimeNowMSec(), decoded.data.asFileTransf);
 				break;
 
@@ -598,7 +598,7 @@ bool connect (rhea::ProtocolChSocketTCP *ch, rhea::IProtocol *proto, rhea::Linea
 	//apro una socket
 	OSSocket sok;
 	eSocketError err = rhea::socket::openAsTCPClient (&sok, IP, PORT_NUMBER);
-	if (eSocketError_none != err)
+	if (eSocketError::none != err)
 	{
 		logger->log("FAILED with errCode=%d\n", (u32)err);
 		logger->decIndent();
@@ -701,12 +701,12 @@ bool run (const sThreadInitParam *init)
 		//vediamo cosa mi ha svegliato
 		for (u8 i = 0; i < nEvent; i++)
 		{
-			if (OSWaitableGrp::evt_origin_socket == waitGrp.getEventOrigin(i))
+			if (OSWaitableGrp::eEventOrigin::socket == waitGrp.getEventOrigin(i))
 			{
 				//ho qualcosa sulla socket
 				handleMsgFromSocketServer(&ch, &proto, bufferR, &fileTransferManager, logger);
 			}
-			else if (OSWaitableGrp::evt_origin_osevent == waitGrp.getEventOrigin(i))
+			else if (OSWaitableGrp::eEventOrigin::osevent == waitGrp.getEventOrigin(i))
 			{
 				//ho qualcosa sulla msgQ di questo thread
 				rhea::thread::sMsg msg;

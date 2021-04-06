@@ -37,8 +37,8 @@ public:
     bool            isEpresso() const                                                               { return !isInstant(); }
     u8              getModelCode() const                                                            { return blob[LOC_MACHINE_MODEL]; }
     u8              getNumProdotti() const                                                          { if (isEpresso()) return 6; return 10; }
-    u16             getDecounterLimit (cpubridge::eCPUProgrammingCommand_decounter d) const;
-    void            setDecounterLimit (cpubridge::eCPUProgrammingCommand_decounter d, u16 value);
+    u16             getDecounterLimit (cpubridge::eCPUProg_decounter d) const;
+    void            setDecounterLimit (cpubridge::eCPUProg_decounter d, u16 value);
 
                     //============================= MAINTENANCE
                     DA3_GET_SET_U8(ActivateH20Filter,7090)
@@ -80,7 +80,7 @@ private:
 	u32				sizeOfBlob;
 
 private:
-    u32             priv_getDecounterLimitLocation (cpubridge::eCPUProgrammingCommand_decounter d) const;
+    u32             priv_getDecounterLimitLocation (cpubridge::eCPUProg_decounter d) const;
 };
 
 

@@ -31,17 +31,17 @@ typedef uintptr_t   uiPtr;      //un "intero" la cui dimensione in byte dipende 
 
 namespace rhea
 {
-	enum eEndianess
+	enum class eEndianess : u8
 	{
 		eLittleEndian = 0,
 		eBigEndian = 1
 	};
 
-	enum eSeek
+	enum class eSeek : u8
 	{
-		eSeekStart = 0,
-		eSeekEnd = 1,
-		eSeekCurrent = 2
+		start = 0,
+		end = 1,
+		current = 2
 	};
 
 	/*===============================================================

@@ -41,7 +41,7 @@ void UserCommand_setdec::handle(const char *command, rhea::IProtocolChannell *ch
 	{
 		if (value >= 0 && value <= 0xFFFF)
 		{
-			rhea::app::SetDecounter::ask(ch, proto, (cpubridge::eCPUProgrammingCommand_decounter)which, (u16)value);
+			rhea::app::SetDecounter::ask(ch, proto, (cpubridge::eCPUProg_decounter)which, (u16)value);
 			log->log("request sent\n");
 		}
 		else

@@ -5,31 +5,31 @@
 
 namespace socketbridge
 {
-	enum eFileTransferOpcode
+	enum class eFileTransferOpcode: u8
 	{
-		eFileTransferOpcode_upload_request_fromApp				= 0x01,	//SMU ha ricevuto una richiesta di upload da APP
-		eFileTransferOpcode_upload_request_fromApp_answ			= 0x02,	//SMU risponde a APP in relazione al msg precedente
-		eFileTransferOpcode_upload_request_fromApp_packet		= 0x03,	//APP manda a SMU un chunck di dati
-		eFileTransferOpcode_upload_request_fromApp_packet_answ	= 0x04, //SMU risponde a APP in relazione al msg precedente
+		upload_request_fromApp				= 0x01,	//SMU ha ricevuto una richiesta di upload da APP
+		upload_request_fromApp_answ			= 0x02,	//SMU risponde a APP in relazione al msg precedente
+		upload_request_fromApp_packet		= 0x03,	//APP manda a SMU un chunck di dati
+		upload_request_fromApp_packet_answ	= 0x04, //SMU risponde a APP in relazione al msg precedente
 
-		eFileTransferOpcode_download_request_fromApp			= 0x51,	//SMU ha ricevuto una richiesta di download da APP
-		eFileTransferOpcode_download_request_fromApp_answ		= 0x52,	//SMU risponde a APP in relazione al msg precedente
-		eFileTransferOpcode_download_request_fromApp_packet		= 0x53,	//SMU manda a APP un chunck di dati
-		eFileTransferOpcode_download_request_fromApp_packet_answ= 0x54, //APP risponde a SMU in relazione al msg precedente
+		download_request_fromApp			= 0x51,	//SMU ha ricevuto una richiesta di download da APP
+		download_request_fromApp_answ		= 0x52,	//SMU risponde a APP in relazione al msg precedente
+		download_request_fromApp_packet		= 0x53,	//SMU manda a APP un chunck di dati
+		download_request_fromApp_packet_answ= 0x54, //APP risponde a SMU in relazione al msg precedente
 
-		eFileTransferOpcode_unknown = 0xff
+		unknown = 0xff
 	};
 
-	enum eFileTransferFailReason
+	enum class eFileTransferFailReason: u8
 	{
-		eFileTransferFailReason_none = 0x00,
-		eFileTransferFailReason_timeout = 0x01,
-		eFileTransferFailReason_smuRefused = 0x02,
-		eFileTransferFailReason_localReadBufferTooShort = 0x03,
-		eFileTransferFailReason_smuErrorOpeningFile = 0x04,
-		eFileTransferFailReason_smuFileTooBigOrEmpty = 0x05,
+		none = 0x00,
+		timeout = 0x01,
+		smuRefused = 0x02,
+		localReadBufferTooShort = 0x03,
+		smuErrorOpeningFile = 0x04,
+		smuFileTooBigOrEmpty = 0x05,
 
-		eFileTransferFailReason_unkwnown = 0xff
+		unkwnown = 0xff
 	};
 
 	namespace fileT
@@ -37,7 +37,7 @@ namespace socketbridge
 		struct sData0x01
 		{
 			static const u8 MAX_USAGE_LEN = 255;
-			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode_upload_request_fromApp;
+			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode::upload_request_fromApp;
 
 					sData0x01()						{ opcode = OPCODE; }
 			u8		opcode;
@@ -53,7 +53,7 @@ namespace socketbridge
 				assert(opcode == OPCODE);
 
 				rhea::NetStaticBufferViewW nbw;
-				nbw.setup(buffer, sizeOfBuffer, rhea::eBigEndian);
+				nbw.setup(buffer, sizeOfBuffer, rhea::eEndianess::eBigEndian);
 
 				nbw.writeU8(opcode);
 				nbw.writeU8(usageLen);
@@ -91,7 +91,7 @@ namespace socketbridge
 
 		struct sData0x02
 		{
-			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode_upload_request_fromApp_answ;
+			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode::upload_request_fromApp_answ;
 
 					sData0x02()						{ opcode = OPCODE; }
 			u8		opcode;
@@ -106,7 +106,7 @@ namespace socketbridge
 				assert(opcode == OPCODE);
 
 				rhea::NetStaticBufferViewW nbw;
-				nbw.setup(buffer, sizeOfBuffer, rhea::eBigEndian);
+				nbw.setup(buffer, sizeOfBuffer, rhea::eEndianess::eBigEndian);
 
 				nbw.writeU8(opcode);
 				nbw.writeU8(reason_refused);
@@ -134,7 +134,7 @@ namespace socketbridge
 
 		struct sData0x04
 		{
-			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode_upload_request_fromApp_packet_answ;
+			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode::upload_request_fromApp_packet_answ;
 
 					sData0x04()				{ opcode = OPCODE; }
 			u8		opcode;
@@ -146,7 +146,7 @@ namespace socketbridge
 				assert(opcode == OPCODE);
 
 				rhea::NetStaticBufferViewW nbw;
-				nbw.setup(buffer, sizeOfBuffer, rhea::eBigEndian);
+				nbw.setup(buffer, sizeOfBuffer, rhea::eEndianess::eBigEndian);
 
 				nbw.writeU8(opcode);
 				nbw.writeU32(appTransfUID);
@@ -170,7 +170,7 @@ namespace socketbridge
 		struct sData0x51
 		{
 			static const u8 MAX_WHAT_LEN = 32;
-			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode_download_request_fromApp;
+			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode::download_request_fromApp;
 
 			sData0x51() { opcode = OPCODE; }
 			u8		opcode;
@@ -183,7 +183,7 @@ namespace socketbridge
 				assert(opcode == OPCODE);
 
 				rhea::NetStaticBufferViewW nbw;
-				nbw.setup(buffer, sizeOfBuffer, rhea::eBigEndian);
+				nbw.setup(buffer, sizeOfBuffer, rhea::eEndianess::eBigEndian);
 
 				nbw.writeU8(opcode);
 				nbw.writeU8(whatLen);
@@ -215,7 +215,7 @@ namespace socketbridge
 
 		struct sData0x52
 		{
-			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode_download_request_fromApp_answ;
+			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode::download_request_fromApp_answ;
 
 			sData0x52()						{ opcode = OPCODE; }
 			u8		opcode;
@@ -231,7 +231,7 @@ namespace socketbridge
 				assert(opcode == OPCODE);
 
 				rhea::NetStaticBufferViewW nbw;
-				nbw.setup(buffer, sizeOfBuffer, rhea::eBigEndian);
+				nbw.setup(buffer, sizeOfBuffer, rhea::eEndianess::eBigEndian);
 
 				nbw.writeU8(opcode);
 				nbw.writeU8(reason_refused);
@@ -261,7 +261,7 @@ namespace socketbridge
 
 		struct sData0x54
 		{
-			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode_download_request_fromApp_packet_answ;
+			static const u8 OPCODE = (u8)socketbridge::eFileTransferOpcode::download_request_fromApp_packet_answ;
 
 			sData0x54() { opcode = OPCODE; }
 			u8		opcode;
@@ -273,7 +273,7 @@ namespace socketbridge
 				assert(opcode == OPCODE);
 
 				rhea::NetStaticBufferViewW nbw;
-				nbw.setup(buffer, sizeOfBuffer, rhea::eBigEndian);
+				nbw.setup(buffer, sizeOfBuffer, rhea::eEndianess::eBigEndian);
 
 				nbw.writeU8(opcode);
 				nbw.writeU32(smuFileTransfUID);

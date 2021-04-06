@@ -26,7 +26,7 @@ namespace socketbridge
     class CmdHandler_eventReqVMCDataFile : public CmdHandler_eventReq
     {
     public:
-        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType_reqVMCDataFile;
+        static const eEventType EVENT_TYPE_FROM_SOCKETCLIENT = eEventType::reqVMCDataFile;
 		static const u16		EVENT_ID_FROM_CPUBRIDGE = CPUBRIDGE_NOTIFY_READ_VMCDATAFILE_PROGRESS;
 		
 					CmdHandler_eventReqVMCDataFile(const HSokBridgeClient &identifiedClientHandle, u16 handlerID, u64 dieAfterHowManyMSec) :

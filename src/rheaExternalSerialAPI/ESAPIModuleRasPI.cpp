@@ -11,7 +11,7 @@ ModuleRasPI::ModuleRasPI()
 {
     fileUpload.f = NULL;
     fileUpload.lastTimeUpdatedMSec = 0;
-    stato = ModuleRasPI::eStato_boot;
+    stato = ModuleRasPI::eStato::boot;
 }
 
 //********************************************************
@@ -25,7 +25,7 @@ bool ModuleRasPI::setup (sShared *shared)
     sockettList.setup (shared->localAllocator, 128);
 
     //stato corrente
-    stato = ModuleRasPI::eStato_boot;
+    stato = ModuleRasPI::eStato::boot;
     shared->logger->log ("esapi::ModuleRasPI:: now in BOOT mode...\n");
 	return true;
 }
@@ -51,8 +51,8 @@ void ModuleRasPI::virt_handleMsgFromSubscriber (sShared *shared, sSubscription &
 {
     switch (stato)
     {
-    case ModuleRasPI::eStato_boot:      boot_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
-    case ModuleRasPI::eStato_running:   running_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
+    case ModuleRasPI::eStato::boot:      boot_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
+    case ModuleRasPI::eStato::running:   running_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
     default:
         DBGBREAK;
         break;
@@ -71,8 +71,8 @@ void ModuleRasPI::virt_handleMsg_R_fromRs232 (sShared *shared, sBuffer *b)
 {
     switch (stato)
     {
-    case ModuleRasPI::eStato_boot:      boot_handleMsg_R_fromRs232 (shared, b); break;
-    case ModuleRasPI::eStato_running:   running_handleMsg_R_fromRs232 (shared, b); break;
+    case ModuleRasPI::eStato::boot:      boot_handleMsg_R_fromRs232 (shared, b); break;
+    case ModuleRasPI::eStato::running:   running_handleMsg_R_fromRs232 (shared, b); break;
     default:
         DBGBREAK;
         break;
@@ -84,12 +84,12 @@ void ModuleRasPI::virt_handleMsgFromSocket (sShared *shared, OSSocket &sok, u32 
 {
     switch (stato)
     {
-    case ModuleRasPI::eStato_boot:      
+    case ModuleRasPI::eStato::boot:      
         //non dovrebbe mai accadere
         DBGBREAK;
         break;
 
-    case ModuleRasPI::eStato_running:  
+    case ModuleRasPI::eStato::running:  
         running_handleMsgFromSocket (shared, sok, userParam);
         break;
 
@@ -190,7 +190,7 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
                 notify_RASPI_STARTED(sub.q, handlerID, shared->logger);
 
             shared->logger->log ("esapi::ModuleRasPI => now in RUNNING mode...\n");
-            this->stato = ModuleRasPI::eStato_running;
+            this->stato = ModuleRasPI::eStato::running;
         }
         break;
 
@@ -207,7 +207,7 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
 
         if (NULL != fileUpload.f)
         {
-            esapi::notify_RASPI_FILEUPLOAD(sub.q, shared->logger, eFileUploadStatus_raspi_fileTransfAlreadyInProgress, (u32)0);
+            esapi::notify_RASPI_FILEUPLOAD(sub.q, shared->logger, eFileUploadStatus::raspi_fileTransfAlreadyInProgress, (u32)0);
         }
         else
         {
@@ -216,7 +216,7 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
             esapi::translate_RASPI_START_FILEUPLOAD (msg, &fullFilePathAndName);
             fileUpload.f = rhea::fs::fileOpenForReadBinary(fullFilePathAndName);
             if (NULL == fileUpload.f)
-                esapi::notify_RASPI_FILEUPLOAD(sub.q, shared->logger, eFileUploadStatus_cantOpenSrcFile, (u32)0);
+                esapi::notify_RASPI_FILEUPLOAD(sub.q, shared->logger, eFileUploadStatus::cantOpenSrcFile, (u32)0);
             else
             {
                 //chiedo al rasPI se possiamo uppare il file
@@ -252,7 +252,7 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
                 {
                     fclose (fileUpload.f);
                     fileUpload.f = NULL;
-                    esapi::notify_RASPI_FILEUPLOAD(sub.q, shared->logger, eFileUploadStatus_timeout, (u32)0);
+                    esapi::notify_RASPI_FILEUPLOAD(sub.q, shared->logger, eFileUploadStatus::timeout, (u32)0);
                 }
                 else
                 {
@@ -393,7 +393,7 @@ void ModuleRasPI::priv_boot_handleFileUpload (sShared *shared, sSubscription *su
             //fine, tutto ok
             fclose (fileUpload.f);
             fileUpload.f = NULL;
-            esapi::notify_RASPI_FILEUPLOAD (sub->q, shared->logger, eFileUploadStatus_finished_OK, fileUpload.totalFileSizeBytes/1024);
+            esapi::notify_RASPI_FILEUPLOAD (sub->q, shared->logger, eFileUploadStatus::finished_OK, fileUpload.totalFileSizeBytes/1024);
             return;
         }
 
@@ -429,7 +429,7 @@ void ModuleRasPI::priv_boot_handleFileUpload (sShared *shared, sSubscription *su
             {
                 fclose (fileUpload.f);
                 fileUpload.f = NULL;
-                esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus_timeout, (u32)0);
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus::timeout, (u32)0);
                 return;
             }
 
@@ -441,7 +441,7 @@ void ModuleRasPI::priv_boot_handleFileUpload (sShared *shared, sSubscription *su
             {
                 fclose (fileUpload.f);
                 fileUpload.f = NULL;
-                esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus_timeout, (u32)0);
+                esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus::timeout, (u32)0);
                 return;
             }
 
@@ -453,7 +453,7 @@ void ModuleRasPI::priv_boot_handleFileUpload (sShared *shared, sSubscription *su
         if (kbSoFar != totalKBSentSoFar)
         {
             totalKBSentSoFar = kbSoFar;
-            esapi::notify_RASPI_FILEUPLOAD (sub->q, shared->logger, eFileUploadStatus_inProgress, totalKBSentSoFar);
+            esapi::notify_RASPI_FILEUPLOAD (sub->q, shared->logger, eFileUploadStatus::inProgress, totalKBSentSoFar);
         }
     }
 }
@@ -525,7 +525,7 @@ void ModuleRasPI::running_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
                 rhea::socket::init (&cl.sok);
                 shared->logger->log ("esapi::ModuleRasPI::RS232 => new socket connection...");
                 eSocketError err = rhea::socket::openAsTCPClient (&cl.sok, "127.0.0.1", 2280);
-                if (err != eSocketError_none)
+                if (err != eSocketError::none)
                 {
                     shared->logger->log ("FAIL\n");
                     DBGBREAK;

@@ -50,19 +50,19 @@ eSocketError socket_openAsTCP(OSSocket *sok)
 	{
 		switch (WSAGetLastError())
 		{
-		case EACCES:            return eSocketError_denied;
+		case EACCES:            return eSocketError::denied;
 
 		case EPROTONOSUPPORT:
 		case EINVAL:
-		case EAFNOSUPPORT:      return eSocketError_unsupported;
+		case EAFNOSUPPORT:      return eSocketError::unsupported;
 
 		case EMFILE:
-		case ENFILE:            return eSocketError_tooMany;
+		case ENFILE:            return eSocketError::tooMany;
 
 		case ENOBUFS:
-		case ENOMEM:            return eSocketError_noMem;
+		case ENOMEM:            return eSocketError::noMem;
 
-		default:                return eSocketError_unknown;
+		default:                return eSocketError::unknown;
 		}
 	}
 
@@ -71,14 +71,14 @@ eSocketError socket_openAsTCP(OSSocket *sok)
 	setsockopt(sok->socketID, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(BOOL));
 	//setsockopt(sok->socketID, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(BOOL));
 
-	return eSocketError_none;
+	return eSocketError::none;
 }
 
 //*************************************************
 eSocketError platform::socket_openAsTCPClient(OSSocket *sok, const char *connectToIP, u32 portNumber)
 {
 	eSocketError sokErr = socket_openAsTCP(sok);
-	if (sokErr != eSocketError_none)
+	if (sokErr != eSocketError::none)
 		return sokErr;
 
 	sockaddr_in clientService;
@@ -96,26 +96,26 @@ eSocketError platform::socket_openAsTCPClient(OSSocket *sok, const char *connect
 		int err = WSAGetLastError();
 		switch (err)
 		{
-		case WSA_INVALID_HANDLE:		return eSocketError_invalidDescriptor;
-		case WSA_NOT_ENOUGH_MEMORY:     return eSocketError_noMem;
-		case WSA_INVALID_PARAMETER:		return eSocketError_invalidParameter;
-		case WSAEACCES:					return eSocketError_addressProtected;
-		case WSAEADDRINUSE:				return eSocketError_addressInUse;
-		case WSAEINVAL:					return eSocketError_alreadyBound;
-		case WSAECONNREFUSED:			return eSocketError_connRefused;
-		case WSAETIMEDOUT:				return eSocketError_timedOut;
-		default:						return eSocketError_unknown;
+		case WSA_INVALID_HANDLE:		return eSocketError::invalidDescriptor;
+		case WSA_NOT_ENOUGH_MEMORY:     return eSocketError::noMem;
+		case WSA_INVALID_PARAMETER:		return eSocketError::invalidParameter;
+		case WSAEACCES:					return eSocketError::addressProtected;
+		case WSAEADDRINUSE:				return eSocketError::addressInUse;
+		case WSAEINVAL:					return eSocketError::alreadyBound;
+		case WSAECONNREFUSED:			return eSocketError::connRefused;
+		case WSAETIMEDOUT:				return eSocketError::timedOut;
+		default:						return eSocketError::unknown;
 		}
 	}
 
-	return eSocketError_none;
+	return eSocketError::none;
 }
 
 //*************************************************
 eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
 {
 	eSocketError sokErr = socket_openAsTCP(sok);
-	if (sokErr != eSocketError_none)
+	if (sokErr != eSocketError::none)
 		return sokErr;
 
 
@@ -134,12 +134,12 @@ eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
 		sok->socketID = INVALID_SOCKET;
 		switch (errno)
 		{
-		case EACCES:        return eSocketError_addressProtected;
-		case EADDRINUSE:    return eSocketError_addressInUse;
-		case EINVAL:        return eSocketError_alreadyBound;
-		case ENOTSOCK:      return eSocketError_invalidDescriptor;
-		case ENOMEM:        return eSocketError_noMem;
-		default:            return eSocketError_unknown;
+		case EACCES:        return eSocketError::addressProtected;
+		case EADDRINUSE:    return eSocketError::addressInUse;
+		case EINVAL:        return eSocketError::alreadyBound;
+		case ENOTSOCK:      return eSocketError::invalidDescriptor;
+		case ENOMEM:        return eSocketError::noMem;
+		default:            return eSocketError::unknown;
 		}
 	}
 
@@ -148,7 +148,7 @@ eSocketError platform::socket_openAsTCPServer (OSSocket *sok, int portNumber)
 	platform::socket_setReadTimeoutMSec(*sok, sok->readTimeoutMSec);
 
 	//tutto ok
-	return eSocketError_none;
+	return eSocketError::none;
 }
 
 
@@ -348,19 +348,19 @@ eSocketError platform::socket_openAsUDP(OSSocket *sok)
 	{
 		switch (WSAGetLastError())
 		{
-		case EACCES:            return eSocketError_denied;
+		case EACCES:            return eSocketError::denied;
 
 		case EPROTONOSUPPORT:
 		case EINVAL:
-		case EAFNOSUPPORT:      return eSocketError_unsupported;
+		case EAFNOSUPPORT:      return eSocketError::unsupported;
 
 		case EMFILE:
-		case ENFILE:            return eSocketError_tooMany;
+		case ENFILE:            return eSocketError::tooMany;
 
 		case ENOBUFS:
-		case ENOMEM:            return eSocketError_noMem;
+		case ENOMEM:            return eSocketError::noMem;
 
-		default:                return eSocketError_unknown;
+		default:                return eSocketError::unknown;
 		}
 	}
 
@@ -374,7 +374,7 @@ eSocketError platform::socket_openAsUDP(OSSocket *sok)
 	ioctlsocket(sok->socketID, FIONBIO, &lNonBlocking);
 
 
-	return eSocketError_none;
+	return eSocketError::none;
 }
 
 //*************************************************
@@ -385,9 +385,9 @@ eSocketError platform::socket_UDPbind (OSSocket &sok, int portNumber)
 	saAddress.sin_port = htons(portNumber);
 	saAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 	if (SOCKET_ERROR == bind(sok.socketID, (LPSOCKADDR)&saAddress, sizeof(saAddress)))
-		return eSocketError_unknown;
+		return eSocketError::unknown;
 
-	return eSocketError_none;
+	return eSocketError::none;
 }
 
 //*************************************************** 

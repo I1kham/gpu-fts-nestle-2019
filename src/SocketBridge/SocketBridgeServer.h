@@ -92,7 +92,7 @@ namespace socketbridge
 		bool					priv_extractOneMessage (u8 *buffer, u16 nBytesInBuffer, sDecodedMessage *out, u16 *out_nBytesConsumed) const;
 
 		bool					priv_encodeMessageOfTypeEvent(eEventType eventType, const void *optionalData, u16 lenOfOptionalData, u8 *out_buffer, u16 *in_out_bufferLength);
-								/* filla *out_buffer con i bytes necessari per inviare un comando di tipo "eOpcode_event_E".
+								/* filla *out_buffer con i bytes necessari per inviare un comando di tipo "eOpcode::event_E".
 								 *
 								 *	[in_out_bufferLength] inizialmente deve contenere la dimensione in byte di [out_buffer].
 								 *
@@ -101,7 +101,7 @@ namespace socketbridge
 								 */
 
 		bool					priv_encodeMessageOfAjax(u8 requestID, const u8 *ajaxData, u16 lenOfAjaxData, u8 *out_buffer, u16 *in_out_bufferLength);
-								/* come sopra ma per i comandi di tipo "eOpcode_ajax_A"
+								/* come sopra ma per i comandi di tipo "eOpcode::ajax_A"
 								*/
 
 		bool					priv_subsribeToCPU (const HThreadMsgW &hCPUServiceChannelW);
