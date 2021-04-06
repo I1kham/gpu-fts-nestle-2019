@@ -44,7 +44,7 @@ bool EVADTSParser::loadAndParse(const u8* const fullFilePathAndName)
 	rhea::Allocator *allocator = rhea::getScrapAllocator();
 	u32 bufferSize = 0;
 	u8 *buffer = rhea::fs::fileCopyInMemory(f, allocator, &bufferSize);
-	fclose(f);
+	rhea::fs::fileClose(f);
 	bool ret = parseFromMemory(buffer, 0, bufferSize);
 	RHEAFREE(allocator, buffer);
 	return ret;

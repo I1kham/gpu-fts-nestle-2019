@@ -70,7 +70,7 @@ void FileTransfer::priv_freeResources(sRecord *s) const
 {
 	if (NULL != s->f)
 	{
-		fclose(s->f);
+        rhea::fs::fileClose(s->f);
 		s->f = NULL;
 	}
 
@@ -271,7 +271,7 @@ bool FileTransfer::startFileUpload (rhea::IProtocolChannell *ch, rhea::IProtocol
 	u64 fileSizeInBytes = rhea::fs::filesize(f);
 	if (fileSizeInBytes == 0 || fileSizeInBytes > 256 * UN_MEGA || fileSizeInBytes >= u32MAX)
 	{
-		fclose(f);
+        rhea::fs::fileClose(f);
 		return false;
 	}
 
@@ -280,7 +280,7 @@ bool FileTransfer::startFileUpload (rhea::IProtocolChannell *ch, rhea::IProtocol
 	if (NULL == s)
 	{
 		DBGBREAK;
-		fclose(f);
+        rhea::fs::fileClose(f);
 		return false;
 	}
 
@@ -372,7 +372,7 @@ void FileTransfer::priv_sendChunkOfPackets(sRecord *s, u16 nPacket)
 		nbw.writeU32(s->smuFileTransfUID);
 		nbw.writeU32(iPacket);
 		nbw.writeU8(chunkSeq);
-		fread(&bufferReadFromFile[nbw.length()], nByteToRead, 1, s->f);
+        rhea::fs::fileRead (s->f, &bufferReadFromFile[nbw.length()], nByteToRead);
 
 		//logger->log("FT => sending packet [%d]\n", s->packetNum);
 		app::RawFileTrans::sendToSocketBridge(s->ch, s->proto, s->other.whenUploading.sendBuffer, s->other.whenUploading.sizeOfSendBuffer, bufferReadFromFile, nbw.length() + nByteToRead);
@@ -507,7 +507,7 @@ bool FileTransfer::startFileDownload(rhea::IProtocolChannell *ch, rhea::IProtoco
 	if (NULL == s)
 	{
 		DBGBREAK;
-		fclose(f);
+        rhea::fs::fileClose(f);
 		return false;
 	}
 
@@ -654,7 +654,7 @@ void FileTransfer::priv_on0x53(u64 timeNowMSec, rhea::NetStaticBufferViewR &nbr)
 			fwrite(bufferReadFromFile, lastPacketSize, 1, s->f);
 
 			s->status = STATUS_FINISHED_OK;
-			fclose(s->f);
+            rhea::fs::fileClose(s->f);
 			s->f = NULL;
 		}
 		else

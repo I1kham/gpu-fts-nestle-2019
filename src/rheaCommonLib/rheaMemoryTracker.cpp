@@ -39,7 +39,7 @@ MemoryTracker::~MemoryTracker()
 		root = root->next;
 		free(p);
 	}
-	fclose(f);
+	rhea::fs::fileClose(f);
 }
 
 //*****************************************************

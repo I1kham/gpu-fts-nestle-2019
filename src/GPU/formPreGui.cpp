@@ -144,14 +144,14 @@ void FormPreGui::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
                 glob->bIsMilkerAlive=0;
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
-            if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
+            if (vmcState == cpubridge::eVMCState::PROGRAMMAZIONE)
                 retCode = eRetCode_gotoFormOldMenuProg;
             //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO. Spegnendo e riaccendendo la macchina, la
             //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
+            else if (vmcState == cpubridge::eVMCState::LAVAGGIO_SANITARIO)
                 retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
             //come sopra ma per il cappucinatore
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_INDUX)
+            else if (vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_INDUX)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
 
         }
@@ -217,7 +217,7 @@ void FormPreGui::on_btnResetGrndCounter_clicked()
     if (glob->bCPUEnteredInMainLoop == 0)
         glob->sendASAP_resetCoffeeGroundDecounter = groundCounterLimit;
     else
-        cpubridge::ask_CPU_SET_DECOUNTER (glob->cpuSubscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, groundCounterLimit);
+        cpubridge::ask_CPU_SET_DECOUNTER (glob->cpuSubscriber, 0, cpubridge::eCPUProg_decounter::coffeeGround, groundCounterLimit);
     utils::waitAndProcessEvent(1000);
 
     priv_showMsg ("Done!");

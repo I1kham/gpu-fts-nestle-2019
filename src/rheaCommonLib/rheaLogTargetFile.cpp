@@ -22,7 +22,7 @@ bool LogTargetFile::init (const char *filenameIN, bool bDeleteFileOnStartup)
     FILE *f = fs::fileOpenForWriteText(filename);
     if (NULL != f)
     {
-        fclose(f);
+        rhea::fs::fileClose(f);
         return true;
     }
     return false;
@@ -38,6 +38,6 @@ void LogTargetFile::doLog	(u32 channel UNUSED_PARAM, const char *msg)
     if (NULL != f)
     {
         fprintf (f, "%s", msg);
-        fclose(f);
+        rhea::fs::fileClose(f);
     }
 }

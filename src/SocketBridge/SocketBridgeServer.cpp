@@ -259,7 +259,7 @@ void Server::module_alipayChina_activate()
 }
 
 //***************************************************
-bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, u8 *out_urlForQRCode, u32 sizeOfOutURL)
+bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, u8 *out_urlForQRCode, u32 sizeOfOutURL UNUSED_PARAM)
 {
 	moduleAlipayChina.curSelRunning = 0;
 	moduleAlipayChina.curSelPrice = 0;

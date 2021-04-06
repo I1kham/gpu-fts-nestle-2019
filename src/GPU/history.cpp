@@ -67,7 +67,7 @@ void History::readAllInMemory (sTheFile *out)
             out->nRecord--;
     }
 
-    fclose(f);
+    rhea::fs::fileClose(f);
 }
 
 //******************************************************************************
@@ -90,7 +90,7 @@ void History::writeFromMemory (const sTheFile *in)
             fwrite (&in->recordList[i], sizeof(sRecord), 1, f);
     }
     fflush(f);
-    fclose(f);
+    rhea::fs::fileClose(f);
 }
 
 //******************************************************************************
@@ -111,7 +111,7 @@ void History::incCounterSelezioni()
     fseek (f, 2, SEEK_SET);
     fwrite (&nSelezioni, 4, 1, f);
 
-    fclose(f);
+    rhea::fs::fileClose(f);
 
     //utils::DEBUG_MSG("History::incCountSel => now=%d", nSelezioni);
 }

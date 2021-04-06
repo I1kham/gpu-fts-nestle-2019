@@ -35,7 +35,7 @@ void IniFile::reset()
 }
 
 //********************************************
-void IniFile::priv_errorMessageNear (const utf8::String &msg, const string::utf8::Iter &src) const
+void IniFile::priv_errorMessageNear (const utf8::String &msg UNUSED_PARAM, const string::utf8::Iter &src) const
 {
 	u8 temp[256];
 	src.copyStrFromCurrentPositionToEnd (temp, sizeof(temp));
@@ -62,7 +62,7 @@ void IniFile::saveAs  (const u8 * const filenameIN)
 	}
 
 	root->save (f, 0);
-	fclose(f);
+    rhea::fs::fileClose(f);
 }
 
 

@@ -54,8 +54,8 @@ void CmdHandler_ajaxReqGetDA3info::handleRequestFromSocketBridge(socketbridge::S
 		{
 			rhea::DateTime dt;
 
-			fread(&lastUpdate, sizeof lastUpdate, 1, fd);
-			fclose(fd);
+            rhea::fs::fileRead (fd, &lastUpdate, sizeof(lastUpdate));
+            rhea::fs::fileClose(fd);
 
 			dt.setFromInternalRappresentation(lastUpdate);
 			dt.formatAs_YYYYMMDDHHMMSS((char*)datetime, sizeof(datetime), ' ', '/', ':');

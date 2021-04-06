@@ -40,7 +40,7 @@ void ModuleRasPI::priv_unsetup(sShared *shared)
 
 
 //********************************************************
-void ModuleRasPI::virt_handleMsgFromServiceQ (sShared *shared, const rhea::thread::sMsg &msg)
+void ModuleRasPI::virt_handleMsgFromServiceQ (sShared *shared UNUSED_PARAM, const rhea::thread::sMsg &msg UNUSED_PARAM)
 {
     //non c'è nulla che questo modulo debba gestire in caso di messaggi ricevuti da altri thread sulla msgQ
     DBGBREAK;
@@ -60,7 +60,7 @@ void ModuleRasPI::virt_handleMsgFromSubscriber (sShared *shared, sSubscription &
 }
 
 //********************************************************
-void ModuleRasPI::virt_handleMsgFromCPUBridge (sShared *shared, cpubridge::sSubscriber &sub, const rhea::thread::sMsg &msg, u16 handlerID)
+void ModuleRasPI::virt_handleMsgFromCPUBridge (sShared *shared UNUSED_PARAM, cpubridge::sSubscriber &sub UNUSED_PARAM, const rhea::thread::sMsg &msg UNUSED_PARAM, u16 handlerID UNUSED_PARAM)
 {
     //in stato boot, non ci sono notiche CPUBridge che devo gestire, ma non è un errore se ne ricevo
 
@@ -200,7 +200,7 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
         {
             if (rhea::getTimeNowMSec() - fileUpload.lastTimeUpdatedMSec > 10000)
             {
-                fclose (fileUpload.f);
+                rhea::fs::fileClose (fileUpload.f);
                 fileUpload.f = NULL;
             }
         }
@@ -250,7 +250,7 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
                 //# R [0x03] [error] [ck]
                 if (!priv_boot_waitAnswer(shared, 'R', 0x03, 5, 0, rs232BufferOUT, 1000))
                 {
-                    fclose (fileUpload.f);
+                    rhea::fs::fileClose (fileUpload.f);
                     fileUpload.f = NULL;
                     esapi::notify_RASPI_FILEUPLOAD(sub.q, shared->logger, eFileUploadStatus::timeout, (u32)0);
                 }
@@ -391,7 +391,7 @@ void ModuleRasPI::priv_boot_handleFileUpload (sShared *shared, sSubscription *su
         if (0 == bytesLeft)
         {
             //fine, tutto ok
-            fclose (fileUpload.f);
+            rhea::fs::fileClose (fileUpload.f);
             fileUpload.f = NULL;
             esapi::notify_RASPI_FILEUPLOAD (sub->q, shared->logger, eFileUploadStatus::finished_OK, fileUpload.totalFileSizeBytes/1024);
             return;
@@ -427,7 +427,7 @@ void ModuleRasPI::priv_boot_handleFileUpload (sShared *shared, sSubscription *su
             u8 answer[16];
             if (!priv_boot_waitAnswer(shared, 'R', 0x04, 5, 0, answer, 1000))
             {
-                fclose (fileUpload.f);
+                rhea::fs::fileClose (fileUpload.f);
                 fileUpload.f = NULL;
                 esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus::timeout, (u32)0);
                 return;
@@ -439,7 +439,7 @@ void ModuleRasPI::priv_boot_handleFileUpload (sShared *shared, sSubscription *su
             //qualcosa è andato male, devo rimandare il pacchetto
             if (numRetry == 0)
             {
-                fclose (fileUpload.f);
+                rhea::fs::fileClose (fileUpload.f);
                 fileUpload.f = NULL;
                 esapi::notify_RASPI_FILEUPLOAD(sub->q, shared->logger, eFileUploadStatus::timeout, (u32)0);
                 return;

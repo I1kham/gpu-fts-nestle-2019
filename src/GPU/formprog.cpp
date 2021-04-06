@@ -45,7 +45,7 @@ FormProg::~FormProg()
 //*******************************************
 void FormProg::showMe()
 {
-    cpubridge::ask_CPU_PROGRAMMING_CMD (glob->cpuSubscriber, 0, cpubridge::eCPUProgrammingCommand_enterProg, NULL, 0);
+    cpubridge::ask_CPU_PROGRAMMING_CMD (glob->cpuSubscriber, 0, cpubridge::eCPUProgrammingCommand::enterProg, NULL, 0);
 
     retCode = eRetCode_none;
     this->show();
@@ -92,7 +92,7 @@ void FormProg::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
                 glob->bCPUEnteredInMainLoop=1;
 
             //quando la CPU cambia di stato e diventa DISP o INI_CHECK, io torno al browser
-            if (vmcState == cpubridge::eVMCState_DISPONIBILE || vmcState==cpubridge::eVMCState_INITIAL_CHECK)
+            if (vmcState == cpubridge::eVMCState::DISPONIBILE || vmcState==cpubridge::eVMCState::INITIAL_CHECK)
                 retCode = eRetCode_gotoFormBrowser;
         }
         break;

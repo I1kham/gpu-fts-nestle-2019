@@ -101,8 +101,8 @@ void CompressUtility::end()
 {
 	if (NULL == fHeader)
 		return;
-	fclose (fHeader);
-	fclose (fData);
+    rhea::fs::fileClose (fHeader);
+    rhea::fs::fileClose (fData);
 	excludedFolderList.reset();
 
 	u8 s[1024];
@@ -142,14 +142,14 @@ void CompressUtility::end()
 
 	//copio fHeader che contiene l'elenco dei filename e gli offset
 	fs::fileCopyInChunkWithPreallocatedBuffer (fHeader, (u32)fs::filesize(fHeader), fFinal, tempBuffer, sizeOfTempBuffer);
-	fclose (fHeader);
+    rhea::fs::fileClose (fHeader);
 
 	//copio fData
 	sprintf_s ((char*)s, sizeof(s), "%s.data", utf8_fullDstFileNameAndPath);
 	fData = rhea::fs::fileOpenForReadBinary (s);
 	fs::fileCopyInChunkWithPreallocatedBuffer (fData, (u32)fs::filesize(fData), fFinal, tempBuffer, sizeOfTempBuffer);
-	fclose (fData);
-	fclose(fFinal);
+    rhea::fs::fileClose (fData);
+    rhea::fs::fileClose(fFinal);
 
 	//delete dei 2 file temporanei
 	sprintf_s ((char*)s, sizeof(s), "%s.header", utf8_fullDstFileNameAndPath);
@@ -268,7 +268,7 @@ bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath,
 		fread (buffer, 7, 1, f);
 		if (memcmp (buffer, "rheazip", 7) != 0)
 		{
-			fclose(f);
+            rhea::fs::fileClose(f);
 			return false;
 		}
 
@@ -277,7 +277,7 @@ bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath,
 		const u16 versione = rhea::utils::bufferReadU16(buffer);
 		if (versione != 0x0001)
 		{
-			fclose(f);
+            rhea::fs::fileClose(f);
 			return false;
 		}
 
@@ -349,12 +349,12 @@ bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath,
 			u32 sizeOfUncompressed = SIZE_OF_BUFFER2;
 			if (rhea::decompressFromMemory (buffer1, compressedFileLen, buffer2, &sizeOfUncompressed))
 				fs::fileWrite (fDST, buffer2, sizeOfUncompressed);
-			fclose(fDST);
+            rhea::fs::fileClose(fDST);
 		}
 
 		fseek (f, lastArchiveFilePos, SEEK_SET);
 	}
-	fclose (f);
+    rhea::fs::fileClose (f);
 	RHEAFREE(rhea::getScrapAllocator(), buffer1);
 	RHEAFREE(rhea::getScrapAllocator(), buffer2);
 	return true;

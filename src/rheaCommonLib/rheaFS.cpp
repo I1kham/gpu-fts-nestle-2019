@@ -432,7 +432,7 @@ u64 fs::filesize(const u8* const utf8_srcFullFileNameAndPath)
 	if (f)
 	{
 		ret = filesize(f);
-		fclose(f);
+        rhea::fs::fileClose(f);
 	}
 	return ret;
 }
@@ -473,19 +473,19 @@ bool fs_do_open_and_copy_fileCopy (const u8* const utf8_srcFullFileNameAndPath, 
 	FILE *fDST = fs::fileOpenForWriteBinary(utf8_dstFullFileNameAndPath);
 	if (NULL == fDST)
 	{
-		fclose(fSRC);
+        rhea::fs::fileClose(fSRC);
 		return false;
 	}
 
 	fs::fileCopyInChunkWithPreallocatedBuffer (fSRC, (u32)fs::filesize(fSRC), fDST, buffer, BUFFER_SIZE);
-	fclose(fSRC);
+    rhea::fs::fileClose(fSRC);
     fflush(fDST);
 
 #ifdef LINUX
 	fsync (fileno(fDST));
 #endif
 	
-	fclose(fDST);
+    rhea::fs::fileClose(fDST);
 
 #ifdef LINUX
     sync();
@@ -596,7 +596,7 @@ u8* fs::fileCopyInMemory(const u8* const utf8_srcFullFileNameAndPath, rhea::Allo
 	}
 
 	u8 *ret = fs::fileCopyInMemory(f, allocator, out_sizeOfAllocatedBuffer);
-	fclose(f);
+    rhea::fs::fileClose(f);
 	return ret;
 }
 
@@ -631,10 +631,11 @@ u8* fs::fileCopyInMemory (FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAl
 }
 
 //*********************************************
-u32 fs::fileRead (FILE *f, u8 *out_buffer, u32 numBytesToRead)
+u32 fs::fileRead (FILE *f, void *out_bufferIN, u32 numBytesToRead)
 {
 	const u32 CHUNK_SIZE = 1024;
 
+    u8 *out_buffer = (u8*)out_bufferIN;
 	u32 ct = 0;
 	while (numBytesToRead >= CHUNK_SIZE)
 	{
@@ -654,10 +655,11 @@ u32 fs::fileRead (FILE *f, u8 *out_buffer, u32 numBytesToRead)
 }
 
 //*********************************************
-u32 fs::fileWrite (FILE *f, const u8 *buffer, u32 numBytesToWrite)
+u32 fs::fileWrite (FILE *f, const void *bufferIN, u32 numBytesToWrite)
 {
 	const u32 CHUNK_SIZE = 1024;
 
+    const u8 *buffer = (const u8*)bufferIN;
 	u32 ct = 0;
 	while (numBytesToWrite >= CHUNK_SIZE)
 	{

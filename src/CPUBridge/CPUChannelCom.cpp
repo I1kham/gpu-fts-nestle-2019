@@ -31,7 +31,7 @@ using namespace cpubridge;
 						}\
 
 
-	#define DUMP_CLOSE()				if (NULL != fDUMP_CPUChannelCom)	{ fclose(fDUMP_CPUChannelCom); fDUMP_CPUChannelCom = NULL; }
+	#define DUMP_CLOSE()				if (NULL != fDUMP_CPUChannelCom)	{ rhea::fs::fileClose(fDUMP_CPUChannelCom); fDUMP_CPUChannelCom = NULL; }
 	#define DUMP(buffer, lenInBytes)	rhea::utils::dumpBufferInASCII(fDUMP_CPUChannelCom, buffer, lenInBytes);
 	#define DUMPMSG(string)				fprintf(fDUMP_CPUChannelCom, string); fflush(fDUMP_CPUChannelCom);
 #else

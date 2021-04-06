@@ -500,7 +500,7 @@ namespace cpubridge
                 sCPUVMCDataFileTimeStamp()                                              { setInvalid(); }
 				
         void	setInvalid()                                                            { memset(data, 0xFF, SIZE_OF_BUFFER); data[1] = 0xfe; data[3] = 0xfc; }
-        bool    isInvalid()                                                              { return (data[0]==0xff && data[1]==0xfe &&  data[2]==0xff && data[3]==0xfc && data[4]==0xff && data[5]==0xff); }
+        bool    isInvalid()                                                             { return (data[0]==0xff && data[1]==0xfe &&  data[2]==0xff && data[3]==0xfc && data[4]==0xff && data[5]==0xff); }
         u8		readFromBuffer(const void *buffer)                                      { memcpy(data, buffer, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
         u8		writeToBuffer(void *buffer) const                                       { memcpy(buffer, data, SIZE_OF_BUFFER); return SIZE_OF_BUFFER; }
         u8		readFromFile (FILE *f)                                                  { fread(data, SIZE_OF_BUFFER, 1, f); return SIZE_OF_BUFFER; }

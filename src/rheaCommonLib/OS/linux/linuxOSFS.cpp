@@ -66,7 +66,7 @@ bool platform::FS_fileExists(const u8* const filename)
     FILE *f = fopen((const char*)filename, "r");
     if (NULL == f)
         return false;
-    fclose(f);
+    rhea::fs::fileClose(f);
     return true;
 }
 

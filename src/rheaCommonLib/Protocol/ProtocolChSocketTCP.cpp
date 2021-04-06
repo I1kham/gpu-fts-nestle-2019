@@ -7,7 +7,7 @@ using namespace rhea;
 	#include "../rheaUtils.h"
 	u16			ProtocolChSocketTCP::dump_nextDumpFileID = 0;
 
-	#define DUMP_CLOSE()				if (NULL != fDUMP)	{ fclose(fDUMP); fDUMP = NULL; }
+	#define DUMP_CLOSE()				if (NULL != fDUMP)	{ rhea::fs::fileClose(fDUMP); fDUMP = NULL; }
 	#define DUMP(buffer, lenInBytes)	rhea::utils::dumpBufferInASCII(fDUMP, buffer, lenInBytes);
 	#define DUMPMSG(string)				fprintf(fDUMP, string); fflush(fDUMP);
 #else

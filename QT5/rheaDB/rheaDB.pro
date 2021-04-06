@@ -8,7 +8,7 @@ QT       -= core gui
 TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += create_prl link_prl
-
+CONFIG += c++14
 
 #direttive specifiche per quando compilo per yocto embedded
 contains(DEFINES, PLATFORM_YOCTO_EMBEDDED) {

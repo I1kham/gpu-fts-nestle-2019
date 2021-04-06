@@ -268,7 +268,7 @@ void createGPUVerFile (const sGlobal *glob)
     {
         sprintf_s ((char*)s, sizeof(s), "%s", GPU_VERSION);
         rhea::fs::fileWrite (f, s, rhea::string::utf8::lengthInBytes(s));
-        fclose (f);
+        rhea::fs::fileClose (f);
     }
 }
 
@@ -277,7 +277,7 @@ void run(int argc, char *argv[])
 {
     sGlobal glob;
     memset(&glob, 0, sizeof(glob));
-    glob.esapiModule.moduleType = esapi::eExternalModuleType_none;
+    glob.esapiModule.moduleType = esapi::eExternalModuleType::none;
     glob.bIsMilkerAlive = 1;
 
     //creazione del logger

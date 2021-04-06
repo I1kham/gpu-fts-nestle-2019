@@ -9,7 +9,7 @@ QT       -= core gui
 TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += create_prl link_prl
-
+CONFIG += c++14
 
 message("rheaExternalSerialAPI: define: $$DEFINES")
 message("rheaExternalSerialAPI: config: $$CONFIG")

@@ -111,7 +111,7 @@ void MainWindow::priv_loadURLMenuProg (const char *paramsInGet)
         FILE *f = fopen(s,"rt");
         fread (lang, 2, 1, f);
         lang[2] = 0;
-        fclose(f);
+        rhea::fs::fileClose(f);
     }
 
     sprintf_s (s, sizeof(s), "%s/index_%s.html", folder, lang);
@@ -265,7 +265,7 @@ void MainWindow::timerInterrupt()
     //non era pronta, lo mando adesso
     if (glob->sendASAP_resetCoffeeGroundDecounter != 0 && glob->bCPUEnteredInMainLoop)
     {
-        cpubridge::ask_CPU_SET_DECOUNTER (glob->cpuSubscriber, 0, cpubridge::eCPUProgrammingCommand_decounter_coffeeGround, glob->sendASAP_resetCoffeeGroundDecounter);
+        cpubridge::ask_CPU_SET_DECOUNTER (glob->cpuSubscriber, 0, cpubridge::eCPUProg_decounter::coffeeGround, glob->sendASAP_resetCoffeeGroundDecounter);
         glob->sendASAP_resetCoffeeGroundDecounter = 0;
     }
 
@@ -358,9 +358,9 @@ void MainWindow::priv_syncWithCPU_onTick()
 
     if (syncWithCPU.stato == 0)
     {
-        if (syncWithCPU.vmcState != cpubridge::eVMCState_COMPATIBILITY_CHECK && syncWithCPU.vmcState != cpubridge::eVMCState_DA3_SYNC)
+        if (syncWithCPU.vmcState != cpubridge::eVMCState::COMPATIBILITY_CHECK && syncWithCPU.vmcState != cpubridge::eVMCState::DA3_SYNC)
         {
-            if (syncWithCPU.vmcState == cpubridge::eVMCState_CPU_NOT_SUPPORTED)
+            if (syncWithCPU.vmcState == cpubridge::eVMCState::CPU_NOT_SUPPORTED)
             {
                 //CPU non supportata, andiamo direttamente in form boot dove mostriamo il msg di errore e chiediamo di uppare un nuovo FW
                 this->glob->bSyncWithCPUResult = false;
@@ -371,7 +371,7 @@ void MainWindow::priv_syncWithCPU_onTick()
 
 
             //Se siamo in com_error, probabilmente non c'era nemmeno un FW CPU in grado di rispondere, per cui funziona come sopra
-            if (syncWithCPU.vmcState == cpubridge::eVMCState_COM_ERROR)
+            if (syncWithCPU.vmcState == cpubridge::eVMCState::COM_ERROR)
             {
                 //CPU non supportata, andiamo direttamente in form boot dove mostriamo il msg di errore e chiediamo di uppare un nuovo FW
                 this->glob->bSyncWithCPUResult = false;
@@ -419,10 +419,10 @@ void MainWindow::priv_syncWithCPU_onTick()
                 case ESAPI_NOTIFY_MODULE_TYPE_AND_VER:
                     esapi::translateNotify_MODULE_TYPE_AND_VER (msgESAPI, &glob->esapiModule.moduleType, &glob->esapiModule.verMajor, &glob->esapiModule.verMinor);
 
-                    if (glob->esapiModule.moduleType > 0)
+                    if ((u8)glob->esapiModule.moduleType > 0)
                     {
                         char s[32];
-                        sprintf_s (s, sizeof(s), "ESAPI [%d] [%d] [%d]", glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+                        sprintf_s (s, sizeof(s), "ESAPI [%d] [%d] [%d]", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
                         priv_addText (s);
                         syncWithCPU.stato = 5;
                     }
@@ -441,7 +441,7 @@ void MainWindow::priv_syncWithCPU_onTick()
         else
         {
             //se ESAPI::rasPI esiste, attivo la sua interfaccia web
-            if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
+            if (glob->esapiModule.moduleType == esapi::eExternalModuleType::rasPI_wifi_REST)
             {
                 priv_addText ("\nStarting rasPI module web interface");
                 u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
@@ -530,12 +530,12 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
             cpubridge::translateNotify_READ_VMCDATAFILE_PROGRESS (msg, &status, &totKbSoFar, &fileID);
 
             char s[512];
-            if (status == cpubridge::eReadDataFileStatus_inProgress)
+            if (status == cpubridge::eReadDataFileStatus::inProgress)
             {
                 sprintf_s (s, sizeof(s), "Downloading VMC Settings... %d Kb", totKbSoFar);
                 priv_addText (s);
             }
-            else if (status == cpubridge::eReadDataFileStatus_finishedOK)
+            else if (status == cpubridge::eReadDataFileStatus::finishedOK)
             {
                 sprintf_s (s, sizeof(s), "Downloading VMC Settings... SUCCESS");
                 priv_addText (s);
@@ -591,9 +591,9 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
 
     case CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS:
         {
-            cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus_finished_KO;
+            cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus::finished_KO;
             cpubridge::translateNotify_CPU_RUNNING_SEL_STATUS (msg, &s);
-            if (s == cpubridge::eRunningSelStatus_finished_OK)
+            if (s == cpubridge::eRunningSelStatus::finished_OK)
                 History::incCounterSelezioni();
         }
         break;
@@ -613,14 +613,14 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
                 glob->bIsMilkerAlive=0;
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
-            if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
+            if (vmcState == cpubridge::eVMCState::PROGRAMMAZIONE)
                 retCode = eRetCode_gotoFormOldMenuProg;
             //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO. Spegnendo e riaccendendo la macchina, la
             //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
+            else if (vmcState == cpubridge::eVMCState::LAVAGGIO_SANITARIO)
                 retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
             //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO del cappucinatore. Funziona come sopra
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER_INDUX)
+            else if (vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_INDUX)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
         }
         break;

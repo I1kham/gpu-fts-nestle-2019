@@ -3019,7 +3019,7 @@ static FILE *mz_freopen(const char *pPath, const char *pMode, FILE *pStream)
 #include <sys/utime.h>
 #endif
 #define MZ_FOPEN(f, m) fopen(f, m)
-#define MZ_FCLOSE fclose
+#define MZ_FCLOSE rhea::fs::fileClose
 #define MZ_FREAD fread
 #define MZ_FWRITE fwrite
 #define MZ_FTELL64 ftello64
@@ -3034,7 +3034,7 @@ static FILE *mz_freopen(const char *pPath, const char *pMode, FILE *pStream)
 #include <sys/utime.h>
 #endif
 #define MZ_FOPEN(f, m) fopen(f, m)
-#define MZ_FCLOSE fclose
+#define MZ_FCLOSE rhea::fs::fileClose
 #define MZ_FREAD fread
 #define MZ_FWRITE fwrite
 #define MZ_FTELL64 ftell
@@ -3049,7 +3049,7 @@ static FILE *mz_freopen(const char *pPath, const char *pMode, FILE *pStream)
 #include <utime.h>
 #endif
 #define MZ_FOPEN(f, m) fopen64(f, m)
-#define MZ_FCLOSE fclose
+#define MZ_FCLOSE rhea::fs::fileClose
 #define MZ_FREAD fread
 #define MZ_FWRITE fwrite
 #define MZ_FTELL64 ftello64
@@ -3064,7 +3064,7 @@ static FILE *mz_freopen(const char *pPath, const char *pMode, FILE *pStream)
 #include <utime.h>
 #endif
 #define MZ_FOPEN(f, m) fopen(f, m)
-#define MZ_FCLOSE fclose
+#define MZ_FCLOSE rhea::fs::fileClose
 #define MZ_FREAD fread
 #define MZ_FWRITE fwrite
 #define MZ_FTELL64 ftello

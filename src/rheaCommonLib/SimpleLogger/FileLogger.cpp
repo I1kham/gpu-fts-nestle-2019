@@ -22,7 +22,7 @@ FileLogger::FileLogger(const u8* const fullFilePathAndName)
         char dd[64];
         dt.formatAs_YYYYMMDDHHMMSS (dd, sizeof(dd), ' ', '-', ':');
         fprintf (f, "%s\n\n", dd);
-        fclose(f);
+        rhea::fs::fileClose(f);
     }
 	
 }
@@ -132,7 +132,7 @@ void FileLogger::log (const char *format, ...)
     }
 
     fflush(f);
-    fclose (f);
+    rhea::fs::fileClose (f);
     rhea::criticalsection::leave(cs);
 }
 

@@ -61,14 +61,14 @@ void DA3::reload()
     u32 fsize = sizeOfBlob;
 	while (fsize >= CHUNK)
 	{
-		fread (&blob[ct], CHUNK, 1, f);
+        rhea::fs::fileRead (f, &blob[ct], CHUNK);
 		fsize -= CHUNK;
 		ct += CHUNK;
 	}
 
 	if (fsize)
-		fread(&blob[ct], fsize, 1, f);    
-    fclose(f);
+        rhea::fs::fileRead (f, &blob[ct], fsize);
+    rhea::fs::fileClose(f);
     
     blob[LOC_MACHINE_TYPE] = (u8)machineType;
     blob[LOC_MACHINE_MODEL] = machineModel;
@@ -96,7 +96,7 @@ void DA3::save(const u8* const utf8_fullFilePathAndName)
 	}
 	if (fileSize)
 		fwrite(&blob[ct], fileSize, 1, f);
-	fclose(f);
+    rhea::fs::fileClose(f);
 }
 
 //*********************************************

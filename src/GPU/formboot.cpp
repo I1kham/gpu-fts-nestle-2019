@@ -175,7 +175,7 @@ void FormBoot::priv_updateLabelInfo()
                 {
                     u64 u;
                     fread(&u,sizeof(u64),1,f);
-                    fclose(f);
+                    rhea::fs::fileClose(f);
 
                     rhea::DateTime dt;
                     dt.setFromInternalRappresentation(u);
@@ -231,7 +231,7 @@ void FormBoot::priv_updateLabelInfo()
     //modulo rasPI
     if (glob->esapiModule.verMajor != 0x00)
     {
-        if (esapi::eExternalModuleType_none == glob->esapiModule.moduleType)
+        if (esapi::eExternalModuleType::none == glob->esapiModule.moduleType)
         {
             sprintf_s (s, sizeof(s), "ESAPI: <span style='color:#fff'>API v%d.%d</span>", glob->esapiModule.verMajor, glob->esapiModule.verMinor);
             ui->labESAPI->setText (s);
@@ -242,10 +242,10 @@ void FormBoot::priv_updateLabelInfo()
             switch (glob->esapiModule.moduleType)
             {
             default:
-                sprintf_s (moduleName, sizeof(moduleName), "%d", glob->esapiModule.moduleType);
+                sprintf_s (moduleName, sizeof(moduleName), "%d", (u8)glob->esapiModule.moduleType);
                 break;
 
-            case esapi::eExternalModuleType_rasPI_wifi_REST:
+            case esapi::eExternalModuleType::rasPI_wifi_REST:
                 sprintf_s (moduleName, sizeof(moduleName), "rasPI");
                 break;
             }
@@ -275,7 +275,7 @@ void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
     fwrite (s, 1, sizeof(s), f);
     fwrite (s, 1, sizeof(s), f);
     fflush(f);
-    fclose (f);
+    rhea::fs::fileClose (f);
 
     utils::waitAndProcessEvent(minTimeMSecToWaitMSec);
 
@@ -292,7 +292,7 @@ void FormBoot::priv_syncUSBFileSystem (u64 minTimeMSecToWaitMSec)
     {
         FILE *f = fopen (s, "rb");
         const u64 fsize = rhea::fs::filesize(f);
-        fclose(f);
+        rhea::fs::fileClose(f);
         if (fsize < 1500)
         {
             sync();
@@ -403,7 +403,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
                 glob->bIsMilkerAlive=0;
 
             //non dovrebbe mai succede che la CPU vada da sola in PROG, ma se succede io faccio apparire il vecchio menu PROG
-            if (vmcState == cpubridge::eVMCState_PROGRAMMAZIONE)
+            if (vmcState == cpubridge::eVMCState::PROGRAMMAZIONE)
                 retCode = eRetCode_gotoFormOldMenuProg;
 
             /* GIX: voglio che il form boot rimanga nel form boot anche in caso di lavaggi sanitari pendenti
@@ -411,10 +411,10 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
              *
             //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO. Spegnendo e riaccendendo la macchina, la
             //CPU va da sola in LAV_SANITARIO e io di conseguenza devo andare nel nuovo menu prog alla pagina corretta
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_SANITARIO)
+            else if (vmcState == cpubridge::eVMCState::LAVAGGIO_SANITARIO)
                 retCode = eRetCode_gotoNewMenuProg_LavaggioSanitario;
             //come sopra ma per il cappucinatore
-            else if (vmcState == cpubridge::eVMCState_LAVAGGIO_MILKER)
+            else if (vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
             */
         }
@@ -547,7 +547,7 @@ void FormBoot::on_buttonStart_clicked()
 #endif
 
     //se ESAPI::rasPI esiste, attivo la sua interfaccia web
-    if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
+    if (glob->esapiModule.moduleType == esapi::eExternalModuleType::rasPI_wifi_REST)
         esapi::ask_RASPI_START (glob->esapiSubscriber, (u32)0);
 
     retCode = eRetCode_gotoFormBrowser;
@@ -864,12 +864,12 @@ void FormBoot::priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg)
     cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS (msg, &status, &totKbSoFar);
 
     char s[512];
-    if (status == cpubridge::eWriteDataFileStatus_inProgress)
+    if (status == cpubridge::eWriteDataFileStatus::inProgress)
     {
         sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d KB", totKbSoFar);
         priv_pleaseWaitSetText (s);
     }
-    else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
+    else if (status == cpubridge::eWriteDataFileStatus::finishedOK)
     {
         upldDA3CallBack = eUploadDA3CallBack_none;
         sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");
@@ -956,7 +956,7 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
     u8 fullMobileGUIPathAndName[1024];
     sizeInBytesOfCurrentFileUnpload = 0;
     filenameOfCurrentFileUnpload[0] = 0;
-    if (glob->esapiModule.moduleType == esapi::eExternalModuleType_rasPI_wifi_REST)
+    if (glob->esapiModule.moduleType == esapi::eExternalModuleType::rasPI_wifi_REST)
     {
         OSFileFind ff;
         sprintf_s ((char*)fullMobileGUIPathAndName, sizeof(fullMobileGUIPathAndName), "%s/web", glob->current_GUI);
@@ -1013,7 +1013,7 @@ bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
         dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), ' ', '/', ':');
         fprintf (f, "%s", s);
     }
-    fclose(f);
+    rhea::fs::fileClose(f);
 
     return true;
 }
@@ -1025,12 +1025,12 @@ void FormBoot::priv_uploadESAPI_GUI (rhea::thread::sMsg &msg)
     esapi::translateNotify_RASPI_FILEUPLOAD(msg, &status, &kbSoFar);
 
     char s[512];
-    if (status == esapi::eFileUploadStatus_inProgress)
+    if (status == esapi::eFileUploadStatus::inProgress)
     {
         sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... %d/%d KB", kbSoFar, (sizeInBytesOfCurrentFileUnpload>>10));
         priv_pleaseWaitSetText (s);
     }
-    else if (status == esapi::eFileUploadStatus_finished_OK)
+    else if (status == esapi::eFileUploadStatus::finished_OK)
     {
         sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... file upload SUCCESS, now waiting for unzip");
         priv_pleaseWaitSetText (s);
@@ -1038,7 +1038,7 @@ void FormBoot::priv_uploadESAPI_GUI (rhea::thread::sMsg &msg)
     }
     else
     {
-        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... ERROR: [%d]", status);
+        sprintf_s (s, sizeof(s), "Installing GUI on WIFI module... ERROR: [%d]", (u8)status);
         priv_pleaseWaitSetError(s);
         priv_pleaseWaitHide();
         priv_updateLabelInfo();
@@ -1081,16 +1081,16 @@ void FormBoot::priv_on_btnInstall_CPU_upload (rhea::thread::sMsg &msg)
     cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
 
     char s[512];
-    if (status == cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash)
+    if (status == cpubridge::eWriteCPUFWFileStatus::inProgress_erasingFlash)
     {
         priv_pleaseWaitSetText ("Installing CPU FW...erasing flash");
     }
-    else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
+    else if (status == cpubridge::eWriteCPUFWFileStatus::inProgress)
     {
         sprintf_s (s, sizeof(s), "Installing CPU FW... %d/%d KB", param, (sizeInBytesOfCurrentFileUnpload>>10));
         priv_pleaseWaitSetText (s);
     }
-    else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
+    else if (status == cpubridge::eWriteCPUFWFileStatus::finishedOK)
     {
         upldCPUFWCallBack = eUploadCPUFWCallBack_none;
         sprintf_s (s, sizeof(s), "Installing CPU FW... SUCCESS, please restart the machine");
@@ -1257,12 +1257,12 @@ void FormBoot::priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg)
     cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
 
     char s[512];
-    if (status == cpubridge::eReadDataFileStatus_inProgress)
+    if (status == cpubridge::eReadDataFileStatus::inProgress)
     {
         sprintf_s (s, sizeof(s), "Downloading data audit... %d KB", totKbSoFar);
         priv_pleaseWaitSetText (s);
     }
-    else if (status == cpubridge::eReadDataFileStatus_finishedOK)
+    else if (status == cpubridge::eReadDataFileStatus::finishedOK)
     {
         dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
         sprintf_s (s, sizeof(s), "Downloading data audit finished. Copying to USB folder, please wait...");
@@ -1332,12 +1332,12 @@ void FormBoot::priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::s
     cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
 
     char s[512];
-    if (status == cpubridge::eReadDataFileStatus_inProgress)
+    if (status == cpubridge::eReadDataFileStatus::inProgress)
     {
         sprintf_s (s, sizeof(s), "Preparing service zip file (it may takes up to 2 minutes)...<br>Downloading data audit... %d KB", totKbSoFar);
         priv_pleaseWaitSetText (s);
     }
-    else if (status == cpubridge::eReadDataFileStatus_finishedOK)
+    else if (status == cpubridge::eReadDataFileStatus::finishedOK)
     {
         dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
 
@@ -1810,16 +1810,16 @@ void FormBoot::priv_autoupdate_onCPU_upload (rhea::thread::sMsg &msg)
     cpubridge::translateNotify_WRITE_CPUFW_PROGRESS (msg, &status, &param);
 
     char s[512];
-    if (status == cpubridge::eWriteCPUFWFileStatus_inProgress_erasingFlash)
+    if (status == cpubridge::eWriteCPUFWFileStatus::inProgress_erasingFlash)
     {
         priv_autoupdate_setText(ui->labStatus_cpuFW, "Installing CPU FW...erasing flash");
     }
-    else if (status == cpubridge::eWriteCPUFWFileStatus_inProgress)
+    else if (status == cpubridge::eWriteCPUFWFileStatus::inProgress)
     {
         sprintf_s (s, sizeof(s), "Installing CPU FW... %d KB", param);
         priv_autoupdate_setText(ui->labStatus_cpuFW, s);
     }
-    else if (status == cpubridge::eWriteCPUFWFileStatus_finishedOK)
+    else if (status == cpubridge::eWriteCPUFWFileStatus::finishedOK)
     {
         upldCPUFWCallBack = eUploadCPUFWCallBack_none;
         sprintf_s (s, sizeof(s), "Installing CPU FW... SUCCESS");
@@ -1845,12 +1845,12 @@ void FormBoot::priv_autoupdate_onDA3_upload (rhea::thread::sMsg &msg)
     cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS (msg, &status, &totKbSoFar);
 
     char s[512];
-    if (status == cpubridge::eWriteDataFileStatus_inProgress)
+    if (status == cpubridge::eWriteDataFileStatus::inProgress)
     {
         sprintf_s (s, sizeof(s), "Installing VMC Settings...... %d KB", totKbSoFar);
         priv_autoupdate_setText (ui->labStatus_da3, s);
     }
-    else if (status == cpubridge::eWriteDataFileStatus_finishedOK)
+    else if (status == cpubridge::eWriteDataFileStatus::finishedOK)
     {
         upldDA3CallBack = eUploadDA3CallBack_none;
         sprintf_s (s, sizeof(s), "Installing VMC Settings...... SUCCESS");

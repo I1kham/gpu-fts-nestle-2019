@@ -81,7 +81,7 @@ double utils::updateCPUStats(unsigned long timeSinceLastCallMSec)
 
     FILE *f = fopen("/proc/stat","r");
     fscanf(f,"%*s %Lf %Lf %Lf %Lf",&cpuStats.v[index],&cpuStats.v[index+1],&cpuStats.v[index+2],&cpuStats.v[index+3]);
-    fclose(f);
+    rhea::fs::fileClose(f);
 
     if (cpuStats.i == 1)
     {

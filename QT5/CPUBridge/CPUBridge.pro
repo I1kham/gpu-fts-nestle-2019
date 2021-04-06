@@ -8,6 +8,7 @@ QT       -= core gui
 TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += create_prl link_prl
+CONFIG += c++14
 
 #direttive specifiche per quando compilo per yocto embedded
 contains(DEFINES, PLATFORM_YOCTO_EMBEDDED) {
@@ -70,7 +71,7 @@ CONFIG(release, debug|release) {
 	QMAKE_CXXFLAGS += -O2
 	QMAKE_CFLAGS += -O2
 	CONFIG += optimize_full
-	QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable
+	QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-unused-result
 }
 
 SOURCES += \

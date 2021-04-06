@@ -85,11 +85,11 @@ void cpubridge::loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out)
 
     char s[512];
     sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
-    FILE *f = fopen(s, "rb");
+    FILE *f = rhea::fs::fileOpenForReadBinary((const u8*)s);
     if (NULL == f)
         return;
     out->readFromFile(f);
-    fclose(f);
+    rhea::fs::fileClose(f);
 }
 
 //***************************************************
@@ -97,11 +97,11 @@ bool cpubridge::saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts)
 {
     char s[512];
     sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
-    FILE *f = fopen(s, "wb");
+    FILE *f = rhea::fs::fileOpenForWriteBinary((const u8*)s);
     if (NULL == f)
         return false;
     ts.writeToFile(f);
-    fclose(f);
+    rhea::fs::fileClose(f);
     return true;
 }
 

@@ -68,7 +68,7 @@ private:
         u64                 esapiTimeoutMSec;
         u8                  stato;
 
-        void            reset() { stato=0; nextTimeoutAskCPUStateMSec=0; vmcState = cpubridge::eVMCState_COMPATIBILITY_CHECK; }
+        void            reset() { stato=0; nextTimeoutAskCPUStateMSec=0; vmcState = cpubridge::eVMCState::COMPATIBILITY_CHECK; }
     };
 
 private:

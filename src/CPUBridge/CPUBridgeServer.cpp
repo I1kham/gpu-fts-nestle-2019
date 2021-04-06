@@ -1341,7 +1341,7 @@ void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
 		}
 		if (fileSize)
 			fwrite(&buffer[ct], fileSize, 1, f);
-		fclose(f);
+        rhea::fs::fileClose(f);
 	}
 	RHEAFREE(allocator, buffer);
 
@@ -1352,7 +1352,7 @@ void Server::priv_updateLocalDA3 (const u8 *blockOf64Bytes, u8 blockNum) const
     FILE *f = rhea::fs::fileOpenForWriteBinary(s);
     u64 u = dt.getInternalRappresentation();
     fwrite (&u, sizeof(u64), 1, f);
-    fclose(f);
+    rhea::fs::fileClose(f);
 }
 
 //**********************************************
@@ -1404,6 +1404,9 @@ bool Server::priv_handleProgrammingMessage (sSubscription *sub, u16 handlerID, c
 			// [#] [P] [len] [subcommand] [optional_data] [ck]
 			switch ((eCPUProgrammingCommand)answerBuffer[3])
 			{
+            default:
+                break;
+
 			case eCPUProgrammingCommand::querySanWashingStatus:
 				//la CPU risponde con 3 bytes che indicano:
 				//	b0 => fase del lavaggio
@@ -1711,7 +1714,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	{
 		//leggo da file
 		u8 fileBuffer[VMCDATAFILE_BLOCK_SIZE_IN_BYTE];
-		fread(fileBuffer, VMCDATAFILE_BLOCK_SIZE_IN_BYTE, 1, f);
+        rhea::fs::fileRead (f, fileBuffer, VMCDATAFILE_BLOCK_SIZE_IN_BYTE);
 
 		//creo il msg da mandare a CPU
 		u8 bufferCPUMsg[VMCDATAFILE_BLOCK_SIZE_IN_BYTE +32];
@@ -1724,7 +1727,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 			//errore, la CPU non ha risposto, abortisco l'operazione
 			if (NULL != subscriber)
 				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_cpuDidNotAnswer, kbWrittenSoFar);
-			fclose(f);
+            rhea::fs::fileClose(f);
 			return eWriteDataFileStatus::finishedKO_cpuDidNotAnswer;
 		}
 
@@ -1743,7 +1746,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	}
 
 	//finito!
-	fclose(f);
+    rhea::fs::fileClose(f);
 	assert(bytesWrittenSoFar >= VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE);
 
 	//dopo qualche esperimento, ho notato che a seguito di un upload, la CPU cmq fa delle modifiche al DA3.
@@ -1764,7 +1767,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 		//sovrascrivo il file con le info
 		f = rhea::fs::fileOpenForWriteBinary(tempFilePathAndName);
 		fwrite (tempBuffer, sizeOfBuffer, 1, f);
-		fclose(f);
+        rhea::fs::fileClose(f);
 
 		RHEAFREE(localAllocator, tempBuffer);
 	}
@@ -1804,7 +1807,7 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
     f = rhea::fs::fileOpenForWriteBinary(s);
     u64 u = dt.getInternalRappresentation();
     fwrite (&u, sizeof(u64), 1, f);
-    fclose(f);
+    rhea::fs::fileClose(f);
 
 	//aggiorno alcuni dati che conservo in memoria
 	priv_retreiveSomeDataFromLocalDA3();
@@ -1874,7 +1877,7 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 			else
 				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
 
-			fclose(f);
+            rhea::fs::fileClose(f);
 			return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
 		}
 
@@ -1901,7 +1904,7 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
 			else
 				notify_READ_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID);
 
-			fclose(f);
+            rhea::fs::fileClose(f);
 			return eReadDataFileStatus::finishedOK;
 		}
 
@@ -1979,7 +1982,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
                 notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
-            fclose(f);
+            rhea::fs::fileClose(f);
             return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
         }
 
@@ -1996,7 +1999,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
         if (answerBuffer[3] != 0)
         {
             //finito!
-			fclose(f);
+            rhea::fs::fileClose(f);
 	
 			priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 			
@@ -2036,7 +2039,7 @@ void Server::priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAnd
 			sprintf_s(s, sizeof(s), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
 			FILE *f2 = fopen(s, "wb");
 			fwrite(buffer, bufferSize, 1, f2);
-			fclose(f2);
+            rhea::fs::fileClose(f2);
 			RHEAFREE(allocator, buffer);
 		}
 	}
@@ -2351,7 +2354,7 @@ void Server::priv_handleState_DA3Sync()
 			FILE *f = rhea::fs::fileOpenForWriteBinary (s);
 			u64 u = dt.getInternalRappresentation();
 			fwrite(&u, sizeof(u64), 1, f);
-			fclose(f);
+            rhea::fs::fileClose(f);
 
 			//finito
 			priv_handleState_DA3Sync_onFinishedOK();

@@ -106,7 +106,7 @@ void FileTransfer::priv_freeResources(u32 i)
 {
 	if (NULL != activeTransferList[i].f)
 	{
-		fclose (activeTransferList[i].f);
+        rhea::fs::fileClose (activeTransferList[i].f);
 		activeTransferList[i].f = NULL;
 	}
 
@@ -245,7 +245,7 @@ void FileTransfer::priv_sendChunkOfPackets (Server *server, const HSokServerClie
 		nbw.writeU32(s->appFileTransfUID);
 		nbw.writeU32(iPacket);
 		nbw.writeU8(chunkSeq);
-		fread (&serializedDataBuffer[nbw.length()], nByteToRead, 1, s->f);
+        rhea::fs::fileRead (s->f, &serializedDataBuffer[nbw.length()], nByteToRead);
 
 		//logger->log("FT => sending packet [%d]\n", s->packetNum);
 		priv_send (server, h, serializedDataBuffer, nbw.length() + nByteToRead);
@@ -425,7 +425,7 @@ void FileTransfer::priv_on0x03 (Server *server, const HSokServerClient &h, rhea:
 			fwrite(bufferW, lastPacketSize, 1, req->f);
 
 			req->status = eTransferStatus::finished_OK;
-			fclose(req->f);
+            rhea::fs::fileClose(req->f);
 			req->f = NULL;
 		}
 		else
@@ -557,7 +557,7 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 			u32 filesize = 0;
 			if (fsize == 0 || fsize > 256 * UN_MEGA)
 			{
-				fclose(fSRC);
+                rhea::fs::fileClose(fSRC);
 				fSRC = NULL;
 				answ.reason_refused = (u8)eFileTransferFailReason::smuFileTooBigOrEmpty;
 			}

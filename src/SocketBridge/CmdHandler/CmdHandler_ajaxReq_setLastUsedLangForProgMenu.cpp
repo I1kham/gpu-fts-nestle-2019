@@ -42,7 +42,7 @@ void CmdHandler_ajaxReq_setLastUsedLangForProgMenu::handleRequestFromSocketBridg
 		strcat_s ((char*)s, sizeof(s), "/lastUsedLang.txt");
 		FILE *f = rhea::fs::fileOpenForWriteBinary(s);
 		fwrite(data.lang, 2, 1, f);
-		fclose(f);
+		rhea::fs::fileClose(f);
 	}
 
 

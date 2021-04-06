@@ -198,7 +198,7 @@ u16 ProtocolConsole::priv_decodeOneMessage (const u8 *buffer, u16 nBytesInBuffer
 		{
 			default:
 				//Errore, opcode non riconosciuto
-				printf("ERR ProtocolConsole::priv_decodeOneMessage() => invalid opcode [%d]\n", out_result->what);
+                printf("ERR ProtocolConsole::priv_decodeOneMessage() => invalid opcode [%d]\n", (u8)out_result->what);
 				out_result->what = eOpcode::unknown;
 				out_result->payloadLen = 0;
 				break;

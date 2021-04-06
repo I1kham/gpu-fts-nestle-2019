@@ -72,7 +72,7 @@ FILE* lang_open_table (sLanguage *lang, unsigned char tableID)
     sprintf(filename,"%s/lang/%s-MSG%c.lng", rhea::getPhysicalPathToAppFolder(), lang->iso, tableID);
 
     if (lang->ff[iTable] != NULL)
-        fclose (lang->ff[iTable]);
+        rhea::fs::fileClose (lang->ff[iTable]);
 
     DEBUG_MSG (filename);
     lang->ff[iTable] = fopen (filename, "rb");
@@ -84,9 +84,9 @@ FILE* lang_open_table (sLanguage *lang, unsigned char tableID)
 void lang_open (sLanguage *lang, const char *langISOCode)
 {
     if (lang->ff[0] != NULL)
-        fclose (lang->ff[0]);
+        rhea::fs::fileClose (lang->ff[0]);
     if (lang->ff[1] != NULL)
-        fclose (lang->ff[1]);
+        rhea::fs::fileClose (lang->ff[1]);
 
     lang->iso[0] = langISOCode[0];
     lang->iso[1] = langISOCode[1];
