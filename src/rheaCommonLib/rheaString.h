@@ -104,7 +104,10 @@ namespace rhea
 			u8*				allocStr	(Allocator *allocator, const char* const src, u32 numBytesDaUtilizzare=u32MAX);
 			u8*				allocStr	(Allocator *allocator, const u8* const src, u32 numBytesDaUtilizzare=u32MAX);
 			u32				makeStr		(u8 *dst, u32 sizeofDst, const char* const src);	
-							// ritorna la "lengthInBytes" di dst
+								// ritorna la "lengthInBytes" di dst
+
+			void			spf(u8* dest, u32 sizeOfDest, const char* format, ...);
+								//è l'equivalente della sprintf_s, solo che [dest] è di tipo u8 invece che char*
 
 			u32				copyStr		(u8 *dst, u32 sizeofDst, const u8* const src, u32 numBytesDaUtilizzare=u32MAX);
             u32             copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8* const src);

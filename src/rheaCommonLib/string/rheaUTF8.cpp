@@ -1,5 +1,9 @@
 #include "../rheaString.h"
 #include "../rhea.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
 
 using namespace rhea;
 
@@ -881,4 +885,13 @@ void string::utf8::appendI32 (u8 *dst, size_t sizeOfDest, i32 num, u8 minNumOfDi
 		sprintf_s(s, sizeof(s), "%0*d", minNumOfDigit, num);
 
 	utf8::concatStr (dst, sizeOfDest, s);
+}
+
+//*********************************************************
+void string::utf8::spf(u8* dest, u32 sizeOfDest, const char* format, ...)
+{
+	va_list argptr;
+	va_start(argptr, format);
+	vsnprintf(reinterpret_cast<char*>(dest), sizeOfDest, format, argptr);
+	va_end(argptr);
 }
