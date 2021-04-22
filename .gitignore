@@ -96,3 +96,16 @@ QT-Linaro-Rockchip/GPUBoot/build-GPUBoot-Desktop-Release/
 *.mh210
 *.mh211
 *.gitignore.swp
+MSVC19/CPUBridge/build/
+MSVC19/GPUConsole/build/
+MSVC19/rasPISerial/build/
+MSVC19/rheaAlipayChina/build/
+MSVC19/rheaAppLib/build/
+MSVC19/rheaCommonLib/build/
+MSVC19/rheaDB/build/
+MSVC19/rheaExternalSerialAPI/build/
+MSVC19/rheaMedia2.0/build/
+MSVC19/rheaUnzip/build/
+MSVC19/SMU/build/
+MSVC19/SocketBridge/build/
+bin/DA2Parser.txt
