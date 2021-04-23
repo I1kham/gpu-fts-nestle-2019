@@ -96,7 +96,7 @@ bool IniFile::priv_Parse_separator_Value (string::utf8::Iter &src, string::utf8:
 }
 
 //********************************************
-bool IniFile::loadAndParse (const u8* const filename)
+bool IniFile::loadAndParse (const u8* filename)
 {
 	reset();
 	u32 fileSize;
@@ -271,7 +271,7 @@ bool IniFile::priv_Parse_Section (IniFileSection *section, string::utf8::Iter &s
 
 
 //********************************************
-bool IniFile::get (const u8* const identifier, utf8::String &out) const
+bool IniFile::get (const u8* identifier, utf8::String &out) const
 {
 	if (NULL == root)
 		return false;
@@ -279,7 +279,7 @@ bool IniFile::get (const u8* const identifier, utf8::String &out) const
 }
 
 //********************************************
-bool IniFile::get (const u8* const identifier, u8 *out, u32 sizeofout) const
+bool IniFile::get (const u8* identifier, u8 *out, u32 sizeofout) const
 {
 	if (NULL == root)
 		return false;
@@ -287,7 +287,7 @@ bool IniFile::get (const u8* const identifier, u8 *out, u32 sizeofout) const
 }
 
 //********************************************
-void IniFile::getOrDefault (const u8* const identifier, const u8* const defaultValue, utf8::String &out) const
+void IniFile::getOrDefault (const u8* identifier, const u8* defaultValue, utf8::String &out) const
 {
 	if (NULL == root)
 		out = defaultValue;
@@ -296,7 +296,7 @@ void IniFile::getOrDefault (const u8* const identifier, const u8* const defaultV
 }
 
 //*******************************************
-void IniFile::getOrDefault (const u8* const identifier, const u8* const defaultValue, u8 *out, u32 sizeofout) const
+void IniFile::getOrDefault (const u8* identifier, const u8* defaultValue, u8 *out, u32 sizeofout) const
 {
 	if (NULL == root)
 	{
@@ -315,7 +315,7 @@ void IniFile::getOrDefault (const u8* const identifier, const u8* const defaultV
 }
 
 //********************************************
-bool IniFile::checkString (const u8* const identifier, const u8* const valueToCmp, bool bCaseSens) const
+bool IniFile::checkString (const u8* identifier, const u8* valueToCmp, bool bCaseSens) const
 {
 	if (NULL == root)
 		return false;
@@ -323,7 +323,7 @@ bool IniFile::checkString (const u8* const identifier, const u8* const valueToCm
 }
 
 //********************************************
-f32 IniFile::getOrDefaultAsF32 (const u8* const identifier, f32 defaultValue) const
+f32 IniFile::getOrDefaultAsF32 (const u8* identifier, f32 defaultValue) const
 {
 	if (NULL == root)
 		return defaultValue;
@@ -331,7 +331,7 @@ f32 IniFile::getOrDefaultAsF32 (const u8* const identifier, f32 defaultValue) co
 }
 
 //********************************************
-u32 IniFile::getOrDefaultAsU32 (const u8* const identifier, u32 defaultValue) const
+u32 IniFile::getOrDefaultAsU32 (const u8* identifier, u32 defaultValue) const
 {
 	if (NULL == root)
 		return defaultValue;
@@ -339,7 +339,7 @@ u32 IniFile::getOrDefaultAsU32 (const u8* const identifier, u32 defaultValue) co
 }
 
 //********************************************
-i32 IniFile::getOrDefaultAsI32 (const u8* const identifier, i32 defaultValue) const
+i32 IniFile::getOrDefaultAsI32 (const u8* identifier, i32 defaultValue) const
 {
 	if (NULL == root)
 		return defaultValue;
@@ -347,7 +347,7 @@ i32 IniFile::getOrDefaultAsI32 (const u8* const identifier, i32 defaultValue) co
 }
 
 //********************************************
-i32 IniFile::getOrDefaultHexToI32 (const u8* const identifier, const u8* const defaultValue) const
+i32 IniFile::getOrDefaultHexToI32 (const u8* identifier, const u8* defaultValue) const
 {
 	if (NULL == root)
 	{
@@ -359,7 +359,7 @@ i32 IniFile::getOrDefaultHexToI32 (const u8* const identifier, const u8* const d
 }
 
 //********************************************
-void IniFile::set (const u8* const identifier, const u8* const value, bool bCreateIfNotFound)
+void IniFile::set (const u8* identifier, const u8* value, bool bCreateIfNotFound)
 {
 	if (NULL == root)
 		root = RHEANEW(allocator, IniFileSection)(allocator);
@@ -367,7 +367,7 @@ void IniFile::set (const u8* const identifier, const u8* const value, bool bCrea
 }
 
 //********************************************
-IniFileSection*	IniFile::getSubsection (const u8* const name) const
+IniFileSection*	IniFile::getSubsection (const u8* name) const
 { 
 	if (NULL==root) 
 		return NULL; 

@@ -16,10 +16,10 @@ namespace rhea
 							SQLInterface()											{}
 		virtual				~SQLInterface()											{}
 
-		virtual	bool		openDB(const u8* const utf8_filename) = 0;
+		virtual	bool		openDB(const u8* utf8_filename) = 0;
 		virtual void		closeDB() = 0;
-		virtual bool		q (const u8* const utf8_query, SQLRst *out_result) = 0;
-		virtual bool		exec (const u8* const utf8_sql) = 0;
+		virtual bool		q (const u8* utf8_query, SQLRst *out_result) = 0;
+		virtual bool		exec (const u8* utf8_sql) = 0;
 	};
 
 

@@ -381,7 +381,7 @@ void esapi::notify_RASPI_STARTED(const cpubridge::sSubscriber &to, u16 handlerID
 }
 
 //****************************************************************************
-void esapi::ask_RASPI_START_FILEUPLOAD (const cpubridge::sSubscriber &from, const u8* const fullFilePathAndName)
+void esapi::ask_RASPI_START_FILEUPLOAD (const cpubridge::sSubscriber &from, const u8* fullFilePathAndName)
 {
 	const u32 len = rhea::string::utf8::lengthInBytes (fullFilePathAndName);
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, ESAPI_ASK_RASPI_START_FILEUPLOAD, (u32)0, fullFilePathAndName, len+1);
@@ -414,7 +414,7 @@ void esapi::translateNotify_RASPI_FILEUPLOAD(const rhea::thread::sMsg &msg, eFil
 }
 
 //****************************************************************************
-void esapi::ask_RASPI_UNZIP (const cpubridge::sSubscriber &from, const u8* const fileName, const u8* const destFolderNoSlashFinale)
+void esapi::ask_RASPI_UNZIP (const cpubridge::sSubscriber &from, const u8* fileName, const u8* destFolderNoSlashFinale)
 {
 	const u32 len1 = rhea::string::utf8::lengthInBytes (fileName);
 	const u32 len2 = rhea::string::utf8::lengthInBytes (destFolderNoSlashFinale);

@@ -2,6 +2,7 @@ TEMPLATE = lib
 QT       -= core gui
 CONFIG += staticlib
 CONFIG += create_prl link_prl
+CONFIG += c++14
 
 #direttive specifiche per quando compilo per Rockchip
 contains(DEFINES, PLATFORM_ROCKCHIP) {

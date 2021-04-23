@@ -100,7 +100,7 @@ void UTF8Char_Latin1ToUTF8 (u8 latin1, u8 *out_utf80, u8 *out_utf81)
 }
 
 //*************************************************
-bool UTF8Char::setFromConstChar (const char* const utf8Char, u8 *out_numByteConsumed)
+bool UTF8Char::setFromConstChar (const char* utf8Char, u8 *out_numByteConsumed)
 {
 	if (NULL == utf8Char)
 	{

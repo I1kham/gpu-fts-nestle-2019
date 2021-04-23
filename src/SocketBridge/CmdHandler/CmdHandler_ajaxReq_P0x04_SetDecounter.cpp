@@ -12,7 +12,7 @@ struct sInput
 };
 
 //***********************************************************
-bool ajaxReqResetDecounter_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
+bool ajaxReqResetDecounter_jsonTrapFunction(const u8* fieldName, const u8* fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 

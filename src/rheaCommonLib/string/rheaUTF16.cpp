@@ -138,7 +138,7 @@ u32 string::utf16::rtrim(u16 *s)
 }
 
 //***************************************************************
-void string::utf16::concatFromASCII (u16 *dst, u32 sizeofDstInBytes, const char* const src)
+void string::utf16::concatFromASCII (u16 *dst, u32 sizeofDstInBytes, const char* src)
 {
 	if (NULL == src)
 		return;

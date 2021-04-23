@@ -11,7 +11,7 @@ ModuleRasPI::ModuleRasPI()
 {
     fileUpload.f = NULL;
     fileUpload.lastTimeUpdatedMSec = 0;
-    stato = ModuleRasPI::eStato_boot;
+    stato = ModuleRasPI::eStato::boot;
 }
 
 //********************************************************
@@ -25,7 +25,7 @@ bool ModuleRasPI::setup (sShared *shared)
     sockettList.setup (shared->localAllocator, 128);
 
     //stato corrente
-    stato = ModuleRasPI::eStato_boot;
+    stato = ModuleRasPI::eStato::boot;
     shared->logger->log ("esapi::ModuleRasPI:: now in BOOT mode...\n");
 	return true;
 }
@@ -40,7 +40,7 @@ void ModuleRasPI::priv_unsetup(sShared *shared)
 
 
 //********************************************************
-void ModuleRasPI::virt_handleMsgFromServiceQ (sShared *shared, const rhea::thread::sMsg &msg)
+void ModuleRasPI::virt_handleMsgFromServiceQ (sShared *shared UNUSED_PARAM, const rhea::thread::sMsg &msg UNUSED_PARAM)
 {
     //non c'è nulla che questo modulo debba gestire in caso di messaggi ricevuti da altri thread sulla msgQ
     DBGBREAK;
@@ -51,8 +51,8 @@ void ModuleRasPI::virt_handleMsgFromSubscriber (sShared *shared, sSubscription &
 {
     switch (stato)
     {
-    case ModuleRasPI::eStato_boot:      boot_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
-    case ModuleRasPI::eStato_running:   running_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
+    case ModuleRasPI::eStato::boot:      boot_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
+    case ModuleRasPI::eStato::running:   running_handleMsgFromSubscriber (shared, sub, msg, handlerID); break;
     default:
         DBGBREAK;
         break;
@@ -60,7 +60,7 @@ void ModuleRasPI::virt_handleMsgFromSubscriber (sShared *shared, sSubscription &
 }
 
 //********************************************************
-void ModuleRasPI::virt_handleMsgFromCPUBridge (sShared *shared, cpubridge::sSubscriber &sub, const rhea::thread::sMsg &msg, u16 handlerID)
+void ModuleRasPI::virt_handleMsgFromCPUBridge (sShared *shared UNUSED_PARAM, cpubridge::sSubscriber &sub UNUSED_PARAM, const rhea::thread::sMsg &msg UNUSED_PARAM, u16 handlerID UNUSED_PARAM)
 {
     //in stato boot, non ci sono notiche CPUBridge che devo gestire, ma non è un errore se ne ricevo
 
@@ -71,8 +71,8 @@ void ModuleRasPI::virt_handleMsg_R_fromRs232 (sShared *shared, sBuffer *b)
 {
     switch (stato)
     {
-    case ModuleRasPI::eStato_boot:      boot_handleMsg_R_fromRs232 (shared, b); break;
-    case ModuleRasPI::eStato_running:   running_handleMsg_R_fromRs232 (shared, b); break;
+    case ModuleRasPI::eStato::boot:      boot_handleMsg_R_fromRs232 (shared, b); break;
+    case ModuleRasPI::eStato::running:   running_handleMsg_R_fromRs232 (shared, b); break;
     default:
         DBGBREAK;
         break;
@@ -84,12 +84,12 @@ void ModuleRasPI::virt_handleMsgFromSocket (sShared *shared, OSSocket &sok, u32 
 {
     switch (stato)
     {
-    case ModuleRasPI::eStato_boot:      
+    case ModuleRasPI::eStato::boot:
         //non dovrebbe mai accadere
         DBGBREAK;
         break;
 
-    case ModuleRasPI::eStato_running:  
+    case ModuleRasPI::eStato::running:
         running_handleMsgFromSocket (shared, sok, userParam);
         break;
 
@@ -190,7 +190,7 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
                 notify_RASPI_STARTED(sub.q, handlerID, shared->logger);
 
             shared->logger->log ("esapi::ModuleRasPI => now in RUNNING mode...\n");
-            this->stato = ModuleRasPI::eStato_running;
+            this->stato = ModuleRasPI::eStato::running;
         }
         break;
 
@@ -269,8 +269,8 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
             const u8 *filename;
             const u8 *dstFolder;
             esapi::translate_RASPI_UNZIP(msg, &filename, &dstFolder);
-            const u8 len1 = rhea::string::utf8::lengthInBytes(filename);
-            const u8 len2 = rhea::string::utf8::lengthInBytes(dstFolder);
+            const u8 len1 = (u8)rhea::string::utf8::lengthInBytes(filename);
+            const u8 len2 = (u8)rhea::string::utf8::lengthInBytes(dstFolder);
 
             //chiedo al rasPI
             //# R [0x05] [lenFilename] [lenFolder] [filename_terminato_con_0x00] [folderDest_con_0x00] [ck]
@@ -598,7 +598,7 @@ void ModuleRasPI::running_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
                     sConnectedSocket *cl = priv_2280_findConnectedSocketByUID(uid);
                     if (NULL != cl)
                     {
-                        rhea::socket::write (cl->sok, data, dataLen);
+                        rhea::socket::write (cl->sok, data, (u16)dataLen);
                         shared->logger->log ("esapi::ModuleRasPI::RS232 => rcv [%d] bytes, sending to socket [%d]\n", dataLen, cl->uid);
                     }
                     else

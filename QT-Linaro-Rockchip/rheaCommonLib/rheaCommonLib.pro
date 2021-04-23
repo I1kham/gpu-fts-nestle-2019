@@ -2,6 +2,7 @@ TEMPLATE = lib
 QT       -= core gui
 CONFIG += staticlib
 CONFIG += create_prl link_prl
+CONFIG += c++14
 
 message("rheaCommonLib: define: $$DEFINES")
 message("rheaCommonLib: config: $$CONFIG")
@@ -31,8 +32,7 @@ message ("$${THIS_LIBRARY_NAME}: configuration is $${CONFIG_NAME}")
 CONFIG(release, debug|release) {
 		QMAKE_CXXFLAGS += -O2
 		QMAKE_CXXFLAGS += -Wno-zero-as-null-pointer-constant
-		QMAKE_CXXFLAGS += -Wno-unused-parameter
-		QMAKE_CXXFLAGS += -Wno-unused-variable
+		QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable
 		QMAKE_CFLAGS += -O2
 		CONFIG += optimize_full
 

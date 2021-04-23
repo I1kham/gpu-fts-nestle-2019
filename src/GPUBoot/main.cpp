@@ -3,9 +3,10 @@
 #include "main.h"
 #include <qdir.h>
 #include <qprocess.h>
+#include <unistd.h>
 
 
-QString APPLICATION_FOLDER("/home/seco/Desktop/rhea");
+QString APPLICATION_FOLDER("/");
 
 //*********************************************************
 void hideMouse()
@@ -26,6 +27,14 @@ void startGPU()
 //*********************************************************
 int main(int argc, char *argv[])
 {
+    //recupera il path corrente
+    //usa la malloc per allocare il path
+    {
+        char *appPathNoSlash = get_current_dir_name();
+        APPLICATION_FOLDER = appPathNoSlash;
+        free(appPathNoSlash);
+    }
+
     //vediamo se esiste una chiavetta USB con dentro le cartelle corrette
     QDir folder (RHEA_USB_FOLDER);
     if (folder.exists())

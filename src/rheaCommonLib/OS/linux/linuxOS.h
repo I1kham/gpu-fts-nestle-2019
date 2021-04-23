@@ -47,21 +47,23 @@ namespace platform
     inline bool     criticalSection_tryEnter (OSCriticalSection &cs)                                { return (pthread_mutex_trylock(&cs.cs) == 0); }
 
                     //====================================== file system
-    bool			FS_DirectoryCreate(const u8* const utf8_path);
-    bool			FS_DirectoryDelete(const u8* const utf8_path);
-    bool			FS_DirectoryExists(const u8* const utf8_path);
+    bool			FS_DirectoryCreate(const u8* utf8_path);
+    bool			FS_DirectoryDelete(const u8* utf8_path);
+    bool			FS_DirectoryExists(const u8* utf8_path);
     
-    FILE*			FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPath);
-    FILE*			FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndPath);
-    FILE*			FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath);
-    FILE*			FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPath);
-    FILE*			FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForReadBinary (const u8* utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForWriteBinary (const u8* utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForReadText (const u8* utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForWriteText (const u8* utf8_fullFileNameAndPath);
+    FILE*			FS_fileOpenForAppendText (const u8* utf8_fullFileNameAndPath);
 
-    bool			FS_fileExists(const u8* const utf8_filename);
-    bool			FS_fileDelete(const u8* const utf8_filename);
+    void            FS_fileClose (FILE *f);
+
+    bool			FS_fileExists(const u8* utf8_filename);
+    bool			FS_fileDelete(const u8* utf8_filename);
     bool			FS_fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, const u8 *utf8_newFilename);
 
-    bool			FS_findFirst (OSFileFind *h, const u8* const utf8_path, const u8* const utf8_jolly);
+    bool			FS_findFirst (OSFileFind *h, const u8* utf8_path, const u8* utf8_jolly);
     bool			FS_findNext (OSFileFind &h);
     bool			FS_findIsDirectory (const OSFileFind &ff);
     void			FS_findGetFileName (const OSFileFind &ff, u8 *out, u32 sizeofOut);

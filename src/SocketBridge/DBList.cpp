@@ -64,7 +64,7 @@ void DBList::purge(u64 timeNowMSec UNUSED_PARAM)
 }
 
 //*********************************************************
-u16 DBList::getOrCreateDBHandle(u64 timeNowMSec,  const u8* const utf8_fullFilePathAndNameIN)
+u16 DBList::getOrCreateDBHandle(u64 timeNowMSec,  const u8* utf8_fullFilePathAndNameIN)
 {
 	u8 utf8_fullFilePathAndName[512];
 	rhea::fs::sanitizePath (utf8_fullFilePathAndNameIN, utf8_fullFilePathAndName, sizeof(utf8_fullFilePathAndName));

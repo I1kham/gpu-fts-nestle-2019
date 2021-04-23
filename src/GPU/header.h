@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.4.5"
+#define GPU_VERSION     "2.4.5.r33"
 
 
 //nome della porta seriale
@@ -15,7 +15,7 @@
     #define ESAPI_COMPORT   "/dev/ttymxc2"
     #define USB_MOUNTPOINT  "/run/media/sda1"
 #elif defined(PLATFORM_ROCKCHIP)
-    #define CPU_COMPORT         "/dev/ttyUSB0"
+    #define CPU_COMPORT         "/dev/ttyS0"
     #define ESAPI_COMPORT       "/dev/ttyS1"
     #define USB_MOUNTPOINT      "/media/SDA1"
 #endif

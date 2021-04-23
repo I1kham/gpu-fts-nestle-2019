@@ -3,7 +3,7 @@
 clear
 DATA=`date '+%y%m%d'`
 estensione="_commit.mh210"
-filename="GPU_TS_v.2.4.5_$DATA$estensione"
+filename="GPU_TS_v.2.4.5.r33_$DATA$estensione"
 
 
 FILE_GPU="./ROCKCHIP_RELEASE_GPU"

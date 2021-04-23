@@ -21,9 +21,9 @@ public:
 					DA3();
 					~DA3()																						{ free(); }
 
-    bool			loadInMemory (rhea::Allocator *allocator, const u8* const utf8_fullFilePathAndName, cpubridge::eCPUMachineType machineType, u8 machineModel);
+    bool			loadInMemory (rhea::Allocator *allocator, const u8* utf8_fullFilePathAndName, cpubridge::eCPUMachineType machineType, u8 machineModel);
     void            reload();
-	void			save (const u8* const utf8_fullFilePathAndName);
+	void			save (const u8* utf8_fullFilePathAndName);
 	void			free();
 
 	u8				readU8(u32 location) const;

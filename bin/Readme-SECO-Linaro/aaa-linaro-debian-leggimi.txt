@@ -1,6 +1,5 @@
 Una volta usata la chiavetta USB per formattare la scheda, ci sono alcuni passi addizionali da fare:
 
-
 =======================================================================================================================================
 = fare in modo che le chiavette USB inserite siano auto montate e finiscano sempre in /media/SDA1, /media/SDB1, /media/SDC1
 =======================================================================================================================================
@@ -10,3 +9,11 @@ per fare questo, editare /etc/fstab inserendo le seguenti 4 linee:
 /dev/sdb1	/media/SDB1	auto	nofail,defaults	0	1
 /dev/sdc1	/media/SDC1	auto	nofail,defaults	0	1
 
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-Nome del dekstop: LXDE
+
+-Per l'autorun di /home/seco/Desktop/rhea/ROCKCHIP_RELEASE_GPUPreBoot, vai in MENU > preferences > Default app for LXSession, poi nella
+tab autostart, poi aggiungi /home/seco/Desktop/rhea/ROCKCHIP_RELEASE_GPUPreBoot

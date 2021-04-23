@@ -24,14 +24,14 @@ CompressUtility::~CompressUtility()
 }
 
 //********************************************
-void CompressUtility::begin (const u8* const utf8_fullDstFileNameAndPath, u8 compressionLevel)
+void CompressUtility::begin (const u8* utf8_fullDstFileNameAndPath, u8 compressionLevel)
 {
 	this->numFiles = 0;
 	this->compressionLevel = compressionLevel;
 	this-> utf8_fullDstFileNameAndPath = rhea::string::utf8::allocStr (localAllocator, utf8_fullDstFileNameAndPath);
 	u8 s[1024];
 
-	sprintf_s ((char*)s, sizeof(s), "%s.header", utf8_fullDstFileNameAndPath);
+    string::utf8::spf (s, sizeof(s), "%s.header", utf8_fullDstFileNameAndPath);
 	fHeader = rhea::fs::fileOpenForWriteBinary (s);
 
 	sprintf_s ((char*)s, sizeof(s), "%s.data", utf8_fullDstFileNameAndPath);
@@ -42,7 +42,7 @@ void CompressUtility::begin (const u8* const utf8_fullDstFileNameAndPath, u8 com
 }
 
 //********************************************
-bool CompressUtility::addFile (const u8* const utf8_fullFileNameAndPath, const u8* const utf8_fullDestFileNameAndPath)
+bool CompressUtility::addFile (const u8* utf8_fullFileNameAndPath, const u8* utf8_fullDestFileNameAndPath)
 {
 	u32 srcSize = 0;
 	u8 *src = fs::fileCopyInMemory(utf8_fullFileNameAndPath, localAllocator, &srcSize);
@@ -59,7 +59,7 @@ bool CompressUtility::addFile (const u8* const utf8_fullFileNameAndPath, const u
 		u32 sizeCompressed = sizeOfTempBuffer;
 		if (compressFromMemory (src, srcSize, compressionLevel, tempBuffer, &sizeCompressed))
 		{
-            const u32 position = static_cast<const u32>(::ftell (fData));
+            const u32 position = static_cast<u32>(::ftell (fData));
 			fs::fileWrite (fData, tempBuffer, sizeCompressed);
 
 			const u8 *pSanitizedFullDestiFilenameAndPath = NULL;
@@ -168,7 +168,7 @@ void CompressUtility::end()
 }
 
 //********************************************
-void CompressUtility::excludeFolder (const u8* const utf8_fullSRCFolderPathNoSlash)
+void CompressUtility::excludeFolder (const u8* utf8_fullSRCFolderPathNoSlash)
 {
 	const u32 len = rhea::string::utf8::lengthInBytes (utf8_fullSRCFolderPathNoSlash);
 	if (len)
@@ -180,7 +180,7 @@ void CompressUtility::excludeFolder (const u8* const utf8_fullSRCFolderPathNoSla
 }
 
 //********************************************
-bool CompressUtility::addFilesInFolder (const u8* const utf8_fullSRCFolderPathNoSlash, const u8* const utf8_fullDSTFolderNameAndPathNoSlash, bool bRecurseSubFolder)
+bool CompressUtility::addFilesInFolder (const u8* utf8_fullSRCFolderPathNoSlash, const u8* utf8_fullDSTFolderNameAndPathNoSlash, bool bRecurseSubFolder)
 {
 	rhea::utf8::String s1, s2;
 	s1.prealloc(512);
@@ -252,7 +252,7 @@ bool CompressUtility::addFilesInFolder (const u8* const utf8_fullSRCFolderPathNo
 }
 
 //********************************************
-bool CompressUtility::decompresAll (const u8* const utf8_fullSRCFileNameAndPath, const u8* const pathDestNoSlash)
+bool CompressUtility::decompresAll (const u8* utf8_fullSRCFileNameAndPath, const u8* pathDestNoSlash)
 {
 	FILE *f = fs::fileOpenForReadBinary (utf8_fullSRCFileNameAndPath);
 	if (NULL == f)

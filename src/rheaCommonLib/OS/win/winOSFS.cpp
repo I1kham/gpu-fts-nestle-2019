@@ -26,7 +26,7 @@ bool win32_createFolderFromUTF8Path (const u8 *utf8_path, u32 nBytesToUseForPath
 }
 
 //*****************************************************
-bool platform::FS_DirectoryCreate (const u8* const utf8_path)
+bool platform::FS_DirectoryCreate (const u8* utf8_path)
 {
 	if (NULL == utf8_path)
 		return false;
@@ -54,7 +54,7 @@ bool platform::FS_DirectoryCreate (const u8* const utf8_path)
 }
 
 //*****************************************************
-bool platform::FS_DirectoryDelete(const u8* const utf8_path)
+bool platform::FS_DirectoryDelete(const u8* utf8_path)
 {
 	wchar_t temp[512];
 	if (win32::utf8_towchar(utf8_path, u32MAX, temp, sizeof(temp)))
@@ -63,7 +63,7 @@ bool platform::FS_DirectoryDelete(const u8* const utf8_path)
 }
 
 //*****************************************************
-bool platform::FS_DirectoryExists(const u8* const utf8_path)
+bool platform::FS_DirectoryExists(const u8* utf8_path)
 {
 	wchar_t temp[512];
 	if (!win32::utf8_towchar(utf8_path, u32MAX, temp, sizeof(temp)))
@@ -78,7 +78,15 @@ bool platform::FS_DirectoryExists(const u8* const utf8_path)
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPath)
+void platform::FS_fileClose (FILE *f)
+{
+    if (NULL == f)
+        fclose(f);
+    f = NULL;
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForReadBinary (const u8* utf8_fullFileNameAndPath)
 {
 	wchar_t filename[512];
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
@@ -91,7 +99,7 @@ FILE* platform::FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPa
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForWriteBinary (const u8* utf8_fullFileNameAndPath)
 {
 	wchar_t filename[512];
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
@@ -104,7 +112,7 @@ FILE* platform::FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndP
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForReadText (const u8* utf8_fullFileNameAndPath)
 {
 	wchar_t filename[512];
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
@@ -117,7 +125,7 @@ FILE* platform::FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForWriteText (const u8* utf8_fullFileNameAndPath)
 {
 	wchar_t filename[512];
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
@@ -130,7 +138,7 @@ FILE* platform::FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPat
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForAppendText (const u8* utf8_fullFileNameAndPath)
 {
 	wchar_t filename[512];
 	if (!win32::utf8_towchar (utf8_fullFileNameAndPath, -1, filename, sizeof(filename)))
@@ -143,7 +151,7 @@ FILE* platform::FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPa
 }
 
 //*****************************************************
-bool platform::FS_fileExists(const u8* const utf8_filename)
+bool platform::FS_fileExists(const u8* utf8_filename)
 {
 	wchar_t temp[512];
 	if (!win32::utf8_towchar(utf8_filename, u32MAX, temp, sizeof(temp)))
@@ -159,7 +167,7 @@ bool platform::FS_fileExists(const u8* const utf8_filename)
 }
 
 //*****************************************************
-bool platform::FS_fileDelete(const u8* const utf8_filename)
+bool platform::FS_fileDelete(const u8* utf8_filename)
 {
 	wchar_t temp[512];
 	if (!win32::utf8_towchar(utf8_filename, u32MAX, temp, sizeof(temp)))
@@ -188,7 +196,7 @@ bool platform::FS_fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, co
 }
 
 //*****************************************************
-bool platform::FS_findFirst(OSFileFind *ff, const u8* const utf8_path, const u8* const utf8_jolly)
+bool platform::FS_findFirst(OSFileFind *ff, const u8* utf8_path, const u8* utf8_jolly)
 {
 	assert(ff->h == INVALID_HANDLE_VALUE);
 

@@ -9,7 +9,7 @@
 #include "../rheaExternalSerialAPI/ESAPI.h"
 #include "../rheaCommonLib/SimpleLogger/FileLogger.h"
 
-MainWindow *myMainWindow = NULL;
+static MainWindow *myMainWindow = NULL;
 
 //****************************************************
 void activeSleep (u32 howMuchMSec)
@@ -106,12 +106,19 @@ bool subscribeToESAPI (cpubridge::sSubscriber *out_subscriber)
 //*****************************************************
 bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logger)
 {
-#if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
+#if defined(PLATFORM_YOCTO_EMBEDDED)
     //apro un canale di comunicazione con la CPU fisica sulla porta seriale COM_PORT (vedi header.h)
-    //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
-
     cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+#elif defined(PLATFORM_ROCKCHIP)
+    #ifdef _DEBUG
+        //apro un canale di comunicazione con una finta CPU
+        cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 
+        //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open("dev/ttyUSB0", logger);
+    #else
+        //apro un canale con la CPU fisica
+        cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
+    #endif
 #else
     //apro un canale di comunicazione con una finta CPU
     cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
@@ -151,38 +158,38 @@ void setupFolderInformation (sGlobal *glob)
     //local folders
     const u8 *baseLocalFolder = rhea::getPhysicalPathToAppFolder();
 
-    sprintf_s ((char*)s, sizeof(s), "%s/temp", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/temp", baseLocalFolder);
     glob->tempFolder = rhea::string::utf8::allocStr(allocator, s);
 
 
-    sprintf_s ((char*)s, sizeof(s), "%s/current", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/current", baseLocalFolder);
     glob->current = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/gui", glob->current);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/gui", glob->current);
     glob->current_GUI = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/lang", glob->current);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/lang", glob->current);
     glob->current_lang = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/da3", glob->current);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/da3", glob->current);
     glob->current_da3 = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/da3", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/da3", baseLocalFolder);
     glob->last_installed_da3 = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/cpu", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/cpu", baseLocalFolder);
     glob->last_installed_cpu = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/manual", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/manual", baseLocalFolder);
     glob->last_installed_manual = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/gui", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/gui", baseLocalFolder);
     glob->last_installed_gui = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
@@ -192,34 +199,34 @@ void setupFolderInformation (sGlobal *glob)
     //USB folders
     u8 baseUSBFolder[256];
 #if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
-    sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
+    rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
 #else
-    sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
+    rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
     //sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/pippo", baseLocalFolder);
 #endif
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rhea", baseUSBFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rhea", baseUSBFolder);
     glob->usbFolder = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaData", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaData", glob->usbFolder);
     glob->usbFolder_VMCSettings = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
     glob->usbFolder_CPUFW = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
     glob->usbFolder_GUI = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
     glob->usbFolder_Audit = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/lang", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/lang", glob->usbFolder);
     glob->usbFolder_Lang = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaManual", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaManual", glob->usbFolder);
     glob->usbFolder_Manual = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/AUTOF2", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/AUTOF2", glob->usbFolder);
     glob->usbFolder_AutoF2 = rhea::string::utf8::allocStr(allocator, s);
 
 

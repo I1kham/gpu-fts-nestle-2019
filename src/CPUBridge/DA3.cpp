@@ -27,7 +27,7 @@ void DA3::free()
 
 
 //*********************************************
-bool DA3::loadInMemory(rhea::Allocator *allocatorIN, const u8* const utf8_fullFilePathAndNameIN, cpubridge::eCPUMachineType machineType, u8 machineModel)
+bool DA3::loadInMemory(rhea::Allocator *allocatorIN, const u8* utf8_fullFilePathAndNameIN, cpubridge::eCPUMachineType machineType, u8 machineModel)
 {
 	free();
 
@@ -76,7 +76,7 @@ void DA3::reload()
 
 
 //*********************************************
-void DA3::save(const u8* const utf8_fullFilePathAndName)
+void DA3::save(const u8* utf8_fullFilePathAndName)
 {
 	if (NULL == blob)
 		return;

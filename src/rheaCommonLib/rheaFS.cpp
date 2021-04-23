@@ -6,7 +6,7 @@
 using namespace rhea;
 
 //**************************************************************
-void fs::sanitizePath (const u8* const utf8_path, u8* out_utf8sanitizedPath, u32 sizeOfOutSanitzed)
+void fs::sanitizePath (const u8* utf8_path, u8* out_utf8sanitizedPath, u32 sizeOfOutSanitzed)
 {
 	if (NULL == utf8_path)
 	{
@@ -113,7 +113,7 @@ void fs::sanitizePathInPlace(u8 *utf8_path, u32 nBytesToCheck)
 }
 
 //******************************************** 
-void fs::filePath_GoBack (const u8* const pathSenzaSlashIN, u8 *out, u32 sizeofout)
+void fs::filePath_GoBack (const u8* pathSenzaSlashIN, u8 *out, u32 sizeofout)
 {
 	assert (NULL != out && sizeofout > 1);
 	out[0] ='/'; 
@@ -151,7 +151,7 @@ void fs::filePath_GoBack (const u8* const pathSenzaSlashIN, u8 *out, u32 sizeofo
 }
 
 //**************************************************************************
-void fs::extractFileExt (const u8* const utf8_filename, u8 *out, u32 sizeofout)
+void fs::extractFileExt (const u8* utf8_filename, u8 *out, u32 sizeofout)
 {
 	assert (out && sizeofout >=3);
 	out[0] = 0;
@@ -182,7 +182,7 @@ void fs::extractFileExt (const u8* const utf8_filename, u8 *out, u32 sizeofout)
 }
 
 //**************************************************************************
-void fs::extractFileNameWithExt (const u8* const utf8_filename, u8 *out, u32 sizeofout)
+void fs::extractFileNameWithExt (const u8* utf8_filename, u8 *out, u32 sizeofout)
 {
 	assert (out && sizeofout >=3);
 	out[0] = 0;
@@ -220,7 +220,7 @@ void fs::extractFileNameWithExt (const u8* const utf8_filename, u8 *out, u32 siz
 }
 
 //**************************************************************************
-void fs::extractFileNameWithoutExt (const u8* const utf8_filename, u8 *out, u32 sizeofout)
+void fs::extractFileNameWithoutExt (const u8* utf8_filename, u8 *out, u32 sizeofout)
 {
 	fs::extractFileNameWithExt (utf8_filename, out, sizeofout);
 
@@ -236,7 +236,7 @@ void fs::extractFileNameWithoutExt (const u8* const utf8_filename, u8 *out, u32 
 }
 
 //**************************************************************************
-void fs::extractFilePathWithSlash (const u8* const utf8_filename, u8 *out, u32 sizeofout)
+void fs::extractFilePathWithSlash (const u8* utf8_filename, u8 *out, u32 sizeofout)
 {
 	assert (out && sizeofout >=3);
 	out[0] = 0;
@@ -260,7 +260,7 @@ void fs::extractFilePathWithSlash (const u8* const utf8_filename, u8 *out, u32 s
 }
 
 //**************************************************************************
-void fs::extractFilePathWithOutSlash (const u8* const utf8_filename, u8 *out, u32 sizeofout)
+void fs::extractFilePathWithOutSlash (const u8* utf8_filename, u8 *out, u32 sizeofout)
 {
 	assert (out && sizeofout >=3);
 	out[0] = 0;
@@ -284,7 +284,7 @@ void fs::extractFilePathWithOutSlash (const u8* const utf8_filename, u8 *out, u3
 }
 
 //*********************************************
-bool FS_doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_strJolly)
+bool FS_doesFileNameMatchJolly (const u8* utf8_filename, const u8 *utf8_strJolly)
 {
     assert (NULL != utf8_filename && NULL != utf8_strJolly);
 
@@ -343,7 +343,7 @@ bool FS_doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_st
 }
 
 //*********************************************
-bool fs::doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_strJolly)
+bool fs::doesFileNameMatchJolly (const u8* utf8_filename, const u8 *utf8_strJolly)
 {
 	//la stringa dei jolly potrebbe contenere più di una sequenza. Le sequenze sono separate da spazio
 	//es: *.txt *.bmp
@@ -386,7 +386,7 @@ bool fs::doesFileNameMatchJolly (const u8* const utf8_filename, const u8 *utf8_s
 }
 
 //**************************************************************************
-void fs::findComposeFullFilePathAndName(const OSFileFind &ff, const u8* const pathNoSlash, u8 *out, u32 sizeofOut)
+void fs::findComposeFullFilePathAndName(const OSFileFind &ff, const u8* pathNoSlash, u8 *out, u32 sizeofOut)
 {
 	sprintf_s((char*)out, sizeofOut, "%s/", pathNoSlash);
 
@@ -395,7 +395,7 @@ void fs::findComposeFullFilePathAndName(const OSFileFind &ff, const u8* const pa
 }
 
 //**************************************************************************
-void fs::deleteAllFileInFolderRecursively(const u8* const pathSenzaSlash, bool bAlsoRemoveFolder)
+void fs::deleteAllFileInFolderRecursively(const u8* pathSenzaSlash, bool bAlsoRemoveFolder)
 {
 	if (!folderExists(pathSenzaSlash))
 		return;
@@ -425,7 +425,7 @@ void fs::deleteAllFileInFolderRecursively(const u8* const pathSenzaSlash, bool b
 }
 
 //**************************************************************************
-u64 fs::filesize(const u8* const utf8_srcFullFileNameAndPath)
+u64 fs::filesize(const u8* utf8_srcFullFileNameAndPath)
 {
 	u64 ret = 0;
 	FILE *f = fileOpenForReadBinary(utf8_srcFullFileNameAndPath);
@@ -464,7 +464,7 @@ void fs::fileCopyInChunkWithPreallocatedBuffer (FILE *fSRC, u32 numBytesToCopy, 
 }
 
 //**************************************************************************
-bool fs_do_open_and_copy_fileCopy (const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath, void *buffer, u32 BUFFER_SIZE)
+bool fs_do_open_and_copy_fileCopy (const u8* utf8_srcFullFileNameAndPath, const u8* utf8_dstFullFileNameAndPath, void *buffer, u32 BUFFER_SIZE)
 {
 	FILE *fSRC = fs::fileOpenForReadBinary (utf8_srcFullFileNameAndPath);
 	if (NULL == fSRC)
@@ -494,7 +494,7 @@ bool fs_do_open_and_copy_fileCopy (const u8* const utf8_srcFullFileNameAndPath, 
 }
 
 //**************************************************************************
-bool fs::fileCopy (const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath)
+bool fs::fileCopy (const u8* utf8_srcFullFileNameAndPath, const u8* utf8_dstFullFileNameAndPath)
 {
     const u32 BUFFER_SIZE = 1024*1024;
 	rhea::Allocator *allocator = rhea::getScrapAllocator();
@@ -505,7 +505,7 @@ bool fs::fileCopy (const u8* const utf8_srcFullFileNameAndPath, const u8* const 
 }
 
 //**************************************************************************
-bool fs_folderCopy_with_buffer (const u8* const utf8_srcFullPathNoSlash, const u8* const utf8_dstFullPathNoSlash, void *buffer, u32 BUFFER_SIZE, const u8* const *elencoPathDaEscludere)
+bool fs_folderCopy_with_buffer (const u8* utf8_srcFullPathNoSlash, const u8* utf8_dstFullPathNoSlash, void *buffer, u32 BUFFER_SIZE, const u8* *elencoPathDaEscludere)
 {
 	if (!fs::folderCreate(utf8_dstFullPathNoSlash))
 	{
@@ -531,7 +531,7 @@ bool fs_folderCopy_with_buffer (const u8* const utf8_srcFullPathNoSlash, const u
 					sprintf_s(src, sizeof(src), "%s/%s", utf8_srcFullPathNoSlash, dirname);
 
 					bool bSkipFolder = false;
-					const char* const *p = (const char* const*)elencoPathDaEscludere;
+					const char* *p = (const char**)elencoPathDaEscludere;
 					while (p)
 					{
 						if (NULL == p[0])
@@ -570,7 +570,7 @@ bool fs_folderCopy_with_buffer (const u8* const utf8_srcFullPathNoSlash, const u
 
 
 //**************************************************************************
-bool fs::folderCopy(const u8* const utf8_srcFullPathNoSlash, const u8* const utf8_dstFullPathNoSlash, const u8* const *elencoPathDaEscludere)
+bool fs::folderCopy(const u8* utf8_srcFullPathNoSlash, const u8* utf8_dstFullPathNoSlash, const u8* *elencoPathDaEscludere)
 {
 	//alloco un buffer per il file copy
     const u32 BUFFER_SIZE = 1024*1024;
@@ -586,7 +586,7 @@ bool fs::folderCopy(const u8* const utf8_srcFullPathNoSlash, const u8* const utf
 }
 
 //*********************************************
-u8* fs::fileCopyInMemory(const u8* const utf8_srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer)
+u8* fs::fileCopyInMemory(const u8* utf8_srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer)
 {
 	FILE *f = fs::fileOpenForReadBinary(utf8_srcFullFileNameAndPath);
 	if (NULL == f)

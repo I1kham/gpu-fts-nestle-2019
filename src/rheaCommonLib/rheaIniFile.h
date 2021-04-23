@@ -31,27 +31,27 @@ namespace rhea
 
 
 								//============================ parse
-		bool					loadAndParse (const u8* const filename);
+		bool					loadAndParse (const u8* filename);
 		bool					parseFromMemory (const void *buffer, u32 sizeOfBuffer);
 
 								//============================ set / get
 								// identifier usa la notazione "." per indicare le sottosezioni
-		void					set (const u8* const identifier, const u8* const value, bool bCreateIfNotFound = true);
-		bool					get (const u8* const identifier, utf8::String &out) const;
-		bool					get (const u8* const identifier, u8 *out, u32 sizeofout) const;
-		void					getOrDefault (const u8* const identifier, const u8* const defaultValue, utf8::String &out) const;
-		void					getOrDefault (const u8* const identifier, const u8* const defaultValue, u8 *out, u32 sizeofout) const;
-		bool					checkString (const u8* const identifier, const u8* const valueToCmp, bool bSaseSens=false) const;
+		void					set (const u8* identifier, const u8* value, bool bCreateIfNotFound = true);
+		bool					get (const u8* identifier, utf8::String &out) const;
+		bool					get (const u8* identifier, u8 *out, u32 sizeofout) const;
+		void					getOrDefault (const u8* identifier, const u8* defaultValue, utf8::String &out) const;
+		void					getOrDefault (const u8* identifier, const u8* defaultValue, u8 *out, u32 sizeofout) const;
+		bool					checkString (const u8* identifier, const u8* valueToCmp, bool bSaseSens=false) const;
 									//ritorna true se identifier esiste ed è = a valueToCmp
-		f32						getOrDefaultAsF32 (const u8* const identifier, f32 defaultValue) const;
-		u32						getOrDefaultAsU32 (const u8* const identifier, u32 defaultValue) const;
-		i32						getOrDefaultAsI32 (const u8* const identifier, i32 defaultValue) const;
-		i32						getOrDefaultHexToI32 (const u8* const identifier, const u8* const defaultValue) const;
+		f32						getOrDefaultAsF32 (const u8* identifier, f32 defaultValue) const;
+		u32						getOrDefaultAsU32 (const u8* identifier, u32 defaultValue) const;
+		i32						getOrDefaultAsI32 (const u8* identifier, i32 defaultValue) const;
+		i32						getOrDefaultHexToI32 (const u8* identifier, const u8* defaultValue) const;
 									//legge una stringa in hex e ritorna i32 (l'hex NON deve iniziare con 0x)
 
 								//============================ section
 		IniFileSection*			getRoot() const																	{ return root; }
-		IniFileSection*			getSubsection (const u8* const name) const;
+		IniFileSection*			getSubsection (const u8* name) const;
 									// name usa la notazione "." per indicare le sottosezioni
 		u32						getNSubsection () const;
 		IniFileSection*			getSubsectionByIndex (u32 i) const;
@@ -88,31 +88,31 @@ namespace rhea
 
 								//============================= set / get
 								// identifier usa la notazione "." per indicare le sottosezioni
-		void					set (const u8* const identifier, const u8* const value, bool bCreateIfNotFound = true);
-		bool					get (const u8* const identifier, utf8::String &out) const;
-		bool					get (const u8* const identifier, u8 *out, u32 sizeofout) const;
-		void					getOrDefault (const u8* const identifier, const u8* const defaultValue, utf8::String &out) const;
-		void					getOrDefault (const u8* const identifier, const u8* const defaultValue, u8 *out, u32 sizeofout) const;
-		bool					checkString (const u8* const identifier, const u8* const valueToCmp, bool bCaseSensitive=false) const;
+		void					set (const u8* identifier, const u8* value, bool bCreateIfNotFound = true);
+		bool					get (const u8* identifier, utf8::String &out) const;
+		bool					get (const u8* identifier, u8 *out, u32 sizeofout) const;
+		void					getOrDefault (const u8* identifier, const u8* defaultValue, utf8::String &out) const;
+		void					getOrDefault (const u8* identifier, const u8* defaultValue, u8 *out, u32 sizeofout) const;
+		bool					checkString (const u8* identifier, const u8* valueToCmp, bool bCaseSensitive=false) const;
 									//ritorna true se identifier esiste ed è = a valueToCmp
-		f32						getOrDefaultAsF32 (const u8* const identifier, f32 defaultValue) const;
-		u32						getOrDefaultAsU32 (const u8* const identifier, u32 defaultValue) const;
-		i32						getOrDefaultAsI32 (const u8* const identifier, i32 defaultValue) const;
-		i32						getOrDefaultHexToI32 (const u8* const identifier, const u8* const defaultValue) const;
+		f32						getOrDefaultAsF32 (const u8* identifier, f32 defaultValue) const;
+		u32						getOrDefaultAsU32 (const u8* identifier, u32 defaultValue) const;
+		i32						getOrDefaultAsI32 (const u8* identifier, i32 defaultValue) const;
+		i32						getOrDefaultHexToI32 (const u8* identifier, const u8* defaultValue) const;
 
 								//============================= add
-		IniFileSection*			addSubsection (const u8* const name);
-		void					addComment (const u8* const s, u32 len);
-		void					addBlob (const u8* const s, u32 len);
+		IniFileSection*			addSubsection (const u8* name);
+		void					addComment (const u8* s, u32 len);
+		void					addBlob (const u8* s, u32 len);
 		
 								//============================= query
 		u32						getNSubsection () const									{ return subSection.getNElem(); }
 		IniFileSection*			getSubsectionByIndex (u32 i) const						{ assert (i<getNSubsection()); return subSection.getElem(i); }
-		IniFileSection*			getSubsection (const u8* const name) const;
+		IniFileSection*			getSubsection (const u8* name) const;
 									// name usa la notazione "." per indicare le sottosezioni
 		
 		u32						getNIdentifier() const									{ return identifier.getNElem(); }
-		u32						identifierExists (const u8* const name) const;
+		u32						identifierExists (const u8* name) const;
 		const u8*				getValueByIndex (u32 index) const;
 		const u8*				getIdentifierByIndex (u32 index) const;
 
@@ -141,9 +141,9 @@ namespace rhea
 		};
 
 	private:
-		const u8*							priv_get (const u8* const identifier) const;
-		void								priv_set (const u8* const identifierName, const u8* const valueIN, u32 valuelen);
-		IniFileSection*						priv_simpleSubsectionExists (const u8* const name) const;
+		const u8*							priv_get (const u8* identifier) const;
+		void								priv_set (const u8* identifierName, const u8* valueIN, u32 valuelen);
+		IniFileSection*						priv_simpleSubsectionExists (const u8* name) const;
 												//cerca una subsection di this, senza calcolare evenutali "."
 
 	private:

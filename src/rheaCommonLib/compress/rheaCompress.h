@@ -43,17 +43,17 @@ namespace rhea
 						CompressUtility();
 						~CompressUtility();
 
-		void			begin (const u8* const utf8_fullDstFileNameAndPath, u8 compressionLevel);
-		bool				addFile (const u8* const utf8_fullSRCFileNameAndPath, const u8* const utf8_fullDSTFileNameAndPath);
+        void			begin (const u8* utf8_fullDstFileNameAndPath, u8 compressionLevel);
+        bool				addFile (const u8* utf8_fullSRCFileNameAndPath, const u8* utf8_fullDSTFileNameAndPath);
 
-		void				excludeFolder (const u8* const utf8_fullSRCFolderPathNoSlash);
-		bool				addFilesInFolder (const u8* const utf8_fullSRCFolderPathNoSlash, const u8* const utf8_fullDSTFolderNameAndPathNoSlash, bool bRecurseSubFolder);
+        void				excludeFolder (const u8* utf8_fullSRCFolderPathNoSlash);
+        bool				addFilesInFolder (const u8* utf8_fullSRCFolderPathNoSlash, const u8* utf8_fullDSTFolderNameAndPathNoSlash, bool bRecurseSubFolder);
 								//aggiunge tutti i file del folder tranne quelli presenti nella lista degli excludeFolder
 
 		void			end();
 
 
-		static bool		decompresAll (const u8* const utf8_fullSRCFileNameAndPath, const u8* const pathDestNoSlash);
+        static bool		decompresAll (const u8* utf8_fullSRCFileNameAndPath, const u8* pathDestNoSlash);
 						/* prende un arhivio generato da begin() add..() end() e lo decomprime interamente nella
 							directory di destinazione
 						*/

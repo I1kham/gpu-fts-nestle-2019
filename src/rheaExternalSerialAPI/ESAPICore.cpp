@@ -33,7 +33,7 @@ void Core::useLogger (rhea::ISimpleLogger *loggerIN)
 //*********************************************************
 bool Core::open (const char *serialPort, const HThreadMsgW &hCPUServiceChannelW)
 {
-	const bool SERIAL_IS_BLOCKING = false;
+    //const bool SERIAL_IS_BLOCKING = false;
     shared.localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("mitm");
 
 

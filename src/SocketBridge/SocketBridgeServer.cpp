@@ -1040,13 +1040,13 @@ void Server::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 }
 
 //**************************************************************************
-u16 Server::DB_getOrCreateHandle(const u8* const utf8_fullFilePathAndName)
+u16 Server::DB_getOrCreateHandle(const u8* utf8_fullFilePathAndName)
 {
 	return dbList.getOrCreateDBHandle(rhea::getTimeNowMSec(), utf8_fullFilePathAndName);
 }
 
 //**************************************************************************
-const rhea::SQLRst*	Server::DB_q(u16 dbHandle, const u8* const utf8_sql)
+const rhea::SQLRst*	Server::DB_q(u16 dbHandle, const u8* utf8_sql)
 {
 	if (dbList.q(dbHandle, rhea::getTimeNowMSec(), utf8_sql, &rst))
 		return &rst;
@@ -1054,13 +1054,13 @@ const rhea::SQLRst*	Server::DB_q(u16 dbHandle, const u8* const utf8_sql)
 }
 
 //**************************************************************************
-bool Server::DB_exec (u16 dbHandle, const u8* const utf8_sql)
+bool Server::DB_exec (u16 dbHandle, const u8* utf8_sql)
 {
 	return dbList.exec(dbHandle, rhea::getTimeNowMSec(), utf8_sql);
 }
 
 //**************************************************************************
-void Server::DB_closeByPath(const u8* const utf8_fullFilePathAndName)
+void Server::DB_closeByPath(const u8* utf8_fullFilePathAndName)
 {
 	dbList.closeDBByPath(utf8_fullFilePathAndName);
 }
@@ -1072,7 +1072,7 @@ void Server::DB_closeByHandle(u16 dbHandle)
 }
 
 //**************************************************************************
-bool Server::taskSpawnAndRun (const char *taskName, const u8* const params, u32 *out_taskID)
+bool Server::taskSpawnAndRun (const char *taskName, const u8* params, u32 *out_taskID)
 {
 	TaskStatus *s = taskFactory->spawnAndRunTask(localAllocator, taskName, params);
 	if (NULL == s)

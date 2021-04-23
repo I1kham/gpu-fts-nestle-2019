@@ -17,7 +17,7 @@ SQLInterface_SQLite::~SQLInterface_SQLite()
 }
 
 //*************************************************************** 
-bool SQLInterface_SQLite::openDB(const u8* const utf8_filename)
+bool SQLInterface_SQLite::openDB(const u8* utf8_filename)
 {
 	int err = sqlite3_open((const char*)utf8_filename, &db);
 	if (SQLITE_OK == err)
@@ -37,7 +37,7 @@ void SQLInterface_SQLite::closeDB()
 }
 
 //*************************************************************** 
-bool SQLInterface_SQLite::exec(const u8* const utf8_sql)
+bool SQLInterface_SQLite::exec(const u8* utf8_sql)
 {
 	if (NULL == db)
 		return false;
@@ -47,7 +47,7 @@ bool SQLInterface_SQLite::exec(const u8* const utf8_sql)
 }
 
 //*************************************************************** 
-bool SQLInterface_SQLite::q(const u8* const utf8_query, SQLRst *out_result)
+bool SQLInterface_SQLite::q(const u8* utf8_query, SQLRst *out_result)
 {
 	if (NULL == db)
 		return false;

@@ -35,7 +35,7 @@ void EVADTSParser::priv_reset()
 }
 
 //*******************************************************
-bool EVADTSParser::loadAndParse(const u8* const fullFilePathAndName)
+bool EVADTSParser::loadAndParse(const u8* fullFilePathAndName)
 {
 	FILE *f = rhea::fs::fileOpenForReadBinary(fullFilePathAndName);
 	if (NULL == f)

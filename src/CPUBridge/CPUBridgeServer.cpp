@@ -1450,7 +1450,7 @@ bool Server::priv_WriteByteMasterNext (u8 dato_8, bool isLastFlag, u8 *out_buffe
  * Al termine dell'upload, se tutto è andato bene, il mhx sorgente viene copiato pari pari (compreso il suo nome originale) in
  *	app/last_installed/cpu/nomeFileSrc.mhx
  */
-eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath)
+eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* srcFullFileNameAndPath)
 {
 	u8 cpuFWFileNameOnly[256];
 	u8 tempFilePathAndName[512];
@@ -1648,7 +1648,7 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
  *	app/last_installed/da3/nomeFileSrc.da3 e anche in  app/current/da3/vmcDataFile.da3
  * Al termine della copia, chiede a CPU il timestamp del da3 e lo salva in current/da3/vmcDataFile.timestamp
  */
-eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath)
+eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* srcFullFileNameAndPath)
 {
 	u8 fileName[256];
 	u8 tempFilePathAndName[512];
@@ -1995,7 +1995,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 }
 
 //***************************************************
-void Server::priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID)
+void Server::priv_downloadDataAudit_onFinishedOK(const u8* fullFilePathAndName, u32 fileID)
 {
 	//parso il file ricevuto e genero un secondo file di nome "packedDataAudit%d.dat" contenente le info in versione "packed"
 	EVADTSParser *parser = RHEANEW(localAllocator, EVADTSParser)();

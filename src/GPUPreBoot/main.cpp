@@ -63,14 +63,27 @@ bool checkFWUpdate()
 
 
 //*****************************************************
-int main()
+int main(int argc, char *argv[])
 {
+    //sposto la "working directory" nel path di questo exe
+    if (argc > 0)
+    {
+        if (argv[0][0] != '.')
+        {
+            //recupero il path direttamente da argv[0]
+            u8 path[256];
+            rhea::fs::extractFilePathWithOutSlash ((const u8*)argv[0], path, sizeof(path));
+            chdir((const char*)path);
+        }
+    }
+
 #ifdef WIN32
     HINSTANCE hInst = NULL;
     rhea::init("rheaGPUPreBoot", &hInst);
 #else
     rhea::init("rheaGPUPreBoot", NULL);
 #endif
+
 
     if (usbPenDriveExists())
         checkFWUpdate();
@@ -81,10 +94,12 @@ int main()
 
     rhea::deinit();
 
-    const char *argv[4];
-    memset (argv, 0, sizeof(argv));
-    argv[0] = exeAndPathName;
-    printf ("launcing %s\n", exeAndPathName);
-    execvp (exeAndPathName, (char* const*)argv);
+    {
+        const char *argv[4];
+        memset (argv, 0, sizeof(argv));
+        argv[0] = exeAndPathName;
+        printf ("launcing %s\n", exeAndPathName);
+        execvp (exeAndPathName, (char* const*)argv);
+    }
     return 0;
 }

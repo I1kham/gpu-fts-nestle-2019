@@ -794,7 +794,7 @@ void FormBoot::priv_uploadManual (const u8 *srcFullFolderPath)
         rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_manual, false);
 
 
-        sprintf_s ((char*)s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
+        rhea::string::utf8::spf (s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
         rhea::fs::folderCreate (s);
 
         //copio tutto il folder src nel folder in macchina

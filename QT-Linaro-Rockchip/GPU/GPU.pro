@@ -3,7 +3,7 @@ QT       += webkitwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TEMPLATE = app
-
+CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++0x
 QMAKE_CXXFLAGS += -pthread
 QMAKE_CXXFLAGS += -Wno-unused-result
@@ -12,6 +12,7 @@ QMAKE_CXXFLAGS += -Wcomment
 QMAKE_CXXFLAGS += -Wno-zero-as-null-pointer-constant
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 QMAKE_CXXFLAGS += -Wno-unused-variable
+QMAKE_CXXFLAGS += -Wno-format-truncation
 #QMAKE_CXXFLAGS += -O2
 #QMAKE_CFLAGS += -O2
 #CONFIG += optimize_full

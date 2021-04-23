@@ -1,5 +1,8 @@
 #include "../rheaString.h"
 #include "../rhea.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 using namespace rhea;
 
@@ -82,7 +85,7 @@ bool string::utf8::toUTF32 (const UTF8Char &in, UTF32Char *out)
 }
 
 //**************************************************
-u32 string::utf8::lengthInBytes (const u8* const utf8_str)
+u32 string::utf8::lengthInBytes (const u8* utf8_str)
 {
 	if (NULL == utf8_str)
 		return 0;
@@ -102,7 +105,7 @@ u32 string::utf8::lengthInBytes (const u8* const utf8_str)
 }
 
 //**************************************************
-u8 string::utf8::extractAChar (const u8* const p, u32 lenInBytes, UTF8Char *out)
+u8 string::utf8::extractAChar (const u8* p, u32 lenInBytes, UTF8Char *out)
 {
 	if (NULL == p || lenInBytes<1)
 		return 0;
@@ -198,13 +201,13 @@ u8 string::utf8::extractAChar (const u8* const p, u32 lenInBytes, UTF8Char *out)
 
 
 //**************************************************
-u8* string::utf8::allocStr (Allocator *allocator, const char* const src, u32 numBytesDaUtilizzare)
+u8* string::utf8::allocStr (Allocator *allocator, const char* src, u32 numBytesDaUtilizzare)
 {
-    return utf8::allocStr (allocator, (const u8* const)(src), numBytesDaUtilizzare);
+    return utf8::allocStr (allocator, reinterpret_cast<const u8*>(src), numBytesDaUtilizzare);
 }
 
 //**************************************************
-u8* string::utf8::allocStr (Allocator *allocator, const u8* const src, u32 numBytesDaUtilizzare)
+u8* string::utf8::allocStr (Allocator *allocator, const u8* src, u32 numBytesDaUtilizzare)
 {
 	assert (allocator && src);
 
@@ -220,7 +223,7 @@ u8* string::utf8::allocStr (Allocator *allocator, const u8* const src, u32 numBy
 }
 
 //**************************************************
-u32 string::utf8::makeStr (u8 *dst, u32 sizeofDst, const char* const src)
+u32 string::utf8::makeStr (u8 *dst, u32 sizeofDst, const char* src)
 {
 	assert (dst && sizeofDst);
 	dst[0] = 0;
@@ -260,7 +263,7 @@ u32 string::utf8::makeStr (u8 *dst, u32 sizeofDst, const char* const src)
 }
 
 //**************************************************
-u32 string::utf8::copyStr (u8 *dst, u32 sizeofDst, const u8* const src, u32 numBytesDaUtilizzare)
+u32 string::utf8::copyStr (u8 *dst, u32 sizeofDst, const u8* src, u32 numBytesDaUtilizzare)
 {
 	assert (dst && sizeofDst);
 
@@ -290,7 +293,7 @@ u32 string::utf8::copyStr (u8 *dst, u32 sizeofDst, const u8* const src, u32 numB
 }
 
 //**************************************************
-u32 string::utf8::copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8* const src)
+u32 string::utf8::copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8* src)
 {
     if (NULL == dst)
         return 0;
@@ -324,14 +327,14 @@ u32 string::utf8::copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8* cons
 }
 
 //**************************************************
-u32 string::utf8::concatStr (u8 *dst, u32 sizeofDst, const char* const src)
+u32 string::utf8::concatStr (u8 *dst, u32 sizeofDst, const char* src)
 {
 	u32 n = string::utf8::lengthInBytes(dst);
 	return n + utf8::makeStr (&dst[n], sizeofDst - n, src);
 }
 
 //**************************************************
-bool string::utf8::areEqual (const u8* const a, const u8* const b, bool bCaseSensitive)							
+bool string::utf8::areEqual (const u8* a, const u8* b, bool bCaseSensitive)
 { 
 	assert (NULL != a && NULL != b);
 	
@@ -342,12 +345,12 @@ bool string::utf8::areEqual (const u8* const a, const u8* const b, bool bCaseSen
 }
 
 //**************************************************
-bool string::utf8::areEqualWithLen (const u8* const a, const u8* const b, bool bCaseSensitive, u32 numBytesToCompare)
+bool string::utf8::areEqualWithLen (const u8* a, const u8* b, bool bCaseSensitive, u32 numBytesToCompare)
 {
 	if (bCaseSensitive) 
-		return (strncmp ((const char* const)a, (const char* const)b, numBytesToCompare) == 0); 
+        return (strncmp (reinterpret_cast<const char*>(a), reinterpret_cast<const char*>(b), numBytesToCompare) == 0);
 
-    return (strncasecmp ((const char* const)a, (const char* const)b, numBytesToCompare) == 0);
+    return (strncasecmp (reinterpret_cast<const char*>(a), reinterpret_cast<const char*>(b), numBytesToCompare) == 0);
 }
 
 //**************************************************
@@ -797,7 +800,7 @@ bool string::utf8::extractCPPComment (Iter &srcIN, Iter *result)
 			{
 				src.advanceOneChar();
 				//result->setup (&(srcIN.s[srcIN.iNow]), 0, src.iNow - srcIN.iNow );
-				result->setup (srcIN.getPointerToCurrentPosition(), 0, (u32)(src.getPointerToCurrentPosition() - srcIN.getPointerToCurrentPosition()) );
+                result->setup (srcIN.getPointerToCurrentPosition(), 0, static_cast<u32>(src.getPointerToCurrentPosition() - srcIN.getPointerToCurrentPosition()) );
 				srcIN = src;
 				return true;
 			}
@@ -814,7 +817,7 @@ u32 string::utf8::decodeURIinPlace (u8 *s)
 {
 	if (NULL == s)
 		return 0;
-    u8 *pIN = (u8*)s;
+    u8 *pIN = static_cast<u8*>(s);
 	u8 *pOUT = pIN;
 	u32 ct = 0;
 	u32 i = 0;
@@ -831,8 +834,8 @@ u32 string::utf8::decodeURIinPlace (u8 *s)
 				if ((c3 >= 'A' && c3 <= 'F') || (c3 >= '0' && c3 <= '9'))
 				{
 					u32 b = 0;
-					ansi::hexToInt ((const char*)&s[i + 1], &b, 2);
-					pOUT[ct++] = (u8)b;
+                    ansi::hexToInt (reinterpret_cast<const char*>(&s[i + 1]), &b, 2);
+                    pOUT[ct++] = static_cast<u8>(b);
 					i += 2;
 				}
 			}
@@ -868,7 +871,7 @@ void string::utf8::appendU32 (u8 *dst, size_t sizeOfDest, u32 num, u8 minNumOfDi
 	else
 		sprintf_s(s, sizeof(s), "%0*d", minNumOfDigit, num);
 	
-	utf8::concatStr (dst, sizeOfDest, s);
+    utf8::concatStr (dst, static_cast<u32>(sizeOfDest), s);
 }
 
 //*********************************************************
@@ -880,5 +883,14 @@ void string::utf8::appendI32 (u8 *dst, size_t sizeOfDest, i32 num, u8 minNumOfDi
 	else
 		sprintf_s(s, sizeof(s), "%0*d", minNumOfDigit, num);
 
-	utf8::concatStr (dst, sizeOfDest, s);
+    utf8::concatStr (dst, static_cast<u32>(sizeOfDest), s);
+}
+
+//*********************************************************
+void string::utf8::spf (u8 *dest, u32 sizeOfDest, const char *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+    vsnprintf (reinterpret_cast<char*>(dest), sizeOfDest, format, argptr);
+    va_end(argptr);
 }

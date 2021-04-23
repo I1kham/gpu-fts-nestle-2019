@@ -8,7 +8,7 @@ using namespace rhea;
 
 
 //*************************************************
-FileLogger::FileLogger(const u8* const fullFilePathAndName)
+FileLogger::FileLogger(const u8* fullFilePathAndName)
 {
 	rhea::criticalsection::init(&cs);
     rhea::string::utf8::copyStr (this->fullFilePathAndName, sizeof(this->fullFilePathAndName), fullFilePathAndName);
