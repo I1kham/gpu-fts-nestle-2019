@@ -1033,6 +1033,20 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
+
+			case eCPUProgrammingCommand::getCupSensorLiveValue:
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				
+				rhea::utils::bufferWriteU16_LSB_MSB (&out_answer[ct], (u16)rhea::randomU32(0xffff));
+				ct += 2;
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+				return true;
 			} //switch (subcommand)
 		}
 		break;

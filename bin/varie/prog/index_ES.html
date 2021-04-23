@@ -1007,7 +1007,14 @@
 					<table border='0' class='elenco'>
 						<tr><td>DETECCION BANDEJA DE GOTEO</td><td><div class='UIOption' data-option='0|NO|1|SI' data-da3='7092' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_cofSensor"><td>SENSOR CAFE</td><td><div class='UIOption' data-option='1|HABILITADO|0|DESACTIVADO' data-da3='7094' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_cupSensor"><td>UMBRAL DEL SENSOR DE VASO</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
+						<tr id="pageDevices_cupSensor">
+							<td>UMBRAL DEL SENSOR DE VASO</td>
+							<td>
+								<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
+								<div style="float:left; margin-left:40px">VALOR ACTUAL:<br><span class="bigCaption15" id="divCupSensorLiveValue"></span></div>
+								<div style="clear"></div>
+							</td>
+						</tr>
 						<tr id="pageDevices_boilerSize"><td>BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='INICIA' data-onclick="pageDevices_startModemTest()"></div></td></tr>

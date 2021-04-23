@@ -161,6 +161,7 @@ namespace cpubridge
     u8			buildMsg_getMilkerVer (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_requestPriceHoldingPriceList (u8 firstPrice, u8 numPrices, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getCupSensorLiveValue (u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 	/***********************************************
@@ -338,6 +339,10 @@ namespace cpubridge
 
 	void		notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const u8 bufLen, const u8* buffer);
 	void		translateNotify_CPU_GET_JUG_REPETITIONS(const rhea::thread::sMsg& msg, u8 *out_len, u8 *out_buf, u32 sizeof_out_buffer);
+
+	void		notify_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 value);
+	void		translateNotify_CPU_GET_CUPSENSOR_LIVE_VALUE(const rhea::thread::sMsg &msg, u16 *out_value);
+	
 
 	/***********************************************
 		ask_xxxx
@@ -574,6 +579,9 @@ namespace cpubridge
 	void		ask_CPU_GET_JUG_REPETITIONS(const sSubscriber& from, u16 handlerId);
 					//viene richiesta alla CPU le impostazioni delle ripetizione per i JUG per tutte le bevande disponibili
 					// alla ricezione di questo messaggio GPUBridge risponera con notify_CPU_GET_JUG_REPETITIONS
+
+	void		ask_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &from, u16 handlerID);
+	//alla ricezione di questo msg, CPUBridge risponderà con un notify_CUPSENSOR_LIVE_VALUE
 
 } // namespace cpubridge
 

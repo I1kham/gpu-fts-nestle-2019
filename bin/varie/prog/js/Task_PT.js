@@ -1360,6 +1360,11 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 		this.priv_handleGrinderSpeedTest(timeNowMsec);
 }
 
+TaskDevices.prototype.priv_queryCupCoverSensorLiveValue = function(timeNowMsec)
+{
+	
+}
+
 TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
 {
 	if (this.fase == 0)
@@ -1398,6 +1403,17 @@ TaskDevices.prototype.priv_handleRunSelection = function(timeNowMsec)
 
 TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 {
+	//aggiornamento lettura sul sensore "cup"
+	rhea.ajax ("getCupSensorLiveValue", "" ).then( function(result)
+	{
+		rheaSetDivHTMLByName("divCupSensorLiveValue", result);
+	})
+	.catch( function(result)
+	{
+	});
+	
+	
+	//aggiornamento posizione macine
 	if (da3.isGruppoMicro())
 		return;	
 	var me = this;
@@ -2086,6 +2102,7 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		break;
 	}
 }
+
 
 
 /**********************************************************

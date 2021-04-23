@@ -1007,7 +1007,14 @@
 					<table border='0' class='elenco'>
 						<tr><td>$LAB_DRIPTRAY_DETECTION</td><td><div class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='7092' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_cofSensor"><td>$LAB_DEV_COFFEE_SENSOR</td><td><div class='UIOption' data-option='1|$LAB_ENABLED|0|$LAB_DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_cupSensor"><td>$LAB_DEV_CUP_SENSOR_THRESHOLD</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
+						<tr id="pageDevices_cupSensor">
+							<td>$LAB_DEV_CUP_SENSOR_THRESHOLD</td>
+							<td>
+								<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
+								<div style="float:left; margin-left:40px">$LAB_current_value:<br><span class="bigCaption15" id="divCupSensorLiveValue"></span></div>
+								<div style="clear"></div>
+							</td>
+						</tr>
 						<tr id="pageDevices_boilerSize"><td>$LAB_BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>$LAB_DEV_MODEM_TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='$LAB_START' data-onclick="pageDevices_startModemTest()"></div></td></tr>

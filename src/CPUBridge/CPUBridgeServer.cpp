@@ -1242,6 +1242,20 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				notify_CPU_GET_JUG_REPETITIONS(sub->q, handlerID, logger, len, buffer);
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_CUPSENSOR_LIVE_VALUE:
+			{
+				u8 bufferW[32];
+				const u16 nBytesToSend = cpubridge::buildMsg_getCupSensorLiveValue(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				{
+					const u16 value = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4]);
+					notify_CPU_GET_CUPSENSOR_LIVE_VALUE (sub->q, handlerID, logger, value);
+				}
+			}
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);

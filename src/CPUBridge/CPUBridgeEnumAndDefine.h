@@ -74,6 +74,7 @@
 #define		CPUBRIDGE_NOTIFY_GET_PRICEHOLDING_PRICELIST			0x0134
 #define		CPUBRIDGE_NOTIFY_GET_MILKER_TYPE					0x0135
 #define		CPUBRIDGE_NOTIFY_GET_JUG_REPETITIONS				0x0136
+#define		CPUBRIDGE_NOTIFY_GET_CUPSENSOR_LIVE_VALUE			0x0137
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -143,6 +144,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_PRICEHOLDING_PRICELIST					0x083C
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_GET_MILKER_TYPE							0x083D
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_REPETITONS								0x083E
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_CUPSENSOR_LIVE_VALUE						0x083F
 
 namespace cpubridge
 {
@@ -312,6 +314,7 @@ namespace cpubridge
 		startTestAssorbMotoriduttore = 0x21,
 		getStatusTestAssorbMotoriduttore = 0x22,
 		getLastGrinderSpeed = 0x23,
+		getCupSensorLiveValue = 0x24,			//ritorna il valore attualmente letto da CPU
 		unknown = 0xff
     };
 

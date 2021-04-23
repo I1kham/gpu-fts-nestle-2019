@@ -1007,7 +1007,14 @@
 					<table border='0' class='elenco'>
 						<tr><td>滴水检测</td><td><div class='UIOption' data-option='0|没有|1|确认' data-da3='7092' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_cofSensor"><td>咖啡传感器</td><td><div class='UIOption' data-option='1|已启用|0|已禁用' data-da3='7094' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_cupSensor"><td>杯型传感器阈值</td><td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></td></tr>
+						<tr id="pageDevices_cupSensor">
+							<td>杯型传感器阈值</td>
+							<td>
+								<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
+								<div style="float:left; margin-left:40px">当前值:<br><span class="bigCaption15" id="divCupSensorLiveValue"></span></div>
+								<div style="clear"></div>
+							</td>
+						</tr>
 						<tr id="pageDevices_boilerSize"><td>BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>调制解调器测试</td><td><div class='UIButton bigButton60 actionButton' data-caption='启动' data-onclick="pageDevices_startModemTest()"></div></td></tr>

@@ -521,7 +521,11 @@ u8 cpubridge::buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer)
 	return buildMsg_Programming(eCPUProgrammingCommand::getLastGrinderSpeed, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
-
+//***************************************************
+u8 cpubridge::buildMsg_getCupSensorLiveValue (u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand::getCupSensorLiveValue, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
 
 
 //***************************************************
@@ -2369,4 +2373,26 @@ void cpubridge::translateNotify_CPU_GET_JUG_REPETITIONS(const rhea::thread::sMsg
 		*out_len = sizeof_out_buf;
 	}
 	memcpy(out_buf, &p[1], *out_len);
+}
+
+
+//***************************************************
+void cpubridge::ask_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_CUPSENSOR_LIVE_VALUE, handlerID);
+}
+
+void cpubridge::notify_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 value)
+{
+	logger->log("notify_CPU_GET_CUPSENSOR_LIVE_VALUE\n");
+	u8 optionalData[2];
+	rhea::utils::bufferWriteU16(optionalData, value);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_CUPSENSOR_LIVE_VALUE, handlerID, optionalData, 2);
+}
+
+void cpubridge::translateNotify_CPU_GET_CUPSENSOR_LIVE_VALUE(const rhea::thread::sMsg &msg, u16 *out_value)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_CUPSENSOR_LIVE_VALUE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_value = rhea::utils::bufferReadU16(p);
 }
