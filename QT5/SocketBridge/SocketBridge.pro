@@ -187,7 +187,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDA3info.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetGPUVer.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.cpp
 
 
 HEADERS += \
@@ -292,7 +293,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetDA3info.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetGPUVer.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.h
 
 
 
