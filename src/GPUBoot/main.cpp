@@ -19,9 +19,20 @@ void hideMouse()
 //*********************************************************
 void startGPU()
 {
-    QProcess proc;
+    /*QProcess proc;
     proc.setProgram(APPLICATION_FOLDER + "/GPUPackage2019/GPUFusion");
     proc.startDetached();
+    */
+
+    char *appPathNoSlash = get_current_dir_name();
+    char exeAndPathName[512];
+    sprintf (exeAndPathName, "%s/GPUPackage2019/GPUFusion", appPathNoSlash);
+
+    char *argv[4];
+    memset (argv, 0, sizeof(argv));
+    argv[0] = exeAndPathName;
+    printf ("launcing %s\n", exeAndPathName);
+    execvp (exeAndPathName, (char* const*)argv);
 }
 
 //*********************************************************

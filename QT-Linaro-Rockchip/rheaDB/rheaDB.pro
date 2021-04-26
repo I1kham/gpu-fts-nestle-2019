@@ -33,7 +33,7 @@ LIBRARY_NAME="rheaCommonLib"
 		unix:!macx: LIBS += -L$${PATH_TO_LIB}/ -l$${FULL_LIBRARY_NAME}
 		unix:!macx: PRE_TARGETDEPS += "$${PATH_TO_LIB}/lib$${FULL_LIBRARY_NAME}.a"
 
-
+QMAKE_CFLAGS += -Wno-cast-function-type
 CONFIG(release, debug|release) {
         QMAKE_CXXFLAGS += -O2
         QMAKE_CXXFLAGS += -Wno-zero-as-null-pointer-constant
