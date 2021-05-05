@@ -3065,7 +3065,7 @@ TaskGrinderClean.prototype.step28 = function()
 	pleaseWait_rotella_hide();
 	
 	//Do you want do dispense a coffe?
-	this.priv_show ("Do you want do dispense a coffe?", "NO", "YES");
+	this.priv_show ("Do you want do dispense a coffee?", "NO", "YES");
 }
 
 TaskGrinderClean.prototype.step40 = function()
