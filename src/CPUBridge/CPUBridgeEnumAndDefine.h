@@ -482,7 +482,7 @@ namespace cpubridge
 		static const u16 FLAG1_IS_FREEVEND					= 0x0008;
 		static const u16 FLAG1_IS_TESTVEND					= 0x0010;
 		
-		static const u16 FLAG1_CUP_ABSENT					= 0x0100;
+		static const u16 FLAG1_CUP_DETECTED					= 0x0100;
 		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0200;
 
 		char							userCurrentCredit[16];

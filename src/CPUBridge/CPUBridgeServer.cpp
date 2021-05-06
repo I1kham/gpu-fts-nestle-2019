@@ -3013,9 +3013,9 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	
 	//cpuStatus.CupAbsentStatus_flag = answer[9] & 0x08;
 	if ((answer[9] & 0x08) != 0)
-		newCpuStatusFlag1 |= sCPUStatus::FLAG1_CUP_ABSENT;
+		newCpuStatusFlag1 |= sCPUStatus::FLAG1_CUP_DETECTED;
 	else
-		newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_CUP_ABSENT);
+		newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_CUP_DETECTED);
 
 	//cpuStatus.bShowDialogStopSelezione = answer[9] & 0x10;
 	if ((answer[9] & 0x10) != 0)
