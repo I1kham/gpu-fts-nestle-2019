@@ -133,6 +133,10 @@ namespace rhea
 									//L'array contiene le info su nome, IP e netmask degli adattaotri di rete disponibili al sistema
 		void				ipstrTo4bytes (const char *ip, u8 *out_b1, u8 *out_b2, u8 *out_b3, u8 *out_b4);
 
+		inline bool			getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)												{ return platform::NET_getMACAddress(out_macAddress, sizeOfMacAddress); }
+								//ritorna il MAC address di eth0 se esiste.
+								//[out_macAddress] deve essere di almeno 16 char
+
 		//=============================== NETWORK ADDRESS
 		void				setFromSockAddr(OSNetAddr &me, const sockaddr_in &addrIN);
 		void				setFromAddr(OSNetAddr &me, const OSNetAddr &addrIN);

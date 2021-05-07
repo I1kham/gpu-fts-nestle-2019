@@ -89,11 +89,12 @@ eSocketError platform::socket_openAsTCPClient(OSSocket *sok, const char *connect
 
 	if (0 != connect(sok->socketID, (SOCKADDR *)& clientService, sizeof(clientService)))
 	{
+		const int err = WSAGetLastError();
+
 		::closesocket(sok->socketID);
 		sok->socketID = -1;
 
 		//int err = errno;
-		int err = WSAGetLastError();
 		switch (err)
 		{
 		case WSA_INVALID_HANDLE:		return eSocketError::invalidDescriptor;

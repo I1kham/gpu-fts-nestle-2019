@@ -17,7 +17,7 @@ namespace esapi
 	{
 	public:
 		static const u8			ESAPI_VERSION_MAJOR = 1;
-		static const u8			ESAPI_VERSION_MINOR = 0;
+		static const u8			ESAPI_VERSION_MINOR = 1;
 
 	public:
 								Protocol();

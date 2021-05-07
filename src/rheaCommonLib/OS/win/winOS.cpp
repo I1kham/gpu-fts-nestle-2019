@@ -259,4 +259,67 @@ sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea:
 	return ret;
 }
 
+//*******************************************************************
+bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
+{
+	if (sizeOfMacAddress < 16)
+	{
+		out_macAddress[0] = 0x00;
+		DBGBREAK;
+		return false;
+	}
+
+	rhea::Allocator *allocator = rhea::getScrapAllocator();
+
+	PIP_ADAPTER_INFO AdapterInfo;
+	AdapterInfo = (IP_ADAPTER_INFO *)RHEAALLOC(allocator, sizeof(IP_ADAPTER_INFO));
+	if (AdapterInfo == NULL)
+	{
+		out_macAddress[0] = 0x00;
+		DBGBREAK;
+		return false;
+	}
+
+	// Make an initial call to GetAdaptersInfo to get the necessary size into the dwBufLen variable
+	DWORD dwBufLen = sizeof(IP_ADAPTER_INFO);
+	if (ERROR_BUFFER_OVERFLOW == GetAdaptersInfo(AdapterInfo, &dwBufLen))
+	{
+		RHEAFREE(allocator, AdapterInfo);
+		AdapterInfo = (IP_ADAPTER_INFO *)RHEAALLOC(allocator, dwBufLen);
+		if (AdapterInfo == NULL)
+		{
+			out_macAddress[0] = 0x00;
+			DBGBREAK;
+			return false;
+		}
+	}
+
+	if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == NO_ERROR)
+	{
+		// Contains pointer to current adapter info
+		PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo;
+		while (pAdapterInfo)
+		{
+			if (strcmp(pAdapterInfo->IpAddressList.IpAddress.String, "0.0.0.0") != 0)
+			{
+				// technically should look at pAdapterInfo->AddressLength and not assume it is 6.
+				//sprintf(mac_addr, "%02X:%02X:%02X:%02X:%02X:%02X", pAdapterInfo->Address[0], pAdapterInfo->Address[1], pAdapterInfo->Address[2], pAdapterInfo->Address[3], pAdapterInfo->Address[4], pAdapterInfo->Address[5]);
+				//printf("Address: %s, mac: %s\n", pAdapterInfo->IpAddressList.IpAddress.String, mac_addr);
+				//printf("\n");
+
+				if (pAdapterInfo->AddressLength == 6)
+					sprintf_s(out_macAddress, sizeOfMacAddress, "%02X%02X%02X%02X%02X%02X", pAdapterInfo->Address[0], pAdapterInfo->Address[1], pAdapterInfo->Address[2], pAdapterInfo->Address[3], pAdapterInfo->Address[4], pAdapterInfo->Address[5]);
+				else
+					sprintf_s(out_macAddress, sizeOfMacAddress, "%02X%02X%02X%02X", pAdapterInfo->Address[0], pAdapterInfo->Address[1], pAdapterInfo->Address[2], pAdapterInfo->Address[3]);
+
+				RHEAFREE(allocator, AdapterInfo);
+				return true;
+			}
+
+			pAdapterInfo = pAdapterInfo->Next;
+		}
+	}
+	RHEAFREE(allocator, AdapterInfo);
+	return false;
+}
 #endif //WIN32

@@ -18,6 +18,9 @@
 	#define ESAPI_COMPORT	"COM4"
 #endif
 
+
+
+
 //*****************************************************
 bool startCPUBridge()
 {

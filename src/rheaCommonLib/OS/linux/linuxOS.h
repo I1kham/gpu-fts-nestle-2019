@@ -77,7 +77,8 @@ namespace platform
 	bool			FS_getDestkopPath(u8* out_path, u32 sizeof_out_path);
 
 					//====================================== networking
-	sNetworkAdapterInfo* NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_numFound);
+	sNetworkAdapterInfo*	NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_numFound);
+	bool					NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress);
 }   //namespace platform
 
 #include "linuxOSSocket.h"

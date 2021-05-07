@@ -84,6 +84,7 @@ namespace platform
 
 					//====================================== networking
 	sNetworkAdapterInfo* NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_numFound);
+	bool				NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress);
 }   //namespace platform
 
 #include "winOSSocket.h"

@@ -100,10 +100,11 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
         switch (msg.what)
         {
         default:
-            return false;
+			DBGBREAK;
+			return false;
 
         case CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE:
-            //risposta al comando # C 1
+            //risposta al comando  #C1
             {
 	            cpubridge::sCPULCDMessage lcdMsg;
 	            translateNotify_CPU_NEW_LCD_MESSAGE(msg, &lcdMsg);
@@ -115,7 +116,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
             return true;
 
         case CPUBRIDGE_NOTIFY_CPU_SEL_AVAIL_CHANGED:
-            //risposta al comando # C 2
+            //risposta al comando  #C2
             {
 	            cpubridge::sCPUSelAvailability selAvail;
 	            cpubridge::translateNotify_CPU_SEL_AVAIL_CHANGED(msg, &selAvail);
@@ -172,12 +173,26 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 				RHEAFREE(rhea::getScrapAllocator(), answer);
 			}
 			return true;
+
+		case CPUBRIDGE_NOTIFY_CPU_FULLSTATE:
+			//risposta al comando  #C6
+			{
+				cpubridge::sCPUStatus s;
+				cpubridge::translateNotify_CPU_FULLSTATE (msg, &s);
+
+				//if (0x0001 == handlerID)
+				//{
+					u8 status = 'N';
+					if (s.isCupDetected())
+						u8 status = 'Y';
+
+					//rispondo con # C 6 [status] [ck] 
+					rs232_esapiSendAnswer ('C', '6', &status, 1);
+					//}
+			}
+			return true;
         } //switch (msg.what)
 	}
-
-    //qui non ci dovremmo mai arrivare
-    DBGBREAK;
-    return false;
 }
 
 
@@ -301,7 +316,22 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
 			rs232_esapiSendAnswer ('A', '1', data, 3);
 		}
 		return 4;
-    }
+
+	case '2':
+		//Request Machine ID
+		//ricevuto: # A 2 [ck]
+		//rispondo: # A 2 [machineID] [ck]
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+
+			//rispondo.
+			const u8 machineID = 0x67;
+			rs232_esapiSendAnswer ('A', '2', &machineID, 1);
+		}
+		return 4;
+	}
 }
 
 /********************************************************
@@ -393,6 +423,19 @@ u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 			cpubridge::ask_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (*cpuBridgeSubscriber, 0x01, selNumber);
 		}
 		return 5;
+
+	case '6':
+		//Get Cup Sensor Status
+		//ricevuto: # C 6 [ck]
+		//rispondo: # C 6 [status] [ck] 
+		//				dove [status] ='Y' oppure 'N'
+		{
+			//chiedo a CPUBridge il suo stato perchè l'informazione sullo stato del cup-sensor ce l'ha lei.
+			//Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_CPU_QUERY_FULLSTATE (*cpuBridgeSubscriber, 0x0001);
+		}
+		return 4;
+		
 
     } //switch
 }

@@ -496,6 +496,13 @@ namespace cpubridge
 		sCPUSelAvailability				selAvailability;
 		u16								beepSelezioneLenMSec;
 		sCPULCDMessage					LCDMsg;
+
+		bool							isReadyToDeliverDataAduti() const				{ return ((flag1 & FLAG1_READY_TO_DELIVER_DATA_AUDIT) != 0); }
+		bool							isTelemetryRunning() const						{ return ((flag1 & FLAG1_TELEMETRY_RUNNING) != 0); }
+		bool							isMilkerAlive() const							{ return ((flag1 & FLAG1_IS_MILKER_ALIVE) != 0); }
+		bool							isFreevend() const								{ return ((flag1 & FLAG1_IS_FREEVEND) != 0); }
+		bool							isTestvend() const								{ return ((flag1 & FLAG1_IS_TESTVEND) != 0); }
+		bool							isCupDetected() const							{ return ((flag1 & FLAG1_CUP_DETECTED) != 0); }
 	};
 
 	struct sCPUVMCDataFileTimeStamp

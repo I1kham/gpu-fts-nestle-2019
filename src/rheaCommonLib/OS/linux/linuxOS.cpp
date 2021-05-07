@@ -194,4 +194,29 @@ sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea:
         freeifaddrs(ifAddrStruct);
     return ret;
 }
+
+//*******************************************************************
+bool platform::getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
+{
+	if (sizeOfMacAddress < 16)
+	{
+		out_macAddress[0] = 0x00;
+		DBGBREAK;
+		return false;
+	}
+	out_macAddress[0] = 0x00;
+
+	struct ifreq s;
+	int fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+	strcpy(s.ifr_name, "eth0");
+	if (0 == ioctl(fd, SIOCGIFHWADDR, &s)) 
+	{
+		for (int i = 0; i < 6; ++i)
+			printf(" %02x", (unsigned char)s.ifr_addr.sa_data[i]);
+		puts("\n");
+		return true;
+	}
+	return false;
+}
 #endif
