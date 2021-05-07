@@ -86,6 +86,12 @@ int main()
 	rhea::init("rheaSMU", NULL);
 #endif
 
+    //mac address
+    {
+        char mac[16];
+        rhea::netaddr::getMACAddress(mac, sizeof(mac));
+        printf ("MAC ADDRESS: %s\n", mac);
+    }
 	startCPUBridge();
 
 	//startSyandAloneSocketBridge();

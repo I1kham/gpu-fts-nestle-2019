@@ -320,15 +320,23 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
 	case '2':
 		//Request Machine ID
 		//ricevuto: # A 2 [ck]
-		//rispondo: # A 2 [machineID] [ck]
+        //rispondo: # A 2 [id_len] [id_ascii_1] .. [id_ascii_N] [ck]
 		{
 			//parse del messaggio
 			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
 				return 2;
 
-			//rispondo.
-			const u8 machineID = 0x67;
-			rs232_esapiSendAnswer ('A', '2', &machineID, 1);
+            //recupero MAC address e rispondo
+            char mac[16];
+            rhea::netaddr::getMACAddress (mac, sizeof(mac));
+            const u8 len = (u8)strlen(mac);
+
+            u8 data[32];
+            data[0] = len;
+            if (len)
+                memcpy (&data[1], mac, len);
+
+            rs232_esapiSendAnswer ('A', '2', data, len+1);
 		}
 		return 4;
 	}

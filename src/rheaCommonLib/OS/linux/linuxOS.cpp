@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <ifaddrs.h>
+#include <linux/if.h>
 #include "../../rhea.h"
 
 struct	sLinuxPlatformData
@@ -196,7 +197,7 @@ sNetworkAdapterInfo* platform::NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea:
 }
 
 //*******************************************************************
-bool platform::getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
+bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 {
 	if (sizeOfMacAddress < 16)
 	{
@@ -212,9 +213,13 @@ bool platform::getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 	strcpy(s.ifr_name, "eth0");
 	if (0 == ioctl(fd, SIOCGIFHWADDR, &s)) 
 	{
-		for (int i = 0; i < 6; ++i)
-			printf(" %02x", (unsigned char)s.ifr_addr.sa_data[i]);
-		puts("\n");
+        sprintf_s (out_macAddress, sizeOfMacAddress, "%02X%02X%02X%02X%02X%02X",
+                    (unsigned char)s.ifr_addr.sa_data[0],
+                    (unsigned char)s.ifr_addr.sa_data[1],
+                    (unsigned char)s.ifr_addr.sa_data[2],
+                    (unsigned char)s.ifr_addr.sa_data[3],
+                    (unsigned char)s.ifr_addr.sa_data[4],
+                    (unsigned char)s.ifr_addr.sa_data[5]);
 		return true;
 	}
 	return false;
