@@ -188,7 +188,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetGPUVer.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.cpp
 
 
 HEADERS += \
@@ -294,7 +295,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetGPUVer.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.h
 
 
 
