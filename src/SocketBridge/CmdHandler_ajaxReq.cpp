@@ -58,6 +58,7 @@
 #include "CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.h"
 #include "CmdHandler/CmdHandler_ajaxReqGetDA3info.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.h"
 
 using namespace socketbridge;
 
@@ -147,6 +148,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqGetLastInstalledCPUFilename);
 	CHECK(CmdHandler_ajaxReqGetDA3info);
 	CHECK(CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue);
+	CHECK(CmdHandler_ajaxReq_P0x25_caffeCortesia);
 #undef CHECK
     return NULL;
 }

@@ -10,13 +10,15 @@
 													NEl caso di 9 bit, è necessaria anche l'opzione data-da3bit9
  *			opzionale data-da3bit9="a,b"		=>  indica dove andare a prendere il nono bit.
 													il nono viene preso dalla posizione [da3pos+a] al bit [b] con b che va da 0 a 7
+ *			opzionale data-da3Scale="scale"		=> se indicato, il valore letto dal da3 viene diviso per [scale] in lettura, e moltiplicato per [scale] in scrittura
+													default = 1
  *			opzionale data-min					=> default = 0
  *			opzionale data-max					=> default = 999999999
  *			opzionale data-decimal				=> numero di cifre decimali dopo il "." 
 													ATTENZIONE che UINumber ritorna sempre e cmq un numero intero, il decimale è solo un fatto estetico
  *			opzionale data-um="sec."			=> scrive l'unità di misura a destra dell'ultimo numero
  *			opzionale data-forbidden="3,4,10"	=> lista di valori proibiti. Il controllo farà in modo di skippare questi valori durante gli incrementi/decrementi
- */
+  */
 var UINUMBER_TOP_OFFSET = 10;
 var UINUMBER_NUM_HEIGHT = 56;
 function UINumber (parentID, childNum, node)
@@ -43,6 +45,8 @@ function UINumber (parentID, childNum, node)
 	if (this.da3bit == 9)
 		this.da3bit9 = UIUtils_getAttributeOrDefault(node, "data-da3bit9", "")
 	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
+	this.da3Scale = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3Scale", "1"));
+	
 	
 	this.numDecimalAfterPoint = parseInt(UIUtils_getAttributeOrDefault(node, "data-decimal", "0"));
 	
@@ -153,8 +157,8 @@ UINumber.prototype.priv_getHTMLForAFigure = function(i)
 	return html;
 }
 
-UINumber.prototype.dontSaveToDa3 = function () 					{ this.allowDa3Save = 0; }
-UINumber.prototype.allowSaveToDa3 = function () 				{ this.allowDa3Save = 1; }
+UINumber.prototype.dontSaveToDa3 = function () 			{ this.allowDa3Save = 0; }
+UINumber.prototype.allowSaveToDa3 = function () 		{ this.allowDa3Save = 1; }
 UINumber.prototype.setDA3Offset = function (da3offset) 	{ this.da3offset = da3offset; }
 UINumber.prototype.loadFromDA3 = function(da3)			{ var loc = this.da3Pos + this.da3offset; if (loc >= 0) this.setValue (this.priv_getValueFromDA3(da3,loc)); }
 UINumber.prototype.saveToDA3 = function(da3)		
@@ -164,15 +168,15 @@ UINumber.prototype.saveToDA3 = function(da3)
 	var loc = this.da3Pos + this.da3offset; 
 	if (loc >= 0) 
 	{
+		var value = parseInt (this.getValue() * this.da3Scale);
 		switch (this.da3bit)
 		{
-			case 4:		da3.write4(loc, this.getValue()); break;
-			case 8:		da3.write8(loc, this.getValue()); break;
+			case 4:		da3.write4(loc, value); break;
+			case 8:		da3.write8(loc, value); break;
 			case 9:
-				var val = parseInt(this.getValue());
-				var val8 = (val & 0xFF);
+				var val8 = (value & 0xFF);
 				var bit9 = 0;
-				if ( (val & 0x0100) != 0)
+				if ( (value & 0x0100) != 0)
 					bit9=1;
 				da3.write8(loc, val8);
 				
@@ -186,8 +190,8 @@ UINumber.prototype.saveToDA3 = function(da3)
 				da3.write8(loc + parseInt(e[0]), v2);
 				break;
 				
-			default: 	da3.write16(loc, this.getValue()); break;
-			case 32: 	da3.write32(loc, this.getValue()); break;
+			default: 	da3.write16(loc, value); break;
+			case 32: 	da3.write32(loc, value); break;
 				
 		}		
 	}
@@ -195,21 +199,24 @@ UINumber.prototype.saveToDA3 = function(da3)
 
 UINumber.prototype.priv_getValueFromDA3 = function(da3, loc)
 {
+	var value = 0;
 	switch (this.da3bit)
 	{
-		case 4:		return da3.read4(loc);
-		case 8:		return da3.read8(loc);
+		case 4:		value = da3.read4(loc); break;
+		case 8:		value = da3.read8(loc); break;
+		default: 	value = da3.read16(loc); break;
+		case 32:	value = da3.read32(loc); break;
 		case 9:
-			var v = parseInt(da3.read8(loc));
+			value = parseInt(da3.read8(loc));
 			var e = this.da3bit9.split(",");
 			var v2 = da3.read8(loc + parseInt(e[0]));
 			var mask = parseInt((0x01 << parseInt(e[1])));
 			if ( (v2 & mask) != 0)
-				v +=256;
-			return v;
-		default: 	return da3.read16(loc);
-		case 32:	return da3.read32(loc);
+				value += 256;
+			break;
 	}
+	
+	return (value / this.da3Scale);
 }
 
 UINumber.prototype.bindEvents = function()

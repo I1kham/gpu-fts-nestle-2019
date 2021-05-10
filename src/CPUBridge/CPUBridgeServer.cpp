@@ -623,7 +623,6 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			u16 valore = 0;
 			cpubridge::translate_CPU_SET_DECOUNTER(msg, &which, &valore);
 
-
 			u8 bufferW[32];
 			const u16 nBytesToSend = cpubridge::buildMsg_setDecounter(which, valore, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
@@ -640,14 +639,26 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES:
 		{
-			u8 bufferW[16];
+			u8 bufferW[64];
 			const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
 			{
-				u16 decounters[14];
-				for (u8 i = 0; i < 14; i++)
+				u32 decounters[15];
+				for (u8 i=0; i < 14; i++)
 					decounters[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4 + i * 2]);
+
+				//il decounter [14] è passato su 3 byte invece che i normali 2 e non esisteva prima del 2021/05/10
+				decounters[14] = 0;
+				if (sizeOfAnswerBuffer > 33)
+				{
+					u8 ct = 32;
+					decounters[14] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[ct]);
+					ct += 2;
+					decounters[14] |= (((u32)answerBuffer[ct++]) << 16);
+				}
+
+
 				notify_CPU_ALL_DECOUNTER_VALUES(sub->q, handlerID, logger, decounters, sizeof(decounters));
 			}
 		}
@@ -1255,6 +1266,17 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				}
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_Programming (eCPUProgrammingCommand::caffeCortesia, NULL, 0, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+					notify_CPU_RUN_CAFFE_CORTESIA (sub->q, handlerID, logger);
+			}
+			break;
+
 
 		} //switch (msg.what)
 

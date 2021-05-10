@@ -975,8 +975,7 @@ void cpubridge::notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, r
 	logger->log("notify_CPU_DECOUNTER_SET [%d] [%d]\n", (u8)which, valore);
 	u8 buffer[4];
 	buffer[0] = (u8)which;
-	buffer[1] = (u8)((valore & 0xFF00) >> 8);
-	buffer[2] = (u8)(valore & 0x00FF);
+	rhea::utils::bufferWriteU16 (&buffer[1], valore);
 	rhea::thread::pushMsg (to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_DECOUNTER_SET, handlerID, buffer, 3);
 }
 
@@ -987,26 +986,23 @@ void cpubridge::translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg,
 
 	const u8 *p = (const u8*)msg.buffer;
 	*out_which = (eCPUProg_decounter)p[0];
-	*out_valore = ((u16)p[1] << 8) | p[2];
+	*out_valore = rhea::utils::bufferReadU16 (&p[1]);
 }
 
 //***************************************************
-void cpubridge::notify_CPU_ALL_DECOUNTER_VALUES(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *arrayDiAlmeno14Elementi, u32 sizeof_in_array)
+void cpubridge::notify_CPU_ALL_DECOUNTER_VALUES(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u32 *arrayDiAlmeno15Elementi, u32 sizeof_in_array)
 {
-	assert (sizeof_in_array >= 14 * sizeof(u16));
+	assert (sizeof_in_array >= 15 * sizeof(u32));
 	logger->log("notify_CPU_ALL_DECOUNTER_VALUES\n");
-
-	u16 buffer[14];
-	memcpy(buffer, arrayDiAlmeno14Elementi, sizeof(u16) * 14);
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES, handlerID, buffer, 14 * sizeof(u16));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES, handlerID, arrayDiAlmeno15Elementi, 15 * sizeof(u32));
 }
 
 //***************************************************
-void cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u16 *out_arrayDiAlmeno14Elementi, u32 sizeof_out_array)
+void cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u32 *out_arrayDiAlmeno15Elementi, u32 sizeof_out_array)
 {
-	assert (sizeof_out_array >= 14 * sizeof(u16));
+	assert (sizeof_out_array >= 15 * sizeof(u32));
 	assert(msg.what == CPUBRIDGE_NOTIFY_ALL_DECOUNTER_VALUES);
-	memcpy(out_arrayDiAlmeno14Elementi, msg.buffer, sizeof(u16) * 14);
+	memcpy(out_arrayDiAlmeno15Elementi, msg.buffer, sizeof(u32) * 15);
 }
 
 //***************************************************
@@ -1884,10 +1880,9 @@ void cpubridge::translate_CPU_PROGRAMMING_CMD(const rhea::thread::sMsg &msg, eCP
 //***************************************************
 void cpubridge::ask_CPU_SET_DECOUNTER (const sSubscriber &from, u16 handlerID, eCPUProg_decounter which, u16 valore)
 {
-	u8 otherData[3];
+	u8 otherData[4];
 	otherData[0] = (u8)which;
-	otherData[1] = (u8)((valore & 0xFF00) >> 8);
-	otherData[2] = (u8)(valore & 0x00FF);
+	rhea::utils::bufferWriteU16 (&otherData[1], valore);
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER, handlerID, otherData, 3);
 }
 
@@ -1897,7 +1892,7 @@ void cpubridge::translate_CPU_SET_DECOUNTER (const rhea::thread::sMsg &msg, eCPU
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_DECOUNTER);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_which = (eCPUProg_decounter)p[0];
-	*out_valore = ((u16)p[1] << 8) | p[2];
+	*out_valore = rhea::utils::bufferReadU16 (&p[1]);
 }
 
 //***************************************************
@@ -2395,4 +2390,16 @@ void cpubridge::translateNotify_CPU_GET_CUPSENSOR_LIVE_VALUE(const rhea::thread:
 	assert(msg.what == CPUBRIDGE_NOTIFY_GET_CUPSENSOR_LIVE_VALUE);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_value = rhea::utils::bufferReadU16(p);
+}
+
+
+//***************************************************
+void cpubridge::ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA, handlerID);
+}
+void cpubridge::notify_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_CPU_RUN_CAFFE_CORTESIA\n");
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_RUN_CAFFE_CORTESIA, handlerID);
 }

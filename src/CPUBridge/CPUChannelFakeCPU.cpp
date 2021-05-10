@@ -755,6 +755,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::coffeeBrewer]); ct += 2;
 				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::coffeeGround]); ct += 2;
 				rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::blocking_counter]); ct += 2;
+				
+				//questo decounter è codificato in 3 byte
+				rhea::utils::bufferWriteU24_LSB_MSB(&out_answer[ct], decounterVari[(u8)cpubridge::eCPUProg_decounter::maintenance_counter]); ct += 3;
 
 				out_answer[2] = (u8)ct + 1;
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
@@ -1047,6 +1050,14 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
+
+			case eCPUProgrammingCommand::caffeCortesia:
+				//fingo una selezione
+				statoPreparazioneBevanda = eStatoPreparazioneBevanda::wait;
+				runningSel.selNum = 1;
+				runningSel.timeStartedMSec = rhea::getTimeNowMSec();
+				VMCState = eVMCState::PREPARAZIONE_BEVANDA;
+				break;
 			} //switch (subcommand)
 		}
 		break;

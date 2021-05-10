@@ -12,29 +12,10 @@ function RheaAjaxAnswer (requestID)
 }
 
 //**************************************************
-function rheaAddU16ToUint8Buffer (buffer, offset, u16Value)
-{
-	var n = parseInt(u16Value);
-	buffer[offset]   = ((n & 0xFF00) >> 8);
-	buffer[offset+1] = (n & 0x00FF);
-}
-
-//**************************************************
-function rheaAddU32ToUint8Buffer (buffer, offset, u32Value)
-{
-	var n = parseInt(u32Value);
-	buffer[offset]     = ((n & 0xFF000000) >> 24);
-	buffer[offset+1]   = ((n & 0x00FF0000) >> 16);
-	buffer[offset+2]   = ((n & 0x0000FF00) >> 8);
-	buffer[offset+3]   =  (n & 0x000000FF);
-}
-
-//**************************************************
-function rheaReadU32FromUint8Buffer (buffer, offset)
-{
-	return (parseInt(buffer[offset]) << 24) | (parseInt(buffer[offset+1]) << 16) | (parseInt(buffer[offset+2]) << 8) | parseInt(buffer[offset+3]);
-}
-
+function rheaAddU16ToUint8Buffer (buffer, offset, u16Value)		{ var n = parseInt(u16Value); buffer[offset]   = ((n & 0xFF00) >> 8); buffer[offset+1] = (n & 0x00FF); }
+function rheaAddU32ToUint8Buffer (buffer, offset, u32Value)		{ var n = parseInt(u32Value); buffer[offset]     = ((n & 0xFF000000) >> 24); buffer[offset+1]   = ((n & 0x00FF0000) >> 16); buffer[offset+2]   = ((n & 0x0000FF00) >> 8); buffer[offset+3]   =  (n & 0x000000FF); }
+function rheaReadU32FromUint8Buffer (buffer, offset)			{ return (parseInt(buffer[offset]) << 24) | (parseInt(buffer[offset+1]) << 16) | (parseInt(buffer[offset+2]) << 8) | parseInt(buffer[offset+3]); }
+function rheaReadU16FromUint8Buffer (buffer, offset)			{ return (parseInt(buffer[offset]) << 8) | parseInt(buffer[offset+1]); }
 
 /**************************************************
  * Cookie

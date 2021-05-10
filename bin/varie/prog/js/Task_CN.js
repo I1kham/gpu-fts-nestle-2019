@@ -2807,6 +2807,8 @@ TaskGrinderClean.prototype.onFreeBtn2Clicked = function()
 
 TaskGrinderClean.prototype.runGrinderCycle = function (numCicli, tempoGrinderONSec, tempoGrinderOFFSec, fnToCallOnFinish)
 {
+	numCicli=2; tempoGrinderONSec=2; tempoGrinderOFFSec=2;
+	
 	this.fase = 200;
 	this.numCicli = numCicli;
 	this.tempoGrinderONSec = tempoGrinderONSec;
@@ -3074,10 +3076,17 @@ TaskGrinderClean.prototype.step40 = function()
 	this.fase = 40;
 	this.priv_show ("", "", "");
 	pleaseWait_rotella_show();
-	rhea.selection_start(1);
 
-	this.fase = 41;
 	this.hoVistoCPUInStatoPREP_BEVANDA = 0;
+	this.fase = 41;
+	rhea.ajax ("runCaffeCortesia", "").then( function(result)
+	{
+	})
+	.catch( function(result)
+	{
+	});		
+	
+
 }
 
 TaskGrinderClean.prototype.step41 = function(timeNowMsec)	

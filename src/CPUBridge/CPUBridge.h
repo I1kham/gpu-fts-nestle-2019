@@ -238,8 +238,8 @@ namespace cpubridge
 	void		notify_CPU_DECOUNTER_SET(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUProg_decounter which, u16 valore);
 	void		translateNotify_CPU_DECOUNTER_SET(const rhea::thread::sMsg &msg, eCPUProg_decounter *out_which, u16 *out_valore);
 
-	void		notify_CPU_ALL_DECOUNTER_VALUES (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u16 *arrayDiAlmeno14Elementi, u32 sizeof_in_array);
-	void		translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u16 *out_arrayDiAlmeno14Elementi, u32 sizeof_out_array);
+	void		notify_CPU_ALL_DECOUNTER_VALUES (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const u32 *arrayDiAlmeno15Elementi, u32 sizeof_in_array);
+	void		translateNotify_CPU_ALL_DECOUNTER_VALUES(const rhea::thread::sMsg &msg, u32 *out_arrayDiAlmeno15Elementi, u32 sizeof_out_array);
 
 	void		notify_EXTENDED_CONFIG_INFO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sExtendedCPUInfo *info);
 	void		translateNotify_EXTENDED_CONFIG_INFO(const rhea::thread::sMsg &msg, sExtendedCPUInfo *out_info);
@@ -308,7 +308,7 @@ namespace cpubridge
 	void		notify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 hh, u8 mm);
 	void		translateNotify_GET_TIME_NEXT_LAVSAN_CAPPUCCINATORE(const rhea::thread::sMsg &msg, u8 *out_hh, u8 *out_mm);
 	
-	void		notify_START_TEST_ASSORBIMENTO_GRUPPO(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+	void		notify_START_TEST_ASSORBIMENTO_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 
 	void		notify_START_TEST_ASSORBIMENTO_MOTORIDUTTORE(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 
@@ -342,6 +342,8 @@ namespace cpubridge
 
 	void		notify_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 value);
 	void		translateNotify_CPU_GET_CUPSENSOR_LIVE_VALUE(const rhea::thread::sMsg &msg, u16 *out_value);
+	
+	void		notify_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 	
 
 	/***********************************************
@@ -581,7 +583,11 @@ namespace cpubridge
 					// alla ricezione di questo messaggio GPUBridge risponera con notify_CPU_GET_JUG_REPETITIONS
 
 	void		ask_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &from, u16 handlerID);
-	//alla ricezione di questo msg, CPUBridge risponderà con un notify_CUPSENSOR_LIVE_VALUE
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_CUPSENSOR_LIVE_VALUE
+
+	void		ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RUN_CAFFE_CORTESIA
+
 
 } // namespace cpubridge
 

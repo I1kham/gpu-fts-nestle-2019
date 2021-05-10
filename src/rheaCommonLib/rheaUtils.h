@@ -54,12 +54,24 @@ namespace rhea
                      */
 
 
-		inline void	bufferWriteU32(u8 *buffer, u32 val)			{ buffer[0] = (u8)((val & 0xFF000000) >> 24); buffer[1] = (u8)((val & 0x00FF0000) >> 16); buffer[2] = (u8)((val & 0x0000FF00) >> 8); buffer[3] = (u8)(val & 0x000000FF); }
-		inline void	bufferWriteU16(u8 *buffer, u16 val)			{ buffer[0] = (u8)((val & 0xFF00) >> 8); buffer[1] = (u8)(val & 0x00FF); }
+		inline void	bufferWriteU32(u8 *buffer, u32 val) { buffer[0] = (u8)((val & 0xFF000000) >> 24); buffer[1] = (u8)((val & 0x00FF0000) >> 16); buffer[2] = (u8)((val & 0x0000FF00) >> 8); buffer[3] = (u8)(val & 0x000000FF); }
+		inline void	bufferWriteU32_LSB_MSB (u8 *buffer, u32 val) { buffer[3] = (u8)((val & 0xFF000000) >> 24); buffer[2] = (u8)((val & 0x00FF0000) >> 16); buffer[1] = (u8)((val & 0x0000FF00) >> 8); buffer[0] = (u8)(val & 0x000000FF); }
+
+		inline void	bufferWriteU24(u8 *buffer, u32 val) { buffer[0] = (u8)((val & 0x00FF0000) >> 16); buffer[1] = (u8)((val & 0x0000FF00) >> 8); buffer[2] = (u8)(val & 0x000000FF); }
+		inline void	bufferWriteU24_LSB_MSB (u8 *buffer, u32 val) { buffer[2] = (u8)((val & 0x00FF0000) >> 16); buffer[1] = (u8)((val & 0x0000FF00) >> 8); buffer[0] = (u8)(val & 0x000000FF); }
+
+		inline void	bufferWriteU16(u8 *buffer, u16 val) { buffer[0] = (u8)((val & 0xFF00) >> 8); buffer[1] = (u8)(val & 0x00FF); }
 		inline void	bufferWriteU16_LSB_MSB(u8 *buffer, u16 val) { buffer[1] = (u8)((val & 0xFF00) >> 8); buffer[0] = (u8)(val & 0x00FF); }
-		inline u32	bufferReadU32(const u8 *buffer)				{ return (((u32)buffer[0]) << 24) | (((u32)buffer[1]) << 16) | (((u32)buffer[2]) << 8) | ((u32)buffer[3]); }
-		inline u16	bufferReadU16(const u8 *buffer)				{ return (((u16)buffer[0]) << 8) | ((u16)buffer[1]); }
-		inline u16	bufferReadU16_LSB_MSB(const u8 *buffer)		{ return (((u16)buffer[1]) << 8) | ((u16)buffer[0]); }
+
+		inline u32	bufferReadU32(const u8 *buffer) { return (((u32)buffer[0]) << 24) | (((u32)buffer[1]) << 16) | (((u32)buffer[2]) << 8) | ((u32)buffer[3]); }
+		inline u32	bufferReadU32_LSB_MSB(const u8 *buffer) { return (((u32)buffer[3]) << 24) | (((u32)buffer[2]) << 16) | (((u32)buffer[1]) << 8) | ((u32)buffer[0]); }
+
+		inline u32	bufferReadU24(const u8 *buffer) { return (((u32)buffer[0]) << 16) | (((u32)buffer[1]) << 8) | ((u32)buffer[2]); }
+		inline u32	bufferReadU24_LSB_MSB(const u8 *buffer) { return (((u32)buffer[2]) << 16) | (((u32)buffer[1]) << 8) | ((u32)buffer[0]); }
+
+		inline u16	bufferReadU16(const u8 *buffer) { return (((u16)buffer[0]) << 8) | ((u16)buffer[1]); }
+		inline u16	bufferReadU16_LSB_MSB(const u8 *buffer) { return (((u16)buffer[1]) << 8) | ((u16)buffer[0]); }
+
 
     } //namespace utils
 } //namespace rhea

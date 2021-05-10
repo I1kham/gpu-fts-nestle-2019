@@ -102,7 +102,7 @@ namespace cpubridge
 		sTestModem					testModem;
 		u64							timeToEndTestSelezioneMSec;
 		sTestAssorbGruppo			testAssorbGruppo;
-		u16							decounterVari[32];
+		u32							decounterVari[32];
 		u8							*da3;
     };
 

@@ -16,8 +16,8 @@ namespace socketbridge
             params:  none
 
         Output:
-			stringa di 14 interi separati da virgola. I primi 10 sono i decontatori prodotti, poi water_filter_dec, coffee_brewer_dec, coffee_ground_dec,
-            blocking_counter
+			stringa di 15 interi separati da virgola. I primi 10 sono i decontatori prodotti, poi water_filter_dec, coffee_brewer_dec, coffee_ground_dec,
+            blocking_counter, maintenance counter
      */
 
 

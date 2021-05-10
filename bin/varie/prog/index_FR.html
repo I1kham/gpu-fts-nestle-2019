@@ -233,6 +233,16 @@
 							<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
 							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></td>
 						</tr>
+						<tr>
+							<td>
+								MAINTENANCE DECOUNTER<br>
+								<div style="float:left; margin-right:10px">valeur actuelle:</div>
+								<div id="pageMaintenance_15" style="float:left" class="bigCaption15">0000</div>
+								<div class="clear"></div>
+							</td>
+							<td><div class="UINumber" id="pageMaintenance_15_cap" data-numfigures="3" data-da3="7406" data-da3Scale="100" data-max="655" data-um=".000"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(15)"></div></td>
+						</tr>						
 						
 						<tr style="border:none">
 							<td>AFFICHER LES TEMPÉRATURES<br><span class="tip">en tant que message CPU</span></td>
@@ -1728,6 +1738,13 @@ function pageMaintenance_reset_afterSave(iDecounter)
 	var currentCapacityID = "pageMaintenance_" +iDecounter +"_cap";
 	var decValue = parseInt(ui.getWindowByID("pageMaintenance").getChildByID(currentCapacityID).getValue());
 		
+	if (iDecounter == 15)
+	{
+		//il valore "vero" sarebbe decValue * 1000, ma CPU non accetta numeri maggiori di 0xffff quindi lo vuole
+		//indicato come decValue * 100
+		decValue*=100;
+	}
+	
 	//invio il comando di set alla SMU
 	pleaseWait_show();
 	rhea.ajax ("setDecounter", { "d":iDecounter, "v":decValue}).then( function(result)
@@ -1741,8 +1758,10 @@ function pageMaintenance_reset_afterSave(iDecounter)
 	});
 }
 
+
 function pageMaintenance_getDecountersValues()
 {
+	//recupera il valore attuale dei decounter
 	rhea.ajax ("getAllDecounters", "").then( function(result)
 	{
 		pageMaintenance_updateDecounterCurrentValueFromString(result);
@@ -1756,6 +1775,8 @@ function pageMaintenance_getDecountersValues()
 
 function pageMaintenance_updateDecounterCurrentValueFromString(s)
 {
+	//la stringa s include 10 decounter prodotti, decounter water filter, decounter coffee brewer, decounter coffee ground, blocking_counter
+	//A partire da 2021-05-10 include anche il decounter maintenance
 	var e = s.split(",");
 	for (var i=10; i<13; i++)
 	{
@@ -1769,6 +1790,16 @@ function pageMaintenance_updateDecounterCurrentValueFromString(s)
 		while (v.length < len)
 			v = "0" +v;
 		rheaSetDivHTMLByName(currentValueID, v);
+	}
+	
+	//se esiste il dec maintenace...
+	if (e.length >= 14)
+	{
+		var v = e[14];
+		var len = 3;
+		while (v.length < len)
+			v = "0" +v;
+		rheaSetDivHTMLByName("pageMaintenance_15", v);
 	}
 }
 

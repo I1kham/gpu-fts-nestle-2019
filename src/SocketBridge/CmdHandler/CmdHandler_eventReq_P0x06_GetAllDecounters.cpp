@@ -14,13 +14,13 @@ void CmdHandler_eventReq_P0x06_GetAllDecounters::passDownRequestToCPUBridge (cpu
 void CmdHandler_eventReq_P0x06_GetAllDecounters::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
 {
 	//NB: se modifichi questo, modifica anche rhea::app::GetAllDecounters::decodeAnswer()
-	u16 values[32];
+	u32 values[32];
 	cpubridge::translateNotify_CPU_ALL_DECOUNTER_VALUES(msgFromCPUBridge, values, sizeof(values));
 
-	u8 buffer[32 * sizeof(u16)];
+	u8 buffer[32 * sizeof(u32)];
 	rhea::NetStaticBufferViewW nbw;
 	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
-	for (u8 i = 0; i < 14; i++)
+	for (u8 i = 0; i < 15; i++)
 		nbw.writeU16(values[i]);
 
 	server->sendEvent(hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, nbw.length());

@@ -285,6 +285,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.cpp">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x25_caffeCortesia.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -570,6 +573,9 @@
       <Filter>CmdHandler\ajax\Task</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x25_caffeCortesia.h">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
   </ItemGroup>
