@@ -10,6 +10,10 @@ per fare questo, editare /etc/fstab inserendo le seguenti 4 linee:
 /dev/sdc1	/media/SDC1	auto	nofail,defaults	0	1
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Illuminazione dei monitor
+- montare la cartella: sudo mount /dev/mmcblk0p3 /mnt
+- copiare i 2 file "seco-px30-d23-revc-hdmi-lvds.dtb" e "seco-px30-d23-revc-lvds.dtb" nella cartella /mnt
 
 
 //////////////////////////////////////////
@@ -36,4 +40,5 @@ driver monitor LVDS
 -Nome del dekstop: LXDE
 
 -Per l'autorun di /home/seco/Desktop/rhea/ROCKCHIP_RELEASE_GPUPreBoot, vai in MENU > preferences > Default app for LXSession, poi nella
-tab autostart, poi aggiungi /home/seco/Desktop/rhea/ROCKCHIP_RELEASE_GPUPreBoot
+tab autostart, poi aggiungi:
+lxterminal -e /home/seco/Desktop/rhea/ROCKCHIP_RELEASE_GPUPreBoot

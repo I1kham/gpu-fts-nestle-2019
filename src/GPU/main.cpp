@@ -115,6 +115,7 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
         cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 
         //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open("dev/ttyUSB0", logger);
+        //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open("/dev/ttyS0", logger);
     #else
         //apro un canale con la CPU fisica
         cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
@@ -318,6 +319,26 @@ void run(int argc, char *argv[])
 //****************************************************
 int main (int argc, char *argv[])
 {
+#if defined(PLATFORM_ROCKCHIP)
+    //sposto la "working directory" nel path di questo exe
+    if (argc > 0)
+    {
+        u8 fullpath[256];
+        if (argv[0][0] == '.')
+        {
+            char *curPath = get_current_dir_name();
+            rhea::string::utf8::spf (fullpath, sizeof(fullpath), "%s%s", curPath, &argv[0][1]);
+            free(curPath);
+        }
+        else
+        {
+            //recupero il path direttamente da argv[0]
+            rhea::fs::extractFilePathWithOutSlash (reinterpret_cast<const u8*>(argv[0]), fullpath, sizeof(fullpath));
+        }
+        chdir(reinterpret_cast<const char*>(fullpath));
+    }
+#endif
+
     rhea::init("rheaGPU", NULL);
 
     run (argc, argv);
