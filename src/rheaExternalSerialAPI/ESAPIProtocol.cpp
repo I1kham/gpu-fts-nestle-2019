@@ -184,7 +184,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 				//{
 					u8 status = 'N';
 					if (s.isCupDetected())
-						u8 status = 'Y';
+						status = 'Y';
 
 					//rispondo con # C 6 [status] [ck] 
 					rs232_esapiSendAnswer ('C', '6', &status, 1);
