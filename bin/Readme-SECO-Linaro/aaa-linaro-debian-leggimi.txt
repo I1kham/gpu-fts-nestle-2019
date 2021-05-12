@@ -12,6 +12,26 @@ per fare questo, editare /etc/fstab inserendo le seguenti 4 linee:
 
 
 
+//////////////////////////////////////////
+aggiornamento UBOOT per revC
+- unzip UBOOT.zip in una chiavetta USB
+- inserire chiavetta sulla SCHEDO gia' avviata
+- andare in /media/SDA1/UBOOT
+- eseguire sh install.sh
+- smontare la chiavetta (umount /media/SDA1)
+- rimuovere la chiavetta
+- reboot
+
+///////////////////////////////////////////////
+driver monitor LVDS
+- aggiornamento driver: copiare seco-px30-d23-recv-lvds.dtb su una chiavetta
+- mount /dev/mmcblk0p3 /mnt
+- copiare il file di cui sopra dalla chiavetta nella cartella /mnt sovrascrivendo quello esistente
+- smontare /mnt (umount /mnt)
+- reboot
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 -Nome del dekstop: LXDE
 
