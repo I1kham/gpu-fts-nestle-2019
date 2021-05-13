@@ -2807,7 +2807,7 @@ TaskGrinderClean.prototype.onFreeBtn2Clicked = function()
 
 TaskGrinderClean.prototype.runGrinderCycle = function (numCicli, tempoGrinderONSec, tempoGrinderOFFSec, fnToCallOnFinish)
 {
-	numCicli=2; tempoGrinderONSec=2; tempoGrinderOFFSec=2;
+	//numCicli=2; tempoGrinderONSec=2; tempoGrinderOFFSec=2;
 	
 	this.fase = 200;
 	this.numCicli = numCicli;
