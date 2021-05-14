@@ -242,9 +242,9 @@
 							</td>
 							<td>
 								<div style="float:left">
-									<div class="UINumber" id="pageMaintenance_15_cap" data-numfigures="3" data-da3="7406" data-da3Scale="100" data-max="655" data-um=""></div>
+									<div class="UINumber" id="pageMaintenance_15_cap" data-numfigures="3" data-da3="7406" data-da3Scale="100" data-max="650" data-um=""></div>
 								</div>
-								<div style="float:left; font-size:3.0em; color:#fff; letter-spacing:7px">000</div>
+								<div style="float:left; font-size:2.9em; color:#fff; letter-spacing:7px">000</div>
 								<div class="clear"></div>
 							</td>
 							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(15)"></div></td>
@@ -258,7 +258,7 @@
 								<div style="float:left">
 									<div class="UINumber" data-numfigures="3" data-da3="7408" data-da3Scale="100" data-max="655"></div>
 								</div>
-								<div style="float:left; font-size:3.0em; color:#fff; letter-spacing:7px">000</div>
+								<div style="float:left; font-size:2.9em; color:#fff; letter-spacing:7px">000</div>
 								<div class="clear"></div>
 							</td>
 						</tr>						
@@ -1218,13 +1218,14 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|PANORAMICA|1|PARZIALI|2|TOTALI|3|AGGIORNA DATI' data-onclick='pageDataAudit_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|PANORAMICA|1|PARZIALI|2|TOTALI|4|PRESELEZIONI|3|AGGIORNA DATI' data-onclick='pageDataAudit_onSelector()'></div></td>
 					</tr>
 				</table>
 				
 				<div id="pageDataAudit_o" style="display:none"></div>
 				<div id="pageDataAudit_p" style="display:none"></div>
 				<div id="pageDataAudit_t" style="display:none"></div>
+				<div id="pageDataAudit_prs" style="display:none"></div>
 				<div id="pageDataAudit_r" style="display:none">
 					<div id="pageDataAudit_lastDownload">EVA-DTS, downloaded on 2019-11-26 11:42</div>
 					<br>
@@ -2613,7 +2614,7 @@ function pageSingleSelection_build()
 				htmlE += "<tr><td>PRESSIONE GRUPPO</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>";
 		
 		if (da3.isInduzione())
-			htmlE += "<tr><td>TEMPERATURA ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-max='110'></div></td></tr>";
+			htmlE += "<tr><td>TEMPERATURA ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-min='75' data-max='110'></div></td></tr>";
 			
 		if (da3.isGruppoVariflex())
 			htmlE  +="<tr><td>GRANULOMETRIA</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DISABIL.|1|FINE|2|RIFERIM.|3|GROSSA' data-da3='175' data-da3bit='8'></div></td></tr>";
@@ -2718,7 +2719,7 @@ function pageSingleSelection_build()
 			htmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|LENTA|1|MEDIA|2|VELOCE' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
 			break;
 		case 2:
-				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-max='98' data-um='&deg;C'></div></td></tr>";
+				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-min='75' data-max='98' data-um='&deg;C'></div></td></tr>";
 				da3LocEVTemperature++;
 				break;
 		}
@@ -2895,7 +2896,7 @@ function pageTemperature_build()
 	if (da3.isInstant())
 	{
 		//boiler & delta
-		html += "<tr><td>BOLLITORE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='92' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+		html += "<tr><td>BOLLITORE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-min='75' data-max='92' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
 			   +"<tr><td>DELTA</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='16' data-da3='7042' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 	}
 	else
@@ -2913,7 +2914,7 @@ function pageTemperature_build()
 		else
 		{
 			//(espresso qui significa bollitore, heater significa camera caffe')
-			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
+			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-min='75' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
 					+"<tr><td>DELTA</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='25' data-da3='7042' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
 					+"<tr><td>PRIMO CAFFE'</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
 					+"<tr><td>TEMPO RISCALDAMENTO</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>";
@@ -3584,7 +3585,7 @@ function toCurrency (numberIN, numDecimali)
 
 function formatInteger(x) { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
 
-function pageDataAudit_build_overview(numSelezioni, numDecimali, buffer, offset)
+function pageDataAudit_build_overview (numSelezioni, numDecimali, buffer, offset)
 {
 	var col = [];
 	var html = "<table class='dataAudit' align='center'><tr valign='bottom'>"
@@ -3760,11 +3761,13 @@ function  pageDataAudit_onSelector()
 	var elemP = rheaGetElemByID("pageDataAudit_p");
 	var elemT = rheaGetElemByID("pageDataAudit_t");
 	var elemR = rheaGetElemByID("pageDataAudit_r");
+	var elemPRS = rheaGetElemByID("pageDataAudit_prs");
 	
 	rheaHideElem(elemO);
 	rheaHideElem(elemP);
 	rheaHideElem(elemT);
 	rheaHideElem(elemR);
+	rheaHideElem(elemPRS);
 	
 	var win = ui.getWindowByID("pageDataAudit");
 	switch (parseInt(win.getChildByID("pageDataAudit_selector").getSelectedOptionValue()))
@@ -3773,8 +3776,59 @@ function  pageDataAudit_onSelector()
 		case 1: rheaShowElem(elemP); break;
 		case 2: rheaShowElem(elemT); break;
 		case 3: rheaShowElem(elemR); break;
+		case 4: rheaShowElem(elemPRS); break;
 	}
 	win.showHideScrollBar();
+}
+
+function pageDataAudit_build_preselection(numPresel, numDecimali, buffer, offset)
+{
+	if (0 == numPresel)
+	{
+		rheaSetElemHTML (rheaGetElemByID("pageDataAudit_prs"), "<br><br><center>Nessun dato da mostrare</center>");
+		return;
+	}
+	var htmlTable = "<table class='dataAudit' align='center'><tr valign='bottom'>"
+				+"<th>PP101<br>PRESEL NUM</th>"
+				+"<th>PP102<br><br>PRICE1</th>"
+				+"<th>PP103<br><br>NAME</th>"
+				+"<th>PP104<br><br>&nbsp;</th>"
+				+"<th>PP105<br>NUM SINCE START</th>"
+				+"<th>PP106<br>VALUE SINCE START</th>"
+				+"<th>PP107<br>NUM SINCE RESET</th>"
+				+"<th>PP108<br>VALUE SINCE RESET</th>"
+				+"</tr>";
+	
+	var html = "";	
+	for (var i=0; i<numPresel; i++)
+	{
+		var col = [];
+		col[0] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[1] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[2] = "";
+		col[3] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[4] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[5] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[6] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+		col[7] = rheaReadU32FromUint8Buffer(buffer, offset); offset+=4;
+
+		var nameLen = buffer[offset++];
+		while (nameLen--)
+			col[2] += String.fromCharCode (buffer[offset++]);
+
+		if (col[0].length<2) col[0] = "0"+col[0];
+		html += "<tr>"
+					+"<td>#" +col[0] +"</td>"
+					+"<td>" +toCurrency(col[1], numDecimali) +"</td>"
+					+"<td>" +col[2] +"</td>"
+					+"<td>" +toCurrency(col[3], numDecimali) +"</td>"
+					+"<td>" +formatInteger(col[4]) +"</td>"
+					+"<td>" +toCurrency(col[5], numDecimali) +"</td>"
+					+"<td>" +formatInteger(col[6]) +"</td>"
+					+"<td>" +toCurrency(col[7], numDecimali) +"</td>"
+				+"</tr>";
+	}
+	rheaSetElemHTML (rheaGetElemByID("pageDataAudit_prs"), htmlTable + html +"</table>");
 }
 
 function pageDataAudit_resetPartialData()
@@ -3813,14 +3867,17 @@ function pageDataAudit_downloadEVA_onFinish()
 		
 		var numSelezioni = parseInt(currentTask.buffer[1]);
 		var numDecimali  = parseInt(currentTask.buffer[2]);
+		var numPresel    = parseInt(currentTask.buffer[3]);
 		var addrBloccoGeneral = rheaReadU32FromUint8Buffer(currentTask.buffer, 4);
 		var addrBloccoPartial = rheaReadU32FromUint8Buffer(currentTask.buffer, 8);
 		var addrBloccoTotal = rheaReadU32FromUint8Buffer(currentTask.buffer, 12);
+		var addrBloccoPreselezioni = rheaReadU32FromUint8Buffer(currentTask.buffer, 16);
 		
 		
 		pageDataAudit_build_overview(numSelezioni, numDecimali, currentTask.buffer, addrBloccoGeneral);;
 		pageDataAudit_build_partial (numSelezioni, numDecimali, currentTask.buffer, addrBloccoPartial);
 		pageDataAudit_build_total (numSelezioni, numDecimali, currentTask.buffer, addrBloccoTotal);
+		pageDataAudit_build_preselection(numPresel, numDecimali, currentTask.buffer, addrBloccoPreselezioni);
 
 		var win = ui.getWindowByID("pageDataAudit");
 		win.getChildByID("pageDataAudit_selector").selectOptionByValue(0);

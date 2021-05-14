@@ -248,6 +248,34 @@ public:
 		MatriceContatori matriceContatori;      //PA7 relativa alla singola selezione
 	};
 
+	struct ContatorePP1
+	{
+		TempStr128	pp103_name;
+		u32			pp101_preselNumber;
+		u32			pp102_price;
+		u32			pp104_incrementalPrice;
+		u32			pp105_numTimesUsedSinceInit;
+		u32			pp106_valueSinceInit;
+		u32			pp107_numTimesUsedSinceReset;
+		u32			pp108_valueSinceReset;
+
+		void		reset()
+					{
+						pp101_preselNumber = pp102_price = pp104_incrementalPrice = pp105_numTimesUsedSinceInit = pp106_valueSinceInit = pp107_numTimesUsedSinceReset = pp108_valueSinceReset = 0;
+						memset(pp103_name.s, 0, sizeof(pp103_name.s));
+					}
+		void		valorizzaFromString (const TempStr128 *s)
+		{
+			pp101_preselNumber = rhea::string::utf8::toU32((const u8*)s[0].s);
+			pp102_price = rhea::string::utf8::toU32((const u8*)s[1].s);
+			sprintf_s (pp103_name.s, sizeof(pp103_name.s), "%s", s[2].s);
+			pp104_incrementalPrice = rhea::string::utf8::toU32((const u8*)s[3].s);
+			pp105_numTimesUsedSinceInit = rhea::string::utf8::toU32((const u8*)s[4].s);
+			pp106_valueSinceInit = rhea::string::utf8::toU32((const u8*)s[5].s);
+			pp107_numTimesUsedSinceReset = rhea::string::utf8::toU32((const u8*)s[6].s);
+			pp108_valueSinceReset = rhea::string::utf8::toU32((const u8*)s[7].s);
+		}
+	};
 
 public:
 						EVADTSParser();
@@ -270,6 +298,7 @@ public:
 	ContatoreValNumValNum CA2;			//relativo alle vendite pagate con CASH
 	MatriceContatori matriceContatori;  //relativa a tutte le selezioni sommate
 	rhea::FastArray<InfoSelezione*> selezioni;	//dettaglio di ogni singola selezione
+	rhea::FastArray<ContatorePP1>	elencoPP1;
 
 private:
 	void				priv_reset();

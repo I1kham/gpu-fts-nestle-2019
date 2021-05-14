@@ -11,6 +11,7 @@ EVADTSParser::EVADTSParser()
 {
 	allocator = rhea::getScrapAllocator();
 	selezioni.setup(allocator, 64);
+	elencoPP1.setup(allocator, 8);
 }
 
 //*******************************************************
@@ -28,6 +29,7 @@ void EVADTSParser::priv_reset()
 	VA3.reset();
 	CA2.reset();
 	matriceContatori.reset();
+	elencoPP1.reset();
 	
 	for (u32 i = 0; i < selezioni.getNElem(); i++)
 		RHEADELETE(allocator, selezioni[i]);
@@ -86,6 +88,12 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 		else if (priv_checkTag(line, "CA2", 4, par))
 		{
 			CA2.valorizzaFromString_ValNumValNum(par);
+		}
+		else if (priv_checkTag(line, "PP1", 8, par))
+		{
+			const u32 n = elencoPP1.getNElem();
+			elencoPP1[n].reset();
+			elencoPP1[n].valorizzaFromString (par);
 		}
 		else if (priv_checkTag(line, "PA1", 2, par)) //a volte il terzo parametro (nome selezione) non esiste
 		{
@@ -176,7 +184,8 @@ bool EVADTSParser::parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesT
 }
 
 
-/* se la stringa [s] inizia con il [tagToFindAtStartOfTheLine], allora la fn ritorna true e filla out_params con le stringhe contenenti gli [numOfParamsToRead] parametri che
+/***************************************************************************************************************************************************
+* se la stringa [s] inizia con il [tagToFindAtStartOfTheLine], allora la fn ritorna true e filla out_params con le stringhe contenenti gli [numOfParamsToRead] parametri che
 * seguono il tag.
 * Ad esempio, data la riga:
 *      VA1*15*1804*15*1804*0*0*0*0*0*0*0*0
@@ -280,11 +289,12 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	nbw.setup(ret, SIZE, rhea::eEndianess::eBigEndian);
 
 	const u8 nSelezioni = (u8)selezioni.getNElem();
+	const u8 nPresel = (u8)elencoPP1.getNElem();
 
-	nbw.writeU8(1); //versione di questo layout
-	nbw.writeU8(nSelezioni); //num selezioni
-	nbw.writeU8(numDecimali); //num decimali
-	nbw.writeU8(0);	//spare
+	nbw.writeU8(2);				//versione di questo layout
+	nbw.writeU8(nSelezioni);	//num selezioni
+	nbw.writeU8(numDecimali);	//num decimali
+	nbw.writeU8(nPresel);		//numero preselezioni nei contatori PP1
 
 	//qui ci metto l'indirizzo di inizio del blocco dati 1
 	const u32 seek1 = nbw.tell();
@@ -293,9 +303,11 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	const u32 seek2 = nbw.tell();	//indirizzo del blocco DATI PARZIALI
 	nbw.writeU32(0);
 
-	const u32 seek3 = nbw.tell();	//indirizzo del blocco DATI PARZIALI
+	const u32 seek3 = nbw.tell();	//indirizzo del blocco DATI TOTALI
 	nbw.writeU32(0);
 
+	const u32 seek4 = nbw.tell();	//indirizzo del blocco DATI PRESELEZIONI
+	nbw.writeU32(0);
 
 	//BLOCCO DATI 1
 	nbw.writeU32At(nbw.tell(), seek1);
@@ -369,7 +381,7 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 	}
 
 	//BLOCCO DATI TOTALI
-	//parziali per ogni selezione
+	//totali per ogni selezione
 	nbw.writeU32At(nbw.tell(), seek3);
 	for (u8 i = 0; i < nSelezioni; i++)
 	{
@@ -393,6 +405,24 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 		nbw.writeU32(c4.num_tot);	//num testvend
 		nbw.writeU32(c1.val_tot);	//tot cash (price1)
 		nbw.writeU32(c2.val_tot);	//tot cash (price2)
+	}
+
+	//BLOCCO DATI PREsELEZIONI
+	nbw.writeU32At(nbw.tell(), seek4);
+	for (u8 i = 0; i < nPresel; i++)
+	{
+		nbw.writeU32(elencoPP1(i).pp101_preselNumber);
+		nbw.writeU32(elencoPP1(i).pp102_price);
+		nbw.writeU32(elencoPP1(i).pp104_incrementalPrice);
+		nbw.writeU32(elencoPP1(i).pp105_numTimesUsedSinceInit);
+		nbw.writeU32(elencoPP1(i).pp106_valueSinceInit);
+		nbw.writeU32(elencoPP1(i).pp107_numTimesUsedSinceReset);
+		nbw.writeU32(elencoPP1(i).pp108_valueSinceReset);
+
+		const u8 n = strlen(elencoPP1(i).pp103_name.s);
+		nbw.writeU8(n);
+		if (n > 0)
+			nbw.writeBlob (elencoPP1(i).pp103_name.s, n);
 	}
 
 	*out_bufferLen = nbw.length();
