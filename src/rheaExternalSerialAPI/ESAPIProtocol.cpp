@@ -102,6 +102,22 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
         default:
 			DBGBREAK;
 			return false;
+		
+		case CPUBRIDGE_NOTIFY_QUERY_MACHINE_CODE_A_and_B:
+            //risposta al comando  #A2
+            {
+	            u16 machineCodeA = 0;
+				u16 machineCodeB = 0;
+	            cpubridge::translateNotify_CPU_QUERY_MACHINE_CODE_A_and_B(msg, &machineCodeA, &machineCodeB);
+
+				//rispondo: # A 2 [machineCodeA_LSB] [machineCodeA_MSB] [machineCodeB_LSB] [machineCodeB_MSB] [ck]
+				u8 data[4];
+				rhea::utils::bufferWriteU16_LSB_MSB (data, machineCodeA);
+				rhea::utils::bufferWriteU16_LSB_MSB (&data[2], machineCodeB);
+	            rs232_esapiSendAnswer ('A', '2', data, 4);
+            }
+            return true;
+
 
         case CPUBRIDGE_NOTIFY_CPU_NEW_LCD_MESSAGE:
             //risposta al comando  #C1
@@ -320,23 +336,14 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
 	case '2':
 		//Request Machine ID
 		//ricevuto: # A 2 [ck]
-        //rispondo: # A 2 [id_len] [id_ascii_1] .. [id_ascii_N] [ck]
+        //rispondo: # A 2 [machineCodeA_LSB] [machineCodeA_MSB] [machineCodeB_LSB] [machineCodeB_MSB] [ck]
 		{
 			//parse del messaggio
 			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
 				return 2;
 
-            //recupero MAC address e rispondo
-            char mac[16];
-            rhea::netaddr::getMACAddress (mac, sizeof(mac));
-            const u8 len = (u8)strlen(mac);
-
-            u8 data[32];
-            data[0] = len;
-            if (len)
-                memcpy (&data[1], mac, len);
-
-            rs232_esapiSendAnswer ('A', '2', data, len+1);
+            //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+            cpubridge::ask_CPU_QUERY_MACHINE_CODE_A_and_B (*cpuBridgeSubscriber, 0x01);
 		}
 		return 4;
 	}

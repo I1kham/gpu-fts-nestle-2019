@@ -419,7 +419,7 @@ u8* EVADTSParser::createBufferWithPackedData (rhea::Allocator *allocator, u32 *o
 		nbw.writeU32(elencoPP1(i).pp107_numTimesUsedSinceReset);
 		nbw.writeU32(elencoPP1(i).pp108_valueSinceReset);
 
-		const u8 n = strlen(elencoPP1(i).pp103_name.s);
+		const u8 n = static_cast<u8>(strlen(elencoPP1(i).pp103_name.s));
 		nbw.writeU8(n);
 		if (n > 0)
 			nbw.writeBlob (elencoPP1(i).pp103_name.s, n);

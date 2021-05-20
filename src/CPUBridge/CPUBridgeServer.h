@@ -235,6 +235,8 @@ namespace cpubridge
 		u64						showCPUStringModelAndVersionUntil_msec;
 		sPriceHolding			priceHolding;
 		eCPUMilkerType			milkerType;
+		u16						machineCodeA;
+		u16						machineCodeB;
 
 		u8						jugRepetitions[NUM_MAX_SELECTIONS];
     };
