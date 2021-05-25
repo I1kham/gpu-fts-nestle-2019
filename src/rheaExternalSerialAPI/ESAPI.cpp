@@ -78,7 +78,7 @@ void esapi::unsubscribe (const cpubridge::sSubscriber &sub)
 }
 
 //*********************************************************
-u32 esapi::buildAnswer (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer)
+u32 esapi::buildAnswer (u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
 	const u32 totalSizeOfMsg = 4 + numOfBytesInOptionalData;
 	if (sizeOfOutBuffer < totalSizeOfMsg)

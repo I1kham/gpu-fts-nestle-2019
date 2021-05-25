@@ -1749,9 +1749,9 @@ void cpubridge::translate_CPU_QUERY_SINGLE_SEL_PRICE(const rhea::thread::sMsg &m
 }
 
 //***************************************************
-void cpubridge::ask_CPU_QUERY_MACHINE_CODE_A_and_B (const sSubscriber &from, u16 handlerID)
+void cpubridge::ask_CPU_QUERY_ID101 (const sSubscriber &from, u16 handlerID)
 {
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_MACHINE_CODE_A_and_B, handlerID);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_ID_101, handlerID);
 }
 
 
@@ -2402,21 +2402,19 @@ void cpubridge::translateNotify_CPU_GET_CUPSENSOR_LIVE_VALUE(const rhea::thread:
 
 
 //***************************************************
-void cpubridge::notify_CPU_QUERY_MACHINE_CODE_A_and_B (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 machineCodeA, u16 machineCodeB)
+void cpubridge::notify_CPU_QUERY_ID101 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u32 id101)
 {
-	logger->log("notify_CPU_QUERY_MACHINE_CODE_A_and_B\n");
+	logger->log("notify_CPU_QUERY_ID101\n");
 	u8 optionalData[4];
-	rhea::utils::bufferWriteU16(optionalData, machineCodeA);
-	rhea::utils::bufferWriteU16(&optionalData[2], machineCodeB);
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_QUERY_MACHINE_CODE_A_and_B, handlerID, optionalData, 4);
+	rhea::utils::bufferWriteU32(optionalData, id101);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_QUERY_ID101, handlerID, optionalData, 4);
 }
 
-void cpubridge::translateNotify_CPU_QUERY_MACHINE_CODE_A_and_B(const rhea::thread::sMsg &msg, u16 *out_machineCodeA, u16 *out_machineCodeB)
+void cpubridge::translateNotify_CPU_QUERY_ID101(const rhea::thread::sMsg &msg, u32 *out_id101)
 {
-	assert(msg.what == CPUBRIDGE_NOTIFY_QUERY_MACHINE_CODE_A_and_B);
+	assert(msg.what == CPUBRIDGE_NOTIFY_QUERY_ID101);
 	const u8 *p = (const u8*)msg.buffer;
-	*out_machineCodeA = rhea::utils::bufferReadU16(p);
-	*out_machineCodeB = rhea::utils::bufferReadU16(&p[2]);
+	*out_id101 = rhea::utils::bufferReadU32(p);
 }
 
 

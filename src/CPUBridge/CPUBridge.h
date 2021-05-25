@@ -345,8 +345,8 @@ namespace cpubridge
 	
 	void		notify_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 	
-	void		notify_CPU_QUERY_MACHINE_CODE_A_and_B (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 machineCodeA, u16 machineCodeB);
-	void		translateNotify_CPU_QUERY_MACHINE_CODE_A_and_B(const rhea::thread::sMsg &msg, u16 *out_machineCodeA, u16 *out_machineCodeB);
+	void		notify_CPU_QUERY_ID101 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u32 id101);
+	void		translateNotify_CPU_QUERY_ID101(const rhea::thread::sMsg &msg, u32 *out_id101);
 
 	/***********************************************
 		ask_xxxx
@@ -590,8 +590,8 @@ namespace cpubridge
 	void		ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RUN_CAFFE_CORTESIA
 
-    void		ask_CPU_QUERY_MACHINE_CODE_A_and_B (const sSubscriber &from, u16 handlerID);
-                    //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_QUERY_MACHINE_CODE_A_and_B
+    void		ask_CPU_QUERY_ID101 (const sSubscriber &from, u16 handlerID);
+                    //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_QUERY_ID101
 
 } // namespace cpubridge
 

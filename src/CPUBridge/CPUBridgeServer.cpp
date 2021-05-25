@@ -1277,8 +1277,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
-		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_MACHINE_CODE_A_and_B:
-			cpubridge::notify_CPU_QUERY_MACHINE_CODE_A_and_B (sub->q, handlerID, logger, machineCodeA, machineCodeB);
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_ID_101:
+			cpubridge::notify_CPU_QUERY_ID101 (sub->q, handlerID, logger, id101);
 			break;
 
 
@@ -3826,8 +3826,7 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 	}
 
 	//machine code A & B
-	machineCodeA = rhea::utils::bufferReadU16_LSB_MSB(&da3[7052]);
-	machineCodeB = rhea::utils::bufferReadU16_LSB_MSB(&da3[7054]);
+	id101 = rhea::utils::bufferReadU32_LSB_MSB(&da3[7314]);
 
 	RHEAFREE(localAllocator, da3);
 }

@@ -33,7 +33,7 @@ namespace esapi
 									//modulo collegato alla seriale e quindi vanno gestiti in autonomia dal modulo stesso
 									//Utilizzare rsr232_getBufferIN() per ottenre il buffer di dati sul quale lavorare per processare il messaggio R
 
-		void					rs232_esapiSendAnswer (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData);
+		void					rs232_esapiSendAnswer (u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData);
 
 
 		bool					onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, const rhea::thread::sMsg &msg, u16 handlerID);

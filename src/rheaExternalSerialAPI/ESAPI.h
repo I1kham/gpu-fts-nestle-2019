@@ -28,7 +28,7 @@ namespace esapi
 	void		unsubscribe (const cpubridge::sSubscriber &sub);
 
 
-	u32			buildAnswer (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u32			buildAnswer (u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
 
 
 	/***********************************************
