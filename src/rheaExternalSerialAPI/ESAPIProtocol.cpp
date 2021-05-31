@@ -112,7 +112,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
                 //rispondo: # A 2 'R' 'H' 'V' '2' '0' [id101 come stringa di 9 ASCCI char] [ck]
 				char s[16];
                 sprintf_s (s, sizeof(s), "RHV20%09d", id101);
-	            rs232_esapiSendAnswer ('A', '2', s, 12);
+                rs232_esapiSendAnswer ('A', '2', s, 14);
             }
             return true;
 
