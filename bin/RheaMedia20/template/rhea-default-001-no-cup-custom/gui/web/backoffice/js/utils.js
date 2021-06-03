@@ -204,4 +204,23 @@ function setupCheckboxes()
 		d.append ("<input type='checkbox' value='1' id='" +inputID +"'><label for='" +inputID +"'></label>");
 	});
 }						
-									
+
+function wrapHTMLElement(elem, type, classes) {
+	var wrapper = document.createElement( type || 'div' );
+	
+	if( classes ) { wrapper.className = classes; }
+	
+	var clone = elem.cloneNode(true);
+	elem.parentNode.insertBefore(wrapper, elem);
+
+	removeHTMLElement(elem);
+
+	wrapper.appendChild( clone );
+
+	return wrapper;
+}
+
+function removeHTMLElement(elem) {
+    elem.parentNode.removeChild(elem);
+    return false;
+}
