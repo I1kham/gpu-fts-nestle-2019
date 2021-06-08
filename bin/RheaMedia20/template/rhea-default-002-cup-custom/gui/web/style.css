@@ -68,6 +68,11 @@ a:hover	{ text-decoration:none; outline: 0; }
 .pageMenu_icon.disabled { opacity:0.2; }
 .pageMenu_icon_img img {height: 78%; margin: 0 auto; }
 .pageMenu_icon_text { position: absolute; top:78%; left:0; padding:0; width:97%; line-height:94%; font-weight:bold; font-size:0.9em; }
+.pageMenu_icon_nd_text { position: absolute; top: 90%; left: 0; padding: 0; width: 97%; line-height: 94%; font-size: 0.7em; }
+
+
+
+
 .pageMenu_icon_text_hl { background-color: #800000; }
 
 .pageMenu_navigator { display: inline-block; padding-top:10px; text-align:center; }

@@ -606,11 +606,13 @@ function setupIconPage (iPage, nIconPerPage)
 			cssForIconDisabled=" disabled";
 		if (iconDisplayName=="JUG")
 			jug_iconNum = startIcon;
-			
+		var ndIconText = rhea_mainMenuIconSecondName[startIcon] && rhea_mainMenuIconSecondName[startIcon] !== 'NULL'? "<div id='icon_nd_text" +startIcon +"' class='pageMenu_icon_nd_text' iconNum='" + startIcon + "'>" + rhea_mainMenuIconSecondName[startIcon] + "</div>" : '';			
+		
 		html += "<div " + styleForIconDiv + ">"
 			  + " <div id='divIcon" +startIcon +"'  iconNum='" + startIcon + "' class='pageMenu_icon" +cssForIconDisabled +"'>"
 			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
 			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
+			  + ndIconText
 			  + " </div>"
 			  + "</div>";
 		startIcon++;
