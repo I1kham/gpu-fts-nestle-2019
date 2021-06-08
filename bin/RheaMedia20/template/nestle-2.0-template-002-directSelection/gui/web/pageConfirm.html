@@ -16,6 +16,7 @@
 			<div id="divSelectionImage" class="pageConfirm_selectionImage"></div>
 			<div id="divBtnSelectionInfo" class="pageConfirm_selectionInfo" style="display:none" onclick="gotoSelectionInfo()"><img draggable='false' src="img/info.png"></div>
 			<div class="pageConfirm_selectionName pageConfirm_bigFont" id="divSelectionName"></div>
+			<div class="pageConfirm_selectionNdName pageConfirm_smallFont" id="divSelectionNdName" style="display:none"></div>
 			<div class="pageConfirm_selectionBottom pageConfirm_bigFont" id="divPrice"></div>
 		</div>
 		
@@ -251,7 +252,15 @@ function setupPageContent()
 	
 	//nome bevanda
 	rheaSetDivHTMLByName("divSelectionName", iconDisplayName);
-	
+	//secondo nome bevanda
+	if (typeof rhea_mainMenuIconSecondName !== 'undefined' && 
+		rhea_mainMenuIconSecondName[iconNum] && 
+		rhea_mainMenuIconSecondName[iconNum] !== 'NULL') {
+
+		var elSecondName = rheaGetElemByID("divSelectionNdName");
+		rheaSetElemHTML( elSecondName, rhea_mainMenuIconSecondName[iconNum] );
+		rheaShowElem( elSecondName );
+	}
 	
 	//colonna destra
 	var bShowOption1 = 0;

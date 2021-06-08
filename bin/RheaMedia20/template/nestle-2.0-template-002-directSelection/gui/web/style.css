@@ -96,6 +96,7 @@ ul.langList li { display:inline-block; width:500px; text-align:center; margin:20
 .pageConfirm_hintFont { color:#a0a0a0; font-size:1.4em; font-weight:normal; font-style: italic; line-height:100%}
 .pageConfirm_center 	{ float:left; width:512px; height:100%; position:relative; overflow:hidden; text-align:center; }
 .pageConfirm_selectionImage { position:relative;  top:20px; left:0; width:100%; min-width:100%; height:376px; min-height:376px; }
+.pageConfirm_selectionNdName { position:absolute; top:435px; left:0; width:100%; text-align:center; }
 .pageConfirm_selectionImage img { height:100%; }
 .pageConfirm_selectionInfo { position:absolute; top:290px; left:70px; text-align:center; }
 .pageConfirm_selectionName { position:absolute; top:400px; left:0; width:100%; text-align:center; }

@@ -619,6 +619,20 @@ console.timeEnd("  " +iso +"05_rst");
 		}
 		selectionNames = "var rheaLang_mainMenuIconName=[" +selectionNames +"];";
 		result += selectionNames;
+		// Retrieves second name for beverage
+		let rstSecondNameDescription = await db.q("SELECT What FROM pagemenu_mmi ORDER BY PROGR ASC");
+		var secondName = '';
+
+		for( var i=0; i<rstSecondNameDescription.getNumRows(); i++ ) {
+			var _what = rstSecondNameDescription.valByColName(i, 'What');
+
+			if( secondName ) { secondName += ','; }
+
+			secondName +="\"" + _what +"\"";
+		}
+
+		secondName = "var rhea_mainMenuIconSecondName=[" + secondName +"];";
+		result += secondName;
 console.time("  " +iso +"05_saveas");
 		await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config/lang", iso +".js");
 console.timeEnd("  " +iso +"05_saveas");

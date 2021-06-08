@@ -99,6 +99,7 @@ ul.langList li { display:inline-block; width:500px; text-align:center; margin:20
 .pageConfirm_selectionImage img { height:100%; }
 .pageConfirm_selectionInfo { position:absolute; top:270px; left:70px; text-align:center; }
 .pageConfirm_selectionName { position:absolute; top:380px; left:0; width:100%; text-align:center; }
+.pageConfirm_selectionNdName { position:absolute; top:415px; left:0; width:100%; text-align:center; }
 .pageConfirm_selectionBottom { position:relative; top:80px; left:0; width:100%; text-align:center;}
 
 .btnStop, .btnStart { display:inline-block; width:350px; height:58px; background-image: url(img/btnStart.png); text-align:center; line-height:64px; cursor:pointer;}

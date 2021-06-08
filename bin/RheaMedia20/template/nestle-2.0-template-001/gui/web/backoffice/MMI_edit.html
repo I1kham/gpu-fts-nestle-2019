@@ -71,6 +71,17 @@
 								</tr>
 							</table>
 							
+							<table border='0' cellspacing='0' cellpadding='2' style="margin-top: .5em">
+								<tr valign="top">
+									<td>Beverage second name:</td>
+									<td>
+										<div id="MMINdName">
+											<input type="text" id="MMINdName_input" class="edit" style="width:360px" value="">
+										</div>
+									</td>
+								</tr>
+							</table>
+
 							<p>Cup customization enabled: <select id="selWithCupCustomization" class="combo" onchange="selWithCupCustomization_onchange()">
 									<option value="N">No</option>
 									<option value="Y">Yes</option>
@@ -662,6 +673,23 @@ async function loadExistingRecord()
 		return;
 	}
 
+	// Check if exist 'What' column name. If not, creates it
+	let exist = false;
+	rst.data.forEach( key => {
+		if( key === 'What' ) {
+			exist = true;
+		}
+	});
+
+	if( !exist ) {
+		var q = 'ALTER TABLE pagemenu_mmi ADD What TEXT(255);'
+		await db.exec(q);
+	}
+
+	if( exist ) {
+		document.querySelector( '#MMINdName_input' ).value = rst.valByColName(0, "What") === 'NULL'? '' : rst.valByColName(0, "What");
+	}
+
 	var allowedCupSize = rst.valByColName(0, "allowedCupSize").toString();
 	var selNum = rst.valByColName(0, "selNum");
 	
@@ -681,9 +709,10 @@ async function loadExistingRecord()
 	else
 		$("#boxAdvCupCustom_cb1").prop('checked', true);
 
-
-
 	loadedLinkedSelection = rst.valByColName(0, "linkedSelection").split(",");
+
+
+
 				
 	if (selNum =="0")
 	{
@@ -908,6 +937,12 @@ async function saveAll()
 	if (selectionName == "")
 		err += "Selection name (" +defaultLang +") is mandatory.\n";
 		
+	var selectionNdName = $("#MMINdName_input").val().trim();
+
+
+
+
+	
 	var pageMenuImg = getFilenameFromPath($("#pageMenuImg").attr("src"));
 	if (pageMenuImg == "")
 		err += "Selection image is mandatory.\n";
@@ -952,7 +987,7 @@ async function saveAll()
 			progressivo = await queryNextProgressivo();
 				
 			//preparo insert
-			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,allowedCupSize,linkedSelection,name,bCustomBtnCupAppeance) VALUES("
+			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,allowedCupSize,linkedSelection,name,What,bCustomBtnCupAppeance) VALUES("
 					+historyID
 					+"," +progressivo
 					+"," +selNum
@@ -961,6 +996,7 @@ async function saveAll()
 					+",'" +allowedCupSize +"'"
 					+",'" +linkedSelection +"'"
 					+",'" +db.toDBString(selectionName) +"'"
+					+",'" +db.toDBString(selectionNdName) +"'"
 					+",0" //bCustomBtnCupAppeance
 					+")";
 		}
@@ -973,6 +1009,7 @@ async function saveAll()
 					+",allowedCupSize='" +allowedCupSize +"'"
 					+",linkedSelection='" +linkedSelection +"'"
 					+",name='" +db.toDBString(selectionName) +"'"
+					+",What='" +db.toDBString(selectionNdName) +"'"
 					+",bCustomBtnCupAppeance=0"
 					+" WHERE UID=" +UID;
 		}
@@ -1161,7 +1198,7 @@ async function saveAll()
 		if (UID == -1)
 		{
 			progressivo = await queryNextProgressivo();
-			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,optionAEnabled,optionBEnabled,allowedCupSize,linkedSelection,defaultSelectionOption,name,bCustomBtnCupAppeance) VALUES("
+			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,optionAEnabled,optionBEnabled,allowedCupSize,linkedSelection,defaultSelectionOption,name,What,bCustomBtnCupAppeance) VALUES("
 					+historyID
 					+"," +progressivo
 					+",0"
@@ -1173,6 +1210,7 @@ async function saveAll()
 					+",'" +linkedSelection +"'"
 					+",'" +defaultSelectionOption +"'"
 					+",'" +db.toDBString(selectionName) +"'"
+					+",'" +db.toDBString(selectionNdName) +"'"
 					+"," +bCustomBtnCupAppeance
 					+")";
 		}
@@ -1188,6 +1226,7 @@ async function saveAll()
 					+",linkedSelection='" +linkedSelection +"'"
 					+",defaultSelectionOption='" +defaultSelectionOption +"'"
 					+",name='" +db.toDBString(selectionName) +"'"
+					+",What='" +db.toDBString(selectionNdName) +"'"
 					+",bCustomBtnCupAppeance=" +bCustomBtnCupAppeance
 					+" WHERE UID=" +UID;
 		}		
