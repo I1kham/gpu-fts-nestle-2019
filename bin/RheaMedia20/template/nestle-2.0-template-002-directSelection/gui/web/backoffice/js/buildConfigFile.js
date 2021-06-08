@@ -480,6 +480,7 @@ console.time("translation 01");
 	let rstLAB_CURRENCY_SIMBOL = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_CURRENCY_SIMBOL' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_READY = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_READY' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_BEING_PREPARED = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_BEING_PREPARED' AND What='MSG'");
+	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg'");
 	let rstLearnMore = await db.q("SELECT ISO,bgImage FROM pageLearnMore WHERE HIS_ID=" +his_id);		
 console.timeEnd ("translation 01");
 
@@ -588,6 +589,20 @@ console.timeEnd("  " +iso +"04");
 						+",LAB_YOUR_DRINK_IS_BEING_PREPARED: \"" +msgLabDrinkBeingPrepared +"\""
 						+",LAB_PAGE_STANDBY: \"" +stndByMsg +"\""
 						+"};";
+		var objectFooter = "var objFooter = {";
+		
+		for( var i=0; i<rstFOOTER_BTNS.getNumRows(); i++ ) {
+			var _what = rstFOOTER_BTNS.valByColName(i, 'What');
+			var _msg = rstFOOTER_BTNS.valByColName(i, 'Message');
+
+			objectFooter += "\"" + _what + "\" : \"" + _msg + "\""
+
+			if( i !== rstFOOTER_BTNS.getNumRows() - 1 ) {
+				objectFooter += ','
+			}
+		}
+
+		result += objectFooter + "};";
 	
 		//nomi delle selezioni per lingua
 console.time("  " +iso +"05");

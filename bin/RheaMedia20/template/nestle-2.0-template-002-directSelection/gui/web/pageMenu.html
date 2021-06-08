@@ -39,17 +39,18 @@
 	<div class="footer">
 		<div class="footer_left">
 			<div class="footer_left_btnInfo" onclick="gotoPageInfo();">
-				<img draggable="false" src="upload/btnInfo.png" draggable="false">
+				<img id="promoButtonImg" draggable="false" src="upload/btnInfo.png" draggable="false" style="display: none;">
 			</div>
 		</div>
 		<div class="footer_center">
 			<div id="divNavigator" class="pageMenu_navigator"><div id="pageIndex"></div></div>
 		</div>
 		<div class="footer_right">
-			<div class="btnLang" onclick="divLangMenu_open()">
+			<div id="langButtonImg_def" class="btnLang" onclick="divLangMenu_open()" style="display: none;">
 				<img draggable="false" src="img/flagsButton.png">
 				<p>LANGUAGE</p>
 			</div>
+			<img id="langButtonImg" draggable="false" src="" onclick="divLangMenu_open()" style="display: none; cursor:pointer; position: absolute; bottom: 10px; right: 15px;">
 		</div>
 		<div class="clear"></div>
 	</div>
@@ -240,10 +241,36 @@ function onAfterIconAreDisplayed()
 {
 	setupNavigator();
 	initScrollMenu();
+	prepareFooterItems();
 	resetTimerGotoPageStandby();
 	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED);
 		
 	divLangMenu_setup(lang_getCurLangISOCode());
+}
+
+function prepareFooterItems() {
+	var promoBtn = document.querySelector( '#promoButtonImg' );
+	var langDefBtn = document.querySelector( '#langButtonImg_def' );
+
+	if( typeof objFooter === 'undefined' || !objFooter || !Object.keys( objFooter ).length ) {
+		rheaShowElem(promoBtn); rheaShowElem(langDefBtn);
+
+		return; 
+	}
+	
+	var langBtn = document.querySelector( '#langButtonImg' );
+	
+	if( objFooter.promoButtonImg && objFooter.promoButtonImg !== 'NULL' ) { 
+		promoBtn.src = 'upload/' + objFooter.promoButtonImg; 
+	}
+	rheaShowElem(promoBtn);
+
+	if( objFooter.langButtonImg && objFooter.langButtonImg !== 'NULL')  { 
+		langBtn.src = 'upload/' + objFooter.langButtonImg; 
+		rheaShowElem(langBtn);
+	} else {
+		rheaShowElem(langDefBtn);
+	}
 }
 
 function onSelectionAvailabilitUpdated()
