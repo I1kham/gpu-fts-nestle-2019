@@ -1,0 +1,212 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Page learn more</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>			
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<h2>Background image</h2>
+					<div class="box-content">
+						<p>Drag & drop the image that will be shown on the "Learn more/info page". The image must be a jpg with a resolution of 1024x600 pixel.<br>
+						You can upload a different image for each language. If you do not upload an image for a certain language, then the image associated with the default language will be automatically used.</p>
+						<br>&nbsp;
+						
+						<ul id="boxNutri_langSelector" class="langSelector"></ul>
+						<div class="clear"></div>
+
+						<div style="float:left; width:512px; height:300px; overflow:hidden; margin-right:10px">
+							<img id="pageNutriImg" src="" style="width:512px">
+						</div>
+						
+						<div style="float:left; width: 280px;">
+							<div id="fileUpload1" style="width:280px" data-message="+<br><i style='font-size:0.3em'>drag an image here<br><br>(1024x600 jpg image)</i>"></div>
+							<br><br>
+							<br><br>
+							<br><br>
+							<center><a class="button rosso" href="javascript:boxNutri_deleteCurrentImage()">Delete current image</a></center>
+						</div>
+						
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var db = null;
+var nutritionalInfoImg = [];
+
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+	
+	setupUploader("fileUpload1", uploadNutri_onEnd);
+	
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+
+
+	//selettore lingue per la pagina
+	var html = "";
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)
+	{
+		nutritionalInfoImg[i] = "";
+		var css="";
+		if (i == 0)
+			css = "selected";
+			
+		var id = "boxNutri_langSelector_" +i;
+		html += "<li id='" +id +"' class='" +css +"' onclick='boxNutri_langSelector_onClick(" +i +");'><img src='img/flags/" +langList[i] +".svg'></li>";
+	}
+	rheaSetDivHTMLByName ("boxNutri_langSelector", html);	
+	
+	let rst = await db.q("SELECT ISO,bgImage FROM pageLearnMore WHERE HIS_ID=" +historyID);
+	for (var i=0; i<langList.length; i++)
+	{
+		var bAlreadyInDB = 0;
+		for (var r=0; r<rst.getNumRows(); r++)
+		{
+			var iso = rst.valByColName(r, "ISO");
+			if (iso == langList[i])
+			{
+				bAlreadyInDB = 1;
+				nutritionalInfoImg[i] = rst.valByColName(r, "bgImage");
+				if (nutritionalInfoImg[i] == "NULL")
+					nutritionalInfoImg[i] = "";
+				break;
+			}
+		}
+		
+		if (!bAlreadyInDB)
+			await db.exec ("INSERT INTO pageLearnMore (HIS_ID,ISO,bgImage) VALUES(" +historyID +",'" +langList[i] +"','')");
+	}
+	boxNutri_langSelector_onChange();
+
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+}
+
+
+function boxNutri_langSelector_onClick(iClicked)
+{
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)	
+	{
+		var e = rheaGetElemByID("boxNutri_langSelector_" +i);
+		rheaRemoveClassToElem(e,"selected");
+	}
+	var e = rheaGetElemByID("boxNutri_langSelector_" +iClicked);
+	rheaAddClassToElem(e,"selected");
+	boxNutri_langSelector_onChange();
+}
+
+function boxNutri_langSelector_getIndexOfCurrentSelectedLang()
+{
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)	
+	{
+		if ($("#boxNutri_langSelector_" +i).hasClass("selected"))
+			return i;
+	}
+	return 0;
+}
+
+function boxNutri_langSelector_onChange()
+{
+	var i = boxNutri_langSelector_getIndexOfCurrentSelectedLang();
+	$("#pageNutriImg").attr("src", "../upload/" +nutritionalInfoImg[i]);
+}
+
+function uploadNutri_onEnd (fileName, userValue, error_code)
+{
+	if (error_code != 0)
+		return;
+	
+	var i = boxNutri_langSelector_getIndexOfCurrentSelectedLang();
+	nutritionalInfoImg[i] = fileName;
+	$("#pageNutriImg").attr("src", "../upload/" +nutritionalInfoImg[i]);
+}
+
+function boxNutri_deleteCurrentImage ()
+{
+	var i = boxNutri_langSelector_getIndexOfCurrentSelectedLang();
+	nutritionalInfoImg[i] = "";
+	$("#pageNutriImg").attr("src", "../upload/" +nutritionalInfoImg[i]);
+}
+
+
+
+
+
+async function saveAll()
+{
+	if (+nutritionalInfoImg[0] == "")
+	{
+		alert ("WARN: background image for the default language is mandatory.");
+		return;
+	}
+
+	//*** 
+	pleaseWait(1);
+
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)
+	{
+		await db.exec ("UPDATE pageLearnMore SET bgImage='" +nutritionalInfoImg[i] +"' WHERE HIS_ID=" +historyID +" AND ISO='" +langList[i] +"'");
+	}
+
+
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+</script>
+</html>

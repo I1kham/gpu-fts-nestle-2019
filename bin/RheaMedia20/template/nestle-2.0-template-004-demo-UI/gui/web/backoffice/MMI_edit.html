@@ -1,0 +1,681 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../styleOptionButtons.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+	<style>
+		.box2 { margin:25px 0 25px 0; padding:20px 5px 20px 5px; border:solid 1px #ccc; }
+		.container-middle { margin: auto; }
+		.container-middle .center-vertical { display: inline-block; vertical-align: middle; }
+
+		.popover-container { position: relative; cursor: pointer; }
+		.popover-container[data-title]:hover::after {
+			content: attr(data-title); margin-top: -15px; position: absolute; width: 200px; top: 13px; left: 28px;
+			border: 1px solid #aaa; border-radius: 5px; color: #666666; padding: 3px 10px; box-shadow: 0px 0px 4px 1px rgb(0 0 0 / 50%);
+			background-color: #efefef; z-index: 1;
+		}
+	</style>
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Main Menù Icon - Edit</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="javascript:gotoMMI()">BACK TO MMI</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>	
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<h2 onclick="box_showHide('boxGeneralContent')" style="cursor:pointer">General settings</h2>
+					<div class="box-closer" id="boxGeneralContent_arrow"><img src="img/dblArrowDown.png"></div>
+					<div class="box-content" id="boxGeneralContent_content">					
+						<div style="float:left; width:340px; overflow:hidden; margin-right:10px">
+							<div style="width:300px; text-align:center">
+								<div style="width:300px; height:240px; background-color:#fff; overflow:hidden; text-align:center; margin-top:5px">
+									<img id="pageMenuImg" src="">
+								</div>
+								<div style="padding-bottom:10px; width: 280px; margin: 20px auto 0 auto">
+									<a href="javascript:chooseImage()" class="button oro">Click here to select a beverage image from the repository</a>
+									<br><br>
+									<center>or</center><br>
+									<div id="fileUpload2" style="width:280px" data-message="+<br><i style='font-size:0.3em'>drag an image here<br><br>(max 300x240 jpg/png image)</i>"></div>
+									
+								</div>
+							</div>
+						</div>
+						
+						<div style="float:left;">
+							<table border='0' cellspacing='0' cellpadding='2'>
+								<tr valign="top">
+									<td>Icon display name:</td><td><div id="MMIName"></div></td>
+								</tr>
+							</table>
+							<table border='0' cellspacing='0' cellpadding='2' style="margin-top: .5em">
+								<tr valign="top">
+									<td>Beverage second name:</td>
+									<td>
+										<div id="MMINdName">
+											<input type="text" id="MMINdName_input" class="edit" style="width:360px" value="">
+										</div>
+									</td>
+								</tr>
+							</table>
+							<p class="container-middle">
+								<span class="center-vertical">Selection number: </span>
+								<select id="selNoCustom_selNum" class="combo center-vertical">
+									<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+									<option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option>
+									<option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option>		
+									<option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option>
+									<option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option>
+								</select>
+							</p>
+
+							<p>Cup size: <select id="selNoCustom_cupSize" class="combo">
+									<option value="S">Small</option>
+									<option value="M">Medium</option>
+									<option value="L">Large</option>
+								</select>
+							</p>
+						</div>
+						<div class="clear"></div>
+					</div>
+				</div> <!-- general settings -->
+				
+				<br><br><br><br>&nbsp;
+			</div> <!-- page content -->
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+	
+	<div id="divImageBrowser" class="imageBrowser" style="display:none">
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="js/multilangElem.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script src="js/ImageBrowser.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var UID = -1;
+var db = null;
+var ml_MMIName = null;
+var ml_MMIDescr = null;
+var imgBrowser = null;
+var nutritionalInfoImg = [];
+var mlAL = null;
+var mlAR = null;
+var mlBL = null;
+var mlBR = null;
+var dbData = null; // Contains used selections
+var usedSelection 		  = {};
+var usedSelectionOnChange = {};
+var previousSelection;
+var currentSelect;
+var SELECTION_NUMBER = 48;
+
+
+
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	UID = urlParams["uid"];
+	progressivo = urlParams["progr"];
+	
+	setupCheckboxes();
+	imgBrowser = new ImageBrowser("divImageBrowser");
+	setupUploader("fileUpload2", upload2_onEnd);
+	
+	$("#boxConfirm_cb1").on ("change", onBoxConfirm_cb1_changed);
+	$("#main-content-wait").show();
+	// Prepares SELECTION combo elements
+	bindEventComboSelection_onLoad();
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+
+	if (UID < 0)
+	{
+		//new record
+		UID = -1;
+		$("#selNoCustom_selNum").val(1);
+		$("#selNoCustom_cupSize").val("S");
+		$("#boxConfirm_cb1").prop('checked', false);
+		await db.exec ("DELETE FROM lang WHERE UID='MMI_NAME-1'");
+		await db.exec ("DELETE FROM lang WHERE UID='MMI_NUTRI' AND What='-1'");
+	}
+	else
+		await loadExistingRecord();
+		
+	onBoxConfirm_cb1_changed();
+		
+	ml_MMIName = new MultilangElem("MMIName", "MMI_NAME", UID, "EDIT", "360px", allLang);
+	await ml_MMIName.load(db);
+	
+	ml_MMIDescr = new MultilangElem("MMIDescr", "MMI_DESCR", UID, "TEXTAREA", "600px", allLang);
+	await ml_MMIDescr.load(db);
+	
+	//selettore lingue per la pagina NutritionalInfo
+	var html = "";
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)
+	{
+		nutritionalInfoImg[i] = "";
+		var css="";
+		if (i == 0)
+			css = "selected";
+			
+		var id = "boxNutri_langSelector_" +i;
+		html += "<li id='" +id +"' class='" +css +"' onclick='boxNutri_langSelector_onClick(" +i +");'><img src='img/flags/" +langList[i] +".svg'></li>";
+	}
+
+
+	let rst = await db.q("SELECT ISO,Message FROM lang WHERE UID='MMI_NUTRI' AND What='" +UID +"'");
+	for (var i=0; i<langList.length; i++)
+	{
+		var bAlreadyInDB = 0;
+		for (var r=0; r<rst.getNumRows(); r++)
+		{
+			var iso = rst.valByColName(r, "ISO");
+			if (iso == langList[i])
+			{
+				bAlreadyInDB = 1;
+				nutritionalInfoImg[i] = rst.valByColName(r, "Message");
+				if (nutritionalInfoImg[i] == "NULL")
+					nutritionalInfoImg[i] = "";
+				break;
+			}
+		}
+		
+		if (!bAlreadyInDB)
+			await db.exec ("INSERT INTO lang (UID,ISO,What,Message) VALUES('MMI_NUTRI','" +langList[i] +"','" +UID +"','')");
+	}
+	boxNutri_langSelector_onChange();
+	pleaseWait(0);		
+}
+
+//*****************************************
+async function loadExistingRecord()
+{
+	let rst = await db.q("SELECT * FROM pagemenu_mmi WHERE UID=" +UID);
+	if (rst.hasError() != "")
+	{
+		alert ("loadExistingRecord::error [" +rst.hasError() +"]");
+		return;
+	}
+
+	await db.dbConsistency( rst, 'pagemenu_mmi', 'ndName', 'TEXT(255)' );
+
+	document.querySelector( '#MMINdName_input' ).value = 
+		(rst.hasColName( 'ndName' ) && rst.valByColName(0, "ndName") !== 'NULL')?  rst.valByColName(0, "ndName") : '';
+
+	var allowedCupSize = rst.valByColName(0, "allowedCupSize").toString();
+	var selNum = rst.valByColName(0, "selNum");
+	
+	$("#pageMenuImg").attr("src", "../upload/" +rst.valByColName(0, "pageMenuImg"));
+	if (rst.valByColName(0, "pageMenuImg") == rst.valByColName(0, "pageConfirmImg"))
+	{
+		$("#boxConfirm_cb1").prop('checked', false);
+	}
+	else
+	{
+		$("#boxConfirm_cb1").prop('checked', true);
+		$("#pageConfirmImg").attr("src", "../upload/" +rst.valByColName(0, "pageConfirmImg"));
+	}
+
+	//caso di cup non customizzata
+	$("#selNoCustom_selNum").val(selNum);
+	$("#selNoCustom_cupSize").val("S");
+	if (allowedCupSize=="010") $("#selNoCustom_cupSize").val("M");
+	if (allowedCupSize=="001") $("#selNoCustom_cupSize").val("L");
+}
+
+
+function gotoMMI()
+{
+	window.location = "pageMainMenu.html?his=" +historyID +"&scrollTo=" +UID;
+}
+
+
+function queryNextProgressivo()
+{
+	return db.q("SELECT PROGR FROM pagemenu_mmi WHERE HIS_ID=" +historyID +" ORDER BY PROGR DESC LIMIT 1")
+		.then ( function(rst)
+		{
+			var progressivo = 1;
+			if (rst.getNumRows() > 0)
+				progressivo = 1 + parseInt(rst.valByColName(0, "PROGR"));
+			return progressivo;
+		});
+}
+
+
+async function saveAll()
+{
+	box_showItNow("boxGeneralContent");
+	
+	let progressivo;
+	var sql = "";
+	var err = "";
+	
+	var selectionName = $("#MMIName_" +defaultLang).val().trim();
+	if (selectionName == "")
+		err += "Selection name (" +defaultLang +") is mandatory.\n";
+		
+	var selectionNdName = $("#MMINdName_input").val().trim();
+
+
+
+
+	
+	var pageMenuImg = getFilenameFromPath($("#pageMenuImg").attr("src"));
+	if (pageMenuImg == "")
+		err += "Selection image is mandatory.\n";
+	
+	var pageConfirmImg = pageMenuImg;
+	if ($("#boxConfirm_cb1").prop('checked'))
+	{
+		pageConfirmImg = getFilenameFromPath($("#pageConfirmImg").attr("src"));
+		if (pageConfirmImg == "")
+			err += "You need to select an image for the 'confirm page'.\n";	
+	}
+
+	//advanced cup customization option?	
+	var bCustomBtnCupAppeance="0";
+	
+	//if (nutritionalInfoImg[0] == "")
+	//	err += "You need to select at least a default image for the nutritional info.\n";	
+	
+	var selNum = parseInt ($("#selNoCustom_selNum").val());
+	var allowedCupSize = "100";
+	switch ($("#selNoCustom_cupSize").val())
+	{
+		case "M": allowedCupSize = "010"; break;
+		case "L": allowedCupSize = "001"; break;
+	}
+	
+	var linkedSelection=selNum;
+	for (var i=1; i<12; i++)
+		linkedSelection += "," +selNum;
+	
+	if (UID == -1)
+	{
+		//calcolo il progressivo per il nuovo MMI
+		progressivo = await queryNextProgressivo();
+			
+		//preparo insert
+		sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,allowedCupSize,linkedSelection,name,ndName,bCustomBtnCupAppeance) VALUES("
+				+historyID
+				+"," +progressivo
+				+"," +selNum
+				+",'" +pageMenuImg +"'"
+				+",'" +pageConfirmImg +"'"
+				+",'" +allowedCupSize +"'"
+				+",'" +linkedSelection +"'"
+				+",'" +db.toDBString(selectionName) +"'"
+				+",'" +db.toDBString(selectionNdName) +"'"
+
+				+",0" //bCustomBtnCupAppeance
+				+")";
+	}
+	else
+	{
+		sql = "UPDATE pagemenu_mmi SET"
+				+" selNum=" +selNum
+				+",pageMenuImg='" +pageMenuImg +"'"
+				+",pageConfirmImg='" +pageConfirmImg +"'"
+				+",allowedCupSize='" +allowedCupSize +"'"
+				+",linkedSelection='" +linkedSelection +"'"
+				+",name='" +db.toDBString(selectionName) +"'"
+
+				+",ndName='" +db.toDBString(selectionNdName) +"'"
+				+",bCustomBtnCupAppeance=0"
+				+" WHERE UID=" +UID;
+	}
+
+	
+	//se durante la raccolta dati ho notato degli errori, avviso e mi fermo
+	if (err != "")
+	{
+		alert (err);
+		return;
+	}
+		
+	pleaseWait(1);
+	await db.exec(sql);
+
+	//salvataggio del nome MMI in multilingua
+	await ml_MMIName.save(db);
+	await ml_MMIDescr.save(db);
+
+	//se era un record nuovo...
+	if (sql.substr(0,6) == "INSERT")
+	{
+		//recupero UID di questo elemento che ho appena creato
+		let rst = await db.q("SELECT UID FROM pagemenu_mmi WHERE HIS_ID=" +historyID +" AND PROGR="+progressivo);
+		UID = rst.valByColName(0, "UID");
+		
+		await db.exec ("INSERT INTO cupcustombtn(HIS_ID,MMI,AppearanceA,AppearanceB) VALUES(" +historyID +"," +UID +",'A','C')");
+		await db.exec ("DELETE FROM lang WHERE What='" +UID +"' AND UID IN ('MMI_NAME','MMI_DESCR','MMI_NUTRI')");
+		await db.exec ("UPDATE lang SET What='" +UID +"' WHERE What='-1' AND UID IN ('MMI_NAME','MMI_DESCR','MMI_NUTRI')");
+	}
+	
+	//salvataggio nutritional info
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)
+	{
+		await db.exec ("UPDATE lang SET Message='" +nutritionalInfoImg[i] +"' WHERE UID='MMI_NUTRI' AND What='" +UID +"' AND ISO='" +langList[i] +"'");
+	}
+
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	
+	gotoMMI();
+}
+
+
+function chooseImage()
+{
+	var curPath = rheaGetAbsolutePhysicalPath() +"/img-drinks";
+	imgBrowser.open (curPath, "*.png", chooseImage_onEnd);
+}
+
+function chooseImage_onEnd(selectedFileName, selectedPath)
+{
+	if (selectedFileName=="")
+		return;
+	console.log ("[" +selectedFileName +"] [" +selectedPath +"]");
+	
+	pleaseWait(1);
+	var pDST = rheaGetAbsolutePhysicalPath() +"/../upload";
+	rhea.ajax ("FSCopy", { "pSRC" : selectedPath, "fSRC":selectedFileName, "pDST" : pDST, "fDST":selectedFileName})
+		.then( function(result)
+		{
+			pleaseWait(0);
+			$("#pageMenuImg").attr("src", "../upload/" +selectedFileName);	
+		})
+		.catch ( function(result)
+		{
+			pleaseWait(0);
+		});
+}
+
+function upload2_onEnd (fileName, userValue, error_code)
+{
+	//console.log ("upload2_onEnd [" +userValue +"][" +error_code +"]");
+	if (error_code != 0)
+		return;
+	$("#pageMenuImg").attr("src", "../upload/" +fileName);
+}
+
+
+/*********************************************************
+ *
+ * image in page configrm
+ *
+ */
+function chooseImage2()
+{
+	var curPath = rheaGetAbsolutePhysicalPath() +"/img-drinks";
+	imgBrowser.open (curPath, "*.png", chooseImage_onEnd2);
+}
+
+function chooseImage_onEnd2(selectedFileName, selectedPath)
+{
+	if (selectedFileName=="")
+		return;
+	console.log ("[" +selectedFileName +"] [" +selectedPath +"]");
+	
+	pleaseWait(1);
+	var pDST = rheaGetAbsolutePhysicalPath() +"/../upload";
+	rhea.ajax ("FSCopy", { "pSRC" : selectedPath, "fSRC":selectedFileName, "pDST" : pDST, "fDST":selectedFileName})
+		.then( function(result)
+		{
+			pleaseWait(0);
+			$("#pageConfirmImg").attr("src", "../upload/" +selectedFileName);	
+		})
+		.catch ( function(result)
+		{
+			pleaseWait(0);
+		});
+}
+
+function upload1_onEnd (fileName, userValue, error_code)
+{
+	console.log ("upload1_onEnd [" +userValue +"][" +error_code +"]");
+	if (error_code != 0)
+		return;
+	$("#pageConfirmImg").attr("src", "../upload/" +fileName);
+}
+
+
+function box_showHide(elemID)
+{
+	var cnt = $("#" +elemID +"_content");
+	var arrow = $("#" +elemID +"_arrow");
+	if (cnt.css("display") == "none")
+	{
+		cnt.slideDown();
+		arrow.html ("<img src='img/dblArrowDown.png'>");
+	}
+	else
+	{
+		cnt.slideUp();
+		arrow.html ("<img src='img/dblArrowRight.png'>");
+	}
+}
+
+function box_showItNow(elemID)
+{
+	var cnt = $("#" +elemID +"_content");
+	if (cnt.css("display") == "none")
+	{
+		cnt.slideDown(1);
+		$("#" +elemID +"_arrow").html ("<img src='img/dblArrowDown.png'>");
+	}
+}
+
+function onBoxConfirm_cb1_changed()
+{
+	if ($("#boxConfirm_cb1").prop('checked'))
+		$("#boxConfirm_cnt1").show();
+	else
+		$("#boxConfirm_cnt1").hide();
+}
+
+
+/***********************************************************************
+ *
+ * page Nutritional info
+ *
+ ***********************************************************************/
+function boxNutri_langSelector_onClick(iClicked)
+{
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)	
+	{
+		var e = rheaGetElemByID("boxNutri_langSelector_" +i);
+		rheaRemoveClassToElem(e,"selected");
+	}
+	var e = rheaGetElemByID("boxNutri_langSelector_" +iClicked);
+	rheaAddClassToElem(e,"selected");
+	boxNutri_langSelector_onChange();
+}
+
+function boxNutri_langSelector_getIndexOfCurrentSelectedLang()
+{
+	var langList = allLang.split(",");
+	for (var i=0; i<langList.length; i++)	
+	{
+		if ($("#boxNutri_langSelector_" +i).hasClass("selected"))
+			return i;
+	}
+	return 0;
+}
+
+function boxNutri_langSelector_onChange()
+{
+	var i = boxNutri_langSelector_getIndexOfCurrentSelectedLang();
+	$("#pageNutriImg").attr("src", "../upload/" +nutritionalInfoImg[i]);
+}
+
+function uploadNutri_onEnd (fileName, userValue, error_code)
+{
+	if (error_code != 0)
+		return;
+	
+	var i = boxNutri_langSelector_getIndexOfCurrentSelectedLang();
+	nutritionalInfoImg[i] = fileName;
+	$("#pageNutriImg").attr("src", "../upload/" +nutritionalInfoImg[i]);
+}
+
+function boxNutri_deleteCurrentImage ()
+{
+	var i = boxNutri_langSelector_getIndexOfCurrentSelectedLang();
+	nutritionalInfoImg[i] = "";
+	$("#pageNutriImg").attr("src", "../upload/" +nutritionalInfoImg[i]);
+}
+
+function bindEventComboSelection_onLoad() {
+	var btnAnchorInfo = document.createElement( 'a' );
+		btnAnchorInfo.className = 'center-vertical popover-container';
+		btnAnchorInfo.setAttribute( 'onmouseover', 'btnSelectionAvailable_onClick()');
+		btnAnchorInfo.setAttribute( 'data-title', ' ');
+	
+	var imgInfo = document.createElement( 'img' );
+		imgInfo.setAttribute( 'alt', 'Info');
+		imgInfo.setAttribute( 'src', 'img/icon_info24.png');
+
+	btnAnchorInfo.appendChild( imgInfo );
+
+	document.querySelectorAll('select').forEach( s => {
+		// Is a selection combo
+		if( s.options.length === SELECTION_NUMBER ) {
+			s.setAttribute( 'onchange', 'btnSelectionAvailable_onClick(this)' );
+			s.setAttribute( 'onclick', 'previousSelectionOption(this)' );
+			
+			var wrapper = wrapHTMLElement(s, 'div', 'center-vertical container-middle');
+			wrapper.innerHTML += btnAnchorInfo.outerHTML;
+		}
+	});
+}
+
+function btnSelectionAvailable_onClick($event) {
+	if( !db ) return;
+	
+	if( !dbData ) {
+		var QUERY = 'SELECT linkedSelection FROM pagemenu_mmi';
+	
+		db.q( QUERY ).then( res => {
+			dbData = res && res.data;
+
+			findFirstAvailableSelection($event);
+			return;
+		});
+	} else {
+		findFirstAvailableSelection($event);
+	}
+}
+
+function findFirstAvailableSelection($event) {
+	var firstAvailableSelection;
+
+	if( !dbData ) {return};
+
+	// If first time, get selection from DB
+	if( !Object.keys(usedSelection).length ) {
+		dbData.forEach( colVal => {
+			if( colVal && colVal.indexOf( ',' ) !== -1 ) {
+				var tmpArrValue = colVal.split( ',' ) || [];
+				
+				tmpArrValue.forEach( selection => {
+					var s = parseInt( selection );
+
+					if( !usedSelection.hasOwnProperty( s ) ) {
+						usedSelection[ s ] = true;
+					}
+				});
+			}
+		});
+
+		usedSelectionOnChange = JSON.parse(JSON.stringify(usedSelection));
+	}
+	
+	if( $event ) {
+		var selection = parseInt( $event.value );
+ 		
+		usedSelectionOnChange[previousSelection] = false;
+
+		if( !usedSelectionOnChange.hasOwnProperty( selection ) || !usedSelectionOnChange[selection] ) {
+			usedSelectionOnChange[ selection ] = true;
+		}
+	}
+
+	document.querySelectorAll('select').forEach( s => {
+		// Is a selection combo
+		if( s.options.length === SELECTION_NUMBER ) {
+			usedSelectionOnChange[s.value] = true;
+		}
+	});
+
+	for( var i=1; i<=48; i++ ) {
+		if( !usedSelectionOnChange[i] ) {
+			firstAvailableSelection = i;
+			break;
+		}
+	}
+
+	document.querySelectorAll( '[data-title]' ).forEach( popover => {
+		popover.dataset.title = + firstAvailableSelection + ', is the first available selection';
+	});
+}
+
+
+function previousSelectionOption($event) {
+	if(!previousSelection ) { previousSelection = $event.value; }
+	if(!currentSelect ) { currentSelect = $event.id; }
+	
+	if( previousSelection === $event.value || currentSelect != $event.id ) {
+		previousSelection = $event.value;
+		currentSelect = $event.id;
+
+		usedSelectionOnChange = JSON.parse( JSON.stringify( usedSelection ) );
+	}	
+}
+
+
+
+
+</script>
+</html>
