@@ -305,10 +305,9 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="$LAB_CLEAN_START_RINSING" data-onclick="pageCleaning_action(160)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="$LAB_CLEAN_START_RINSING_HC" data-onclick="pageCleaning_action(8)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="$LAB_GRINDERCLEANING_START" data-onclick="pageGrinderCleaning_show()"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="$LAB_CLEAN_START_RINSING_MILKER" data-onclick="pageCleaning_action(5)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="$LAB_CLEAN_START_RINSING" data-onclick="pageCleaning_action(160)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="$LAB_CLEAN_START_RINSING_HC" data-onclick="pageCleaning_action(8)"></div></td>
+						<td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="$LAB_CLEAN_START_RINSING_MILKER" data-onclick="pageCleaning_action(5)"></div></td>
 					</tr>
 				</table>
 				
@@ -1053,9 +1052,10 @@
 						<tr id="pageDevices_cupSensor">
 							<td>$LAB_DEV_CUP_SENSOR_THRESHOLD</td>
 							<td>
-								<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
-								<div style="float:left; margin-left:40px">$LAB_current_value:<br><span class="bigCaption15" id="divCupSensorLiveValue"></span></div>
-								<div style="clear"></div>
+									<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
+									<span class="bigCaption15" id="divCupSensorLiveValue" style="display:none"></span></div>
+									<div style="clear"></div>
+								</div>
 							</td>
 						</tr>
 						<tr id="pageDevices_boilerSize"><td>$LAB_BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>

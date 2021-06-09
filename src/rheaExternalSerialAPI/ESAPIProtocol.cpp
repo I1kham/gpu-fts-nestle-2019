@@ -109,10 +109,10 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 	            u32 id101 = 0;
 	            cpubridge::translateNotify_CPU_QUERY_ID101(msg, &id101);
 
-				//rispondo: # A 2 'R' 'V' 'H' [id101 come stringa di 9 ASCCI char] [ck]
+                //rispondo: # A 2 'R' 'H' 'V' '2' '0' [id101 come stringa di 9 ASCCI char] [ck]
 				char s[16];
-				sprintf_s (s, sizeof(s), "RVH%09d", id101);
-	            rs232_esapiSendAnswer ('A', '2', s, 12);
+                sprintf_s (s, sizeof(s), "RHV20%09d", id101);
+                rs232_esapiSendAnswer ('A', '2', s, 14);
             }
             return true;
 
@@ -334,7 +334,7 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
 	case '2':
 		//Request Machine ID
 		//ricevuto: # A 2 [ck]
-        //rispondo: # A 2 'R' 'V' 'H' [id101 come stringa di 9 ASCCI char] [ck]
+        //rispondo: # A 2 'R' 'H' 'V' '2' '0' [id101 come stringa di 9 ASCCI char] [ck]
 		{
 			//parse del messaggio
 			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
