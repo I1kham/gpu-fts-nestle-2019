@@ -637,11 +637,11 @@ console.timeEnd("  " +iso +"05_rst");
 		selectionNames = "var rheaLang_mainMenuIconName=[" +selectionNames +"];";
 		result += selectionNames;
 		// Retrieves second name for beverage
-		let rstSecondNameDescription = await db.q("SELECT What FROM pagemenu_mmi ORDER BY PROGR ASC");
+		let rstSecondNameDescription = await db.q("SELECT ndName FROM pagemenu_mmi ORDER BY PROGR ASC");
 		var secondName = '';
 
 		for( var i=0; i<rstSecondNameDescription.getNumRows(); i++ ) {
-			var _what = rstSecondNameDescription.valByColName(i, 'What');
+			var _what = rstSecondNameDescription.valByColName(i, 'ndName');
 
 			if( secondName ) { secondName += ','; }
 

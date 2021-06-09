@@ -73,7 +73,7 @@ RheaDB.prototype.dbConsistency = async function(rst, dbTbl, dbCol, dbColType, df
 
 	if( !exist ) {
 		var def = dfColVal !== undefined? " DEFAULT " + dfColVal : "";
-		var q = "ALTER TABLE '" + dbTbl + "' ADD '" + dbCol +"' '" + dbColType + "'" + def;
+		var q = "ALTER TABLE " + dbTbl + " ADD " + dbCol +" " + dbColType + def;
 
 		await this.exec(q);
 	}

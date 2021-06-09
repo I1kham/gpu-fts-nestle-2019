@@ -320,22 +320,10 @@ async function loadExistingRecord()
 		return;
 	}
 
-	// Check if exist 'What' column name. If not, creates it
-	let exist = false;
-	rst.data.forEach( key => {
-		if( key === 'What' ) {
-			exist = true;
-		}
-	});
+	await db.dbConsistency( rst, 'pagemenu_mmi', 'ndName', 'TEXT(255)' );
 
-	if( !exist ) {
-		var q = 'ALTER TABLE pagemenu_mmi ADD What TEXT(255);'
-		await db.exec(q);
-	}
-
-	if( exist ) {
-		document.querySelector( '#MMINdName_input' ).value = rst.valByColName(0, "What") === 'NULL'? '' : rst.valByColName(0, "What");
-	}
+	document.querySelector( '#MMINdName_input' ).value = 
+		(rst.hasColName( 'ndName' ) && rst.valByColName(0, "ndName") !== 'NULL')?  rst.valByColName(0, "ndName") : '';
 
 	var allowedCupSize = rst.valByColName(0, "allowedCupSize").toString();
 	var selNum = rst.valByColName(0, "selNum");
@@ -432,7 +420,7 @@ async function saveAll()
 		progressivo = await queryNextProgressivo();
 			
 		//preparo insert
-		sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,allowedCupSize,linkedSelection,name,What,bCustomBtnCupAppeance) VALUES("
+		sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,allowedCupSize,linkedSelection,name,ndName,bCustomBtnCupAppeance) VALUES("
 				+historyID
 				+"," +progressivo
 				+"," +selNum
@@ -454,7 +442,7 @@ async function saveAll()
 				+",allowedCupSize='" +allowedCupSize +"'"
 				+",linkedSelection='" +linkedSelection +"'"
 				+",name='" +db.toDBString(selectionName) +"'"
-				+",What='" +db.toDBString(selectionNdName) +"'"
+				+",ndName='" +db.toDBString(selectionNdName) +"'"
 				+",bCustomBtnCupAppeance=0"
 				+" WHERE UID=" +UID;
 	}
