@@ -331,6 +331,14 @@ function imageList_getHTML_li (rst, rowNum)
 	if (allowedCupSize.substr(2,1) == '1') { if(s!="") s+=", "; s += "large"; }
 	info += "<b>Cup size:</b> " +s +"<br>";
 
+	var isHidden = rst.hasColName("HIDDEN_SELECTION")? parseInt( rst.valByColName(rowNum, "HIDDEN_SELECTION")) : 0;
+
+	var checkboxHS = '<div>' +
+						'<label for="hide_selection_' + progressivo + '"><b>Hide selection:</b></label>' +
+					  	'<input type="checkbox" id="hide_selection_' + progressivo + '" name="hide_selection_' + progressivo + '" ' + (isHidden? 'checked ' : '') + 'style="vertical-align: middle; margin-left: .5em; cursor: pointer;">' +
+					 '</div>';
+
+	info += checkboxHS;
 
 	if (selNum!="0")
 	{
@@ -424,6 +432,8 @@ async function imageList_update()
 		return;
 	}
 	
+	await db.dbConsistency( rst, 'pagemenu_mmi', 'HIDDEN_SELECTION', 'INTEGER(1)', 0 );
+
 	var lastUID = 0;
 	var html = "";
 	for (var r=0; r<rst.getNumRows(); r++)
@@ -528,7 +538,9 @@ async function saveAll()
 		var uid = li.attr("data-itemuid");
 		if (li.css("display") != "none")
 		{
-			sql += "UPDATE pagemenu_mmi SET PROGR=" +progr +" WHERE UID=" +uid +";";
+			var hidden = li[0].querySelector( '#hide_selection_' + progr ).checked? 1 : 0;
+
+			sql += "UPDATE pagemenu_mmi SET PROGR=" + progr + ", HIDDEN_SELECTION=" + hidden + " WHERE UID=" +uid +";";
 			progr++;
 		}
 		else

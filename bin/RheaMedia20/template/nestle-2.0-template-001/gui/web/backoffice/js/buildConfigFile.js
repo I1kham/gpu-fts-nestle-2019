@@ -393,6 +393,7 @@ function priv_buildConfigFile_mainMenuIcons_2 (rst, row)
 		var result = "selNum:" +rst.valByColName(row, "selNum")
 					+",size:\"" +rst.valByColName(row, "allowedCupSize") +"\""
 					+",pageMenuImg:\"" +rst.valByColName(row, "pageMenuImg") +"\""
+					+",hidden:\"" + (rst.hasColName("HIDDEN_SELECTION")? parseInt(rst.valByColName(row, "HIDDEN_SELECTION")) : 0) +"\""
 					+",pageConfirmImg:\"" +rst.valByColName(row, "pageConfirmImg") +"\"";
 		return result;
 	}
@@ -452,6 +453,7 @@ function priv_buildConfigFile_mainMenuIcons_2 (rst, row)
 					+",dblShot:" +rst.valByColName(row, "optionBEnabled")
 					+",grinder2:" +rst.valByColName(row, "optionAEnabled")
 					+",linkedSelection:" +linkedSelection
+					+",hidden:" + (rst.hasColName("HIDDEN_SELECTION")? parseInt(rst.valByColName(row, "HIDDEN_SELECTION")) : 0)
 					+",defaultSelection:" +defSel;
 		
 		return result;

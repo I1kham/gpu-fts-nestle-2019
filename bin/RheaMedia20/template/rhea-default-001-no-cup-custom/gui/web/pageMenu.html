@@ -571,8 +571,11 @@ function setupIconPage (iPage, nIconPerPage)
 			cssForIconDisabled=" disabled";
 		var ndIconText = rhea_mainMenuIconSecondName[startIcon] && rhea_mainMenuIconSecondName[startIcon] !== 'NULL'? "<div id='icon_nd_text" +startIcon +"' class='pageMenu_icon_nd_text' iconNum='" + startIcon + "'>" + rhea_mainMenuIconSecondName[startIcon] + "</div>" : '';
 		
+		var isHidden  = JSON.parse(rheaMainMenuIcons[startIcon].hidden);
+		var visibility = isHidden? "style='display: none'" : ""; 
+		
 		html += "<div " + styleForIconDiv + ">"
-			  + " <div id='divIcon" +startIcon +"'  iconNum='" + startIcon + "' class='pageMenu_icon" +cssForIconDisabled +"'>"
+			  + " <div id='divIcon" + startIcon + "'  iconNum='" + startIcon + "' class='pageMenu_icon" + cssForIconDisabled + "'" + visibility  + " >"
 			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
 			  + "  <div class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
 			  + ndIconText
@@ -624,6 +627,9 @@ function onRightArrowClicked()
 function onIconMenuClicked (iconNum)
 {
 	resetTimerGotoPageStandby();
+	
+	if( !iconNum ) { return; }
+	
 	if (MMI_isEnabled(iconNum))
 	{
 		selRunning_iconNum = iconNum;
