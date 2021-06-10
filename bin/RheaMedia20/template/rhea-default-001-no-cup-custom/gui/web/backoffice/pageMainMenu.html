@@ -262,7 +262,10 @@ function imageList_getHTML_li (rst, rowNum)
 	var positionInfo = getIconGridPosition( progressivo, rst.getNumRows() );
 
 	return "<li id='" +id +"' data-itemuid='" +UID +"' data-itemprogr='" +progressivo +"' data-filename='" +pageMenuImg +"' style='display:inline-block; position:relative'>"
-				+"<div style='position:relative'>"
+			+"<div style='margin-bottom: 1em; margin-top: -5px; color: #666666;'>"
+					+ getRowColInfo( 'rowColInfo_' + progressivo, positionInfo )
+			+"</div>"	
+			+"<div style='position:relative'>"
 					+"<img class='slide shadow' src='../upload/" +pageMenuImg +"'>"
 					+"<div class='info'>" +info +"</div>"
 					+"<div class='info' style='float:right'>" +infoSelection +"</div>"
@@ -271,9 +274,7 @@ function imageList_getHTML_li (rst, rowNum)
 					+"	<a href='javascript:imageList_delete(" +progressivo +")'><img src='img/icon_delete24.png' alt='delete' title='delete'></a>"					
 					+"</div>"
 				+"</div>"
-				+"<div style='position: absolute; bottom: 0; color: #666666;'>"
-					+ getRowColInfo( 'rowColInfo_' + progressivo, positionInfo )
-				+"</div>"
+
 			+"</li>";
 }
 
