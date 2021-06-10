@@ -16,7 +16,7 @@
 		.container-middle .center-vertical { display: inline-block; vertical-align: middle; }
 		.sortable-list li 			{ width:100%; padding:5px; text-align:left; margin:0; padding:10px 0 10px 0;}
 		.sortable-list li img.slide	{ float:left; width:100px; margin:0 0 0 30px; }
-		.sortable-list li div.info { float:left; margin-left:30px; }
+		.sortable-list li div.info { float:left; margin-left:30px; margin-bottom: 1em; }
 		.sortable-list li:nth-child(even) {background-color:#fff; }
 		
 		.selCustomBox { margin:0 0 20px 0; border:solid 1px #ccc; padding:5px;}
@@ -51,8 +51,8 @@
 					<h2>General settings</h2>
 					<div class="box-content">
 						<div style="float:left">
-							Num. row <select class="combo" id="icon_numRow"><option value="2">2</option><option value="3">3</option></select>,&nbsp;
-							num. cols <select class="combo" id="icon_numIconPerRow"><option value="3">3</option><option value="4">4</option></select>
+							Num. row <select class="combo" id="icon_numRow" onchange="updateRowColInfo()"><option value="2">2</option><option value="3">3</option></select>,&nbsp;
+							num. cols <select class="combo" id="icon_numIconPerRow" onchange="updateRowColInfo()"><option value="3">3</option><option value="4">4</option></select>
 						</div>
 						
 						<div style="float:left; margin-left:80px">
@@ -259,7 +259,7 @@ function imageList_getHTML_li (rst, rowNum)
 		infoSelection = image_getHTML_tableSelectionInfo0Option (allowedCupSize, linkedSel);		
 	}
 	
-	var positionInfo = getIconGridPosition( progressivo );
+	var positionInfo = getIconGridPosition( progressivo, rst.getNumRows() );
 
 	return "<li id='" +id +"' data-itemuid='" +UID +"' data-itemprogr='" +progressivo +"' data-filename='" +pageMenuImg +"' style='display:inline-block; position:relative'>"
 				+"<div style='position:relative'>"
@@ -277,25 +277,50 @@ function imageList_getHTML_li (rst, rowNum)
 			+"</li>";
 }
 
-function getIconGridPosition(position) {
-	var rowNum = parseInt( document.getElementById( 'icon_numRow' ).value );
-	var rowCol = parseInt( document.getElementById( 'icon_numIconPerRow' ).value );
+function getIconGridPosition(position, numItems) {
+	let rowNum = parseInt( document.getElementById( 'icon_numRow' ).value );
+	let colNum = parseInt( document.getElementById( 'icon_numIconPerRow' ).value );
 
-	var iconRowPosition = Math.floor( parseInt(( position / rowCol )) );
-	var iconColPosition = parseInt( (position-1) % rowCol ) + 1;
+	let iconRowPosition = Math.floor( parseInt(( position / colNum )) );
+	let iconColPosition = parseInt( (position-1) % colNum ) + 1;
 
-	if( position % rowCol ) {
-		iconRowPosition++; 
+	let pages = numItems > (rowNum * colNum)? 2 : 1;
+	let page  = position > (rowNum * colNum)? 2 : 1;
+	
+	if( position % colNum ) {
+		iconRowPosition++;
 	}
 
-	return { row: iconRowPosition, col: iconColPosition };
+	if( iconRowPosition > rowNum ) {
+		iconRowPosition = 1;
+	}
+
+	return { row: iconRowPosition, col: iconColPosition, pag: page, pagOf: pages };
 }
 
 function getRowColInfo(id, positionInfo) {
 	return "<div class='rowColInfo container-middle' id='" + id +"'>"
 				// +"<img src='img/icon_info24.png' class='center-vertical'>"
-				+"<div class='center-vertical'><b>Row: </b>" + positionInfo.row + ", <b>Column: </b>" + positionInfo.col + "</div>"
+				+"<div class='center-vertical'>" +
+					"<b>Row: </b>" + positionInfo.row + 
+					", <b>Column: </b>" + positionInfo.col +
+					", <b>Page: </b>" + positionInfo.pag + "/" + positionInfo.pagOf +
+				"</div>"
 			+"</div>";
+}
+
+function updateRowColInfo() {
+	let rows = document.querySelector( '#elencoItem' ).childNodes.length;
+
+	document.querySelector( '#elencoItem' ).childNodes.forEach( (li, index) => {
+		var currentChildPosition = getIconGridPosition( index + 1, rows );
+
+		// Keeps the previous id
+		var rowColInfoId = li.querySelector( '.rowColInfo' ).id;
+		var html = getRowColInfo(rowColInfoId, currentChildPosition);
+
+		li.querySelector( '.rowColInfo' ).innerHTML = html;
+	});
 }
 
 async function imageList_update()
@@ -318,17 +343,7 @@ async function imageList_update()
 	}
 	$("#elencoItem").html (html);
 	$("#elencoItem").sortable({
-		update: (event, ui) => {
-			document.querySelector( '#elencoItem' ).childNodes.forEach( (li, index) => {
-				var currentChildPosition = getIconGridPosition( index + 1 );
-
-				// Keeps the previous id
-				var rowColInfoId = li.querySelector( '.rowColInfo' ).id;
-				var html = getRowColInfo(rowColInfoId, currentChildPosition);
-
-				li.querySelector( '.rowColInfo' ).innerHTML = html;
-			});
-		}
+		update: (event, ui) => { updateRowColInfo(); }
 	});
 	$("#elencoItem").disableSelection();	
 	$("#main-content-wait").hide();
