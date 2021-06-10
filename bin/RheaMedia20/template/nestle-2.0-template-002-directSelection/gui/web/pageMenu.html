@@ -596,6 +596,8 @@ function setupIconPage (iPage, nIconPerPage)
 		n = nIcon - startIcon; 
 	
 	var html = "";
+	var ndTextConfigured = false;
+
 	while (n--)
 	{
 		var iconDisplayName = MMI_getDisplayName(startIcon);
@@ -609,6 +611,10 @@ function setupIconPage (iPage, nIconPerPage)
 		
 		var ndIconText = rhea_mainMenuIconSecondName[startIcon] && rhea_mainMenuIconSecondName[startIcon] !== 'NULL'? "<div id='icon_nd_text" +startIcon +"' class='pageMenu_icon_nd_text' iconNum='" + startIcon + "'>" + rhea_mainMenuIconSecondName[startIcon] + "</div>" : '';
 		
+		if( ndIconText ) {
+			ndTextConfigured = true;
+		}
+
 		var isHidden  = JSON.parse(rheaMainMenuIcons[startIcon].hidden);
 		var visibility = isHidden? "style='display: none'" : ""; 
 		
@@ -632,6 +638,14 @@ function setupIconPage (iPage, nIconPerPage)
 		setTimeout(function() { setupIconPage (iPage, nIconPerPage);}, 100);
 	else
 		onAfterIconAreDisplayed();
+	
+	if( ndTextConfigured ) {
+		var pageMenuElems = document.querySelectorAll( '.pageMenu_icon_text' );
+	
+		for (var i=0; i<pageMenuElems.length; i++) {
+			pageMenuElems[i].style = 'font-size:0.85em!important';
+		}
+	}
 }
 
 
