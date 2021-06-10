@@ -40,13 +40,13 @@
 						<p>Set the language button image that will be shown instead the default "Language button". If you leave blank, the default "Language button" will be shown.</p>
 						<br>
 						
-						<div style="float:left; width:170px; height:300px; overflow:hidden; margin-right:10px; margin-top: 10px;">
-							<img id="langButtonImg" src="" alt="No images selected yet" style="width:170px;">
+						<div style="float:left; width:170px; height:300px; overflow:hidden; margin-right:80px; margin-top: 10px;">
+							<img id="langButtonImg" src="img/default_lang_btn.jpg" data-default="img/default_lang_btn.jpg" alt="No images selected yet" style="width:170px; height: 70px;">
 						</div>
 
 						<div style="float:left; width:400px">
 							<div style="margin-left:30px;">
-								<div id="langButtonFileUpload" data-refer-to="langButtonImg" data-message="+<br><i style='font-size:0.3em'>click or drag image here<br/><br/> (170x50 jpg image)</i>"></div>
+								<div id="langButtonFileUpload" data-refer-to="langButtonImg" data-message="+<br><i style='font-size:0.3em'>click or drag image here<br/><br/> (170x70 jpg image)</i>"></div>
 							</div>
 
                             <div style="margin-left:30px; width: 280px;">
@@ -164,7 +164,7 @@
 
         images[id.replace( '#','' )] = '';    // Remove prefix id to string key object
         
-        $(id).attr("src", "");
+        $(id).attr("src", document.querySelector( id ).dataset.default);
         $(fileUploadId).val('')
     }
 

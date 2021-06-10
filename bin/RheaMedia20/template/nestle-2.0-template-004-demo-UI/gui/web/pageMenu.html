@@ -237,10 +237,15 @@ function prepareFooterItems() {
 	
 	var langBtn = document.querySelector( '#langButtonImg' );
 	
-	if( objFooter.promoButtonImg && objFooter.promoButtonImg !== 'NULL' ) { 
-		promoBtn.src = 'upload/' + objFooter.promoButtonImg; 
+	if( !JSON.parse(objFooter.disablePromo )) {
+		if( objFooter.promoButtonImg && objFooter.promoButtonImg !== 'NULL' ) { 
+			promoBtn.src = 'upload/' + objFooter.promoButtonImg; 
+		}
+		rheaShowElem(promoBtn);
+	} else {
+		rheaHideElem(promoBtn);
 	}
-	rheaShowElem(promoBtn);
+	
 
 	if( objFooter.langButtonImg && objFooter.langButtonImg !== 'NULL')  { 
 		langBtn.src = 'upload/' + objFooter.langButtonImg; 
@@ -738,7 +743,7 @@ function showFastMenu()
 		
 	d = rheaGetElemByID("btnBO_FileInfo");
 	rheaSetElemHTML(d, "<p>SW VERSION</p>");
-	
+		
 	rheaShowElem (rheaGetElemByID("divFastMenu")); 
 }
 function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }

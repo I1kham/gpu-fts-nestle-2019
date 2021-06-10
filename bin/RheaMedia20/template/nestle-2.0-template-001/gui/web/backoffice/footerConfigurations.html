@@ -40,8 +40,8 @@
 						<p>Set the language button image that will be shown instead the default "Language button". If you leave blank, the default "Language button" will be shown.</p>
 						<br>
 						
-						<div style="float:left; width:170px; height:300px; overflow:hidden; margin-right:10px; margin-top: 10px;">
-							<img id="langButtonImg" src="" alt="No images selected yet" style="width:170px;">
+						<div style="float:left; width:170px; height:300px; overflow:hidden; margin-right:80px; margin-top: 10px;">
+							<img id="langButtonImg" src="img/default_lang_btn.jpg" data-default="img/default_lang_btn.jpg" alt="No images selected yet" style="width:170px; height: 70px;">
 						</div>
 
 						<div style="float:left; width:400px">
@@ -63,13 +63,14 @@
                 <!-- selection Promotional Image Button box -->
 				<div class="box">
 					<h2 onclick="box_showHide('boxPromobutton')" style="cursor:pointer">Page info image button</h2>
-					<div class="box-closer" id="boxPromobutton_arrow"><img src="img/dblArrowRight.png"></div>
-					<div class="box-content" id="boxPromobutton_content" style="display: none;">
+					<div class="box-closer" id="boxPromobutton_arrow"><img src="img/dblArrowDown.png"></div>
+					<div class="box-content" id="boxPromobutton_content">
 						<p>Set page info image that will be shown on the bottom left of the "Page Menu" page. If you leave blank, the default "Page Info image" will be shown.</p>
-						<br>
-						
-						<div style="float:left; width:170px; height:300px; overflow:hidden; margin-right:10px; margin-top: 10px;">
-							<img id="promoButtonImg" src="" alt="No images selected yet" style="width:170px; border-radius: 20px;">
+						<input type="checkbox" id="disablePromo" name="disablePromo" value="disable" style="cursor: pointer;">
+                        <label for="disablePromo"><b>Disable promotional button</b></label>
+                        <br><br><br><br>
+						<div style="float:left; width:240px; height:300px; overflow:hidden; margin-right:10px; margin-top: 10px;">
+							<img id="promoButtonImg" src="img/btnInfo.png" data-default="img/btnInfo.png" alt="No images selected yet" style="width:240px; height: 70px;">
 						</div>
 
 						<div style="float:left; width:400px">
@@ -134,16 +135,20 @@
     }
 
     async function setUpImagebox() {
-        let rst = await db.q("SELECT Message, What FROM lang WHERE What='langButtonImg' OR What='promoButtonImg'");
+        let rst = await db.q("SELECT Message, What FROM lang WHERE What='langButtonImg' OR What='promoButtonImg' OR What='disablePromo'");
 
         for (let r=0; r<rst.getNumRows(); r++) {
             let _what = rst.valByColName(r, "What");
             let _msg  = rst.valByColName(r, "Message");
 
             if ( _msg && _msg !== "NULL") { 
-                document.querySelector( '#' + _what ).src = '../upload/' + _msg;
+                if (_what === 'disablePromo' ) {
+                    document.querySelector( '#' + _what ).checked = JSON.parse(_msg);
+                } else {
+                    document.querySelector( '#' + _what ).src = '../upload/' + _msg;
 
-                images[_what] = _msg;
+                    images[_what] = _msg;
+                }
             }
         } 
     }
@@ -162,7 +167,7 @@
 
         images[id.replace( '#','' )] = '';    // Remove prefix id to string key object
         
-        $(id).attr("src", "");
+        $(id).attr("src", document.querySelector( id ).dataset.default);
         $(fileUploadId).val('')
     }
 
@@ -179,6 +184,16 @@
 
             await db.exec( q );
         });
+
+        let q   = "SELECT * FROM lang WHERE What = 'disablePromo'"
+        let rst = await db.q( q );
+        let checked = JSON.stringify( document.querySelector( '#disablePromo' ).checked );
+
+        q = !rst.nRows?
+            "INSERT INTO lang (UID,ISO,What,Message) VALUES(-1,'GB','disablePromo','" + checked + "')":
+            "UPDATE lang SET Message='" + checked + "' WHERE What='disablePromo'";
+
+        await db.exec( q );
 
         await db.exec("UPDATE history SET DataUM='" + buildConfigFile_getAAAAMMGGHHMMSS() + "' WHERE ID=" + historyID);
 
