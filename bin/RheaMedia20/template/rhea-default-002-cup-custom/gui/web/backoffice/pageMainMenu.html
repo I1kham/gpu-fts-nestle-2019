@@ -554,7 +554,7 @@ async function saveAll()
 		var uid = li.attr("data-itemuid");
 		if (li.css("display") != "none")
 		{
-			var hidden = li[0].querySelector( '#hide_selection_' + progr ).checked? 1 : 0;
+			var hidden = li[0].querySelector( '#hide_selection_' + li[0].dataset.itemprogr ).checked? 1 : 0;
 
 			sql += "UPDATE pagemenu_mmi SET PROGR=" + progr + ", HIDDEN_SELECTION=" + hidden + " WHERE UID=" +uid +";";
 			progr++;
