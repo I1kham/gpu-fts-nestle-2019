@@ -1,1 +1,1 @@
-var rheaLang_nutriInfo=["","nutriotionalInfo1.png","nutriotionalInfo1.png","","","","","","","","","nutriotionalInfo1.png"];
+var rheaLang_nutriInfo=["","","","","","","","","","","",""];

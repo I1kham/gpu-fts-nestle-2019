@@ -102,6 +102,8 @@
 		<div class="clear"></div>
 	</div>
 	
+	<!-- btn jug -->
+	<div id="btnJUG" class="pageConfirm_btnJUG selected" style="display:none; position:absolute; top:471px; left:451px;" onclick="onBtnJUGClicked()"><p id="btnJUG_text"></p></div>
 	
 	<!-- cpu msg -->
 	<div id="divCPUMessage" style="position:absolute; top:0; left:0; width:100%; height:80px; line-height:80px; text-align:center; display:none; color:#838383; font-weight:bold;"></div>	
@@ -212,7 +214,7 @@ function onAfterLangLoaded2()
 	resetTimerGotoPageMainMenu();
 }
 
-function onSelectionChanged(selNum)
+function onSelectionChanged (selNum)
 {
 	resetTimerGotoPageMainMenu();
 
@@ -262,6 +264,20 @@ function onSelectionChanged(selNum)
 			rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
 		rheaShowElem(btnStart);
 	}
+	
+	//jug btn
+	if (selInfo.jug > 1)
+	{
+		btnJUG_setON();
+		btnJUG_setText (selInfo.jug);
+		btnJUG_show();
+	}
+	else
+	{
+		btnJUG_setOFF();
+		btnJUG_hide();
+	}
+	
 }
 
 function doUpdateCredit()
@@ -508,6 +524,40 @@ function onOption2Change (whichOne)
 	onSelectionChanged(selNum);
 }
 
+function btnJUG_show()							{ rheaShowElem (rheaGetElemByID("btnJUG")); }
+function btnJUG_hide()							{ rheaHideElem (rheaGetElemByID("btnJUG")); }
+function btnJUG_setText(txt)					{ rheaSetElemHTML (rheaGetElemByID("btnJUG_text"), "JUG x " +txt); }
+function btnJUG_isON()
+{
+	var d = rheaGetElemByID("btnJUG");
+	if (d.classList.contains ("selected"))
+		return 1;
+	return 0;
+}
+
+function btnJUG_setON()
+{
+	var d = rheaGetElemByID("btnJUG");
+	if (d.classList.contains ("selected"))
+		return;
+	rheaAddClassToElem(d,"selected");
+}
+
+function btnJUG_setOFF()
+{
+	var d = rheaGetElemByID("btnJUG");
+	if (d.classList.contains ("selected"))
+		rheaRemoveClassToElem(d,"selected");
+}
+
+function onBtnJUGClicked ()
+{
+	if (btnJUG_isON())
+		btnJUG_setOFF();
+	else
+		btnJUG_setON();
+}
+
 function detectCurrentSelection()
 {
 	var selNum = MMI_getLinkedSelectionNumber(iconNum);
@@ -564,9 +614,14 @@ function doStartSelection()
 
 	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
 	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+	btnJUG_hide();
 
+	resetTimerGotoPageMainMenu();
 	console.log ("Starting sel num:" +selThatWasStarted);
-	rhea.selection_start(selThatWasStarted);
+	if (btnJUG_isON())
+		rhea.selection_startForceJug(selThatWasStarted);
+	else
+		rhea.selection_start(selThatWasStarted);
 }
 
 function gotoPagePreparingSel(bCanUseBtnStop)
