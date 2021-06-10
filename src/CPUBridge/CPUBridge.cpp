@@ -2324,6 +2324,25 @@ void cpubridge::translate_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const rhea::
 	*out_selNum = p[0];
 }
 
+//***************************************************
+void cpubridge::ask_CPU_VALIDATE_QUICK_MENU_PINCODE (const sSubscriber &from, u16 handlerID, u16 pinCode)
+{
+	u8 otherData[2];
+	rhea::utils::bufferWriteU16 (otherData, pinCode);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_VALIDATE_QUICK_MENU_PINCODE, handlerID, otherData, 2);
+}
+void cpubridge::translate_CPU_VALIDATE_QUICK_MENU_PINCODE (const rhea::thread::sMsg &msg, u16 *out_pinCode)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_VALIDATE_QUICK_MENU_PINCODE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_pinCode = rhea::utils::bufferReadU16(p);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_IS_QUICK_MENU_PINCODE_SET, handlerID);
+}
 
 //***************************************************
 void cpubridge::notify_MILKER_TYPE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUMilkerType milkerType)
@@ -2417,6 +2436,44 @@ void cpubridge::translateNotify_CPU_QUERY_ID101(const rhea::thread::sMsg &msg, u
 	*out_id101 = rhea::utils::bufferReadU32(p);
 }
 
+//***************************************************
+void cpubridge::notify_CPU_VALIDATE_QUICK_MENU_PINCODE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bAccepted)
+{
+	logger->log("notify_CPU_VALIDATE_QUICK_MENU_PINCODE\n");
+	u8 optionalData = 0;
+	if (bAccepted)
+		optionalData = 0x01;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_VALIDATE_QUICK_MENU_PINCODE, handlerID, &optionalData, 1);
+}
+void cpubridge::translateNotify_CPU_VALIDATE_QUICK_MENU_PINCODE(const rhea::thread::sMsg &msg, bool *out_bAccepted)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_VALIDATE_QUICK_MENU_PINCODE);
+	const u8 *p = (const u8*)msg.buffer;
+	if (p[0] == 0x01)
+		*out_bAccepted = true;
+	else
+		*out_bAccepted = false;
+}
+
+//***************************************************
+void cpubridge::notify_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bYes)
+{
+	logger->log("notify_CPU_IS_QUICK_MENU_PINCODE_SET\n");
+	u8 optionalData = 0;
+	if (bYes)
+		optionalData = 0x01;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_IS_QUICK_MENU_PINCODE_SET, handlerID, &optionalData, 1);
+}
+//***************************************************
+void cpubridge::translateNotify_CPU_IS_QUICK_MENU_PINCODE_SET(const rhea::thread::sMsg &msg, bool *out_bYes)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_IS_QUICK_MENU_PINCODE_SET);
+	const u8 *p = (const u8*)msg.buffer;
+	if (p[0] == 0x01)
+		*out_bYes = true;
+	else
+		*out_bYes = false;
+}
 
 
 //***************************************************

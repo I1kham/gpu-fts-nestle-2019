@@ -65,6 +65,10 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
+DA3.prototype.isProgMenuPinCodeEmpy = function() 					{ if (this.read16(7060) == 0) return 1; return 0; }
+DA3.prototype.validateProgMenuPinCode = function (pin)				{ if (this.read16(7060) == pin) return 1; return 0; }
+DA3.prototype.isQuickMenuPinCodeEmpy = function() 					{ if (this.read16(8378) == 0) return 1; return 0; }
+DA3.prototype.validateQuickMenuPinCode = function (pin)				{ if (this.read16(8378) == pin) return 1; return 0; }
 DA3.prototype.isCappuccinatoreVenturi = function ()					{ if (parseInt(this.da3_current[69]) == 1) return 1; return 0; }
 DA3.prototype.isCappuccinatoreInduzione = function ()				{ if (parseInt(this.da3_current[69]) == 2) return 1; return 0; }
 DA3.prototype.isAlipayChinaActive = function()						{ return this.aliChinaActivated; }
@@ -270,6 +274,22 @@ DA3.prototype.read16  = function (posIN)
 	//console.log("DA3 read@" +pos +"=" + ret);
 	return ret; 
 }
+
+DA3.prototype.readASCIIString = function (startLocation, maxNumChar)
+{
+	var ret = "";
+	for (var i=0; i<maxNumChar; i++)
+	{
+		var ascii = parseInt(this.read8(startLocation));
+		if (ascii == 0)
+			break;
+		ret += String.fromCharCode(ascii);
+		startLocation++;
+	}
+	return ret;
+}
+		
+
 DA3.prototype.write16 = function (pos, value)
 { 
 	var v = parseInt(value); 

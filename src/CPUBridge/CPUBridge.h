@@ -348,6 +348,12 @@ namespace cpubridge
 	void		notify_CPU_QUERY_ID101 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u32 id101);
 	void		translateNotify_CPU_QUERY_ID101(const rhea::thread::sMsg &msg, u32 *out_id101);
 
+	void		notify_CPU_VALIDATE_QUICK_MENU_PINCODE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bAccepted);
+	void		translateNotify_CPU_VALIDATE_QUICK_MENU_PINCODE(const rhea::thread::sMsg &msg, bool *out_bAccepted);
+
+	void		notify_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bYes);
+	void		translateNotify_CPU_IS_QUICK_MENU_PINCODE_SET(const rhea::thread::sMsg &msg, bool *out_bYes);
+
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -593,6 +599,12 @@ namespace cpubridge
     void		ask_CPU_QUERY_ID101 (const sSubscriber &from, u16 handlerID);
                     //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_QUERY_ID101
 
+    void		ask_CPU_VALIDATE_QUICK_MENU_PINCODE (const sSubscriber &from, u16 handlerID, u16 pinCode);
+	void		translate_CPU_VALIDATE_QUICK_MENU_PINCODE (const rhea::thread::sMsg &msg, u16 *out_pinCode);
+                    //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_VALIDATE_QUICK_MENU_PINCODE
+
+    void		ask_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &from, u16 handlerID);
+                    //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_IS_QUICK_MENU_PINCODE_SET
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

@@ -9,9 +9,38 @@
 
 <body onLoad="rheaBootstrap()">
 <div class="wrapper1024x600">
-	<div id="pagePleaseWait">
-		<div id="pagePleaseWait_header_left"></div>
-		<div id="pagePleaseWait_header_right"></div>
+	<div id="pagePinCode">
+		<div style="margin:10px auto 0 auto; display:inline-block">
+			<div id="pagePinCodeDisplay">***</div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(1)">1</div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(2)">2</div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(3)">3</div>
+			<div class="clear"></div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(4)">4</div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(5)">5</div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(6)">6</div>
+			<div class="clear"></div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(7)">7</div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(8)">8</div>
+			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(9)">9</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+	
+	
+	<!-- modal "are you sure" -->
+	<div id="divAreYouSure" class="pagePleaseWait" style="background-color:rgba(0,0,0,0.95)">
+		<div class="page">
+			<br><br><center>¿Estás seguro de que deseas lanzar la operación elegida?</center>
+
+			<div style="position:absolute; top:450px; left:680px;"><div class="UIButton bigButton3x4" onclick="areYouSure_onBtnYES()"><p>SI</p></div></div>
+			<div style="position:absolute; top:450px; left:20px;"><div class="UIButton bigButton3x4" onclick="areYouSure_onBtnNO()"><p>NO</p></div></div>
+		</div>
+	</div> <!-- modal "are you sure" -->
+	
+	<div id="pagePleaseWait" class="pagePleaseWait">
+		<div id="pagePleaseWait_header_left" class="pagePleaseWait_header_left"></div>
+		<div id="pagePleaseWait_header_right" class="pagePleaseWait_header_right"></div>
 		<div class="clear"></div>
 
 		<!-- pagina dedicata al lavaggio capp induzione. E' un riepilogo delle operazioni da fare prima di far partire il lavaggio -->
@@ -40,7 +69,7 @@
 		<div class="page">
 			<div id="pagePleaseWait_wait" style="position:absolute; top:150px; left:462px"><img draggable='false' src="img/animationRound.gif"></div>
 			
-			<div id="pagePleaseWait_freeText"></div>
+			<div id="pagePleaseWait_freeText" class="pagePleaseWait_freeText"></div>
 			
 			<div id="pagePleaseWait_calibration" style="position:absolute; top:40px; left:10px; width:984px; height:500px; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px;">
 				<div id="pagePleaseWait_calibration_1">
@@ -305,9 +334,10 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="LAVADO" data-onclick="pageCleaning_action(160)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="LAVADO SANITARIO" data-onclick="pageCleaning_action(8)"></div></td>
-						<td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="LAVADO CAPPUCCINATORE" data-onclick="pageCleaning_action(5)"></div></td>
+                        <td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="LAVADO" data-onclick="pageCleaning_action(160)"></div></td>
+                        <td width="25%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="LAVADO SANITARIO" data-onclick="pageCleaning_action(8)"></div></td>
+                        <td width="25%" align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING<br>GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
+                        <td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="LAVADO CAPPUCCINATORE" data-onclick="pageCleaning_action(5)"></div></td>					
 					</tr>
 				</table>
 				
@@ -383,6 +413,14 @@
 							<td>HABILITAR AUDITORÍA-DATOS PRIMERO</td>
 							<td><div id="pageMiscellaneous_gs_auditBefore" class='UIOption' data-option='1|SI|0|NO' data-da3='7106' data-da3bit='8'></div></td>
 						</tr>
+						<tr>
+							<td>PROG MENU PIN CODE</td>
+							<td><div class="UINumber" data-da3="7060" data-da3bit="16" data-numfigures="3" data-max="999"></div></td>
+						</td>
+						<tr>
+							<td>QUICK MENU PIN CODE</td>
+							<td><div class="UINumber" data-da3="8378" data-da3bit="16" data-numfigures="3" data-max="999"></div></td>
+						</td>
  					</table>
 				</div>
 				
@@ -1052,10 +1090,9 @@
 						<tr id="pageDevices_cupSensor">
 							<td>UMBRAL DEL SENSOR DE VASO</td>
 							<td>
-									<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
-									<span class="bigCaption15" id="divCupSensorLiveValue" style="display:none"></span></div>
-									<div style="clear"></div>
-								</div>
+								<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
+								<div style="float:left; margin-left:40px">VALOR ACTUAL:<br><span class="bigCaption15" id="divCupSensorLiveValue"></span></div>
+								<div style="clear"></div>								
 							</td>
 						</tr>
 						<tr id="pageDevices_boilerSize"><td>BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
@@ -1350,7 +1387,6 @@ var currentPageID="";
 var currentCPUStatusID = -1;
 var isMilkerAlive = 0;
 var timeNowMSec = 0;
-
 var manualFolderName = "";
 
 var ui = null;
@@ -1567,7 +1603,81 @@ function menuLang_onUserSelected(iso)
 	});	
 }
 
+/***************************************************************************
+ *
+ * pin code
+ *
+ */
+var pagePinCode_alreadyAsked = 0; 
+var pagePinCode_currentPin = "";
+var pagePinCode_maxNumTry = 3;
+function pagePinCode_askPinCode()
+{
+	if (pagePinCode_alreadyAsked || da3.isProgMenuPinCodeEmpy())
+	{
+		pagePinCode_alreadyAsked=1;
+		pagePinCode_currentPin = "";
+		return;
+	}
+	rheaShowElem(rheaGetElemByID("pagePinCode"));
+}
 
+function pagePinCode_onBtnPress (btnPressed)
+{
+	pagePinCode_currentPin += btnPressed.toString();
+	//console.log ("curpin:" +pagePinCode_currentPin);
+	
+	var d = rheaGetElemByID("pagePinCodeDisplay");
+	if (pagePinCode_currentPin.length >= 3)
+	{
+		rheaSetElemHTML (d, "***");
+		if (da3.validateProgMenuPinCode(pagePinCode_currentPin))
+		{
+			pagePinCode_alreadyAsked = 1;
+			rheaHideElem(rheaGetElemByID("pagePinCode"));
+			setTimeout (pageMainMenu_show(), 10);
+		}
+		else
+		{
+			pagePinCode_currentPin = "";
+			rheaSetElemHTML (d, "");
+			pagePinCode_maxNumTry--;
+			if (pagePinCode_maxNumTry <= 0)
+				gotoHMI();
+		}
+	}
+	else
+	{
+		var maskedPin = "";
+		for (var i=0; i<pagePinCode_currentPin.length; i++)
+			maskedPin += "*";
+		rheaSetElemHTML (d, maskedPin);
+	}
+}
+
+
+/***************************************************************************
+ *
+ * are you sure
+ *
+ */
+var areYouSure_callbackYES = null;
+function areYouSureYouWishToLaunchTheChosenOperation (callbackYES)
+{
+	areYouSure_callbackYES = callbackYES;
+	rheaShowElem(rheaGetElemByID("divAreYouSure"));
+}
+
+function areYouSure_onBtnYES()
+{
+	rheaHideElem(rheaGetElemByID("divAreYouSure"));
+	setTimeout (areYouSure_callbackYES, 10);
+}
+
+function areYouSure_onBtnNO()
+{
+	rheaHideElem(rheaGetElemByID("divAreYouSure"));
+}
 
 /***************************************************************************
  *
@@ -1591,6 +1701,7 @@ function manualViewBox_close()		{ rheaHideElem(rheaGetElemByID("manualViewBox"))
  */
 function pageMainMenu_show()
 {
+	pagePinCode_askPinCode();
 	var title = "<div style='margin-left:140px'><center><img  src='img/iconHome.png'> MENU PROGRAMACION</center></div>";
 	showPage("pageMainMenu", title, 0, 0);
 	rheaShowElem(rheaGetElemByID("divCurLang"));
@@ -1853,19 +1964,25 @@ function pageCleaning_show()
 	}
 }
 
+
 function pageCleaning_action (what)
 {
-	pleaseWait_show();
-	
-	if (what == 8) //cleaning HC
-		save( function(){ pageCleaning_startLavSanitario(8,1); } );
-	else if (what==5) //milker
-		pageCleaning_startLavSanitario(what,1);
-	else
-	{
-		currentTask = new TaskCleaning(what, da3.isEspresso());
-		rhea.requestGPUCleaning(parseInt(what));
-	}
+	areYouSureYouWishToLaunchTheChosenOperation(
+		function YES()
+		{
+			pleaseWait_show();
+			
+			if (what == 8) //cleaning HC
+				save( function(){ pageCleaning_startLavSanitario(8,1); } );
+			else if (what==5) //milker
+				pageCleaning_startLavSanitario(what,1);
+			else
+			{
+				currentTask = new TaskCleaning(what, da3.isEspresso());
+				rhea.requestGPUCleaning(parseInt(what));
+			}
+		}
+	);
 }
 
 function pageCleaning_startLavSanitario (what, bSendRequestToGPU)
@@ -2653,8 +2770,14 @@ function pageSingleSelection_build()
 			
 		var rowID = "pageSingleSelection_P_" +i;
 		var dosageID = "pageSingleSelection_P_d" +i;
+		
+		var label_prodNum = "#" +prodNum;
+		var label_prodName = da3.readASCIIString (9483 + i*16, 16);
+		if (label_prodName == "" || label_prodName.toUpperCase() == "NOT USED")
+			label_prodName = label_prodNum;
+		
 		htmlP +="<tr id='" +rowID +"'>"
-				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
+				+"<td>" +label_prodName +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
 				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
 				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"

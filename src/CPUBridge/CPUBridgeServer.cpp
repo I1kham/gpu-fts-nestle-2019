@@ -31,6 +31,7 @@ Server::Server()
 
 	memset (&priceHolding, 0, sizeof(priceHolding));
 	milkerType = eCPUMilkerType::none;
+	quickMenuPinCode = 0;
 }
 
 //***************************************************
@@ -1173,6 +1174,24 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_LAST_GRINDER_SPEED:
 			notify_CPU_GET_LAST_GRINDER_SPEED (sub->q, handlerID, logger, grinderSpeedTest.lastCalculatedGrinderSpeed);
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_VALIDATE_QUICK_MENU_PINCODE:
+			{
+				u16 pinCode = 0;
+				translate_CPU_VALIDATE_QUICK_MENU_PINCODE (msg, &pinCode);
+				if (this->quickMenuPinCode == pinCode)
+					notify_CPU_VALIDATE_QUICK_MENU_PINCODE(sub->q, handlerID, logger, true);
+				else
+					notify_CPU_VALIDATE_QUICK_MENU_PINCODE(sub->q, handlerID, logger, false);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_IS_QUICK_MENU_PINCODE_SET:
+			if (this->quickMenuPinCode != 0)
+				notify_CPU_IS_QUICK_MENU_PINCODE_SET(sub->q, handlerID, logger, true);
+			else
+				notify_CPU_IS_QUICK_MENU_PINCODE_SET(sub->q, handlerID, logger, false);
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB:
@@ -3827,6 +3846,7 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
 
 	//machine code A & B
 	id101 = rhea::utils::bufferReadU32_LSB_MSB(&da3[7314]);
+	quickMenuPinCode = rhea::utils::bufferReadU16_LSB_MSB(&da3[8378]);
 
 	RHEAFREE(localAllocator, da3);
 }

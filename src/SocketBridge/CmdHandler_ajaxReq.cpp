@@ -59,6 +59,9 @@
 #include "CmdHandler/CmdHandler_ajaxReqGetDA3info.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.h"
+#include "CmdHandler/CmdHandler_ajaxReqFSmkdir.h"
+#include "CmdHandler/CmdHandler_ajaxReq_validateQuickMenuPinCode.h"
+#include "CmdHandler/CmdHandler_ajaxReq_isQuickMenuPinCodeSet.h"
 
 using namespace socketbridge;
 
@@ -149,6 +152,10 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqGetDA3info);
 	CHECK(CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue);
 	CHECK(CmdHandler_ajaxReq_P0x25_caffeCortesia);
+	CHECK(CmdHandler_ajaxReqFSmkdir);
+	CHECK(CmdHandler_ajaxReq_validateQuickMenuPinCode);
+	CHECK(CmdHandler_ajaxReq_isQuickMenuPinCodeSet);
+
 #undef CHECK
     return NULL;
 }

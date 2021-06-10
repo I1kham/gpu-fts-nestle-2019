@@ -29,10 +29,11 @@ a:hover	{ text-decoration:none; outline: 0; }
 
 .clear 	{ float:none; clear:both; }
 
-#pagePleaseWait { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
-#pagePleaseWait_header_left  { float:left; height:50px; line-height:50px; width:250px; background-color:#000; text-align:center; }
-#pagePleaseWait_header_right { float:left; height:50px; line-height:50px; width:774px; background-color:#000; text-align:center;  }
-#pagePleaseWait_freeText { position:absolute; top:40px; left:10px; width:984px; height:500px; font-size:0.8em; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px; }
+.pagePleaseWait { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+.pagePleaseWait_header_left  { float:left; height:50px; line-height:50px; width:250px; background-color:#000; text-align:center; }
+.pagePleaseWait_header_right { float:left; height:50px; line-height:50px; width:774px; background-color:#000; text-align:center;  }
+.pagePleaseWait_freeText { position:absolute; top:40px; left:10px; width:984px; height:500px; font-size:0.8em; background-color:rgba(40,40,40,0.7); color:#fff; display:none; padding:10px; border:solid 1px #fff; border-radius:10px; }
+
 
 .wrapper1024x600 	{ font-size:22px; background-color:#000; color:#fff; width:1024px; height:600px; margin:0 auto; overflow:hidden; position:relative; }
 .header	{ height:49px; width:100%; overflow:hidden; border-bottom:solid 1px #fff; line-height:50px;}
@@ -158,3 +159,9 @@ table.dataAudit tr.rowAllZero td { color:#666; font-size:0.7em; padding:2px; }
 #manualViewBox {position:absolute; top:0; left:0; background-color:rgba(80,80,80,0.9); width:100%; height:100%; text-align:center; display:none; z-index:100;}
 .manualViewBox_close 	{position:absolute; top:10px; right:10px; cursor:pointer;}
 .manualViewBox_frame  { border:0; width:1024px; height:600px;}
+
+#pagePinCode { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; text-align:center;}
+.pagePinCodeButton { border:solid 1px #666; width:150px; height:20px; padding:1.0em 0 2.0em 0; text-align:center; font-size:2.0em; margin:5px; display:inline-block; 
+					background-color:#666; border-radius: 5px;}
+					
+#pagePinCodeDisplay { border:solid 4px #666; border-radius:5px 5px 0 0; text-align:center; color:#fff; width:100%; padding:0.5em 0 0.5em 0; background-color:#000; min-height:30px; }

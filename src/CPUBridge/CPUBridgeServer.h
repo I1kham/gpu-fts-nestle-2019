@@ -236,6 +236,7 @@ namespace cpubridge
 		sPriceHolding			priceHolding;
 		eCPUMilkerType			milkerType;
 		u32						id101;
+		u16						quickMenuPinCode;
 
 		u8						jugRepetitions[NUM_MAX_SELECTIONS];
     };
