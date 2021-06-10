@@ -117,7 +117,30 @@ function onRheaBootstrapFinished()
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
 }
 
-function onAfterLangLoaded() 
+function onAfterLangLoaded()
+{
+	if ("jug" in rhea.selection_getBySelNumber(1))
+		onAfterJugInfoLoaded();
+	else
+	{
+		for (var i=1; i<=rhea.selection_getCount(); i++)
+			rhea.selection_getBySelNumber(i).jug = 0;
+		
+		rhea.ajax ("jugRepetitions", "").then( function(result)
+		{
+			var j = JSON.parse(result);
+			for (var i=0; i<j.n; i++)
+				rhea.selection_getBySelNumber(i+1).jug = parseInt(j.s[i]);
+			onAfterJugInfoLoaded();
+		})
+		.catch( function(result)
+		{
+			onAfterJugInfoLoaded();
+		});	
+	}
+}
+
+function onAfterJugInfoLoaded() 
 {
 	rhea.onEvent_selectionAvailabilityUpdated = function () 
 	{
@@ -551,8 +574,12 @@ function setupIconPage (iPage, nIconPerPage)
 		html += "<div " + styleForIconDiv + ">"
 			  + " <div id='divIcon" +startIcon +"'  iconNum='" + startIcon + "' class='pageMenu_icon" +cssForIconDisabled +"'>"
 			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
-			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
-			  + " </div>"
+			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>";
+			  
+		if (MMI_isJuggable(startIcon))
+			html += "<div style='position:absolute; top:30px; right:30px; width:30px'><img src='img/jugIcon.png' style='width:100%'></div>";
+			  
+		html += " </div>"
 			  + "</div>";
 		startIcon++;
 	}

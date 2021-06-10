@@ -11,8 +11,8 @@
 #include "TaskExportMobileTPGUIToUserFolder.h"
 #include "varie.h"
 
-#define		RHEAMEDIA2_VERSIONE L"2.4.4"
-#define		RHEAMEDIA2_DATA		L"2021/03/05"
+#define		RHEAMEDIA2_VERSIONE L"2.5"
+#define		RHEAMEDIA2_DATA		L"2021/06/10"
 
 
 wchar_t chromeFullPathAndName[256];

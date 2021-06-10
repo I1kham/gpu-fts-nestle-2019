@@ -23,6 +23,7 @@ Server::Server()
 
 	memset (&runningSel.params, 0, sizeof(runningSel.params));
 	runningSel.params.how = eStartSelectionMode_invalid;
+	runningSel.bForceJug = false;
 	runningSel.sub = NULL;
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.status = eRunningSelStatus::finished_OK;
@@ -328,11 +329,28 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION:
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG:
 		{
+			bool bForceJug = false;
+
 			sStartSelectionParams params;
 			params.how = eStartSelectionMode_default;
 			params.asDefault.selNum = 0;
-			translate_CPU_START_SELECTION(msg, &params.asDefault.selNum);
+
+			if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION)
+			{
+				translate_CPU_START_SELECTION (msg, &params.asDefault.selNum);
+				bForceJug = false;
+			}
+			else
+			{
+				translate_CPU_START_SELECTION_AND_FORCE_JUG (msg, &params.asDefault.selNum);
+				bForceJug = true;
+
+				//come ulteriore misura di sicurezza, mi accertto che la selezione in questione sia davvero "juggabile"
+				if (this->jugRepetitions[params.asDefault.selNum-1] < 2)
+					bForceJug = false;
+			}
 			
 			//GB 2021-01-14
 			//inizialmente l'evento "stato selezione in corso" veniva comunicato solo al "sub" che aveva fatto la richiesta di "inizio selezione".
@@ -340,7 +358,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			//consapevoli del fatto che c'è una selezione in corso e possono prendere le loro decisioni
 			//
 			//priv_enterState_selection(params, sub);
-			priv_enterState_selection(params, NULL);
+			priv_enterState_selection(params, bForceJug, NULL);
 		}
 		break;
 
@@ -365,7 +383,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				//consapevoli del fatto che c'è una selezione in corso e possono prendere le loro decisioni
 				//
 				//priv_enterState_selection(params, sub);
-				priv_enterState_selection(params, NULL);
+				priv_enterState_selection(params, false, NULL);
 			}
 			break;
 
@@ -386,7 +404,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			translate_CPU_SEND_BUTTON(msg, &btnToSend);
 
 			u8 bufferW[32];
-			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(btnToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(btnToSend, lang_getErrorCode(&language), false, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
@@ -400,7 +418,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			translate_CPU_KEEP_SENDING_BUTTON_NUM(msg, &keepOnSendingThisButtonNum);
 
 			u8 bufferW[32];
-			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(keepOnSendingThisButtonNum, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+			const u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B(keepOnSendingThisButtonNum, lang_getErrorCode(&language), false, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 				priv_parseAnswer_checkStatus(answerBuffer, sizeOfAnswerBuffer);
@@ -2131,17 +2149,20 @@ bool Server::priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp 
  * Ritorna 0 se la CPU non ha risposta
  * Ritorna il numero di byte ricevuti se la CPU ha effettivamente risposto. La risposta viene messa nella variabile di classe "answerBuffer"
  */
-u16 Server::priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend)
+u16 Server::priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend, bool bForceJug)
 {
     //se devo mandare un bottone in particolare (per es a seguito di una richiesta CPUBRIDGE_SUBSCRIBER_ASK_CPU_SEND_BUTTON_NUM,
     //lo faccio qui ma solo quando btnNumberToSend==0.
-    //L'idea è che qui sto preparando il solito messaggio di stato...se non avevo nessun btn in particolare da invia (btnNumberToSend==0) e se
+    //L'idea è che qui sto preparando il solito messaggio di stato...se non avevo nessun btn in particolare da inviare (btnNumberToSend==0) e se
     //ne avevo uno in canna in attesa (nextButtonNumToSend!=0), allora lo mando ora
-    if (0 == btnNumberToSend)
-        btnNumberToSend = keepOnSendingThisButtonNum;
+	if (0 == btnNumberToSend)
+	{
+		bForceJug = false;
+		btnNumberToSend = keepOnSendingThisButtonNum;
+	}
 
     u8 bufferW[32];
-    u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnNumberToSend, lang_getErrorCode(&language), bufferW, sizeof(bufferW));
+    u16 nBytesToSend = cpubridge::buildMsg_checkStatus_B (btnNumberToSend, lang_getErrorCode(&language), bForceJug, bufferW, sizeof(bufferW));
     u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
     if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
         return 0;
@@ -2614,7 +2635,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 		//ogni tot, invio un msg di stato alla CPU
 		if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
 		{
-			u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+			u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0, false);
 			if (0 == sizeOfAnswerBuffer)
 			{
 				//la CPU non ha risposto al mio comando di stato, passo in com_error
@@ -2748,7 +2769,7 @@ void Server::priv_handleState_normal()
 		//ogni tot, invio un msg di stato alla CPU
 		if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
 		{
-            u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+            u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0, false);
             if (0 == sizeOfAnswerBuffer)
 			{
 				//la CPU non ha risposto al mio comando di stato, passo in com_error
@@ -2815,7 +2836,7 @@ void Server::priv_handleState_programmazione()
         //ogni tot, invio un msg di stato alla CPU
         if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
         {
-            u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+            u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0, false);
             if (0 == sizeOfAnswerBuffer)
             {
                 //la CPU non ha risposto al mio comando di stato, passo in com_error
@@ -2876,7 +2897,7 @@ void Server::priv_handleState_telemetry()
 		//ogni tot, invio un msg di stato alla CPU
 		if (timeNowMSec >= nextTimeSendCheckStatusMsgWasMSec)
 		{
-			u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0);
+			u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(0, false);
 			if (0 != sizeOfAnswerBuffer)
 			{
 				//parso la risposta
@@ -3112,7 +3133,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 					sStartSelectionParams params;
 					params.how = eStartSelectionMode_CPUSpontaneous;
 					params.asCPUSpontaneous.selNum = selection_CPU_current;
-					priv_enterState_selection(params, NULL);
+					priv_enterState_selection(params, false, NULL);
 				}
 			}
 		}
@@ -3343,10 +3364,10 @@ void Server::priv_notify_CPU_RUNNING_SEL_STATUS (const sSubscription *sub, u16 h
  *	ritorna true se ci sono le condizioni per iniziare una selezione. In questo caso, lo stato passa a stato = eStato::selection.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  */
-bool Server::priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub)
+bool Server::priv_enterState_selection (const sStartSelectionParams &params, bool bForceJug, const sSubscription *sub)
 {
 	const u8 selNumber = params.getSelNum();
-	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d]\n", (u8)params.how, selNumber);
+	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d, foreJug=%c]\n", (u8)params.how, selNumber, bForceJug==true ? 'Y':'N');
 
     if (stato.get() != sStato::eStato::normal)
 	{
@@ -3373,6 +3394,7 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
     stato.set (sStato::eStato::selection);
 	memcpy (&runningSel.params, &params, sizeof(sStartSelectionParams));
 	runningSel.stopSelectionWasRequested = 0;
+	runningSel.bForceJug = bForceJug;
 	runningSel.sub = sub;
 	runningSel.status = eRunningSelStatus::wait;
 	priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, runningSel.status);
@@ -3422,6 +3444,7 @@ void Server::priv_handleState_selection()
 		}
 
 		u8 selNumberToSend = 0;
+		bool bForceJug = false;
 
 		//al primo giro, mando alla CPU la richiesta di iniziare la selezione
 		if (nextTimeSendCheckStatusMsgMSec == 0)
@@ -3431,6 +3454,7 @@ void Server::priv_handleState_selection()
 			case eStartSelectionMode_default:
 				//nel caso di default, devo inviare il numero di selezione da far partire direttamente dentro al comando B
 				selNumberToSend = runningSel.getSelNum();
+				bForceJug = runningSel.bForceJug;
 				break;
 
 			case eStartSelectionMode_CPUSpontaneous:
@@ -3480,7 +3504,7 @@ void Server::priv_handleState_selection()
 		}
 
 		//invio il msg di stato alla CPU
-        u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(selNumberToSend);
+        u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(selNumberToSend, bForceJug);
         if (0 == sizeOfAnswerBuffer)
 		{
 			//la CPU non ha risposto al mio comando di stato, passo in com_error
@@ -3810,7 +3834,11 @@ bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProg_macinaMov
 	return false;
 }
 
-//**********************************************
+/**********************************************
+ * Questa viene chiamata ogni volta che, per qualunque motivo, CPUBridge effettua un DA3Sync.
+ * Al termine del download del da3 dalla CPU, questa fn viene chiamata in modo da poter tenere in memoria alcuni
+ * valori chiave del da3 ed essere sicuri che questi siano sempre aggiornati
+ */
 void Server::priv_retreiveSomeDataFromLocalDA3()
 {
 	u8 s[256];

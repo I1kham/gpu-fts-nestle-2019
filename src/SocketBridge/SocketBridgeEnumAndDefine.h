@@ -64,6 +64,7 @@ namespace socketbridge
 		enterDA3Sync = 'C',						//67	0x43
 		startSelectionAlreadyPaid = 'D',		//68	0x44
 		AlipayChina_onlineStatusChanged = 'E',	//69	0x45
+		startSelectionForceJug = 'F',			//70	0x46
         unknown = 0xff
     };
 

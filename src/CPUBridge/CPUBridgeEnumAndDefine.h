@@ -153,6 +153,14 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_ID_101								0x0841
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_VALIDATE_QUICK_MENU_PINCODE				0x0842
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_IS_QUICK_MENU_PINCODE_SET					0x0843
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG				0x0844
+
+
+ /**********************************************************************
+  * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
+  */
+#define	CPU_MSG_B_BYTE6_FLAG_FORCE_JUG				0x01
+
 
 namespace cpubridge
 {

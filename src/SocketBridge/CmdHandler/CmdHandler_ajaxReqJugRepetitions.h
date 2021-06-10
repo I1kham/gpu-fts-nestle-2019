@@ -7,7 +7,7 @@ namespace socketbridge
     /*********************************************************
      * CmdHandler_ajaxReqJugRepetitions
      *
-     * Il client ha mandato una richiesta AJAX per conosce le ripetizioni in caso di JUG per ogni selezione disponibile
+     * Il client ha mandato una richiesta AJAX per conosce le eventuali ripetizioni JUG per ogni selezione disponibile
      *
         Input:
             command: jugRepetitions
@@ -17,7 +17,7 @@ namespace socketbridge
         json
         {
             n: numero selezioni
-            s: stringa coi le ripetizioni già formattate correttamente, ogni singolo carattere rappresenta la qauntita di ripetizioin per la specifica selezione
+            s: stringa coi le ripetizioni già formattate correttamente, ogni singolo carattere rappresenta la quantita di ripetizioni per la specifica selezione
         }
      */
     

@@ -101,7 +101,7 @@ namespace cpubridge
 			ritornano 0 se out_buffer non è abbastanza grande da contenere il messaggio.
 			altrimenti ritornano il num di byte inseriti in out_buffer
 	*/
-	u8			buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, bool forceJUG, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_initialParam_C (u8 gpuVersionMajor, u8 gpuVersionMinor, u8 gpuVersionBuild, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_restart_U (u8 *out_buffer, u8 sizeOfOutBuffer);
     u8			buildMsg_readDataAudit (u8 *out_buffer, u8 sizeOfOutBuffer);
@@ -363,6 +363,10 @@ namespace cpubridge
 				//L'ultimo notify_CPU_RUNNING_SEL_STATUS() conterrà un result "eRunningSelStatus::finished_OK" oppure "eRunningSelStatus::finished_KO" ad indicare che la selezione
 				//è terminata, nel bene o nel male
 	void		translate_CPU_START_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNumber);
+
+	void		ask_CPU_START_SELECTION_AND_FORCE_JUG (const sSubscriber &from, u8 selNumber);
+	void		translate_CPU_START_SELECTION_AND_FORCE_JUG(const rhea::thread::sMsg &msg, u8 *out_selNumber);
+				//come sopra, solo che alla CPU verrà richiesto di forzare la bevanda in modalità JUG
 
 	void		ask_CPU_STOP_SELECTION(const sSubscriber &from);
 				//alla ricezione di questo msg, CPUBridge NON risponderà alcunchè

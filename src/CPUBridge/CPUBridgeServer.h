@@ -123,6 +123,7 @@ namespace cpubridge
 		{
 		public:
 			sStartSelectionParams	params;
+			bool					bForceJug;
 			const sSubscription		*sub;
 			u8						stopSelectionWasRequested;
 			eRunningSelStatus		status;
@@ -186,14 +187,14 @@ namespace cpubridge
 		bool					priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec);
 		void                    priv_handleState_grinderSpeedTest();
 
-		bool					priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub);
+		bool					priv_enterState_selection (const sStartSelectionParams &params, bool bForceJug, const sSubscription *sub);
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 
 		bool					priv_askVMCDataFileTimeStampAndWaitAnswer(sCPUVMCDataFileTimeStamp *out, u32 timeoutMSec);
 		void					priv_updateLocalDA3(const u8 *blockOf64Bytes, u8 blockNum) const;
 
-        u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend);
+        u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend, bool bForceJug);
         eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
 		void					priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID);
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);

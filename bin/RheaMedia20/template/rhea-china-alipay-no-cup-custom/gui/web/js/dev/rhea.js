@@ -14,7 +14,7 @@ var	RHEA_EVENT_CPU_STATUS = 104;						//'h'
 var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
 var	RHEA_EVENT_START_SEL_ALREADY_PAID = 68;				//'D'
 var	RHEA_EVENT_ALIPAYCHINA_ONLINE_STATUS = 69;			//'E'
-
+var	RHEA_EVENT_START_SELECTION_FORCE_JUG = 70;			//'F'
 
 //info sulla versione attuale del codice (viene comunicata a GPU in fase di registrazione)
 var RHEA_CLIENT_INFO__API_VERSION = 0x01;

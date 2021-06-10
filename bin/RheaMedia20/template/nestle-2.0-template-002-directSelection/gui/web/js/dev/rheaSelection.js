@@ -95,6 +95,13 @@ Rhea.prototype.selection_start = function(iSelNumber)
 	buffer[1] = parseInt(iSelNumber);
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
+Rhea.prototype.selection_startForceJug = function(iSelNumber)
+{
+	var buffer = new Uint8Array(2);
+	buffer[0] = RHEA_EVENT_START_SELECTION_FORCE_JUG;
+	buffer[1] = parseInt(iSelNumber);
+	this.sendGPUCommand ("E", buffer, 0, 0);
+}
 
 /*********************************************************
  * selection_stop

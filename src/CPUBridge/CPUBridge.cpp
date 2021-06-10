@@ -156,7 +156,7 @@ u8 cpubridge_buildMsg (cpubridge::eCPUCommand command, const u8 *optionalData, u
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, bool forceJUG, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[8];
 	u8 ct = 0;
@@ -165,6 +165,12 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, u8 *out_b
 	optionalData[ct++] = 0;
 	optionalData[ct++] = 0;
 	optionalData[ct++] = langErrorCode;
+
+	//2021-06-10	abbiamo aggiunto 1 byte che funziona a mo' di bitmask
+	u8 flag = 0;
+	if (forceJUG)
+		flag |= CPU_MSG_B_BYTE6_FLAG_FORCE_JUG;
+	optionalData[ct++] = flag;
 
 	return cpubridge_buildMsg (cpubridge::eCPUCommand::checkStatus_B, optionalData, ct, out_buffer, sizeOfOutBuffer);
 }
@@ -1664,13 +1670,24 @@ void cpubridge::ask_CPU_START_SELECTION (const sSubscriber &from, u8 selNumber)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION, (u32)selNumber);
 }
-
-//***************************************************
 void cpubridge::translate_CPU_START_SELECTION (const rhea::thread::sMsg &msg, u8 *out_selNumber)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION);
     *out_selNumber = (u8)msg.paramU32;
 }
+
+//***************************************************
+void cpubridge::ask_CPU_START_SELECTION_AND_FORCE_JUG (const sSubscriber &from, u8 selNumber)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG, (u32)selNumber);
+}
+void cpubridge::translate_CPU_START_SELECTION_AND_FORCE_JUG(const rhea::thread::sMsg &msg, u8 *out_selNumber)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG);
+    *out_selNumber = (u8)msg.paramU32;
+}
+
+
 
 //***************************************************
 void cpubridge::ask_CPU_STOP_SELECTION (const sSubscriber &from)
