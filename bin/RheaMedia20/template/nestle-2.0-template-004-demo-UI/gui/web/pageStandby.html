@@ -29,6 +29,9 @@
 <script src="config/MMI.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
+
+var timerGotoPageMainMenu = null;
+
 function onRheaBootstrapFinished()
 {
 	if (standbyPageOptions.enabled=="0")
@@ -82,11 +85,13 @@ function onAfterLangLoaded()
 		}
 	}	
 	
+	resetTimerGotoPageMainMenu();
+
 	setupOverlay();
 	setupGallery();
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	
-	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
+	//invece che "onclick", trappo l'evento "mouse up" che è più affidabile sul touchscreen
 	var d = rheaGetElemByID("mainWrapper");
 	d.addEventListener('mouseup', function (ev)
 	{
@@ -99,6 +104,16 @@ function gotoMenuPage()
 	window.location = "pageMenu.html";
 }
 
+function resetTimerGotoPageMainMenu() 
+{
+	if (standbyPageOptions.gotoPageMainMenuAfterMSec <= 1000)
+		return;
+
+	if (null != timerGotoPageMainMenu)
+		clearInterval(timerGotoPageMainMenu);
+
+	timerGotoPageMainMenu = setInterval(gotoMenuPage, standbyPageOptions.gotoPageMainMenuAfterMSec);
+}
 
 
 function setupOverlay()

@@ -58,11 +58,10 @@
 						<div style="float:left; margin-left:80px">
 							Time to go back to standby page <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="gotoPageStandbyAfterMSec"> sec
 						</div>
+						<div style="float:left; margin-left:80px">
+							Time to go back to main menu page <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="gotoPageMainMenuAfterMSec"> sec
+						</div>
 						<div class="clear"></div>
-						
-						
-						<div class="checkboxFive" data-input-id="cbOneClickSelection"></div>Enable "one button selection" option
-						
 					</div>
 				</div>
 			
@@ -182,11 +181,15 @@ async function onRheaBootstrapFinished()
 	$("#icon_numRow").val (rst.valByColName(0, "icon_numRow"));
 	$("#icon_numIconPerRow").val (rst.valByColName(0, "icon_numIconPerRow"));
 	$("#gotoPageStandbyAfterMSec").val (Math.floor(rst.valByColName(0, "gotoPageStandbyAfterMSec") / 1000));
-	if (rst.valByColName(0, "oneClickSelection") == 1)
-		$("#cbOneClickSelection").prop('checked', true);
-	else
-		$("#cbOneClickSelection").prop('checked', false);
 
+	rst = await db.q("SELECT * FROM lang WHERE What='gotoPageMainMenuAfterMSec'");
+
+	if (rst.nRows) {
+		$("#gotoPageMainMenuAfterMSec").val(Math.floor(rst.valByColName(0, "Message") / 1000));
+	} else {
+		$("#gotoPageMainMenuAfterMSec").val(10);
+	}
+	
 	imageList_update();
 	pleaseWait(0);
 }
@@ -413,8 +416,6 @@ async function saveAll()
 	pleaseWait(1);
 
 	var oneClickSelection = 0;
-	if ($("#cbOneClickSelection").prop('checked'))
-		oneClickSelection = 1;
 
 	//*** general setting
 	var sql = "UPDATE pagemenu SET"
@@ -423,6 +424,16 @@ async function saveAll()
 			+ ",gotoPageStandbyAfterMSec=" +(1000 * $("#gotoPageStandbyAfterMSec").val())
 			+ ",oneClickSelection=" +oneClickSelection
 			+ " WHERE HIS_ID=" +historyID +";";
+			
+	await db.exec (sql);
+
+	sql = "SELECT * FROM lang WHERE What='gotoPageMainMenuAfterMSec'";
+	
+	let rst = await db.q( sql );
+	sql = rst.rowNum?
+		"UPDATE lang SET Message=" + (1000 * $("#gotoPageMainMenuAfterMSec").val()) + " What='gotoPageMainMenuAfterMSec';" 
+		:
+		"INSERT INTO lang (UID,ISO,What,Message) VALUES('-1','GB','gotoPageMainMenuAfterMSec','" + (1000 * $("#gotoPageMainMenuAfterMSec").val()) +"')";
 			
 	await db.exec (sql);
 	

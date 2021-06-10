@@ -267,8 +267,16 @@ console.timeEnd("  page standby[rst2]");
 			result += ",";
 		result += "\"" +rst.valByColName(r,"filename") +"\"";
 	}
-	result += "]};";
+	result += "],";
 	
+	rst = await db.q("SELECT * FROM lang WHERE What='gotoPageMainMenuAfterMSec'");
+
+	if (rst.nRows) {
+		result += "  gotoPageMainMenuAfterMSec:" +rst.valByColName(0, "Message") + "}; ";
+	} else {
+		result += " gotoPageMainMenuAfterMSec: 10000}; ";
+	}
+
 console.time("  page standby[saveas]");	
 	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageStandby.js");
 console.timeEnd("  page standby[saveas]");		
@@ -308,8 +316,8 @@ async function buildConfigFile_pageMenu(db, his_id)
 				+",icon_numIconPerRow:" +rst.valByColName(0, "icon_numIconPerRow")
 				+",gotoPageStandbyAfterMSec:" +rst.valByColName(0, "gotoPageStandbyAfterMSec")
 				+",oneClickSelection:" +rst.valByColName(0, "oneClickSelection")
-				+"};";
-	
+				+ "};";
+
 	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageMenu.js");
 }
 
