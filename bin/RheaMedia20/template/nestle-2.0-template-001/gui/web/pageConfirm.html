@@ -290,14 +290,12 @@ function doUpdateCredit()
  */
 function setupInfoOnCenter(mnuIcons, optButtons) {
 	var isEmpty = false;
-	
 	isEmpty = (mnuIcons === '');
-
-	optButtons && optButtons.forEach( e => {
-		if (e !== '') {
+	for (var i=0; i<optButtons.length; i++)
+	{
+		if (optButtons[i] !== '')
 			isEmpty = false;
-		}		
-	});
+	}
 	
 	if (isEmpty) {
 		// Hide standard elements
@@ -524,40 +522,6 @@ function onOption2Change (whichOne)
 	onSelectionChanged(selNum);
 }
 
-function btnJUG_show()							{ rheaShowElem (rheaGetElemByID("btnJUG")); }
-function btnJUG_hide()							{ rheaHideElem (rheaGetElemByID("btnJUG")); }
-function btnJUG_setText(txt)					{ rheaSetElemHTML (rheaGetElemByID("btnJUG_text"), "JUG x " +txt); }
-function btnJUG_isON()
-{
-	var d = rheaGetElemByID("btnJUG");
-	if (d.classList.contains ("selected"))
-		return 1;
-	return 0;
-}
-
-function btnJUG_setON()
-{
-	var d = rheaGetElemByID("btnJUG");
-	if (d.classList.contains ("selected"))
-		return;
-	rheaAddClassToElem(d,"selected");
-}
-
-function btnJUG_setOFF()
-{
-	var d = rheaGetElemByID("btnJUG");
-	if (d.classList.contains ("selected"))
-		rheaRemoveClassToElem(d,"selected");
-}
-
-function onBtnJUGClicked ()
-{
-	if (btnJUG_isON())
-		btnJUG_setOFF();
-	else
-		btnJUG_setON();
-}
-
 function detectCurrentSelection()
 {
 	var selNum = MMI_getLinkedSelectionNumber(iconNum);
@@ -643,6 +607,46 @@ function resetTimerGotoPageMainMenu()
 }
 
 function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
+
+
+//******************** btn jug
+function classListContains (elem, what)
+{
+	for (var i=0; i<elem.classList.length; i++)
+	{
+		if (elem.classList[i] == what)
+			return 1;
+	}
+	return 0;
+}
+
+function btnJUG_show()				{ rheaShowElem (rheaGetElemByID("btnJUG")); }
+function btnJUG_hide()				{ rheaHideElem (rheaGetElemByID("btnJUG")); }
+function btnJUG_setText(txt)		{ rheaSetElemHTML (rheaGetElemByID("btnJUG_text"), "JUG x " +txt); }
+function btnJUG_isON()				{ var d = rheaGetElemByID("btnJUG"); return classListContains (d, "selected"); }
+
+function btnJUG_setON()
+{
+	var d = rheaGetElemByID("btnJUG");
+	if (classListContains (d, "selected"))
+		return;
+	rheaAddClassToElem(d,"selected");
+}
+
+function btnJUG_setOFF()
+{
+	var d = rheaGetElemByID("btnJUG");
+	if (classListContains (d, "selected"))
+		rheaRemoveClassToElem(d,"selected");
+}
+
+function onBtnJUGClicked ()
+{
+	if (btnJUG_isON())
+		btnJUG_setOFF();
+	else
+		btnJUG_setON();
+}
 </script>
 
 
