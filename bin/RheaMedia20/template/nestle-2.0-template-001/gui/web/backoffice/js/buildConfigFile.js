@@ -393,6 +393,7 @@ function priv_buildConfigFile_mainMenuIcons_2 (rst, row)
 		var result = "selNum:" +rst.valByColName(row, "selNum")
 					+",size:\"" +rst.valByColName(row, "allowedCupSize") +"\""
 					+",pageMenuImg:\"" +rst.valByColName(row, "pageMenuImg") +"\""
+					+",hidden:\"" + (rst.hasColName("HIDDEN_SELECTION")? parseInt(rst.valByColName(row, "HIDDEN_SELECTION")) : 0) +"\""
 					+",pageConfirmImg:\"" +rst.valByColName(row, "pageConfirmImg") +"\"";
 		return result;
 	}
@@ -452,6 +453,7 @@ function priv_buildConfigFile_mainMenuIcons_2 (rst, row)
 					+",dblShot:" +rst.valByColName(row, "optionBEnabled")
 					+",grinder2:" +rst.valByColName(row, "optionAEnabled")
 					+",linkedSelection:" +linkedSelection
+					+",hidden:" + (rst.hasColName("HIDDEN_SELECTION")? parseInt(rst.valByColName(row, "HIDDEN_SELECTION")) : 0)
 					+",defaultSelection:" +defSel;
 		
 		return result;
@@ -479,6 +481,7 @@ console.time("translation 01");
 	let rstLAB_CURRENCY_SIMBOL = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_CURRENCY_SIMBOL' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_READY = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_READY' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_BEING_PREPARED = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_BEING_PREPARED' AND What='MSG'");
+	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg' OR What='disablePromo'");
 	let rstLearnMore = await db.q("SELECT ISO,bgImage FROM pageLearnMore WHERE HIS_ID=" +his_id);		
 console.timeEnd ("translation 01");
 
@@ -587,6 +590,20 @@ console.timeEnd("  " +iso +"04");
 						+",LAB_YOUR_DRINK_IS_BEING_PREPARED: \"" +msgLabDrinkBeingPrepared +"\""
 						+",LAB_PAGE_STANDBY: \"" +stndByMsg +"\""
 						+"};";
+		var objectFooter = "var objFooter = {";
+		
+		for( var i=0; i<rstFOOTER_BTNS.getNumRows(); i++ ) {
+			var _what = rstFOOTER_BTNS.valByColName(i, 'What');
+			var _msg = rstFOOTER_BTNS.valByColName(i, 'Message');
+
+			objectFooter += "\"" + _what + "\" : \"" + _msg + "\""
+
+			if( i !== rstFOOTER_BTNS.getNumRows() - 1 ) {
+				objectFooter += ','
+			}
+		}
+
+		result += objectFooter + "};";
 	
 		//nomi delle selezioni per lingua
 console.time("  " +iso +"05");
@@ -612,6 +629,22 @@ console.timeEnd("  " +iso +"05_rst");
 		}
 		selectionNames = "var rheaLang_mainMenuIconName=[" +selectionNames +"];";
 		result += selectionNames;
+
+		// Retrieves second name for beverage
+		let rstSecondNameDescription = await db.q("SELECT ndName FROM pagemenu_mmi ORDER BY PROGR ASC");
+		var secondName = '';
+
+		for( var i=0; i<rstSecondNameDescription.getNumRows(); i++ ) {
+			var _what = rstSecondNameDescription.valByColName(i, 'ndName');
+
+			if( secondName ) { secondName += ','; }
+
+			secondName +="\"" + _what +"\"";
+		}
+
+		secondName = "var rhea_mainMenuIconSecondName=[" + secondName +"];";
+		result += secondName;
+
 console.time("  " +iso +"05_saveas");
 		await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config/lang", iso +".js");
 console.timeEnd("  " +iso +"05_saveas");

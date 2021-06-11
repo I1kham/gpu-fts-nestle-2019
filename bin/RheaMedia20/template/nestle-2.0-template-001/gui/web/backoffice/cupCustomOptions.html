@@ -181,8 +181,29 @@ async function onRheaBootstrapFinished()
 	mlBR = new MultilangElem("textBR", "CUP_OPTBR", -1, "EDIT", "180px", allLang);
 	await mlBR.load(db);
 
+	var mlObject = [
+		{ target: document.querySelector( '#textAL_GB'), reference: '#divOption1-0' }, 
+		{ target: document.querySelector( '#textAR_GB'), reference: '#divOption1-1' }, 
+		{ target: document.querySelector( '#textBL_GB'), reference: '#divOption2-0' }, 
+		{ target: document.querySelector( '#textBR_GB'), reference: '#divOption2-1' }
+	];
+	
+	mlObject.forEach( obj => {
+		obj.target.dataset.reference = obj.reference;
+
+		obj.target.oninput = (evt) => { prepareButtonsPreview( evt.target, evt.target.value ); };
+
+		prepareButtonsPreview( obj.target, obj.target.value );
+	});
+
 	$("#main-content-wait").hide();
 	$("#page-content").show();
+}
+
+function prepareButtonsPreview(target, text) {
+	var txt = text? text : 'TEXT EXAMPLE';
+
+	document.querySelector( target.dataset.reference ).firstChild.innerHTML = txt;
 }
 
 async function saveAll()

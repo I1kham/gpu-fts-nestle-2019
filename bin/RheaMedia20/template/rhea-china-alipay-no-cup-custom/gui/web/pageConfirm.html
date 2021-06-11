@@ -43,6 +43,7 @@
 			<div id="rightPane_content">
 				<div class="pageConfirm_right3box">
 					<div class="pageConfirm_bigFont" style="margin-bottom:10px" id="divSelectionName"></div>
+					<div class="pageConfirm_selectionNdName pageConfirm_bigFont" id="divSelectionNdName" style="display:none"></div>
 					<div id="selDescription"></div>
 				</div>
 				<div class="pageConfirm_bottomBox">
@@ -301,6 +302,15 @@ function setupPageContent()
 	//nome bevanda
 	rheaSetDivHTMLByName("divSelectionName", iconDisplayName);
 	
+	//secondo nome bevanda
+	if (typeof rhea_mainMenuIconSecondName !== 'undefined' && 
+		rhea_mainMenuIconSecondName[iconNum] && 
+		rhea_mainMenuIconSecondName[iconNum] !== 'NULL') {
+
+		var elSecondName = rheaGetElemByID("divSelectionNdName");
+		rheaSetElemHTML( elSecondName, rhea_mainMenuIconSecondName[iconNum] );
+		rheaShowElem( elSecondName );
+	}
 	
 	//colonna destra
 	var bShowOption1 = 0;

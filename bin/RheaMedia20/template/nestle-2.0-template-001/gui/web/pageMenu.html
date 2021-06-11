@@ -39,17 +39,18 @@
 	<div class="footer">
 		<div class="footer_left">
 			<div class="footer_left_btnInfo" onclick="gotoPageInfo();">
-				<img draggable="false" src="upload/btnInfo.png" draggable="false">
+				<img id="promoButtonImg" draggable="false" src="upload/btnInfo.png" draggable="false" style="display: none;">
 			</div>
 		</div>
 		<div class="footer_center">
 			<div id="divNavigator" class="pageMenu_navigator"><div id="pageIndex"></div></div>
 		</div>
 		<div class="footer_right">
-			<div class="btnLang" onclick="divLangMenu_open()">
+			<div id="langButtonImg_def" class="btnLang" onclick="divLangMenu_open()" style="display: none;">
 				<img draggable="false" src="img/flagsButton.png">
 				<p>LANGUAGE</p>
 			</div>
+			<img id="langButtonImg" draggable="false" src="" onclick="divLangMenu_open()" style="display: none; cursor:pointer; position: absolute; bottom: 10px; right: 15px;">
 		</div>
 		<div class="clear"></div>
 	</div>
@@ -233,10 +234,41 @@ function onAfterIconAreDisplayed()
 {
 	setupNavigator();
 	initScrollMenu();
+	prepareFooterItems();
 	resetTimerGotoPageStandby();
 	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED);
 		
 	divLangMenu_setup(lang_getCurLangISOCode());
+}
+
+function prepareFooterItems() {
+	var promoBtn = document.querySelector( '#promoButtonImg' );
+	var langDefBtn = document.querySelector( '#langButtonImg_def' );
+
+	if( typeof objFooter === 'undefined' || !objFooter || !Object.keys( objFooter ).length ) {
+		rheaShowElem(promoBtn); rheaShowElem(langDefBtn);
+
+		return; 
+	}
+	
+	var langBtn = document.querySelector( '#langButtonImg' );
+	
+	if( !JSON.parse(objFooter.disablePromo )) {
+		if( objFooter.promoButtonImg && objFooter.promoButtonImg !== 'NULL' ) { 
+			promoBtn.src = 'upload/' + objFooter.promoButtonImg; 
+		}
+		rheaShowElem(promoBtn);
+	} else {
+		rheaHideElem(promoBtn);
+	}
+	
+
+	if( objFooter.langButtonImg && objFooter.langButtonImg !== 'NULL')  { 
+		langBtn.src = 'upload/' + objFooter.langButtonImg; 
+		rheaShowElem(langBtn);
+	} else {
+		rheaShowElem(langDefBtn);
+	}
 }
 
 function onSelectionAvailabilitUpdated()
@@ -566,6 +598,8 @@ function setupIconPage (iPage, nIconPerPage)
 		n = nIcon - startIcon; 
 	
 	var html = "";
+	var ndTextConfigured = false;
+
 	while (n--)
 	{
 		var iconDisplayName = MMI_getDisplayName(startIcon);
@@ -577,10 +611,21 @@ function setupIconPage (iPage, nIconPerPage)
 
 		if (iconDisplayName=="JUG")
 			jug_iconNum = startIcon;
+		
+		var ndIconText = rhea_mainMenuIconSecondName[startIcon] && rhea_mainMenuIconSecondName[startIcon] !== 'NULL'? "<div id='icon_nd_text" +startIcon +"' class='pageMenu_icon_nd_text' iconNum='" + startIcon + "'>" + rhea_mainMenuIconSecondName[startIcon] + "</div>" : '';
+		
+		if( ndIconText ) {
+			ndTextConfigured = true;
+		}
+
+		var isHidden  = JSON.parse(rheaMainMenuIcons[startIcon].hidden);
+		var visibility = isHidden? "style='display: none'" : ""; 
+		
 		html += "<div " + styleForIconDiv + ">"
-			  + " <div id='divIcon" +startIcon +"'  iconNum='" + startIcon + "' class='pageMenu_icon" +cssForIconDisabled +"'>"
+			  + " <div id='divIcon" + startIcon + "'  iconNum='" + startIcon + "' class='pageMenu_icon" + cssForIconDisabled + "'" + visibility  + " >"
 			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
-			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>";
+			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
+			  + ndIconText;
 			  
 		if (MMI_isJuggable(startIcon))
 			html += "<div class='pageMenu_jugIcon'><img src='img/jugIcon.png'></div>";
@@ -589,6 +634,8 @@ function setupIconPage (iPage, nIconPerPage)
 			  + "</div>";
 		startIcon++;
 	}
+
+
 
 	var pageID = "mainMenuIconPage" + iPage;
 	d = rheaGetElemByID(pageID);
@@ -600,6 +647,14 @@ function setupIconPage (iPage, nIconPerPage)
 		setTimeout(function() { setupIconPage (iPage, nIconPerPage);}, 100);
 	else
 		onAfterIconAreDisplayed();
+
+	if( ndTextConfigured ) {
+		var pageMenuElems = document.querySelectorAll( '.pageMenu_icon_text' );
+	
+		for (var i=0; i<pageMenuElems.length; i++) {
+			pageMenuElems[i].style = 'font-size:0.85em!important';
+		}
+	}
 }
 
 
@@ -650,6 +705,8 @@ function onIconMenuClicked(iconNum)
 		return;
 	}
 	
+	if( !iconNum ) return;
+
 	if (MMI_isEnabled(iconNum))
 		window.location = "pageConfirm.html?iconMenu=" + iconNum;
 }

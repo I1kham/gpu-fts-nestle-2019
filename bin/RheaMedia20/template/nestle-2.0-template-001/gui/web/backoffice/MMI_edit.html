@@ -14,6 +14,15 @@
 	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
 	<style>
 		.box2 { margin:25px 0 25px 0; padding:20px 5px 20px 5px; border:solid 1px #ccc; }
+		.container-middle { margin: auto; }
+		.container-middle .center-vertical { display: inline-block; vertical-align: middle; }
+
+		.popover-container { position: relative; cursor: pointer; }
+		.popover-container[data-title]:hover::after {
+			content: attr(data-title); margin-top: -15px; position: absolute; width: 200px; top: 13px; left: 28px;
+			border: 1px solid #aaa; border-radius: 5px; color: #666666; padding: 3px 10px; box-shadow: 0px 0px 4px 1px rgb(0 0 0 / 50%);
+			background-color: #efefef; z-index: 1;
+		}
 	</style>
 </head>
 
@@ -62,6 +71,17 @@
 								</tr>
 							</table>
 							
+							<table border='0' cellspacing='0' cellpadding='2' style="margin-top: .5em">
+								<tr valign="top">
+									<td>Beverage second name:</td>
+									<td>
+										<div id="MMINdName">
+											<input type="text" id="MMINdName_input" class="edit" style="width:360px" value="">
+										</div>
+									</td>
+								</tr>
+							</table>
+
 							<p>Cup customization enabled: <select id="selWithCupCustomization" class="combo" onchange="selWithCupCustomization_onchange()">
 									<option value="N">No</option>
 									<option value="Y">Yes</option>
@@ -71,12 +91,14 @@
 						
 							<!-- divCupCustomizationNo -->
 							<div id="divCupCustomizationNo" style="display:none">
-								<p>Selection number: <select id="selNoCustom_selNum" class="combo">
-									<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
-									<option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option>
-									<option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option>		
-									<option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option>
-									<option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option>
+								<p class="container-middle">
+									<span class="center-vertical">Selection number: </span>
+									<select id="selNoCustom_selNum" class="combo center-vertical">
+										<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+										<option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option>
+										<option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option>		
+										<option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option>
+										<option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option>
 									</select>
 								</p>
 
@@ -506,6 +528,12 @@ var mlAL = null;
 var mlAR = null;
 var mlBL = null;
 var mlBR = null;
+var dbData = null; // Contains used selections
+var usedSelection 		  = {};
+var usedSelectionOnChange = {};
+var previousSelection;
+var currentSelect;
+var SELECTION_NUMBER = 48;
 
 //      0  1  2  3           4  5  6  7            8  9  10 11
 //small NN NY YN YY   medium NN NY YN YY     large NN NY YN YY
@@ -531,7 +559,11 @@ async function onRheaBootstrapFinished()
 	$("#boxAdvCupCustom_cb1").on ("change", onBoxAdvCupCustom_cb1_changed);
 	
 	$("#main-content-wait").show();
-	
+
+
+	// Prepares SELECTION combo elements
+	bindEventComboSelection_onLoad();
+
 
 	var curPath = rheaGetAbsolutePhysicalPath();
 	db = new RheaDB (curPath +"/guidb.db3");
@@ -628,7 +660,28 @@ async function onRheaBootstrapFinished()
 	mlBR = new MultilangElem("textBR", "CUP_OPTBR", UID, "EDIT", "180px", allLang);
 	await mlBR.load(db);	
 	
+	var mlObject = [
+		{ target: document.querySelector( '#textAL_GB'), reference: '#divOption1-0' }, 
+		{ target: document.querySelector( '#textAR_GB'), reference: '#divOption1-1' }, 
+		{ target: document.querySelector( '#textBL_GB'), reference: '#divOption2-0' }, 
+		{ target: document.querySelector( '#textBR_GB'), reference: '#divOption2-1' }
+	];
+	
+	mlObject.forEach( obj => {
+		obj.target.dataset.reference = obj.reference;
+
+		obj.target.oninput = (evt) => { prepareButtonsPreview( evt.target, evt.target.value ); };
+
+		prepareButtonsPreview( obj.target, obj.target.value );
+	});
+
 	pleaseWait(0);		
+}
+
+function prepareButtonsPreview(target, text) {
+	var txt = text? text : 'TEXT EXAMPLE';
+
+	document.querySelector( target.dataset.reference ).firstChild.innerHTML = txt;
 }
 
 //*****************************************
@@ -640,6 +693,11 @@ async function loadExistingRecord()
 		alert ("loadExistingRecord::error [" +rst.hasError() +"]");
 		return;
 	}
+
+	await db.dbConsistency( rst, 'pagemenu_mmi', 'ndName', 'TEXT(255)' );
+
+	document.querySelector( '#MMINdName_input' ).value = 
+		(rst.hasColName( 'ndName' ) && rst.valByColName(0, "ndName") !== 'NULL')?  rst.valByColName(0, "ndName") : '';
 
 	var allowedCupSize = rst.valByColName(0, "allowedCupSize").toString();
 	var selNum = rst.valByColName(0, "selNum");
@@ -660,9 +718,10 @@ async function loadExistingRecord()
 	else
 		$("#boxAdvCupCustom_cb1").prop('checked', true);
 
-
-
 	loadedLinkedSelection = rst.valByColName(0, "linkedSelection").split(",");
+
+
+
 				
 	if (selNum =="0")
 	{
@@ -887,6 +946,12 @@ async function saveAll()
 	if (selectionName == "")
 		err += "Selection name (" +defaultLang +") is mandatory.\n";
 		
+	var selectionNdName = $("#MMINdName_input").val().trim();
+
+
+
+
+	
 	var pageMenuImg = getFilenameFromPath($("#pageMenuImg").attr("src"));
 	if (pageMenuImg == "")
 		err += "Selection image is mandatory.\n";
@@ -931,7 +996,7 @@ async function saveAll()
 			progressivo = await queryNextProgressivo();
 				
 			//preparo insert
-			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,allowedCupSize,linkedSelection,name,bCustomBtnCupAppeance) VALUES("
+			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,allowedCupSize,linkedSelection,name,ndName,bCustomBtnCupAppeance) VALUES("
 					+historyID
 					+"," +progressivo
 					+"," +selNum
@@ -940,6 +1005,7 @@ async function saveAll()
 					+",'" +allowedCupSize +"'"
 					+",'" +linkedSelection +"'"
 					+",'" +db.toDBString(selectionName) +"'"
+					+",'" +db.toDBString(selectionNdName) +"'"
 					+",0" //bCustomBtnCupAppeance
 					+")";
 		}
@@ -952,6 +1018,7 @@ async function saveAll()
 					+",allowedCupSize='" +allowedCupSize +"'"
 					+",linkedSelection='" +linkedSelection +"'"
 					+",name='" +db.toDBString(selectionName) +"'"
+					+",ndName='" +db.toDBString(selectionNdName) +"'"
 					+",bCustomBtnCupAppeance=0"
 					+" WHERE UID=" +UID;
 		}
@@ -1140,7 +1207,7 @@ async function saveAll()
 		if (UID == -1)
 		{
 			progressivo = await queryNextProgressivo();
-			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,optionAEnabled,optionBEnabled,allowedCupSize,linkedSelection,defaultSelectionOption,name,bCustomBtnCupAppeance) VALUES("
+			sql = "INSERT INTO pagemenu_mmi (HIS_ID,PROGR,selNum,pageMenuImg,pageConfirmImg,optionAEnabled,optionBEnabled,allowedCupSize,linkedSelection,defaultSelectionOption,name,ndName,bCustomBtnCupAppeance) VALUES("
 					+historyID
 					+"," +progressivo
 					+",0"
@@ -1152,6 +1219,7 @@ async function saveAll()
 					+",'" +linkedSelection +"'"
 					+",'" +defaultSelectionOption +"'"
 					+",'" +db.toDBString(selectionName) +"'"
+					+",'" +db.toDBString(selectionNdName) +"'"
 					+"," +bCustomBtnCupAppeance
 					+")";
 		}
@@ -1167,6 +1235,7 @@ async function saveAll()
 					+",linkedSelection='" +linkedSelection +"'"
 					+",defaultSelectionOption='" +defaultSelectionOption +"'"
 					+",name='" +db.toDBString(selectionName) +"'"
+					+",ndName='" +db.toDBString(selectionNdName) +"'"
 					+",bCustomBtnCupAppeance=" +bCustomBtnCupAppeance
 					+" WHERE UID=" +UID;
 		}		
@@ -1427,6 +1496,112 @@ function comboAppearance_onChange(which)
 	
 	document.getElementById(divID+"0").classList = cssL;
 	document.getElementById(divID+"1").classList = cssR;
+}
+function bindEventComboSelection_onLoad() {
+	var btnAnchorInfo = document.createElement( 'a' );
+		btnAnchorInfo.className = 'center-vertical popover-container';
+		btnAnchorInfo.setAttribute( 'onmouseover', 'btnSelectionAvailable_onClick()');
+		btnAnchorInfo.setAttribute( 'data-title', ' ');
+	
+	var imgInfo = document.createElement( 'img' );
+		imgInfo.setAttribute( 'alt', 'Info');
+		imgInfo.setAttribute( 'src', 'img/icon_info24.png');
+
+	btnAnchorInfo.appendChild( imgInfo );
+
+	document.querySelectorAll('select').forEach( s => {
+		// Is a selection combo
+		if( s.options.length === SELECTION_NUMBER ) {
+			s.setAttribute( 'onchange', 'btnSelectionAvailable_onClick(this)' );
+			s.setAttribute( 'onclick', 'previousSelectionOption(this)' );
+			
+			var wrapper = wrapHTMLElement(s, 'div', 'center-vertical container-middle');
+			wrapper.innerHTML += btnAnchorInfo.outerHTML;
+		}
+	});
+}
+
+function btnSelectionAvailable_onClick($event) {
+	if( !db ) return;
+	
+	if( !dbData ) {
+		var QUERY = 'SELECT linkedSelection FROM pagemenu_mmi';
+	
+		db.q( QUERY ).then( res => {
+			dbData = res && res.data;
+
+			findFirstAvailableSelection($event);
+			return;
+		});
+	} else {
+		findFirstAvailableSelection($event);
+	}
+}
+
+function findFirstAvailableSelection($event) {
+	var firstAvailableSelection;
+
+	if( !dbData ) {return};
+
+	// If first time, get selection from DB
+	if( !Object.keys(usedSelection).length ) {
+		dbData.forEach( colVal => {
+			if( colVal && colVal.indexOf( ',' ) !== -1 ) {
+				var tmpArrValue = colVal.split( ',' ) || [];
+				
+				tmpArrValue.forEach( selection => {
+					var s = parseInt( selection );
+
+					if( !usedSelection.hasOwnProperty( s ) ) {
+						usedSelection[ s ] = true;
+					}
+				});
+			}
+		});
+
+		usedSelectionOnChange = JSON.parse(JSON.stringify(usedSelection));
+	}
+	
+	if( $event ) {
+		var selection = parseInt( $event.value );
+ 		
+		usedSelectionOnChange[previousSelection] = false;
+
+		if( !usedSelectionOnChange.hasOwnProperty( selection ) || !usedSelectionOnChange[selection] ) {
+			usedSelectionOnChange[ selection ] = true;
+		}
+	}
+
+	document.querySelectorAll('select').forEach( s => {
+		// Is a selection combo
+		if( s.options.length === SELECTION_NUMBER ) {
+			usedSelectionOnChange[s.value] = true;
+		}
+	});
+
+	for( var i=1; i<=48; i++ ) {
+		if( !usedSelectionOnChange[i] ) {
+			firstAvailableSelection = i;
+			break;
+		}
+	}
+
+	document.querySelectorAll( '[data-title]' ).forEach( popover => {
+		popover.dataset.title = + firstAvailableSelection + ', is the first available selection';
+	});
+}
+
+
+function previousSelectionOption($event) {
+	if(!previousSelection ) { previousSelection = $event.value; }
+	if(!currentSelect ) { currentSelect = $event.id; }
+	
+	if( previousSelection === $event.value || currentSelect != $event.id ) {
+		previousSelection = $event.value;
+		currentSelect = $event.id;
+
+		usedSelectionOnChange = JSON.parse( JSON.stringify( usedSelection ) );
+	}	
 }
 </script>
 </html>

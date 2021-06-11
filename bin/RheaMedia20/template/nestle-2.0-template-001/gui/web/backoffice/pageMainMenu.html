@@ -12,9 +12,11 @@
 	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
 	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">	
 	<style>
+		.container-middle { margin: auto; }
+		.container-middle .center-vertical { display: inline-block; vertical-align: middle; }
 		.sortable-list li 			{ width:100%; padding:5px; text-align:left; margin:0; padding:10px 0 10px 0;}
 		.sortable-list li img.slide	{ float:left; width:100px; margin:0 0 0 30px; }
-		.sortable-list li div.info { float:left; margin-left:30px; }
+		.sortable-list li div.info { float:left; margin-left:30px; margin-bottom: 1em; }
 		.sortable-list li:nth-child(even) {background-color:#fff; }
 		
 		.selCustomBox { margin:0 0 20px 0; border:solid 1px #ccc; padding:5px;}
@@ -49,8 +51,8 @@
 					<h2>General settings</h2>
 					<div class="box-content">
 						<div style="float:left">
-							Num. row <select class="combo" id="icon_numRow"><option value="2">2</option><option value="3">3</option></select>,&nbsp;
-							num. cols <select class="combo" id="icon_numIconPerRow"><option value="3">3</option><option value="4">4</option></select>
+							Num. row <select class="combo" id="icon_numRow" onchange="updateRowColInfo()"><option value="2">2</option><option value="3">3</option></select>,&nbsp;
+							num. cols <select class="combo" id="icon_numIconPerRow" onchange="updateRowColInfo()"><option value="3">3</option><option value="4">4</option></select>
 						</div>
 						
 						<div style="float:left; margin-left:80px">
@@ -329,6 +331,14 @@ function imageList_getHTML_li (rst, rowNum)
 	if (allowedCupSize.substr(2,1) == '1') { if(s!="") s+=", "; s += "large"; }
 	info += "<b>Cup size:</b> " +s +"<br>";
 
+	var isHidden = rst.hasColName("HIDDEN_SELECTION")? parseInt( rst.valByColName(rowNum, "HIDDEN_SELECTION")) : 0;
+
+	var checkboxHS = '<div>' +
+						'<label for="hide_selection_' + progressivo + '"><b>Hide selection:</b></label>' +
+					  	'<input type="checkbox" id="hide_selection_' + progressivo + '" name="hide_selection_' + progressivo + '" ' + (isHidden? 'checked ' : '') + 'style="vertical-align: middle; margin-left: .5em; cursor: pointer;">' +
+					 '</div>';
+
+	info += checkboxHS;
 
 	if (selNum!="0")
 	{
@@ -374,8 +384,13 @@ function imageList_getHTML_li (rst, rowNum)
 		
 	}
 	
-	return "<li id='" +id +"' data-itemuid='" +UID +"' data-itemprogr='" +progressivo +"' data-filename='" +pageMenuImg +"' style='display:inline-block'>"
-				+"<div style='position:relative'>"
+	var positionInfo = getIconGridPosition( progressivo, rst.getNumRows() );
+
+	return "<li id='" +id +"' data-itemuid='" +UID +"' data-itemprogr='" +progressivo +"' data-filename='" +pageMenuImg +"' style='display:inline-block; position:relative'>"
+			+"<div style='margin-bottom: 1em; margin-top: -5px; color: #666666;'>"
+					+ getRowColInfo( 'rowColInfo_' + progressivo, positionInfo )
+			+"</div>"	
+			+"<div style='position:relative'>"
 					+"<img class='slide shadow' src='../upload/" +pageMenuImg +"'>"
 					+"<div class='info'>" +info +"</div>"
 					+"<div class='info' style='float:right'>" +infoSelection +"</div>"
@@ -387,6 +402,52 @@ function imageList_getHTML_li (rst, rowNum)
 			+"</li>";
 }
 
+function getIconGridPosition(position, numItems) {
+	let rowNum = parseInt( document.getElementById( 'icon_numRow' ).value );
+	let colNum = parseInt( document.getElementById( 'icon_numIconPerRow' ).value );
+
+	let iconRowPosition = Math.floor( parseInt(( position / colNum )) );
+	let iconColPosition = parseInt( (position-1) % colNum ) + 1;
+
+	let pages = numItems > (rowNum * colNum)? 2 : 1;
+	let page  = position > (rowNum * colNum)? 2 : 1;
+	
+	if( position % colNum ) {
+		iconRowPosition++;
+	}
+
+	if( iconRowPosition > rowNum ) {
+		iconRowPosition = 1;
+	}
+
+	return { row: iconRowPosition, col: iconColPosition, pag: page, pagOf: pages };
+}
+
+function getRowColInfo(id, positionInfo) {
+	return "<div class='rowColInfo container-middle' id='" + id +"'>"
+				// +"<img src='img/icon_info24.png' class='center-vertical'>"
+				+"<div class='center-vertical'>" +
+					"<b>Row: </b>" + positionInfo.row + 
+					", <b>Column: </b>" + positionInfo.col +
+					", <b>Page: </b>" + positionInfo.pag + "/" + positionInfo.pagOf +
+				"</div>"
+			+"</div>";
+}
+
+function updateRowColInfo() {
+	let rows = document.querySelector( '#elencoItem' ).childNodes.length;
+
+	document.querySelector( '#elencoItem' ).childNodes.forEach( (li, index) => {
+		var currentChildPosition = getIconGridPosition( index + 1, rows );
+
+		// Keeps the previous id
+		var rowColInfoId = li.querySelector( '.rowColInfo' ).id;
+		var html = getRowColInfo(rowColInfoId, currentChildPosition);
+
+		li.querySelector( '.rowColInfo' ).innerHTML = html;
+	});
+}
+
 async function imageList_update()
 {
 	let rst = await db.q("SELECT * FROM pagemenu_mmi WHERE HIS_ID=" +historyID +" ORDER BY PROGR");
@@ -396,6 +457,8 @@ async function imageList_update()
 		return;
 	}
 	
+	await db.dbConsistency( rst, 'pagemenu_mmi', 'HIDDEN_SELECTION', 'INTEGER(1)', 0 );
+
 	var lastUID = 0;
 	var html = "";
 	for (var r=0; r<rst.getNumRows(); r++)
@@ -404,7 +467,9 @@ async function imageList_update()
 		lastUID = rst.valByColName(r, "UID");
 	}
 	$("#elencoItem").html (html);
-	$("#elencoItem").sortable();
+	$("#elencoItem").sortable({
+		update: (event, ui) => { updateRowColInfo(); }
+	});
 	$("#elencoItem").disableSelection();	
 	$("#main-content-wait").hide();
 	$("#page-content").show();
@@ -424,7 +489,7 @@ async function imageList_update()
 				return;
 			}
 		});
-		
+
 	}
 	
 	//visualizzo un warning se risulta che una selezione è utilizzata in più di una MMI
@@ -488,7 +553,9 @@ async function saveAll()
 		var uid = li.attr("data-itemuid");
 		if (li.css("display") != "none")
 		{
-			sql += "UPDATE pagemenu_mmi SET PROGR=" +progr +" WHERE UID=" +uid +";";
+			var hidden = li[0].querySelector( '#hide_selection_' + li[0].dataset.itemprogr ).checked? 1 : 0;
+
+			sql += "UPDATE pagemenu_mmi SET PROGR=" + progr + ", HIDDEN_SELECTION=" + hidden + " WHERE UID=" +uid +";";
 			progr++;
 		}
 		else

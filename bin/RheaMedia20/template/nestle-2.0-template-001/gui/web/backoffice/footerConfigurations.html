@@ -1,0 +1,224 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Footer configurations</h1>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>			
+		
+		<div class="page">
+			<div id="page-content">
+				<!-- selection Language Button box -->
+				<div class="box">
+					<h2 onclick="box_showHide('boxLangbutton')" style="cursor:pointer">Language button</h2>
+					<div class="box-closer" id="boxLangbutton_arrow"><img src="img/dblArrowDown.png"></div>
+					<div class="box-content" id="boxLangbutton_content">
+						<p>Set the language button image that will be shown instead the default "Language button". If you leave blank, the default "Language button" will be shown.</p>
+						<br>
+						
+						<div style="float:left; width:170px; height:300px; overflow:hidden; margin-right:80px; margin-top: 10px;">
+							<img id="langButtonImg" src="img/default_lang_btn.jpg" data-default="img/default_lang_btn.jpg" alt="No images selected yet" style="width:170px; height: 70px;">
+						</div>
+
+						<div style="float:left; width:400px">
+							<div style="margin-left:30px;">
+								<div id="langButtonFileUpload" data-refer-to="langButtonImg" data-message="+<br><i style='font-size:0.3em'>click or drag image here<br/><br/> (170x70 jpg image)</i>"></div>
+							</div>
+
+                            <div style="margin-left:30px; width: 280px;">
+                                <br /><br />
+                                <a class="button rosso" href="javascript:deleteCurrentImage('#langButtonFileUpload_file', '#langButtonImg')">Delete current image</a>
+                            </div>
+						</div>
+
+						<div class="clear"></div>
+					</div>
+				</div> 
+                <!-- selection Language Button box -->
+
+                <!-- selection Promotional Image Button box -->
+				<div class="box">
+					<h2 onclick="box_showHide('boxPromobutton')" style="cursor:pointer">Page info image button</h2>
+					<div class="box-closer" id="boxPromobutton_arrow"><img src="img/dblArrowDown.png"></div>
+					<div class="box-content" id="boxPromobutton_content">
+						<p>Set page info image that will be shown on the bottom left of the "Page Menu" page. If you leave blank, the default "Page Info image" will be shown.</p>
+						<input type="checkbox" id="disablePromo" name="disablePromo" value="disable" style="cursor: pointer;">
+                        <label for="disablePromo"><b>Disable promotional button</b></label>
+                        <br><br><br><br>
+						<div style="float:left; width:240px; height:300px; overflow:hidden; margin-right:10px; margin-top: 10px;">
+							<img id="promoButtonImg" src="img/btnInfo.png" data-default="img/btnInfo.png" alt="No images selected yet" style="width:240px; height: 70px;">
+						</div>
+
+						<div style="float:left; width:400px">
+							<div style="margin-left:30px;">
+								<div id="promoButtonFileUpload" data-refer-to="promoButtonImg" data-message="+<br><i style='font-size:0.3em'>click or drag image here<br/><br/> (240x70 jpg image)</i>"></div>
+							</div>
+
+                            <div style="margin-left:30px; width: 280px;">
+                                <br /><br />
+                                <a class="button rosso" href="javascript:deleteCurrentImage('#promoButtonFileUpload_file', '#promoButtonImg')">Delete current image</a>
+                            </div>
+						</div>
+
+						<div class="clear"></div>
+					</div>
+				</div> 
+                <!-- selection selection Promotional Image Button box -->
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+
+<script language="javascript">
+    var historyID = -1;
+    var db = null;
+    var images = {
+        langButtonImg: '',
+        promoButtonImg: ''
+    };
+
+    async function onRheaBootstrapFinished() {
+        var urlParams = getUrlVars();
+        historyID = urlParams["his"];
+        
+        $("#main-content-wait").show();
+        
+        setupUploader("langButtonFileUpload", upload_onEnd);
+        setupUploader("promoButtonFileUpload", upload_onEnd);
+        
+        var curPath = rheaGetAbsolutePhysicalPath();
+        db = new RheaDB (curPath + "/guidb.db3");
+       
+        await setUpImagebox();
+
+        $("#main-content-wait").hide();
+        $("#page-content").show();
+    }
+
+    async function setUpImagebox() {
+        let rst = await db.q("SELECT Message, What FROM lang WHERE What='langButtonImg' OR What='promoButtonImg' OR What='disablePromo'");
+
+        for (let r=0; r<rst.getNumRows(); r++) {
+            let _what = rst.valByColName(r, "What");
+            let _msg  = rst.valByColName(r, "Message");
+
+            if ( _msg && _msg !== "NULL") { 
+                if (_what === 'disablePromo' ) {
+                    document.querySelector( '#' + _what ).checked = JSON.parse(_msg);
+                } else {
+                    document.querySelector( '#' + _what ).src = '../upload/' + _msg;
+
+                    images[_what] = _msg;
+                }
+            }
+        } 
+    }
+
+    function upload_onEnd (fileName, userValue, error_code) {
+        if ( error_code != 0 ) { return; }
+
+        var imageId = document.querySelector( '#' + userValue ).dataset.referTo
+        $( "#" + imageId ).attr("src", "../upload/" + fileName);
+
+        images[imageId] = fileName;
+    }
+
+    function deleteCurrentImage( fileUploadId, id ) {
+        if(!id) { return; }
+
+        images[id.replace( '#','' )] = '';    // Remove prefix id to string key object
+        
+        $(id).attr("src", document.querySelector( id ).dataset.default);
+        $(fileUploadId).val('')
+    }
+
+    async function saveAll() {
+        pleaseWait(1);
+
+        Object.keys( images ).forEach( async key => {
+            let q   = "SELECT * FROM lang WHERE What = '" + key + "'"
+            let rst = await db.q( q );
+
+            q = !rst.nRows?
+                "INSERT INTO lang (UID,ISO,What,Message) VALUES(-1,'GB','" + key + "','" + images[key] + "')":
+                "UPDATE lang SET Message='" + images[key] + "' WHERE What='" + key + "'";
+
+            await db.exec( q );
+        });
+
+        let q   = "SELECT * FROM lang WHERE What = 'disablePromo'"
+        let rst = await db.q( q );
+        let checked = JSON.stringify( document.querySelector( '#disablePromo' ).checked );
+
+        q = !rst.nRows?
+            "INSERT INTO lang (UID,ISO,What,Message) VALUES(-1,'GB','disablePromo','" + checked + "')":
+            "UPDATE lang SET Message='" + checked + "' WHERE What='disablePromo'";
+
+        await db.exec( q );
+
+        await db.exec("UPDATE history SET DataUM='" + buildConfigFile_getAAAAMMGGHHMMSS() + "' WHERE ID=" + historyID);
+
+        pleaseWait(0);
+    }
+
+    function box_showHide(elemID) {
+        var cnt = $("#" +elemID +"_content");
+        var arrow = $("#" +elemID +"_arrow");
+        if (cnt.css("display") == "none") {
+            cnt.slideDown();
+            arrow.html ("<img src='img/dblArrowDown.png'>");
+        } else {
+            cnt.slideUp();
+            arrow.html ("<img src='img/dblArrowRight.png'>");
+        }
+    }
+
+    function box_showItNow(elemID) {
+        var cnt = $("#" +elemID +"_content");
+
+        if (cnt.css("display") == "none") {
+            cnt.slideDown(1);
+            $("#" +elemID +"_arrow").html ("<img src='img/dblArrowDown.png'>");
+        }
+    }
+</script>
+</html>
