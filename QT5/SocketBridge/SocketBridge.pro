@@ -189,7 +189,11 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_isQuickMenuPinCodeSet.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_validateQuickMenuPinCode.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSmkdir.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartSelForceJug.cpp
 
 
 HEADERS += \
@@ -296,7 +300,11 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledCPUFilename.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x24_getCupSensorLiveValue.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x25_caffeCortesia.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_isQuickMenuPinCodeSet.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_validateQuickMenuPinCode.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSmkdir.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartSelForceJug.h
 
 
 
