@@ -35,7 +35,7 @@ function UIButtonSel (parentID, childNum, node)
 	
 	var captionID = this.id +"_caption";
 	node.innerHTML =  "<table width='100%'><tr valign='top'><td id='" +captionID +"'><b>" +this.caption1 +"</b><br>" +this.caption2 +"</td>"
-					 +"<td width='50' align='center'>" +shortImg +"<br>" +this.caption3 +"</td></tr></table>";
+					 +"<td width='50' align='center'>" +shortImg +"<br>" +UIUtils_arrangeSelectionOptionDescription2021(this.caption3) +"</td></tr></table>";
 	if (status != "" && status != "enabled")
 		node.classList.add(status); 
 }

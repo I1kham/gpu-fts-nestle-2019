@@ -5,6 +5,40 @@ function UIUtils_getAttributeOrDefault(node, attributeName, defValue)
 	return r;	
 }
 
+/**********************************************
+ * 	2021-06-11: siamo passati da L R a Le Ri e da S M L a Sm Me La
+ *	Invece di cambiarlo in tutto il codice, faccio un fn che converte la vecchia sintassi
+ *	nella nuova al solo scopo di visualizzazione
+ */
+function UIUtils_arrangeSelectionOptionDescription2021(descr)
+{		
+	var ret = "";
+	switch (descr.substr(0,1).toUpperCase())
+	{
+		case "L": ret += "Le"; break;
+		case "R": ret += "Ri"; break;
+		default: ret += "X"; break;
+	}
+
+	switch (descr.substr(1,1).toUpperCase())
+	{
+		case "L": ret += "Le"; break;
+		case "R": ret += "Ri"; break;
+		default: ret += "X"; break;
+	}
+
+	switch (descr.substr(2,1).toUpperCase())
+	{
+		case "S": ret += "Sm"; break;
+		case "M": ret += "Me"; break;
+		case "L": ret += "La"; break;
+		default: ret += "X"; break;
+	}
+	
+	return ret;
+}
+
+
 /********************************************************
  * UI
  *
