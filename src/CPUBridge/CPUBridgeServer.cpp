@@ -3067,6 +3067,16 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 								else
 									newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_IS_TESTVEND);
 
+								if ((flag & 0x20) != 0)
+									newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_RFID_DEBT;
+								else
+									newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_IS_RFID_DEBT);
+
+								if ((flag & 0x40) != 0)
+									newCpuStatusFlag1 |= sCPUStatus::FLAG1_IS_RFID_JUG;
+								else
+									newCpuStatusFlag1 &= (~sCPUStatus::FLAG1_IS_RFID_JUG);
+
 							}//if (cpuParamIniziali.protocol_version >= 7)
 						}//if (cpuParamIniziali.protocol_version >= 6)						
 					}//if (cpuParamIniziali.protocol_version >= 5)

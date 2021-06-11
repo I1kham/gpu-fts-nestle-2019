@@ -499,6 +499,8 @@ namespace cpubridge
 		static const u16 FLAG1_IS_MILKER_ALIVE				= 0x0004;
 		static const u16 FLAG1_IS_FREEVEND					= 0x0008;
 		static const u16 FLAG1_IS_TESTVEND					= 0x0010;
+		static const u16 FLAG1_IS_RFID_DEBT					= 0x0020;
+		static const u16 FLAG1_IS_RFID_JUG					= 0x0040;
 		
 		static const u16 FLAG1_CUP_DETECTED					= 0x0100;
 		static const u16 FLAG1_SHOW_DLG_STOP_SELEZIONE		= 0x0200;

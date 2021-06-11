@@ -111,12 +111,9 @@
 
 var timerGotoPageStandby = null;
 var isMilkerAlive = 0;
+var isRFIDJugDetected = 0;
 
-function onRheaBootstrapFinished() 
-{
-	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
-}
-
+function onRheaBootstrapFinished() 		{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
 function onAfterLangLoaded()
 {
 	if ("jug" in rhea.selection_getBySelNumber(1))
@@ -153,13 +150,24 @@ function onAfterJugInfoLoaded()
 		//stato del cappuccinatore
 		if (isMilkerAlive)
 		{
-			if ((flag16 & 0x04) == 0)
+			if ((flag16 & 0x0004) == 0)
 				isMilkerAlive = 0;
 		}
 		else
 		{
-			if ((flag16 & 0x04) != 0)
+			if ((flag16 & 0x0004) != 0)
 				isMilkerAlive = 1;
+		}
+		
+		if (isRFIDJugDetected)
+		{
+			if ((flag16 & 0x0040) == 0)
+				isRFIDJugDetected = 0;
+		}
+		else
+		{
+			if ((flag16 & 0x0040) != 0)
+				isRFIDJugDetected = 1;
 		}
 	}
 	
@@ -219,8 +227,6 @@ function onAfterJugInfoLoaded()
 	setupIconContainer(nGridRow, nGridCol);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
-	
-	//rasPI_setupQRCode();
 }
 
 function onAfterIconAreDisplayed()
@@ -577,7 +583,7 @@ function setupIconPage (iPage, nIconPerPage)
 			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>";
 			  
 		if (MMI_isJuggable(startIcon))
-			html += "<div style='position:absolute; top:30px; right:30px; width:30px'><img src='img/jugIcon.png' style='width:100%'></div>";
+			html += "<div class='pageMenu_jugIcon'><img src='img/jugIcon.png'></div>";
 			  
 		html += " </div>"
 			  + "</div>";
@@ -834,54 +840,6 @@ function divLangMenu_select(isoOfSelectedLang)
 	divLangMenu_close();
 }
 
-function rasPI_setupQRCode()
-{
-	var qrcodeText = Rhea_session_getOrDefault ("rasPIQRCode", "");
-console.log ("rasPI_setupQRCode: [" +qrcodeText +"]");
-	if (qrcodeText == "no")
-		return;
-		
-	if (qrcodeText != "")
-		rasPI_showQRCode (qrcodeText);
-	else
-	{
-		console.log ("rasPI_setupQRCode: asking");
-		rhea.ajax ("rasPIgetIPandSSID", "").then( function(result)
-		{
-			var data = JSON.parse(result);
-			console.log ("rasPI_setupQRCode: result=");
-			console.log (data);
-			qrcodeText = data.ssid +"|||" +data.ip +"/rhea/GUITS/startup.html";
-			Rhea_session_setValue ("rasPIQRCode", qrcodeText);
-			rasPI_showQRCode (qrcodeText);
-		})
-		.catch( function(result)
-		{
-		console.log ("rasPI_setupQRCode: no answer");
-			Rhea_session_setValue ("rasPIQRCode", "no");
-		});	
-		
-		return;
-	}
-}
-
-function rasPI_showQRCode (qrcodeText)
-{
-	console.log ("rasPI_showQRCode: [" +qrcodeText +"]");
-	var qrcode = new QRCode(document.getElementById("qrcode"), {
-					text: qrcodeText,
-					width: 110,
-					height: 110,
-					colorDark : "#000000",
-					colorLight : "#ffffff",
-					correctLevel : QRCode.CorrectLevel.H
-				});
-	rheaShowElem (rheaGetElemByID("qrcode"));
-}
-
-	
 
 </script>
-
-
 </html>

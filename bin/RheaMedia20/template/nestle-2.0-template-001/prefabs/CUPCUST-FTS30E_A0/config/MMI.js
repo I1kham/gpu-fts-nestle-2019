@@ -342,3 +342,42 @@ function MMI_fromSelNumToIconNum (selNum)
 	}	
 	return 0;
 }
+
+/*********************************************************
+ * MMI_isJuggable
+ *
+ *	[iIcon] va da 0 a MMI_getCount()-1
+ *
+ *	ritorna 1 se almeno una delle selezioni associate all'icona è juggabile
+ */
+function  MMI_isJuggable (iIcon)
+{
+	if (iIcon < 0) return 0;
+	if (iIcon >= MMI_getCount()) return 0;
+
+	var selNum = MMI_getLinkedSelectionNumber(iIcon);
+	if (selNum != 0)
+	{
+		if (rhea.selection_getBySelNumber(selNum).jug > 1)
+			return 1;
+		return 0;
+	}
+	
+	for (var grinder=0; grinder<2; grinder++)
+	{
+		for (var cup=0; cup<3; cup++)
+		{
+			for (var shotType=0; shotType<2; shotType++)
+			{
+				selNum = MMI_getLinkedSelection  (iIcon, grinder, cup, shotType);			
+				if (selNum > 0)
+				{
+					if (rhea.selection_getBySelNumber(selNum).jug > 1)
+						return 1;
+				}
+			}
+			
+		}
+	}
+	return 0;
+}
