@@ -670,6 +670,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 				if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario)
 					this->VMCState = eVMCState::LAVAGGIO_SANITARIO;
+				else if (cleaning.cleaningType == eCPUProg_cleaningType::descaling)
+					this->VMCState = eVMCState::LAVAGGIO_SANITARIO;
 				else if (cleaning.cleaningType == eCPUProg_cleaningType::milker || cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
 				{
 					priv_DA3_reload();
@@ -698,7 +700,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			case eCPUProgrammingCommand::querySanWashingStatus:
 				if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario ||
 					cleaning.cleaningType == eCPUProg_cleaningType::milker ||
-					cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
+					cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick ||
+					cleaning.cleaningType == eCPUProg_cleaningType::descaling)
 				{
 					out_answer[ct++] = '#';
 					out_answer[ct++] = 'P';

@@ -344,8 +344,9 @@ namespace cpubridge
 		mixer4 = 0x04,
 		milker = 0x05,			//questo dice alla CPU di far partire il lav san del milker considerando che il comando arrriva da dentro il menu prog
 		sanitario = 0x08,
-		rinsing = 0xa0,
-		milkerQuick = 0x20		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
+		milkerQuick = 0x20,		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
+		rinsing = 0xA0,
+		descaling = 0xA1
 	};
 
 	enum class eCPUProg_decounter: u8

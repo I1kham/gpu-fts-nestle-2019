@@ -334,14 +334,16 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-                        <td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="INICIAR<br>LAVAGEM" data-onclick="pageCleaning_action(160)"></div></td>
-                        <td width="25%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="INICIAR<br>LAVAGEM QUENTE" data-onclick="pageCleaning_action(8)"></div></td>
-                        <td width="25%" align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING<br>GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
-                        <td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="INICIAR LAVAGEM<br>CAPPUCCINADOR" data-onclick="pageCleaning_action(5)"></div></td>					
+                        <td width="33%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="INICIAR<br>LAVAGEM" data-onclick="pageCleaning_action(160)"></div></td>
+                        <td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="INICIAR<br>LAVAGEM QUENTE" data-onclick="pageCleaning_action(8)"></div></td>
+                        <td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="INICIAR LAVAGEM<br>CAPPUCCINADOR" data-onclick="pageCleaning_action(5)"></div></td>					
+					</tr>
+					<tr valign="middle">
+						<td align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING<br>GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
+						<td align="center"><div id="pageCleaning_btnDescaling" class="UIButton bigButton4x4 actionButton" data-caption="START DESCALING" data-onclick="pageCleaning_action(161)"></div></td>
+						<td></td>
 					</tr>
 				</table>
-				
-				<br>
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
 						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="LAVAGEM 1" data-onclick="pageCleaning_action(1)"></div></td>
@@ -351,7 +353,6 @@
 					</tr>
 				</table>
 				
-				<br>
 				<table border='0' class='elenco'>
 					<tr style="border:0">
 						<td style="width:300px">HORARIO DE LAVAGEM AUTOMATICA<br><span class="tip">00:00 para desabilitar</span></td>
@@ -1960,6 +1961,13 @@ function pageCleaning_show()
 			var w = ui.getWindowByID("pageCleaning");
 			w.getChildByID("pageCleaning_btnCleanHC").hide();
 			w.getChildByID("pageCleaning_btnCleanGrinder").hide();
+			w.getChildByID("pageCleaning_btnDescaling").hide();
+		}
+		else
+		{
+			//macchine espresso
+			if (!da3.isGruppoVariflex())
+				w.getChildByID("pageCleaning_btnDescaling").hide();
 		}
 	}
 }

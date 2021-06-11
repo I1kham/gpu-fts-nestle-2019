@@ -102,6 +102,10 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 		else
 			this.priv_handleMilkWashingVenturi(timeElapsedMSec);
 	}
+	else if (this.whichWash == 161)
+	{
+		this.priv_handleDescalingVFlex(timeElapsedMSec);
+	}
 	else
 	{
 		if (timeElapsedMSec < 2000)
@@ -111,7 +115,14 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 	}
 }
 
-TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	{ this.cpuStatus = statusID; pleaseWait_header_setTextL (statusStr); }
+TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	
+{ 
+	this.cpuStatus = statusID; 
+	if (statusID==20)
+		pleaseWait_header_setTextL ("DESCALING"); 
+	else
+		pleaseWait_header_setTextL (statusStr); 
+}
 TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 
 TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
@@ -229,6 +240,132 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 	
 }
 
+TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
+{
+	//termino quando lo stato della CPU diventa != da SAN_WASHING
+	if (timeElapsedMSec > 3000 && this.cpuStatus != 20) //20==sanitary washing
+	{
+		pageCleaning_onFinished();
+		return;
+	}
+	
+	//ogni tot mando una richiesta per conoscere lo stato attuale del lavaggio
+	if (timeElapsedMSec < this.nextTimeSanWashStatusCheckMSec)
+		return;
+	this.nextTimeSanWashStatusCheckMSec += 2000;	
+
+	//periodicamente richiedo lo stato del lavaggio
+	var me = this;
+	rhea.ajax ("sanWashStatus", "")
+		.then( function(result) 
+		{
+			var obj = JSON.parse(result);
+			//console.log ("DESCALING response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
+			me.fase = parseInt(obj.fase);
+			me.btn1 = parseInt(obj.btn1);
+			me.btn2 = parseInt(obj.btn2);
+			var msg = "";
+			switch (me.fase)
+			{
+				default: 	msg = "???"; break;
+				case 1:		msg = "$LAB_DESCALING_OPEN_BOILER_TAP. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 2:		msg = "$LAB_DESCALING_2, $LAB_DESCALING_PLS_WAIT"; break;
+				case 3:		msg = "$LAB_DESCALING_CLOSE_BOILER_TAP. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 4:		msg = "$LAB_DESCALING_4. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 5:		msg = "$LAB_DESCALING_5, $LAB_DESCALING_PLS_WAIT"; break;
+				case 6:		msg = "$LAB_DESCALING_6. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 7:		msg = "$LAB_DESCALING_7, $LAB_DESCALING_PLS_WAIT"; break;
+				case 8:		msg = "$LAB_DESCALING_8"; break;
+				case 9:		msg = "LAB_DESCALING_9, $LAB_DESCALING_PLS_WAIT"; break;
+				case 10:	msg = "$LAB_DESCALING_10"; break;
+				case 11:	msg = "$LAB_DESCALING_OPEN_BOILER_TAP. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 12:	msg = "$LAB_DESCALING_12, $LAB_DESCALING_PLS_WAIT"; break;
+				case 13:	msg = "$LAB_DESCALING_CLOSE_BOILER_TAP. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 14:	msg = "$LAB_DESCALING_14. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 15:	msg = "$LAB_DESCALING_15, $LAB_DESCALING_PLS_WAIT"; break;
+				case 16:	msg = "$LAB_DESCALING_16. $LAB_DESCALING_PRESS_CONTINUE"; break;
+				case 17:	msg = "$LAB_DESCALING_17"; break;
+				case 18:	msg = "$LAB_DESCALING_18. $LAB_DESCALING_PRESS_CONTINUE."; break;
+				case 19:	msg = "$LAB_DESCALING_19."; break;
+				case 20:	msg = "$LAB_DESCALING_20"; break;
+				case 21:	msg = "$LAB_DESCALING_21."; break;
+			}
+			
+msg += "<br><br>DEBUG-FASE[" +me.fase +"] BTN1{" +me.btn1 +"} BTN2[" +me.btn2 +"]";
+			
+			pleaseWait_freeText_setText(msg);
+			pleaseWait_freeText_show();
+			
+			if (me.fase != me.prevFase)
+			{
+				me.prevFase = me.fase;
+				
+				if (me.btn1 == 0)
+					pleaseWait_btn1_hide();
+				else
+				{
+					var btnText = "$LAB_BUTTON " +me.btn1;
+					switch (me.fase)
+					{
+						case 1: 
+						case 3:
+						case 4:
+						case 6:
+						case 10:
+						case 11:
+						case 13:
+						case 14:
+						case 16:
+						case 18:
+						case 20:
+							btnText = "$LAB_CONTINUE"; 
+							break;
+							
+						/*case 12: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 1/2 ?
+						case 14:  btnText = "$LAB_CONTINUE"; break;
+						case 27: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 2/2 ?
+						case 28: btnText = "$LAB_SKIP_COFFEE"; break; //Do you want to skip the final coffee ?
+						case 34: btnText = "$LAB_CLOSE"; break; //Do you want to skip the final coffee ?
+						*/
+						
+					}
+					pleaseWait_btn1_setText (btnText);
+					pleaseWait_btn1_show();	
+				}
+				
+				if (me.btn2 == 0)
+					pleaseWait_btn2_hide();
+				else
+				{
+					var btnText = "$LAB_BUTTON " +me.btn2;
+					switch (me.fase)
+					{
+						case 10:
+						case 20:
+							btnText = "$LAB_REPEAT";
+							break;
+						//case 1:  btnText = "$LAB_CONTINUE"; break;
+						/*case 12: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 1/2 ?
+						case 14:  btnText = "$LAB_CONTINUE"; break;
+						case 27: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 2/2 ?
+						case 28: btnText = "$LAB_SKIP_COFFEE"; break; //Do you want to skip the final coffee ?
+						case 34: btnText = "$LAB_CLOSE"; break; //Do you want to skip the final coffee ?
+						*/
+						
+					}
+					pleaseWait_btn2_setText (btnText);
+					pleaseWait_btn2_show();	
+				}				
+			}				
+		})
+		.catch( function(result)
+		{
+			//console.log ("DESCALING: error[" +result +"]");
+			pleaseWait_btn1_hide();
+			pleaseWait_btn2_hide();
+		});	
+		
+}
 
 TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 {

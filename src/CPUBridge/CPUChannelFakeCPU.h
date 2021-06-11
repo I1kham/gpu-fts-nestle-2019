@@ -41,7 +41,7 @@ namespace cpubridge
 
 		struct sCleaning
 		{
-			eCPUProg_cleaningType cleaningType;
+			eCPUProg_cleaningType				cleaningType;
 			u8									fase;
 			u8									btn1;
 			u8									btn2;
