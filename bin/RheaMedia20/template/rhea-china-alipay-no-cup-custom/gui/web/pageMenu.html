@@ -109,6 +109,7 @@
 <script src="config/MMI.js"></script>
 <script src="config/pageStandby.js"></script>
 <script src="js/rheaBootstrap.js"></script>
+<script src="js/PanelPinCode.js"></script>
 <script language="javascript">
 
 var timerGotoPageStandby = null;
@@ -120,6 +121,7 @@ var isRheamediaPreviewBox = 0;
 
 function onRheaBootstrapFinished() 
 {
+	pinCodePanel = new PanelPinCode("mainWrapper");
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
 }
 
@@ -746,29 +748,45 @@ function showFastMenu()
 	rheaShowElem (rheaGetElemByID("divFastMenu")); 
 }
 function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }
-function onBtnCleaning()		{ rhea.requestGPUCleaning(160); hideFastMenu(); }
+function onBtnCleaning()		
+{ 
+	resetTimerGotoPageStandby();
+	pinCodePanel.show (
+		function callbackOK()		{ console.log("rinsing"); rhea.requestGPUCleaning(160); hideFastMenu(); }
+		,function callbackKO()		{ hideFastMenu(); }
+	);
+}
+
 function onBtnMilkerCleaning()
 {
-	rhea.ajax ("getMilkerType", "").then( function(result)
-	{
-		var data = JSON.parse(result);
-		switch (parseInt(data.mType))
-		{
-			default: //venturi:
+	resetTimerGotoPageStandby();
+	pinCodePanel.show (
+		function callbackOK() {
+			console.log("milker cleaning");
+			rhea.ajax ("getMilkerType", "").then( function(result)
+			{
+				var data = JSON.parse(result);
+				switch (parseInt(data.mType))
+				{
+					default: //venturi:
+						rhea.requestGPUCleaning(32);
+						hideFastMenu();
+						break;
+						
+					case 2: //indux
+						rhea.requestGPUCleaning(32);
+						window.location = "gotoMilkerCleaning.html";
+						break;
+				}
+			})
+			.catch( function(result)
+			{
 				rhea.requestGPUCleaning(32);
-				hideFastMenu();
-				break;
-				
-			case 2: //indux
-				rhea.requestGPUCleaning(32);
-				window.location = "gotoMilkerCleaning.html";
-				break;
+			});		
 		}
-	})
-	.catch( function(result)
-	{
-		rhea.requestGPUCleaning(32);
-	});
+
+		,function callbackKO()		{ hideFastMenu(); }
+	);	
 }
 
 function onBtnFileInfo()
