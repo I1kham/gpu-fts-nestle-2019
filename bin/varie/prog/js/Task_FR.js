@@ -276,7 +276,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 6:		msg = "Check descaling detergent level in the air tank. Press CONTINUE when done."; break;
 				case 7:		msg = "Starting to fill hydraulic tubes with descaling detergent, please wait..."; break;
 				case 8:		msg = "Please wait for the descaling liquid action..."; break;
-				case 9:		msg = "LAB_DESCALING_9, please wait..."; break;
+				case 9:		msg = "Descaling liquid starts draining through the nozzles, please wait..."; break;
 				case 10:	msg = "Check the liquid colour drained from the nozzles, it defines if descaling process successfully completed.<br>Press CONTINUE button to continue, or press REPEAT to repeat previous steps."; break;
 				case 11:	msg = "Open boiler tap. Press CONTINUE when done."; break;
 				case 12:	msg = "Emptying hydraulic circuit. All descaling liquid drain out through the nozzles, please wait..."; break;
@@ -291,7 +291,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 21:	msg = "Descaling procedure finished."; break;
 			}
 			
-msg += "<br><br>DEBUG-FASE[" +me.fase +"] BTN1{" +me.btn1 +"} BTN2[" +me.btn2 +"]";
+			//msg += "<br><br>DEBUG-FASE[" +me.fase +"] BTN1{" +me.btn1 +"} BTN2[" +me.btn2 +"]";
 			
 			pleaseWait_freeText_setText(msg);
 			pleaseWait_freeText_show();

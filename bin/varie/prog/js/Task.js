@@ -276,7 +276,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 6:		msg = "$LAB_DESCALING_6. $LAB_DESCALING_PRESS_CONTINUE."; break;
 				case 7:		msg = "$LAB_DESCALING_7, $LAB_DESCALING_PLS_WAIT"; break;
 				case 8:		msg = "$LAB_DESCALING_8"; break;
-				case 9:		msg = "LAB_DESCALING_9, $LAB_DESCALING_PLS_WAIT"; break;
+				case 9:		msg = "$LAB_DESCALING_9, $LAB_DESCALING_PLS_WAIT"; break;
 				case 10:	msg = "$LAB_DESCALING_10"; break;
 				case 11:	msg = "$LAB_DESCALING_OPEN_BOILER_TAP. $LAB_DESCALING_PRESS_CONTINUE."; break;
 				case 12:	msg = "$LAB_DESCALING_12, $LAB_DESCALING_PLS_WAIT"; break;
@@ -291,7 +291,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 21:	msg = "$LAB_DESCALING_21."; break;
 			}
 			
-msg += "<br><br>DEBUG-FASE[" +me.fase +"] BTN1{" +me.btn1 +"} BTN2[" +me.btn2 +"]";
+			//msg += "<br><br>DEBUG-FASE[" +me.fase +"] BTN1{" +me.btn1 +"} BTN2[" +me.btn2 +"]";
 			
 			pleaseWait_freeText_setText(msg);
 			pleaseWait_freeText_show();
