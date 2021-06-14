@@ -7,6 +7,7 @@ function FileSaveAs (elemID)
 	this.cntID = elemID +"_cnt";
 	this.closeID = elemID +"_close";
 	this.saveBtnID = elemID +"_save";
+	this.mkdirBtnID = elemID +"_mkdir";
 	this.customTextAtTop = elemID +"_cstText";
 	
 	var html = "<div class='fileBrowser_container'>"
@@ -162,9 +163,25 @@ FileSaveAs.prototype.priv_onAjaxFSFinished = function (fileList)
 	var html = "<div style='margin:5px 0 5px 0;'>"
 				+"<div style='float:left'><b style='color:#fff;'>Current folder:</b> " +this.currentFolder +"</div>"
 				+"<div class='fileBrowser_saveBtn' id='" +this.saveBtnID +"' style='float:right; margin-right:5px'>SAVE HERE</div>"
+				+"<div class='fileBrowser_saveBtn' id='" +this.mkdirBtnID +"' style='float:right; margin-right:5px'>NEW FOLDER HERE</div>"
 				+"<div class='clear'></div>"
 				+"</div><ul class='FSFileList'>";
 	
+	var modal = "<div id='rheaModalMkdir' class='modal'>"
+	  				+ "<div class='modal-content'>"
+						+ "<span class='close'>&times;</span>"
+						+ "<div style='clear: both'></div>"
+						+ "<h3 style='color: #666; margin-bottom: 5px;'>Folder name...</h3>"
+						+ "<input type='text' id='folderName' style='width: 100%; padding: 10px; margin-bottom: 5px;'>"
+						+ "<div class='fileBrowser_saveBtn' id='confirm' style='float:right;'>OK</div>"
+						+ "<div style='clear: both'></div>"
+	 	 			+ "</div>"
+				+ "</div>"
+				+ "<div id='creatingFolder'><img style='text-align: center; position: absolute; margin: auto; top: 0; bottom: 0; left: 0; right: 0;' src='img/animationRound.gif'></div>";
+
+	// Append modal's HTML
+	html += modal;
+
 	var bFolderUpExists = (parseInt(e.up) == 1);
 	if (bFolderUpExists)
 	{
@@ -197,7 +214,47 @@ FileSaveAs.prototype.priv_onAjaxFSFinished = function (fileList)
 	}, 
 	true);
 
+	var mkdir = rheaGetElemByID(this.mkdirBtnID);
+	mkdir.addEventListener("click", (ev) => {
+		var modal = rheaGetElemByID("rheaModalMkdir");
+		modal.style.display = "block";
+		
+		console.log(me.currentFolder)
+	}, true);
 	
+	window.onclick = (event) => {
+		if (event.target.id === 'rheaModalMkdir') {
+			event.target.style.display = "none";
+		}
+  	};
+
+	var span = document.getElementsByClassName("close")[0];
+	span.onclick = () => {
+		var modal = rheaGetElemByID("rheaModalMkdir");
+		modal.style.display = "none";
+	};
+
+	var confirm = rheaGetElemByID("confirm");
+
+	confirm.onclick = () => {
+		const modal = rheaGetElemByID("rheaModalMkdir");
+		const fName = document.querySelector( '#folderName' ).value;
+
+		if( !fName ) {
+			modal.style.display = "none";
+			return;
+		}
+
+		rhea.ajax ("FSmkdir", {path: me.currentFolder + '/' + fName})
+			.then( (result) => {
+				modal.style.display = "none";
+				setTimeout ( function() { me.priv_queryFolderList(me.currentFolder);}, 10);
+			})
+
+			.catch( error => {
+				modal.style.display = "none";
+			});
+	};
 	if (bFolderUpExists)
 	{
 			var id = me.elemID +"_folderUP";

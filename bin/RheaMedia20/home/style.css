@@ -97,4 +97,3 @@ a.buttonbig.verde:hover  {background-color:#7cf27c; color:#fff}
 .checkboxFive input[type=checkbox] {visibility: hidden;}
 .checkboxFive input[type=checkbox]:checked + label:after { opacity: 1; }
 
-
