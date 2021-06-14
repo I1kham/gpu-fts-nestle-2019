@@ -115,19 +115,12 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 	}
 }
 
-TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	
-{ 
-	this.cpuStatus = statusID; 
-	if (statusID==20)
-		pleaseWait_header_setTextL ("DESCALING"); 
-	else
-		pleaseWait_header_setTextL (statusStr); 
-}
-TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
+TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	{ this.cpuStatus = statusID; pleaseWait_header_setTextL (statusStr); }
+TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 
-TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
-TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
-TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)						{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)							{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)							{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)							{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 
 TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 {
@@ -242,8 +235,8 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 
 TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 {
-	//termino quando lo stato della CPU diventa != da SAN_WASHING
-	if (timeElapsedMSec > 3000 && this.cpuStatus != 20) //20==sanitary washing
+	//termino quando lo stato della CPU diventa != da DESCALING
+	if (timeElapsedMSec > 3000 && this.cpuStatus != 26) //26==descaling
 	{
 		pageCleaning_onFinished();
 		return;
@@ -321,13 +314,9 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 							btnText = "$LAB_CONTINUE"; 
 							break;
 							
-						/*case 12: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 1/2 ?
-						case 14:  btnText = "$LAB_CONTINUE"; break;
-						case 27: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 2/2 ?
-						case 28: btnText = "$LAB_SKIP_COFFEE"; break; //Do you want to skip the final coffee ?
-						case 34: btnText = "$LAB_CLOSE"; break; //Do you want to skip the final coffee ?
-						*/
-						
+						case 21:
+							btnText = "$LAB_BUTTON_CLOSE"; 
+							break;
 					}
 					pleaseWait_btn1_setText (btnText);
 					pleaseWait_btn1_show();	
@@ -344,14 +333,6 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 						case 20:
 							btnText = "$LAB_REPEAT";
 							break;
-						//case 1:  btnText = "$LAB_CONTINUE"; break;
-						/*case 12: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 1/2 ?
-						case 14:  btnText = "$LAB_CONTINUE"; break;
-						case 27: btnText = "$LAB_NO"; break; //Do you want to repeat clean cycle 2/2 ?
-						case 28: btnText = "$LAB_SKIP_COFFEE"; break; //Do you want to skip the final coffee ?
-						case 34: btnText = "$LAB_CLOSE"; break; //Do you want to skip the final coffee ?
-						*/
-						
 					}
 					pleaseWait_btn2_setText (btnText);
 					pleaseWait_btn2_show();	
@@ -361,8 +342,8 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 		.catch( function(result)
 		{
 			//console.log ("DESCALING: error[" +result +"]");
-			pleaseWait_btn1_hide();
-			pleaseWait_btn2_hide();
+			//pleaseWait_btn1_hide();
+			//pleaseWait_btn2_hide();
 		});	
 		
 }

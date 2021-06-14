@@ -671,7 +671,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario)
 					this->VMCState = eVMCState::LAVAGGIO_SANITARIO;
 				else if (cleaning.cleaningType == eCPUProg_cleaningType::descaling)
-					this->VMCState = eVMCState::LAVAGGIO_SANITARIO;
+					this->VMCState = eVMCState::DESCALING;
 				else if (cleaning.cleaningType == eCPUProg_cleaningType::milker || cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
 				{
 					priv_DA3_reload();

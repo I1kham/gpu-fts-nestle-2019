@@ -10,7 +10,7 @@ static const char UNKNOWN[8] = { "UNKNOWN" };
 //***************************************************************
 const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 {
-    static const char v[27][20] = {
+    static const char v[28][20] = {
         {"READY"},      //DISPONIBILE
         {"DISPENSING"}, //PREP BEVANDA
 		{"PROG"},
@@ -37,7 +37,8 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
         {"TEST_SEL"}, //23
         {"TEST_MODEM"},
         {"MILKER_WASH_VENTURI"}, //25
-		{"MILKER_WASH_INDUX"}
+		{"MILKER_WASH_INDUX"},
+		{"DESCALING"}
 	};
 
 	switch (s)
@@ -73,6 +74,7 @@ const char*	utils::verbose_eVMCState(cpubridge::eVMCState s)
 	case cpubridge::eVMCState::CPU_NOT_SUPPORTED:		return v[21];
 	case cpubridge::eVMCState::DA3_SYNC:					return v[22];
 	case cpubridge::eVMCState::LAVAGGIO_MILKER_INDUX:	return v[26];
+	case cpubridge::eVMCState::DESCALING:				return v[27];
 	}
 }
 
