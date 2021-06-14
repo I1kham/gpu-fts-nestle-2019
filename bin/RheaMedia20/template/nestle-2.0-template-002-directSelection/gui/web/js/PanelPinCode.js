@@ -6,7 +6,7 @@ function PanelPinCode (fatherDivID)
 	var me = this;
 	
 	var style_pagePinCode = "display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; text-align:center;";
-	var style_pagePinCodeButton = "border:solid 1px #666; width:150px; height:20px; padding:1.0em 0 1.5em 0; text-align:center; font-size:2.0em; margin:5px; display:inline-block; background-color:#666; border-radius: 5px;";
+	var style_pagePinCodeButton = "border:solid 1px #666; width:130px; height:20px; padding:0.7em 0 1.0em 0; text-align:center; font-size:2.0em; margin:5px; display:inline-block; background-color:#666; border-radius: 5px;";
 	var style_pagePinCodeDisplay = "border:solid 4px #666; border-radius:5px 5px 0 0; text-align:center; color:#fff; width:100%; padding:0.5em 0 0.5em 0; background-color:#000; min-height:30px;";
 	
 	
@@ -40,6 +40,30 @@ function PanelPinCode (fatherDivID)
 				}, 
 				true);
 			}
+			
+			var d = document.createElement("div");
+				d.style = style_pagePinCodeButton;
+				d.innerHTML = ("&nbsp;");
+				d1.appendChild(d);			
+
+			//btn 0
+			d = document.createElement("div");
+			d.style = style_pagePinCodeButton;
+			d.innerHTML = ("0");
+			d.setAttribute ("data-num", 0);
+			d1.appendChild(d);
+			
+			d.addEventListener("mousedown", function (ev) {
+				ev.stopPropagation();
+				me.onBtnPressed (this.getAttribute("data-num"));
+			}, 
+			true);
+			
+			d = document.createElement("div");
+				d.style = style_pagePinCodeButton;
+				d.innerHTML = ("&nbsp;");
+				d1.appendChild(d);			
+			
 
 	var fatherDiv = document.getElementById(fatherDivID);
 	fatherDiv.appendChild(divContainer);	
@@ -47,7 +71,7 @@ function PanelPinCode (fatherDivID)
 
 PanelPinCode.prototype.show = function (callbackOK, callbackKO)
 {
-	console.log ("this.isPinCodeSet:" +this.isPinCodeSet);
+	//console.log ("this.isPinCodeSet:" +this.isPinCodeSet);
 	//verifico se il pincode è impostato su CPU
 	if (this.isPinCodeSet == -1)
 	{
@@ -95,7 +119,7 @@ PanelPinCode.prototype.onBtnPressed = function(btnPressed)
 		//verifico la bontà del pin inserito
 		var me = this;
 		rhea.ajax ("checkQuickMenuPinCode", { "pin": this.currentPin }).then( function(result) {
-			console.log ("checkQuickMenuPinCode:" +result);
+			//console.log ("checkQuickMenuPinCode:" +result);
 			if ("OK" === result)
 			{
 				rheaHideElem(rheaGetElemByID("divPanelPinCode"));
