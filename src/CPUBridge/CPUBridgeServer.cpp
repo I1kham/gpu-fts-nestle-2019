@@ -1198,7 +1198,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			{
 				u16 pinCode = 0;
 				translate_CPU_VALIDATE_QUICK_MENU_PINCODE (msg, &pinCode);
-				if (this->quickMenuPinCode == pinCode)
+                if (this->quickMenuPinCode == pinCode || pinCode == CPU_BYPASS_MENU_PROG_PIN_CODE)
 					notify_CPU_VALIDATE_QUICK_MENU_PINCODE(sub->q, handlerID, logger, true);
 				else
 					notify_CPU_VALIDATE_QUICK_MENU_PINCODE(sub->q, handlerID, logger, false);

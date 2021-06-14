@@ -238,6 +238,10 @@ void MainWindow::priv_showForm (eForm w)
     case eForm_newprog_lavaggioMilker:
         priv_loadURLMenuProg("page=pageCleaningMilker");
         break;
+
+    case eForm_newprog_descaling:
+        priv_loadURLMenuProg("page=pageDescaling");
+        break;
     }
 }
 
@@ -285,6 +289,7 @@ void MainWindow::timerInterrupt()
             case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
             case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
             case eRetCode_gotoNewMenuProg_lavaggioMilker: priv_scheduleFormChange(eForm_newprog_lavaggioMilker); break;
+            case eRetCode_gotoNewMenuProg_descaling: priv_scheduleFormChange(eForm_newprog_descaling); break;
         }
         break;
 
@@ -296,6 +301,7 @@ void MainWindow::timerInterrupt()
             case eRetCode_gotoFormOldMenuProg: priv_scheduleFormChange(eForm_oldprog_legacy); break;
             case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
             case eRetCode_gotoNewMenuProg_lavaggioMilker: priv_scheduleFormChange(eForm_newprog_lavaggioMilker); break;
+            case eRetCode_gotoNewMenuProg_descaling: priv_scheduleFormChange(eForm_newprog_descaling); break;
         }
         break;
 
@@ -307,6 +313,7 @@ void MainWindow::timerInterrupt()
             case eRetCode_gotoNewMenuProgrammazione: priv_scheduleFormChange(eForm_newprog); break;
             case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
             case eRetCode_gotoNewMenuProg_lavaggioMilker: priv_scheduleFormChange(eForm_newprog_lavaggioMilker); break;
+            case eRetCode_gotoNewMenuProg_descaling: priv_scheduleFormChange(eForm_newprog_descaling); break;
         }
         break;
 
@@ -318,6 +325,7 @@ void MainWindow::timerInterrupt()
     case eForm_newprog:
     case eForm_newprog_lavaggioMilker:
     case eForm_newprog_lavaggioSanitario:
+    case eForm_newprog_descaling:
         switch (priv_showNewProgrammazione_onTick())
         {
             default: break;
@@ -395,7 +403,6 @@ void MainWindow::priv_syncWithCPU_onTick()
         //cui aggiungo uno step per detectare o meno la presenza del modulo
         //non possiamo partire :) Bisogna verificare
         priv_addText ("Checking for ESAPI module...");
-        //activeSleep (1200);
         glob->logger->log ("\n\n");
         glob->logger->log ("asking ESAPI module type and ver\n");
         syncWithCPU.esapiTimeoutMSec = rhea::getTimeNowMSec() + 4000;
@@ -622,6 +629,9 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
             //questo è il caso in cui la CPU non ha portato a termine un LAV SANITARIO del cappucinatore. Funziona come sopra
             else if (vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_INDUX)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
+            //come sopra, ma per il descaling
+            else if (vmcState == cpubridge::eVMCState::DESCALING)
+                retCode = eRetCode_gotoNewMenuProg_descaling;
         }
         break;
 

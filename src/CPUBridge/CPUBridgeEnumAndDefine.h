@@ -7,6 +7,10 @@
 #define		VMCDATAFILE_BLOCK_SIZE_IN_BYTE		64
 #define		VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE	10048
 
+//PIN "universale" code per il menu di programmazione
+#define		CPU_BYPASS_MENU_PROG_PIN_CODE       842
+
+
 /**********************************************************************
  * Messaggi in/out sul canale di "servizio" di CPUBridge
  */

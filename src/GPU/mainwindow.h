@@ -42,7 +42,8 @@ private:
 
         eForm_newprog = 100,
         eForm_newprog_lavaggioSanitario = 101,
-        eForm_newprog_lavaggioMilker = 102
+        eForm_newprog_lavaggioMilker = 102,
+        eForm_newprog_descaling = 103
     };
 
 private:

@@ -153,6 +153,9 @@ void FormPreGui::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
             //come sopra ma per il cappucinatore
             else if (vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_VENTURI || vmcState == cpubridge::eVMCState::LAVAGGIO_MILKER_INDUX)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
+            //come sopra ma per il descaling
+            else if (vmcState == cpubridge::eVMCState::DESCALING)
+                retCode = eRetCode_gotoNewMenuProg_descaling;
 
         }
         break;
