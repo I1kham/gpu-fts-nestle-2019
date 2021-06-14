@@ -105,13 +105,43 @@
 
 var timerGotoPageStandby = null;
 var isMilkerAlive = 0;
+var isRFIDJugDetected = 0;
+
+var JUG_STATUS = {
+	ALWAYS_VISIBLE: 1,
+	NEVER_VISIBLE: 2,
+	ON_RFID_STATUS: 3
+};
 
 function onRheaBootstrapFinished() 
 {
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
 }
 
-function onAfterLangLoaded() 
+function onAfterLangLoaded()
+{
+	if ("jug" in rhea.selection_getBySelNumber(1))
+		onAfterJugInfoLoaded();
+	else
+	{
+		for (var i=1; i<=rhea.selection_getCount(); i++)
+			rhea.selection_getBySelNumber(i).jug = 0;
+		
+		rhea.ajax ("jugRepetitions", "").then( function(result)
+		{
+			var j = JSON.parse(result);
+			for (var i=0; i<j.n; i++)
+				rhea.selection_getBySelNumber(i+1).jug = parseInt(j.s[i]);
+			onAfterJugInfoLoaded();
+		})
+		.catch( function(result)
+		{
+			onAfterJugInfoLoaded();
+		});	
+	}
+}
+
+function onAfterJugInfoLoaded() 
 {
 	rhea.onEvent_selectionAvailabilityUpdated = function () 
 	{
@@ -131,6 +161,21 @@ function onAfterLangLoaded()
 		{
 			if ((flag16 & 0x04) != 0)
 				isMilkerAlive = 1;
+		}
+		
+		if (isRFIDJugDetected)
+		{
+			if ((flag16 & 0x0040) == 0){
+				isRFIDJugDetected = 0;
+				toggleJugIcons( false );
+			}	
+		}
+		else
+		{
+			if ((flag16 & 0x0040) != 0) {
+				isRFIDJugDetected = 1;
+				toggleJugIcons( true );
+			}	
 		}
 	}
 	
@@ -190,6 +235,16 @@ function onAfterLangLoaded()
 	setupIconContainer(nGridRow, nGridCol);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
+}
+
+function toggleJugIcons( show ) {
+	if (jugConfiguration === JUG_STATUS.ON_RFID_STATUS) {
+		var jugIcons = document.querySelectorAll( '.pageMenu_jugIcon' );
+
+		for (var i=0; i<jugIcons.length; i++ ) {
+			show? rheaShowElem( jugIcons[i] ) : rheaHideElem(jugIcons[i]);
+		}
+	}
 }
 
 function onAfterIconAreDisplayed()
@@ -579,8 +634,19 @@ function setupIconPage (iPage, nIconPerPage)
 			  + " <div id='divIcon" + startIcon + "'  iconNum='" + startIcon + "' class='pageMenu_icon" + cssForIconDisabled + "'" + visibility  + " >"
 			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
 			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
-			  + ndIconText
-			  + " </div>"
+			  + ndIconText;
+			  
+		if (MMI_isJuggable(startIcon) && jugConfiguration !== JUG_STATUS.NEVER_VISIBLE ) {
+			var style = '';
+
+			if( jugConfiguration === JUG_STATUS.ON_RFID_STATUS ) {
+				style = isRFIDJugDetected? " style='display: block;'" : " style='display: none;'";
+			}
+
+			html += "<div class='pageMenu_jugIcon'" + style + "><img src='img/jugIcon.png'></div>";
+		}
+			  
+		html += " </div>"
 			  + "</div>";
 		startIcon++;
 	}

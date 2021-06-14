@@ -114,6 +114,12 @@ var timerGotoPageStandby = null;
 var isMilkerAlive = 0;
 var isRFIDJugDetected = 0;
 
+var JUG_STATUS = {
+	ALWAYS_VISIBLE: 1,
+	NEVER_VISIBLE: 2,
+	ON_RFID_STATUS: 3
+};
+
 function onRheaBootstrapFinished() 		{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
 function onAfterLangLoaded()
 {
@@ -162,13 +168,17 @@ function onAfterJugInfoLoaded()
 		
 		if (isRFIDJugDetected)
 		{
-			if ((flag16 & 0x0040) == 0)
+			if ((flag16 & 0x0040) == 0){
 				isRFIDJugDetected = 0;
+				toggleJugIcons( false );
+			}	
 		}
 		else
 		{
-			if ((flag16 & 0x0040) != 0)
+			if ((flag16 & 0x0040) != 0) {
 				isRFIDJugDetected = 1;
+				toggleJugIcons( true );
+			}	
 		}
 	}
 	
@@ -228,6 +238,16 @@ function onAfterJugInfoLoaded()
 	setupIconContainer(nGridRow, nGridCol);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
+}
+
+function toggleJugIcons( show ) {
+	if (jugConfiguration === JUG_STATUS.ON_RFID_STATUS) {
+		var jugIcons = document.querySelectorAll( '.pageMenu_jugIcon' );
+
+		for (var i=0; i<jugIcons.length; i++ ) {
+			show? rheaShowElem( jugIcons[i] ) : rheaHideElem(jugIcons[i]);
+		}
+	}
 }
 
 function onAfterIconAreDisplayed()
@@ -627,8 +647,15 @@ function setupIconPage (iPage, nIconPerPage)
 			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
 			  + ndIconText;
 			  
-		if (MMI_isJuggable(startIcon))
-			html += "<div class='pageMenu_jugIcon'><img src='img/jugIcon.png'></div>";
+		if (MMI_isJuggable(startIcon) && jugConfiguration !== JUG_STATUS.NEVER_VISIBLE ) {
+			var style = '';
+
+			if( jugConfiguration === JUG_STATUS.ON_RFID_STATUS ) {
+				style = isRFIDJugDetected? " style='display: block;'" : " style='display: none;'";
+			}
+
+			html += "<div class='pageMenu_jugIcon'" + style + "><img src='img/jugIcon.png'></div>";
+		}
 			  
 		html += " </div>"
 			  + "</div>";

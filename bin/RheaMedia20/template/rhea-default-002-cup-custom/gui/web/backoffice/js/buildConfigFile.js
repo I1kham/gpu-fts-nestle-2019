@@ -482,6 +482,7 @@ console.time("translation 01");
 	let rstLAB_YOUR_DRINK_IS_READY = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_READY' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_BEING_PREPARED = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_BEING_PREPARED' AND What='MSG'");
 	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg'");
+	let rstJUG_CONFIG = await db.q("SELECT What,Message FROM lang WHERE What='jugConfiguration'");
 	let rstLearnMore = await db.q("SELECT ISO,bgImage FROM pageLearnMore WHERE HIS_ID=" +his_id);		
 console.timeEnd ("translation 01");
 
@@ -605,6 +606,13 @@ console.timeEnd("  " +iso +"04");
 
 		result += objectFooter + "};";
 	
+		var jugConfiguration = "var jugConfiguration = ";
+			
+		jugConfiguration += rstJUG_CONFIG.getNumRows()? 
+			parseInt( rstJUG_CONFIG.valByColName(0, 'Message') )  : "3"
+
+		result += jugConfiguration + ';';
+
 		//nomi delle selezioni per lingua
 console.time("  " +iso +"05");
 console.time("  " +iso +"05_rst");

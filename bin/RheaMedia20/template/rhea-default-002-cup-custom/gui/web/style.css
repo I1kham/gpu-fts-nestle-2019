@@ -71,6 +71,10 @@ a:hover	{ text-decoration:none; outline: 0; }
 .pageMenu_icon_nd_text { position: absolute; top: 90%; left: 0; padding: 0; width: 97%; line-height: 94%; font-size: 0.8em; }
 .pageMenu_icon_text_hl { background-color: #800000; }
 
+.pageMenu_jugIcon { position:absolute; top:5px; right:30px; width:30px; }
+.pageMenu_jugIcon img { width:100%;}
+
+
 .pageMenu_navigator { display: inline-block; padding-top:10px; text-align:center; }
 .pageMenu_navigatorIcon { float:left; margin:0 5px 0 5px; padding:15px 12px 0 12px; min-width:30px; height:80px; min-height:50px; background-image:url(img/pageIndex-30.png); background-repeat: no-repeat; background-position: center 20%;}
 .pageMenu_navigatorIcon.selected { background-image:url(img/pageIndex-100-full.png);}

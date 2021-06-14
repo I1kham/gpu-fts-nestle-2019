@@ -118,12 +118,43 @@ var selRunning_iconNum = 0;
 var selRunning_selThatWasStarted = 0;
 var isRheamediaPreviewBox = 0;
 
+var isRFIDJugDetected = 0;
+
+var JUG_STATUS = {
+	ALWAYS_VISIBLE: 1,
+	NEVER_VISIBLE: 2,
+	ON_RFID_STATUS: 3
+};
+
 function onRheaBootstrapFinished() 
 {
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
 }
 
-function onAfterLangLoaded() 
+function onAfterLangLoaded()
+{
+	if ("jug" in rhea.selection_getBySelNumber(1))
+		onAfterJugInfoLoaded();
+	else
+	{
+		for (var i=1; i<=rhea.selection_getCount(); i++)
+			rhea.selection_getBySelNumber(i).jug = 0;
+		
+		rhea.ajax ("jugRepetitions", "").then( function(result)
+		{
+			var j = JSON.parse(result);
+			for (var i=0; i<j.n; i++)
+				rhea.selection_getBySelNumber(i+1).jug = parseInt(j.s[i]);
+			onAfterJugInfoLoaded();
+		})
+		.catch( function(result)
+		{
+			onAfterJugInfoLoaded();
+		});	
+	}
+}
+
+function onAfterJugInfoLoaded() 
 {
 	//carico le nutritional info per sapere se alle selezioni è associata una nutritional-info. Mi serve
 	//nel caso in cui sia abilitata l'opzione "one click selection"
@@ -148,6 +179,21 @@ function onAfterLangLoaded()
 		{
 			if ((flag16 & 0x04) != 0)
 				isMilkerAlive = 1;
+		}
+
+		if (isRFIDJugDetected)
+		{
+			if ((flag16 & 0x0040) == 0){
+				isRFIDJugDetected = 0;
+				toggleJugIcons( false );
+			}	
+		}
+		else
+		{
+			if ((flag16 & 0x0040) != 0) {
+				isRFIDJugDetected = 1;
+				toggleJugIcons( true );
+			}	
 		}
 	}
 
@@ -212,6 +258,16 @@ function onAfterLangLoaded()
 	if (Rhea_session_getOrDefault("rheamedia2preview","0")=="1")
 		isRheamediaPreviewBox=1;
 	//console.log ("isRheamediaPreviewBox=" +isRheamediaPreviewBox);
+}
+
+function toggleJugIcons( show ) {
+	if (jugConfiguration === JUG_STATUS.ON_RFID_STATUS) {
+		var jugIcons = document.querySelectorAll( '.pageMenu_jugIcon' );
+
+		for (var i=0; i<jugIcons.length; i++ ) {
+			show? rheaShowElem( jugIcons[i] ) : rheaHideElem(jugIcons[i]);
+		}
+	}
 }
 
 function onAfterIconAreDisplayed()
@@ -552,10 +608,13 @@ function setupIconContainer(nRow, nIconPerRow)
 	d = rheaGetElemByID("divIconMenuContainer");	
 	rheaSetElemWidth(d, mainMenuIconNumPage * mainMenuIconPageW);
 	rheaSetElemHTML(d, html);
-	
+	Rhea_session_setValue ("jug", "0");
+
 	setupIconPage (0, nIconPerPage);
 }
 
+var jug_iconNum = -1;
+var jug_isIconSelected = 0;
 function setupIconPage (iPage, nIconPerPage)
 {
 	//console.log ("setupIconPage (" +iPage +", " +nIconPerPage +")");
@@ -580,6 +639,9 @@ function setupIconPage (iPage, nIconPerPage)
 		if (MMI_isEnabled(startIcon) == 0)
 			cssForIconDisabled=" disabled";
 
+		if (iconDisplayName=="JUG")
+			jug_iconNum = startIcon;
+
 		var ndIconText = rhea_mainMenuIconSecondName[startIcon] && rhea_mainMenuIconSecondName[startIcon] !== 'NULL'? "<div id='icon_nd_text" +startIcon +"' class='pageMenu_icon_nd_text' iconNum='" + startIcon + "'>" + rhea_mainMenuIconSecondName[startIcon] + "</div>" : '';
 		
 		if( ndIconText ) {
@@ -593,8 +655,19 @@ function setupIconPage (iPage, nIconPerPage)
 			  + " <div id='divIcon" + startIcon + "'  iconNum='" + startIcon + "' class='pageMenu_icon" + cssForIconDisabled + "'" + visibility  + " >"
 			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
 			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
-			  + ndIconText
-			  + " </div>"
+			  + ndIconText;
+			  
+		if (MMI_isJuggable(startIcon) && jugConfiguration !== JUG_STATUS.NEVER_VISIBLE ) {
+			var style = '';
+
+			if( jugConfiguration === JUG_STATUS.ON_RFID_STATUS ) {
+				style = isRFIDJugDetected? " style='display: block;'" : " style='display: none;'";
+			}
+
+			html += "<div class='pageMenu_jugIcon'" + style + "><img src='img/jugIcon.png'></div>";
+		}
+			  
+		html += " </div>"
 			  + "</div>";
 		startIcon++;
 	}
@@ -651,6 +724,25 @@ function onIconMenuClicked (iconNum)
 {
 	resetTimerGotoPageStandby();
 	
+	if (iconNum == jug_iconNum)
+	{	
+		//ho cliccato l'icona JUG
+		var d = rheaGetElemByID("icon_text" + iconNum);
+		if (jug_isIconSelected)
+		{
+			jug_isIconSelected=0;
+			rheaRemoveClassToElem (d, "pageMenu_icon_text_hl");
+			Rhea_session_setValue ("jug", "0");
+		}
+		else
+		{
+			jug_isIconSelected=1;
+			rheaAddClassToElem (d, "pageMenu_icon_text_hl");
+			Rhea_session_setValue ("jug", rheaMainMenuIcons[iconNum].selNum);
+		}
+		return;
+	}
+
 	if( !iconNum ) { return; }
 	
 	if (MMI_isEnabled(iconNum))

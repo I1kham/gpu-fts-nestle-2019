@@ -97,6 +97,8 @@
 		<div class="clear"></div>
 	</div>
 	
+	<!-- btn jug -->
+	<div id="btnJUG" class="pageConfirm_btnJUG selected" style="display:none; position:absolute; top:471px; left:451px;" onclick="onBtnJUGClicked()"><p id="btnJUG_text"></p></div>
 	
 	<!-- cpu msg -->
 	<div id="divCPUMessage" style="position:absolute; bottom:5px; left:0; width:100%; height:40px; line-height:40px; text-align:center; display:none; color:#838383; font-weight:bold;"></div>	
@@ -113,11 +115,18 @@
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
 var iconNum = 0;
+var isRFIDJugDetected = 0;
 var selThatWasStarted = 0;
 var GRINDER = 0;
 var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
 var timerGotoMainMenu = null;
+
+var JUG_STATUS = {
+	ALWAYS_VISIBLE: 1,
+	NEVER_VISIBLE: 2,
+	ON_RFID_STATUS: 3
+};
 
 function isJUG()					{ if (iconDisplayName=="JUG") return true; return false;}
 function onRheaBootstrapFinished() 	{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
@@ -190,7 +199,21 @@ function onAfterLangLoaded2()
 		}	
 	}
 		
-	
+	rhea.onEvent_cpuStatus = function( statusID, statusStr, flag16 ) {
+		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+
+		if (isRFIDJugDetected) {
+			if ((flag16 & 0x0040) == 0){
+				isRFIDJugDetected = 0;
+				toggleJugIcons( false );
+			}
+		} else {
+			if ((flag16 & 0x0040) != 0) {
+				isRFIDJugDetected = 1;
+				toggleJugIcons( true );
+			}
+		}
+	}
 
 	setupPageContent();
 
@@ -256,6 +279,42 @@ function onSelectionChanged(selNum)
 		else
 			rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
 		rheaShowElem(btnStart);
+	}
+
+	//jug btn
+	if (selInfo.jug > 1) {
+		if( 
+			( jugConfiguration === JUG_STATUS.ALWAYS_VISIBLE ) || 
+			( jugConfiguration === JUG_STATUS.ON_RFID_STATUS && isRFIDJugDetected )
+		) {
+			btnJUG_setON();
+			btnJUG_setText (selInfo.jug);
+			btnJUG_show();
+		} else if ( jugConfiguration === JUG_STATUS.ON_RFID_STATUS && !isRFIDJugDetected ) {
+			btnJUG_setOFF();
+			btnJUG_hide();
+		}
+	} else {
+		btnJUG_setOFF();
+		btnJUG_hide();
+	}
+}
+
+function toggleJugIcons( show ) {
+	if (jugConfiguration === JUG_STATUS.ON_RFID_STATUS) {
+		if( show ) {
+			var selNum = detectCurrentSelection();
+			var selInfo = rhea.selection_getBySelNumber(selNum);
+
+			if( selInfo.jug ) {
+				btnJUG_setON();
+				btnJUG_setText (selInfo.jug);
+				btnJUG_show();
+			}
+		} else {
+			btnJUG_setOFF();
+			btnJUG_hide();
+		}
 	}
 }
 
@@ -440,7 +499,7 @@ function onOption1Change (whichOne)
 	for (var i=0; i<2; i++)
 	{
 		var d = rheaGetElemByID("divOption1-" +i);
-		rheaRemoveClassToElem(d,"selected");
+		if ( jugConfiguration !== JUG_STATUS.ON_RFID_STATUS ) rheaRemoveClassToElem(d,"selected");
 		if (i == GRINDER)
 			rheaAddClassToElem(d,"selected");
 	}
@@ -456,7 +515,7 @@ function onOption2Change (whichOne)
 	for (var i=0; i<2; i++)
 	{
 		var d = rheaGetElemByID("divOption2-" +i);
-		rheaRemoveClassToElem(d,"selected");
+		if ( jugConfiguration !== JUG_STATUS.ON_RFID_STATUS ) rheaRemoveClassToElem(d,"selected");
 		if (i == SHOT_TYPE)
 			rheaAddClassToElem(d,"selected");
 	}
@@ -521,9 +580,24 @@ function doStartSelection()
 
 	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
 	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+	btnJUG_hide()
 
+	resetTimerGotoPageMainMenu();
 	console.log ("Starting sel num:" +selThatWasStarted);
-	rhea.selection_start(selThatWasStarted);
+
+
+	if (jugConfiguration === JUG_STATUS.NEVER_VISIBLE)
+		rhea.selection_start(selThatWasStarted);
+	else {
+		if( isRFIDJugDetected )
+			rhea.selection_start(selThatWasStarted);
+		else {
+			if (btnJUG_isON() )
+				rhea.selection_startForceJug(selThatWasStarted);
+			else
+				rhea.selection_start(selThatWasStarted);
+		}
+	}
 }
 
 function gotoPagePreparingSel(bCanUseBtnStop)
@@ -545,6 +619,46 @@ function resetTimerGotoPageMainMenu()
 }
 
 function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
+
+//******************** btn jug
+function classListContains (elem, what)
+{
+	for (var i=0; i<elem.classList.length; i++)
+	{
+		if (elem.classList[i] == what)
+			return 1;
+	}
+	return 0;
+}
+
+function btnJUG_show()				{ rheaShowElem (rheaGetElemByID("btnJUG")); }
+function btnJUG_hide()				{ rheaHideElem (rheaGetElemByID("btnJUG")); }
+function btnJUG_setText(txt)		{ rheaSetElemHTML (rheaGetElemByID("btnJUG_text"), "JUG x " +txt); }
+function btnJUG_isON()				{ var d = rheaGetElemByID("btnJUG"); return classListContains (d, "selected"); }
+
+function btnJUG_setON()
+{
+	var d = rheaGetElemByID("btnJUG");
+	if (classListContains (d, "selected"))
+		return;
+	rheaAddClassToElem(d,"selected");
+}
+
+function btnJUG_setOFF()
+{
+	var d = rheaGetElemByID("btnJUG");
+	if (classListContains (d, "selected"))
+	if ( jugConfiguration !== JUG_STATUS.ON_RFID_STATUS ) rheaRemoveClassToElem(d,"selected");
+}
+
+function onBtnJUGClicked ()
+{
+	if (btnJUG_isON())
+		btnJUG_setOFF();
+	else
+		btnJUG_setON();
+}
+
 </script>
 
 
