@@ -99,6 +99,9 @@ var fileBrowser1 = null;
 var fileSaveAs1 = null;
 async function onRheaBootstrapFinished()
 {
+	// Clear rhea.data from localstorage
+	localStorage.removeItem('rhea.data');
+
 	fileBrowser1 = new FileBrowser("fileBrowser1");
 	fileSaveAs1 = new FileSaveAs("fileSaveAs1");
 	pleaseWait(1);	
@@ -342,11 +345,19 @@ async function existingGUI_onFileOpenFinished(fileName, path)
 	console.log ("[" +fileName +"][" +path +"]");
 	if (fileName == "")
 		return;
-		
-	if (fileName.indexOf(".rheagui") !== -1)
+	
+	let rheaData = {
+		exportetTpl: path,
+		expires: (new Date( new Date().getTime() + (24 * 60 * 60 * 1000))).getTime()
+	}
+
+	if (fileName.indexOf(".rheagui") !== -1){
 		existingGUI_beginImport_rheagui(fileName, path);
-	else if (fileName.indexOf(".rheaRasGuiTP") !== -1)
+		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
+	} else if (fileName.indexOf(".rheaRasGuiTP") !== -1) {
 		existingGUI_beginImport_rheaRasGuiTP(fileName, path);
+		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
+	}
 	else
 		alert ("ERROR: invalid file extension");
 }

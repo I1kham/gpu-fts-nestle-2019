@@ -114,7 +114,7 @@ function dataOra_getYYYYMMDD(sep)
 	return d.getFullYear() +sep +mm +sep +gg;
 }
 
-function onRheaBootstrapFinished()
+async function onRheaBootstrapFinished()
 {
 	//cerca di capire se il patth attuale contiente /temp/yyyymmddhhmmss/web
 	var yyyymmddhhmmss = isATemporaryPath()
@@ -122,6 +122,17 @@ function onRheaBootstrapFinished()
 	{
 		//mostro il btn "back to home"
 		rheaSetDivHTMLByName("divBtnBackToHome", "<a href='javascript:backToHome(\"" +yyyymmddhhmmss +"\")' class='button giallo'><< BACK TO HOME</a>");
+	}
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+	let path = "c:";
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		var curPath = rheaGetAbsolutePhysicalPath();
+		db = new RheaDB (curPath +"/guidb.db3");
+		
+		let s = await db.q ("SELECT DataLastBuild FROM history WHERE ID=1");
+		await db.exec ("UPDATE history SET DataLastBuild='19990101010100' WHERE ID=1");
 	}
 }
 
