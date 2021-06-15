@@ -11,7 +11,7 @@
 <div class="wrapper1024x600">
 	<div id="pagePinCode">
 		<div style="margin:10px auto 0 auto; display:inline-block">
-			<div id="pagePinCodeDisplay">***</div>
+			<div id="pagePinCodeDisplay"></div>
 			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(1)">1</div>
 			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(2)">2</div>
 			<div class="pagePinCodeButton" onclick="pagePinCode_onBtnPress(3)">3</div>
@@ -334,14 +334,16 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-                        <td width="25%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="START<br>RINSING" data-onclick="pageCleaning_action(160)"></div></td>
-                        <td width="25%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING BREWER" data-onclick="pageCleaning_action(8)"></div></td>
-                        <td width="25%" align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING<br>GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
-                        <td width="25%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="START CLEANING MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>					
+                        <td width="33%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="START<br>RINSING" data-onclick="pageCleaning_action(160)"></div></td>
+                        <td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING BREWER" data-onclick="pageCleaning_action(8)"></div></td>
+                        <td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="START CLEANING MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>					
+					</tr>
+					<tr valign="middle">
+						<td align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING<br>GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
+						<td align="center"><div id="pageCleaning_btnDescaling" class="UIButton bigButton4x4 actionButton" data-caption="START DESCALING" data-onclick="pageCleaning_action(161)"></div></td>
+						<td></td>
 					</tr>
 				</table>
-				
-				<br>
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
 						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="RINSE 1" data-onclick="pageCleaning_action(1)"></div></td>
@@ -351,7 +353,6 @@
 					</tr>
 				</table>
 				
-				<br>
 				<table border='0' class='elenco'>
 					<tr style="border:0">
 						<td style="width:300px">AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
@@ -414,12 +415,39 @@
 							<td><div id="pageMiscellaneous_gs_auditBefore" class='UIOption' data-option='1|YES|0|NO' data-da3='7106' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>PROG MENU PIN CODE</td>
-							<td><div class="UINumber" data-da3="7060" data-da3bit="16" data-numfigures="3" data-max="999"></div></td>
+							<td>
+								PROG MENU PIN CODE<br>
+								<div style="float:left">current&nbsp;</div>
+								<div id="pageMiscellaneous_curPIN" class="bigCaption25" style="float:left">000</div>
+								<div class="clear"></div>
+							</td>
+							<td>
+								<div style="float:left;">
+									<div class='UIButton bigButton60 actionButton' data-caption='SET PIN' data-onclick="pageMiscellaneous_askForNewPINCode()"></div>
+								</div>
+								<div style="float:right;">
+									<div class='UIButton bigButton60 actionButton' data-caption='RESET PIN' data-onclick="pageMiscellaneous_setPINCode('000')"></div>
+								</div>
+								<div class="clear"></div>
+							</td>
 						</td>
 						<tr>
-							<td>QUICK MENU PIN CODE</td>
-							<td><div class="UINumber" data-da3="8378" data-da3bit="16" data-numfigures="3" data-max="999"></div></td>
+							<td>
+								QUICK MENU PIN CODE<br>
+								<div style="float:left">current&nbsp;</div>
+								<div id="pageMiscellaneous_curQuickPIN" class="bigCaption25" style="float:left">000</div>
+								<div class="clear"></div>
+							</td>
+							<td>
+								<div style="float:left;">
+									<div class='UIButton bigButton60 actionButton' data-caption='SET PIN' data-onclick="pageMiscellaneous_askForNewQuickPINCode()"></div>
+								</div>
+								<div style="float:right;">
+									<div class='UIButton bigButton60 actionButton' data-caption='RESET PIN' data-onclick="pageMiscellaneous_setQuickPINCode('000')"></div>
+								</div>
+								<div class="clear"></div>
+							</td>						
+							<td></td>
 						</td>
  					</table>
 				</div>
@@ -1608,19 +1636,17 @@ function menuLang_onUserSelected(iso)
  * pin code
  *
  */
-var pagePinCode_alreadyAsked = 0; 
-var pagePinCode_currentPin = "";
-var pagePinCode_maxNumTry = 3;
-function pagePinCode_askPinCode()
+var pagePinCode_currentPin;
+var pagePinCode_callback = null;
+function pagePinCode_doShowAndTrapOnEnd (callbackOnEnd)
 {
-	if (pagePinCode_alreadyAsked || da3.isProgMenuPinCodeEmpy())
-	{
-		pagePinCode_alreadyAsked=1;
-		pagePinCode_currentPin = "";
-		return;
-	}
+	pagePinCode_currentPin = "";
+	pagePinCode_callback = callbackOnEnd;
+	rheaSetElemHTML (rheaGetElemByID("pagePinCodeDisplay"), "");
 	rheaShowElem(rheaGetElemByID("pagePinCode"));
 }
+
+function pagePinCode_hide()						{ rheaHideElem(rheaGetElemByID("pagePinCode")); }
 
 function pagePinCode_onBtnPress (btnPressed)
 {
@@ -1631,20 +1657,7 @@ function pagePinCode_onBtnPress (btnPressed)
 	if (pagePinCode_currentPin.length >= 3)
 	{
 		rheaSetElemHTML (d, "***");
-		if (da3.validateProgMenuPinCode(pagePinCode_currentPin))
-		{
-			pagePinCode_alreadyAsked = 1;
-			rheaHideElem(rheaGetElemByID("pagePinCode"));
-			setTimeout (pageMainMenu_show(), 10);
-		}
-		else
-		{
-			pagePinCode_currentPin = "";
-			rheaSetElemHTML (d, "");
-			pagePinCode_maxNumTry--;
-			if (pagePinCode_maxNumTry <= 0)
-				gotoHMI();
-		}
+		pagePinCode_callback (pagePinCode_currentPin);
 	}
 	else
 	{
@@ -1652,6 +1665,37 @@ function pagePinCode_onBtnPress (btnPressed)
 		for (var i=0; i<pagePinCode_currentPin.length; i++)
 			maskedPin += "*";
 		rheaSetElemHTML (d, maskedPin);
+	}
+}
+
+var pagePinCode_alreadyAsked = 0; 
+var pagePinCode_maxNumTry;
+function pagePinCode_askPinCodeForEnteringProgMenu()
+{
+	if (pagePinCode_alreadyAsked || da3.isProgMenuPinCodeEmpy())
+	{
+		pagePinCode_alreadyAsked=1;
+		return;
+	}
+	pagePinCode_maxNumTry = 3;
+	pagePinCode_doShowAndTrapOnEnd (pagePinCode_askPinCodeForEnteringProgMenu_onEnd);
+}
+
+function pagePinCode_askPinCodeForEnteringProgMenu_onEnd(userEnteredPIN)
+{
+	if (da3.validateProgMenuPinCode(userEnteredPIN))
+	{
+		pagePinCode_alreadyAsked = 1;
+		pagePinCode_hide();
+		setTimeout (pageMainMenu_show(), 10);
+	}
+	else
+	{
+		pagePinCode_maxNumTry--;
+		if (pagePinCode_maxNumTry <= 0)
+			gotoHMI();
+		else
+			pagePinCode_doShowAndTrapOnEnd (pagePinCode_askPinCodeForEnteringProgMenu_onEnd);
 	}
 }
 
@@ -1701,7 +1745,7 @@ function manualViewBox_close()		{ rheaHideElem(rheaGetElemByID("manualViewBox"))
  */
 function pageMainMenu_show()
 {
-	pagePinCode_askPinCode();
+	pagePinCode_askPinCodeForEnteringProgMenu();
 	var title = "<div style='margin-left:140px'><center><img  src='img/iconHome.png'> Programming Menu</center></div>";
 	showPage("pageMainMenu", title, 0, 0);
 	rheaShowElem(rheaGetElemByID("divCurLang"));
@@ -1960,6 +2004,13 @@ function pageCleaning_show()
 			var w = ui.getWindowByID("pageCleaning");
 			w.getChildByID("pageCleaning_btnCleanHC").hide();
 			w.getChildByID("pageCleaning_btnCleanGrinder").hide();
+			w.getChildByID("pageCleaning_btnDescaling").hide();
+		}
+		else
+		{
+			//macchine espresso
+			if (!da3.isGruppoVariflex())
+				w.getChildByID("pageCleaning_btnDescaling").hide();
 		}
 	}
 }
@@ -2082,11 +2133,46 @@ function pageMiscellaneous_show()
 		
 		win.showHideScrollBar();
 	}
-	
+	btnSave_setCallback ("pageMiscellaneous_onBtnSave()");
 	pageMiscellaneous_fv_refresh();
 	pageMiscellaneous_blockingCounter_refresh();
 	pageMiscellaneous_onSelector();
+	pageMiscellaneous_setPINCode (da3.read16(7060));
+	pageMiscellaneous_setQuickPINCode (da3.read16(8378));
 }
+
+function pageMiscellaneous_onBtnSave()
+{
+	var menuProgPIN = document.getElementById("pageMiscellaneous_curPIN").innerHTML;
+	da3.write16(7060, parseInt(menuProgPIN));
+	
+	var menuQuickPIN = document.getElementById("pageMiscellaneous_curQuickPIN").innerHTML;
+	da3.write16(8378, parseInt(menuQuickPIN));
+
+	btnSave_defaultCallback();
+}
+
+function  pageMiscellaneous_setPINCode(pin)
+{
+	pin = pin.toString();
+	while (pin.length < 3)
+		pin = "0" + pin;
+	rheaSetElemHTML(rheaGetElemByID("pageMiscellaneous_curPIN"), pin);
+}
+function pageMiscellaneous_askForNewPINCode()							{ pagePinCode_doShowAndTrapOnEnd (pageMiscellaneous_askForNewPINCode_onEnd); }
+function pageMiscellaneous_askForNewPINCode_onEnd(userEnteredPIN)		{ pageMiscellaneous_setPINCode (userEnteredPIN); pagePinCode_hide(); }
+
+function  pageMiscellaneous_setQuickPINCode(pin)
+{
+	pin = pin.toString();
+	while (pin.length < 3)
+		pin = "0" + pin;
+	rheaSetElemHTML(rheaGetElemByID("pageMiscellaneous_curQuickPIN"), pin);
+}
+function pageMiscellaneous_askForNewQuickPINCode()							{ pagePinCode_doShowAndTrapOnEnd (pageMiscellaneous_askForNewQuickPINCode_onEnd); }
+function pageMiscellaneous_askForNewQuickPINCode_onEnd(userEnteredPIN)		{ pageMiscellaneous_setQuickPINCode (userEnteredPIN); pagePinCode_hide(); }
+
+
 
 function pageMiscellaneous_blockingCounter_refresh()
 {
@@ -2594,7 +2680,7 @@ function pageSingleSelection_show(iSel)
 {
 	pageSingleSelection_curSel = iSel;
 	
-	var title = "SELECTION " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name +"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:0.7em;color:#888'>" +guiInfo.selInfo[iSel].short +"</span>";
+	var title = "SELECTION " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name +"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:0.7em;color:#888'>" +UIUtils_arrangeSelectionOptionDescription2021(guiInfo.selInfo[iSel].short) +"</span>";
 	if (showPageEx("pageSingleSelection", title, 1, 1, 100 * (iSel-1)))
 	{
 		//è la prima volta che visualizziamo la pagina

@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.4.15"
+#define GPU_VERSION     "2.4.19"
 
 
 //nome della porta seriale
@@ -34,7 +34,8 @@ enum eRetCode
     eRetCode_gotoFormBoot = 3,
     eRetCode_gotoNewMenuProgrammazione = 4,
     eRetCode_gotoNewMenuProg_LavaggioSanitario = 5,
-    eRetCode_gotoNewMenuProg_lavaggioMilker = 6
+    eRetCode_gotoNewMenuProg_lavaggioMilker = 6,
+    eRetCode_gotoNewMenuProg_descaling = 7
 };
 
 struct sModuleESAPI
@@ -84,8 +85,6 @@ struct sGlobal
     rhea::ISimpleLogger *logger;
 };
 
-
-void activeSleep (u32 howMuchMSec);
 
 #endif 
 

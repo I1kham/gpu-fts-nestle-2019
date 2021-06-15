@@ -78,6 +78,8 @@ function TaskCleaning (whichWashIN, isEspresso)
 	this.btn2 = 0;
 	this.btnTrick = 0;
 	this.prevFase = 99999;
+	this.prevFaseBtn1 = 999;
+	this.prevFaseBtn2 = 999;
 	this.nextTimeSanWashStatusCheckMSec = 0;
 	
 	rhea.sendGetCPUStatus();
@@ -102,6 +104,10 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 		else
 			this.priv_handleMilkWashingVenturi(timeElapsedMSec);
 	}
+	else if (this.whichWash == 161)
+	{
+		this.priv_handleDescalingVFlex(timeElapsedMSec);
+	}
 	else
 	{
 		if (timeElapsedMSec < 2000)
@@ -112,11 +118,11 @@ TaskCleaning.prototype.onTimer = function (timeNowMsec)
 }
 
 TaskCleaning.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	{ this.cpuStatus = statusID; pleaseWait_header_setTextL (statusStr); }
-TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)		{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
+TaskCleaning.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 
-TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
-TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)						{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
-TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)						{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtn1Clicked	= function(ev)							{ rhea.sendButtonPress(this.btn1); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtn2Clicked	= function(ev)							{ rhea.sendButtonPress(this.btn2); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
+TaskCleaning.prototype.onFreeBtnTrickClicked= function(ev)							{ rhea.sendButtonPress(this.btnTrick); pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); pleaseWait_btnTrick_hide();}
 
 TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 {
@@ -229,6 +235,123 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 	
 }
 
+TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
+{
+	//termino quando lo stato della CPU diventa != da DESCALING
+	if (timeElapsedMSec > 3000 && this.cpuStatus != 26) //26==descaling
+	{
+		pageCleaning_onFinished();
+		return;
+	}
+	
+	//ogni tot mando una richiesta per conoscere lo stato attuale del lavaggio
+	if (timeElapsedMSec < this.nextTimeSanWashStatusCheckMSec)
+		return;
+	this.nextTimeSanWashStatusCheckMSec += 2000;	
+
+	//periodicamente richiedo lo stato del lavaggio
+	var me = this;
+	rhea.ajax ("sanWashStatus", "")
+		.then( function(result) 
+		{
+			var obj = JSON.parse(result);
+			//console.log ("DESCALING response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]");
+			me.fase = parseInt(obj.fase);
+			me.btn1 = parseInt(obj.btn1);
+			me.btn2 = parseInt(obj.btn2);
+			var msg = "";
+			switch (me.fase)
+			{
+				default: 	msg = "???"; break;
+				case 1:		msg = "Open boiler tap. Press CONTINUE when done."; break;
+				case 2:		msg = "Emptying hydraulic circuit, please wait..."; break;
+				case 3:		msg = "Close boiler tap. Press CONTINUE when done."; break;
+				case 4:		msg = "Attach submersible pump to the tank containing descaling detergent. Press CONTINUE when done."; break;
+				case 5:		msg = "Filling hydraulic circuit with descaling detergent, please wait..."; break;
+				case 6:		msg = "Check descaling detergent level in the air tank. Press CONTINUE when done."; break;
+				case 7:		msg = "Starting to fill hydraulic tubes with descaling detergent, please wait..."; break;
+				case 8:		msg = "Please wait for the descaling liquid action..."; break;
+				case 9:		msg = "Descaling liquid starts draining through the nozzles, please wait..."; break;
+				case 10:	msg = "Check the liquid colour drained from the nozzles, it defines if descaling process successfully completed.<br>Press CONTINUE button to continue, or press REPEAT to repeat previous steps."; break;
+				case 11:	msg = "Open boiler tap. Press CONTINUE when done."; break;
+				case 12:	msg = "Emptying hydraulic circuit, please wait..."; break;
+				case 13:	msg = "Close boiler tap. Press CONTINUE when done."; break;
+				case 14:	msg = "Change supply source to water tank. Attach submersible pump to the tank containing water. Press CONTINUE when done."; break;
+				case 15:	msg = "Hydraulic circuit will be filled with water, please wait..."; break;
+				case 16:	msg = "Check water level into the air tank. Press CONTINUE when done"; break;
+				case 17:	msg = "Water drained out through nozzles"; break;
+				case 18:	msg = "Dispense water and test the sample. Place a cup to collect the sample. Press CONTINUE when done."; break;
+				case 19:	msg = "Start draining sample through each nozzle."; break;
+				case 20:	msg = "Check the pH of collected sample. Press CONTINUE button to continue or REPEAT to repeat the previous steps to clean properly the hydraulic circuit."; break;
+				case 21:	msg = "Descaling procedure finished,  press CLOSE to finish."; break;
+			}
+			
+			//msg += "<br><br>DEBUG-FASE[" +me.fase +"] BTN1{" +me.btn1 +"} BTN2[" +me.btn2 +"]";
+			
+			pleaseWait_freeText_setText(msg);
+			pleaseWait_freeText_show();
+			
+			if ( (me.fase != me.prevFase) || ( me.fase == me.prevFase && (me.btn1 != me.prevFaseBtn1 || me.btn2 != me.prevFaseBtn2) ))
+			{
+				me.prevFase = me.fase;
+				me.prevFaseBtn1 = me.btn1;
+				me.prevFaseBtn2 = me.btn2;
+
+				
+				if (me.btn1 == 0)
+					pleaseWait_btn1_hide();
+				else
+				{
+					var btnText = "КНОПКА " +me.btn1;
+					switch (me.fase)
+					{
+						case 1: 
+						case 3:
+						case 4:
+						case 6:
+						case 10:
+						case 11:
+						case 13:
+						case 14:
+						case 16:
+						case 18:
+						case 20:
+							btnText = "CONTINUE"; 
+							break;
+							
+						case 21:
+							btnText = "ЗАКРЫТЬ"; 
+							break;
+					}
+					pleaseWait_btn1_setText (btnText);
+					pleaseWait_btn1_show();	
+				}
+				
+				if (me.btn2 == 0)
+					pleaseWait_btn2_hide();
+				else
+				{
+					var btnText = "КНОПКА " +me.btn2;
+					switch (me.fase)
+					{
+						case 10:
+						case 20:
+							btnText = "REPEAT";
+							break;
+					}
+					pleaseWait_btn2_setText (btnText);
+					pleaseWait_btn2_show();	
+				}				
+			}				
+		})
+		.catch( function(result)
+		{
+			//console.log ("DESCALING: error[" +result +"]");
+			//pleaseWait_btn1_hide();
+			//pleaseWait_btn2_hide();
+		});	
+		
+}
 
 TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 {

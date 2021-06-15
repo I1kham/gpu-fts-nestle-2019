@@ -148,6 +148,13 @@ function onGUIInfoLoaded()
 			pleaseWait_freeText_setText("MILK MODULE CLEANING<br>Waiting for machine to be ready");
 			setTimeout (waitCPUNoMoreInINI_CHECK_status_thenStartCleanMilker(3), 100);
 			break;
+			
+		case "pageDescaling": 
+			//start del descaling e, alla fine, goto back to HMI
+			pageCleaning_show(); 
+			pageCleaning_startLavSanitario(161,0); 
+			bGotoHMIAfterLavaggio = 1;
+			break;			
 	}	
 }
 	

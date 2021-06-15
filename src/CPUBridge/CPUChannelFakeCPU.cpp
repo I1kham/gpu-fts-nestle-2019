@@ -670,6 +670,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 				if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario)
 					this->VMCState = eVMCState::LAVAGGIO_SANITARIO;
+				else if (cleaning.cleaningType == eCPUProg_cleaningType::descaling)
+					this->VMCState = eVMCState::DESCALING;
 				else if (cleaning.cleaningType == eCPUProg_cleaningType::milker || cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
 				{
 					priv_DA3_reload();
@@ -698,7 +700,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			case eCPUProgrammingCommand::querySanWashingStatus:
 				if (cleaning.cleaningType == eCPUProg_cleaningType::sanitario ||
 					cleaning.cleaningType == eCPUProg_cleaningType::milker ||
-					cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick)
+					cleaning.cleaningType == eCPUProg_cleaningType::milkerQuick ||
+					cleaning.cleaningType == eCPUProg_cleaningType::descaling)
 				{
 					out_answer[ct++] = '#';
 					out_answer[ct++] = 'P';
@@ -1118,6 +1121,28 @@ void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 			++cleaning.fase;
 
 			if (cleaning.fase >= 6)
+			{
+				cleaning.cleaningType = eCPUProg_cleaningType::invalid;
+				this->VMCState = cleaning.prevState;
+			}
+		}
+	}
+	else if (cleaning.cleaningType == eCPUProg_cleaningType::descaling)
+	{
+		//descaling
+		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+		{
+			cleaning.timeToEnd += 2000;
+			cleaning.btn1 = cleaning.btn2 = 0;
+			++cleaning.fase;
+
+			if (cleaning.fase == 1 || cleaning.fase == 3 || cleaning.fase == 4)
+			{
+				cleaning.btn1 = 10;
+				cleaning.timeToEnd += 3000;
+			}
+
+			if (cleaning.fase >= 19)
 			{
 				cleaning.cleaningType = eCPUProg_cleaningType::invalid;
 				this->VMCState = cleaning.prevState;

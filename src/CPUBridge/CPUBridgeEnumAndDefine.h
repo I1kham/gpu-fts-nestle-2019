@@ -7,6 +7,10 @@
 #define		VMCDATAFILE_BLOCK_SIZE_IN_BYTE		64
 #define		VMCDATAFILE_TOTAL_FILE_SIZE_IN_BYTE	10048
 
+//PIN "universale" code per il menu di programmazione
+#define		CPU_BYPASS_MENU_PROG_PIN_CODE       842
+
+
 /**********************************************************************
  * Messaggi in/out sul canale di "servizio" di CPUBridge
  */
@@ -226,7 +230,8 @@ namespace cpubridge
 		TEST_MODEM = 22,
 		LAVAGGIO_MILKER_VENTURI = 23,
 		LAVAGGIO_MILKER_INDUX = 24,
-		
+		DESCALING	= 26,
+
 		COM_ERROR     = 101,
 		REG_APERTURA_MACINA = 102,
 		COMPATIBILITY_CHECK = 103,
@@ -344,8 +349,9 @@ namespace cpubridge
 		mixer4 = 0x04,
 		milker = 0x05,			//questo dice alla CPU di far partire il lav san del milker considerando che il comando arrriva da dentro il menu prog
 		sanitario = 0x08,
-		rinsing = 0xa0,
-		milkerQuick = 0x20		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
+		milkerQuick = 0x20,		//come 0x05, ma considerando che il comando arrriva da fuori menu prog
+		rinsing = 0xA0,
+		descaling = 0xA1
 	};
 
 	enum class eCPUProg_decounter: u8
