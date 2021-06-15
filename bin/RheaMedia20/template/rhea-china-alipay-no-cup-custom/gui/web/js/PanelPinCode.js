@@ -41,29 +41,6 @@ function PanelPinCode (fatherDivID)
 				true);
 			}
 			
-			var d = document.createElement("div");
-				d.style = style_pagePinCodeButton;
-				d.innerHTML = ("&nbsp;");
-				d1.appendChild(d);			
-
-			//btn 0
-			d = document.createElement("div");
-			d.style = style_pagePinCodeButton;
-			d.innerHTML = ("0");
-			d.setAttribute ("data-num", 0);
-			d1.appendChild(d);
-			
-			d.addEventListener("mousedown", function (ev) {
-				ev.stopPropagation();
-				me.onBtnPressed (this.getAttribute("data-num"));
-			}, 
-			true);
-			
-			d = document.createElement("div");
-				d.style = style_pagePinCodeButton;
-				d.innerHTML = ("&nbsp;");
-				d1.appendChild(d);			
-			
 
 	var fatherDiv = document.getElementById(fatherDivID);
 	fatherDiv.appendChild(divContainer);	
