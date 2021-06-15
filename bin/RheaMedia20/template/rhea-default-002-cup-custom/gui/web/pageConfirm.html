@@ -504,7 +504,7 @@ function onOption1Change (whichOne)
 	for (var i=0; i<2; i++)
 	{
 		var d = rheaGetElemByID("divOption1-" +i);
-		if ( jugConfiguration !== JUG_STATUS.ON_RFID_STATUS ) rheaRemoveClassToElem(d,"selected");
+		rheaRemoveClassToElem(d,"selected");
 		if (i == GRINDER)
 			rheaAddClassToElem(d,"selected");
 	}
@@ -520,7 +520,7 @@ function onOption2Change (whichOne)
 	for (var i=0; i<2; i++)
 	{
 		var d = rheaGetElemByID("divOption2-" +i);
-		if ( jugConfiguration !== JUG_STATUS.ON_RFID_STATUS ) rheaRemoveClassToElem(d,"selected");
+		rheaRemoveClassToElem(d,"selected");
 		if (i == SHOT_TYPE)
 			rheaAddClassToElem(d,"selected");
 	}

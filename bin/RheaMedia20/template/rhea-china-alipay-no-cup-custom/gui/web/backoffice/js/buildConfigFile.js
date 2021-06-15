@@ -658,7 +658,7 @@ console.timeEnd("  " +iso +"04");
 		var rinsingImages = 'var rinsingImages = [';
 		for( var i=0; i<rstRinsing.getNumRows(); i++ ) {
 			var _iso_key = rstRinsing.valByColName(i, 'ISO');
-			var _msg_path = rstRinsing.valByColName(i, 'Message') || '../upload/TS_hot_water_warning.png';
+			var _msg_path = rstRinsing.valByColName(i, 'Message') || 'img/TS_hot_water_warning.png';
 
 			rinsingImages += "{'" + _iso_key +"' : '" + _msg_path + "'}";
 

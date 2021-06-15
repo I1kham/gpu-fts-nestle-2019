@@ -637,7 +637,7 @@ function setupIconPage (iPage, nIconPerPage)
 			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
 			  + ndIconText;
 			  
-		if (MMI_isJuggable(startIcon) && jugConfiguration !== JUG_STATUS.NEVER_VISIBLE ) {
+		if ( typeof MMI_isJuggable !== 'undefined' && MMI_isJuggable(startIcon) && jugConfiguration !== JUG_STATUS.NEVER_VISIBLE ) {
 			var style = '';
 
 			if( jugConfiguration === JUG_STATUS.ON_RFID_STATUS ) {

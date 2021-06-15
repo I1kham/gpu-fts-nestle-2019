@@ -27,7 +27,7 @@
 				var image;
 				
 				if ( typeof rinsingImages === undefined ) {
-					image = 'upload/TS_hot_water_warning.png'
+					image = 'img/TS_hot_water_warning.png'
 
 					document.querySelector( '#mainWrapper img' ).src = image;
 					return;
@@ -38,7 +38,7 @@
 						image = "upload/" + rinsingImages[i][lang_getCurLangISOCode()];
 				}
 
-				if ( !image ) { image = 'upload/TS_hot_water_warning.png' }
+				if ( !image ) { image = 'img/TS_hot_water_warning.png' }
 
 				document.querySelector( '#mainWrapper img' ).src = image;
 

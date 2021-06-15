@@ -58,14 +58,6 @@ function onAfterLangLoaded()
 			rheaShowElem(dCPU);
 		}
 	}
-	
-	rhea.onEvent_cpuStatus = function (statusID, statusStr, flag16) {
-		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
-
-		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
-			gotoRinsingPage();
-		}
-	}
 
 	rhea.onEvent_selectionReqStatus = function (status)
 	{

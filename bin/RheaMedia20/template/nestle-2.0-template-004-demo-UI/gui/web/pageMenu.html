@@ -150,9 +150,6 @@ function onAfterLangLoaded()
 			if ((flag16 & 0x04) != 0)
 				isMilkerAlive = 1;
 		}
-		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
-			gotoRinsingPage();
-		}
 	}
 	
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
