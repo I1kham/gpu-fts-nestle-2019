@@ -44,7 +44,14 @@ function previewFrame_close()
 
 function previewFrame_saveAs(tempFolderName)
 {
-	previewBox_saveAs.open("c:", previewFrame_saveAs_onFinished, "Please selected a <b>DESTINATION FOLDER</b> then press the <span class='fileBrowser_saveBtn'>SAVE HERE</span> button located to the right of the screen.<br>The GUI will be copied in the choosen folder.");
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+	let path = "c:";
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		path = rheaobj.exportetTpl
+	}
+
+	previewBox_saveAs.open(path, previewFrame_saveAs_onFinished, "Please selected a <b>DESTINATION FOLDER</b> then press the <span class='fileBrowser_saveBtn'>SAVE HERE</span> button located to the right of the screen.<br>The GUI will be copied in the choosen folder.");
 }
 
 function previewFrame_saveAs_onFinished(dstPath)

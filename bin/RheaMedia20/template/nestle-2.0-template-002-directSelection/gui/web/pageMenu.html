@@ -13,7 +13,7 @@
 	<div id="lngPanel" onclick="lngPanelOff()">
 		<div id="lngSelections" style="background-color:black;">Overlay Text</div>
 	</div>
-	
+
 	<div class="header">
 		<div id="divCPUMessage" style="display:none;"></div>	
 	</div>
@@ -69,6 +69,7 @@
 				<div id="btnBO_FileInfo" class="btnQuadratoGrosso" style="position:absolute; top:120px; left:205px;" onclick="onBtnFileInfo()"></div>
 			</div>
 			<div class="btnQuadratoGrosso" style="position:absolute; top:300px; left:700px; color:#f00" onclick="hideFastMenu()"><p>CLOSE</p></div>
+			
 		</div>
 	</div>
 	
@@ -166,7 +167,7 @@ function onAfterJugInfoLoaded()
 	{
 		onSelectionAvailabilitUpdated();
 	}
-	
+
 	rhea.onEvent_cpuStatus = function (statusID, statusStr, flag16)
 	{
 		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
@@ -181,7 +182,7 @@ function onAfterJugInfoLoaded()
 			if ((flag16 & 0x04) != 0)
 				isMilkerAlive = 1;
 		}
-
+		
 		if (isRFIDJugDetected)
 		{
 			if ((flag16 & 0x0040) == 0){
@@ -196,8 +197,11 @@ function onAfterJugInfoLoaded()
 				toggleJugIcons( true );
 			}	
 		}
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
 	}
-
+	
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
 		//console.log ("onEvent_cpuMessage[" +msg +"][" +importanceLevel +"]");
@@ -603,7 +607,7 @@ function gotoPageStandby()
 	window.location = "pageStandby.html"; 
 }
 
-
+function gotoRinsingPage() { window.location = "pageRinsing.html";  }
 
 var mainMenuIconW = 0;
 var mainMenuIconH = 0;
@@ -639,6 +643,7 @@ function setupIconContainer(nRow, nIconPerRow)
 	d = rheaGetElemByID("divIconMenuContainer");	
 	rheaSetElemWidth(d, mainMenuIconNumPage * mainMenuIconPageW);
 	rheaSetElemHTML(d, html);
+	Rhea_session_setValue ("jug", "0");
 	
 	setupIconPage (0, nIconPerPage);
 }
@@ -711,7 +716,7 @@ function setupIconPage (iPage, nIconPerPage)
 		setTimeout(function() { setupIconPage (iPage, nIconPerPage);}, 100);
 	else
 		onAfterIconAreDisplayed();
-	
+
 	if( ndTextConfigured ) {
 		var pageMenuElems = document.querySelectorAll( '.pageMenu_icon_text' );
 	
@@ -772,8 +777,8 @@ function onIconMenuClicked (iconNum)
 		return;
 	}
 	
-	if( !iconNum ) { return; }
-	
+	if( !iconNum ) return;
+
 	if (MMI_isEnabled(iconNum))
 	{
 		selRunning_iconNum = iconNum;
@@ -881,7 +886,7 @@ function showFastMenu()
 		
 	d = rheaGetElemByID("btnBO_FileInfo");
 	rheaSetElemHTML(d, "<p>SW VERSION</p>");
-	
+		
 	rheaShowElem (rheaGetElemByID("divFastMenu")); 
 }
 function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }

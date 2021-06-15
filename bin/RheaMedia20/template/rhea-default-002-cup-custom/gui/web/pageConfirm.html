@@ -151,6 +151,7 @@ function onAfterLangLoaded2()
 			rheaShowElem(rheaGetElemByID("divBtnSelectionInfo"));
 	});
 		
+		
 	rhea.onEvent_creditUpdated = function ()
 	{
 		doUpdateCredit();
@@ -201,6 +202,10 @@ function onAfterLangLoaded2()
 		
 	rhea.onEvent_cpuStatus = function( statusID, statusStr, flag16 ) {
 		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
 
 		if (isRFIDJugDetected) {
 			if ((flag16 & 0x0040) == 0){
@@ -280,7 +285,7 @@ function onSelectionChanged(selNum)
 			rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
 		rheaShowElem(btnStart);
 	}
-
+	
 	//jug btn
 	if (selInfo.jug > 1) {
 		if( 
@@ -580,7 +585,7 @@ function doStartSelection()
 
 	rheaHideElem(rheaGetElemByID("divBtnHome")); //btn back
 	rheaHideElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
-	btnJUG_hide()
+	btnJUG_hide();
 
 	resetTimerGotoPageMainMenu();
 	console.log ("Starting sel num:" +selThatWasStarted);
@@ -599,6 +604,7 @@ function doStartSelection()
 		}
 	}
 }
+		
 
 function gotoPagePreparingSel(bCanUseBtnStop)
 {
@@ -619,6 +625,8 @@ function resetTimerGotoPageMainMenu()
 }
 
 function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
+function gotoRinsingPage()  	{ window.location = "rinsingPage.html";  }
+
 
 //******************** btn jug
 function classListContains (elem, what)

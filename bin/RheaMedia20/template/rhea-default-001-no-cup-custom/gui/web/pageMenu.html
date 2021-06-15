@@ -192,8 +192,11 @@ function onAfterJugInfoLoaded()
 				toggleJugIcons( true );
 			}	
 		}
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
 	}
-
+	
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
 		//console.log ("onEvent_cpuMessage[" +msg +"][" +importanceLevel +"]");
@@ -564,7 +567,7 @@ function gotoPageStandby()
 	window.location = "pageStandby.html"; 
 }
 
-
+function gotoRinsingPage() { window.location = "pageRinsing.html";  }
 
 var mainMenuIconW = 0;
 var mainMenuIconH = 0;

@@ -149,7 +149,7 @@ function onAfterLangLoaded2()
 		if (importanceLevel == 0)
 			rheaHideElem(dCPU)
 		else
-		{			
+		{				
 			rheaSetElemHTML(dCPU, msg);
 			rheaShowElem(dCPU);
 		}
@@ -201,6 +201,10 @@ function onAfterLangLoaded2()
 	
 	rhea.onEvent_cpuStatus = function( statusID, statusStr, flag16 ) {
 		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
 
 		if (isRFIDJugDetected) {
 			if ((flag16 & 0x0040) == 0){
@@ -581,11 +585,10 @@ function resetTimerGotoPageMainMenu()
 	timerGotoMainMenu = setInterval(gotoPageMainMenu, pageConfirmOptions.timeToMainMSec);
 }
 
+function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
+function gotoRinsingPage()  	{ window.location = "rinsingPage.html";  }
 
-function gotoPageMainMenu()  
-{
-	window.location = "pageMenu.html"; 
-}
+
 
 //******************** btn jug
 function classListContains (elem, what)

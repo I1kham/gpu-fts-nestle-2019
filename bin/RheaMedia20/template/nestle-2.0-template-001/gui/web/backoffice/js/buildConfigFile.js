@@ -464,8 +464,7 @@ function priv_buildConfigFile_mainMenuIcons_2 (rst, row)
 					+",defaultSelection:" +defSel;
 		
 		return result;
-	}	
-
+	}
 }
 
 
@@ -491,6 +490,7 @@ console.time("translation 01");
 	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg' OR What='disablePromo'");
 	let rstJUG_CONFIG = await db.q("SELECT What,Message FROM lang WHERE What='jugConfiguration'");
 	let rstLearnMore = await db.q("SELECT ISO,bgImage FROM pageLearnMore WHERE HIS_ID=" +his_id);		
+	let rstRinsing = await db.q("SELECT ISO,Message FROM lang WHERE What='rinsingImg'");		
 console.timeEnd ("translation 01");
 
 	//cup custom btn appearance
@@ -595,7 +595,7 @@ console.timeEnd("  " +iso +"04");
 						+",BTN_START_SELECTION_NOT_AVAIL: \"" +msgBtnStartNotAvail +"\""
 						+",LAB_CURRENCY_SIMBOL: \"" +msgLabCurrency +"\""
 						+",LAB_YOUR_DRINK_IS_READY: \"" +msgLabDrinkReady +"\""
-						+",LAB_YOUR_DRINK_IS_BEING_PREPARED: \"" +msgLabDrinkBeingPrepared +"\""
+						+",LAB_YOUR_DRINK_IS_BEING_PREPARED: \"" + msgLabDrinkBeingPrepared +"\""
 						+",LAB_PAGE_STANDBY: \"" +stndByMsg +"\""
 						+"};";
 		var objectFooter = "var objFooter = {";
@@ -613,6 +613,18 @@ console.timeEnd("  " +iso +"04");
 
 		result += objectFooter + "};";
 		
+		var rinsingImages = 'var rinsingImages = [';
+		for( var i=0; i<rstRinsing.getNumRows(); i++ ) {
+			var _iso_key = rstRinsing.valByColName(i, 'ISO');
+			var _msg_path = rstRinsing.valByColName(i, 'Message') || '../upload/TS_hot_water_warning.png';
+
+			rinsingImages += "{'" + _iso_key +"' : '" + _msg_path + "'}";
+
+			if ( i !== (rstRinsing.getNumRows() - 1) ) { rinsingImages += ","; }
+		}
+
+		result += rinsingImages + "];";
+
 		var jugConfiguration = "var jugConfiguration = ";
 			
 		jugConfiguration += rstJUG_CONFIG.getNumRows()? 

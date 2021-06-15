@@ -117,7 +117,7 @@ function onAfterLangLoaded2()
 		if (importanceLevel == 0)
 			rheaHideElem(dCPU)
 		else
-		{			
+		{				
 			rheaSetElemHTML(dCPU, msg);
 			rheaShowElem(dCPU);
 		}
@@ -151,12 +151,14 @@ function onAfterLangLoaded2()
 				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
 				resetTimerGotoPageMainMenu();
 				break;
-		}
-	
+		}	
 	}
-	
+		
 	rhea.onEvent_cpuStatus = function( statusID, statusStr, flag16 ) {
 		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
 
 		if (isRFIDJugDetected) {
 			if ((flag16 & 0x0040) == 0){
@@ -182,6 +184,7 @@ function onAfterLangLoaded2()
 	{
 		window.location = "pageMenu.html";
 	}, true);	
+	
 	resetTimerGotoPageMainMenu();
 }
 
@@ -206,7 +209,7 @@ function onSelectionChanged(selNum)
 		rheaHideElem(elemPrice);
 	}
 	else
-	{	
+	{
 		rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
 		if (parseFloat(selInfo.price) <= 0)
 			rheaHideElem (elemPrice);
@@ -234,7 +237,7 @@ function onSelectionChanged(selNum)
 			rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
 		rheaShowElem(btnStart);
 	}
-
+	
 	//jug btn
 	if (selInfo.jug > 1) {
 		if( 
@@ -369,9 +372,9 @@ function onBtnStartSelection()
 		setTimeout (function() { doStartSelection(); }, 500);
 	}
 	else
-		doStartSelection();	
+		doStartSelection();
 }
-
+	
 function doStartSelection()
 {	
 	clearInterval(timerGotoMainMenu);
@@ -404,6 +407,7 @@ function doStartSelection()
 		}
 	}
 }
+		
 
 function gotoPagePreparingSel(bCanUseBtnStop)
 {
@@ -412,7 +416,7 @@ function gotoPagePreparingSel(bCanUseBtnStop)
 	window.location = url;
 }
 
-function gotoSelectionInfo() { window.location = "pageSelectionInfo.html?iconMenu=" +iconNum; }
+function gotoSelectionInfo()	{ window.location = "pageSelectionInfo.html?iconMenu=" +iconNum; }
 
 function resetTimerGotoPageMainMenu() 
 {
@@ -422,6 +426,7 @@ function resetTimerGotoPageMainMenu()
 }
 
 function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
+function gotoRinsingPage()  	{ window.location = "rinsingPage.html";  }
 
 
 //******************** btn jug

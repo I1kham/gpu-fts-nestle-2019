@@ -195,12 +195,15 @@ function onAfterLangLoaded2()
 				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
 				resetTimerGotoPageMainMenu();
 				break;
-		}
-	
+		}	
 	}
 		
 	rhea.onEvent_cpuStatus = function( statusID, statusStr, flag16 ) {
 		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
 
 		if (isRFIDJugDetected) {
 			if ((flag16 & 0x0040) == 0){
@@ -264,7 +267,7 @@ function onSelectionChanged(selNum)
 			rheaSetElemHTML(btnStart, rheaLang.BTN_START_SELECTION);
 		rheaShowElem(btnStart);
 	}
-
+	
 	//jug btn
 	if (selInfo.jug > 1) {
 		if( 

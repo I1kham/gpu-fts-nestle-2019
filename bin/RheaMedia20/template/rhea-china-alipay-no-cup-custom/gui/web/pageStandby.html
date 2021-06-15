@@ -53,8 +53,15 @@ function onAfterLangLoaded()
 		}
 	}
 	
-	
-	
+	rhea.onEvent_cpuStatus = function (statusID, statusStr, flag16) {
+		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
+	}
+
+
 	setupOverlay();
 	setupGallery();
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
@@ -72,7 +79,7 @@ function gotoMenuPage()
 	window.location = "pageMenu.html";
 }
 
-
+function gotoRinsingPage() { window.location = "pageRinsing.html";  }
 
 function setupOverlay()
 {

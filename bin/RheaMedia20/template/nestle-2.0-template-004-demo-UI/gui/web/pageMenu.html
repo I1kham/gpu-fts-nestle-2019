@@ -13,7 +13,7 @@
 	<div id="lngPanel" onclick="lngPanelOff()">
 		<div id="lngSelections" style="background-color:black;">Overlay Text</div>
 	</div>
-	
+
 	<div class="header">
 		<div id="divCPUMessage" style="display:none;"></div>	
 	</div>
@@ -69,6 +69,7 @@
 				<div id="btnBO_FileInfo" class="btnQuadratoGrosso" style="position:absolute; top:120px; left:205px;" onclick="onBtnFileInfo()"></div>
 			</div>
 			<div class="btnQuadratoGrosso" style="position:absolute; top:300px; left:700px; color:#f00" onclick="hideFastMenu()"><p>CLOSE</p></div>
+			
 		</div>
 	</div>
 	
@@ -149,8 +150,11 @@ function onAfterLangLoaded()
 			if ((flag16 & 0x04) != 0)
 				isMilkerAlive = 1;
 		}
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
 	}
-
+	
 	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
 	{
 		//console.log ("onEvent_cpuMessage[" +msg +"][" +importanceLevel +"]");
@@ -524,7 +528,7 @@ function gotoPageStandby()
 	window.location = "pageStandby.html"; 
 }
 
-
+function gotoRinsingPage() { window.location = "pageRinsing.html";  }
 
 var mainMenuIconW = 0;
 var mainMenuIconH = 0;

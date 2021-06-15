@@ -113,11 +113,7 @@ var JUG_STATUS = {
 	ON_RFID_STATUS: 3
 };
 
-function onRheaBootstrapFinished() 
-{
-	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
-}
-
+function onRheaBootstrapFinished() 		{ lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); }
 function onAfterLangLoaded()
 {
 	if ("jug" in rhea.selection_getBySelNumber(1))
@@ -176,6 +172,9 @@ function onAfterJugInfoLoaded()
 				isRFIDJugDetected = 1;
 				toggleJugIcons( true );
 			}	
+		}
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
 		}
 	}
 	
@@ -548,7 +547,7 @@ function gotoPageStandby()
 	window.location = "pageStandby.html"; 
 }
 
-
+function gotoRinsingPage() { window.location = "pageRinsing.html";  }
 
 var mainMenuIconW = 0;
 var mainMenuIconH = 0;

@@ -73,6 +73,7 @@
 		</div>
 	</div>
 	
+	<!-- menu sw version -->
 	<div id="FileInfo_div" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
 		<div style="width:94%; margin:20px auto auto auto; position:relative">
 			<p>CPU: <b id="FileInfo_CpuModel">...</b></p>
@@ -179,6 +180,10 @@ function onAfterJugInfoLoaded()
 				isRFIDJugDetected = 1;
 				toggleJugIcons( true );
 			}	
+		}
+
+		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+			gotoRinsingPage();
 		}
 	}
 	
@@ -463,7 +468,7 @@ function setupNavigator()
 		rheaHideElem (rheaGetElemByID("btnLeftArrow"));
 		rheaHideElem (rheaGetElemByID("btnRightArrow"));
 		return;
-		}
+	}
 	var html = "";
 	var i;
 	var d = rheaGetElemByID("divIconMenuWindow");
@@ -534,7 +539,6 @@ function goToPageMenu(pageIN)
 }
 //-----------------------------------------------------------------------------
 
-
 function resetTimerGotoPageStandby() 
 {
 	if (mainMenuPageOptions.gotoPageStandbyAfterMSec <= 1000)
@@ -547,7 +551,7 @@ function resetTimerGotoPageStandby()
 }
 
 function gotoPageStandby()  
-{ 
+{
 	if (standbyPageOptions.enabled==0)
 	{
 		//allo scattare del timeout, anche se non vado in pagina standy, ricarico la
@@ -559,7 +563,7 @@ function gotoPageStandby()
 	window.location = "pageStandby.html"; 
 }
 
-
+function gotoRinsingPage() { window.location = "pageRinsing.html";  }
 
 var mainMenuIconW = 0;
 var mainMenuIconH = 0;
@@ -597,9 +601,7 @@ function setupIconContainer(nRow, nIconPerRow)
 	rheaSetElemHTML(d, html);
 	Rhea_session_setValue ("jug", "0");
 	
-
-//	for (var i=0; i<mainMenuIconNumPage; i++)
-		setupIconPage (0, nIconPerPage);
+	setupIconPage (0, nIconPerPage);
 }
 
 

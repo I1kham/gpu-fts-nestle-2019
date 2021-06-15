@@ -44,7 +44,14 @@ function previewFrame_close()
 
 function previewFrame_saveAs(tempFolderName)
 {
-	previewBox_saveAs.open("c:", previewFrame_saveAs_onFinished, "Please selected a <b>DESTINATION FOLDER</b> then press the <span class='fileBrowser_saveBtn'>SAVE HERE</span> button located to the right of the screen.<br>The GUI will be copied in the choosen folder.");
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+	let path = "c:";
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		path = rheaobj.exportetTpl
+	}
+
+	previewBox_saveAs.open(path, previewFrame_saveAs_onFinished, "Please selected a <b>DESTINATION FOLDER</b> then press the <span class='fileBrowser_saveBtn'>SAVE HERE</span> button located to the right of the screen.<br>The GUI will be copied in the choosen folder.");
 }
 
 function previewFrame_saveAs_onFinished(dstPath)
@@ -458,8 +465,7 @@ function priv_buildConfigFile_mainMenuIcons_2 (rst, row)
 					+",defaultSelection:" +defSel;
 		
 		return result;
-	}	
-
+	}
 }
 
 
@@ -484,9 +490,10 @@ console.time("translation 01");
 	let rstLAB_CURRENCY_SIMBOL = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_CURRENCY_SIMBOL' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_READY = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_READY' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_BEING_PREPARED = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_BEING_PREPARED' AND What='MSG'");
-	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg'");
+	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg' OR What='disablePromo'");
 	let rstJUG_CONFIG = await db.q("SELECT What,Message FROM lang WHERE What='jugConfiguration'");
 	let rstLearnMore = await db.q("SELECT ISO,bgImage FROM pageLearnMore WHERE HIS_ID=" +his_id);		
+	let rstRinsing = await db.q("SELECT ISO,Message FROM lang WHERE What='rinsingImg'");		
 console.timeEnd ("translation 01");
 
 	//cup custom btn appearance
@@ -612,14 +619,26 @@ console.timeEnd("  " +iso +"04");
 		}
 
 		result += objectFooter + "};";
-	
+		
+		var rinsingImages = 'var rinsingImages = [';
+		for( var i=0; i<rstRinsing.getNumRows(); i++ ) {
+			var _iso_key = rstRinsing.valByColName(i, 'ISO');
+			var _msg_path = rstRinsing.valByColName(i, 'Message') || '../upload/TS_hot_water_warning.png';
+
+			rinsingImages += "{'" + _iso_key +"' : '" + _msg_path + "'}";
+
+			if ( i !== (rstRinsing.getNumRows() - 1) ) { rinsingImages += ","; }
+		}
+
+		result += rinsingImages + "];";
+
 		var jugConfiguration = "var jugConfiguration = ";
 			
 		jugConfiguration += rstJUG_CONFIG.getNumRows()? 
 			parseInt( rstJUG_CONFIG.valByColName(0, 'Message') )  : "3"
 
 		result += jugConfiguration + ';';
-
+	
 		//nomi delle selezioni per lingua
 console.time("  " +iso +"05");
 console.time("  " +iso +"05_rst");
