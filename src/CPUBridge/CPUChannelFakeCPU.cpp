@@ -1127,6 +1127,28 @@ void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 			}
 		}
 	}
+	else if (cleaning.cleaningType == eCPUProg_cleaningType::descaling)
+	{
+		//descaling
+		if (rhea::getTimeNowMSec() >= cleaning.timeToEnd)
+		{
+			cleaning.timeToEnd += 2000;
+			cleaning.btn1 = cleaning.btn2 = 0;
+			++cleaning.fase;
+
+			if (cleaning.fase == 1 || cleaning.fase == 3 || cleaning.fase == 4)
+			{
+				cleaning.btn1 = 10;
+				cleaning.timeToEnd += 3000;
+			}
+
+			if (cleaning.fase >= 19)
+			{
+				cleaning.cleaningType = eCPUProg_cleaningType::invalid;
+				this->VMCState = cleaning.prevState;
+			}
+		}
+	}
 	else if (cleaning.cleaningType != eCPUProg_cleaningType::invalid)
 	{
 		//tutti gli altri cleaning

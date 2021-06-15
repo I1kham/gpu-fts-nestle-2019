@@ -78,6 +78,8 @@ function TaskCleaning (whichWashIN, isEspresso)
 	this.btn2 = 0;
 	this.btnTrick = 0;
 	this.prevFase = 99999;
+	this.prevFaseBtn1 = 999;
+	this.prevFaseBtn2 = 999;
 	this.nextTimeSanWashStatusCheckMSec = 0;
 	
 	rhea.sendGetCPUStatus();
@@ -289,9 +291,12 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 			pleaseWait_freeText_setText(msg);
 			pleaseWait_freeText_show();
 			
-			if (me.fase != me.prevFase)
+			if ( (me.fase != me.prevFase) || ( me.fase == me.prevFase && (me.btn1 != me.prevFaseBtn1 || me.btn2 != me.prevFaseBtn2) ))
 			{
 				me.prevFase = me.fase;
+				me.prevFaseBtn1 = me.btn1;
+				me.prevFaseBtn2 = me.btn2;
+
 				
 				if (me.btn1 == 0)
 					pleaseWait_btn1_hide();
