@@ -177,7 +177,7 @@ FileSaveAs.prototype.priv_onAjaxFSFinished = function (fileList)
 						+ "<div style='clear: both'></div>"
 	 	 			+ "</div>"
 				+ "</div>"
-				+ "<div id='creatingFolder'><img style='text-align: center; position: absolute; margin: auto; top: 0; bottom: 0; left: 0; right: 0;' src='img/animationRound.gif'></div>";
+				+ "<div id='creatingFolder' style='display: none'><img style='text-align: center; position: absolute; margin: auto; top: 0; bottom: 0; left: 0; right: 0;' src='img/animationRound.gif'></div>";
 
 	// Append modal's HTML
 	html += modal;
@@ -245,14 +245,18 @@ FileSaveAs.prototype.priv_onAjaxFSFinished = function (fileList)
 			return;
 		}
 
+		const loader = rheaGetElemByID( "creatingFolder" );
+		loader.style.display = "block";
+
 		rhea.ajax ("FSmkdir", {path: me.currentFolder + '/' + fName})
 			.then( (result) => {
 				modal.style.display = "none";
-				setTimeout ( function() { me.priv_queryFolderList(me.currentFolder);}, 10);
+				setTimeout ( function() { me.priv_queryFolderList(me.currentFolder); loader.style.display = "none";}, 10);
 			})
 
 			.catch( error => {
 				modal.style.display = "none";
+				loader.style.display = "none";
 			});
 	};
 	if (bFolderUpExists)
