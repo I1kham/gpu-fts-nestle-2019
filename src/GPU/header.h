@@ -16,7 +16,7 @@
     #define USB_MOUNTPOINT  "/run/media/sda1"
 #elif defined(PLATFORM_ROCKCHIP)
     #define CPU_COMPORT         "/dev/ttyS0"
-    #define ESAPI_COMPORT       "/dev/ttyS1"
+    #define ESAPI_COMPORT       "/dev/ttyFIQ0"
     #define USB_MOUNTPOINT      "/media/SDA1"
 #endif
 
@@ -88,8 +88,6 @@ struct sGlobal
     rhea::ISimpleLogger *logger;
 };
 
-
-void activeSleep (u32 howMuchMSec);
 
 #endif 
 

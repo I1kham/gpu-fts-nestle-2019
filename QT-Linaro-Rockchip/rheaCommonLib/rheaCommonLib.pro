@@ -29,6 +29,7 @@ message ("$${THIS_LIBRARY_NAME}: configuration is $${CONFIG_NAME}")
 		PATH_TO_LIB = "$${PATH_TO_ROOT}/lib"
 		TARGET = "$${PATH_TO_LIB}/$${CONFIG_NAME}_$${THIS_LIBRARY_NAME}"
 
+QMAKE_CXXFLAGS += -Wno-deprecated-copy
 CONFIG(release, debug|release) {
 		QMAKE_CXXFLAGS += -O2
 		QMAKE_CXXFLAGS += -Wno-zero-as-null-pointer-constant

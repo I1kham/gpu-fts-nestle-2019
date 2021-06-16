@@ -26,6 +26,11 @@ void startGPU()
 
     char *appPathNoSlash = get_current_dir_name();
     char exeAndPathName[512];
+
+    sprintf (exeAndPathName, "%s/GPUPackage2019", appPathNoSlash);
+    printf ("changing dir to %s\n", exeAndPathName);
+    chdir(exeAndPathName);
+
     sprintf (exeAndPathName, "%s/GPUPackage2019/GPUFusion", appPathNoSlash);
 
     char *argv[4];
@@ -43,8 +48,10 @@ int main(int argc, char *argv[])
     {
         char *appPathNoSlash = get_current_dir_name();
         APPLICATION_FOLDER = appPathNoSlash;
+        printf ("current folder is: %s\n", appPathNoSlash);
         free(appPathNoSlash);
     }
+
 
     //vediamo se esiste una chiavetta USB con dentro le cartelle corrette
     QDir folder (RHEA_USB_FOLDER);

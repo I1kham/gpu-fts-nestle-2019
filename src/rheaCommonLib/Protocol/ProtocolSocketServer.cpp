@@ -288,10 +288,10 @@ HSokServerClient ProtocolSocketServer::getEventSrcAsClientHandle(u8 iEvent) cons
 //****************************************************
 bool ProtocolSocketServer::priv_checkIncomingConnection (HSokServerClient *out_clientHandle)
 {
-    //logger->log ("ProtocolServer::priv_checkIncomingConnection()\n");
-    //logger->incIndent();
+logger->log ("ProtocolServer::priv_checkIncomingConnection()\n");
+logger->incIndent();
     bool ret = priv_checkIncomingConnection2(out_clientHandle);
-    //logger->decIndent();
+logger->decIndent();
     return ret;
 }
 bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_clientHandle)
@@ -327,7 +327,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
         //Se è un client websocket, gestiamo il suo handshake
         if (ProtocolWebsocket::server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
         {
-            //logger->log ("it's a websocket\n");
+logger->log ("it's a websocket\n");
 			protocol = RHEANEW(allocator, ProtocolWebsocket) (allocator, 1024, 8192);
             break;
         }
@@ -335,7 +335,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
         //Se è un client console, abbiamo un semplice handshake
         if (ProtocolConsole::server_isAValidHandshake(ch->getReadBuffer(), ch->getNumBytesInReadBuffer()))
         {
-            //logger->log ("it's a console\n");
+logger->log ("it's a console\n");
 			protocol = RHEANEW(allocator, ProtocolConsole) (allocator, 512, 4096);
             break;
         }
@@ -383,7 +383,7 @@ bool ProtocolSocketServer::priv_checkIncomingConnection2 (HSokServerClient *out_
 	waitableGrp.addSocket(acceptedSok, r->handle.asU32());
     clientList.append(r->handle);
 
-    //logger->log ("Done!\n");
+logger->log ("Done!\n");
     return true;
 }
 

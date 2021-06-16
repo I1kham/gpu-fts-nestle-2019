@@ -12,14 +12,6 @@
 static MainWindow *myMainWindow = NULL;
 
 //****************************************************
-void activeSleep (u32 howMuchMSec)
-{
-    u64 timeToExitMSec = rhea::getTimeNowMSec() + howMuchMSec;
-    while (rhea::getTimeNowMSec() < timeToExitMSec)
-        rhea::thread::sleepMSec(50);
-}
-
-//****************************************************
 bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)
 {
     bool ret = false;
@@ -146,7 +138,16 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
     return true;
 }
 
-
+//*****************************************************
+bool executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult)
+{
+    FILE *fp = popen (shellCommand, "r");
+    if (NULL == fp)
+        return false;
+    fgets (out_result, sizeOfOutResult, fp);
+    fclose (fp);
+    return true;
+}
 
 /****************************************************
  * Filla [glob] con i path dei vari folder utilizzati dalla GPU
@@ -199,8 +200,22 @@ void setupFolderInformation (sGlobal *glob)
 
     //USB folders
     u8 baseUSBFolder[256];
-#if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
+#if defined(PLATFORM_YOCTO_EMBEDDED)
     rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
+#elif defined(PLATFORM_ROCKCHIP)
+    //nel caso della SECO, la cartella /media/SDA1 esiste sempre perchè fa parte del FS.
+    //Per capire se c'è o no la chiavetta, devo invocare la shell usando "mount | grep -c sda1". Questo comando ritorna 0 se non c'è chiavetta montata, 1 se c'è.
+    //Se non c'è, metto un percorso sbagliato in baseUSBFolder per simulare il fatto che la cartella preposta ad ospitare
+    //la chiave USB non esiste
+
+    //const int isUSBMounted = system("mount | grep -c sda1");
+    char isUSBMounted[8];
+    memset (isUSBMounted, 0, sizeof(isUSBMounted));
+    executeShellCommandAndStoreResult ("/bin/mount | /bin/grep -c sda1", isUSBMounted, sizeof(isUSBMounted));
+    if (isUSBMounted[0] == '1')
+        rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
+    else
+        rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), "xxx");
 #else
     rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
     //sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/pippo", baseLocalFolder);

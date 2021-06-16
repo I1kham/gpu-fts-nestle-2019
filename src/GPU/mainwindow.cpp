@@ -85,6 +85,10 @@ void MainWindow::priv_loadURL (const char *url)
     ui->labInfo->setVisible(false);
     this->show();
 
+#ifdef _DEBUG
+    printf ("URL:%s\n", url);
+#endif
+
     //carico la GUI nel browser
     retCode = eRetCode_none;
     ui->webView->setVisible(true);
@@ -395,7 +399,6 @@ void MainWindow::priv_syncWithCPU_onTick()
         //cui aggiungo uno step per detectare o meno la presenza del modulo
         //non possiamo partire :) Bisogna verificare
         priv_addText ("Checking for rheAPI module...");
-        //activeSleep (1200);
         glob->logger->log ("\n\n");
         glob->logger->log ("asking rheAPI module type and ver\n");
         syncWithCPU.esapiTimeoutMSec = rhea::getTimeNowMSec() + 4000;

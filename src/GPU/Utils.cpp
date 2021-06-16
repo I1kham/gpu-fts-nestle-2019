@@ -53,9 +53,6 @@ void utils::getRightFontForLanguage (QFont &out, int pointSize, const char *iso2
 }
 
 
-
-
-
 /****************************************************
  * double updateCPUStats()
  *

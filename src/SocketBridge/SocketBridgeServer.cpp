@@ -890,6 +890,7 @@ void Server::priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec)
 
 void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded)
 {
+printf ("priv_onClientHasDataAvail2\n");
 	//se la socket in questione non è stata ancora bindata ad un client, allora il cliente mi deve per
 	//forza aver mandato un messaggio di tipo [eOpcode_request_idCode] oppure [eOpcode_identify_W], altrimenti killo la connessione.
 	//Se invece la socket è già  bindata ad un identified-client, nessun problema, passo ad analizzare il messaggio perchè il client è stato già  identificato ad 

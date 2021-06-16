@@ -19,6 +19,7 @@ QMAKE_CXXFLAGS += -Wno-format-truncation
 
 
 QMAKE_CFLAGS += -std=gnu++0x -pthread -Wcomment
+QMAKE_CXXFLAGS += -Wno-deprecated-copy
 LIBS += -pthread
 
 #direttive specifiche per quando compilo per Rockchip
@@ -40,6 +41,7 @@ message ("$${THIS_EXE_NAME}: configuration is $${CONFIG_NAME}")
 	PATH_TO_SRC = "$${PATH_TO_ROOT}/src"
 	PATH_TO_LIB = "$${PATH_TO_ROOT}/lib"
 	TARGET = "$${PATH_TO_BIN}/$${CONFIG_NAME}_$${THIS_EXE_NAME}"
+
 
 #depends on rheaAExternalSerialAPI libray
 LIBRARY_NAME="rheaExternalSerialAPI"

@@ -27,9 +27,9 @@ namespace rhea
 
 						//======================================= get / set
 		T&				append (const T& t)																				{ T *ret = priv_insert(nElem);  (*ret)=t; return *ret; }
-        T&				operator[] (u32 i)																				{ assert(i>=0); return *priv_insert(i); }
-        const T&		getElem (u32 i)	const																			{ assert(i<nElem && i>=0);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
-        const T&		operator() (u32 i)	const																		{ assert(i<nElem && i>=0);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
+        T&				operator[] (u32 i)																				{ return *priv_insert(i); }
+        const T&		getElem (u32 i)	const																			{ assert(i<nElem);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
+        const T&		operator() (u32 i)	const																		{ assert(i<nElem);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
 
 						//======================================= copy
 		void			copyFrom (const Array<T> &source)

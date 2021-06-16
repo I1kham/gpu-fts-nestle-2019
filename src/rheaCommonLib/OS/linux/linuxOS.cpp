@@ -19,7 +19,7 @@ bool platform::internal_init(void *platformSpecificData UNUSED_PARAM, const char
 {
 	memset (&linuxPlatformData, 0, sizeof(linuxPlatformData));
 
-	//usa la malloc per allocare il path
+    //usa la malloc per allocare il path
     linuxPlatformData.appPathNoSlash = (u8*)get_current_dir_name();
 	rhea::fs::sanitizePathInPlace(linuxPlatformData.appPathNoSlash);
 	
