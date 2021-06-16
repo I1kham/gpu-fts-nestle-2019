@@ -535,6 +535,21 @@ function showQRCode (url)
 	rheaShowElem (rheaGetElemByID("qrcode_payment"));
 }
 
+
+function calcPriceMultiplier(selNum)
+{
+	if (jugConfiguration === JUG_STATUS.NEVER_VISIBLE)
+		return 1;
+
+	var priceMultiplier = 0;
+	if (isRFIDJugDetected || btnJUG_isON())
+		priceMultiplier = parseInt( rhea.selection_getBySelNumber(selNum).jug );
+		
+	if (priceMultiplier < 1)
+		priceMultiplier = 1;
+	return priceMultiplier;
+}
+
 function startCurrentSelWithPaymentConfirmed()
 {
 	clearInterval(timerGotoMainMenu);
@@ -542,32 +557,26 @@ function startCurrentSelWithPaymentConfirmed()
 	
 	selThatWasStarted = detectCurrentSelection();
 	var selInfo = rhea.selection_getBySelNumber(selThatWasStarted);
-	var selPrice = selInfo.price;
+	var selPrice = selInfo.price * calcPriceMultiplier(selThatWasStarted);
 	var selPaymentType=1; //alipayChina
 	
-/*
 	btnJUG_hide();
 
 	resetTimerGotoPageMainMenu();
 	console.log ("Starting sel num:" +selThatWasStarted);
 
-
 	if (jugConfiguration === JUG_STATUS.NEVER_VISIBLE)
-	rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
+		rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType, 0);
 	else {
 		if( isRFIDJugDetected )
-		rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
+			rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType, 0);
 		else {
 			if (btnJUG_isON() )
-				rhea.selection_startForceJug(selThatWasStarted);
-				// ???
+				rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType, 1);
 			else
-			rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
+				rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType, 0);
 		}
 	}
-*/
-
-	rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
 }
 
 function gotoSelectionInfo()

@@ -13,7 +13,14 @@ void CmdHandler_eventReq_V_StartSelAlreadyPaid::passDownRequestToCPUBridge (cpub
     const cpubridge::eGPUPaymentType paymentType = (cpubridge::eGPUPaymentType)payload[2];
     const u16 price = rhea::utils::bufferReadU16 (&payload[3]);
 
-	cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (from, selNum, price, paymentType);
+    bool bForceJUG = false;
+    if (payloadLen > 5)
+    {
+        if (payload[5] != 0)
+            bForceJUG = true;
+    }
+
+	cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (from, selNum, price, paymentType, bForceJUG);
 }
 
 //***********************************************************

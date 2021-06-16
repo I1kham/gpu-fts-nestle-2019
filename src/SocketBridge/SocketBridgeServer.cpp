@@ -259,10 +259,11 @@ void Server::module_alipayChina_activate()
 }
 
 //***************************************************
-bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, u8 *out_urlForQRCode, u32 sizeOfOutURL UNUSED_PARAM)
+bool Server::module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, bool bForceJUG, u8 *out_urlForQRCode, u32 sizeOfOutURL UNUSED_PARAM)
 {
 	moduleAlipayChina.curSelRunning = 0;
 	moduleAlipayChina.curSelPrice = 0;
+	moduleAlipayChina.curSelForceJUG = bForceJUG;
 	if (!moduleAlipayChina.subscribed || !moduleAlipayChina.isOnline)
 		return false;
 
@@ -343,6 +344,7 @@ void Server::module_alipayChina_abort()
 	{
 		moduleAlipayChina.curSelRunning = 0;
 		moduleAlipayChina.curSelPrice = 0;
+		moduleAlipayChina.curSelForceJUG = false;
 		rhea::AlipayChina::ask_abortOrder(moduleAlipayChina.ctx);
 	}
 }
@@ -1168,9 +1170,10 @@ void Server::priv_onAlipayChinaNotification (rhea::thread::sMsg &msg)
 			//L'utente ha pagato, possiamo procedere con la selezione
 			if (moduleAlipayChina.curSelRunning)
 			{
-				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (subscriber, moduleAlipayChina.curSelRunning, moduleAlipayChina.curSelPrice, cpubridge::eGPUPaymentType::alipayChina);
+				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (subscriber, moduleAlipayChina.curSelRunning, moduleAlipayChina.curSelPrice, cpubridge::eGPUPaymentType::alipayChina, moduleAlipayChina.curSelForceJUG);
 				moduleAlipayChina.curSelRunning = 0;
 				moduleAlipayChina.curSelPrice = 0;
+				moduleAlipayChina.curSelForceJUG = false;
 				rhea::AlipayChina::ask_endOrder (moduleAlipayChina.ctx, true);
 			}
 			break;

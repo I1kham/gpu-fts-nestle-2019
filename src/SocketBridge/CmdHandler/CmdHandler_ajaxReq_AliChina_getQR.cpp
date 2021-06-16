@@ -49,7 +49,7 @@ void CmdHandler_ajaxReq_AliChina_getQR::handleRequestFromSocketBridge(socketbrid
 	const u64 timeToExitMSec = rhea::getTimeNowMSec() + 10000;
 	while (rhea::getTimeNowMSec() < timeToExitMSec)
 	{
-		if (server->module_alipayChina_askQR (data.name, data.selNum, data.price, urlToBeEmbeddedInQr, sizeof(urlToBeEmbeddedInQr)))
+		if (server->module_alipayChina_askQR (data.name, data.selNum, data.price, false, urlToBeEmbeddedInQr, sizeof(urlToBeEmbeddedInQr)))
 		{
 			server->sendAjaxAnwer (hClient, ajaxRequestID, urlToBeEmbeddedInQr, rhea::string::utf8::lengthInBytes(urlToBeEmbeddedInQr) + 1);
 			return;

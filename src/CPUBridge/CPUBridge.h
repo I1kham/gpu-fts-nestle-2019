@@ -119,7 +119,7 @@ namespace cpubridge
 
 						[blockNumOffset] parte da 0, [blocco_n_di] parte da 1
 					*/
-	u8			buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, bool bForceJUG, u8 *out_buffer, u8 sizeOfOutBuffer);
 					/* informa la CPU di iniziare la seleciont [selNum] sapendo che la stessa è già stata pagata [prezzo] e che il pagamento è stato
 						fatto a carico della GPU. La CPU non deve quindi pretendere dei soldi, deve solo fidarsi e registrare il pagamento come se l'avesse
 						portato a termine lei stessa.
@@ -564,10 +564,10 @@ namespace cpubridge
 	void        ask_CPU_MILKER_VER(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_MILKER_VER
 
-	void		ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSubscriber &from, u8 selNumber, u16 price, eGPUPaymentType paymentType);
+	void		ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSubscriber &from, u8 selNumber, u16 price, eGPUPaymentType paymentType, bool bForceJUG);
 					//funziona come ask_CPU_START_SELECTION, vedi i commenti di quella funzione per i dettagli
 					//NB: se price==0xffff, allora la CPU si prende comunque in carico il pagamento, a discapito del nome di questa fn
-	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType);
+	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType, bool *out_bForceJUG);
 
 	void		ask_CPU_START_GRINDER_SPEED_TEST (const sSubscriber &from, u16 handlerID, u8 macina1o2, u8 durataMacinataInSec);
 	void		translate_CPU_START_GRINDER_SPEED_TEST(const rhea::thread::sMsg &msg, u8 *out_macina1o2, u8 *out_durataMacinataInSec);

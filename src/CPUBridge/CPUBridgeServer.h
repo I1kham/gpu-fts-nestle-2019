@@ -85,11 +85,13 @@ namespace cpubridge
 		struct sStartSelectionParams1
 		{
 			u8	selNum;
+			bool bForceJUG;
 		};
 
 		struct sStartSelectionParams2
 		{
 			u8				selNum;
+			bool			bForceJUG;
 			u16				price;
 			ePaymentMode	paymentMode;
 			eGPUPaymentType paymentType;
@@ -116,6 +118,17 @@ namespace cpubridge
 				case eStartSelectionMode_CPUSpontaneous:	return this->asCPUSpontaneous.selNum;
 				default:									return 0;
 				}			
+			}
+
+			bool isForceJUG() const
+			{
+				switch (how)
+				{
+				case eStartSelectionMode_default:			return this->asDefault.bForceJUG;
+				case eStartSelectionMode_alreadyPaid:		return this->asAlreadyPaid.bForceJUG;
+				case eStartSelectionMode_CPUSpontaneous:	return false;
+				default:									return false;
+				}
 			}
 		};
 
@@ -187,7 +200,7 @@ namespace cpubridge
 		bool					priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec);
 		void                    priv_handleState_grinderSpeedTest();
 
-		bool					priv_enterState_selection (const sStartSelectionParams &params, bool bForceJug, const sSubscription *sub);
+		bool					priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub);
 		void					priv_handleState_selection();
 		void					priv_onSelezioneTerminataKO();
 

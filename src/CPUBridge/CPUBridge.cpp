@@ -176,7 +176,7 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, bool forc
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, bool bForceJUG, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[8];
 	u8 ct = 0;
@@ -2307,24 +2307,31 @@ void cpubridge::ask_CPU_MILKER_VER(const sSubscriber &from, u16 handlerID)
 }
 
 //***************************************************
-void cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSubscriber &from, u8 selNum, u16 price, eGPUPaymentType paymentType)
+void cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (const sSubscriber &from, u8 selNum, u16 price, eGPUPaymentType paymentType, bool bForceJUG)
 {
 	u8 otherData[8];
 	otherData[0] = selNum;
 	otherData[1] = (u8)paymentType;
 	rhea::utils::bufferWriteU16(&otherData[2], price);	
+	if (bForceJUG)
+		otherData[4] = 0x01;
+	else
+		otherData[4] = 0x00;
 
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED, (u32)0, otherData, 4);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED, (u32)0, otherData, 5);
 }
 
 //***************************************************
-void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_price, eGPUPaymentType *out_paymentType)
+void cpubridge::translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_price, eGPUPaymentType *out_paymentType, bool *out_bForceJUG)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_selNum = p[0];
 	*out_paymentType = (eGPUPaymentType)p[1];
 	*out_price = rhea::utils::bufferReadU16 (&p[2]);
+	*out_bForceJUG = false;
+	if (p[4] != 0x00)
+		*out_bForceJUG = true;
 }
 
 //***************************************************

@@ -336,20 +336,20 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			sStartSelectionParams params;
 			params.how = eStartSelectionMode_default;
 			params.asDefault.selNum = 0;
+			params.asDefault.bForceJUG = false;
 
 			if (msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION)
 			{
 				translate_CPU_START_SELECTION (msg, &params.asDefault.selNum);
-				bForceJug = false;
 			}
 			else
 			{
 				translate_CPU_START_SELECTION_AND_FORCE_JUG (msg, &params.asDefault.selNum);
-				bForceJug = true;
+				params.asDefault.bForceJUG = true;
 
 				//come ulteriore misura di sicurezza, mi accertto che la selezione in questione sia davvero "juggabile"
 				if (this->jugRepetitions[params.asDefault.selNum-1] < 2)
-					bForceJug = false;
+					params.asDefault.bForceJUG = false;
 			}
 			
 			//GB 2021-01-14
@@ -358,7 +358,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			//consapevoli del fatto che c'è una selezione in corso e possono prendere le loro decisioni
 			//
 			//priv_enterState_selection(params, sub);
-			priv_enterState_selection(params, bForceJug, NULL);
+			priv_enterState_selection(params, NULL);
 		}
 		break;
 
@@ -369,7 +369,9 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				params.asAlreadyPaid.selNum = 0;
 				params.asAlreadyPaid.price = 0;
 				params.asAlreadyPaid.paymentType = eGPUPaymentType::invalid;
-				translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(msg, &params.asAlreadyPaid.selNum, &params.asAlreadyPaid.price, &params.asAlreadyPaid.paymentType);
+				params.asAlreadyPaid.bForceJUG = false;
+
+				translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(msg, &params.asAlreadyPaid.selNum, &params.asAlreadyPaid.price, &params.asAlreadyPaid.paymentType, &params.asAlreadyPaid.bForceJUG);
 
 				params.asAlreadyPaid.paymentMode = ePaymentMode::normal;
 				if ((cpuStatus.flag1 & sCPUStatus::FLAG1_IS_FREEVEND) != 0)
@@ -377,13 +379,21 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				else if ((cpuStatus.flag1 & sCPUStatus::FLAG1_IS_TESTVEND) != 0)
 					params.asAlreadyPaid.paymentMode = ePaymentMode::testvend;
 
+				//in caso di "forceJUG", come ulteriore misura di sicurezza, mi accertto che la selezione in questione sia davvero "juggabile"
+				if (params.asAlreadyPaid.bForceJUG)
+				{
+					if (this->jugRepetitions[params.asAlreadyPaid.selNum - 1] < 2)
+						params.asAlreadyPaid.bForceJUG = false;
+				}
+
+
 				//GB 2021-01-14
 				//inizialmente l'evento "stato selezione in corso" veniva comunicato solo al "sub" che aveva fatto la richiesta di "inizio selezione".
 				//Adesso invece l'evento "stato selezione in corso" viene comunicato a tutti i subscriber attivi. In questo modo se lo "start selezione" arriva da un subsriuber, anche tutti gli altri diventano
 				//consapevoli del fatto che c'è una selezione in corso e possono prendere le loro decisioni
 				//
 				//priv_enterState_selection(params, sub);
-				priv_enterState_selection(params, false, NULL);
+				priv_enterState_selection(params, NULL);
 			}
 			break;
 
@@ -3143,7 +3153,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 					sStartSelectionParams params;
 					params.how = eStartSelectionMode_CPUSpontaneous;
 					params.asCPUSpontaneous.selNum = selection_CPU_current;
-					priv_enterState_selection(params, false, NULL);
+					priv_enterState_selection(params, NULL);
 				}
 			}
 		}
@@ -3374,10 +3384,10 @@ void Server::priv_notify_CPU_RUNNING_SEL_STATUS (const sSubscription *sub, u16 h
  *	ritorna true se ci sono le condizioni per iniziare una selezione. In questo caso, lo stato passa a stato = eStato::selection.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  */
-bool Server::priv_enterState_selection (const sStartSelectionParams &params, bool bForceJug, const sSubscription *sub)
+bool Server::priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub)
 {
 	const u8 selNumber = params.getSelNum();
-	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d, foreJug=%c]\n", (u8)params.how, selNumber, bForceJug==true ? 'Y':'N');
+	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d, forceJug=%c]\n", (u8)params.how, selNumber, params.isForceJUG()==true ? 'Y':'N');
 
     if (stato.get() != sStato::eStato::normal)
 	{
@@ -3404,7 +3414,6 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, boo
     stato.set (sStato::eStato::selection);
 	memcpy (&runningSel.params, &params, sizeof(sStartSelectionParams));
 	runningSel.stopSelectionWasRequested = 0;
-	runningSel.bForceJug = bForceJug;
 	runningSel.sub = sub;
 	runningSel.status = eRunningSelStatus::wait;
 	priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, runningSel.status);
@@ -3454,7 +3463,7 @@ void Server::priv_handleState_selection()
 		}
 
 		u8 selNumberToSend = 0;
-		bool bForceJug = false;
+		bool bSendForceJugInCommandB = false;
 
 		//al primo giro, mando alla CPU la richiesta di iniziare la selezione
 		if (nextTimeSendCheckStatusMsgMSec == 0)
@@ -3464,7 +3473,7 @@ void Server::priv_handleState_selection()
 			case eStartSelectionMode_default:
 				//nel caso di default, devo inviare il numero di selezione da far partire direttamente dentro al comando B
 				selNumberToSend = runningSel.getSelNum();
-				bForceJug = runningSel.bForceJug;
+				bSendForceJugInCommandB = runningSel.bForceJug;
 				break;
 
 			case eStartSelectionMode_CPUSpontaneous:
@@ -3477,8 +3486,8 @@ void Server::priv_handleState_selection()
 				//senza considerare il pagamento in quanto la GPU ha già provveduto a pagare
 				{
 					u8 bufferW[32];
-					
-					const u16 nBytesToSend = cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (runningSel.params.asAlreadyPaid.selNum, runningSel.params.asAlreadyPaid.price, runningSel.params.asAlreadyPaid.paymentMode, runningSel.params.asAlreadyPaid.paymentType, bufferW, sizeof(bufferW));
+
+					const u16 nBytesToSend = cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (runningSel.params.asAlreadyPaid.selNum, runningSel.params.asAlreadyPaid.price, runningSel.params.asAlreadyPaid.paymentMode, runningSel.params.asAlreadyPaid.paymentType, runningSel.params.asAlreadyPaid.bForceJUG, bufferW, sizeof(bufferW));
 					u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 					if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 5000))
 					{
@@ -3514,7 +3523,7 @@ void Server::priv_handleState_selection()
 		}
 
 		//invio il msg di stato alla CPU
-        u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(selNumberToSend, bForceJug);
+        u16 sizeOfAnswerBuffer = priv_prepareAndSendMsg_checkStatus_B(selNumberToSend, bSendForceJugInCommandB);
         if (0 == sizeOfAnswerBuffer)
 		{
 			//la CPU non ha risposto al mio comando di stato, passo in com_error

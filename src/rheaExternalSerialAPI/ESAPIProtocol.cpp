@@ -535,7 +535,7 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 			{
 				const u16 price = rhea::utils::bufferReadU16_LSB_MSB(&b.buffer[4]);
 				runningSel.status = cpubridge::eRunningSelStatus::wait;
-				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (*cpuBridgeSubscriber, selNum, price, cpubridge::eGPUPaymentType::unknown);
+				cpubridge::ask_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED (*cpuBridgeSubscriber, selNum, price, cpubridge::eGPUPaymentType::unknown, false);
 			}
 
 			//rispondo

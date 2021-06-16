@@ -63,7 +63,7 @@ namespace socketbridge
 		void					module_alipayChina_activate();
 		bool					module_alipayChina_hasBeenActivated() const					{ return moduleAlipayChina.subscribed; }
 		bool					module_alipayChina_isOnline() const							{ return (moduleAlipayChina.subscribed && moduleAlipayChina.isOnline); }
-		bool					module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, u8 *out_urlForQRCode, u32 sizeOfOutURL);
+		bool					module_alipayChina_askQR (const u8 *selectionName, u8 selectionNum, const char *selectionPrice, bool bForceJUG, u8 *out_urlForQRCode, u32 sizeOfOutURL);
 		void					module_alipayChina_abort();
 		bool					module_getConnectionDetail (char *out_serverIP, u16 *out_serverPort, char *out_machineID, char *out_criptoKey) const;
 
@@ -86,6 +86,7 @@ namespace socketbridge
 			u16							serverPort;
 			char						machineID[16];
 			char						criptoKey[64];
+			bool						curSelForceJUG;
 		};
 
     private:

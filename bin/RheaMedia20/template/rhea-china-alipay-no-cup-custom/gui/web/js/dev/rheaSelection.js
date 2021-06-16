@@ -112,9 +112,13 @@ Rhea.prototype.selection_startForceJug = function(iSelNumber)
  *	Chiede alla GPU di iniziare una selezione sapendo che la stessa è già stata pagata in qualche modo.
  *	[strPrice] = quanto è stata pagata la bevanda, in formato string che può includere eventuali separatori decimali
  *	[iPaymentType]: 0 = unkown, 1=alipayChina
+ *	[bForceJUG] == 0 | 1
  */
-Rhea.prototype.selection_startAlreadyPaid = function(iSelNumber, strPrice, iPaymentType)
+Rhea.prototype.selection_startAlreadyPaid = function(iSelNumber, strPrice, iPaymentType, bForceJUG)
 {
+	if (undefined === bForceJUG)
+		bForceJUG= 0;
+	
 	//parso il prezzo e rimuovo tutto ciò che non è un numero
 	var priceOnlyNumber="0";
 	for (var i=0; i<strPrice.length; i++)
@@ -124,13 +128,14 @@ Rhea.prototype.selection_startAlreadyPaid = function(iSelNumber, strPrice, iPaym
 			priceOnlyNumber+=c;		
 	}
 	
-	console.log ("Rhea.selection_startAlreadyPaid() [sel=" +iSelNumber +"][price=" +priceOnlyNumber +"][payType=" +iPaymentType +"]");
+	console.log ("Rhea.selection_startAlreadyPaid() [sel=" +iSelNumber +"][price=" +priceOnlyNumber +"][payType=" +iPaymentType +"][bForceJUG=" +bForceJUG +"]");
 	
-	var buffer = new Uint8Array(5);
+	var buffer = new Uint8Array(6);
 	buffer[0] = RHEA_EVENT_START_SEL_ALREADY_PAID;
 	buffer[1] = parseInt(iSelNumber);
 	buffer[2] = parseInt(iPaymentType);
 	rheaAddU16ToUint8Buffer (buffer, 3, parseInt(priceOnlyNumber));
+	buffer[5] = parseInt(bForceJUG);
 	this.sendGPUCommand ("E", buffer, 0, 0);
 }
 
