@@ -545,6 +545,28 @@ function startCurrentSelWithPaymentConfirmed()
 	var selPrice = selInfo.price;
 	var selPaymentType=1; //alipayChina
 	
+/*
+	btnJUG_hide();
+
+	resetTimerGotoPageMainMenu();
+	console.log ("Starting sel num:" +selThatWasStarted);
+
+
+	if (jugConfiguration === JUG_STATUS.NEVER_VISIBLE)
+	rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
+	else {
+		if( isRFIDJugDetected )
+		rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
+		else {
+			if (btnJUG_isON() )
+				rhea.selection_startForceJug(selThatWasStarted);
+				// ???
+			else
+			rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
+		}
+	}
+*/
+
 	rhea.selection_startAlreadyPaid (selThatWasStarted, selPrice, selPaymentType);
 }
 
