@@ -156,7 +156,7 @@ function onAfterLangLoaded2()
 		
 	rhea.onEvent_cpuStatus = function( statusID, statusStr, flag16 ) {
 		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
-		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+		if ( parseInt(statusID) === 8 ) {	// Start of washing process
 			gotoRinsingPage();
 		}
 
@@ -177,7 +177,8 @@ function onAfterLangLoaded2()
 
 	doUpdateCredit();
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
-
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
+	
 	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
 	var d = rheaGetElemByID("divBtnHome");
 	d.addEventListener('mouseup', function (ev)
@@ -426,7 +427,7 @@ function resetTimerGotoPageMainMenu()
 }
 
 function gotoPageMainMenu()  	{ window.location = "pageMenu.html";  }
-function gotoRinsingPage()  	{ window.location = "rinsingPage.html";  }
+function gotoRinsingPage() 		{ window.location = "pageRinsing.html";  }
 
 
 //******************** btn jug

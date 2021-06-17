@@ -59,7 +59,7 @@ function onAfterLangLoaded()
 	rhea.onEvent_cpuStatus = function (statusID, statusStr, flag16) {
 		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
 
-		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+		if ( parseInt(statusID) === 8 ) {	// Start of washing process
 			gotoRinsingPage();
 		}
 	}

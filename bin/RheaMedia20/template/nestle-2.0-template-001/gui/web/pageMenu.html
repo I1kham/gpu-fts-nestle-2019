@@ -185,7 +185,7 @@ function onAfterJugInfoLoaded()
 			}	
 		}
 
-		if ( (flag16 & 0x0008) != 0 ) {	// Start of washing process
+		if ( parseInt(statusID) === 8 ) {	// Start of washing process
 			gotoRinsingPage();
 		}
 	}
