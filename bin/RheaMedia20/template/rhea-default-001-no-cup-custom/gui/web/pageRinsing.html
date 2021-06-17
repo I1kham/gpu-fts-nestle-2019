@@ -8,7 +8,11 @@
 	</head>
 
 	<body onLoad="rheaBootstrap()">
-		<div id="mainWrapper" class="wrapper1024x600" style="position:relative">	
+		<div id="mainWrapper" class="wrapper1024x600" style="position:relative">
+			<div class="header">
+				<div id="divCPUMessage" style="display:none;"></div>	
+			</div>
+				
 			<img src="" alt="" style="width: 100%; height: 100%;"/>
 		</div>	
 
@@ -42,10 +46,20 @@
 
 				document.querySelector( '#mainWrapper img' ).src = image;
 
+				rhea.onEvent_cpuMessage = function(msg, importanceLevel) {
+					var dCPU = rheaGetElemByID ("divCPUMessage");
+					if (importanceLevel == 0) {
+						rheaHideElem(dCPU)
+					} else {				
+						rheaSetElemHTML(dCPU, msg);
+						rheaShowElem(dCPU);
+					}
+				}
+
 				rhea.onEvent_cpuStatus = function( statusID, statusStr, flag16 ) {
 					console.log ("onEvent_cpuStatus[" + statusID + "][" + statusStr + "][" + flag16 + "]");
 					
-					if ( parseInt(statusID) !== 8 ) {	// End of washing process
+					if ( parseInt(statusID) !== 8 ) {	// Start of washing process
 						gotoMenuPage();
 					}
 				}
