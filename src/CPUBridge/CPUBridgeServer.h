@@ -136,7 +136,7 @@ namespace cpubridge
 		{
 		public:
 			sStartSelectionParams	params;
-			bool					bForceJug;
+			//bool					bForceJug;
 			const sSubscription		*sub;
 			u8						stopSelectionWasRequested;
 			eRunningSelStatus		status;

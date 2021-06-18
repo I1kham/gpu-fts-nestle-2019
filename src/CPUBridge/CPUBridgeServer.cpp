@@ -23,7 +23,6 @@ Server::Server()
 
 	memset (&runningSel.params, 0, sizeof(runningSel.params));
 	runningSel.params.how = eStartSelectionMode_invalid;
-	runningSel.bForceJug = false;
 	runningSel.sub = NULL;
 	runningSel.stopSelectionWasRequested = 0;
 	runningSel.status = eRunningSelStatus::finished_OK;
@@ -3473,7 +3472,7 @@ void Server::priv_handleState_selection()
 			case eStartSelectionMode_default:
 				//nel caso di default, devo inviare il numero di selezione da far partire direttamente dentro al comando B
 				selNumberToSend = runningSel.getSelNum();
-				bSendForceJugInCommandB = runningSel.bForceJug;
+				bSendForceJugInCommandB = runningSel.params.asDefault.bForceJUG;
 				break;
 
 			case eStartSelectionMode_CPUSpontaneous:
