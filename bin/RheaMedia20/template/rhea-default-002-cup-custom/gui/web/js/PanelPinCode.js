@@ -8,30 +8,31 @@ function PanelPinCode (fatherDivID)
 	var style_pagePinCode = "display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; text-align:center;";
 	var style_pagePinCodeButton = "border:solid 1px #666; width:130px; height:20px; padding:0.7em 0 1.0em 0; text-align:center; font-size:2.0em; margin:5px; display:inline-block; background-color:#666; border-radius: 5px;";
 	var style_pagePinCodeDisplay = "border:solid 4px #666; border-radius:5px 5px 0 0; text-align:center; color:#fff; width:100%; padding:0.5em 0 0.5em 0; background-color:#000; min-height:30px;";
-	
-	
-	var divContainer = document.createElement("div");
-		divContainer.id = "divPanelPinCode";
-		divContainer.style = style_pagePinCode;
 
-		var d1 = document.createElement("div");
-			d1.style = "margin:10px auto 0 auto; display:inline-block; width:500px;";
-			divContainer.appendChild(d1);	
 
-			var dDisplay = document.createElement("div");
-			dDisplay.id = "pagePinCodeDisplay";
-			dDisplay.style = style_pagePinCodeDisplay;
-			d1.appendChild(dDisplay);	
-
-			for (var i=0; i<9; i++)
-			{
-				var d = document.createElement("div");
-				d.style = style_pagePinCodeButton;
-				d.innerHTML = (i+1);
-				d.setAttribute ("data-num", i+1);
-				d1.appendChild(d);
+	var html =   "<div id='divPanelPinCode' style='" +style_pagePinCode +"'>"
+				+"	<div style='margin:10px auto 0 auto; display:inline-block; width:500px;'>"
+				+"		<div id='pagePinCodeDisplay' style='" +style_pagePinCodeDisplay +"'></div>";
 				
-				d.addEventListener("mousedown", function (ev) {
+	for (var i=1; i<=9; i++)
+	{
+		var divID = "panelPinCodeNum" +i;
+		html += "<div id='" +divID +"' data-num='" +i +"' style='" +style_pagePinCodeButton +"'>" +i +"</div>";
+	}
+	
+	html += "	</div>";
+			+"</div>";
+
+
+	var divContainer = document.createElement("div");
+		divContainer.innerHTML = html;
+	document.getElementById(fatherDivID).appendChild(divContainer);		
+		
+		
+	for (var i=1; i<=9; i++)
+	{
+		var divID = "panelPinCodeNum" +i;
+		document.getElementById(divID).addEventListener("mousedown", function (ev) {
 					ev.stopPropagation();
 					me.onBtnPressed (this.getAttribute("data-num"));
 					//console.log (this.getAttribute("data-num"));
@@ -39,11 +40,7 @@ function PanelPinCode (fatherDivID)
 					
 				}, 
 				true);
-			}
-			
-
-	var fatherDiv = document.getElementById(fatherDivID);
-	fatherDiv.appendChild(divContainer);	
+	}
 }
 
 PanelPinCode.prototype.show = function (callbackOK, callbackKO)
