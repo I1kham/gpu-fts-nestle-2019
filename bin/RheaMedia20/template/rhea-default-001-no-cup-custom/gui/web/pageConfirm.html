@@ -211,8 +211,9 @@ function onSelectionChanged(selNum)
 	}
 	else
 	{
-		rheaSetElemHTML(elemPrice, selInfo.price +" " +rheaLang.LAB_CURRENCY_SIMBOL);
-		if (parseFloat(selInfo.price) <= 0)
+		var selPrice =  selInfo.price * calcPriceMultiplier(detectCurrentSelection());
+		rheaSetElemHTML(elemPrice, selPrice +" " +rheaLang.LAB_CURRENCY_SIMBOL);
+		if (parseFloat(selPrice) <= 0)
 			rheaHideElem (elemPrice);
 		else
 			rheaShowElem (elemPrice);
@@ -277,6 +278,8 @@ function toggleJugIcons( show ) {
 			btnJUG_setOFF();
 			btnJUG_hide();
 		}
+
+		setCorrectPriceForJug();
 	}
 }
 
@@ -375,7 +378,23 @@ function onBtnStartSelection()
 	else
 		doStartSelection();
 }
+
+function calcPriceMultiplier(selNum)
+{
+	var priceMultiplier = 0;
+
+	if (isRFIDJugDetected)
+		priceMultiplier = parseInt( rhea.selection_getBySelNumber(selNum).jug );
+
+	if (jugConfiguration === JUG_STATUS.ALWAYS_VISIBLE && btnJUG_isON())
+		priceMultiplier = parseInt( rhea.selection_getBySelNumber(selNum).jug );
+		
+	if (priceMultiplier < 1)
+		priceMultiplier = 1;
 	
+	return priceMultiplier;
+}
+
 function doStartSelection()
 {	
 	clearInterval(timerGotoMainMenu);
@@ -458,7 +477,7 @@ function btnJUG_setOFF()
 {
 	var d = rheaGetElemByID("btnJUG");
 	if (classListContains (d, "selected"))
-	if ( jugConfiguration !== JUG_STATUS.ON_RFID_STATUS ) rheaRemoveClassToElem(d,"selected");
+	if ( !isRFIDJugDetected ) rheaRemoveClassToElem(d,"selected");
 }
 
 function onBtnJUGClicked ()
@@ -467,7 +486,23 @@ function onBtnJUGClicked ()
 		btnJUG_setOFF();
 	else
 		btnJUG_setON();
+	
+	setCorrectPriceForJug();
 }
+
+function setCorrectPriceForJug() {
+	var elemPrice = rheaGetElemByID("divPrice");
+	var selInfo = rhea.selection_getBySelNumber(detectCurrentSelection());
+	var selPrice =  selInfo.price * calcPriceMultiplier(detectCurrentSelection());
+	
+	rheaSetElemHTML(elemPrice, selPrice +" " +rheaLang.LAB_CURRENCY_SIMBOL);
+	
+	if (parseFloat(selPrice) <= 0)
+		rheaHideElem (elemPrice);
+	else
+		rheaShowElem (elemPrice);
+}
+
 
 </script>
 
