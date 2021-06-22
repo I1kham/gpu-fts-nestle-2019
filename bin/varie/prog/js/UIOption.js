@@ -43,7 +43,22 @@ function UIOption (parentID, childNum, node)
 	this.da3Pos = parseInt(UIUtils_getAttributeOrDefault(node, "data-da3", "-1"));
 	
 	//inietto l'html
-	var cellSize = parseInt (100 / nOptions);
+	this.priv_buildHTML();
+
+	//opzione selezionata
+	this.selectedOption = -1;
+	if (this.da3Pos >= 0)
+		this.loadFromDA3 (da3, this.da3Pos);
+	else
+		this.selectOptionByValue (UIUtils_getAttributeOrDefault(node, "data-selected", "-1"));
+}
+
+UIOption.prototype.priv_buildHTML = function ()
+{
+	const nOptions = this.optionValue.length;
+	const cellSize = parseInt (100 / nOptions);
+	var node = document.getElementById(this.id);
+	
 	var html = "<table class='" +node.getAttribute("class") +"'><tr>";
 	for (var i=0; i<nOptions; i++)
 	{
@@ -53,13 +68,26 @@ function UIOption (parentID, childNum, node)
 	}
 	html += "</tr></table>";
 	node.innerHTML = html;
+}
 
-	//opzione selezionata
+UIOption.prototype.changeOptions = function (str)
+{
+	this.optionValue = [];
+	this.optionCaption = [];
+	
+	var e = str.split("|");
+	var nOptions = 0;
+	for (var i=0; i<e.length;)
+	{
+		this.optionValue[nOptions] = e[i++];
+		this.optionCaption[nOptions] = e[i++];
+		nOptions++;
+	}	
+	this.priv_buildHTML();
+	
+	var n = this.selectedOption;
 	this.selectedOption = -1;
-	if (this.da3Pos >= 0)
-		this.loadFromDA3 (da3, this.da3Pos);
-	else
-		this.selectOptionByValue (UIUtils_getAttributeOrDefault(node, "data-selected", "-1"));
+	this.bindEvents();
 }
 
 UIOption.prototype.changeCaptionByIndex = function (i, msg)

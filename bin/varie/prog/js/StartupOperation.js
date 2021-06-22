@@ -154,6 +154,11 @@ function onGUIInfoLoaded()
 			pageCleaning_show(); 
 			pageCleaning_startLavSanitario(161,0); 
 			bGotoHMIAfterLavaggio = 1;
+			break;
+
+		case "pageDataAudit": 
+			//show partial DA e, alla fine, goto back to HMI
+			pageDataAudit_show(0);
 			break;			
 	}	
 }

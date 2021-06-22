@@ -189,7 +189,7 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="保养维护" data-onclick="pageMaintenance_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="清洗/<br>冲洗" data-onclick="pageCleaning_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="数据审核" data-onclick="pageDataAudit_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="数据审核" data-onclick="pageDataAudit_show(1)"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="选项" data-onclick="pageSelections_show()"></div></td>
@@ -1376,7 +1376,7 @@
 		<div id="footer_C"></div>
 		
 		<div id="footer_R">
-			<div style="float:right"><div id="bntTestSelection" class="UIButton" data-caption="&nbsp&nbsp&nbsp&nbsp;测试选项 &nbsp&nbsp&nbsp;" data-onclick="pageSingleSelection_test(0)"></div></div>
+			<div style="float:right"><div id="bntTestSelection" class="UIButton" style="display:none" data-caption="&nbsp&nbsp&nbsp&nbsp;测试选项 &nbsp&nbsp&nbsp;" data-onclick="pageSingleSelection_test(0)"></div></div>
 			<div class="clear"></div>
 		</div>
 		<div class="clear"></div>
@@ -2289,27 +2289,8 @@ function pageMiscellaneous_sendP15()
 	pleaseWait_hide();
 }
 
-function waitBuzzerEnd()
-{
-	rhea.ajax ("getBuzzerStatus", "").then( function(result)
-	{
-		console.log (result);
-		if (result=="RUN")
-			setTimeout (waitBuzzerEnd, 100);
-	})
-	.catch( function(result)
-	{
-		console.log ("ERR");
-	});	
-}
-
 function pageMiscellaneous_oldProgMenu()		
 { 
-	/*var buzzer_dsec = da3.read8(7064);
-	console.log ("buzzer_dsec="+buzzer_dsec);
-	rhea.activateCPUBuzzer (5, buzzer_dsec, 5);
-	waitBuzzerEnd();
-	*/
 	window.location = "gotoLegacyMenu.html"; 
 }
 
@@ -3760,7 +3741,7 @@ function pageDevices_startGrinderSpeedTest()			{ currentTask.runGrinderSpeedTest
 var taskResetEVA = new TaskResetEVA();
 var pageDA_secretBtnCounter = 0;
 var pageDA_secretBtnLastTimeClickedMSec=0;
-function pageDataAudit_show()
+function pageDataAudit_show (bShowCompleteMenu)
 {
 	if (showPage("pageDataAudit", "数据审核", 1,0))
 	{
@@ -3784,6 +3765,15 @@ function pageDataAudit_show()
 		true);
 	}
 	
+	if (bShowCompleteMenu==0)
+		btnBack_setCallback ("gotoHMI()");
+	
+	var win = ui.getWindowByID("pageDataAudit");
+	var selector = win.getChildByID("pageDataAudit_selector");
+	if (bShowCompleteMenu)
+		selector.changeOptions ("0|常规选项|1|部分|2|总计|4|PRESELECTIONS|3|刷新数据");
+	else
+		selector.changeOptions ("1|部分|4|PRESELECTIONS");
 	pageDataAudit_onSelector();
 }
 
@@ -4112,7 +4102,11 @@ function pageDataAudit_downloadEVA_onFinish()
 		pageDataAudit_build_preselection(numPresel, numDecimali, currentTask.buffer, addrBloccoPreselezioni);
 
 		var win = ui.getWindowByID("pageDataAudit");
-		win.getChildByID("pageDataAudit_selector").selectOptionByValue(0);
+		var selector = win.getChildByID("pageDataAudit_selector");
+		if (selector.optionValue.length > 4)
+			selector.selectOptionByValue(0);
+		else
+			selector.selectOptionByValue(1);
 		pageDataAudit_onSelector();
 	}
 	
