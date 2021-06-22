@@ -242,6 +242,10 @@ void MainWindow::priv_showForm (eForm w)
     case eForm_newprog_descaling:
         priv_loadURLMenuProg("page=pageDescaling");
         break;
+		
+	case eForm_newprog_dataAudit:
+        priv_loadURLMenuProg("page=pageDataAudit");
+        break;
     }
 }
 
@@ -314,6 +318,7 @@ void MainWindow::timerInterrupt()
             case eRetCode_gotoNewMenuProg_LavaggioSanitario: priv_scheduleFormChange(eForm_newprog_lavaggioSanitario); break;
             case eRetCode_gotoNewMenuProg_lavaggioMilker: priv_scheduleFormChange(eForm_newprog_lavaggioMilker); break;
             case eRetCode_gotoNewMenuProg_descaling: priv_scheduleFormChange(eForm_newprog_descaling); break;
+			case eRetCode_gotoNewMenuProg_partialDataAudit: priv_scheduleFormChange(eForm_newprog_dataAudit); break;
         }
         break;
 
@@ -326,6 +331,7 @@ void MainWindow::timerInterrupt()
     case eForm_newprog_lavaggioMilker:
     case eForm_newprog_lavaggioSanitario:
     case eForm_newprog_descaling:
+	case eForm_newprog_dataAudit:
         switch (priv_showNewProgrammazione_onTick())
         {
             default: break;
@@ -708,5 +714,13 @@ void MainWindow::on_webView_urlChanged(const QUrl &arg1)
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
             }
         }
+        else if (currentForm == eForm_main_showBrowser)
+        {
+            if (url.indexOf("gotoPartialDataAudit.html") > 0)
+            {
+                //dalla GUI utente al nuovo menu prog > data audit
+                retCode = eRetCode_gotoNewMenuProg_partialDataAudit;
+            }
+        }		
     }
 }

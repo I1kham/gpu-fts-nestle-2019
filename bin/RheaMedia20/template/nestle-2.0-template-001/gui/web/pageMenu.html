@@ -67,6 +67,7 @@
 				<div id="btnBO_cleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:205px;" onclick="onBtnCleaning()"></div>
 				<div id="btnBO_milkerCleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:555px;" onclick="onBtnMilkerCleaning()"></div>
 				<div id="btnBO_FileInfo" class="btnQuadratoGrosso" style="position:absolute; top:120px; left:205px;" onclick="onBtnFileInfo()"></div>
+				<div id="btnBO_dataAudit" class="btnQuadratoGrosso" style="position:absolute; top:120px; left:555px;" onclick="onBtnDataAudit()"><p>DATA AUDIT</p></div>
 			</div>
 			<div class="btnQuadratoGrosso" style="position:absolute; top:300px; left:700px; color:#f00" onclick="hideFastMenu()"><p>CLOSE</p></div>
 			
@@ -846,6 +847,15 @@ function onBtnMilkerCleaning()
 		}
 
 		,function callbackKO()		{ hideFastMenu(); }
+	);	
+}
+
+function onBtnDataAudit()
+{
+	resetTimerGotoPageStandby();
+	pinCodePanel.show (
+		function callbackOK() 	{ window.location = "gotoPartialDataAudit.html"; }
+		,function callbackKO()	{ hideFastMenu(); }
 	);	
 }
 

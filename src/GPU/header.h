@@ -35,7 +35,8 @@ enum eRetCode
     eRetCode_gotoNewMenuProgrammazione = 4,
     eRetCode_gotoNewMenuProg_LavaggioSanitario = 5,
     eRetCode_gotoNewMenuProg_lavaggioMilker = 6,
-    eRetCode_gotoNewMenuProg_descaling = 7
+    eRetCode_gotoNewMenuProg_descaling = 7,
+	eRetCode_gotoNewMenuProg_partialDataAudit = 8
 };
 
 struct sModuleESAPI
