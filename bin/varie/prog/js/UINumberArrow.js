@@ -280,7 +280,7 @@ UINumber.prototype.priv_bindEvents = function(iCifra)
 			//per assicurarmi di stare all'interno di valueMin/valueMax...
 			if (newValue < me.valueMin || newValue > me.valueMax) 
 			{
-				console.log ("cur[" +curValue +"], new[" +newValue +"]");
+				//console.log ("cur[" +curValue +"], new[" +newValue +"]");
 				if (bVolevoIncrementare)
 				{
 					me.setValue(me.valueMax);

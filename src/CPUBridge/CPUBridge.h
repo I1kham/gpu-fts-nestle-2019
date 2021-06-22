@@ -162,6 +162,9 @@ namespace cpubridge
 	u8			buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_requestPriceHoldingPriceList (u8 firstPrice, u8 numPrices, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getCupSensorLiveValue (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_activateCPUBuzzer (u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
+					//[numRepeat], [beepLen_dSec] e [pausaTraUnBeepELAltro_dSec] validi sono compresi tra 0 e 15 inclusi
+	u8			buildMsg_getBuzzerStatus (u8 *out_buffer, u8 sizeOfOutBuffer);
 
 
 	/***********************************************
@@ -353,6 +356,9 @@ namespace cpubridge
 
 	void		notify_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bYes);
 	void		translateNotify_CPU_IS_QUICK_MENU_PINCODE_SET(const rhea::thread::sMsg &msg, bool *out_bYes);
+
+	void		notify_CPU_BUZZER_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bBuzzerBusy);
+	void		translateNotify_CPU_BUZZER_STATUS(const rhea::thread::sMsg &msg, bool *out_bBuzzerBusy);
 
 	/***********************************************
 		ask_xxxx
@@ -609,6 +615,15 @@ namespace cpubridge
 
     void		ask_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &from, u16 handlerID);
                     //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_IS_QUICK_MENU_PINCODE_SET
+
+	void		ask_CPU_ACTIVATE_BUZZER (const sSubscriber &from, u16 handlerID, u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec);
+	void		translate_CPU_ACTIVATE_BUZZER(const rhea::thread::sMsg &msg, u8 *out_numRepeat, u8 *out_beepLen_dSec, u8 *out_pausaTraUnBeepELAltro_dSec);
+                    //alla ricezione di questo msg, CPUBridge non risponderà con alcuna notifica
+					//[numRepeat], [beepLen_dSec] e [pausaTraUnBeepELAltro_dSec] validi sono compresi tra 0 e 15 inclusi
+
+	void		ask_CPU_BUZZER_STATUS (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_BUZZER_STATUS
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

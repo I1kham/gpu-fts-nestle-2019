@@ -12,6 +12,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	bShowDialogStopSelezione = true;
 	statoPreparazioneBevanda = eStatoPreparazioneBevanda::doing_nothing;
 	VMCState = eVMCState::DISPONIBILE;
+	buzzerIsRunnigUntilTime_mSec = 0;
 	memset(&runningSel, 0, sizeof(runningSel));
 	memset(&cleaning, 0, sizeof(cleaning));
 	memset(&testModem, 0, sizeof(testModem));
@@ -1060,7 +1061,55 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				runningSel.selNum = 1;
 				runningSel.timeStartedMSec = rhea::getTimeNowMSec();
 				VMCState = eVMCState::PREPARAZIONE_BEVANDA;
-				break;
+				return true;
+
+			case eCPUProgrammingCommand::activate_cpu_buzzer:
+				//in: # P [len] 0x27 [byte1] [byte2] [ck]
+				{
+					const u8 b1 = bufferToSend[4];
+					const u8 b2 = bufferToSend[5];
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = b1;
+					out_answer[ct++] = b2;
+
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+
+					if (b1 == 0)
+						buzzerIsRunnigUntilTime_mSec = rhea::getTimeNowMSec() + (u64)(b2 & 0x0F)*100;
+					else
+					{
+						const u64 numRepeat = (b1 & 0x7f);
+						const u64 dsecUp = (b2 & 0x0f);
+						const u64 dsecDown = ((b2 & 0xf0) >> 4);
+						const u64 totalMSec = 100 * ((dsecUp * numRepeat) + (dsecDown * (numRepeat-1)));
+						buzzerIsRunnigUntilTime_mSec = rhea::getTimeNowMSec() + totalMSec;
+					}
+				}
+				return true;
+
+			case eCPUProgrammingCommand::get_cpu_buzzer_status:
+				//# P [len] 0x28 [status] [ck]
+				{
+					u8 buzzerRunning = 0;
+					if (rhea::getTimeNowMSec() <= buzzerIsRunnigUntilTime_mSec)
+						buzzerRunning = 1;
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = buzzerRunning;
+
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
+				return true;
+
 			} //switch (subcommand)
 		}
 		break;
@@ -1169,6 +1218,7 @@ void CPUChannelFakeCPU::priv_advanceFakeCleaning()
 		}
 	}
 }
+
 //*****************************************************************
 void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer)
 {

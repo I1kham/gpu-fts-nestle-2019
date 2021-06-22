@@ -522,6 +522,13 @@ u8 cpubridge::buildMsg_getTimeNextLavaggioSanCappuccinatore(u8 *out_buffer, u8 s
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_getBuzzerStatus (u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand::get_cpu_buzzer_status, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 u8 cpubridge::buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	return buildMsg_Programming(eCPUProgrammingCommand::getLastGrinderSpeed, NULL, 0, out_buffer, sizeOfOutBuffer);
@@ -531,6 +538,19 @@ u8 cpubridge::buildMsg_getLastGrinderSpeed (u8 *out_buffer, u8 sizeOfOutBuffer)
 u8 cpubridge::buildMsg_getCupSensorLiveValue (u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	return buildMsg_Programming(eCPUProgrammingCommand::getCupSensorLiveValue, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_activateCPUBuzzer (u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec, u8 *out_buffer, u8 sizeOfOutBuffer)
+{
+	if (numRepeat>15) numRepeat= 15;
+	if (beepLen_dSec>15) beepLen_dSec= 15;
+	if (pausaTraUnBeepELAltro_dSec>15) pausaTraUnBeepELAltro_dSec= 15;
+
+	u8 payload[2];
+	payload[0] = (numRepeat | 0x80);
+	payload[1] = beepLen_dSec | (pausaTraUnBeepELAltro_dSec << 4);
+	return buildMsg_Programming(eCPUProgrammingCommand::activate_cpu_buzzer, payload, 2, out_buffer, sizeOfOutBuffer);
 }
 
 
@@ -585,7 +605,7 @@ void cpubridge::translateNotify_CPU_STATE_CHANGED(const rhea::thread::sMsg &msg,
 	*out_VMCstate = (cpubridge::eVMCState)state[0];
 	*out_VMCerrorCode = state[1];
 	*out_VMCerrorType = state[2];
-	*out_flag1 = rhea::utils::bufferReadU16(&state[3]);
+*out_flag1 = rhea::utils::bufferReadU16(&state[3]);
 }
 
 //***************************************************
@@ -2363,6 +2383,42 @@ void cpubridge::translate_CPU_VALIDATE_QUICK_MENU_PINCODE (const rhea::thread::s
 }
 
 //***************************************************
+void cpubridge::ask_CPU_ACTIVATE_BUZZER (const sSubscriber &from, u16 handlerID, u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec)
+{
+	if (numRepeat>15) numRepeat= 15;
+	if (beepLen_dSec>15) beepLen_dSec= 15;
+	if (pausaTraUnBeepELAltro_dSec>15) pausaTraUnBeepELAltro_dSec= 15;
+
+	u8 otherData[2];
+	if (numRepeat < 2)
+	{
+		otherData[0] = 0;
+		otherData[1] = beepLen_dSec;
+	}
+	else
+	{
+		otherData[0] = (numRepeat | 0x80);
+		otherData[1] = beepLen_dSec | (pausaTraUnBeepELAltro_dSec << 4);
+	}
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_ACTIVATE_BUZZER, handlerID, otherData, 2);
+}
+void cpubridge::translate_CPU_ACTIVATE_BUZZER(const rhea::thread::sMsg &msg, u8 *out_numRepeat, u8 *out_beepLen_dSec, u8 *out_pausaTraUnBeepELAltro_dSec)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_ACTIVATE_BUZZER);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_numRepeat = p[0] & 0x7F;
+	*out_beepLen_dSec = p[1] & 0x0F;
+	*out_pausaTraUnBeepELAltro_dSec = ((p[1] & 0xF0) >> 4);
+}
+
+
+//***************************************************
+void cpubridge::ask_CPU_BUZZER_STATUS (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_BUZZER_STATUS, handlerID);
+}
+
+//***************************************************
 void cpubridge::ask_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_IS_QUICK_MENU_PINCODE_SET, handlerID);
@@ -2488,7 +2544,6 @@ void cpubridge::notify_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &to, u16
 		optionalData = 0x01;
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_IS_QUICK_MENU_PINCODE_SET, handlerID, &optionalData, 1);
 }
-//***************************************************
 void cpubridge::translateNotify_CPU_IS_QUICK_MENU_PINCODE_SET(const rhea::thread::sMsg &msg, bool *out_bYes)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_IS_QUICK_MENU_PINCODE_SET);
@@ -2498,6 +2553,26 @@ void cpubridge::translateNotify_CPU_IS_QUICK_MENU_PINCODE_SET(const rhea::thread
 	else
 		*out_bYes = false;
 }
+
+//***************************************************
+void cpubridge::notify_CPU_BUZZER_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bBuzzerBusy)
+{
+	logger->log("notify_CPU_BUZZER_STATUS\n");
+	u8 optionalData = 0;
+	if (bBuzzerBusy)
+		optionalData = 0x01;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_BUZZER_STATUS, handlerID, &optionalData, 1);
+}
+void cpubridge::translateNotify_CPU_BUZZER_STATUS(const rhea::thread::sMsg &msg, bool *out_bBuzzerBusy)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_BUZZER_STATUS);
+	const u8 *p = (const u8*)msg.buffer;
+	if (p[0] == 0x01)
+		*out_bBuzzerBusy = true;
+	else
+		*out_bBuzzerBusy = false;
+}
+
 
 
 //***************************************************

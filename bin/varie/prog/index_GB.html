@@ -2289,7 +2289,29 @@ function pageMiscellaneous_sendP15()
 	pleaseWait_hide();
 }
 
-function pageMiscellaneous_oldProgMenu()		{ window.location = "gotoLegacyMenu.html"; }
+function waitBuzzerEnd()
+{
+	rhea.ajax ("getBuzzerStatus", "").then( function(result)
+	{
+		console.log (result);
+		if (result=="RUN")
+			setTimeout (waitBuzzerEnd, 100);
+	})
+	.catch( function(result)
+	{
+		console.log ("ERR");
+	});	
+}
+
+function pageMiscellaneous_oldProgMenu()		
+{ 
+	/*var buzzer_dsec = da3.read8(7064);
+	console.log ("buzzer_dsec="+buzzer_dsec);
+	rhea.activateCPUBuzzer (5, buzzer_dsec, 5);
+	waitBuzzerEnd();
+	*/
+	window.location = "gotoLegacyMenu.html"; 
+}
 
 function  pageMiscellaneous_onSelector()
 {

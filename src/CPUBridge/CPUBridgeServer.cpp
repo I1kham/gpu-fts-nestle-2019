@@ -1214,6 +1214,36 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_ACTIVATE_BUZZER:
+		{
+			u8 numRepeat = 0;
+			u8 beepLen_dSec = 0;
+			u8 pausaTraUnBeepELAltro_dSec = 0;
+			translate_CPU_ACTIVATE_BUZZER(msg, &numRepeat, &beepLen_dSec, &pausaTraUnBeepELAltro_dSec);
+
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_activateCPUBuzzer(numRepeat, beepLen_dSec, pausaTraUnBeepELAltro_dSec, bufferW, sizeof(bufferW));
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
+		}
+		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_BUZZER_STATUS:
+			{
+				bool bBuzzerBusy = false;
+				u8 bufferW[128];
+				const u16 nBytesToSend = cpubridge::buildMsg_getBuzzerStatus(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				{
+					//# P [len] [0x28] [status] [ck]
+					if (answerBuffer[4] != 0)
+						bBuzzerBusy = true;
+				}
+				notify_CPU_BUZZER_STATUS (sub->q, handlerID, logger, bBuzzerBusy);
+			}
+			break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_IS_QUICK_MENU_PINCODE_SET:
 			if (this->quickMenuPinCode != 0)
 				notify_CPU_IS_QUICK_MENU_PINCODE_SET(sub->q, handlerID, logger, true);

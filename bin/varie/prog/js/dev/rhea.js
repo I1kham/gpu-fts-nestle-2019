@@ -15,6 +15,7 @@ var	RHEA_EVENT_ANSWER_TO_IDCODE_REQUEST = 105;			//'i'
 var	RHEA_EVENT_SEND_BUTTON = 115;						//'s'
 var	RHEA_EVENT_SEND_PARTIAL_DA3 = 116;					//'t'
 var	RHEA_EVENT_READ_DATA_AUDIT = 108;					//'l'
+var	RHEA_EVENT_CPU_ACTIVATE_BUZZER = 71;				//'G'
 
 
 
@@ -858,4 +859,14 @@ Rhea.prototype.filetransfer_startDownload = function(usage, userValue, callback_
 		}
 	}
 	this.fileTransfer[this.nFileTransfer++] = new RheaFileDownload(usage, userValue, callback_onStart, callback_onProgress, callback_onEnd);
+}
+
+Rhea.prototype.activateCPUBuzzer = function (numRepeat, beepLen_dSec, pauseBetweenBeeps_dSec)
+{
+	var buffer = new Uint8Array(4);
+	buffer[0] = RHEA_EVENT_CPU_ACTIVATE_BUZZER;
+	buffer[1] = parseInt(numRepeat);
+	buffer[2] = parseInt(beepLen_dSec);
+	buffer[3] = parseInt(pauseBetweenBeeps_dSec);
+	this.sendGPUCommand ("E", buffer, 0, 0);
 }

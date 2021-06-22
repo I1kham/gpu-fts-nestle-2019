@@ -104,6 +104,7 @@ namespace cpubridge
 		sTestAssorbGruppo			testAssorbGruppo;
 		u32							decounterVari[32];
 		u8							*da3;
+		u64							buzzerIsRunnigUntilTime_mSec;
     };
 
 } // namespace cpubridge

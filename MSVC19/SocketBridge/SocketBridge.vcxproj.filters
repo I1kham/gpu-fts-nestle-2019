@@ -300,6 +300,12 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSelForceJug.cpp">
       <Filter>CmdHandler\event</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqActivateBuzzer.cpp">
+      <Filter>CmdHandler\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x28_getBuzzerStatus.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -601,6 +607,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqStartSelForceJug.h">
       <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_eventReqActivateBuzzer.h">
+      <Filter>CmdHandler\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x28_getBuzzerStatus.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
