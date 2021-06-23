@@ -75,7 +75,7 @@ var CUP_SIZE = 0;
 var SHOT_TYPE = 0;
 var qrcode = null;
 var timerGotoMainMenu = null;
-
+var bIconSelectionInfoIsVisible = 0;
 var JUG_STATUS = {
 	ALWAYS_VISIBLE: 1,
 	NEVER_VISIBLE: 2,
@@ -102,7 +102,10 @@ function onAfterLangLoaded2()
 	lang_loadJS ("nutriInfo").then ( function()
 	{
 		if (rheaLang_nutriInfo[iconNum] != "")
+		{
+			bIconSelectionInfoIsVisible=1;
 			rheaShowElem(rheaGetElemByID("divBtnSelectionInfo"));
+		}
 	});
 		
 		
@@ -148,8 +151,10 @@ function onAfterLangLoaded2()
 				rheaSetDisplayMode(dContent, "inline-block");
 				selThatWasStarted = 0;
 				rheaShowElem(rheaGetElemByID("divBtnHome")); //btn back
-				rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
+				if (bIconSelectionInfoIsVisible)
+					rheaShowElem(rheaGetElemByID("divBtnSelectionInfo")); //btn selection info
 				resetTimerGotoPageMainMenu();
+				onSelectionChanged(detectCurrentSelection());
 				break;
 		}	
 	}
