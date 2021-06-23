@@ -713,10 +713,7 @@ void MainWindow::on_webView_urlChanged(const QUrl &arg1)
                 //dalla GUI utente al nuovo menu prog > lavaggio milker
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
             }
-        }
-        else if (currentForm == eForm_main_showBrowser)
-        {
-            if (url.indexOf("gotoPartialDataAudit.html") > 0)
+            else if (url.indexOf("gotoPartialDataAudit.html") > 0)
             {
                 //dalla GUI utente al nuovo menu prog > data audit
                 retCode = eRetCode_gotoNewMenuProg_partialDataAudit;
