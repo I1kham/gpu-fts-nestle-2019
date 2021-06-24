@@ -54,7 +54,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labGPU_buildDate->setText ("Build date: " __DATE__ " " __TIME__);
 
     //modulo ESAPI
-    ui->labESAPI->setText ("ESAPI module: <span style='color:#fff'>none</span>");
+    ui->labESAPI->setText ("rheAPI module: <span style='color:#fff'>none</span>");
 
     //Bottoni
     ui->btnInstall_languages->setVisible(false);
@@ -233,7 +233,7 @@ void FormBoot::priv_updateLabelInfo()
     {
         if (esapi::eExternalModuleType::none == glob->esapiModule.moduleType)
         {
-            sprintf_s (s, sizeof(s), "ESAPI: <span style='color:#fff'>API v%d.%d</span>", glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+            sprintf_s (s, sizeof(s), "rheAPI: <span style='color:#fff'>API v%d.%d</span>", glob->esapiModule.verMajor, glob->esapiModule.verMinor);
             ui->labESAPI->setText (s);
         }
         else
@@ -249,7 +249,7 @@ void FormBoot::priv_updateLabelInfo()
                 sprintf_s (moduleName, sizeof(moduleName), "rasPI");
                 break;
             }
-            sprintf_s (s, sizeof(s), "ESAPI module: <span style='color:#fff'>%s, v%d.%d</span>", moduleName, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+            sprintf_s (s, sizeof(s), "rheAPI module: <span style='color:#fff'>%s, v%d.%d</span>", moduleName, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
             ui->labESAPI->setText (s);
         }
     }
@@ -986,7 +986,7 @@ void FormBoot::priv_uploadGUI (const u8 *srcFullFolderPath)
     }
 
     //chiedo a ESAPI di iniziare il fileUpload. Mano mano che l'upload prosegue, la fn priv_uploadESAPI_GUI() viene chiamata
-    priv_pleaseWaitShow("Uploading mobile GUI to ESAPI module...");
+    priv_pleaseWaitShow("Uploading mobile GUI to rheAPI module...");
     //priv_foreverDisableBtnStartVMC();
     esapi::ask_RASPI_START_FILEUPLOAD (glob->esapiSubscriber, fullMobileGUIPathAndName);
 }
