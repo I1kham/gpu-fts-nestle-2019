@@ -3774,6 +3774,7 @@ function pageDataAudit_show (bShowCompleteMenu)
 		selector.changeOptions ("0|$LAB_DA_OVERVIEW|1|$LAB_DA_PARTIALS|2|$LAB_DA_TOTALS|4|$LAB_DA_PRESELECTION|3|$LAB_DA_REFRESH_DATA");
 	else
 		selector.changeOptions ("1|$LAB_DA_PARTIALS|4|$LAB_DA_PRESELECTION");
+	selector.selectOptionByIndex(0);
 	pageDataAudit_onSelector();
 }
 

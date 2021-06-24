@@ -3774,6 +3774,7 @@ function pageDataAudit_show (bShowCompleteMenu)
 		selector.changeOptions ("0|常规选项|1|部分|2|总计|4|PRESELECTIONS|3|刷新数据");
 	else
 		selector.changeOptions ("1|部分|4|PRESELECTIONS");
+	selector.selectOptionByIndex(0);
 	pageDataAudit_onSelector();
 }
 

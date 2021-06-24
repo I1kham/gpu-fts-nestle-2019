@@ -3774,6 +3774,7 @@ function pageDataAudit_show (bShowCompleteMenu)
 		selector.changeOptions ("0|APERÇU|1|PARTIEL|2|TOTAL|4|PRESELECTIONS|3|MISE à JOUR");
 	else
 		selector.changeOptions ("1|PARTIEL|4|PRESELECTIONS");
+	selector.selectOptionByIndex(0);
 	pageDataAudit_onSelector();
 }
 

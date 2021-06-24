@@ -194,11 +194,8 @@ function onAfterLangLoaded2()
 	resetTimerGotoPageMainMenu();
 }
 
-function onSelectionChanged(selNum)
+function updatePriceLabelForSelection (selNum)
 {
-	resetTimerGotoPageMainMenu();
-	var selInfo = rhea.selection_getBySelNumber(selNum);
-	
 	var elemPrice = rheaGetElemByID("divPrice");
 	if (rhea.isFreevend == 1)
 	{
@@ -216,14 +213,52 @@ function onSelectionChanged(selNum)
 	}
 	else
 	{
-		var selPrice =  selInfo.price * calcPriceMultiplier(detectCurrentSelection());
-		rheaSetElemHTML(elemPrice, selPrice +" " +rheaLang.LAB_CURRENCY_SIMBOL);
+		var selInfo = rhea.selection_getBySelNumber(selNum);
+		var selPrice =  selInfo.price;
+		var priceMul = calcPriceMultiplier(selNum);
+		if (priceMul > 1)
+		{
+			var posizioneSeparatoreDecimale = 0;
+			var priceInt = 0;
+			for (var i=0; i<selPrice.length; i++)
+			{
+				if (selPrice[i]>='0' && selPrice<='9')
+					priceInt += selPrice[i];
+				else if (selPrice[i]=='.')
+					posizioneSeparatoreDecimale = i;
+			}
+			
+			if (posizioneSeparatoreDecimale != 0)
+			{
+				var numCifreDecimali = selPrice.length - (posizioneSeparatoreDecimale + 1);
+				selPrice = priceInt * priceMul;
+				
+				selPrice = selPrice.toString();
+				while (selPrice.length < (numCifreDecimali+1))
+					selPrice = "0" + selPrice;
+
+				var len = selPrice.length;
+				selPrice = selPrice.substr(0, len - numCifreDecimali) +"." +selPrice.substr(len - numCifreDecimali);
+			}
+			else
+				selPrice = priceInt * priceMul;
+		}
+		
+		rheaSetElemHTML (elemPrice, selPrice +" " +rheaLang.LAB_CURRENCY_SIMBOL);
 		if (parseFloat(selPrice) <= 0)
 			rheaHideElem (elemPrice);
 		else
 			rheaShowElem (elemPrice);
-	}		
+	}
+}
 
+function onSelectionChanged(selNum)
+{
+	resetTimerGotoPageMainMenu();
+	
+	updatePriceLabelForSelection (selNum);
+	
+	var selInfo = rhea.selection_getBySelNumber(selNum);
 	var btnStart = rheaGetElemByID("btnStart");
 	var btnStartNotAvail = rheaGetElemByID("btnStartNotAvail");
 	if (selInfo.enabled == "0")
@@ -284,7 +319,7 @@ function toggleJugIcons( show ) {
 			btnJUG_hide();
 		}
 
-		setCorrectPriceForJug();
+		updatePriceLabelForSelection (detectCurrentSelection());
 	}
 }
 
@@ -492,24 +527,8 @@ function onBtnJUGClicked ()
 	else
 		btnJUG_setON();
 	
-	setCorrectPriceForJug();
+	updatePriceLabelForSelection (detectCurrentSelection());
 }
-
-function setCorrectPriceForJug() {
-	var elemPrice = rheaGetElemByID("divPrice");
-	var selInfo = rhea.selection_getBySelNumber(detectCurrentSelection());
-	var selPrice =  selInfo.price * calcPriceMultiplier(detectCurrentSelection());
-	
-	rheaSetElemHTML(elemPrice, selPrice +" " +rheaLang.LAB_CURRENCY_SIMBOL);
-	
-	if (parseFloat(selPrice) <= 0)
-		rheaHideElem (elemPrice);
-	else
-		rheaShowElem (elemPrice);
-}
-
 
 </script>
-
-
 </html>

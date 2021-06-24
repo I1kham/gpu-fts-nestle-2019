@@ -144,7 +144,12 @@ function onAfterLangLoaded()
 		{
 			var j = JSON.parse(result);
 			for (var i=0; i<j.n; i++)
-				rhea.selection_getBySelNumber(i+1).jug = parseInt(j.s[i]);
+			{
+				if (j.s[i]=='a' || j.s[i]=='A')
+					rhea.selection_getBySelNumber(i+1).jug = 10;
+				else
+					rhea.selection_getBySelNumber(i+1).jug = parseInt(j.s[i]);
+			}				
 			onAfterJugInfoLoaded();
 		})
 		.catch( function(result)

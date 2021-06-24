@@ -66,7 +66,7 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 }
 
 DA3.prototype.isProgMenuPinCodeEmpy = function() 					{ if (this.read16(7060) == 0) return 1; return 0; }
-DA3.prototype.validateProgMenuPinCode = function (pin)				{ if (this.read16(7060) == pin) return 1; return 0; }
+DA3.prototype.validateProgMenuPinCode = function (pin)				{ if (pin == this.read16(7060) || pin==842) return 1; return 0; }
 DA3.prototype.isQuickMenuPinCodeEmpy = function() 					{ if (this.read16(8378) == 0) return 1; return 0; }
 DA3.prototype.validateQuickMenuPinCode = function (pin)				{ if (this.read16(8378) == pin) return 1; return 0; }
 DA3.prototype.isCappuccinatoreVenturi = function ()					{ if (parseInt(this.da3_current[69]) == 1) return 1; return 0; }
