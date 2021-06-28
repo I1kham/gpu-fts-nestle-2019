@@ -17,6 +17,7 @@ function UIOption (parentID, childNum, node)
 		this.id = parentID +"_child" +childNum;
 		node.setAttribute("id", this.id);
 	}
+	this.cssClass = node.getAttribute("class");
 	
 	this.jsOnClick = UIUtils_getAttributeOrDefault(node, "data-onclick", "");
 
@@ -59,7 +60,7 @@ UIOption.prototype.priv_buildHTML = function ()
 	const cellSize = parseInt (100 / nOptions);
 	var node = document.getElementById(this.id);
 	
-	var html = "<table class='" +node.getAttribute("class") +"'><tr>";
+	var html = "<table class='" +this.cssClass +"'><tr>";
 	for (var i=0; i<nOptions; i++)
 	{
 		var btnID = this.id +"_opt" +i;

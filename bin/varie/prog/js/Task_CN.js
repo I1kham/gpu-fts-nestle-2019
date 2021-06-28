@@ -2985,7 +2985,7 @@ TaskGrinderClean.prototype.runGrinderCycle = function (numCicli, tempoGrinderONS
 
 TaskGrinderClean.prototype.runGrinderCycle_1 = function()
 {
-	this.beep(1);
+	//this.beep(1);
 	this.fase = 201;
 
 	//var msg = "Running grinder cycle " +this.curCiclo +" of " +this.numCicli;
