@@ -379,57 +379,61 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 			me.btn2 = parseInt(obj.btn2);
 			switch (me.fase)
 			{
-				default: pleaseWait_freeText_setText(""); break;
-				case 0: pleaseWait_freeText_setText("Идет очистка"); break;	//Cleaning is active
-				case 1: pleaseWait_freeText_setText("Положите таблетку в заварочный узел и нажмите ПРОДОЛЖИТЬ"); break; 	//Put the pastille in the brewer and press CONTINUE
-				case 2: pleaseWait_freeText_setText("Заварочный узел закрыт"); break; 	//Brewer is closing
-				case 3: pleaseWait_freeText_setText("Растворение таблетки 1/2, подождите"); break; 	//Tablet dissolution 1/2, please wait
-				case 4: pleaseWait_freeText_setText("сейчас начнется 2-й цикл растворения"); break; 	//2nd dissolution cycle is about to starting
-				case 5: pleaseWait_freeText_setText("Растворение таблетки 2/2, подождите"); break; 	//Tablet dissolution 1/2, please wait
+				default: msg = ""; break;
+				case 0: msg = "Идет очистка"; break;	//Cleaning is active
+				case 1: msg = "Положите таблетку в заварочный узел и нажмите ПРОДОЛЖИТЬ"; break; 	//Put the pastille in the brewer and press CONTINUE
+				case 2: msg = "Заварочный узел закрыт"; break; 	//Brewer is closing
+				case 3: msg = "Растворение таблетки 1/2, подождите"; break; 	//Tablet dissolution 1/2, please wait
+				case 4: msg = "сейчас начнется 2-й цикл растворения"; break; 	//2nd dissolution cycle is about to starting
+				case 5: msg = "Растворение таблетки 2/2, подождите"; break; 	//Tablet dissolution 1/2, please wait
 
-				case 6: pleaseWait_freeText_setText("1-я очистка, пожалуйста, подождите 1/3"); break; 	//1st Cleaning, please wait 1/3
-				case 7: pleaseWait_freeText_setText("1-я очистка, активна 1/3"); break; 	//1st Cleaning, active 1/3
-				case 8: pleaseWait_freeText_setText("1-я очистка, пожалуйста, подождите 2/3"); break; 	//1st Cleaning, please wait 2/3
-				case 9: pleaseWait_freeText_setText("1-я очистка, активна 2/3"); break; 	//1st Cleaning, active 2/3
-				case 10: pleaseWait_freeText_setText("1-я очистка, пожалуйста, подождите 3/3"); break; 	//1st Cleaning, please wait 3/3
-				case 11: pleaseWait_freeText_setText("1-я очистка, активна 3/3"); break; 	//1st Cleaning, active 3/3
+				case 6: msg = "1-я очистка, пожалуйста, подождите 1/3"; break; 	//1st Cleaning, please wait 1/3
+				case 7: msg = "1-я очистка, активна 1/3"; break; 	//1st Cleaning, active 1/3
+				case 8: msg = "1-я очистка, пожалуйста, подождите 2/3"; break; 	//1st Cleaning, please wait 2/3
+				case 9: msg = "1-я очистка, активна 2/3"; break; 	//1st Cleaning, active 2/3
+				case 10: msg = "1-я очистка, пожалуйста, подождите 3/3"; break; 	//1st Cleaning, please wait 3/3
+				case 11: msg = "1-я очистка, активна 3/3"; break; 	//1st Cleaning, active 3/3
 
-				case 12: pleaseWait_freeText_setText("Вы хотите повторить цикл очистки 1/2?"); break; 	//Do you want to repeat clean cycle 1/2 ?
+				case 12: msg = "Вы хотите повторить цикл очистки 1/2?"; break; 	//Do you want to repeat clean cycle 1/2 ?
 				
-				case 13: pleaseWait_freeText_setText("Заварочный узел переходит в открытое положение"); break; 	//Brewer is going into open position
+				case 13: msg = "Заварочный узел переходит в открытое положение"; break; 	//Brewer is going into open position
 				
-				case 14: pleaseWait_freeText_setText("Пожалуйста, выполните ручную очистку, а затем нажмите ПРОДОЛЖИТЬ"); break; 	//Please, perform a manual brush and then press CONTINUE when finished
+				case 14: msg = "Пожалуйста, выполните ручную очистку, а затем нажмите ПРОДОЛЖИТЬ"; break; 	//Please, perform a manual brush and then press CONTINUE when finished
 				
-				case 15: pleaseWait_freeText_setText("2-я очистка, пожалуйста, подождите 1/6"); break; 	//2nd Cleaning, please wait 1/6
-				case 16: pleaseWait_freeText_setText("2-я очистка, активна 1/6"); break; 	//2nd Cleaning, active 1/6
-				case 17: pleaseWait_freeText_setText("2-я очистка, пожалуйста, подождите 2/6"); break; 	//2nd Cleaning, please wait 2/6
-				case 18: pleaseWait_freeText_setText("2-я очистка, активна 2/6"); break; 	//2nd Cleaning, active 2/6
-				case 19: pleaseWait_freeText_setText("2-я очистка, пожалуйста, подождите 3/6"); break; 	//2nd Cleaning, please wait 3/6
-				case 20: pleaseWait_freeText_setText("2-я очистка, активна 3/6"); break; 	//2nd Cleaning, active 3/6
-				case 21: pleaseWait_freeText_setText("2-я очистка, пожалуйста, подождите 4/6"); break; 	//2nd Cleaning, please wait 4/6
-				case 22: pleaseWait_freeText_setText("2-я очистка, активна 4/6"); break; 	//2nd Cleaning, active 4/6
-				case 23: pleaseWait_freeText_setText("2-я очистка, пожалуйста, подождите 5/6"); break; 	//2nd Cleaning, please wait 5/6
-				case 24: pleaseWait_freeText_setText("2-я очистка, активна 5/6"); break; 	//2nd Cleaning, active 5/6
-				case 25: pleaseWait_freeText_setText("2-я очистка, пожалуйста, подождите 6/6"); break; 	//2nd Cleaning, please wait 6/6
-				case 26: pleaseWait_freeText_setText("2-я очистка, активна 6/6"); break; 	//2nd Cleaning, active 6/6
+				case 15: msg = "2-я очистка, пожалуйста, подождите 1/6"; break; 	//2nd Cleaning, please wait 1/6
+				case 16: msg = "2-я очистка, активна 1/6"; break; 	//2nd Cleaning, active 1/6
+				case 17: msg = "2-я очистка, пожалуйста, подождите 2/6"; break; 	//2nd Cleaning, please wait 2/6
+				case 18: msg = "2-я очистка, активна 2/6"; break; 	//2nd Cleaning, active 2/6
+				case 19: msg = "2-я очистка, пожалуйста, подождите 3/6"; break; 	//2nd Cleaning, please wait 3/6
+				case 20: msg = "2-я очистка, активна 3/6"; break; 	//2nd Cleaning, active 3/6
+				case 21: msg = "2-я очистка, пожалуйста, подождите 4/6"; break; 	//2nd Cleaning, please wait 4/6
+				case 22: msg = "2-я очистка, активна 4/6"; break; 	//2nd Cleaning, active 4/6
+				case 23: msg = "2-я очистка, пожалуйста, подождите 5/6"; break; 	//2nd Cleaning, please wait 5/6
+				case 24: msg = "2-я очистка, активна 5/6"; break; 	//2nd Cleaning, active 5/6
+				case 25: msg = "2-я очистка, пожалуйста, подождите 6/6"; break; 	//2nd Cleaning, please wait 6/6
+				case 26: msg = "2-я очистка, активна 6/6"; break; 	//2nd Cleaning, active 6/6
 				
-				case 27: pleaseWait_freeText_setText("Вы хотите повторить цикл очистки 2/2?"); break; 	//Do you want to repeat clean cycle 2/2 ?
+				case 27: msg = "Вы хотите повторить цикл очистки 2/2?"; break; 	//Do you want to repeat clean cycle 2/2 ?
 				
-				case 28: pleaseWait_freeText_setText("Вы хотите пропустить последний кофе?"); break; //Do you want to skip the final coffee ?
-				case 29: pleaseWait_freeText_setText("Приготовление кофе, пожалуйста, подождите"); break; //Coffee delivery, please wait
+				case 28: msg = "Вы хотите пропустить последний кофе?"; break; //Do you want to skip the final coffee ?
+				case 29: msg = "Приготовление кофе, пожалуйста, подождите"; break; //Coffee delivery, please wait
 
-				case 30: pleaseWait_freeText_setText("Очистка заварочного узла"); break; //Brewer Rinsing 
-				case 31: pleaseWait_freeText_setText("Очистка миксера 1"); break; //Mixer 1 Rinsing
-				case 32: pleaseWait_freeText_setText("Очистка миксера 2"); break; //Mixer 2 Rinsing
-				case 33: pleaseWait_freeText_setText("Очистка миксера 3"); break; //Mixer 3 Rinsing 
-				case 34: pleaseWait_freeText_setText("Очистка заварочного узла завершена. Нажмите ЗАКРЫТЬ, чтобы закончить"); break; //Brewer Cleaning Done. Press CLOSE to exit
-
+				case 30: msg = "Очистка заварочного узла"; break; //Brewer Rinsing 
+				case 31: msg = "Очистка миксера 1"; break; //Mixer 1 Rinsing
+				case 32: msg = "Очистка миксера 2"; break; //Mixer 2 Rinsing
+				case 33: msg = "Очистка миксера 3"; break; //Mixer 3 Rinsing 
+				case 34: msg = "Очистка заварочного узла завершена. Нажмите ЗАКРЫТЬ, чтобы закончить"; break; //Brewer Cleaning Done. Press CLOSE to exit
 			}
+
+			//msg += "<br><br>DEBUG SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]";
+			pleaseWait_freeText_setText (msg);
 			pleaseWait_freeText_show();
 				
-			if (me.fase != me.prevFase)
+			if ( (me.fase != me.prevFase) || ( me.fase == me.prevFase && (me.btn1 != me.prevFaseBtn1 || me.btn2 != me.prevFaseBtn2) ))
 			{
 				me.prevFase = me.fase;
+				me.prevFaseBtn1 = me.btn1;
+				me.prevFaseBtn2 = me.btn2;
 
 				if (me.btn1 == 0)
 					pleaseWait_btn1_hide();

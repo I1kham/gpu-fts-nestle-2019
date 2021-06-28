@@ -379,57 +379,61 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 			me.btn2 = parseInt(obj.btn2);
 			switch (me.fase)
 			{
-				default: pleaseWait_freeText_setText(""); break;
-				case 0: pleaseWait_freeText_setText("Cleaning is active"); break;	//Cleaning is active
-				case 1: pleaseWait_freeText_setText("Put the pastille in the brewer and press CONTINUE"); break; 	//Put the pastille in the brewer and press CONTINUE
-				case 2: pleaseWait_freeText_setText("Brewer is closing"); break; 	//Brewer is closing
-				case 3: pleaseWait_freeText_setText("Tablet dissolution 1/2, please wait"); break; 	//Tablet dissolution 1/2, please wait
-				case 4: pleaseWait_freeText_setText("2nd dissolution cycle is about to starting"); break; 	//2nd dissolution cycle is about to starting
-				case 5: pleaseWait_freeText_setText("Tablet dissolution 2/2, please wait"); break; 	//Tablet dissolution 1/2, please wait
+				default: msg = ""; break;
+				case 0: msg = "Cleaning is active"; break;	//Cleaning is active
+				case 1: msg = "Put the pastille in the brewer and press CONTINUE"; break; 	//Put the pastille in the brewer and press CONTINUE
+				case 2: msg = "Brewer is closing"; break; 	//Brewer is closing
+				case 3: msg = "Tablet dissolution 1/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
+				case 4: msg = "2nd dissolution cycle is about to starting"; break; 	//2nd dissolution cycle is about to starting
+				case 5: msg = "Tablet dissolution 2/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
 
-				case 6: pleaseWait_freeText_setText("1st Cleaning, please wait 1/3"); break; 	//1st Cleaning, please wait 1/3
-				case 7: pleaseWait_freeText_setText("1st Cleaning, active 1/3"); break; 	//1st Cleaning, active 1/3
-				case 8: pleaseWait_freeText_setText("1st Cleaning, please wait 2/3"); break; 	//1st Cleaning, please wait 2/3
-				case 9: pleaseWait_freeText_setText("1st Cleaning, active 2/3"); break; 	//1st Cleaning, active 2/3
-				case 10: pleaseWait_freeText_setText("1st Cleaning, please wait 3/3"); break; 	//1st Cleaning, please wait 3/3
-				case 11: pleaseWait_freeText_setText("1st Cleaning, active 3/3"); break; 	//1st Cleaning, active 3/3
+				case 6: msg = "1st Cleaning, please wait 1/3"; break; 	//1st Cleaning, please wait 1/3
+				case 7: msg = "1st Cleaning, active 1/3"; break; 	//1st Cleaning, active 1/3
+				case 8: msg = "1st Cleaning, please wait 2/3"; break; 	//1st Cleaning, please wait 2/3
+				case 9: msg = "1st Cleaning, active 2/3"; break; 	//1st Cleaning, active 2/3
+				case 10: msg = "1st Cleaning, please wait 3/3"; break; 	//1st Cleaning, please wait 3/3
+				case 11: msg = "1st Cleaning, active 3/3"; break; 	//1st Cleaning, active 3/3
 
-				case 12: pleaseWait_freeText_setText("Do you want to repeat clean cycle 1/2 ?"); break; 	//Do you want to repeat clean cycle 1/2 ?
+				case 12: msg = "Do you want to repeat clean cycle 1/2 ?"; break; 	//Do you want to repeat clean cycle 1/2 ?
 				
-				case 13: pleaseWait_freeText_setText("Brewer is going into open position"); break; 	//Brewer is going into open position
+				case 13: msg = "Brewer is going into open position"; break; 	//Brewer is going into open position
 				
-				case 14: pleaseWait_freeText_setText("Please, perform a manual brush and then press CONTINUE when finished"); break; 	//Please, perform a manual brush and then press CONTINUE when finished
+				case 14: msg = "Please, perform a manual brush and then press CONTINUE when finished"; break; 	//Please, perform a manual brush and then press CONTINUE when finished
 				
-				case 15: pleaseWait_freeText_setText("2nd Cleaning, please wait 1/6"); break; 	//2nd Cleaning, please wait 1/6
-				case 16: pleaseWait_freeText_setText("2nd Cleaning, active 1/6"); break; 	//2nd Cleaning, active 1/6
-				case 17: pleaseWait_freeText_setText("2nd Cleaning, please wait 2/6"); break; 	//2nd Cleaning, please wait 2/6
-				case 18: pleaseWait_freeText_setText("2nd Cleaning, active 2/6"); break; 	//2nd Cleaning, active 2/6
-				case 19: pleaseWait_freeText_setText("2nd Cleaning, please wait 3/6"); break; 	//2nd Cleaning, please wait 3/6
-				case 20: pleaseWait_freeText_setText("2nd Cleaning, active 3/6"); break; 	//2nd Cleaning, active 3/6
-				case 21: pleaseWait_freeText_setText("2nd Cleaning, please wait 4/6"); break; 	//2nd Cleaning, please wait 4/6
-				case 22: pleaseWait_freeText_setText("2nd Cleaning, active 4/6"); break; 	//2nd Cleaning, active 4/6
-				case 23: pleaseWait_freeText_setText("2nd Cleaning, please wait 5/6"); break; 	//2nd Cleaning, please wait 5/6
-				case 24: pleaseWait_freeText_setText("2nd Cleaning, active 5/6"); break; 	//2nd Cleaning, active 5/6
-				case 25: pleaseWait_freeText_setText("2nd Cleaning, please wait 6/6"); break; 	//2nd Cleaning, please wait 6/6
-				case 26: pleaseWait_freeText_setText("2nd Cleaning, active 6/6"); break; 	//2nd Cleaning, active 6/6
+				case 15: msg = "2nd Cleaning, please wait 1/6"; break; 	//2nd Cleaning, please wait 1/6
+				case 16: msg = "2nd Cleaning, active 1/6"; break; 	//2nd Cleaning, active 1/6
+				case 17: msg = "2nd Cleaning, please wait 2/6"; break; 	//2nd Cleaning, please wait 2/6
+				case 18: msg = "2nd Cleaning, active 2/6"; break; 	//2nd Cleaning, active 2/6
+				case 19: msg = "2nd Cleaning, please wait 3/6"; break; 	//2nd Cleaning, please wait 3/6
+				case 20: msg = "2nd Cleaning, active 3/6"; break; 	//2nd Cleaning, active 3/6
+				case 21: msg = "2nd Cleaning, please wait 4/6"; break; 	//2nd Cleaning, please wait 4/6
+				case 22: msg = "2nd Cleaning, active 4/6"; break; 	//2nd Cleaning, active 4/6
+				case 23: msg = "2nd Cleaning, please wait 5/6"; break; 	//2nd Cleaning, please wait 5/6
+				case 24: msg = "2nd Cleaning, active 5/6"; break; 	//2nd Cleaning, active 5/6
+				case 25: msg = "2nd Cleaning, please wait 6/6"; break; 	//2nd Cleaning, please wait 6/6
+				case 26: msg = "2nd Cleaning, active 6/6"; break; 	//2nd Cleaning, active 6/6
 				
-				case 27: pleaseWait_freeText_setText("Do you want to repeat clean cycle 2/2 ?"); break; 	//Do you want to repeat clean cycle 2/2 ?
+				case 27: msg = "Do you want to repeat clean cycle 2/2 ?"; break; 	//Do you want to repeat clean cycle 2/2 ?
 				
-				case 28: pleaseWait_freeText_setText("Do you want to skip the final coffee ?"); break; //Do you want to skip the final coffee ?
-				case 29: pleaseWait_freeText_setText("Coffee delivery, please wait"); break; //Coffee delivery, please wait
+				case 28: msg = "Do you want to skip the final coffee ?"; break; //Do you want to skip the final coffee ?
+				case 29: msg = "Coffee delivery, please wait"; break; //Coffee delivery, please wait
 
-				case 30: pleaseWait_freeText_setText("Brewer Rinsing"); break; //Brewer Rinsing 
-				case 31: pleaseWait_freeText_setText("Mixer 1 Rinsing"); break; //Mixer 1 Rinsing
-				case 32: pleaseWait_freeText_setText("Mixer 2 Rinsing"); break; //Mixer 2 Rinsing
-				case 33: pleaseWait_freeText_setText("Mixer 3 Rinsing"); break; //Mixer 3 Rinsing 
-				case 34: pleaseWait_freeText_setText("Brewer Cleaning Done. Press CLOSE to finish"); break; //Brewer Cleaning Done. Press CLOSE to exit
-
+				case 30: msg = "Brewer Rinsing"; break; //Brewer Rinsing 
+				case 31: msg = "Mixer 1 Rinsing"; break; //Mixer 1 Rinsing
+				case 32: msg = "Mixer 2 Rinsing"; break; //Mixer 2 Rinsing
+				case 33: msg = "Mixer 3 Rinsing"; break; //Mixer 3 Rinsing 
+				case 34: msg = "Brewer Cleaning Done. Press CLOSE to finish"; break; //Brewer Cleaning Done. Press CLOSE to exit
 			}
+
+			//msg += "<br><br>DEBUG SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]";
+			pleaseWait_freeText_setText (msg);
 			pleaseWait_freeText_show();
 				
-			if (me.fase != me.prevFase)
+			if ( (me.fase != me.prevFase) || ( me.fase == me.prevFase && (me.btn1 != me.prevFaseBtn1 || me.btn2 != me.prevFaseBtn2) ))
 			{
 				me.prevFase = me.fase;
+				me.prevFaseBtn1 = me.btn1;
+				me.prevFaseBtn2 = me.btn2;
 
 				if (me.btn1 == 0)
 					pleaseWait_btn1_hide();
