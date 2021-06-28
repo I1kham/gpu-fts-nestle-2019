@@ -1289,7 +1289,6 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			{
 				u8 bufferW[16];
 				const u16 nBytesToSend = cpubridge::buildMsg_restart_U (bufferW, sizeof(bufferW));
-				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 				chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
 				notify_CPU_RESTART (sub->q, handlerID, logger);
 			}

@@ -145,7 +145,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 			//risposta al comando #A3 restart
 			//Arriviamo qui quando abbiamo inviato il comando di reboot alla CPU
 			//A questo punto, dobbiamo fare il reboot di noistessi
-
+            rhea::reboot();
 			return true;
 
 		case CPUBRIDGE_NOTIFY_QUERY_ID101:
@@ -619,7 +619,7 @@ u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 		return 4;
 
 	case '8':
-		//Get daily sales data (eva-dts)
+		//Get daily sales data (eva-dts)
 		//ricevuto: # C 8 [ck]
 		//rispondo: # C 8 [payloadLen] [payload] ... [payload] [ck]
 		if (!commandC8InProgress)

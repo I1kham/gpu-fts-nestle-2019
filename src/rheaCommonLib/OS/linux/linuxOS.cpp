@@ -78,8 +78,9 @@ void platform::sleepMSec (size_t msec)
 //*******************************************************************
 void platform::reboot()
 {
-    sync();
-    reboot(RB_AUTOBOOT);
+    ::sync();
+    ::setuid (0);
+    ::reboot(RB_AUTOBOOT);
 }
 
 //*******************************************************************
