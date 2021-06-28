@@ -20,6 +20,8 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
 	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
 
+	memset (&dataAuditInProgress, 0x00, sizeof(dataAuditInProgress));
+
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage1, sizeof(utf16_cpuMessage1));
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage2, sizeof(utf16_cpuMessage2));
 
@@ -155,6 +157,58 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		*in_out_sizeOfAnswer = 0;
 		return false;
 		break;
+
+	case eCPUCommand::readDataAudit:
+		{
+			if (NULL == dataAuditInProgress.f)
+			{
+				dataAuditInProgress.fileOffset = 0;
+				dataAuditInProgress.fileSize = 0;
+
+				u8 s[256];
+				rhea::string::utf8::spf (s, sizeof(s), "%s/current/eva-dts.log", rhea::getPhysicalPathToAppFolder());
+				dataAuditInProgress.f = rhea::fs::fileOpenForReadBinary (s);
+				assert (NULL != dataAuditInProgress.f);
+				if (NULL != dataAuditInProgress.f)
+					dataAuditInProgress.fileSize = static_cast<u32>(rhea::fs::filesize (dataAuditInProgress.f));
+			}
+
+			const u32 MAX_TO_READ = sizeof(dataAuditInProgress.buffer);
+			u32 nToRead = MAX_TO_READ;
+			if (dataAuditInProgress.fileOffset + nToRead > dataAuditInProgress.fileSize)
+				nToRead = dataAuditInProgress.fileSize - dataAuditInProgress.fileOffset;
+
+			if (nToRead)
+			{
+				rhea::fs::fileRead (dataAuditInProgress.f, dataAuditInProgress.buffer, nToRead);
+				dataAuditInProgress.fileOffset += nToRead;
+			}
+
+			u8 finished = 0;
+			if (dataAuditInProgress.fileOffset >= dataAuditInProgress.fileSize)
+			{
+				finished = 1;
+				rhea::fs::fileClose (dataAuditInProgress.f);
+				dataAuditInProgress.f = NULL;
+			}
+
+			//rispondo # L [len] [finished] [unused] [payload....] [ck]
+			out_answer[ct++] = '#';
+			out_answer[ct++] = (u8)cpuCommand;
+			out_answer[ct++] = 0; //lunghezza
+			out_answer[ct++] = finished;
+			out_answer[ct++] = 0;
+
+			if (nToRead)
+			{
+				memcpy (&out_answer[ct], dataAuditInProgress.buffer, nToRead);
+				ct += nToRead;
+			}
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+		}
+		return true;
 
 	case eCPUCommand::requestPriceHoldingPriceList:
 		{

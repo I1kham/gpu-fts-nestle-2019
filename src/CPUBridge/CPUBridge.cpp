@@ -790,23 +790,33 @@ void cpubridge::translateNotify_CPU_BTN_PROG_PRESSED(const rhea::thread::sMsg &m
 }
 
 //***************************************************
-void cpubridge::notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID)
+void cpubridge::notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID, const void *readData, u8 nBytesInReadData)
 {
-    logger->log("notify_READ_DATA_AUDIT_PROGRESS\n");
+	if (NULL != readData)
+		logger->log("notify_READ_DATA_AUDIT_PROGRESS [st:%d] [%d bytes]\n", status, nBytesInReadData);
+	else
+		logger->log("notify_READ_DATA_AUDIT_PROGRESS [st:%d]\n", status);
 
-	u8 buffer[8];
+	u8 buffer[512];
 	rhea::NetStaticBufferViewW nbw;
 	nbw.setup(buffer, sizeof(buffer), rhea::eEndianess::eBigEndian);
 	nbw.writeU16(fileID);
 	nbw.writeU16(totKbSoFar);
 	nbw.writeU8((u8)status);
+
+	if (NULL != readData && nBytesInReadData>0)
+		nbw.writeBlob (readData, nBytesInReadData);
+
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS, handlerID, buffer, nbw.length());
 }
 
 //***************************************************
-void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID)
+void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID, u8 *out_readData, u8 *out_nBytesInReadData)
 {
     assert(msg.what == CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS);
+	assert (	(NULL == out_readData) ||
+				(NULL != out_readData && NULL != out_nBytesInReadData)
+			);
 
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(msg.buffer, msg.bufferSize, rhea::eEndianess::eBigEndian);
@@ -817,6 +827,17 @@ void cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sM
 	
     u8 b = 0;
 	nbr.readU8(b); *out_status = (eReadDataFileStatus)b;
+
+	if (NULL != out_nBytesInReadData)
+	{
+		*out_nBytesInReadData = 0;
+		if (msg.bufferSize > 5)
+		{
+			const u8 readDataLen = msg.bufferSize - 5;
+			*out_nBytesInReadData = readDataLen;
+			nbr.readBlob (out_readData, readDataLen);
+		}
+	}
 }
 
 //***************************************************
@@ -1790,10 +1811,28 @@ void cpubridge::ask_CPU_QUERY_CUR_SEL_RUNNING(const sSubscriber &from, u16 handl
 }
 
 //***************************************************
-void cpubridge::ask_READ_DATA_AUDIT(const sSubscriber &from, u16 handlerID)
+void cpubridge::ask_READ_DATA_AUDIT(const sSubscriber &from, u16 handlerID, bool bIncludeDataInNotify)
 {
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT, handlerID);
+	u8 buffer[2];
+	buffer[0] = 0;
+	if (bIncludeDataInNotify)
+		buffer[0] = 0x01;
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT, handlerID, buffer, 1);
 }
+void cpubridge::translate_READ_DATA_AUDIT(const rhea::thread::sMsg &msg, bool *out_bIncludeDataInNotify)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT);
+	
+	*out_bIncludeDataInNotify = false;
+	u32 n = msg.bufferSize;
+	if (n > 0)
+	{
+		const u8 *p = (const u8*)msg.buffer;
+		if (p[0] == 0x01)
+			*out_bIncludeDataInNotify = true;
+	}
+}
+
 
 //***************************************************
 void cpubridge::ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID)

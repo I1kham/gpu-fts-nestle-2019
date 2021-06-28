@@ -511,11 +511,15 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
-			if (stato.get() == sStato::eStato::normal)
-				priv_downloadDataAudit(&sub->q, handlerID);
-			else
-				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
-				notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0);
+			{
+				bool bIncludeBufferDataInNotify = false;
+				translate_READ_DATA_AUDIT (msg, &bIncludeBufferDataInNotify);
+				if (stato.get() == sStato::eStato::normal)
+					priv_downloadDataAudit(&sub->q, handlerID, bIncludeBufferDataInNotify);
+				else
+					//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
+					notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0, NULL, 0);
+			}
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE:
@@ -1981,7 +1985,7 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
  * Periodicamente notifica emettendo un messaggio notify_READ_DATA_AUDIT_PROGRESS() che contiene lo stato di avanzamento
  * del download
  */
-eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID)
+eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify)
 {
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
 	u8 fullFilePathAndName[256];
@@ -1995,7 +1999,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	}
 
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 	//hack per velocizzare i test
 	{
 		u8 debug_src_eva[256];
@@ -2008,12 +2012,12 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 		return eReadDataFileStatus::finishedOK;
 	}
 #endif
-
+*/
 	FILE *f = rhea::fs::fileOpenForWriteBinary(fullFilePathAndName);
 	if (NULL == f)
 	{
 		if (NULL != subscriber)
-			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID);
+			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID, NULL, 0);
 		return eReadDataFileStatus::finishedKO_unableToCreateFile;
 	}
 
@@ -2031,7 +2035,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
         {
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID, NULL, 0);
             rhea::fs::fileClose(f);
             return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
         }
@@ -2055,19 +2059,37 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 			
 			//notifico
 			if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID);
-
+			{
+				if (bIncludeBufferDataInNotify)
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, payload, payloadLen);
+				else
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, NULL, 0);
+			}
             return eReadDataFileStatus::finishedOK;
         }
 
-        //notifico che ho letto un altro Kb
-        if (kbReadSoFar != lastKbReadSent)
-        {
-            lastKbReadSent = kbReadSoFar;
+		if (payloadLen > 0)
+		{
+			if (bIncludeBufferDataInNotify)
+			{
+				if (NULL != subscriber)
+				{
+					//notifico il nuovo blocco dati appena ricevuto
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID, payload, payloadLen);
+				}
+			}
+			else
+			{
+				//notifico che ho letto un altro Kb
+				if (kbReadSoFar != lastKbReadSent)
+				{
+					lastKbReadSent = kbReadSoFar;
 
-            if (NULL!= subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID);
-        }
+					if (NULL != subscriber)
+						notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID, NULL, 0);
+				}
+			}
+		}
     }
 }
 

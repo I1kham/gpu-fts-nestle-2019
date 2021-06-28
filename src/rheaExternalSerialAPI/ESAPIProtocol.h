@@ -69,6 +69,7 @@ namespace esapi
 		u8						*bufferOUT;
 		sBuffer					rs232BufferIN;
 		sRunningSel				runningSel;
+		bool					commandC8InProgress;
 	};
 
 

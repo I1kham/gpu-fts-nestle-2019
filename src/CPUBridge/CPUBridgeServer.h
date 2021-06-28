@@ -194,7 +194,7 @@ namespace cpubridge
 		void					priv_updateLocalDA3(const u8 *blockOf64Bytes, u8 blockNum) const;
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend);
-        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
+        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify);
 		void					priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID);
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);

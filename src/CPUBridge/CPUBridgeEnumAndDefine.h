@@ -444,6 +444,7 @@ namespace cpubridge
 		indux = 2
 	};
 
+
 	struct sSubscriber
 	{
 		HThreadMsgR	hFromMeToSubscriberR;

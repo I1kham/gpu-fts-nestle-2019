@@ -16,6 +16,7 @@ Protocol::Protocol()
     cpuBridgeSubscriber = NULL;
     waitableGrp = NULL;
     bufferOUT = NULL;
+	commandC8InProgress = false;
     runningSel.status = cpubridge::eRunningSelStatus::finished_OK;
 }
 
@@ -94,6 +95,26 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
         case CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS:
             priv_onCPUNotify_RUNNING_SEL_STATUS(msg);
             return true;
+
+		case CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS:
+			//risposta a C8 (data audit)
+			//rispondo: # C 8 [payloadLen] [payload] ... [payload] [ck]
+			if (commandC8InProgress)
+			{
+				cpubridge::eReadDataFileStatus status;
+				u16 totKbSoFar = 0;
+				u16 fileID = 0;
+				u8 buffer[256];
+				u8 nBytesInBuffer = 0;
+				cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, &buffer[1], &nBytesInBuffer);
+
+				if (nBytesInBuffer)
+				{
+					buffer[0] = nBytesInBuffer;
+					rs232_esapiSendAnswer ('C', '8', buffer, 1 + nBytesInBuffer);
+				}
+			}
+			return true;
 		}
     }
     else
@@ -119,6 +140,13 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
                 rs232_esapiSendAnswer ('A', '2', s, 8);
             }
             return true;
+
+		case CPUBRIDGE_NOTIFY_CUP_RESTART:
+			//risposta al comando #A3 restart
+			//Arriviamo qui quando abbiamo inviato il comando di reboot alla CPU
+			//A questo punto, dobbiamo fare il reboot di noistessi
+
+			return true;
 
 		case CPUBRIDGE_NOTIFY_QUERY_ID101:
             //risposta al comando  #A2
@@ -207,25 +235,61 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 
 		case CPUBRIDGE_NOTIFY_CPU_FULLSTATE:
 			//risposta al comando  #C6
+			//risposta al comando  #C7
 			{
 				cpubridge::sCPUStatus s;
 				cpubridge::translateNotify_CPU_FULLSTATE (msg, &s);
 
-				//if (0x0001 == handlerID)
-				//{
+				if (0x0001 == handlerID)
+				{
+					//comando #C6
 					u8 status = 'N';
 					if (s.isCupDetected())
 						status = 'Y';
 
 					//rispondo con # C 6 [status] [ck] 
 					rs232_esapiSendAnswer ('C', '6', &status, 1);
-					//}
+				}
+				else if (0x0002 == handlerID)
+				{
+					//comando #C7
+					u8 status = static_cast<u8>(s.VMCstate);
+					//rispondo con # C 7 [status] [ck] 
+					rs232_esapiSendAnswer ('C', '7', &status, 1);
+				}
 			}
 			return true;
+
+		case CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS:
+			//risposta a C8 (data audit)
+			//rispondo: # C 8 [payloadLen] [payload] ... [payload] [ck]
+			if (commandC8InProgress)
+			{
+				//questo è l'ultimo messaggio che ricevo. Lo [status] in questo caso è "finishedOK" oppure "finishedKO"
+				commandC8InProgress = false;
+
+				cpubridge::eReadDataFileStatus status;
+				u16 totKbSoFar = 0;
+				u16 fileID = 0;
+				u8 buffer[256];
+				u8 nBytesInBuffer = 0;
+				cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, &buffer[1], &nBytesInBuffer);
+
+				if (nBytesInBuffer)
+				{
+					buffer[0] = nBytesInBuffer;
+					rs232_esapiSendAnswer ('C', '8', buffer, 1 + nBytesInBuffer);
+				}
+
+				//Segnalo la fine del processo riportando un "payloadLen] == 0
+				u8 data[2] = {0, 0};
+				rs232_esapiSendAnswer ('C', '8', data, 1);
+			}
+			return true;
+
         } //switch (msg.what)
 	}
 }
-
 
 //*********************************************************
 void Protocol::rs232_write (const u8 *buffer, u32 numBytesToSend)
@@ -543,6 +607,30 @@ u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 		}
 		return 4;
 		
+	case '7':
+		//Get CPU status
+		//ricevuto: # C 7 [ck]
+		//rispondo: # C 7 [status] [ck]
+		{
+			//chiedo a CPUBridge il suo stato 
+			//Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_CPU_QUERY_FULLSTATE (*cpuBridgeSubscriber, 0x0002);
+		}
+		return 4;
+
+	case '8':
+		//Get daily sales data (eva-dts)
+		//ricevuto: # C 8 [ck]
+		//rispondo: # C 8 [payloadLen] [payload] ... [payload] [ck]
+		if (!commandC8InProgress)
+		{
+			//chiedo a CPUBridge
+			//Alla ricezione delle risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			commandC8InProgress = true;
+			cpubridge::ask_READ_DATA_AUDIT (*cpuBridgeSubscriber, 0x0001, true);
+			
+		}
+		return 4;
 
     } //switch
 }
