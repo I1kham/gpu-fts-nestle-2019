@@ -17,7 +17,7 @@
 		.container-middle { margin: auto; }
 		.container-middle .center-vertical { display: inline-block; vertical-align: middle; }
 
-		.popover-container { position: relative; cursor: pointer; }
+		.popover-container { position: relative; cursor: pointer; display: block; }
 		.popover-container[data-title]:hover::after {
 			content: attr(data-title); margin-top: -15px; position: absolute; width: 200px; top: 13px; left: 28px;
 			border: 1px solid #aaa; border-radius: 5px; color: #666666; padding: 3px 10px; box-shadow: 0px 0px 4px 1px rgb(0 0 0 / 50%);
@@ -1499,7 +1499,7 @@ function comboAppearance_onChange(which)
 }
 function bindEventComboSelection_onLoad() {
 	var btnAnchorInfo = document.createElement( 'a' );
-		btnAnchorInfo.className = 'center-vertical popover-container';
+		btnAnchorInfo.className = 'popover-container';
 		btnAnchorInfo.setAttribute( 'onmouseover', 'btnSelectionAvailable_onClick()');
 		btnAnchorInfo.setAttribute( 'data-title', ' ');
 	
@@ -1515,8 +1515,13 @@ function bindEventComboSelection_onLoad() {
 			s.setAttribute( 'onchange', 'btnSelectionAvailable_onClick(this)' );
 			s.setAttribute( 'onclick', 'previousSelectionOption(this)' );
 			
-			var wrapper = wrapHTMLElement(s, 'div', 'center-vertical container-middle');
-			wrapper.innerHTML += btnAnchorInfo.outerHTML;
+			//s.insertBefore( btnAnchorInfo );
+			//s.parentNode.insertBefore(btnAnchorInfo, s.nextSibling);
+
+			s.parentNode.innerHTML += btnAnchorInfo.outerHTML;
+
+			//var wrapper = wrapHTMLElement(s, 'div', 'center-vertical container-middle');
+			//wrapper.innerHTML += btnAnchorInfo.outerHTML;
 		}
 	});
 }
