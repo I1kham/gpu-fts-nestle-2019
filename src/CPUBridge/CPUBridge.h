@@ -348,6 +348,8 @@ namespace cpubridge
 	void		notify_CPU_QUERY_ID101 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u32 id101);
 	void		translateNotify_CPU_QUERY_ID101(const rhea::thread::sMsg &msg, u32 *out_id101);
 
+	void		notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -592,6 +594,9 @@ namespace cpubridge
 
     void		ask_CPU_QUERY_ID101 (const sSubscriber &from, u16 handlerID);
                     //alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_QUERY_ID101
+
+	void		ask_CPU_RESTART (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RESTART
 
 } // namespace cpubridge
 

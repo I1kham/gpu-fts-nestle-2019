@@ -1754,6 +1754,16 @@ void cpubridge::ask_CPU_QUERY_ID101 (const sSubscriber &from, u16 handlerID)
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_ID_101, handlerID);
 }
 
+//***************************************************
+void cpubridge::ask_CPU_RESTART (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART, handlerID);
+}
+void cpubridge::notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_CPU_RESTART\n");
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CUP_RESTART, handlerID);
+}
 
 //***************************************************
 void cpubridge::ask_CPU_QUERY_LCD_MESSAGE(const sSubscriber &from, u16 handlerID)

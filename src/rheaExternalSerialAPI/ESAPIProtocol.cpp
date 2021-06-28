@@ -2,6 +2,8 @@
 #include "ESAPI.h"
 #include "../CPUBridge/CPUBridge.h"
 #include "../rheaCommonLib/rheaUtils.h"
+#include "../rheaCommonLib/rheaString.h"
+#include "../rheaCommonLib/string/rheaUTF8String.h"
 
 using namespace esapi;
 
@@ -103,6 +105,21 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 			DBGBREAK;
 			return false;
 		
+		case CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER:
+			//risposta al comando A5
+            {
+	            u16 versionString[64];
+				memset (versionString, 0, sizeof(versionString));
+	            cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, versionString, sizeof(versionString));
+
+                //rispondo: # A 5 [ASCII_0] ... [ASCII_7] [ck]
+				char s[8];
+				for (u8 i=0; i<8; i++)
+					s[i] = static_cast<char>(versionString[i]);
+                rs232_esapiSendAnswer ('A', '2', s, 8);
+            }
+            return true;
+
 		case CPUBRIDGE_NOTIFY_QUERY_ID101:
             //risposta al comando  #A2
             {
@@ -344,6 +361,83 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
             cpubridge::ask_CPU_QUERY_ID101 (*cpuBridgeSubscriber, 0x01);
 		}
 		return 4;
+
+	case '3':
+		//Restart CPU & GPU
+		//ricevuto: # A 3 [ck]
+        //rispondo: # A 3 [ck]
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+
+			//reboot CPU
+			cpubridge::ask_CPU_RESTART(*cpuBridgeSubscriber, 0x01);
+
+			//rispondo
+            rs232_esapiSendAnswer ('A', '3', NULL, 0);
+		}
+		return 4;
+
+	case '4':
+		//Request GPU version
+		//ricevuto: # A 4 [ck]
+        //rispondo: # A 4 [GPU_ver_major] [GPU_ver_minor] [GPU_ver_build] [ck]
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+
+			//la stringa con la versione di GPU è in un file in current/gpu/ver.txt nel formato x.y.zzzzzz
+			u8 verMajor = 0;
+			u8 verMinor = 0;
+			u8 verBuild = 0;
+			rhea::Allocator* allocator = rhea::getSysHeapAllocator();
+
+			u8	fileName[256];
+			sprintf_s((char*)fileName, sizeof(fileName), "%s/current/gpu/ver.txt", rhea::getPhysicalPathToAppFolder());
+			
+			u32 fileSize;
+			u8* buffer = rhea::fs::fileCopyInMemory(fileName, allocator, &fileSize);
+			if (NULL != buffer)
+			{
+				rhea::utf8::String s;
+				s.setFrom(buffer, fileSize);
+
+				rhea::Array<rhea::utf8::String> e;
+				e.setup (allocator, 3);
+
+				const u32 n = s.explode ('.', e);
+				if (n == 3)
+				{
+					verMajor = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[0].getBuffer()));
+					verMinor = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[1].getBuffer()));
+					verBuild = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[2].getBuffer()));
+				}
+
+				RHEAFREE(allocator, buffer);
+			}
+
+			//rispondo.
+			const u8 data[3] = { verMajor, verMinor, verBuild };
+			rs232_esapiSendAnswer ('A', '4', data, 3);
+		}
+		return 4;
+
+	case '5':
+		//Request CPU version
+		//ricevuto: # A 5 [ck]
+        //rispondo: # A 5 [ASCII_0] ... [ASCII_7] [ck]
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+
+            //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+            cpubridge::ask_CPU_STRING_VERSION_AND_MODEL (*cpuBridgeSubscriber, 0x01);
+		}
+		return 4;
+		
 	}
 }
 
