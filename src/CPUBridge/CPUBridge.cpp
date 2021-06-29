@@ -1787,6 +1787,24 @@ void cpubridge::notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea:
 }
 
 //***************************************************
+void cpubridge::ask_MACHINE_LOCK (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_LOCK, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_MACHINE_UNLOCK (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_UNLOCK, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_GET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS, handlerID);
+}
+
+//***************************************************
 void cpubridge::ask_CPU_QUERY_LCD_MESSAGE(const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_LCD_MESSAGE, handlerID);
@@ -2458,12 +2476,26 @@ void cpubridge::notify_CPU_QUERY_ID101 (const sSubscriber &to, u16 handlerID, rh
 	rhea::utils::bufferWriteU32(optionalData, id101);
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_QUERY_ID101, handlerID, optionalData, 4);
 }
-
 void cpubridge::translateNotify_CPU_QUERY_ID101(const rhea::thread::sMsg &msg, u32 *out_id101)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_QUERY_ID101);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_id101 = rhea::utils::bufferReadU32(p);
+}
+
+//***************************************************
+void cpubridge::notify_MACHINE_LOCK (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eLockStatus lockStatus)
+{
+	logger->log("notify_MACHINE_LOCK [%d]\n", lockStatus);
+	u8 optionalData[2];
+	optionalData[0] = static_cast<u8>(lockStatus);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_LOCK_STATUS, handlerID, optionalData, 1);
+}
+void cpubridge::translateNotify_MACHINE_LOCK(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_LOCK_STATUS);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_lockStatus = static_cast<eLockStatus>(p[0]);
 }
 
 

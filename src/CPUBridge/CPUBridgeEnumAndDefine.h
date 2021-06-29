@@ -78,6 +78,7 @@
 #define		CPUBRIDGE_NOTIFY_RUN_CAFFE_CORTESIA					0x0138
 #define		CPUBRIDGE_NOTIFY_QUERY_ID101						0x0139
 #define		CPUBRIDGE_NOTIFY_CUP_RESTART						0x013A
+#define		CPUBRIDGE_NOTIFY_LOCK_STATUS						0x013B
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -151,6 +152,9 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA								0x0840
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_ID_101								0x0841
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART									0x0842
+#define		CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_LOCK									0x0843
+#define		CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_UNLOCK									0x0844
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS						0x0845
 
 namespace cpubridge
 {
@@ -444,6 +448,11 @@ namespace cpubridge
 		indux = 2
 	};
 
+	enum class eLockStatus : u8
+	{
+		locked = 0,
+		unlocked = 1
+	};
 
 	struct sSubscriber
 	{

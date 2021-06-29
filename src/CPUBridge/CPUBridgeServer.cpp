@@ -1294,11 +1294,86 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_LOCK:
+			priv_lockMachine();
+			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_UNLOCK:
+			priv_unlockMachine();
+			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS:
+			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+			break;
+
 
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
 	} //while
+}
+
+
+//**********************************************
+void Server::priv_getLockStatusFilename (u8 *out_filePathAndName, u32 sizeOfOutFilePathAndName) const
+{
+	rhea::string::utf8::spf (out_filePathAndName, sizeOfOutFilePathAndName, "%s/current/lockStatus.rhea", rhea::getPhysicalPathToAppFolder());
+}
+
+//**********************************************
+void Server::priv_writeLockStatus (eLockStatus statusIN) const
+{
+	u8 s[512];
+	priv_getLockStatusFilename (s, sizeof(s));
+
+	const u8 status = static_cast<u8>(statusIN);
+	FILE *f = rhea::fs::fileOpenForWriteBinary(s);
+	rhea::fs::fileWrite (f, &status, 1);
+	rhea::fs::fileClose(f);	
+}
+
+//**********************************************
+eLockStatus Server::priv_getLockStatus() const
+{
+	eLockStatus	ret = eLockStatus::unlocked;
+
+	u8 s[512];
+	priv_getLockStatusFilename (s, sizeof(s));
+
+	if (rhea::fs::fileExists(s))
+	{
+		u8 status = 0;
+		FILE *f = rhea::fs::fileOpenForReadBinary(s);
+		rhea::fs::fileRead (f, &status, 1);
+		rhea::fs::fileClose(f);
+
+		switch (status)
+		{
+		case 0:	ret = eLockStatus::locked; break;
+		case 1:	ret = eLockStatus::unlocked; break;
+		default: break;
+		}
+	}
+
+	return ret;
+}
+
+//**********************************************
+void Server::priv_lockMachine()
+{
+	if (eLockStatus::locked == priv_getLockStatus())
+		return;
+	priv_writeLockStatus (eLockStatus::locked);
+}
+
+//**********************************************
+void Server::priv_unlockMachine()
+{
+	if (eLockStatus::unlocked == priv_getLockStatus())
+		return;
+	priv_writeLockStatus (eLockStatus::unlocked);
 }
 
 

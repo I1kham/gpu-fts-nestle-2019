@@ -210,6 +210,12 @@ namespace cpubridge
 		bool					priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
 		sSubscription*			priv_newSubscription();
 
+		void					priv_getLockStatusFilename (u8 *out_filePathAndName, u32 sizeOfOutFilePathAndName) const;
+		void					priv_writeLockStatus (eLockStatus s) const;
+		eLockStatus				priv_getLockStatus() const;
+		void					priv_lockMachine();
+		void					priv_unlockMachine();
+
 	private:
 		rhea::Allocator         *localAllocator;
 		rhea::ISimpleLogger     *logger;
