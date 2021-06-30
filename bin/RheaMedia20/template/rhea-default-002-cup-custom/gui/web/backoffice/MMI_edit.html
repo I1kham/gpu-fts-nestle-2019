@@ -1243,7 +1243,11 @@ async function saveAll()
 		alert (err);
 		return;
 	}
-		
+	
+	/* Check if exist ndName column*/
+	let rst = await db.q("SELECT * FROM pagemenu_mmi WHERE UID=" + UID);
+	await db.dbConsistency( rst, 'pagemenu_mmi', 'ndName', 'TEXT(255)' );
+
 	pleaseWait(1);
 	await db.exec(sql);
 	
