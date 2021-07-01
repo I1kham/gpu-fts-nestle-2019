@@ -59,6 +59,10 @@
 <script language="javascript">
 var iconNum = 0;
 var selNum = 0;
+
+var intervalHandler;
+var continuePolling = true;
+
 function onRheaBootstrapFinished() 
 {
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
@@ -86,12 +90,19 @@ function onAfterLangLoaded()
 		}
 	}
 	
+	// Invoke getCurrentRepeterion API
+	getJugRepetition();
+
+	// Each 2000ms, invoke getCurrentRepeterion API
+	pollingForJugRepetition();
+
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	
 	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
 	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
 	selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
 	var showBtnStop  = parseInt(rheaGetURLParamOrDefault("btnStop", 0));
+
 	/*if (showBtnStop != 1)
 	{
 		showBtnStop = 0;
@@ -113,7 +124,40 @@ function onAfterLangLoaded()
 			rheaSetDivHTMLByName("selText", rheaMainMenuIconsInfo[iconNum]);
 		});	
 }
-	
+
+function getJugRepetition() {
+	// Retrieve current jug repetition
+	rhea.ajax ("getJugCurrentRepetition", "").then( function(result) {
+		// {numberOf: <number>, total: <number>}
+		if (!result || result == 'KO') { return; }
+		
+		var jsonRes = JSON.parse(result);
+
+		if (jsonRes.numberOf != 0) {
+			var divJugInfo = rheaGetElemByID('divJugInfo');
+			rheaShowElem(divJugInfo);
+
+			var jugRemaining = rheaGetElemByID('jugRemaining');
+			jugRemaining.innerHTML = jsonRes.numberOf + ' of ' + jsonRes.total;
+		} else {
+			continuePolling = false;
+		}
+	}).catch( function(result) {
+		continuePolling = false;
+		console.error('rhea::getJugCurrentRepetition', result);
+	});
+}
+
+function pollingForJugRepetition() {
+	intervalHandler = setInterval(function() {
+		getJugRepetition();
+	}, 2000);
+
+	if (!continuePolling) {
+		clearInterval(intervalHandler);
+		intervalHandler = null;
+	}
+}
 
 function onBtnStopSelection()
 {
@@ -136,8 +180,17 @@ function gotoSelFinished()
 }
 
 function onBtnStopJUG() {
-	//todo
-	console.log('STOP JUG')
+	var jugStopLabel = rheaGetElemByID('jugStopLabel');
+
+	rheaHideElem(jugStopLabel);
+
+	// Invoke stop jug
+	rhea.ajax ("stopJug", "").then( function(result) {
+		if (result == 'KO') { rheaShowElem(jugStopLabel); }
+	}).catch( function(result) {
+		if (result == 'KO') { rheaShowElem(jugStopLabel); }
+		console.error('rhea::getJugCurrentRepetition', result);
+	});
 }
 
 var numImages = rheaPageOptions.gallery_images.length;
