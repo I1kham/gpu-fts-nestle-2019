@@ -239,6 +239,18 @@ u8 cpubridge::buildMsg_getTime(u8 *out_buffer, u8 sizeOfOutBuffer)
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_stopJug(u8* out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand::stop_jug, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_getJugCurrentRepetition(u8* out_buffer, u8 sizeOfOutBuffer)
+{
+	return buildMsg_Programming(eCPUProgrammingCommand::get_jug_current_repetition, NULL, 0, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
 u8 cpubridge::buildMsg_getDate(u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	return buildMsg_Programming(eCPUProgrammingCommand::getDate, NULL, 0, out_buffer, sizeOfOutBuffer);
@@ -2419,6 +2431,18 @@ void cpubridge::ask_CPU_BUZZER_STATUS (const sSubscriber &from, u16 handlerID)
 }
 
 //***************************************************
+void cpubridge::ask_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_CURRENT_REPETITION, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_CPU_STOP_JUG(const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_JUG, handlerID);
+}
+
+//***************************************************
 void cpubridge::ask_CPU_IS_QUICK_MENU_PINCODE_SET (const sSubscriber &from, u16 handlerID)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_IS_QUICK_MENU_PINCODE_SET, handlerID);
@@ -2573,7 +2597,44 @@ void cpubridge::translateNotify_CPU_BUZZER_STATUS(const rhea::thread::sMsg &msg,
 		*out_bBuzzerBusy = false;
 }
 
+//***************************************************
+void cpubridge::notify_CPU_STOP_JUG(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, bool bResult)
+{
+	logger->log("notify_CPU_STOP_JUG\n");
+	u8 optionalData = 0;
+	if (bResult)
+		optionalData = 0x01;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_STOP_JUG, handlerID, &optionalData, 1);
+}
+void cpubridge::translateNotify_CPU_STOP_JUG(const rhea::thread::sMsg& msg, bool *out_bResult)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_STOP_JUG);
+	const u8* p = (const u8*)msg.buffer;
+	if (p[0] == 0x01)
+		*out_bResult = true;
+	else
+		*out_bResult = false;
+}
 
+//***************************************************
+void cpubridge::notify_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 nOf, u8 m)
+{
+	logger->log("notify_CPU_GET_JUG_CURRENT_REPETITION\n");
+	u8 optionalData[2];
+	
+	optionalData[0] = nOf;
+	optionalData[1] = m;
+	
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION, handlerID, &optionalData, 2);
+}
+void cpubridge::translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION);
+	const u8* p = (const u8*)msg.buffer;
+
+	*out_nOf = p[0];
+	*out_m = p[1];
+}
 
 //***************************************************
 void cpubridge::ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID)

@@ -1111,6 +1111,36 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				return true;
 
+
+			case eCPUProgrammingCommand::stop_jug:
+				//# P [len] 0x2A [ck]
+			{
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+			}
+			return true;
+
+			case eCPUProgrammingCommand::get_jug_current_repetition:
+				//# P [len] 0x2A [ck]
+			{
+				out_answer[ct++] = '#';
+				out_answer[ct++] = 'P';
+				out_answer[ct++] = 0; //lunghezza
+				out_answer[ct++] = (u8)subcommand;
+				out_answer[ct++] = 1; //n
+				out_answer[ct++] = 4; //m
+				out_answer[2] = (u8)ct + 1;
+				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+				*in_out_sizeOfAnswer = out_answer[2];
+			}
+			return true;
+
 			} //switch (subcommand)
 		}
 		break;

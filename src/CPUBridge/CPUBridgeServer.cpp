@@ -1245,6 +1245,37 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_JUG:
+		{
+			u8 bufferW[16];
+			const u16 nBytesToSend = cpubridge::buildMsg_stopJug(bufferW, sizeof(bufferW));
+			
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				notify_CPU_STOP_JUG(sub->q, handlerID, logger, true);
+			else
+				notify_CPU_STOP_JUG(sub->q, handlerID, logger, false);
+		}
+		break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_CURRENT_REPETITION:
+		{
+			u8 bufferW[16];
+			u8 nOf;
+			u8 m;
+
+			const u16 nBytesToSend = cpubridge::buildMsg_getJugCurrentRepetition(bufferW, sizeof(bufferW));
+
+			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000)) {
+				//# P [len] [0x28] [n] [m] [ck]
+				nOf = answerBuffer[4];
+				m = answerBuffer[5];
+			}
+			notify_CPU_GET_JUG_CURRENT_REPETITION(sub->q, handlerID, logger, nOf, m);
+		}
+		break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_IS_QUICK_MENU_PINCODE_SET:
 			if (this->quickMenuPinCode != 0)
 				notify_CPU_IS_QUICK_MENU_PINCODE_SET(sub->q, handlerID, logger, true);

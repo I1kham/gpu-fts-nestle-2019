@@ -63,6 +63,8 @@
 #include "CmdHandler/CmdHandler_ajaxReq_validateQuickMenuPinCode.h"
 #include "CmdHandler/CmdHandler_ajaxReq_isQuickMenuPinCodeSet.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x28_getBuzzerStatus.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.h"
 
 using namespace socketbridge;
 
@@ -157,6 +159,8 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_validateQuickMenuPinCode);
 	CHECK(CmdHandler_ajaxReq_isQuickMenuPinCodeSet);
 	CHECK(CmdHandler_ajaxReq_P0x28_getBuzzerStatus);
+	CHECK(CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition);
+	CHECK(CmdHandler_ajaxReq_P0x2A_stopJug);
 
 #undef CHECK
     return NULL;

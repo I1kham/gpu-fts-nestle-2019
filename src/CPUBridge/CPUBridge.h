@@ -165,7 +165,8 @@ namespace cpubridge
 	u8			buildMsg_activateCPUBuzzer (u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
 					//[numRepeat], [beepLen_dSec] e [pausaTraUnBeepELAltro_dSec] validi sono compresi tra 0 e 15 inclusi
 	u8			buildMsg_getBuzzerStatus (u8 *out_buffer, u8 sizeOfOutBuffer);
-
+	u8			buildMsg_stopJug(u8* out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getJugCurrentRepetition(u8* out_buffer, u8 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx
@@ -360,6 +361,12 @@ namespace cpubridge
 	void		notify_CPU_BUZZER_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bBuzzerBusy);
 	void		translateNotify_CPU_BUZZER_STATUS(const rhea::thread::sMsg &msg, bool *out_bBuzzerBusy);
 
+	void		notify_CPU_STOP_JUG(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, bool bResult);
+	void		translateNotify_CPU_STOP_JUG(const rhea::thread::sMsg& msg, bool* out_bBuzzerBusy);
+
+	void		notify_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 nOf, u8 m);
+	void		translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m);
+	
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -624,6 +631,13 @@ namespace cpubridge
 	void		ask_CPU_BUZZER_STATUS (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_BUZZER_STATUS
 
+	void		ask_CPU_STOP_JUG(const sSubscriber& from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_STOP_JUG
+
+	void		ask_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_JUG_CURRENT_REPETITION
+
+	
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

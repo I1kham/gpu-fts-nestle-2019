@@ -84,6 +84,8 @@
 #define		CPUBRIDGE_NOTIFY_VALIDATE_QUICK_MENU_PINCODE		0x013A
 #define		CPUBRIDGE_NOTIFY_IS_QUICK_MENU_PINCODE_SET			0x013B
 #define		CPUBRIDGE_NOTIFY_CPU_BUZZER_STATUS					0x013C
+#define		CPUBRIDGE_NOTIFY_CPU_STOP_JUG						0x013D
+#define		CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION		0x013E
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -161,7 +163,8 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG				0x0844
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_ACTIVATE_BUZZER							0x0845
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_BUZZER_STATUS								0x0846
-
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_JUG									0x0847
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_CURRENT_REPETITION						0x0848
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -343,6 +346,8 @@ namespace cpubridge
 		//get_ID101_104_106 = 0x26,				//non implementato al momento
 		activate_cpu_buzzer = 0x27,
 		get_cpu_buzzer_status = 0x28,
+		get_jug_current_repetition = 0x29,
+		stop_jug = 0x2A,
 		unknown = 0xff
     };
 
@@ -387,7 +392,7 @@ namespace cpubridge
 		attaccato = 0x01
 	};
 
-	enum class eCPUProg_motor
+	enum class eCPUProg_motor: u8
 	{
 		unknown = 0,
 		prod1 = 1,
