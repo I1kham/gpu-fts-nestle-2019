@@ -1114,32 +1114,47 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 			case eCPUProgrammingCommand::stop_jug:
 				//# P [len] 0x2A [ck]
-			{
-				out_answer[ct++] = '#';
-				out_answer[ct++] = 'P';
-				out_answer[ct++] = 0; //lunghezza
-				out_answer[ct++] = (u8)subcommand;
+				{
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
 
-				out_answer[2] = (u8)ct + 1;
-				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-				*in_out_sizeOfAnswer = out_answer[2];
-			}
-			return true;
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
+				return true;
 
 			case eCPUProgrammingCommand::get_jug_current_repetition:
-				//# P [len] 0x2A [ck]
-			{
-				out_answer[ct++] = '#';
-				out_answer[ct++] = 'P';
-				out_answer[ct++] = 0; //lunghezza
-				out_answer[ct++] = (u8)subcommand;
-				out_answer[ct++] = 1; //n
-				out_answer[ct++] = 4; //m
-				out_answer[2] = (u8)ct + 1;
-				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-				*in_out_sizeOfAnswer = out_answer[2];
-			}
-			return true;
+				//# P [len] 0x29 [n] [m] [ck]
+				{
+					u8 n = 0;
+					u8 m = 0;
+
+					if (eStatoPreparazioneBevanda::running == statoPreparazioneBevanda)
+					{
+						if (NULL == da3)
+							priv_DA3_reload();
+
+						m = da3[0xb1 + 100 * (runningSel.selNum-1)];
+						if (m > 1)
+							n = 1;
+						else
+							m = 0;
+					}
+
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = n;
+					out_answer[ct++] = m;
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
+				return true;
 
 			} //switch (subcommand)
 		}
