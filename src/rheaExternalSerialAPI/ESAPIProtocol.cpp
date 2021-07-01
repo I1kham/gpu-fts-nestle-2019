@@ -126,6 +126,29 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 			DBGBREAK;
 			return false;
 		
+		case CPUBRIDGE_NOTIFY_LOCK_STATUS:
+			//risposta al comando C9
+			//risposta al comando S5
+            {
+	            cpubridge::eLockStatus lockStatus;
+	            cpubridge::translateNotify_MACHINE_LOCK(msg, &lockStatus);
+
+				u8 buffer[2];
+				buffer[0] = static_cast<u8>(lockStatus);
+
+				if (0x0001 == handlerID)
+				{
+					//rispondo: # C 9 [lockStatus] [ck]
+					rs232_esapiSendAnswer ('C', '9', buffer, 1);
+				}
+				else if (0x0002 == handlerID)
+				{
+					//rispondo: # S 5 [current_lock_status] [ck]
+					rs232_esapiSendAnswer ('S', '5', buffer, 1);
+				}
+            }
+            return true;
+
 		case CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER:
 			//risposta al comando A5
             {
@@ -632,6 +655,17 @@ u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 		}
 		return 4;
 
+	case '9':
+		//Get machine locking status
+		//ricevuto: # C 9 [ck]
+		//rispondo: # C 9 [status] [ck]
+		{
+			//chiedo a CPUBridge
+			//Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_GET_MACHINE_LOCK_STATUS (*cpuBridgeSubscriber, 0x0001);
+		}
+		return 4;
+
     } //switch
 }
 
@@ -747,6 +781,26 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 			//rispondo
 			rs232_esapiSendAnswer ('S', '4', &btnNum, 1);
 		}
+		return 5;
+
+    case '5': 
+        //Lock or unlock the machine
+        //ricevuto: # S 5 [desired_lock_status] [ck]
+        //rispondo: # S 5 [current_lock_status] [ck]
+        {
+			if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+				return 0;
+
+			if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+				return 2;
+
+			const cpubridge::eLockStatus desiredLockStatus = static_cast<cpubridge::eLockStatus>(b.buffer[3]);
+
+			//chiedo a CPUBridge
+			//Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_SET_MACHINE_LOCK_STATUS (*cpuBridgeSubscriber, 0x0002, desiredLockStatus);
+
+        }
 		return 5;
 	} //switch
 }

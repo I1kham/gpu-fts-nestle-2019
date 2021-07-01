@@ -152,9 +152,8 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA								0x0840
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_QUERY_ID_101								0x0841
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART									0x0842
-#define		CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_LOCK									0x0843
-#define		CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_UNLOCK									0x0844
-#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS						0x0845
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS						0x0843
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS						0x0844
 
 namespace cpubridge
 {
@@ -363,13 +362,13 @@ namespace cpubridge
 		error = 0xff
 	};
 
-	enum class eCPUProg_statoGruppo: u8
+	enum class eCPUProg_statoGruppo : u8
 	{
 		nonAttaccato = 0x00,
 		attaccato = 0x01
 	};
 
-	enum class eCPUProg_motor
+	enum class eCPUProg_motor : u8
 	{
 		unknown = 0,
 		prod1 = 1,
@@ -450,8 +449,8 @@ namespace cpubridge
 
 	enum class eLockStatus : u8
 	{
-		locked = 0,
-		unlocked = 1
+		unlocked = 0,
+		locked = 1
 	};
 
 	struct sSubscriber

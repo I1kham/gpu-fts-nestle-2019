@@ -1787,15 +1787,17 @@ void cpubridge::notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea:
 }
 
 //***************************************************
-void cpubridge::ask_MACHINE_LOCK (const sSubscriber &from, u16 handlerID)
+void cpubridge::ask_SET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID, eLockStatus lockStatus)
 {
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_LOCK, handlerID);
+	u8 buffer[2];
+	buffer[0] = static_cast<u8>(lockStatus);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS, handlerID, buffer, 1);
 }
-
-//***************************************************
-void cpubridge::ask_MACHINE_UNLOCK (const sSubscriber &from, u16 handlerID)
+void cpubridge::translate_SET_MACHINE_LOCK_STATUS(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus)
 {
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_UNLOCK, handlerID);
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS);
+    const u8* p = (const u8*)msg.buffer;
+    *out_lockStatus = static_cast<eLockStatus>(p[0]);
 }
 
 //***************************************************

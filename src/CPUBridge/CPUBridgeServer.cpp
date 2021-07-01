@@ -1294,14 +1294,20 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
-		case CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_LOCK:
-			priv_lockMachine();
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS:
+		{
+			cpubridge::eLockStatus lockStatus;
+			translate_SET_MACHINE_LOCK_STATUS (msg, &lockStatus);
+			switch (lockStatus)
+			{
+			case cpubridge::eLockStatus::locked:	priv_lockMachine(); break;
+			case cpubridge::eLockStatus::unlocked:	priv_unlockMachine(); break;
+			default:
+				DBGBREAK;
+				break;
+			}
 			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
-			break;
-
-		case CPUBRIDGE_SUBSCRIBER_ASK_MACHINE_UNLOCK:
-			priv_unlockMachine();
-			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+		}
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS:
@@ -1337,8 +1343,6 @@ void Server::priv_writeLockStatus (eLockStatus statusIN) const
 //**********************************************
 eLockStatus Server::priv_getLockStatus() const
 {
-	eLockStatus	ret = eLockStatus::unlocked;
-
 	u8 s[512];
 	priv_getLockStatusFilename (s, sizeof(s));
 
@@ -1349,15 +1353,10 @@ eLockStatus Server::priv_getLockStatus() const
 		rhea::fs::fileRead (f, &status, 1);
 		rhea::fs::fileClose(f);
 
-		switch (status)
-		{
-		case 0:	ret = eLockStatus::locked; break;
-		case 1:	ret = eLockStatus::unlocked; break;
-		default: break;
-		}
+		return static_cast<eLockStatus>(status);
 	}
 
-	return ret;
+	return eLockStatus::unlocked;
 }
 
 //**********************************************

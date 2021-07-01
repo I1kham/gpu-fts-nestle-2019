@@ -604,8 +604,8 @@ namespace cpubridge
 	void		ask_CPU_RESTART (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RESTART
 
-	void		ask_MACHINE_LOCK (const sSubscriber &from, u16 handlerID);
-	void		ask_MACHINE_UNLOCK (const sSubscriber &from, u16 handlerID);
+	void		ask_SET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID, eLockStatus lockStatus);
+	void		translate_SET_MACHINE_LOCK_STATUS(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus);
 	void		ask_GET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di uno di questi 3 msg, CPUBridge risponderà con un notify_MACHINE_LOCK riportando lo stato attuale del lock
 
