@@ -195,7 +195,9 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSmkdir.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartSelForceJug.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x28_getBuzzerStatus.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqActivateBuzzer.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqActivateBuzzer.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.cpp
 
 
 HEADERS += \
@@ -308,7 +310,9 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqFSmkdir.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqStartSelForceJug.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x28_getBuzzerStatus.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqActivateBuzzer.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqActivateBuzzer.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.h
 
 
 
