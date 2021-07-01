@@ -3455,6 +3455,14 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
 		return false;
 	}
 
+    //se la macchina è "locked", niente selezioni
+    if (eLockStatus::locked == priv_getLockStatus())
+    {
+        logger->log("  machine is loked, aborting.");
+        priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
+        return false;
+    }
+
 
     stato.set (sStato::eStato::selection);
 	memcpy (&runningSel.params, &params, sizeof(sStartSelectionParams));

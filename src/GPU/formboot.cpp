@@ -1245,7 +1245,6 @@ void FormBoot::on_btnDownload_GUI_clicked()
  */
 void FormBoot::on_btnDownload_audit_clicked()
 {
-    rhea::reboot();
     priv_pleaseWaitShow("Downloading data audit...");
     priv_startDownloadDataAudit (eDwnloadDataAuditCallBack_btn);
 }

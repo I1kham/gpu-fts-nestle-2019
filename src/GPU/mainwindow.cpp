@@ -19,6 +19,8 @@ MainWindow::MainWindow (sGlobal *globIN) :
     syncWithCPU.reset();
 
     ui->setupUi(this);
+    priv_showLockedPanel(false);
+
 #ifdef _DEBUG
     setWindowFlags(Qt::Window);
 #else
@@ -71,6 +73,19 @@ MainWindow::MainWindow (sGlobal *globIN) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+//*****************************************************
+void MainWindow::priv_showLockedPanel (bool b)
+{
+    if (!b)
+        ui->panelLocked->setVisible(false);
+    else
+    {
+        ui->panelLocked->move (10, 10);
+        ui->panelLocked->setVisible(true);
+        ui->panelLocked->raise();
+    }
 }
 
 //*****************************************************
@@ -581,6 +596,17 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
+    case CPUBRIDGE_NOTIFY_LOCK_STATUS:
+        {
+            cpubridge::eLockStatus lockStatus;
+            cpubridge::translateNotify_MACHINE_LOCK (msg, &lockStatus);
+            if (cpubridge::eLockStatus::unlocked == lockStatus)
+                priv_showLockedPanel(false);
+            else
+                priv_showLockedPanel(true);
+        }
+        break;
+
     case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
         {
             cpubridge::sCPUParamIniziali iniParam;
@@ -673,6 +699,8 @@ void MainWindow::priv_showNewProgrammazione_onCPUBridgeNotification (rhea::threa
 //********************************************************************************
 void MainWindow::on_webView_urlChanged(const QUrl &arg1)
 {
+    cpubridge::ask_GET_MACHINE_LOCK_STATUS(glob->cpuSubscriber, 0);
+
     if (currentForm >= eForm_newprog || currentForm == eForm_main_showBrowser)
     {
         QString url = arg1.toString();
