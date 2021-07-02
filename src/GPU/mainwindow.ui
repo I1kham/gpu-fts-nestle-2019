@@ -123,8 +123,8 @@
       <string>CAUTION!
 
 The Machine is LOCKED for security reasons,
-please contact your Dealer or distributor,
-sorry for the inconvenience caused</string>
+please contact your Dealer or distributor.
+Sorry for the inconvenience caused</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

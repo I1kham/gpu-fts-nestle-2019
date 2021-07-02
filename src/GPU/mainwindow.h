@@ -84,6 +84,7 @@ private:
     FormProg                *frmProg;
     FormPreGui              *frmPreGUI;
     eRetCode                retCode;
+    u64                     nextTimeAskForCPULockStatus_msec;
 };
 
 #endif // MAINWINDOW_H

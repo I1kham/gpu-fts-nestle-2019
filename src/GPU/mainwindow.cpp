@@ -16,6 +16,7 @@ MainWindow::MainWindow (sGlobal *globIN) :
     glob = globIN;
     retCode = eRetCode_none;
     frmPreGUI = NULL;
+    nextTimeAskForCPULockStatus_msec = 0;
     syncWithCPU.reset();
 
     ui->setupUi(this);
@@ -409,10 +410,10 @@ void MainWindow::priv_syncWithCPU_onTick()
         //abbiamo tutte le info, potremmo partire ma abbiamo aggiunto il supporto per il modulo rasPI per
         //cui aggiungo uno step per detectare o meno la presenza del modulo
         //non possiamo partire :) Bisogna verificare
-        priv_addText ("Checking for ESAPI module...");
+        priv_addText ("Checking for rheAPI module...");
         //activeSleep (1200);
         glob->logger->log ("\n\n");
-        glob->logger->log ("asking ESAPI module type and ver\n");
+        glob->logger->log ("asking rheAPI module type and ver\n");
         syncWithCPU.esapiTimeoutMSec = rhea::getTimeNowMSec() + 4000;
         syncWithCPU.stato = 4;
     }
@@ -437,7 +438,7 @@ void MainWindow::priv_syncWithCPU_onTick()
                     if ((u8)glob->esapiModule.moduleType > 0)
                     {
                         char s[32];
-                        sprintf_s (s, sizeof(s), "ESAPI [%d] [%d] [%d]", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+                        sprintf_s (s, sizeof(s), "rheAPI [%d] [%d] [%d]", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
                         priv_addText (s);
                         syncWithCPU.stato = 5;
                     }
@@ -576,6 +577,16 @@ eRetCode MainWindow::priv_showBrowser_onTick()
     if (retCode != eRetCode_none)
         return retCode;
 
+    //ogni tot, chiedo a CPUBridge il suo stato di lock per eventualmente sovraimporre
+    //la schermata di "CAUTION! machine locked"
+    const u64 timeNowMSec = rhea::getTimeNowMSec();
+    if (timeNowMSec >= nextTimeAskForCPULockStatus_msec)
+    {
+        cpubridge::ask_GET_MACHINE_LOCK_STATUS(glob->cpuSubscriber, 0);
+        nextTimeAskForCPULockStatus_msec = timeNowMSec +10000;
+    }
+
+
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
     while (rhea::thread::popMsg(glob->cpuSubscriber.hFromMeToSubscriberR, &msg))
@@ -699,8 +710,6 @@ void MainWindow::priv_showNewProgrammazione_onCPUBridgeNotification (rhea::threa
 //********************************************************************************
 void MainWindow::on_webView_urlChanged(const QUrl &arg1)
 {
-    cpubridge::ask_GET_MACHINE_LOCK_STATUS(glob->cpuSubscriber, 0);
-
     if (currentForm >= eForm_newprog || currentForm == eForm_main_showBrowser)
     {
         QString url = arg1.toString();
