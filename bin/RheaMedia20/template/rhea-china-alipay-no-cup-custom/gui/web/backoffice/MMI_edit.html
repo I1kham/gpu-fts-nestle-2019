@@ -491,7 +491,7 @@ async function saveAll()
 function chooseImage()
 {
 	var curPath = rheaGetAbsolutePhysicalPath() +"/img-drinks";
-	imgBrowser.open (curPath, "*.png", chooseImage_onEnd);
+	imgBrowser.open (curPath, "*.png *.gif", chooseImage_onEnd);
 }
 
 function chooseImage_onEnd(selectedFileName, selectedPath)
@@ -531,7 +531,7 @@ function upload2_onEnd (fileName, userValue, error_code)
 function chooseImage2()
 {
 	var curPath = rheaGetAbsolutePhysicalPath() +"/img-drinks";
-	imgBrowser.open (curPath, "*.png", chooseImage_onEnd2);
+	imgBrowser.open (curPath, "*.png *.gif", chooseImage_onEnd2);
 }
 
 function chooseImage_onEnd2(selectedFileName, selectedPath)
