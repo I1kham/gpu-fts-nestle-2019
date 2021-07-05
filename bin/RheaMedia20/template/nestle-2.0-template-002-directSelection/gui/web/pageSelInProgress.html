@@ -125,12 +125,6 @@ function onAfterLangLoaded()
 }
 	
 function getJugRepetition() {
-	if (jugConfiguration === 1) {
-		var divJugInfo = rheaGetElemByID('divJugInfo');
-			
-		rheaShowElem(divJugInfo);
-	}
-	
 	// Retrieve current jug repetition
 	rhea.ajax ("getJugCurrentRepetition", "").then( function(result) {
 		// {numberOf: <number>, total: <number>}

@@ -334,16 +334,17 @@ function onSelectionChanged (selNum)
 	
 	//jug btn
 	if (selInfo.jug > 1) {
-		if( 
-			( jugConfiguration === JUG_STATUS.ALWAYS_VISIBLE ) || 
-			( jugConfiguration === JUG_STATUS.ON_RFID_STATUS && isRFIDJugDetected )
-		) {
+		if (jugConfiguration === JUG_STATUS.ON_RFID_STATUS && isRFIDJugDetected) {
 			btnJUG_setON();
 			btnJUG_setText (selInfo.jug);
 			btnJUG_show();
 		} else if ( jugConfiguration === JUG_STATUS.ON_RFID_STATUS && !isRFIDJugDetected ) {
 			btnJUG_setOFF();
 			btnJUG_hide();
+		} else if (jugConfiguration === JUG_STATUS.ALWAYS_VISIBLE) {
+			btnJUG_setOFF();
+			btnJUG_setText (selInfo.jug);
+			btnJUG_show();
 		}
 	} else {
 		btnJUG_setOFF();
