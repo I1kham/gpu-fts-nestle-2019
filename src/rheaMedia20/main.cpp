@@ -12,7 +12,7 @@
 #include "varie.h"
 
 #define		RHEAMEDIA2_VERSIONE L"2.5"
-#define		RHEAMEDIA2_DATA		L"2021/07/01"
+#define		RHEAMEDIA2_DATA		L"2021/07/05"
 
 
 wchar_t chromeFullPathAndName[256];
