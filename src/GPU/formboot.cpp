@@ -1006,13 +1006,15 @@ bool FormBoot::priv_doInstallGUI (const u8 *srcFullFolderPath) const
     //creo un file con il nome del folder e lo salvo in last_installed_gui in modo da poter visualizzare il "nome" dell'ultima gui installata
     char s[512];
     sprintf_s (s, sizeof(s), "%s/%s.rheagui", glob->last_installed_gui, srcOnlyFolderName);
-    FILE *f = fopen (s, "wt");
+    FILE *f = rhea::fs::fileOpenForWriteText ((const u8*)s);
     {
         rhea::DateTime dt;
         dt.setNow();
         dt.formatAs_YYYYMMDDHHMMSS(s, sizeof(s), ' ', '/', ':');
         fprintf (f, "%s", s);
     }
+    fflush(f);
+    fsync (fileno(f));
     rhea::fs::fileClose(f);
 
     return true;
