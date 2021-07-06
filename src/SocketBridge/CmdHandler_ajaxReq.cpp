@@ -65,6 +65,7 @@
 #include "CmdHandler/CmdHandler_ajaxReq_P0x28_getBuzzerStatus.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h"
 
 using namespace socketbridge;
 
@@ -161,6 +162,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_P0x28_getBuzzerStatus);
 	CHECK(CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition);
 	CHECK(CmdHandler_ajaxReq_P0x2A_stopJug);
+	CHECK(CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc);
 
 #undef CHECK
     return NULL;

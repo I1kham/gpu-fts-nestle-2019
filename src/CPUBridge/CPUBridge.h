@@ -166,7 +166,9 @@ namespace cpubridge
 					//[numRepeat], [beepLen_dSec] e [pausaTraUnBeepELAltro_dSec] validi sono compresi tra 0 e 15 inclusi
 	u8			buildMsg_getBuzzerStatus (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_stopJug(u8* out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_getJugCurrentRepetition(u8* out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getJugCurrentRepetition (u8* out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8* out_buffer, u8 sizeOfOutBuffer);
+					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
 
 	/***********************************************
 		notify_xxxx
@@ -361,11 +363,13 @@ namespace cpubridge
 	void		notify_CPU_BUZZER_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bBuzzerBusy);
 	void		translateNotify_CPU_BUZZER_STATUS(const rhea::thread::sMsg &msg, bool *out_bBuzzerBusy);
 
-	void		notify_CPU_STOP_JUG(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, bool bResult);
+	void		notify_CPU_STOP_JUG (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, bool bResult);
 	void		translateNotify_CPU_STOP_JUG(const rhea::thread::sMsg& msg, bool* out_bBuzzerBusy);
 
-	void		notify_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 nOf, u8 m);
+	void		notify_CPU_GET_JUG_CURRENT_REPETITION (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 nOf, u8 m);
 	void		translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m);
+
+	void		notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger);
 	
 	/***********************************************
 		ask_xxxx
@@ -637,6 +641,11 @@ namespace cpubridge
 	void		ask_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_JUG_CURRENT_REPETITION
 
+	void		ask_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber &from, u16 handlerID, u8 grinder1_o_2);
+	void		translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread::sMsg &msg, u8 *out_grinder1_o_2);
+					//[grinder1_o_2]==1 se grinder1, [grinder1_o_2]==2 se grinder 2
+					//notifica CPU segnalando la fine della procedura di grinder cleaning
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_END_OF_GRINDER_CLEANING_PROCEDURE
 	
 } // namespace cpubridge
 

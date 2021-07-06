@@ -3299,6 +3299,14 @@ TaskGrinderClean.prototype.step41 = function(timeNowMsec)
 	
 TaskGrinderClean.prototype.step99 = function() //fine
 {
+	//Segnalo a CPU che ho finito la procedura
+	rhea.ajax ("notifyEndGrinClean", {"m":this.grinder1o2} ).then( function(result)
+	{
+	})
+	.catch( function(result)
+	{
+	});		
+
 	this.beep(5);
 	this.finished();
 }

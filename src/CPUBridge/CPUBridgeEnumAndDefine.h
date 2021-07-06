@@ -86,6 +86,7 @@
 #define		CPUBRIDGE_NOTIFY_CPU_BUZZER_STATUS					0x013C
 #define		CPUBRIDGE_NOTIFY_CPU_STOP_JUG						0x013D
 #define		CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION		0x013E
+#define		CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC		0x013F
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -165,6 +166,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_BUZZER_STATUS								0x0846
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_JUG									0x0847
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_CURRENT_REPETITION						0x0848
+#define		CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC					0x0849
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -348,6 +350,7 @@ namespace cpubridge
 		get_cpu_buzzer_status = 0x28,
 		get_jug_current_repetition = 0x29,
 		stop_jug = 0x2A,
+		notify_end_of_grinder_cleaning_proc = 0x2B,
 		unknown = 0xff
     };
 

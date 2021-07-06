@@ -1389,6 +1389,19 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			cpubridge::notify_CPU_QUERY_ID101 (sub->q, handlerID, logger, id101);
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC:
+			{
+				u8 grinder1_o_2;
+				translate_END_OF_GRINDER_CLEANING_PROCEDURE (msg, &grinder1_o_2);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (grinder1_o_2, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
+				notify_END_OF_GRINDER_CLEANING_PROCEDURE (sub->q, handlerID, logger);
+			}
+			break;
+
 
 		} //switch (msg.what)
 
