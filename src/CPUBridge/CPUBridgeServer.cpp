@@ -1261,13 +1261,13 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_CURRENT_REPETITION:
 		{
 			u8 bufferW[16];
-			u8 nOf;
-			u8 m;
-
 			const u16 nBytesToSend = cpubridge::buildMsg_getJugCurrentRepetition(bufferW, sizeof(bufferW));
 
-			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000)) {
+            u8 nOf = 0;
+            u8 m = 0;
+            u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+            if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+            {
 				//# P [len] [0x28] [n] [m] [ck]
 				nOf = answerBuffer[4];
 				m = answerBuffer[5];
