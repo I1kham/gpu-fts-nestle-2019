@@ -72,6 +72,7 @@ bin/RheaMedia20/temp/
 bin/fwupdate.tar
 bin/RASPI_RELEASE_rasPIBootLoader
 bin/RASPI_DEBUG_rasPIBootLoader
+bin/varie/prog/debug.log
 MSVC17/rheaUnzip/build/
 *.tlog
 bin/DA2Parser.txt
