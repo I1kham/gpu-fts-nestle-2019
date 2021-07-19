@@ -2817,6 +2817,21 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 	}
 
 
+	//notifico i client del cambio di prezzi
+	u16 prices[NUM_MAX_SELECTIONS + 2];
+	for (u8 selNum = 0; selNum < NUM_MAX_SELECTIONS; selNum++)
+	{
+		u16 index = cpuParamIniziali.pricesAsInAnswerToCommandC[selNum];
+        if (index > 100)
+            prices[selNum] = 0xffff;
+        else
+            prices[selNum] = cpuParamIniziali.pricesAsInPriceHolding[index];
+	}
+	for (u32 i = 0; i < subscriberList.getNElem(); i++)
+		notify_CPU_SEL_PRICES_CHANGED(subscriberList(i)->q, 0, logger, NUM_MAX_SELECTIONS, cpu_numDecimalsForPrices, prices);
+	
+
+
 	priv_enterState_normal();
 }
 
