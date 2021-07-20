@@ -645,7 +645,7 @@
 					</tr>
 					<tr>
 						<td>МОДЕЛЬ</td>
-						<td><div id='pageMilker_model' class='UISelect' data-option='0|НИКАКОЙ|1|ВЕНТУРИ|2|ИНДУКЦИЯ' data-da3="69" data-onchange="pageMilker_onMilkerTypeChange()"></div></td>
+						<td><div id='pageMilker_model' class='UISelect' data-option='0|НИКАКОЙ|1|ВЕНТУРИ|2|ИНДУКЦИЯ' data-da3="69" data-onchange="pageMilker_onMilkerTypeChange_fromUser()"></div></td>
 					</tr>
 				</table>
 				
@@ -2554,7 +2554,6 @@ function pageMilker_onMilkerTypeChange()
 		break;
 		
 	case 1: //milkerType==venturi
-		yesNo.selectOptionByValue(1);
 		rheaShowElem(rheaGetElemByID("pageMilker_capp_venturi"));
 		rheaHideElem(rheaGetElemByID("pageMilker_capp_induzione"));
 		for (var i=1; i<=NUM_PARAM_CAPP_VENTURI; i++)
@@ -2564,7 +2563,6 @@ function pageMilker_onMilkerTypeChange()
 		break;
 
 	case 2: //milkerType==indux
-		yesNo.selectOptionByValue(1);
 		rheaShowElem(rheaGetElemByID("pageMilker_capp_induzione"));
 		rheaHideElem(rheaGetElemByID("pageMilker_capp_venturi"));
 		for (var i=1; i<=NUM_PARAM_CAPP_INDUX; i++)
@@ -2576,6 +2574,28 @@ function pageMilker_onMilkerTypeChange()
 
 	pageMilker_onEnabledYesNo();
 	win.showHideScrollBar();
+}
+
+function pageMilker_onMilkerTypeChange_fromUser()
+{
+	//utente ha selezionato un nuovo tipo di capp.
+	//Se attualmente ero "enabled == NO", sposto a "enabled==YES"
+	var win = ui.getWindowByID("pageMilker");
+	var milkerModule = win.getChildByID("pageMilker_model");
+	var yesNo = win.getChildByID("pageMilker_enabled");
+
+	switch (parseInt(milkerModule.getSelectedOptionValue()))
+	{
+	case 0: //se milkerType==none, allora metto yesNo==no
+		yesNo.selectOptionByValue(0);
+		break;
+		
+	case 1: //milkerType==venturi
+	case 2: //milkerType==indux
+		yesNo.selectOptionByValue(1);
+		break;
+	}
+	pageMilker_onMilkerTypeChange();
 }
 
 function pageMilker_onEnabledYesNo()
