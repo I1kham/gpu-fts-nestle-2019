@@ -1,0 +1,1 @@
+var allLang="GB,IT"; var defaultLang="GB";allLangLocale=["English","Italiano"];
