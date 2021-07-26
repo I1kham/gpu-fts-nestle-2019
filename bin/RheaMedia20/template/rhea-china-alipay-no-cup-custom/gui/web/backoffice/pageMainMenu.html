@@ -30,6 +30,7 @@
 	<div id="main-content">
 		<div class="header">
 			<h1>Page main menù</h1>
+			<div id="tplPath">&nbsp;</div>
 		</div>
 
 		<div class="pulsantiera-sticky">
@@ -196,6 +197,20 @@ async function onRheaBootstrapFinished()
 
 	imageList_update();
 	pleaseWait(0);
+
+	getCurrentPath();
+}
+
+function getCurrentPath() {
+	if (!rheaGetElemByID('tplPath')) { return; }
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+	} else {
+		rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+	}
 }
 
 function image_getHTML_miniTableSelectionWithZeroOption (cupName, selNum)

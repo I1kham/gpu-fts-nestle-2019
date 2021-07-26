@@ -30,6 +30,7 @@
 			<div id="divBtnBackToHome" style="float:left; width:50%; text-align:left"></div>
 			<div style="float:left; width:50%;"><h1>INDEX</h1></div>
 			<div class="clear"></div>
+			<div id="tplPath">&nbsp;</div>
 		</div>
 
 		<div class="page">
@@ -130,6 +131,20 @@ async function onRheaBootstrapFinished()
 		
 		let s = await db.q ("SELECT DataLastBuild FROM history WHERE ID=1");
 		await db.exec ("UPDATE history SET DataLastBuild='19990101010100' WHERE ID=1");
+	}
+
+	getCurrentPath();
+}
+
+function getCurrentPath() {
+	if (!rheaGetElemByID('tplPath')) { return; }
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+	} else {
+		rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
 	}
 }
 

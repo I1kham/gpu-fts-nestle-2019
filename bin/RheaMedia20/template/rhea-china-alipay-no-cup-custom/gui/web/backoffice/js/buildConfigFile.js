@@ -60,6 +60,17 @@ function previewFrame_saveAs_onFinished(dstPath)
 	if (dstPath == "")
 		return;
 	
+	if (dstPath) {
+		let rheaData = {
+			exportetTpl: dstPath,
+			expires: (new Date( new Date().getTime() + (24 * 60 * 60 * 1000))).getTime()
+		}
+
+		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
+		
+		window.getCurrentPath && window.getCurrentPath();
+	}
+
 	previewFrame_close();
 	pleaseWait(1);
 

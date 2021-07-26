@@ -31,6 +31,7 @@
 	<div id="main-content">
 		<div class="header">
 			<h1>Main Menù Icon - Edit</h1>
+			<div id="tplPath">&nbsp;</div>
 		</div>
 
 		<div class="pulsantiera-sticky">
@@ -675,7 +676,21 @@ async function onRheaBootstrapFinished()
 		prepareButtonsPreview( obj.target, obj.target.value );
 	});
 
-	pleaseWait(0);		
+	pleaseWait(0);	
+
+	getCurrentPath();
+}
+
+function getCurrentPath() {
+	if (!rheaGetElemByID('tplPath')) { return; }
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+	} else {
+		rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+	}
 }
 
 function prepareButtonsPreview(target, text) {

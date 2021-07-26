@@ -19,6 +19,7 @@
 	<div id="main-content">
 		<div class="header">
 			<h1>DEFAULT CUP CUSTOMIZATION APPEARANCE</h1>
+			<div id="tplPath">&nbsp;</div>
 		</div>
 
 		<div class="pulsantiera-sticky">
@@ -198,6 +199,20 @@ async function onRheaBootstrapFinished()
 
 	$("#main-content-wait").hide();
 	$("#page-content").show();
+
+	getCurrentPath();
+}
+
+function getCurrentPath() {
+	if (!rheaGetElemByID('tplPath')) { return; }
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+	} else {
+		rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+	}
 }
 
 function prepareButtonsPreview(target, text) {
