@@ -73,15 +73,15 @@
 							<td colspan="2" align="center">
 								<div id="divCup0Container" class="pageConfirm_iconCupContainer pageConfirm_color1" onclick="onCupSelected(0)">
 									<div id="divCup0" class="pageConfirm_iconCup cup0"></div>
-									SMALL
+									<span id="divSmall"></span>
 								</div>
 								<div id="divCup1Container" div class="pageConfirm_iconCupContainer pageConfirm_color1" onclick="onCupSelected(1)">
 									<div id="divCup1" class="pageConfirm_iconCup cup1"></div>
-									MEDIUM
+									<span id="divMedium"></span>
 								</div>
 								<div id="divCup2Container" class="pageConfirm_iconCupContainer pageConfirm_color1" onclick="onCupSelected(2)">
 									<div id="divCup2" class="pageConfirm_iconCup cup2"></div>
-									LARGE
+									<span id="divLarge"></span>
 								</div>
 							</td>
 						</tr>
@@ -244,6 +244,19 @@ function onAfterLangLoaded2()
 	}, true);	
 	
 	resetTimerGotoPageMainMenu();
+
+	updateSizeLabels();
+}
+
+function updateSizeLabels()
+{
+	var cupCustomSmall = !rheaLang.CUP_CUSTOM_SMALL    || rheaLang.CUP_CUSTOM_SMALL   == 'NULL'? 'SMALL'  : rheaLang.CUP_CUSTOM_SMALL;
+	var cupCustomMedium = !rheaLang.CUP_CUSTOM_MEDIUM  || rheaLang.CUP_CUSTOM_MEDIUM  == 'NULL'? 'MEDIUM' : rheaLang.CUP_CUSTOM_MEDIUM;
+	var cupCustomLarge = !rheaLang.CUP_CUSTOM_LARGE    || rheaLang.CUP_CUSTOM_LARGE   == 'NULL'? 'LARGE'  : rheaLang.CUP_CUSTOM_LARGE;
+
+	rheaSetElemHTML(rheaGetElemByID("divSmall"),  cupCustomSmall);
+	rheaSetElemHTML(rheaGetElemByID("divMedium"), cupCustomMedium);
+	rheaSetElemHTML(rheaGetElemByID("divLarge"),  cupCustomLarge);
 }
 
 function updatePriceLabelForSelection (selNum)

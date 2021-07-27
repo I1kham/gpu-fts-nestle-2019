@@ -53,6 +53,15 @@
 
 							<tr valign="top"><td>&nbsp;</td></tr>
 							<tr valign="top"><td><b>CURRENCY_SIMBOL</b><br><div id="ml_LAB_CURRENCY_SIMBOL"></div></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>CUP_CUSTOM_SMALL</b><br><div id="ml_CUP_CUSTOM_SMALL"></div></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>CUP_CUSTOM_MEDIUM</b><br><div id="ml_CUP_CUSTOM_MEDIUM"></div></td></tr>
+
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>CUP_CUSTOM_LARGE</b><br><div id="ml_CUP_CUSTOM_LARGE"></div></td></tr>
 						</table>
 					</div>
 				</div>
@@ -109,6 +118,15 @@ async function onRheaBootstrapFinished()
 	ml_LAB_CURRENCY_SIMBOL = new MultilangElem("ml_LAB_CURRENCY_SIMBOL", "LAB_CURRENCY_SIMBOL", "MSG", "EDIT", "70px", allLang);
 	await ml_LAB_CURRENCY_SIMBOL.load(db);
 
+	ml_CUP_CUSTOM_SMALL = new MultilangElem("ml_CUP_CUSTOM_SMALL", "CUP_CUSTOM_SMALL", "MSG", "EDIT", "150px", allLang);
+	await ml_CUP_CUSTOM_SMALL.load(db);
+
+	ml_CUP_CUSTOM_MEDIUM = new MultilangElem("ml_CUP_CUSTOM_MEDIUM", "CUP_CUSTOM_MEDIUM", "MSG", "EDIT", "150px", allLang);
+	await ml_CUP_CUSTOM_MEDIUM.load(db);
+
+	ml_CUP_CUSTOM_LARGE = new MultilangElem("ml_CUP_CUSTOM_LARGE", "CUP_CUSTOM_LARGE", "MSG", "EDIT", "150px", allLang);
+	await ml_CUP_CUSTOM_LARGE.load(db);
+
 	ml_LAB_YOUR_DRINK_IS_READY = new MultilangElem("ml_LAB_YOUR_DRINK_IS_READY", "LAB_YOUR_DRINK_IS_READY", "MSG", "TEXTAREA", "700px", allLang);
 	await ml_LAB_YOUR_DRINK_IS_READY.load(db);
 
@@ -141,6 +159,9 @@ async function saveAll()
 	await ml_BTN_START_SELECTION.save(db);
 	await ml_BTN_START_SELECTION_NOT_AVAIL.save(db);
 	await ml_LAB_CURRENCY_SIMBOL.save(db);
+	await ml_CUP_CUSTOM_SMALL.save(db);
+	await ml_CUP_CUSTOM_MEDIUM.save(db);
+	await ml_CUP_CUSTOM_LARGE.save(db);
 	await ml_LAB_YOUR_DRINK_IS_READY.save(db);
 	await ml_LAB_YOUR_DRINK_IS_BEING_PREPARED.save(db);
 

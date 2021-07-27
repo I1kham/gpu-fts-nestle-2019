@@ -70,7 +70,7 @@ function previewFrame_saveAs_onFinished(dstPath)
 		
 		window.getCurrentPath && window.getCurrentPath();
 	}
-
+	
 	previewFrame_close();
 	pleaseWait(1);
 
@@ -496,6 +496,9 @@ console.time("translation 01");
 	let rstBTN_START_SELECTION = await db.q("SELECT ISO,Message FROM lang WHERE UID='BTN_START_SELECTION' AND What='MSG'");
 	let rstBTN_START_SELECTION_NOT_AVAIL = await db.q("SELECT ISO,Message FROM lang WHERE UID='BTN_START_SELECTION_NOT_AVAIL' AND What='MSG'");
 	let rstLAB_CURRENCY_SIMBOL = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_CURRENCY_SIMBOL' AND What='MSG'");
+	let rstCUP_CUSTOM_SMALL = await db.q("SELECT ISO,Message FROM lang WHERE UID='CUP_CUSTOM_SMALL' AND What='MSG'");
+	let rstCUP_CUSTOM_MEDIUM = await db.q("SELECT ISO,Message FROM lang WHERE UID='CUP_CUSTOM_MEDIUM' AND What='MSG'");
+	let rstCUP_CUSTOM_LARGE = await db.q("SELECT ISO,Message FROM lang WHERE UID='CUP_CUSTOM_LARGE' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_READY = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_READY' AND What='MSG'");
 	let rstLAB_YOUR_DRINK_IS_BEING_PREPARED = await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_YOUR_DRINK_IS_BEING_PREPARED' AND What='MSG'");
 	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg' OR What='disablePromo'");
@@ -596,6 +599,9 @@ console.time("  " +iso +"04");
 		var msgBtnStart = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_START_SELECTION, iso, iLang, allLang[0]);
 		var msgBtnStartNotAvail = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_START_SELECTION_NOT_AVAIL, iso, iLang, allLang[0]);
 		var msgLabCurrency = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_CURRENCY_SIMBOL, iso, iLang, allLang[0]);
+		var msgCupCustomSmall = priv_buildConfigFile_translation_findISO_orDefault (rstCUP_CUSTOM_SMALL, iso, iLang, allLang[0]);
+		var msgCupCustomMedium = priv_buildConfigFile_translation_findISO_orDefault (rstCUP_CUSTOM_MEDIUM, iso, iLang, allLang[0]);
+		var msgCupCustomLarge = priv_buildConfigFile_translation_findISO_orDefault (rstCUP_CUSTOM_LARGE, iso, iLang, allLang[0]);
 		var msgLabDrinkReady = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_YOUR_DRINK_IS_READY, iso, iLang, allLang[0]);
 		var msgLabDrinkBeingPrepared = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_YOUR_DRINK_IS_BEING_PREPARED, iso, iLang, allLang[0])
 console.timeEnd("  " +iso +"04");
@@ -605,6 +611,9 @@ console.timeEnd("  " +iso +"04");
 						+",BTN_START_SELECTION: \"" +msgBtnStart +"\""
 						+",BTN_START_SELECTION_NOT_AVAIL: \"" +msgBtnStartNotAvail +"\""
 						+",LAB_CURRENCY_SIMBOL: \"" +msgLabCurrency +"\""
+						+",CUP_CUSTOM_SMALL: \"" +msgCupCustomSmall +"\""
+						+",CUP_CUSTOM_MEDIUM: \"" +msgCupCustomMedium +"\""
+						+",CUP_CUSTOM_LARGE: \"" +msgCupCustomLarge +"\""
 						+",LAB_YOUR_DRINK_IS_READY: \"" +msgLabDrinkReady +"\""
 						+",LAB_YOUR_DRINK_IS_BEING_PREPARED: \"" +msgLabDrinkBeingPrepared +"\""
 						+",LAB_PAGE_STANDBY: \"" +stndByMsg +"\""
