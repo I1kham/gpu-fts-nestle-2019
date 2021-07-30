@@ -121,11 +121,23 @@ async function onRheaBootstrapFinished()
 	ml_CUP_CUSTOM_SMALL = new MultilangElem("ml_CUP_CUSTOM_SMALL", "CUP_CUSTOM_SMALL", "MSG", "EDIT", "150px", allLang);
 	await ml_CUP_CUSTOM_SMALL.load(db);
 
+	if(!document.querySelector('#ml_CUP_CUSTOM_SMALL_GB').value) {
+		document.querySelector('#ml_CUP_CUSTOM_SMALL_GB').value = 'SMALL';
+	}
+
 	ml_CUP_CUSTOM_MEDIUM = new MultilangElem("ml_CUP_CUSTOM_MEDIUM", "CUP_CUSTOM_MEDIUM", "MSG", "EDIT", "150px", allLang);
 	await ml_CUP_CUSTOM_MEDIUM.load(db);
 
+	if(!document.querySelector('#ml_CUP_CUSTOM_MEDIUM_GB').value) {
+		document.querySelector('#ml_CUP_CUSTOM_MEDIUM_GB').value = 'MEDIUM';
+	}
+
 	ml_CUP_CUSTOM_LARGE = new MultilangElem("ml_CUP_CUSTOM_LARGE", "CUP_CUSTOM_LARGE", "MSG", "EDIT", "150px", allLang);
 	await ml_CUP_CUSTOM_LARGE.load(db);
+
+	if(!document.querySelector('#ml_CUP_CUSTOM_LARGE_GB').value) {
+		document.querySelector('#ml_CUP_CUSTOM_LARGE_GB').value = 'LARGE';
+	}
 
 	ml_LAB_YOUR_DRINK_IS_READY = new MultilangElem("ml_LAB_YOUR_DRINK_IS_READY", "LAB_YOUR_DRINK_IS_READY", "MSG", "TEXTAREA", "700px", allLang);
 	await ml_LAB_YOUR_DRINK_IS_READY.load(db);
