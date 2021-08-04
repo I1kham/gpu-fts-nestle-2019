@@ -563,6 +563,7 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 	//termino quando lo stato della CPU diventa != da eVMCState_LAVAGGIO_MILKER_INDUX
 	if (timeElapsedMSec > 3000 && this.cpuStatus != 24) //24==eVMCState_LAVAGGIO_MILKER_INDUX
 	{
+		rheaHideElem (rheaGetElemByID("pagePleaseWait_milkerInduxWashing"));
 		pageCleaning_onFinished();
 		return;
 	}
