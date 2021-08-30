@@ -476,7 +476,9 @@ function setupNavigator()
 		html += "</div>";
 	}
 	html += "<div class='clear'></div>";
-	rheaSetDivHTMLByName("pageIndex", html);
+	if(document.getElementById('pageIndex'))
+		rheaSetDivHTMLByName("pageIndex", html);
+
 	updateNavigatorIcon(0);
 }
 
@@ -507,9 +509,9 @@ function updateNavigatorIcon(pageIN)
 	for (var i = 0; i < mainMenuIconNumPage; i++)
 	{
 		var d = rheaGetElemByID("nav_page_" +i);
-		rheaRemoveClassToElem (d,"selected");
+		if (d) rheaRemoveClassToElem (d,"selected");
 		if (page == i)
-			rheaAddClassToElem (d,"selected");
+			if (d) rheaAddClassToElem (d,"selected");
 	}
 }
 	
