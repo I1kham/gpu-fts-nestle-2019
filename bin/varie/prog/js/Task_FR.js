@@ -150,22 +150,22 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 			me.btn2 = parseInt(obj.btn2);
 			switch (me.fase)
 			{
-				case 0: pleaseWait_freeText_setText("Brewer Cleaning is not started (or ended)"); break;	//Brewer Cleaning is not started (or ended)
-				case 1: pleaseWait_freeText_setText("Brewer Cleaning is started"); break; 	//Brewer Cleaning is started
-				case 2: pleaseWait_freeText_setText("Brewer placed"); break; 	//Brewer placed
-				case 3: pleaseWait_freeText_setText("Put pastille and push START"); break; //Put pastille and push START
+				case 0: pleaseWait_freeText_setText("Le nettoyage du groupe n'a pas commencé ou (pas terminé)"); break;	//Brewer Cleaning is not started (or ended)
+				case 1: pleaseWait_freeText_setText("Lavage du groupe en cours"); break; 	//Brewer Cleaning is started
+				case 2: pleaseWait_freeText_setText("Groupe positionné"); break; 	//Brewer placed
+				case 3: pleaseWait_freeText_setText("Insérer la pastille et appuyer sur START"); break; //Put pastille and push START
 				case 4: pleaseWait_freeText_setText("Infusion"); break; //Infusion
-				case 5: pleaseWait_freeText_setText("Brewer cleaning cycles 1"); break; // Brewer cleaning cycles 1
-				case 6: pleaseWait_freeText_setText("Brewer cleaning cycles 2"); break;	// Brewer cleaning cycles 2
-				case 7: pleaseWait_freeText_setText("Brewer cleaning cycles 3"); break;	// Brewer cleaning cycles 3
-				case 8: pleaseWait_freeText_setText("Brewer cleaning cycles 4"); break;	// Brewer cleaning cycles 4
-				case 9: pleaseWait_freeText_setText("Brewer cleaning cycles 5"); break;	// Brewer cleaning cycles 56
-				case 10: pleaseWait_freeText_setText("Brewer cleaning cycles 6"); break;	// HC_STEP_BRW_6
+				case 5: pleaseWait_freeText_setText("Cycle de nettoyage de l'infuseur 1"); break; // Brewer cleaning cycles 1
+				case 6: pleaseWait_freeText_setText("Cycle de nettoyage de l'infuseur 2"); break;	// Brewer cleaning cycles 2
+				case 7: pleaseWait_freeText_setText("Cycle de nettoyage de l'infuseur 3"); break;	// Brewer cleaning cycles 3
+				case 8: pleaseWait_freeText_setText("Cycle de nettoyage de l'infuseur 4"); break;	// Brewer cleaning cycles 4
+				case 9: pleaseWait_freeText_setText("Cycle de nettoyage de l'infuseur 5"); break;	// Brewer cleaning cycles 56
+				case 10: pleaseWait_freeText_setText("Cycle de nettoyage de l'infuseur 6"); break;	// HC_STEP_BRW_6
 				
-				case 11: pleaseWait_freeText_setText("Repeat cleaning ?"); break;	//Repeat cleaning ?
-				case 12: pleaseWait_freeText_setText("Brewer placed in brush position, press CONTINUE when finished"); break;	//Brewer placed in brush position, press CONTINUE when finished
-				case 13: pleaseWait_freeText_setText("Skip final coffee or make a coffee"); break; //Skip final coffee or make a coffee
-				case 14: pleaseWait_freeText_setText("Coffee delivery"); break; //Coffee delivery
+				case 11: pleaseWait_freeText_setText("Répéter le nettoyage"); break;	//Repeat cleaning ?
+				case 12: pleaseWait_freeText_setText("Groupe en position, appuyer sur CONTINUER lorsque vous avez terminé"); break;	//Brewer placed in brush position, press CONTINUE when finished
+				case 13: pleaseWait_freeText_setText("Finir par un café ?"); break; //Skip final coffee or make a coffee
+				case 14: pleaseWait_freeText_setText("Distribution en cours."); break; //Coffee delivery
 				
 				case 15:	//HC_STEP_MIXER_1
 				case 16:	//HC_STEP_MIXER_2
@@ -174,7 +174,7 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 					cleanMixNum = me.fase-14;
 					if (me.isEspresso)
 						cleanMixNum++;
-					pleaseWait_freeText_setText("Rinsing " +cleanMixNum); //rinsing
+					pleaseWait_freeText_setText("Rincage " +cleanMixNum); //rinsing
 					break; 	
 				default: pleaseWait_freeText_setText(""); break;
 			}
@@ -202,9 +202,9 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 						switch (me.fase)
 						{
 							case 3:  btnText = "DÉBUT"; break; //HC_STEP_TABLET
-							case 11: btnText = "NO"; break; //HC_STEP_BRW_REPEAT
+							case 11: btnText = "NON"; break; //HC_STEP_BRW_REPEAT
 							case 12: btnText = "CONTINUER"; break; //HC_STEP_BRW_BRUSH_POSITION
-							case 13: btnText = "SAUTER LE CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
+							case 13: btnText = "PASSER LE CAFÉ"; break; //HC_STEP_BRW_SKIP_FINAL_COFFEE
 						}
 						pleaseWait_btn1_setText (btnText);
 						pleaseWait_btn1_show();	
@@ -272,7 +272,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 7:		msg = "Starting to fill hydraulic tubes with descaling detergent, please wait..."; break;
 				case 8:		msg = "Please wait for the descaling liquid action..."; break;
 				case 9:		msg = "Descaling liquid starts draining through the nozzles, please wait..."; break;
-				case 10:	msg = "Check the liquid colour drained from the nozzles, it defines if descaling process successfully completed.<br>Press CONTINUE button to continue, or press REPEAT to repeat previous steps."; break;
+				case 10:	msg = "Check the liquid drained from the nozzles to define if descaling process succesfully completed."; break;
 				case 11:	msg = "Open boiler tap. Press CONTINUE when done."; break;
 				case 12:	msg = "Emptying hydraulic circuit, please wait..."; break;
 				case 13:	msg = "Close boiler tap. Press CONTINUE when done."; break;
@@ -320,7 +320,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 							break;
 							
 						case 21:
-							btnText = "FERME"; 
+							btnText = "FERMER"; 
 							break;
 					}
 					pleaseWait_btn1_setText (btnText);
@@ -380,49 +380,49 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 			switch (me.fase)
 			{
 				default: msg = ""; break;
-				case 0: msg = "Cleaning is active"; break;	//Cleaning is active
-				case 1: msg = "Put the pastille in the brewer and press CONTINUE"; break; 	//Put the pastille in the brewer and press CONTINUE
-				case 2: msg = "Brewer is closing"; break; 	//Brewer is closing
-				case 3: msg = "Tablet dissolution 1/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
-				case 4: msg = "2nd dissolution cycle is about to starting"; break; 	//2nd dissolution cycle is about to starting
-				case 5: msg = "Tablet dissolution 2/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
+				case 0: msg = "Nettoyage activé"; break;	//Cleaning is active
+				case 1: msg = "Mettre la pastille dans le groupe et appuyer sur continué"; break; 	//Put the pastille in the brewer and press CONTINUE
+				case 2: msg = "Groupe fermé"; break; 	//Brewer is closing
+				case 3: msg = "Dissolution pastille attendre 1/2"; break; 	//Tablet dissolution 1/2, please wait
+				case 4: msg = "2iéme cycle de dissolution va commencer"; break; 	//2nd dissolution cycle is about to starting
+				case 5: msg = "Dissolution pastille attendre 2/2"; break; 	//Tablet dissolution 1/2, please wait
 
-				case 6: msg = "1st Cleaning, please wait 1/3"; break; 	//1st Cleaning, please wait 1/3
-				case 7: msg = "1st Cleaning, active 1/3"; break; 	//1st Cleaning, active 1/3
-				case 8: msg = "1st Cleaning, please wait 2/3"; break; 	//1st Cleaning, please wait 2/3
-				case 9: msg = "1st Cleaning, active 2/3"; break; 	//1st Cleaning, active 2/3
-				case 10: msg = "1st Cleaning, please wait 3/3"; break; 	//1st Cleaning, please wait 3/3
-				case 11: msg = "1st Cleaning, active 3/3"; break; 	//1st Cleaning, active 3/3
+				case 6: msg = "1er nettoyage,  Attendre 1/3"; break; 	//1st Cleaning, please wait 1/3
+				case 7: msg = "1er nettoyage,  Actif 1/3"; break; 	//1st Cleaning, active 1/3
+				case 8: msg = "1er nettoyage,  Attendre 2/3"; break; 	//1st Cleaning, please wait 2/3
+				case 9: msg = "1er nettoyage,  Actif 2/3"; break; 	//1st Cleaning, active 2/3
+				case 10: msg = "1er nettoyage,  Attendre 3/3"; break; 	//1st Cleaning, please wait 3/3
+				case 11: msg = "1er nettoyage,  Actif 3/3"; break; 	//1st Cleaning, active 3/3
 
-				case 12: msg = "Do you want to repeat clean cycle 1/2 ?"; break; 	//Do you want to repeat clean cycle 1/2 ?
+				case 12: msg = "Voulez vous recommencer le cycle de nettoyage 1/2?"; break; 	//Do you want to repeat clean cycle 1/2 ?
 				
-				case 13: msg = "Brewer is going into open position"; break; 	//Brewer is going into open position
+				case 13: msg = "Le groupe pass en position ouverte"; break; 	//Brewer is going into open position
 				
-				case 14: msg = "Please, perform a manual brush and then press CONTINUE when finished"; break; 	//Please, perform a manual brush and then press CONTINUE when finished
+				case 14: msg = "Veuillez effectuer un nettoyage manuel, puis appuyez sur CONTINUER"; break; 	//Please, perform a manual brush and then press CONTINUE when finished
 				
-				case 15: msg = "2nd Cleaning, please wait 1/6"; break; 	//2nd Cleaning, please wait 1/6
-				case 16: msg = "2nd Cleaning, active 1/6"; break; 	//2nd Cleaning, active 1/6
-				case 17: msg = "2nd Cleaning, please wait 2/6"; break; 	//2nd Cleaning, please wait 2/6
-				case 18: msg = "2nd Cleaning, active 2/6"; break; 	//2nd Cleaning, active 2/6
-				case 19: msg = "2nd Cleaning, please wait 3/6"; break; 	//2nd Cleaning, please wait 3/6
-				case 20: msg = "2nd Cleaning, active 3/6"; break; 	//2nd Cleaning, active 3/6
-				case 21: msg = "2nd Cleaning, please wait 4/6"; break; 	//2nd Cleaning, please wait 4/6
-				case 22: msg = "2nd Cleaning, active 4/6"; break; 	//2nd Cleaning, active 4/6
-				case 23: msg = "2nd Cleaning, please wait 5/6"; break; 	//2nd Cleaning, please wait 5/6
-				case 24: msg = "2nd Cleaning, active 5/6"; break; 	//2nd Cleaning, active 5/6
-				case 25: msg = "2nd Cleaning, please wait 6/6"; break; 	//2nd Cleaning, please wait 6/6
-				case 26: msg = "2nd Cleaning, active 6/6"; break; 	//2nd Cleaning, active 6/6
+				case 15: msg = "2nd nettoyage,  Attendre 1/6"; break; 	//2nd Cleaning, please wait 1/6
+				case 16: msg = "2nd nettoyage, actif 1/6"; break; 	//2nd Cleaning, active 1/6
+				case 17: msg = "2nd nettoyage,  Attendre 2/6"; break; 	//2nd Cleaning, please wait 2/6
+				case 18: msg = "2nd eéttoyage, actif 2/6"; break; 	//2nd Cleaning, active 2/6
+				case 19: msg = "2nd nettoyage,  Attendre 3/6"; break; 	//2nd Cleaning, please wait 3/6
+				case 20: msg = "2nd nettoyage, actif 3/6"; break; 	//2nd Cleaning, active 3/6
+				case 21: msg = "2nd nettoyage,  Attendre 4/6"; break; 	//2nd Cleaning, please wait 4/6
+				case 22: msg = "2nd eéttoyage, actif 4/6"; break; 	//2nd Cleaning, active 4/6
+				case 23: msg = "2nd nettoyage,  Attendre 5/6"; break; 	//2nd Cleaning, please wait 5/6
+				case 24: msg = "2nd eéttoyage, actif 5/6"; break; 	//2nd Cleaning, active 5/6
+				case 25: msg = "2nd nettoyage,  Attendre 6/6"; break; 	//2nd Cleaning, please wait 6/6
+				case 26: msg = "2nd eéttoyage, actif 6/6"; break; 	//2nd Cleaning, active 6/6
 				
-				case 27: msg = "Do you want to repeat clean cycle 2/2 ?"; break; 	//Do you want to repeat clean cycle 2/2 ?
+				case 27: msg = "Voulez-vous recommencer le cycle de nettoyage 2/2 ?"; break; 	//Do you want to repeat clean cycle 2/2 ?
 				
-				case 28: msg = "Do you want to skip the final coffee ?"; break; //Do you want to skip the final coffee ?
-				case 29: msg = "Coffee delivery, please wait"; break; //Coffee delivery, please wait
+				case 28: msg = "Voulez vous eviter le cycle d'un café?"; break; //Do you want to skip the final coffee ?
+				case 29: msg = "Cycle café en cours, veuillez patienter"; break; //Coffee delivery, please wait
 
-				case 30: msg = "Brewer Rinsing"; break; //Brewer Rinsing 
-				case 31: msg = "Mixer 1 Rinsing"; break; //Mixer 1 Rinsing
-				case 32: msg = "Mixer 2 Rinsing"; break; //Mixer 2 Rinsing
-				case 33: msg = "Mixer 3 Rinsing"; break; //Mixer 3 Rinsing 
-				case 34: msg = "Brewer Cleaning Done. Press CLOSE to finish"; break; //Brewer Cleaning Done. Press CLOSE to exit
+				case 30: msg = "rincçage groupe"; break; //Brewer Rinsing 
+				case 31: msg = "Rincçage mixeur 1"; break; //Mixer 1 Rinsing
+				case 32: msg = "Rincçage mixeur 2"; break; //Mixer 2 Rinsing
+				case 33: msg = "Rincçage mixeur 3"; break; //Mixer 3 Rinsing 
+				case 34: msg = "Nettoyage du groupe terminé, Press FERMER pour terminer"; break; //Brewer Cleaning Done. Press CLOSE to exit
 			}
 
 			//msg += "<br><br>DEBUG SAN WASH response: fase[" +obj.fase +"] b1[" +obj.btn1 +"] b2[" +obj.btn2 +"]";
@@ -453,10 +453,10 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 						switch (me.fase)
 						{
 							case 1:  btnText = "CONTINUER"; break;
-							case 12: btnText = "NO"; break; //Do you want to repeat clean cycle 1/2 ?
+							case 12: btnText = "NON"; break; //Do you want to repeat clean cycle 1/2 ?
 							case 14:  btnText = "CONTINUER"; break;
-							case 27: btnText = "NO"; break; //Do you want to repeat clean cycle 2/2 ?
-							case 28: btnText = "SAUTER LE CAFÉ"; break; //Do you want to skip the final coffee ?
+							case 27: btnText = "NON"; break; //Do you want to repeat clean cycle 2/2 ?
+							case 28: btnText = "PASSER LE CAFÉ"; break; //Do you want to skip the final coffee ?
 							case 34: btnText = "PROCHE"; break; //Do you want to skip the final coffee ?
 							
 						}
@@ -515,13 +515,13 @@ TaskCleaning.prototype.priv_handleMilkWashingVenturi = function (timeElapsedMSec
 			me.btn2 = parseInt(obj.btn2);
 			switch (me.fase)
 			{
-				case 1: pleaseWait_freeText_setText("Milker Cleaning is started"); break;	//Milker Cleaning is started
-				case 2: pleaseWait_freeText_setText("Warming for cleaner"); break;	//Warming for cleaner
-				case 3: pleaseWait_freeText_setText("Wait for confirm"); break;	//Wait for confirm
-				case 4: pleaseWait_freeText_setText("Doing cleaner cycles (12)"); break;	//Doing cleaner cycles (12)
-				case 5: pleaseWait_freeText_setText("Warming for water"); break;	//Warming for water
-				case 6: pleaseWait_freeText_setText("Wait for second confirm"); break;	//Wait for second confirm
-				case 7: pleaseWait_freeText_setText("Doing cleaner cycles (12)"); break;	//Doing cleaner cycles (12)
+				case 1: pleaseWait_freeText_setText("Lavage du Cappuccinatore en cours"); break;	//Milker Cleaning is started
+				case 2: pleaseWait_freeText_setText("Attendre température"); break;	//Warming for cleaner
+				case 3: pleaseWait_freeText_setText("En attente de confirmation"); break;	//Wait for confirm
+				case 4: pleaseWait_freeText_setText("Cycle de lalvage en cours (12)"); break;	//Doing cleaner cycles (12)
+				case 5: pleaseWait_freeText_setText("Attendre température"); break;	//Warming for water
+				case 6: pleaseWait_freeText_setText("En attente d'une seconde confirmation"); break;	//Wait for second confirm
+				case 7: pleaseWait_freeText_setText("Cycle de lalvage en cours (12)"); break;	//Doing cleaner cycles (12)
 				default: pleaseWait_freeText_setText(""); break;
 			}
 			pleaseWait_freeText_show();
@@ -536,7 +536,7 @@ TaskCleaning.prototype.priv_handleMilkWashingVenturi = function (timeElapsedMSec
 					case 2:  pleaseWait_btn1_setText ("DÉBUT"); break;
 					case 3:
 					case 5:  pleaseWait_btn1_setText ("CONTINUER"); break;
-					case 6:  pleaseWait_btn1_setText ("CONFIRM"); break;
+					case 6:  pleaseWait_btn1_setText ("CONFIRMER"); break;
 				}
 				pleaseWait_btn1_show();	
 			}
@@ -598,19 +598,19 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				{					
 				case 2:	//CIC_STEP_FILL_WATER
 					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
-					pleaseWait_freeText_setText("Water refilling in progress, please wait.<br>Water conducibility: {0} uS".translateLang(cond_uS)); //Water refilling in progress, please wait.<br>Water conducibility: {0} uS
+					pleaseWait_freeText_setText("Remplissage d'eau en cours, veuillez patienter. <br> Conductibilité de l'eau: {0} états-unis".translateLang(cond_uS)); //Water refilling in progress, please wait.<br>Water conducibility: {0} uS
 					break;
 
 				case 3:	//CIC_WAIT_FOR_TABLET_DISSOLVING
 					var timeSec = parseInt(obj.buffer8[0]);
-					pleaseWait_freeText_setText("Rinsing in progress: -{0}".translateLang(timeSec)); //Rinsing -{0}
+					pleaseWait_freeText_setText("Rinçage en cours: - {0}".translateLang(timeSec)); //Rinsing -{0}
 					break;
 
 				case 4:	//CIC_RINSING_PHASE1
 					var ciclo_num = parseInt(obj.buffer8[0]);
 					var ciclo_di = parseInt(obj.buffer8[3]);
 					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
-					pleaseWait_freeText_setText("Rinsing {0} of {1} in progress, please wait.<br>Water conducibility: {2} uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Rinsing {0} of {1}, please wait.<br>Water conducibility: {2} uS
+					pleaseWait_freeText_setText("Rinçage {0} sur {1} en cours, veuillez patienter. <br> Conductibilité de l'eau: {2}  uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Rinsing {0} of {1}, please wait.<br>Water conducibility: {2} uS
 					break;
 
 				case 5:	//CIC_RINSING_PHASE2
@@ -618,23 +618,23 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					var ciclo_num = parseInt(obj.buffer8[0]);
 					var ciclo_di = parseInt(obj.buffer8[3]);
 					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
-					pleaseWait_freeText_setText("Cleaning {0} of {1} in progress, please wait.<br>Water conducibility: {2} uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Cleaning {0} of {1}, please wait.<br>Water conducibility: {2} uS
+					pleaseWait_freeText_setText("Nettoyage {0} sur {1} en cours, veuillez patienter. <br> Conductibilité de l'eau: {2} uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Cleaning {0} of {1}, please wait.<br>Water conducibility: {2} uS
 					break;
 				
 				case 7: //CIC_WAIT_FOR_MILK_TUBE
-					pleaseWait_freeText_setText("The cleaning procedure is finished.<br><br>Please, remember to:<ul><li>empty waste tank</li><li>put the milk pipe back into position</li></ul><br>Press CLOSE to close this window"); //The cleaning procedure is finished.<br><br>Please, remember to:<ul><li>empty Waste tank</li><li>put the milk pipe back into position</li></ol><br>Press CLOSE to close this window
+					pleaseWait_freeText_setText("La procédure de nettoyage est terminée. <br> <br> N'oubliez pas de: <ul> <li> vider le réservoir à déchets </li> <li> remettre le tuyau de lait en place </li> </ul> <br > Appuyez sur CLOSE pour fermer cette fenêtre"); //The cleaning procedure is finished.<br><br>Please, remember to:<ul><li>empty Waste tank</li><li>put the milk pipe back into position</li></ol><br>Press CLOSE to close this window
 					break;
 
 				case 97: //CIC_TOO_MUCH_DETERGENTE
-					pleaseWait_freeText_setText("WARNING: too much detergent!");
+					pleaseWait_freeText_setText("AVERTISSEMENT: trop de détergent!");
 					break;
 				
 				case 98: //CIC_DET_TOO_LOW
-					pleaseWait_freeText_setText("WARNING: too few detergent has been detected!<br>A new cleaning is recomended");
+					pleaseWait_freeText_setText("ATTENTION: trop peu de détergent a été détecté! <br> Un nouveau nettoyage est recommandé");
 					break;
 
 				case 99: //CIC_DET_TOO_AGGRESSIVE
-					pleaseWait_freeText_setText("WARNING: detergent too aggressive");
+					pleaseWait_freeText_setText("ATTENTION: détergent trop agressif");
 					break;
 
 				default:
@@ -656,7 +656,7 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				{
 				default: 	pleaseWait_btn1_setText (me.btn1); break;
 				case 1:		pleaseWait_btn1_setText ("CONTINUER"); break;
-				case 7:		pleaseWait_btn1_setText ("FERME"); break;
+				case 7:		pleaseWait_btn1_setText ("FERMER"); break;
 				}
 				pleaseWait_btn1_show();	
 			}
@@ -668,7 +668,7 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 				switch (me.fase)
 				{
 				default: pleaseWait_btn2_setText (me.btn2); break;
-				case 1:	 pleaseWait_btn2_setText ("ABORT"); break;
+				case 1:	 pleaseWait_btn2_setText ("ABANDONNER"); break;
 				}
 				pleaseWait_btn2_show();	
 			}			
@@ -805,7 +805,7 @@ TaskCalibMotor.prototype.priv_handleCalibProdotto = function (timeElapsedMSec)
 		pleaseWait_calibration_varigrind_hide();		
 
 		
-		pleaseWait_calibration_setText("Lorsque vous avez terminé, veuillez entrer la quantité en grammes du DERNIER sol, puis appuyez sur CONTINUER"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("Lorsque vous avez terminé, veuillez entrer la quantité en grammes , puis appuyez sur CONTINUER"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUER");
@@ -876,10 +876,10 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Veuillez retirer l'infuseur, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_calibration_setText("Veuillez retirer le groupe café, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn2_show();	
 		uiStandAloneVarigringTargetPos.setValue(0);
 		break;
@@ -929,7 +929,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		pleaseWait_calibration_motor_hide();
 		pleaseWait_calibration_varigrind_show();		
 		
-		pleaseWait_calibration_setText("Lorsque vous avez terminé, veuillez entrer la quantité en grammes du DERNIER sol, puis appuyez sur CONTINUER"); //Please enter the quantity, then press CONTINUE
+		pleaseWait_calibration_setText("Lorsque vous avez terminé, veuillez entrer la quantité en grammes , puis appuyez sur CONTINUER"); //Please enter the quantity, then press CONTINUE
 		pleaseWait_calibration_num_setValue(0);
 		pleaseWait_calibration_num_show();
 		pleaseWait_btn1_setText("CONTINUER");
@@ -1025,7 +1025,7 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		break;
 		
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Placez l'infuseur en position, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
+		pleaseWait_calibration_setText("Remettre le groupe en place, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
 		pleaseWait_btn1_show();
 		me.fase = 41;
 		break;
@@ -1217,10 +1217,10 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_calibration_show();
-		pleaseWait_calibration_setText("Veuillez retirer l'infuseur, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_calibration_setText("Veuillez retirer le groupe café, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn2_show();
 		break;
 		
@@ -1248,7 +1248,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		
 	case 10:  //ok, il gruppo è scollegato, chiedo a CPU di attivare la macina
 		me.fase = 11;
-		pleaseWait_calibration_setText ("Grinder tourne"); //Grinder is running
+		pleaseWait_calibration_setText ("Le moulin tourne"); //Grinder is running
 		rhea.ajax ("testSelection", {"s":me.selNum, "d":me.iAttuatore} ).then( function(result)
 		{
 			if (result == "OK")
@@ -1275,7 +1275,7 @@ TaskTestSelezione.prototype.priv_handleTestMacina = function (timeElapsedMSec)
 		break;
 	
 	case 40: //chiedo di rimettere a posto il gruppo
-		pleaseWait_calibration_setText("Placez l'infuseur en position, puis appuyez sur CONTINUER ou appuyez sur RÉPÉTER pour moudre à nouveau"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
+		pleaseWait_calibration_setText("Mettre le groupe en position, puis appuyez sur CONTINUER ou appuyez sur RÉPÉTER pour moudre à nouveau"); //Place the brewer into position then press CONTINUE, or press REPEAT to grind again
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_setText("RÉPÉTER");
 		pleaseWait_btn2_show();		
@@ -1744,7 +1744,7 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 			{
 				//errore
 				pleaseWait_freeText_setText ("Le test est terminé.<br>Result: FAILED<br><br>");
-				pleaseWait_btn1_setText("FERME");
+				pleaseWait_btn1_setText("FERMER");
 				pleaseWait_btn1_show();	
 				pleaseWait_btn2_setText("RÉPÉTER");
 				pleaseWait_btn2_show();	
@@ -1767,7 +1767,7 @@ TaskDevices.prototype.priv_handleTestAssorbGruppo = function(timeNowMsec)
 								+"<tr><td>Medium absorption during cycle 3</td><td align='center'>" +obj.r6up +"</td><td align='center'>" +obj.r6down +"</td></tr>"
 								+"</table>";
 					pleaseWait_freeText_setText ("Le test est terminé.<br>Results:<br><br>" +html);		
-					pleaseWait_btn1_setText("FERME");
+					pleaseWait_btn1_setText("FERMER");
 					pleaseWait_btn1_show();	
 					pleaseWait_btn2_setText("RÉPÉTER");
 					pleaseWait_btn2_show();	
@@ -1800,11 +1800,11 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 	case 0: //prego rimuovere il gruppo
 		me.fase = 1;
 		pleaseWait_show();
-		pleaseWait_freeText_setText ("Veuillez retirer l'infuseur, puis appuyez sur CONTINUER");
+		pleaseWait_freeText_setText ("Veuillez retirer le groupe café, puis appuyez sur CONTINUER");
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn2_show();	
 		break;
 		
@@ -1871,7 +1871,7 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 			{
 				//errore
 				pleaseWait_freeText_setText ("Le test est terminé.<br>Result: FAILED<br><br>");
-				pleaseWait_btn1_setText("FERME");
+				pleaseWait_btn1_setText("FERMER");
 				pleaseWait_btn1_show();	
 				pleaseWait_btn2_setText("RÉPÉTER");
 				pleaseWait_btn2_show();	
@@ -1909,7 +1909,7 @@ TaskDevices.prototype.priv_handleTestAssorbMotoriduttore = function(timeNowMsec)
 		break;
 		
 	case 85: //prego rimettere a posto il gruppo
-		pleaseWait_freeText_setText("Placez l'infuseur en position, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
+		pleaseWait_freeText_setText("Remettre le groupe en place, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
 		pleaseWait_rotella_show();
@@ -1959,11 +1959,11 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		me.fase = 1;
 		pleaseWait_show();
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>Veuillez retirer l'infuseur, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
+		pleaseWait_freeText_setText ("<b>Vitesse du moulin pour le OFF09</b><br><br>Veuillez retirer le groupe café, puis appuyez sur CONTINUER"); //Please remove the brewer, then press CONTINUE
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn2_show();	
 		break;
 		
@@ -1998,11 +1998,11 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		me.fase = 6;
 		pleaseWait_show();
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 1<br>Please, <b>close the coffee bell</b> (orange lever) and press CONTINUE. The grinder will run for about 10 seconds in order to empty the grinder itself.");
+		pleaseWait_freeText_setText ("<b>Vitesse du moulin pour le OFF09</b><br><br>ÉTAPE 1<br>Veuillez <b>fermer la trémie à café</b> (levier orange) et appuyez sur CONTINUER. Le moulin fonctionnera pendant environ 10 secondes afin de vider le moulin.");
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn2_show();	
 		break;
 		
@@ -2043,11 +2043,11 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 	case 20:
 		me.fase = 21;
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 2<br>Now that the grinder is empty, we can test to detect the average sensor value reported when the grinder is empty. Press CONTINUE to proceed. The grinder will run for about 10 seconds.");		
+		pleaseWait_freeText_setText ("<b>Vitesse du moulin pour le OFF09</b><br><br>ÉTAPE 2<br>Maintenant que le moulin est vide, nous pouvons tester la valeur moyenne du capteur qui signale lorsque le moulin est vide. Appuyez sur CONTINUER . Le broyeur fonctionnera pendant environ 10 secondes.");		
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn2_show();
 		break;
 		
@@ -2106,11 +2106,11 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 	case 40:
 		me.fase = 41;
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>STEP 3<br>Now <b>open the coffee bell</b> (orange lever) and  then press CONTINUE to proceed. The grinder will run for about 10 seconds.");
+		pleaseWait_freeText_setText ("<b>Vitesse du moulin pour le OFF09</b><br><br>ÉTAPE 3<br>Maintenant <b>ouvrez la trémie de café</b> (levier orange), puis appuyez sur CONTINUER . Le moulin fonctionnera pendant environ 10 secondes");
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("CONTINUER");
 		pleaseWait_btn1_show();
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn2_show();
 		break;
 		
@@ -2169,7 +2169,7 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 	case 60:
 		me.fase = 61;
 		pleaseWait_rotella_hide();
-		pleaseWait_freeText_setText ("<b>GRINDER SPEED FOR OFF09</b><br><br>RESULT:<br>Average speed when grinder is empty: <b>" +me.speed1 +"</b><br>Average speed when grinder is not empty: <b>" +me.speed2 +"</b><br>");		
+		pleaseWait_freeText_setText ("<b>Vitesse du moulin pour le OFF09</b><br><br>RESULTAT:<br>Vitesse moyenne lorsque le moulin est vide.: <b>" +me.speed1 +"</b><br>Vitesse moyenne lorsque le moulin n'est pas vide: <b>" +me.speed2 +"</b><br>");		
 		pleaseWait_freeText_show();
 		pleaseWait_btn1_setText("PROCHE");
 		pleaseWait_btn1_show();
@@ -2189,7 +2189,7 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 		{
 			me.fase = 71;
 			pleaseWait_rotella_hide();
-			pleaseWait_freeText_setText("<b>GRINDER SPEED FOR OFF09</b><br><br>Placez l'infuseur en position, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
+			pleaseWait_freeText_setText("<b>Vitesse du moulin pour le OFF09</b><br><br>Remettre le groupe en place, puis appuyez sur CONTINUER"); //Place the brewer into position, then press CONTINUE
 			pleaseWait_freeText_show();
 			pleaseWait_btn1_setText("CONTINUER");
 			pleaseWait_btn1_show();
@@ -2289,9 +2289,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		this.fase = 1;
 		pleaseWait_show();
 		pleaseWait_freeText_show();
-		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Le driptray est-il vide?"); //DISINTALLATION<br><br>Is driptray empty?
+		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Le bac a égouture est-il vide?"); //DISINTALLATION<br><br>Is driptray empty?
 		pleaseWait_btn1_setText("OUI - CONTINUER");
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -2301,9 +2301,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 10:
 		this.fase = 11;
-		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Veuillez retirer le marc de café, puis appuyez sur CONTINUER"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
+		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Veuillez retirer le bac à marc, puis appuyez sur CONTINUER"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUER");
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -2313,9 +2313,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 20:
 		this.fase = 21;
-		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Appuyez sur START DISINSTALLATION pour continuer, ABORT pour annuler l'opération"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
+		pleaseWait_freeText_setText("DESINTALLATION <br> <br> Appuyez sur START DESINSTALLATION pour continuer ou ANNULER l'opération"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
 		pleaseWait_btn1_setText("COMMENCER À DÉSINSTALLER");
-		pleaseWait_btn2_setText("ABORT");
+		pleaseWait_btn2_setText("ABANDONNER");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
 		break;
@@ -2341,7 +2341,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		else
 		{
 			this.fase = 33;
-			pleaseWait_freeText_setText("DISINSTALLATION<br><br>Open boiler tap then press CONTINUE ..."); //DISINSTALLATION<br><br>Open boiler tap then press CONTINUE
+			pleaseWait_freeText_setText("DEINSTALLATION<br><br>Open boiler tap then press CONTINUE ..."); //DISINSTALLATION<br><br>Open boiler tap then press CONTINUE
 			pleaseWait_btn1_setText("CONTINUER");
 			pleaseWait_btn1_show();
 		}		
@@ -2367,7 +2367,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 40:
 		if (bBollitore400cc)
-			pleaseWait_freeText_setText("DISINSTALLATION finished, please CLOSE the boiler tap and SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
+			pleaseWait_freeText_setText("DÉSINSTALLATION <br> <br> Ouvrir le robinet de la chaudiere, puis appuyez sur CONTINUER"); //DISINTALLATION finished, please shut down the machine
 		else
 			pleaseWait_freeText_setText("DÉSINSTALLATION terminée, veuillez ARRÊTER la machine"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
@@ -2474,7 +2474,7 @@ TaskDataAudit.prototype.onTimer = function (timeNowMsec)
 			break;
 			
 		case 201: //mostra btn close e ne aspetta la pressione
-			pleaseWait_btn1_setText("FERME");
+			pleaseWait_btn1_setText("FERMER");
 			pleaseWait_btn1_show();
 			me.fase = 202;
 			break;			
@@ -2889,7 +2889,7 @@ function TaskGrinderClean ()
 	this.buzzer_nextTimeAskMSec = 0;
 }
 
-TaskGrinderClean.prototype.onEvent_cpuStatus  	= function(statusID, statusStr, flag16)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL ("GRINDER CLEANING"); }
+TaskGrinderClean.prototype.onEvent_cpuStatus  	= function(statusID, statusStr, flag16)		{ this.cpuStatus = statusID; pleaseWait_header_setTextL ("Nettoyage moulin"); }
 TaskGrinderClean.prototype.onEvent_cpuMessage 	= function(msg, importanceLevel)			{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskGrinderClean.prototype.finished 			= function () 								{ pleaseWait_hide(); this.fase=0; pageGrinderCleaning_goBack(); }
 
@@ -2995,8 +2995,8 @@ TaskGrinderClean.prototype.runGrinderCycle_1 = function()
 
 	//var msg = "Running grinder cycle " +this.curCiclo +" of " +this.numCicli;
 	//msg += "<br><br><b>Catch the product</b>";
-	var msg = "Running grinder cycle {0} of {1}".translateLang(this.curCiclo,this.numCicli);
-	msg += "<br><br><b>Catch the product</b>";
+	var msg = "Cycle moulin en cours…".translateLang(this.curCiclo,this.numCicli);
+	msg += "<br><br><b>Récuper le produit</b>";
 	this.priv_show (msg, "", "");	
 
 	var me = this;
@@ -3036,8 +3036,8 @@ TaskGrinderClean.prototype.runGrinderCycle_3 = function(timeNowMsec)
 	
 	//var msg = "Running grinder cycle " +(this.curCiclo-1) +" of " +this.numCicli;
 	//msg += "<br>Waiting " +timeLeftSec +" sec.";
-	var msg = "Running grinder cycle {0} of {1}".translateLang(this.curCiclo-1,this.numCicli);
-	msg += "<br>" +"Waiting {0} sec.".translateLang(timeLeftSec);
+	var msg = "Cycle moulin en cours…".translateLang(this.curCiclo-1,this.numCicli);
+	msg += "<br>" +"Attendre {0} sec.".translateLang(timeLeftSec);
 	this.priv_show (msg, "", "");	
 	if (timeLeftMSec <= 0)
 		this.runGrinderCycle_1();
@@ -3071,7 +3071,7 @@ TaskGrinderClean.prototype.priv_show = function (text, text_btn1, text_btn2)
 		pleaseWait_freeText_hide();
 	else
 	{
-		pleaseWait_freeText_setText ("<b>GRINDER CLEANING</b><br><br>" + text);
+		pleaseWait_freeText_setText ("<b>Nettoyage moulin</b><br><br>" + text);
 		pleaseWait_freeText_show();
 		
 	}
@@ -3092,7 +3092,7 @@ TaskGrinderClean.prototype.step1 = function()
 	pleaseWait_show();
 	pleaseWait_rotella_hide();
 
-	this.priv_show ("&nbsp;", "CONTINUER", "ABORT");
+	this.priv_show ("&nbsp;", "CONTINUER", "ABANDONNER");
 	rheaShowElem (rheaGetElemByID("pagePleaseWait_grinderCleaning")); //mostra i btn per la scelta di grinder 1 o 2
 }
 
@@ -3105,8 +3105,8 @@ TaskGrinderClean.prototype.step2 = function()
 	rheaHideElem(rheaGetElemByID("pagePleaseWait_grinderCleaning"));
 
 	//Close bean hopper shutter to avoid loss of beans.<br>Press CONTINUE when done.
-	var msg = "Close bean hopper shutter to avoid loss of beans.";
-	msg += "<br>Press CONTINUE when done.";
+	var msg = "Fermer la trémie de café..";
+	msg += "<br>Appuyez sur CONTINUER lorsque vous avez terminé.";
 	this.priv_show (msg, "CONTINUER", "");
 }
 
@@ -3115,8 +3115,8 @@ TaskGrinderClean.prototype.step3 = function()
 	this.beep(3);
 	this.fase = 3;
 	//Remove brewer and bean hopper.<br>Press CONTINUE when done.
-	var msg = "Remove brewer and bean hopper.";
-	msg += "<br>Press CONTINUE when done.";
+	var msg = "Retirer le groupe et la trémie de café.";
+	msg += "<br>Appuyez sur CONTINUER lorsque vous avez terminé.";
 	this.priv_show (msg, "CONTINUER", "");
 }
 
@@ -3148,8 +3148,8 @@ TaskGrinderClean.prototype.step5 = function()
 	this.fase = 5;
 	pleaseWait_rotella_hide();
 	//Install grinder cleaning device.<br>Press CONTINUE when done.
-	var msg = "Install grinder cleaning device.";
-	msg += "<br>Press CONTINUE when done.";	
+	var msg = "Installer le dispositif de nettoyage du moulin.";
+	msg += "<br>Appuyez sur CONTINUER lorsque vous avez terminé.";	
 	this.priv_show (msg, "CONTINUER", "");	
 }
 
@@ -3160,9 +3160,9 @@ TaskGrinderClean.prototype.step6 = function()
 	
 	//var msg = "Refill cleaning device.<br>When done, press CONTINUE.";
 	//msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
-	var msg = "Refill cleaning device.";
-	msg += "<br>Press CONTINUE when done.";
-	msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
+	var msg = "Remplir le dispositif de nettoyage.";
+	msg += "<br>Appuyez sur CONTINUER lorsque vous avez terminé.";
+	msg += "<br><br><b>ATTENTION :</b> des que vous appuyez sur CONTINUER, le moulin commencera à fonctionner";
 	this.priv_show (msg, "CONTINUER", "");	
 }
 
@@ -3178,7 +3178,7 @@ TaskGrinderClean.prototype.step20 = function()
 	this.fase = 20;
 	pleaseWait_rotella_hide();
 	//Do you want to repeat the grinding cycles?
-	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "OUI");
+	this.priv_show ("Voulez-vous répéter les cycles du moulin ?", "NON", "OUI");
 }
 
 TaskGrinderClean.prototype.step21 = function()
@@ -3187,8 +3187,8 @@ TaskGrinderClean.prototype.step21 = function()
 	this.fase = 21;
 	
 	//"Put back  bean hopper. Press CONTINUE when done."
-	var msg = "Put back  bean hopper.";
-	msg += "<br>Press CONTINUE when done.";
+	var msg = "Remettre la trémie de grain..";
+	msg += "<br>Appuyez sur CONTINUER lorsque vous avez terminé.";
 	this.priv_show (msg, "CONTINUER", "");
 }
 
@@ -3197,9 +3197,9 @@ TaskGrinderClean.prototype.step23 = function()
 	this.beep(3);
 	this.fase = 23;
 	//Open hopper shutter. When done, press CONTINUE.<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running.
-	var msg = "Open hopper shutter.";
-	msg += "<br>Press CONTINUE when done.";
-	msg += "<br><br><b>WARNING:</b> as soon as you press CONTINUE, the grinder will start running";
+	var msg = "Ouvrir la trémie.";
+	msg += "<br>Appuyez sur CONTINUER lorsque vous avez terminé.";
+	msg += "<br><br><b>ATTENTION :</b> des que vous appuyez sur CONTINUER, le moulin commencera à fonctionner";
 	this.priv_show (msg, "CONTINUER", "");	
 }
 
@@ -3216,7 +3216,7 @@ TaskGrinderClean.prototype.step25 = function()
 	pleaseWait_rotella_hide();
 	
 	//Do you want to repeat the grinding cycles?
-	this.priv_show ("Do you want to repeat the grinding cycles?", "NO", "OUI");
+	this.priv_show ("Voulez-vous répéter les cycles du moulin ?", "NON", "OUI");
 }
 
 
@@ -3225,8 +3225,8 @@ TaskGrinderClean.prototype.step26 = function()
 	this.beep(3);
 	this.fase = 26;
 	//Put brewer back into position, press CONTINUE when done.
-	var msg = "Put brewer back into position.";
-	msg += "<br>Press CONTINUE when done.";
+	var msg = "Remettre le groupe en position.";
+	msg += "<br>Appuyez sur CONTINUER lorsque vous avez terminé.";
 	this.priv_show (msg, "CONTINUER", "");
 }
 
@@ -3260,7 +3260,7 @@ TaskGrinderClean.prototype.step28 = function()
 	pleaseWait_rotella_hide();
 	
 	//Do you want do dispense a coffe?
-	this.priv_show ("Do you want do dispense a coffee?", "NO", "OUI");
+	this.priv_show ("Souhaitez vous faire un café ?", "NON", "OUI");
 }
 
 TaskGrinderClean.prototype.step40 = function()

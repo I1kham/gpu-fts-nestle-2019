@@ -49,8 +49,8 @@
 				<table border='0' cellspacing='0' align="center" style="width:930px">
 					<tr valign="top">
 						<td>
-							<h2>Milker oneTouch Cleaning</h2>
-							Before starting the cleaning, please check that:<ol><li>water supply is available</li><li>waste tank is empty</li><li>the milk tube is in the cleaning jug</li><li>the detergent is filled into the jug</li></ol>
+							<h2>奶泡机一键清洗</h2>
+							开始清洗前，请检查：<ol><li>是否有水供应</li><li>废水箱是空的</li><li>奶管在清洗罐中</li><li>清洁剂已装入清洗罐中</li><ol>
 						</td>
 						<td style="width:310px; text-align:center;:center"><img src="img/milkerInduxClean01.jpg" style="width:260px"></td>
 					</tr>
@@ -119,7 +119,7 @@
 			</div>
 			
 			<div id="pagePleaseWait_grinderCleaning" style="display:none; position:absolute; top:80px; left:20px; width:1006;">
-			   Please select which grinder you'd like to clean, then press CONTINUE to continue or ABORT to terminate.<br>
+			   请选择您要清洗的磨豆器，然后按&quot;继续&quot; 继续或&quot;中止&quot; 终止.<br>
 				<div id="pagePleaseWait_grinderCleaning_1or2" class="UIOption" data-option="1|研磨机 1|2|研磨机 2"></div></td>
 			</div>
 			
@@ -173,6 +173,11 @@
 					<li onmousedown="menuLang_onUserSelected('CN')"><img src="img/flags/CN.png"> 中文</li>
 					<li onmousedown="menuLang_onUserSelected('RU')"><img src="img/flags/RU.png"> РУССКИЙ</li>
 					<li onmousedown="menuLang_onUserSelected('RO')"><img src="img/flags/RO.png"> ROMÂNĂ</li>
+
+					<li onmousedown="menuLang_onUserSelected('NL')"><img src="img/flags/NL.png"> NEDERLANDS</li>
+					<li onmousedown="menuLang_onUserSelected('PL')"><img src="img/flags/PL.png"> POLSKIE</li>
+					
+					
 				</ul>
 			</div>
 			<div class="clear"></div>
@@ -210,7 +215,7 @@
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="其他" data-onclick="pageMiscellaneous_show()"></div></td>
 
 						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="手册" data-onclick="manualViewBox_show()"></div></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="旧程序菜单" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="旧编程菜单" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
 					</tr>
 				</table>
 			</div>
@@ -340,7 +345,7 @@
                         <td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="开始冲洗<br>鲜奶套件" data-onclick="pageCleaning_action(5)"></div></td>					
 					</tr>
 					<tr valign="middle">
-						<td align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING<br>GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
+						<td align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="开始清洗<br>磨豆器" data-onclick="pageGrinderCleaning_show()"></div></td>
 						<td align="center"><div id="pageCleaning_btnDescaling" class="UIButton bigButton4x4 actionButton" data-caption="START DESCALING" data-onclick="pageCleaning_action(161)"></div></td>
 						<td></td>
 					</tr>
@@ -364,8 +369,8 @@
 				<!--
 				<table border='0' class='elenco' id='pageCleaning_tabDissolveTable'>
 					<tr style="border:0">
-						<td style="width:690px">TAB DISSOLVE PAUSE<br>
-							<span class="tip">Set the time needed to &quot;dissolve tab&quot; during the sanitary washing cycle (HC).<br>Set &quot;000&quot; to use machine default time</span>
+						<td style="width:690px">清洗药片溶解暂停<br>
+							<span class="tip">设置清洗周期（HC）中“溶解清洗药片”所需的时间。<br>设置“000”使用机器默认时间</span>
 						</td>
 						<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7562" data-da3bit="16" data-um="sec"></div></td>
 					</tr>	
@@ -379,7 +384,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='0|常规选项|1|机器识别码|2|拿铁玛奇朵|3|FREEVEND|4|BLOCKING COUNTER' data-onclick='pageMiscellaneous_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='0|常规选项|1|机器识别码|2|拿铁玛奇朵|3|FREEVEND|4|阻止计数器' data-onclick='pageMiscellaneous_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -504,7 +509,7 @@
 					<div id="pageMiscellaneous_blockingCt_pwd">
 						<table border='0' class='elenco'>
 							<tr>
-								<td>INSERT PIN CODE</td>
+								<td>插入PIN 码</td>
 								<td><div class="UINumber" id='pageMiscellaneous_pincode' data-numfigures="3" data-max="999"></div></td>
 								<td><div class='UIButton actionButton' data-caption='&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;O&nbspK&nbsp;&nbsp;&nbsp;&nbsp&nbsp&nbsp' data-onclick="pageMiscellaneous_onPINCodeInserted()"></div></td>
 							</tr>
@@ -513,7 +518,7 @@
 					<div id="pageMiscellaneous_blockingCt_unblocked" style="display:none">
 						<table border='0' class='elenco' style="table-layout: fixed">
 							<tr>
-								<td style="width:414px">COUNTER<br>
+								<td style="width:414px">计数器<br>
 									<div style="float:left; margin-right:10px">当前值:</div>
 									<div id="pageMiscellaneous_blockingCt_unblocked_curct" style="float:left" class="bigCaption15">00000</div>
 									<div class="clear"></div>
@@ -523,12 +528,12 @@
 							</tr>
 
 							<tr>
-								<td>WARN AFTER<br><span class="tip">When the indicated % of selections (with respect to the number inserted in the row before) has been reached, the machine will display a warning to let you know that it's going to be blocked soon</span></td>
+								<td>之后警告<br><span class="tip">当达到指定的选择百分比（相对于前一行中插入的数字）时，机器将显示一个警告，告诉您它将很快被阻止</span></td>
 								<td colspan="2"><div class="UINumber" data-numfigures="2" data-max="50" data-da3="7402" data-da3bit="16" data-um="%"></div></td>
 							</tr>
 
 							<tr>
-								<td>PIN CODE<br><span class="tip">Here you can change the current PIN code if you wish</span></td>
+								<td>PIN 码<br><span class="tip">如果您愿意，您可以在这里更改当前的PIN码</span></td>
 								<td colspan="2"><div class="UINumber" id='pageMiscellaneous_newpincode' data-numfigures="3" data-min="111" data-max="999" data-da3="7404" data-da3bit="16"></div></td>
 							</tr>
 						</table>
@@ -629,12 +634,12 @@
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
 					<tr style='height:30px; border-bottom:none'>
-						<td style="width:424px">VERSION</td>
-						<td style="width:150px">STATUS</td>
+						<td style="width:424px">版本</td>
+						<td style="width:150px">状态</td>
 					</tr>
 					<tr style='height:50px;'>
 						<td><div id="pageMilker_ver" class="bigCaption15"></div></td>
-						<td><div id="pageMilker_status" class="bigCaption15">NOT CONNECTED or DISABLED</div></td>
+						<td><div id="pageMilker_status" class="bigCaption15">未连接或禁用</div></td>
 					</tr>
 				</table>
 
@@ -644,8 +649,8 @@
 						<td><div id='pageMilker_enabled' class='UIOption' data-option='1|确认|0|没有' data-onclick="pageMilker_onEnabledYesNo()"></div></td>
 					</tr>
 					<tr>
-						<td>MODEL</td>
-						<td><div id='pageMilker_model' class='UISelect' data-option='0|NONE|1|VENTURI|2|INDUX' data-da3="69" data-onchange="pageMilker_onMilkerTypeChange_fromUser()"></div></td>
+						<td>型号</td>
+						<td><div id='pageMilker_model' class='UISelect' data-option='0|无|1|文丘里管|2|指数' data-da3="69" data-onchange="pageMilker_onMilkerTypeChange_fromUser()"></div></td>
 					</tr>
 				</table>
 				
@@ -696,11 +701,11 @@
 					<div id="pageMilker_capp_induzione" style="margin-top:20px; display:none">
 						<table border='0' class='elenco'>
 							<tr>
-								<td style="width:410px">HIDRODYNAMIC EMPTYING PERIOD<br><span class="tip">max 900</span></td>
+								<td style="width:410px">水动力排空期<br><span class="tip">max 900</span></td>
 								<td><div id="pageMilker_capp_indux_1" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 							</tr>
 							<tr>
-								<td>ENABLE CONDUCIBILITY SENSOR</td>
+								<td>启用导水率传感器</td>
 								<td><div id="pageMilker_capp_indux_2" class="UIOption" data-option="1|确认|0|没有" data-da3="7624"></div></td>
 							</tr>
 							<tr>
@@ -709,11 +714,11 @@
 							</tr>
 				
 							<tr>
-								<td>ENABLE WASTE TANKE SENSOR</td>
+								<td>启用废水箱传感器</td>
 								<td><div id="pageMilker_capp_indux_4" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|确认|0|没有" data-da3="7632"></div></td>
 							</tr>
 							<tr>
-								<td>PASTILLE DISSOLVE TIME</td>
+								<td>药片溶解时间</td>
 								<td><div id="pageMilker_capp_indux_5" class="UINumber" data-numfigures="3" data-da3="8358" data-da3bit="16" data-max="240" data-um="sec."></div></td>
 							</tr>
 						</table>
@@ -722,45 +727,45 @@
 						<table border='0' class='elenco'>	
 							<tbody>
 							<tr style="background-color:#fff">
-								<th style="color:#000" align="left">FOAM</th>
-								<th style="color:#000" align="left">AIR</th>
-								<th style="color:#000" align="left">PUMP SPEED</th>
-								<th style="color:#000" align="left">MILK PRESSURE</th>
+								<th style="color:#000" align="left">奶泡</th>
+								<th style="color:#000" align="left">空气</th>
+								<th style="color:#000" align="left">泵速</th>
+								<th style="color:#000" align="left">牛奶压力</th>
 							</tr>
 							
 							<tr>
-								<td style="color:#f99">HOT FOAM 1</td>
+								<td style="color:#f99">热泡沫 1</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7634" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7636" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7638" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#f99">HOT FOAM 2</td>
+								<td style="color:#f99">热泡沫 2</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7640" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7642" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7644" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#f99">HOT FOAM 3</td>
+								<td style="color:#f99">热泡沫 3</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7646" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7648" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8338" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							
 							<tr>
-								<td style="color:#00f">COLD FOAM 1</td>
+								<td style="color:#00f">冷泡沫 1</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8340" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8342" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8344" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#00f">COLD FOAM 2</td>
+								<td style="color:#00f">冷泡沫 2</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8346" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8348" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8350" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#00f">COLD FOAM 3</td>
+								<td style="color:#00f">冷泡沫 3</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8352" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8354" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8356" data-da3bit="16" data-max="500"></div></td>
@@ -820,7 +825,7 @@
 								<td><div class="UINumber" data-numfigures="2" data-max="10" data-da3="177" data-da3bit='8'></div></td>
 							</tr>
 							<tr>
-								<td>比例因子 ？<br></td>
+								<td>比例因子<br></td>
 								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
 							</tr>						
 						</table>
@@ -1124,7 +1129,7 @@
 								<div style="clear"></div>								
 							</td>
 						</tr>
-						<tr id="pageDevices_boilerSize"><td>BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_boilerSize"><td>锅炉</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>调制解调器测试</td><td><div class='UIButton bigButton60 actionButton' data-caption='启动' data-onclick="pageDevices_startModemTest()"></div></td></tr>
 						<tr id="pageDevices_grpTest"><td>组测试</td><td><div class='UIButton bigButton60 actionButton' data-caption='启动' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
@@ -1140,7 +1145,7 @@
 						<tr id="pageDevices_vflex_autoAdjust"><td>自动<br>调整</td><td><div id="pageDevices_vflex_v1AutoAdjust" class='UIOption' data-option='0|没有|1|确认' data-da3='7558' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_vflex_deliveryPhase"><td>交付阶段</td><td><div class='UIOption' data-option='0|正常|1|快速' data-da3='7570' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_grinderSpeedTest">
-							<td>GRINDER SPEED FOR OFF09</td>
+							<td>OFF09 磨豆器速度</td>
 							<td>
 								<table style="width:100%">
 									<tr>
@@ -1443,7 +1448,7 @@ function onRheaBootstrapFinished()
 										{
 											isMilkerAlive = 0;
 											rheaAddClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
-											rheaSetDivHTMLByName("pageMilker_status", "NOT CONNECTED or DISABLED");
+											rheaSetDivHTMLByName("pageMilker_status", "未连接或禁用");
 											rheaSetDivHTMLByName("pageMilker_ver", "??");
 										}
 									}
@@ -1453,7 +1458,7 @@ function onRheaBootstrapFinished()
 										{
 											isMilkerAlive = 1;
 											rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
-											rheaSetDivHTMLByName("pageMilker_status", "CONNECTED");
+											rheaSetDivHTMLByName("pageMilker_status", "已连接");
 
 											//chiedo versione del milker
 											rhea.ajax ("milkver", "").then( function(result)
@@ -1760,7 +1765,7 @@ function pageMainMenu_show()
  */
 function pageGrinderCleaning_show()
 {
-	if (showPage("pageGrinderCleaning", "GRINDER CLEANING", 0, 0))
+	if (showPage("pageGrinderCleaning", "磨豆器清洗", 0, 0))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
@@ -2420,7 +2425,7 @@ function pageProductQty_build()
 		html +=  "<div id='" +pageID +"' style='display:none'>"
 				+"<table border='0' class='elenco'>"
 				+"	<tr style='height:70px'>"
-				+"		<td style='width:300px'>DECOUNTER #" +(i+1) +"<br>当前值</td>"
+				+"		<td style='width:300px'>倒计数 #" +(i+1) +"<br>当前值</td>"
 				+"		<td style='width:400px'><span id='" +currentValueID +"' class='bigCaption25'>" +currentDecountValue +"</span></td>"
 				+"		<td align='center'><div class='UIButton bigButton60 actionButton' data-caption='重置' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
 				+"	</tr>"
@@ -2844,7 +2849,7 @@ function pageSingleSelection_build()
 			htmlE += "<tr><td>浓缩咖啡温度</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-min='75' data-max='110'></div></td></tr>";
 			
 		if (da3.isGruppoVariflex())
-			htmlE  +="<tr><td>研磨度</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|禁用|1|较细|2|参考|3|标准' data-da3='175' data-da3bit='8'></div></td></tr>";
+			htmlE  +="<tr><td>研磨度</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|禁用|1|较细|2|参考|3|较粗' data-da3='175' data-da3bit='8'></div></td></tr>";
 			
 		htmlE  +="<tr><td>拿铁玛奇朵<br>开始冲泡</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>";
 		
@@ -2854,7 +2859,7 @@ function pageSingleSelection_build()
 					 +"<tr><td>EV 鲜奶<br>延迟</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>";
 					
 			if (da3.isCappuccinatoreInduzione())
-				htmlE  += "<tr><td>FRESH MILK<br>FOAM TYPE</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|HOT, NO FOAM|1|HOT FOAM 1|2|HOT FOAM 2|3|HOT FOAM 3|4|COLD, NO FOAM|5|COLD FOAM 1|6|COLD FOAM 2|7|COLD FOAM 3' data-da3='164' data-da3bit='4'></div></td></tr>";
+				htmlE  += "<tr><td>鲜奶<br>奶泡类型</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|热，无泡沫|1|热泡沫 1|2|热泡沫 2|3|热泡沫 3|4|冷，无泡沫|5|冷泡沫 1|6|冷泡沫 2|7|冷泡沫 3' data-da3='164' data-da3bit='4'></div></td></tr>";
 		
 			htmlE  += "<tr><td>EV 鲜奶泡</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td></tr>"
 				     +"<tr><td>EV 鲜奶泡<br>延迟</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"

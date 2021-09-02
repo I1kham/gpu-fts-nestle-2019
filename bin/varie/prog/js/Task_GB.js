@@ -153,7 +153,7 @@ TaskCleaning.prototype.priv_handleSanWashingMicro = function (timeElapsedMSec)
 				case 0: pleaseWait_freeText_setText("Brewer Cleaning is not started (or ended)"); break;	//Brewer Cleaning is not started (or ended)
 				case 1: pleaseWait_freeText_setText("Brewer Cleaning is started"); break; 	//Brewer Cleaning is started
 				case 2: pleaseWait_freeText_setText("Brewer placed"); break; 	//Brewer placed
-				case 3: pleaseWait_freeText_setText("Put pastille and push START"); break; //Put pastille and push START
+				case 3: pleaseWait_freeText_setText("Add tablet and push START"); break; //Put pastille and push START
 				case 4: pleaseWait_freeText_setText("Infusion"); break; //Infusion
 				case 5: pleaseWait_freeText_setText("Brewer cleaning cycles 1"); break; // Brewer cleaning cycles 1
 				case 6: pleaseWait_freeText_setText("Brewer cleaning cycles 2"); break;	// Brewer cleaning cycles 2
@@ -272,7 +272,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 7:		msg = "Starting to fill hydraulic tubes with descaling detergent, please wait..."; break;
 				case 8:		msg = "Please wait for the descaling liquid action..."; break;
 				case 9:		msg = "Descaling liquid starts draining through the nozzles, please wait..."; break;
-				case 10:	msg = "Check the liquid colour drained from the nozzles, it defines if descaling process successfully completed.<br>Press CONTINUE button to continue, or press REPEAT to repeat previous steps."; break;
+				case 10:	msg = "Check the liquid drained from the nozzles to define if descaling process succesfully completed."; break;
 				case 11:	msg = "Open boiler tap. Press CONTINUE when done."; break;
 				case 12:	msg = "Emptying hydraulic circuit, please wait..."; break;
 				case 13:	msg = "Close boiler tap. Press CONTINUE when done."; break;
@@ -381,11 +381,11 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 			{
 				default: msg = ""; break;
 				case 0: msg = "Cleaning is active"; break;	//Cleaning is active
-				case 1: msg = "Put the pastille in the brewer and press CONTINUE"; break; 	//Put the pastille in the brewer and press CONTINUE
+				case 1: msg = "Put the tablet in the brewer and press CONTINUE"; break; 	//Put the pastille in the brewer and press CONTINUE
 				case 2: msg = "Brewer is closing"; break; 	//Brewer is closing
-				case 3: msg = "Tablet dissolution 1/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
-				case 4: msg = "2nd dissolution cycle is about to starting"; break; 	//2nd dissolution cycle is about to starting
-				case 5: msg = "Tablet dissolution 2/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
+				case 3: msg = "Tablet dissolving 1/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
+				case 4: msg = "2nd dissolving cycle is about to starting"; break; 	//2nd dissolution cycle is about to starting
+				case 5: msg = "Tablet dissolving 2/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
 
 				case 6: msg = "1st Cleaning, please wait 1/3"; break; 	//1st Cleaning, please wait 1/3
 				case 7: msg = "1st Cleaning, active 1/3"; break; 	//1st Cleaning, active 1/3
@@ -630,7 +630,7 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					break;
 				
 				case 98: //CIC_DET_TOO_LOW
-					pleaseWait_freeText_setText("WARNING: too few detergent has been detected!<br>A new cleaning is recomended");
+					pleaseWait_freeText_setText("WARNING: low detergent level has been detected!<br>Another clean is recommended");
 					break;
 
 				case 99: //CIC_DET_TOO_AGGRESSIVE
@@ -2289,7 +2289,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		this.fase = 1;
 		pleaseWait_show();
 		pleaseWait_freeText_show();
-		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Is driptray empty?"); //DISINTALLATION<br><br>Is driptray empty?
+		pleaseWait_freeText_setText("DEINSTALLATION<br><br>Is driptray empty?"); //DISINTALLATION<br><br>Is driptray empty?
 		pleaseWait_btn1_setText("YES - CONTINUE");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
@@ -2301,7 +2301,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 10:
 		this.fase = 11;
-		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Please remove coffee grounds, then press CONTINUE"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
+		pleaseWait_freeText_setText("DEINSTALLATION<br><br>Please remove coffee grounds, then press CONTINUE"); //DISINTALLATION<br><br>Please remove coffee grounds, then press CONTINUE
 		pleaseWait_btn1_setText("CONTINUE");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
@@ -2313,8 +2313,8 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 20:
 		this.fase = 21;
-		pleaseWait_freeText_setText("DISINSTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
-		pleaseWait_btn1_setText("START DISINSTALLATION");
+		pleaseWait_freeText_setText("DEINSTALLATION<br><br>Press START DEINSTALLATION to continue, ABORT to cancel the operation"); //DISINTALLATION<br><br>Press START DISINSTALLATION to continue, ABORT to cancel the operation
+		pleaseWait_btn1_setText("START DEINSTALLATION");
 		pleaseWait_btn2_setText("ABORT");
 		pleaseWait_btn1_show();
 		pleaseWait_btn2_show();
@@ -2325,7 +2325,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 30:
 		this.fase = 31;
-		pleaseWait_freeText_setText("DISINSTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
+		pleaseWait_freeText_setText("DEINSTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
 		rhea.sendStartDisintallation();
 		break;
 		
@@ -2341,7 +2341,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		else
 		{
 			this.fase = 33;
-			pleaseWait_freeText_setText("DISINSTALLATION<br><br>Open boiler tap then press CONTINUE ..."); //DISINSTALLATION<br><br>Open boiler tap then press CONTINUE
+			pleaseWait_freeText_setText("DEINSTALLATION<br><br>Open boiler tap then press CONTINUE ..."); //DISINSTALLATION<br><br>Open boiler tap then press CONTINUE
 			pleaseWait_btn1_setText("CONTINUE");
 			pleaseWait_btn1_show();
 		}		
@@ -2352,7 +2352,7 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 35:
 		this.fase = 36;
-		pleaseWait_freeText_setText("DISINSTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
+		pleaseWait_freeText_setText("DEINSTALLATION is running, please wait ..."); //DISINTALLATION is running, please wait
 		break;
 		
 	
@@ -2367,9 +2367,9 @@ TaskDisintall.prototype.onTimer = function (timeNowMsec)
 		
 	case 40:
 		if (bBollitore400cc)
-			pleaseWait_freeText_setText("DISINSTALLATION finished, please CLOSE the boiler tap and SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
+			pleaseWait_freeText_setText("DEINSTALLATION finished, please CLOSE the boiler tap and SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
 		else
-			pleaseWait_freeText_setText("DISINSTALLATION finished, please SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
+			pleaseWait_freeText_setText("DEINSTALLATION finished, please SHUT DOWN the machine"); //DISINTALLATION finished, please shut down the machine
 		this.fase = 41;
 		break;
 		

@@ -33,8 +33,8 @@
 		<div class="page">
 			<br><br><center>ARE YOU SURE YOU WISH TO LAUNCH THE CHOSEN OPERATION?</center>
 
-			<div style="position:absolute; top:450px; left:680px;"><div class="UIButton bigButton3x4" onclick="areYouSure_onBtnYES()"><p>YES</p></div></div>
-			<div style="position:absolute; top:450px; left:20px;"><div class="UIButton bigButton3x4" onclick="areYouSure_onBtnNO()"><p>NO</p></div></div>
+			<div style="position:absolute; top:450px; left:680px;"><div class="UIButton bigButton3x4" onclick="areYouSure_onBtnYES()"><p>JA</p></div></div>
+			<div style="position:absolute; top:450px; left:20px;"><div class="UIButton bigButton3x4" onclick="areYouSure_onBtnNO()"><p>NEIN</p></div></div>
 		</div>
 	</div> <!-- modal "are you sure" -->
 	
@@ -49,8 +49,8 @@
 				<table border='0' cellspacing='0' align="center" style="width:930px">
 					<tr valign="top">
 						<td>
-							<h2>Milker oneTouch Cleaning</h2>
-							Before starting the cleaning, please check that:<ol><li>water supply is available</li><li>waste tank is empty</li><li>the milk tube is in the cleaning jug</li><li>the detergent is filled into the jug</li></ol>
+							<h2>oneTouch Renigung - Milchmodul</h2>
+							Bevor Sie die Reinigung starten überprüfen Sie:<ol><li>Wasser angeschlossen ist</li><li>Restwassertank geleert wurde</li><li>Milchschlauch sich im Reinigungsgefaess befindet</li><li>und Reiniger eim Gefaess gefüllt wurde</li></ol>
 						</td>
 						<td style="width:310px; text-align:center;:center"><img src="img/milkerInduxClean01.jpg" style="width:260px"></td>
 					</tr>
@@ -75,7 +75,7 @@
 				<div id="pagePleaseWait_calibration_1">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>DURCH BETAETIGUNG KÖNNEN SIE ERNEUT MAHLEN</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_1_grind' class='UIButton bigButton60 actionButton' data-caption='GRIND AGAIN' data-onclick="pageCalibration_grindAgain()"></div></td>
 						</tr>
@@ -83,17 +83,17 @@
 					<hr>
 
 					<div id="pagePleaseWait_calibration_1_varigrind">
-						If you wish, you can adjust the opening of the Varigrind using the controls below:
+						BEI WUNSCH KOENNE SIE DIE POSITION DES VARIGRIND MITHILFE DER FOLGENDEN STEUERUNG VERAENDERN:
 						<table border='0' class='elenco'>
 							<tr>
 								<td style="width:33%" align="center">
 									POSITION<br>
-									<div style="float:left; margin-right:10px">current value:</div>
+									<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 									<div id="pagePleaseWait_calibration_1_vg" style="float:left" class="bigCaption15">000</div>
 									<div class="clear"></div>
 								</td>
 								<td style="width:34%" align="center">
-									<div style="float:left; margin-right:10px"><br>desired value</div>
+									<div style="float:left; margin-right:10px"><br>GEWÜNSCHTER WERT</div>
 									<div style="float:left;"><div class="UINumber" id="pagePleaseWait_calibration_1_vg_target" data-numfigures="3" data-max="500"></div></div>
 									<div class="clear"></div>
 								</td>
@@ -107,7 +107,7 @@
 				<div id="pagePleaseWait_calibration_2">
 					<table border='0' cellspacing='0' cellpadding='0'>
 						<tr valign="middle">
-							<td>If you wish, you can grind again by pressing</td>
+							<td>DURCH BETAETIGUNG KÖNNEN SIE ERNEUT MAHLEN</td>
 							<td>&nbsp;&nbsp;</td>
 							<td><div id='pagePleaseWait_calibration_2_runMotor' class='UIButton bigButton60 actionButton' data-caption='RUN MOTOR AGAIN' data-onclick="pageCalibration_runMotorAgain()"></div></td>
 						</tr>
@@ -119,8 +119,8 @@
 			</div>
 			
 			<div id="pagePleaseWait_grinderCleaning" style="display:none; position:absolute; top:80px; left:20px; width:1006;">
-			   Please select which grinder you'd like to clean, then press CONTINUE to continue or ABORT to terminate.<br>
-				<div id="pagePleaseWait_grinderCleaning_1or2" class="UIOption" data-option="1|GRINDER 1|2|GRINDER 2"></div></td>
+			   WAEHLEN SIE DAS ZU REINIGENDE MAHLWERK AUS, WEITER ZUM STARTEN ODER ABBRUCH ZUM BEENDEN.<br>
+				<div id="pagePleaseWait_grinderCleaning_1or2" class="UIOption" data-option="1|MAHLWERK 1|2|MAHLWERK 2"></div></td>
 			</div>
 			
 			<div id="pagePleaseWait_freeBtn1" style="position:absolute; top:450px; left:680px; display:none">
@@ -173,6 +173,11 @@
 					<li onmousedown="menuLang_onUserSelected('CN')"><img src="img/flags/CN.png"> 中文</li>
 					<li onmousedown="menuLang_onUserSelected('RU')"><img src="img/flags/RU.png"> РУССКИЙ</li>
 					<li onmousedown="menuLang_onUserSelected('RO')"><img src="img/flags/RO.png"> ROMÂNĂ</li>
+
+					<li onmousedown="menuLang_onUserSelected('NL')"><img src="img/flags/NL.png"> NEDERLANDS</li>
+					<li onmousedown="menuLang_onUserSelected('PL')"><img src="img/flags/PL.png"> POLSKIE</li>
+					
+					
 				</ul>
 			</div>
 			<div class="clear"></div>
@@ -187,30 +192,30 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MAINTENANCE" data-onclick="pageMaintenance_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLEANING/<br>RINSING" data-onclick="pageCleaning_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DATA AUDIT" data-onclick="pageDataAudit_show(1)"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="WARTUNG" data-onclick="pageMaintenance_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="REINIGUNG" data-onclick="pageCleaning_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DATA-AUDIT" data-onclick="pageDataAudit_show(1)"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SELECTIONS" data-onclick="pageSelections_show()"></div></td>
-						<td width="33%" align="center"><div id="pageMainMenu_btnEspressoCalib" class="UIButton bigButton3x4 UIdisabled" data-caption="ESPRESSO CALIBRATION" data-onclick="pageExpCalib_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="INSTANT<br>CALIBRATION" data-onclick="pageCalibration_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="AUSWAHLEN" data-onclick="pageSelections_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnEspressoCalib" class="UIButton bigButton3x4 UIdisabled" data-caption="KALIBRIERUNG ESPRESSO" data-onclick="pageExpCalib_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="KALIBRIERUNG INSTANT" data-onclick="pageCalibration_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPERATURE" data-onclick="pageTemperature_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PAYMENT<br>SYSTEMS" data-onclick="pagePayment_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUCT<br>QUANTITY" data-onclick="pageProductQty_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPERATUR" data-onclick="pageTemperature_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="ZAHLUNGSSYSTEME" data-onclick="pagePayment_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="PRODUKT<br>MENGE" data-onclick="pageProductQty_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DEVICES" data-onclick="pageDevices_show()"></div></td>						
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CLOCK" data-onclick="pageClock_show()"></div></td>
-						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILKER" data-onclick="pageMilker_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="GERÄT" data-onclick="pageDevices_show()"></div></td>						
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DATUM/UHRZEIT" data-onclick="pageClock_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnMilker" class="UIButton bigButton3x4 UIdisabled" data-caption="MILCHMODUL" data-onclick="pageMilker_show()"></div></td>
 					</tr>
 					<tr valign="middle">
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="MISCELLANEOUS" data-onclick="pageMiscellaneous_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="VERSCHIEDENES" data-onclick="pageMiscellaneous_show()"></div></td>
 
-						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUAL" data-onclick="manualViewBox_show()"></div></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="OLD PROG MENU" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
+						<td width="33%" align="center"><div id="divBtnManual" style="display:none"><div class="UIButton bigButton3x4" data-caption="MANUELL" data-onclick="manualViewBox_show()"></div></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="URSPR. PROGRAMMIERUNG" data-onclick="pageMiscellaneous_oldProgMenu()"></div></td>
 					</tr>
 				</table>
 			</div>
@@ -221,7 +226,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageMaintenance_selector' data-option='0|GENERAL OPTIONS|1|INSTALLATON|2|OFF LIST' data-onclick='pageMaintenance_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageMaintenance_selector' data-option='0|ALLGEMEINE OPTIONEN|1|INSTALLATION|2|FEHLERLISTE' data-onclick='pageMaintenance_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -229,44 +234,44 @@
 				<div id="pageMaintenance_gs" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">ACTIVATE H<sub>2</sub>0 FILTER RESET</td>
-							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7090"></div></td>
+							<td style="width:380px">AKTIVIEREN SIE WASSERFILTER RESET</td>
+							<td colspan="2"><div class="UIOption" data-option="1|JA|0|NEIN" data-da3="7090"></div></td>
 						</tr>
 						
 						<tr>
 							<td>
-								WATER FILTER DECOUNTER<br>
-								<div style="float:left; margin-right:10px">current value:</div>
+								W-FILTERZAEHLER<br>
+								<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 								<div id="pageMaintenance_11" style="float:left" class="bigCaption15">00000</div>
 								<div class="clear"></div>
 							</td>
 							<td><div class="UINumber" id="pageMaintenance_11_cap" data-numfigures="5" data-da3="7394" data-max="60000" data-forbidden="1"></div></td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(11)"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageMaintenance_resetDec(11)"></div></td>
 						</tr>
 						<tr id="pageMaintenance_decCofBrew">
 							<td>
-								COFFEE BREWER DECOUNTER<br>
-								<div style="float:left; margin-right:10px">current value:</div>
+								BRUEHERZAEHLER<br>
+								<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 								<div id="pageMaintenance_12" style="float:left" class="bigCaption15">0000</div>
 								<div class="clear"></div>
 							</td>
 							<td><div class="UINumber" id="pageMaintenance_12_cap" data-numfigures="4" data-da3="7396" data-max="1000"></div></td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(12)"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageMaintenance_resetDec(12)"></div></td>
 						</tr>
 						<tr id="pageMaintenance_decCofGround">
 							<td>
-								COFFEE GROUND DECOUNTER<br>
-								<div style="float:left; margin-right:10px">current value:</div>
+								KAFFEEPADZAEHLER<br>
+								<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 								<div id="pageMaintenance_13" style="float:left" class="bigCaption15">0000</div>
 								<div class="clear"></div>
 							</td>
 							<td><div class="UINumber" id="pageMaintenance_13_cap" data-numfigures="4" data-da3="7398" data-max="1000"></div></td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(13)"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageMaintenance_resetDec(13)"></div></td>
 						</tr>
 						<tr>
 							<td>
-								MAINTENANCE DECOUNTER<br>
-								<div style="float:left; margin-right:10px">current value:</div>
+								ZAEHLER WARTUNG<br>
+								<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 								<div id="pageMaintenance_15" style="float:left" class="bigCaption15">0000</div>
 								<div class="clear"></div>
 							</td>
@@ -277,12 +282,12 @@
 								<div style="float:left; font-size:2.9em; color:#fff; letter-spacing:7px">000</div>
 								<div class="clear"></div>
 							</td>
-							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMaintenance_resetDec(15)"></div></td>
+							<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageMaintenance_resetDec(15)"></div></td>
 						</tr>						
 
 						<tr>
 							<td>
-								MAINTENANCE DECOUNTER<br>THRESHOLD<br>
+								WARTUNGSZAEHLER <br> SCHWELLE<br>
 							</td>
 							<td colspan="2">
 								<div style="float:left">
@@ -294,8 +299,8 @@
 						</tr>						
 						
 						<tr style="border:none">
-							<td>DISPLAY TEMPERATURES<br><span class="tip">as a CPU message</span></td>
-							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7112"></div></td>
+							<td>TEMPERATURANZEIGE<br><span class="tip">ALS CPU NACHRICHT</span></td>
+							<td colspan="2"><div class="UIOption" data-option="1|JA|0|NEIN" data-da3="7112"></div></td>
 						</tr>
 						<tr style="height:30px;">
 							<td></td>
@@ -305,7 +310,7 @@
 						</tr>
 
 						<tr>
-							<td>VOLTAGE</td>
+							<td>SPANNUNG</td>
 							<td colspan="2"><div id="pageMaintenance_volt" class="bigCaption15"></div></td>
 						</tr>						
 					</table>
@@ -314,12 +319,12 @@
 				<div id="pageMaintenance_inst" style="display:none">
 					<table border='0' class='elenco'>
 						<tr id="pageMaintenance_rowDis">
-							<td>DISINSTALLATION</td>
-							<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DISINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></td>
+							<td>DEINSTALLATION</td>
+							<td colspan="2" align="center"><div class='UIButton bigButton60 actionButton' style='width:450px' data-caption='START DEINSTALLATION' data-onclick="pageMaintenance_disinstall()"></div></td>
 						</tr>					
 						<tr>
-							<td>FIRST INSTALLATION</td>
-							<td colspan="2"><div class="UIOption" data-option="0|YES|1|NO" data-da3="7074"></div></td>
+							<td>ERSTINSTALLATION</td>
+							<td colspan="2"><div class="UIOption" data-option="0|JA|1|NEIN" data-da3="7074"></div></td>
 						</tr>
 					</table>
 				</div>
@@ -335,28 +340,28 @@
 			<div class="UIWindowContent">
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-                        <td width="33%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="START<br>RINSING" data-onclick="pageCleaning_action(160)"></div></td>
-                        <td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING BREWER" data-onclick="pageCleaning_action(8)"></div></td>
-                        <td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="START CLEANING MILK MODULE" data-onclick="pageCleaning_action(5)"></div></td>					
+                        <td width="33%" align="center"><div class="UIButton bigButton4x4 actionButton" data-caption="START SPUELUNG" data-onclick="pageCleaning_action(160)"></div></td>
+                        <td width="33%" align="center"><div id="pageCleaning_btnCleanHC" class="UIButton bigButton4x4 actionButton" data-caption="START REINIGUNG<br>BRUEHER" data-onclick="pageCleaning_action(8)"></div></td>
+                        <td width="33%" align="center"><div id="pageCleaning_btnCleanMilker" class="UIButton bigButton4x4 actionButton UIdisabled" data-caption="START REINIGUNG<br>MILCHMODUL" data-onclick="pageCleaning_action(5)"></div></td>					
 					</tr>
 					<tr valign="middle">
-						<td align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START CLEANING<br>GRINDER" data-onclick="pageGrinderCleaning_show()"></div></td>
+						<td align="center"><div id="pageCleaning_btnCleanGrinder" class="UIButton bigButton4x4 actionButton" data-caption="START REINIGUNG<br>MAHLWERK" data-onclick="pageGrinderCleaning_show()"></div></td>
 						<td align="center"><div id="pageCleaning_btnDescaling" class="UIButton bigButton4x4 actionButton" data-caption="START DESCALING" data-onclick="pageCleaning_action(161)"></div></td>
 						<td></td>
 					</tr>
 				</table>
 				<table border='0' cellspacing='0' cellpadding='0' width='99%' align='center'>
 					<tr valign="middle">
-						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="RINSE 1" data-onclick="pageCleaning_action(1)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton4x4 actionButton" data-caption="RINSE 2" data-onclick="pageCleaning_action(2)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton4x4 actionButton" data-caption="RINSE 3" data-onclick="pageCleaning_action(3)"></div></td>
-						<td width="25%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton4x4 actionButton" data-caption="RINSE 4" data-onclick="pageCleaning_action(4)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean1" class="UIButton bigButton4x4 actionButton" data-caption="SPUELUNG 1" data-onclick="pageCleaning_action(1)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean2" class="UIButton bigButton4x4 actionButton" data-caption="SPUELUNG 2" data-onclick="pageCleaning_action(2)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean3" class="UIButton bigButton4x4 actionButton" data-caption="SPUELUNG 3" data-onclick="pageCleaning_action(3)"></div></td>
+						<td width="25%" align="center"><div id="pageCleaning_btnClean4" class="UIButton bigButton4x4 actionButton" data-caption="SPUELUNG 4" data-onclick="pageCleaning_action(4)"></div></td>
 					</tr>
 				</table>
 				
 				<table border='0' class='elenco'>
 					<tr style="border:0">
-						<td style="width:300px">AUTO RINSING AT TIME<br><span class="tip">00:00 means disabled</span></td>
+						<td style="width:300px">AUTOMATISCHE<br>SPUELUNG<br><span class="tip">00:00 ZUM DEAKTIVIEREN</span></td>
 						<td><div class="UITime24" data-da3="7466"></div></td>
 					</tr>	
 				</table>
@@ -364,8 +369,8 @@
 				<!--
 				<table border='0' class='elenco' id='pageCleaning_tabDissolveTable'>
 					<tr style="border:0">
-						<td style="width:690px">TAB DISSOLVE PAUSE<br>
-							<span class="tip">Set the time needed to &quot;dissolve tab&quot; during the sanitary washing cycle (HC).<br>Set &quot;000&quot; to use machine default time</span>
+						<td style="width:690px">EINWEICHPHASE<br>
+							<span class="tip">Stellen Sie die Zeit ein, die zum &quot;Aufloesen der Tablette&quot; waehrend des Hygienewaschzyklus (HC) benötigt wird. <br> Stellen Sie &quot;000&quot; ein, um die Standardzeit der Maschine zu verwenden</span>
 						</td>
 						<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7562" data-da3bit="16" data-um="sec"></div></td>
 					</tr>	
@@ -379,7 +384,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='0|GENERAL OPTIONS|1|MACHINE ID|2|MILK LM|3|FREEVEND|4|BLOCKING COUNTER' data-onclick='pageMiscellaneous_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='0|ALLGEMEINE OPTIONEN|1|MASCHINEN ID|2|MILCH LM|3|FREEVEND|4|GEBLOCKTER ZAEHLER' data-onclick='pageMiscellaneous_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -387,33 +392,33 @@
 				<div id="pageMiscellaneous_gs" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">MESSAGE NUMBER</td>
+							<td style="width:380px">MELDUNGSNUMMER</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="7" data-da3="7056" data-da3bit="8"></div></td>
 						</tr>					
 						<tr>
-							<td>FAN TIME</td>
+							<td>LÜFTERZEIT</td>
 							<td><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7062" data-da3bit="8" data-um="min"></div></td>
 						</tr>
 						<tr>
-							<td>BEEP TIME</td>
+							<td>ZEIT BIEP TON</td>
 							<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
 						</tr>
 						<tr>
-							<td>CPU LANGUAGE</td>
+							<td>CPU SPRACHE</td>
 							<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_r1">
-							<td>SIDE WATER PUMP</td>
+							<td>EXTERNE WASSERPUMPE</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="8370" data-da3bit="8"></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_r2">
-							<td>SUGAR CANISTER</td>
+							<td>ZUCKERBEHÄLTER</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7086" data-da3bit="8"></div></td>
 						</tr>			
-						<tr id="pageMiscellaneous_fmilkTopping"><td>FMILK TOPPING SWITCH</td><td><div class='UIOption' data-option='1|YES|0|NO' data-da3='7096' data-da3bit='8'></div></td></tr>
+						<tr id="pageMiscellaneous_fmilkTopping"><td>MILCH TOPPING SCHALTER</td><td><div class='UIOption' data-option='1|JA|0|NEIN' data-da3='7096' data-da3bit='8'></div></td></tr>
 						<tr>
-							<td>ENABLE DATA-AUDIT BEFORE</td>
-							<td><div id="pageMiscellaneous_gs_auditBefore" class='UIOption' data-option='1|YES|0|NO' data-da3='7106' data-da3bit='8'></div></td>
+							<td>DATA-AUDIT VORHER AKTIVIEREN</td>
+							<td><div id="pageMiscellaneous_gs_auditBefore" class='UIOption' data-option='1|JA|0|NEIN' data-da3='7106' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
 							<td>
@@ -456,11 +461,11 @@
 				<div id="pageMiscellaneous_mid" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">MACHINE CODE A</td>
+							<td style="width:380px">MASCHINEN CODE A</td>
 							<td><div class="UINumber" data-numfigures="5" data-max="65535" data-da3="7052" data-da3bit="16"></div></td>
 						</tr>
 						<tr>
-							<td>MACHINE CODE B</td>
+							<td>MASCHINEN CODE B</td>
 							<td><div class="UINumber" data-numfigures="5" data-max="65535" data-da3="7054" data-da3bit="16"></div></td>
 						</tr>
 					</table>
@@ -469,11 +474,11 @@
 				<div id="pageMiscellaneous_lm" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">PRODUCT MILK LM</td>
+							<td style="width:380px">PRODUKT MILCH LM</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="6" data-da3="7082" data-da3bit="8"></div></td>
 						</tr>
 						<tr>
-							<td>MILK LM WATER NUMBER</td>
+							<td>MILCH LM WASSER EV</td>
 							<td><div class="UINumber" data-numfigures="1" data-max="3" data-da3="7084" data-da3bit="8"></div></td>
 						</tr>
 					</table>
@@ -482,17 +487,17 @@
 				<div id="pageMiscellaneous_fv" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:380px">FV HARDWARE KEY<br>MODE</td>
-							<td colspan="2"><div id="pageMiscellaneous_fvHwKey" class='UIOption' data-option='0|DISABLED|1|ENABLED 1|2|ENABLED ++' data-da3="7104" data-da3bit="8"></div></td>
+							<td style="width:380px">SCHLUESSEL FUER <br> FREIVERKAUF</td>
+							<td colspan="2"><div id="pageMiscellaneous_fvHwKey" class='UIOption' data-option='0|DEAKTIVIERT|1|AKTIVIERT 1|2|AKTIVIERT ++' data-da3="7104" data-da3bit="8"></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_fv_r1">
-							<td>START FREEVEND NOW<br><span class="tip">It will last for the indicated<br>num. of hours</span></td>
-							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="hours"></div></td>
-							<td align="right"><div class='UIButton actionButton' data-caption='START NOW' data-onclick="pageMiscellaneous_startFVNow()"></div></td>
+							<td>FREIVERKAUF JETZT STARTEN<br><span class="tip">Freiverkauf für die angezeigten Stunden aktiv.</span></td>
+							<td align="center"><div id="pageMiscellaneous_fvH" class="UINumber" data-numfigures="3" data-max="255" data-um="STUNDEN"></div></td>
+							<td align="right"><div class='UIButton actionButton' data-caption='JETZT STARTEN' data-onclick="pageMiscellaneous_startFVNow()"></div></td>
 						</tr>
 						
 						<tr id="pageMiscellaneous_fv_r2">
-							<td>FREEVEND IS NOW <b style='color:#fff'>RUNNING</b></td>
+							<td>FREEVEND IST JETZT <b style = 'FARBE: #fff'> AKTIV </ b></td>
 							<td align="center"><div id="pageMiscellaneous_fvDateEnd"></div></td>
 							<td align="right"><div class='UIButton actionButton' data-caption='STOP IT NOW' data-onclick="pageMiscellaneous_stopFVNow()"></div></td>
 						</tr>
@@ -504,7 +509,7 @@
 					<div id="pageMiscellaneous_blockingCt_pwd">
 						<table border='0' class='elenco'>
 							<tr>
-								<td>INSERT PIN CODE</td>
+								<td>PIN-CODE EINFUEGEN</td>
 								<td><div class="UINumber" id='pageMiscellaneous_pincode' data-numfigures="3" data-max="999"></div></td>
 								<td><div class='UIButton actionButton' data-caption='&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;O&nbspK&nbsp;&nbsp;&nbsp;&nbsp&nbsp&nbsp' data-onclick="pageMiscellaneous_onPINCodeInserted()"></div></td>
 							</tr>
@@ -513,22 +518,22 @@
 					<div id="pageMiscellaneous_blockingCt_unblocked" style="display:none">
 						<table border='0' class='elenco' style="table-layout: fixed">
 							<tr>
-								<td style="width:414px">COUNTER<br>
-									<div style="float:left; margin-right:10px">current value:</div>
+								<td style="width:414px">ZAEHLER<br>
+									<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 									<div id="pageMiscellaneous_blockingCt_unblocked_curct" style="float:left" class="bigCaption15">00000</div>
 									<div class="clear"></div>
 								</td>
 								<td style="width:335px"><div class="UINumber" id="pageMiscellaneous_blockingCt_newValue" data-numfigures="5" data-max="10000" data-da3="7400" data-da3bit="16"></div></td>
-								<td style="width:255px" align="right"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageMiscellaneous_blockingCounter_set()"></div></td>
+								<td style="width:255px" align="right"><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageMiscellaneous_blockingCounter_set()"></div></td>
 							</tr>
 
 							<tr>
-								<td>WARN AFTER<br><span class="tip">When the indicated % of selections (with respect to the number inserted in the row before) has been reached, the machine will display a warning to let you know that it's going to be blocked soon</span></td>
+								<td>WARNE NACH<br><span class="tip">Wenn der angegebene Prozentsatz der Auswahlen (in Bezug auf die zuvor in die Zeile eingefügte Nummer) erreicht wurde, zeigt das Geraet eine Warnung an, um Sie darüber zu informieren, dass das Geraet bald blockiert wird</span></td>
 								<td colspan="2"><div class="UINumber" data-numfigures="2" data-max="50" data-da3="7402" data-da3bit="16" data-um="%"></div></td>
 							</tr>
 
 							<tr>
-								<td>PIN CODE<br><span class="tip">Here you can change the current PIN code if you wish</span></td>
+								<td>PIN-CODE<br><span class="tip">Bei Bedarf koennen Sie den aktuellen PIN-Code aendern</span></td>
 								<td colspan="2"><div class="UINumber" id='pageMiscellaneous_newpincode' data-numfigures="3" data-min="111" data-max="999" data-da3="7404" data-da3bit="16"></div></td>
 							</tr>
 						</table>
@@ -542,7 +547,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|CLOCK|1|HAPPY HOUR|2|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageClock_selector' data-option='0|DATUM/UHRZEIT|1|HAPPY HOUR|2|ENERGY SAVING' data-onclick='pageClock_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -550,23 +555,23 @@
 				<div id="pageClock_clock" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>TIME</td>
+							<td>UHRZEIT</td>
 							<td colspan="3"><div class="UITime24" id="pageClock_time"></div></td>
 							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setTime()"></div></td>
 						</tr>
 						
 						<tr>
-							<td>DATE</td>
-							<td><div id="pageClock_dd" class="UINumber" data-numfigures="2" data-max="31" data-min="1" data-um='day'></div></td>
-							<td><div id="pageClock_mm" class="UINumber" data-numfigures="2" data-max="12" data-min="1" data-um='month'></div></td>
-							<td><div id="pageClock_yy" class="UINumber" data-numfigures="4" data-max="2050" data-min="2017" data-um='year'></div></td>
+							<td>DATUM</td>
+							<td><div id="pageClock_dd" class="UINumber" data-numfigures="2" data-max="31" data-min="1" data-um='TAG'></div></td>
+							<td><div id="pageClock_mm" class="UINumber" data-numfigures="2" data-max="12" data-min="1" data-um='MONAT'></div></td>
+							<td><div id="pageClock_yy" class="UINumber" data-numfigures="4" data-max="2050" data-min="2017" data-um='JAHR'></div></td>
 							<td><div class='UIButton actionButton' data-caption='SET' data-onclick="pageClock_setDate()"></div></td>
 						</tr>
 						
 						
 						<tr style="border:0">
-							<td>SUMMER TIME</td>
-							<td colspan="2"><div class="UIOption" data-option="1|YES|0|NO" data-da3="7080"></div></td>
+							<td>SOMMERZEIT</td>
+							<td colspan="2"><div class="UIOption" data-option="1|JA|0|NEIN" data-da3="7080"></div></td>
 							<td colspan="2"></td>
 						</tr>
 					</table>
@@ -577,7 +582,7 @@
 						<tr style="height:50px; vertical-align:bottom">
 							<th style="width:232px; text-align:left">HAPPY HOUR</th>
 							<th>START</th>
-							<th>END</th>
+							<th>ENDE</th>
 						</tr>
 						<tr>
 							<td>HAPPY HOUR 1</td>
@@ -601,16 +606,16 @@
 					<table border='0' class='elenco'>
 						<tr style="height:50px; vertical-align:bottom">
 							<th style="width:232px; text-align:left">ENERGY SAVING</th>
-							<th>SWITCH ON</th>
-							<th>SWITCH OFF</th>
+							<th>EINSCHALTEN</th>
+							<th>AUSSCHALTEN</th>
 						</tr>				
-						<tr><td>MONDAY</td><td align="center"><div class="UITime24" data-da3="7436"></div></td><td align="center"><div class="UITime24" data-da3="7438"></div></td></tr>					
-						<tr><td>TUESDAY</td><td align="center"><div class="UITime24" 	data-da3="7440"></div></td><td align="center"><div class="UITime24" data-da3="7442"></div></td></tr>					
-						<tr><td>WEDNESDAY</td><td align="center"><div class="UITime24" 	data-da3="7444"></div></td><td align="center"><div class="UITime24" data-da3="7446"></div></td></tr>					
-						<tr><td>THURSDAY</td><td align="center"><div class="UITime24" 	data-da3="7448"></div></td><td align="center"><div class="UITime24" data-da3="7450"></div></td></tr>					
-						<tr><td>FRIDAY</td><td align="center"><div class="UITime24" 	data-da3="7452"></div></td><td align="center"><div class="UITime24" data-da3="7454"></div></td></tr>					
-						<tr><td>SATURDAY</td><td align="center"><div class="UITime24" 	data-da3="7456"></div></td><td align="center"><div class="UITime24" data-da3="7458"></div></td></tr>					
-						<tr><td>SUNDAY</td><td align="center"><div class="UITime24" 	data-da3="7460"></div></td><td align="center"><div class="UITime24" data-da3="7462"></div></td></tr>					
+						<tr><td>MONTAG</td><td align="center"><div class="UITime24" data-da3="7436"></div></td><td align="center"><div class="UITime24" data-da3="7438"></div></td></tr>					
+						<tr><td>DIENSTAG</td><td align="center"><div class="UITime24" 	data-da3="7440"></div></td><td align="center"><div class="UITime24" data-da3="7442"></div></td></tr>					
+						<tr><td>MITTWOCH</td><td align="center"><div class="UITime24" 	data-da3="7444"></div></td><td align="center"><div class="UITime24" data-da3="7446"></div></td></tr>					
+						<tr><td>DONNERSTAG</td><td align="center"><div class="UITime24" 	data-da3="7448"></div></td><td align="center"><div class="UITime24" data-da3="7450"></div></td></tr>					
+						<tr><td>FREITAG</td><td align="center"><div class="UITime24" 	data-da3="7452"></div></td><td align="center"><div class="UITime24" data-da3="7454"></div></td></tr>					
+						<tr><td>SAMSTAG</td><td align="center"><div class="UITime24" 	data-da3="7456"></div></td><td align="center"><div class="UITime24" data-da3="7458"></div></td></tr>					
+						<tr><td>SONNTAG</td><td align="center"><div class="UITime24" 	data-da3="7460"></div></td><td align="center"><div class="UITime24" data-da3="7462"></div></td></tr>					
 					</table>
 				</div>
 			</div>
@@ -634,18 +639,18 @@
 					</tr>
 					<tr style='height:50px;'>
 						<td><div id="pageMilker_ver" class="bigCaption15"></div></td>
-						<td><div id="pageMilker_status" class="bigCaption15">NOT CONNECTED or DISABLED</div></td>
+						<td><div id="pageMilker_status" class="bigCaption15">NICHT VERBUNDEN BZW. DEAKTIVIERT</div></td>
 					</tr>
 				</table>
 
 				<table border='0' class='elenco'>
 					<tr>
-						<td>ENABLED</td>
-						<td><div id='pageMilker_enabled' class='UIOption' data-option='1|YES|0|NO' data-onclick="pageMilker_onEnabledYesNo()"></div></td>
+						<td>AKTIVIERT</td>
+						<td><div id='pageMilker_enabled' class='UIOption' data-option='1|JA|0|NEIN' data-onclick="pageMilker_onEnabledYesNo()"></div></td>
 					</tr>
 					<tr>
-						<td>MODEL</td>
-						<td><div id='pageMilker_model' class='UISelect' data-option='0|NONE|1|VENTURI|2|INDUX' data-da3="69" data-onchange="pageMilker_onMilkerTypeChange_fromUser()"></div></td>
+						<td>MODELL</td>
+						<td><div id='pageMilker_model' class='UISelect' data-option='0|KEINER|1|VENTURI|2|INDUX' data-da3="69" data-onchange="pageMilker_onMilkerTypeChange_fromUser()"></div></td>
 					</tr>
 				</table>
 				
@@ -653,16 +658,16 @@
 					<!-- parametri comuni a tutti i milker -->
 					<table border='0' class='elenco'>
 						<tr>
-							<td style="width:400px">STEAM TEMPERATURE<br><span class="tip">max 128</span></td>
+							<td style="width:400px">TEMPERATUR DAMPF<br><span class="tip">max 128</span></td>
 							<td><div class="UINumber" id="pageMilker_temperature" data-numfigures="3" data-max="128" data-da3="7618" data-da3bit="8"></div></td>
 						</tr>
 						<tr>
-							<td>AUTO CLEANING AT TIME</td>
+							<td>UHRZEIT FUER<br>AUTOM. REINIGUNG</td>
 							<td colspan="3"><div id="pageMilker_autoCleanAtTime" class="UITime24" data-da3="7468"></div></td>
 						</tr>
 						<tr>
-							<td>AUTO UPDATE CLEANING TIME</td>
-							<td><div class="UIOption" data-option="1|YES|0|NO" data-da3="7630"></div></td>
+							<td>AUTOM. AKTUALISIERUNG<br>REINIGUNGSZEIT</td>
+							<td><div class="UIOption" data-option="1|JA|0|NEIN" data-da3="7630"></div></td>
 						</tr>
 					</table>
 				
@@ -670,24 +675,24 @@
 					<div id="pageMilker_capp_venturi" style="margin-top:20px; display:none">
 						<table border='0' class='elenco'>
 							<tr>
-								<td style="width:400px">CLEANING PERIOD<br><span class="tip">max 900</span></td>
+								<td style="width:400px">REINIGUNGSZEIT<br><span class="tip">max 900</span></td>
 								<td><div id="pageMilker_capp_venturi_1" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 							</tr>
 							<tr>
-								<td>ENABLE CLEANING</td>
-								<td><div id="pageMilker_capp_venturi_2" class="UIOption" data-option="1|YES|0|NO" data-da3="7622"></div></td>
+								<td>REINIGUNG AKTIVIEREN</td>
+								<td><div id="pageMilker_capp_venturi_2" class="UIOption" data-option="1|JA|0|NEIN" data-da3="7622"></div></td>
 							</tr>
 							<tr>
-								<td>CLEANING DELAY<br><span class="tip">max 10.0</span></td>
+								<td>VERZOEGERUNG REINIGUNG<br><span class="tip">max 10.0</span></td>
 								<td><div id="pageMilker_capp_venturi_3" class="UINumber" data-numfigures="3" data-decimal='1' data-da3="7624"  data-da3bit="16" data-max="100" data-um="sec."></div></td>
 							</tr>
 							<tr>
-								<td>ENABLE MILK SENSOR</td>
+								<td>MILCHSENSOR AKTIVIEREN</td>
 								<td><div id="pageMilker_capp_venturi_4" class="UIOption" data-option="0|0|1|1|2|2|3|3" data-da3="7626"></div></td>
 							</tr>
 							<tr>
-								<td>SHOW CLEAN-MILKER<br>BUTTON AT STARTUP</td>
-								<td><div id="pageMilker_capp_venturi_5" class="UIOption" data-option="1|YES|0|NO" data-da3="7628"></div></td>
+								<td>ANZEIGE FELD &quot;MILCH-REINIGUNG&quot; BEIM START</td>
+								<td><div id="pageMilker_capp_venturi_5" class="UIOption" data-option="1|JA|0|NEIN" data-da3="7628"></div></td>
 							</tr>
 						</table>
 					</div>
@@ -696,24 +701,24 @@
 					<div id="pageMilker_capp_induzione" style="margin-top:20px; display:none">
 						<table border='0' class='elenco'>
 							<tr>
-								<td style="width:410px">HIDRODYNAMIC EMPTYING PERIOD<br><span class="tip">max 900</span></td>
+								<td style="width:410px">ZEIT HYDRODYNAMISCHE ENTLEERUNG<br><span class="tip">max 900</span></td>
 								<td><div id="pageMilker_capp_indux_1" class="UINumber" data-numfigures="3" data-da3="7620" data-da3bit="16" data-max="900" data-um="min."></div></td>
 							</tr>
 							<tr>
-								<td>ENABLE CONDUCIBILITY SENSOR</td>
-								<td><div id="pageMilker_capp_indux_2" class="UIOption" data-option="1|YES|0|NO" data-da3="7624"></div></td>
+								<td>LEITFAEHIGKEITSSENSOR AKTIVIEREN</td>
+								<td><div id="pageMilker_capp_indux_2" class="UIOption" data-option="1|JA|0|NEIN" data-da3="7624"></div></td>
 							</tr>
 							<tr>
-								<td>ENABLE MILK SENSOR</td>
-								<td><div id="pageMilker_capp_indux_3" class="UIOption" data-option="1|YES|0|NO" data-da3="7626"></div></td>
+								<td>MILCHSENSOR AKTIVIEREN</td>
+								<td><div id="pageMilker_capp_indux_3" class="UIOption" data-option="1|JA|0|NEIN" data-da3="7626"></div></td>
 							</tr>
 				
 							<tr>
-								<td>ENABLE WASTE TANKE SENSOR</td>
-								<td><div id="pageMilker_capp_indux_4" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|YES|0|NO" data-da3="7632"></div></td>
+								<td>RESTWASSERBEHAELTER<br>SENSOR AKTIVIEREN</td>
+								<td><div id="pageMilker_capp_indux_4" class="UIOption" id="pageMilker_capp_induzione_enableWasteTankSensor" data-option="1|JA|0|NEIN" data-da3="7632"></div></td>
 							</tr>
 							<tr>
-								<td>PASTILLE DISSOLVE TIME</td>
+								<td>EINWEICHZEIT TABLETTE</td>
 								<td><div id="pageMilker_capp_indux_5" class="UINumber" data-numfigures="3" data-da3="8358" data-da3bit="16" data-max="240" data-um="sec."></div></td>
 							</tr>
 						</table>
@@ -722,45 +727,45 @@
 						<table border='0' class='elenco'>	
 							<tbody>
 							<tr style="background-color:#fff">
-								<th style="color:#000" align="left">FOAM</th>
-								<th style="color:#000" align="left">AIR</th>
-								<th style="color:#000" align="left">PUMP SPEED</th>
-								<th style="color:#000" align="left">MILK PRESSURE</th>
+								<th style="color:#000" align="left">MILCHSCHAUM</th>
+								<th style="color:#000" align="left">LUFT</th>
+								<th style="color:#000" align="left">PUMPENGESCHWINDIGKEIT</th>
+								<th style="color:#000" align="left">DRUCK MILCH</th>
 							</tr>
 							
 							<tr>
-								<td style="color:#f99">HOT FOAM 1</td>
+								<td style="color:#f99">HEISSER SCHAUM 1</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7634" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7636" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7638" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#f99">HOT FOAM 2</td>
+								<td style="color:#f99">HEISSER SCHAUM 2</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7640" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7642" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7644" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#f99">HOT FOAM 3</td>
+								<td style="color:#f99">HEISSER SCHAUM 3</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7646" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7648" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8338" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							
 							<tr>
-								<td style="color:#00f">COLD FOAM 1</td>
+								<td style="color:#00f">KALTER SCHAUM 1</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8340" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8342" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8344" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#00f">COLD FOAM 2</td>
+								<td style="color:#00f">KALTER SCHAUM 2</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8346" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8348" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8350" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#00f">COLD FOAM 3</td>
+								<td style="color:#00f">KALTER SCHAUM 3</td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8352" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8354" data-da3bit="16" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8356" data-da3bit="16" data-max="500"></div></td>
@@ -778,7 +783,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td style="width:140px"><b>SELECTIONS:</b></td>
+						<td style="width:140px"><b>AUSWAHLEN:</b></td>
 						<td><div class='UIOptionSmall' id='pageSelections_selector' data-option='1|1-12|2|13-24|3|25-36|4|37-48' data-onclick='pageSelections_onSelector()'></div></td>
 					</tr>
 				</table>		
@@ -798,29 +803,29 @@
 					<table border='0' class='elenco'>
 						<tr>
 							<td>STATUS</td>
-							<td><div id='pageSingleSelection_status' class="UIOption" data-option="0|SELECTION|1|INHIBITED|2|PRESELECTION" data-da3="100" data-onclick='pageSingleSelection_onStatus()'></div></td>
+							<td><div id='pageSingleSelection_status' class="UIOption" data-option="0|AUSWAHL|1|AUSGEBLENDET|2|VORWAHL" data-da3="100" data-onclick='pageSingleSelection_onStatus()'></div></td>
 						</tr>
 					</table>
 					<div id="pageSingleSelection_pageSel">
 						<table border='0' class='elenco'>
 							<tr>
-								<td>PRICE 1</td>
+								<td>PREIS 1</td>
 								<td><div id='pageSingleSelection_prc1' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65000"></div></td>
 							</tr>
 							<tr>
-								<td>PRICE 2<br><span class="tip">happy price</span></td>
+								<td>PREIS 2<br><span class="tip">HAPPY PREISE</span></td>
 								<td><div id='pageSingleSelection_prc2' class="UINumber" data-numfigures="5" data-decimal='0' data-max="65000"></div></td>
 							</tr>
 							<tr>
-								<td>PROGRAMMING</td>
-								<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIAL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
+								<td>PROGRAMMIERUNG</td>
+								<td><div class="UIOption" id='pageSingleSelection_programming' data-option="1|PARTIEL|0|TOTAL" data-da3="101" data-onclick="pageSingleSelection_onProgramming()"></div></td>
 							</tr>							
 							<tr id="pageSingleSelection_pageSel_rowJug">
-								<td>JUG<br><span class="tip">num repetitions</span></td>
+								<td>JUG<br><span class="tip">WIEDERHOLUNG</span></td>
 								<td><div class="UINumber" data-numfigures="2" data-max="10" data-da3="177" data-da3bit='8'></div></td>
 							</tr>
 							<tr>
-								<td>SCALING FACTOR<br></td>
+								<td>SKALIERUNGSFAKTOR<br></td>
 								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
 							</tr>						
 						</table>
@@ -848,64 +853,64 @@
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
 					<tr id="pageCalibration_rowGrinder1">
-						<td>GRINDER 1</td>
+						<td>MAHLWERK 1</td>
 						<td><div id="pageCalibration_m11" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(11)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(11)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(11)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(11)"></div></td>
 					</tr>
 					<tr id="pageCalibration_rowGrinder2">
-						<td>GRINDER 2</td>
+						<td>MAHLWERK 2</td>
 						<td><div id="pageCalibration_m12" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(12)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(12)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(12)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(12)"></div></td>
 					</tr>
 					
 					<tr id="pageCalibration_rowMotor1">
 						<td style="width:150px">MOTOR 1</td>
 						<td style="width:274px"><div id="pageCalibration_m1" class="bigCaption15"></div></td>
-						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(1)"></div></td>
-						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(1)"></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(1)"></div></td>
+						<td style="width:300px"><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(1)"></div></td>
 					</tr>
 					
 					<tr id="pageCalibration_rowMotor2">
 						<td>MOTOR 2</td>
 						<td><div id="pageCalibration_m2" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(2)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(2)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(2)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(2)"></div></td>
 					</tr>
 
 					<tr>
 						<td>MOTOR 3</td>
 						<td><div id="pageCalibration_m3" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(3)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(3)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(3)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(3)"></div></td>
 					</tr>
 					
 					<tr>
 						<td>MOTOR 4</td>
 						<td><div id="pageCalibration_m4" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(4)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(4)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(4)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(4)"></div></td>
 					</tr>
 
 					<tr>
 						<td>MOTOR 5</td>
 						<td><div id="pageCalibration_m5" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(5)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(5)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(5)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(5)"></div></td>
 					</tr>
 					<tr>
 						<td>MOTOR 6</td>
 						<td><div id="pageCalibration_m6" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='CALIBRATE' data-onclick="pageCalibration_start(6)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(6)"></div></td>
+						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(6)"></div></td>
 					</tr>
 					<tr id="pageCalibration_rowEncoder1">
-						<td>IMPULSES 1</td>
+						<td>IMPULS 1</td>
 						<td colspan="3"><div id="pageCalibration_encoder1" class="bigCaption15"></div></td>
 					</tr>
 					<tr id="pageCalibration_rowEncoder2">
-						<td>IMPULSES 2</td>
+						<td>IMPULS 2</td>
 						<td colspan="3"><div id="pageCalibration_encoder2" class="bigCaption15"></div></td>
 					</tr>										
 				</table>
@@ -927,19 +932,19 @@
 				<div id="pagePayment_general" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>COIN MECH TYPE</td>
-							<td><div class='UISelect' data-option='0|PARALLEL SINGLE VEND|1|PARALLEL MULTI VEND|2|EXECUTIVE|3|PRICE HOLDING|4|MDB' data-da3='7058' data-da3bit='8'></div></td>
+							<td>MUENZ-ZAHLSYSTEM</td>
+							<td><div class='UISelect' data-option='0|PARALLEL SINGLE VEND|1|PARALLEL MULTI VEND|2|EXECUTIVE|3|PREIS HOLDING|4|MDB' data-da3='7058' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>CURRENCY (PRICES)<br>NUM OF DECIMALS</td>
+							<td>PREISE<br>ANZAHL DEZIMALSTELLEN</td>
 							<td><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='7066' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>PRICE LIST FOR CASH</td>
+							<td>BARGELD PREISLISTE</td>
 							<td><div class='UIOption' data-option='0|1|1|2' data-da3='8374' data-da3bit='8'></div></td>
 						</tr>
 						<tr>
-							<td>PRICE LIST FOR CASHLESS</td>
+							<td>CASHLESS PREISLISTE</td>
 							<td><div class='UIOption' data-option='0|1|1|2' data-da3='8376' data-da3bit='8'></div></td>
 						</tr>
 					</table>				
@@ -948,58 +953,58 @@
 				<div id="pagePayment_mdb">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>ESCROW ENABLED</td>
-							<td><div class='UIOption' data-option='0|YES|1|NO' data-da3='7236' data-da3bit='8'></div></td>
+							<td>ESCROW DEAKTIVIERT</td>
+							<td><div class='UIOption' data-option='0|JA|1|NEIN' data-da3='7236' data-da3bit='8'></div></td>
 						</tr>
-						<tr><td>CREDIT MAX</td><td><div id="pagePayment_creditMax" class="UINumber" data-numfigures="5" data-max="65000" data-da3="7238" data-da3bit="16"></div></td></tr>
-						<tr><td>REST MAX</td><td><div  id="pagePayment_restMax"class="UINumber" data-numfigures="5" data-max="65000" data-da3="7240" data-da3bit="16"></div></td></tr>
+						<tr><td>MAX KREDIT</td><td><div id="pagePayment_creditMax" class="UINumber" data-numfigures="5" data-max="65000" data-da3="7238" data-da3bit="16"></div></td></tr>
+						<tr><td>MAX REST</td><td><div  id="pagePayment_restMax"class="UINumber" data-numfigures="5" data-max="65000" data-da3="7240" data-da3bit="16"></div></td></tr>
 						<tr>
-							<td>SELL TYPE</td>
+							<td>VERKAUFSTYP</td>
 							<td><div class='UIOption' data-option='0|SINGLE|1|MULTI' data-da3='7242' data-da3bit='8'></div></td>
 						</tr>
-						<tr><td>TOKEN VALUE</td><td><div id="pagePayment_tokenV" class="UINumber" data-numfigures="5" data-max="10000" data-da3="7244" data-da3bit="16"></div></td></tr>
-						<tr><td>BILL VALIDATOR</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='7310' data-da3bit='8'></div></td></tr>
+						<tr><td>TOKEN WERT</td><td><div id="pagePayment_tokenV" class="UINumber" data-numfigures="5" data-max="10000" data-da3="7244" data-da3bit="16"></div></td></tr>
+						<tr><td>BANKNOTEN PRUEFER</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='7310' data-da3bit='8'></div></td></tr>
 						
-						<tr><td>COIN REST A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7246' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7248' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7250' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7252' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7254' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7256' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7258' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7260' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7262' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7264' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7266' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7268' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7270' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7272' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7274' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN REST P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7276' data-da3bit='16'></div></td></tr>
+						<tr><td>REST MUENZE A</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7246' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE B</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7248' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE C</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7250' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE D</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7252' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE E</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7254' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE F</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7256' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE G</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7258' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE H</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7260' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE I</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7262' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE J</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7264' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE K</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7266' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE L</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7268' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE M</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7270' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE N</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7272' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE O</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7274' data-da3bit='16'></div></td></tr>						
+						<tr><td>REST MUENZE P</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7276' data-da3bit='16'></div></td></tr>
 
-						<tr><td>COIN NO REST A</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7278' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST B</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7280' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST C</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7282' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST D</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7284' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST E</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7286' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST F</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7288' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST G</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7290' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST H</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7292' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST I</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7294' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST J</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7296' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST K</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7298' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST L</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7300' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST M</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7302' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST N</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7304' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST O</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7306' data-da3bit='16'></div></td></tr>						
-						<tr><td>COIN NO REST P</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7308' data-da3bit='16'></div></td></tr>
+						<tr><td>KEINE RESTMUENZEN A</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7278' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN B</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7280' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN C</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7282' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN D</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7284' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN E</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7286' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN F</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7288' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN G</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7290' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN H</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7292' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN I</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7294' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN J</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7296' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN K</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7298' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN L</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7300' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN M</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7302' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN N</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7304' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN O</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7306' data-da3bit='16'></div></td></tr>						
+						<tr><td>KEINE RESTMUENZEN P</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7308' data-da3bit='16'></div></td></tr>
 					</table>				
 				</div>			
 				
 				<div id="pagePayment_mid" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>PROTOCOL</td>
+							<td>PROTOKOLL</td>
 							<td><div class='UISelect' data-option='0|TM-ON|1|DDCMP 2400++|2|DEX|3|DEX reset|4|DDCMP 9600|5|DDCMP 1200|6|TEST FUN|7|IRDA' data-da3='7330'></div></td>
 						</tr>						
 						<tr>
@@ -1015,7 +1020,7 @@
 							<td><div class="UINumber" data-numfigures="9" data-max="999999999" data-da3="7322" data-da3bit="32"></div></td>
 						</tr>
 						<tr>
-							<td>ADDRESS VIDTS</td>
+							<td>VIDTS ADRESSE</td>
 							<td><div class="UINumber" data-numfigures="3" data-max="999" data-da3="7326" data-da3bit="16"></div></td>
 						</tr>
 					</table>
@@ -1024,34 +1029,34 @@
 				<div id="pagePayment_rfid">
 					<table border='0' class='elenco'>
 						<tr>
-							<td>MAX CREDIT CARD</td>
+							<td>MAX KREDIT KARTE</td>
 							<td><div id="pagePayment_maxCC" class="UINumber" data-numfigures="5" data-max="60000" data-da3="7136" data-da3bit="16"></div></td>
 						</tr>
 						<tr>
-							<td>DISCOUNT</td>
+							<td>RABATT</td>
 							<td><div class="UINumber" data-numfigures="2" data-max="80" data-da3="7196" data-da3bit="16" data-um="%"></div></td>
 						</tr>
-						<tr><td>COIN A CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7144'></div></td></tr>
-						<tr><td>COIN B CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7146'></div></td></tr>
-						<tr><td>COIN C CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7148'></div></td></tr>
-						<tr><td>COIN D CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7150'></div></td></tr>
-						<tr><td>COIN E CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7152'></div></td></tr>
-						<tr><td>COIN F CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7154'></div></td></tr>
-						<tr><td>COIN G CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7156'></div></td></tr>
-						<tr><td>COIN H CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7158'></div></td></tr>
-						<tr><td>COIN I CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7160'></div></td></tr>
-						<tr><td>COIN J CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7162'></div></td></tr>
+						<tr><td>COIN A CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7144'></div></td></tr>
+						<tr><td>COIN B CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7146'></div></td></tr>
+						<tr><td>COIN C CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7148'></div></td></tr>
+						<tr><td>COIN D CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7150'></div></td></tr>
+						<tr><td>COIN E CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7152'></div></td></tr>
+						<tr><td>COIN F CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7154'></div></td></tr>
+						<tr><td>COIN G CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7156'></div></td></tr>
+						<tr><td>COIN H CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7158'></div></td></tr>
+						<tr><td>COIN I CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7160'></div></td></tr>
+						<tr><td>COIN J CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7162'></div></td></tr>
 						
-						<tr><td>COIN A NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7176'></div></td></tr>
-						<tr><td>COIN B NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7178'></div></td></tr>
-						<tr><td>COIN C NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7180'></div></td></tr>
-						<tr><td>COIN D NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7182'></div></td></tr>
-						<tr><td>COIN E NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7184'></div></td></tr>
-						<tr><td>COIN F NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7186'></div></td></tr>
-						<tr><td>COIN G NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7188'></div></td></tr>
-						<tr><td>COIN H NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7190'></div></td></tr>
-						<tr><td>COIN I NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7192'></div></td></tr>
-						<tr><td>COIN J NO CARD</td><td><div class='UIOption' data-option='1|NO|0|ACCEPTED' data-da3='7194'></div></td></tr>
+						<tr><td>COIN A NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7176'></div></td></tr>
+						<tr><td>COIN B NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7178'></div></td></tr>
+						<tr><td>COIN C NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7180'></div></td></tr>
+						<tr><td>COIN D NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7182'></div></td></tr>
+						<tr><td>COIN E NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7184'></div></td></tr>
+						<tr><td>COIN F NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7186'></div></td></tr>
+						<tr><td>COIN G NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7188'></div></td></tr>
+						<tr><td>COIN H NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7190'></div></td></tr>
+						<tr><td>COIN I NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7192'></div></td></tr>
+						<tr><td>COIN J NO CARD</td><td><div class='UIOption' data-option='1|NEIN|0|AKZEPTIERT' data-da3='7194'></div></td></tr>
 					</table>
 				</div>	
 
@@ -1101,12 +1106,12 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|OTHER' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|ANDERE' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<table border='0' width='100%' id="pageDevices_selectorTableMicro" style="display:none">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorMicro' data-option='1|MICRO|0|OTHER' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selectorMicro' data-option='1|MICRO|0|ANDERE' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<div style='height:5px'></div>
@@ -1114,38 +1119,38 @@
 				<!--DEVICES OTHER-->
 				<div id="pageDevices_general" style="display:none">
 					<table border='0' class='elenco'>
-						<tr><td>DRIPTRAY DETECTION</td><td><div class='UIOption' data-option='0|NO|1|YES' data-da3='7092' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_cofSensor"><td>COFFEE SENSOR</td><td><div class='UIOption' data-option='1|ENABLED|0|DISABLED' data-da3='7094' data-da3bit='8'></div></td></tr>
+						<tr><td>TROPFSCHALEN<br>ERKENNUNG</td><td><div class='UIOption' data-option='0|NEIN|1|JA' data-da3='7092' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_cofSensor"><td>KAFFEE SENSOR</td><td><div class='UIOption' data-option='1|AKTIVIERT|0|DEAKTIVIERT' data-da3='7094' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_cupSensor">
-							<td>CUP SENSOR THRESHOLD</td>
+							<td>BECHERSENSOR SCHWELLENWERT</td>
 							<td>
 								<div style="float:left"><div class="UINumber" data-numfigures="3" data-max="180" data-da3="7108" data-da3bit="8"></div></div>
-								<div style="float:left; margin-left:40px">current value:<br><span class="bigCaption15" id="divCupSensorLiveValue"></span></div>
+								<div style="float:left; margin-left:40px">AKTUELLER WERT:<br><span class="bigCaption15" id="divCupSensorLiveValue"></span></div>
 								<div style="clear"></div>								
 							</td>
 						</tr>
 						<tr id="pageDevices_boilerSize"><td>BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
-						<tr><td>MODEM TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startModemTest()"></div></td></tr>
-						<tr id="pageDevices_grpTest"><td>GROUP TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
-						<tr id="pageDevices_motorTest"><td>MOTOR TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
+						<tr><td>TEST MODEM</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startModemTest()"></div></td></tr>
+						<tr id="pageDevices_grpTest"><td>TEST GRUPPE</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
+						<tr id="pageDevices_motorTest"><td>TEST MOTOR</td><td><div class='UIButton bigButton60 actionButton' data-caption='START' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
 					</table>
 				</div>
 
 				<!--DEVICES VARIFLEX / MICRO-->
 				<div id="pageDevices_vflex" style="display:none">
 					<table border='0' class='elenco'>
-						<tr><td>BREWER DIAMETER</td><td><div id="pageDevices_vflex_brewerDiam" class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
-						<tr><td>STANDBY POSITION</td><td><div class='UIOption' data-option='0|CLOSE|1|OPEN' data-da3='7556' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_vflex_autoAdjust"><td>AUTOMATIC<br>ADJUSTMENT</td><td><div id="pageDevices_vflex_v1AutoAdjust" class='UIOption' data-option='0|NO|1|YES' data-da3='7558' data-da3bit='8'></div></td></tr>
-						<tr id="pageDevices_vflex_deliveryPhase"><td>DELIVERY PHASE</td><td><div class='UIOption' data-option='0|NORMAL|1|FAST' data-da3='7570' data-da3bit='8'></div></td></tr>
+						<tr><td>BRÜHERDURCHMESSER</td><td><div id="pageDevices_vflex_brewerDiam" class='UIOption' data-option='0|36mm|1|45mm' data-da3='7554' data-da3bit='8'></div></td></tr>
+						<tr><td>STANDBY POSITION</td><td><div class='UIOption' data-option='0|SCHLIESSEN|1|OFFEN' data-da3='7556' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_vflex_autoAdjust"><td>AUTOMATISCHE<br>EINSTELLUNG</td><td><div id="pageDevices_vflex_v1AutoAdjust" class='UIOption' data-option='0|NEIN|1|JA' data-da3='7558' data-da3bit='8'></div></td></tr>
+						<tr id="pageDevices_vflex_deliveryPhase"><td>ZUBEREITUNGSPHASE</td><td><div class='UIOption' data-option='0|NORMAL|1|SCHNELL' data-da3='7570' data-da3bit='8'></div></td></tr>
 						<tr id="pageDevices_grinderSpeedTest">
-							<td>GRINDER SPEED FOR OFF09</td>
+							<td>MAHLGESCHWINDIGKEIT FUER OFF09</td>
 							<td>
 								<table style="width:100%">
 									<tr>
 										<td><div id="pageDevices_vflex_grnSpeedOff9" class="UINumber" data-numfigures="4" data-max="9999" data-da3="7558" data-da3bit="16"></div></td>
-										<td><div class='UIButton bigButton60 actionButton' data-caption='TEST IT' data-onclick="pageDevices_startGrinderSpeedTest()"></div></td>
+										<td><div class='UIButton bigButton60 actionButton' data-caption='TEST' data-onclick="pageDevices_startGrinderSpeedTest()"></div></td>
 									</tr>
 								</table>
 							</td>
@@ -1158,14 +1163,14 @@
 						<tr>
 							<td style="width:260px">
 								POSITION<br>
-								<div style="float:left; margin-right:10px">current value:</div>
+								<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 								<div id="pageDevices_vg1" style="float:left" class="bigCaption15">000</div>
 								<div class="clear"></div>
 							</td>
 							<td style="width:440px">
 								<div style="display:none">
 									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>desired value</div>
+									<div style="float:left; margin-right:10px"><br>GEWÜNSCHTER WERT</div>
 									<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="500"></div></div>
 									<div class="clear"></div>
 								</div>
@@ -1175,8 +1180,8 @@
 							</td>
 						</tr>
 						<tr>
-							<td>ENABLE AUTO<br>REGULATION</td>
-							<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
+							<td>AUTOMATISCHE<br>REGELUNG DEAKTIVIEREN</td>
+							<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|NEIN|1|JA' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
 						</tr>
 					</table>
 					<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
@@ -1185,11 +1190,11 @@
 								<!-- varigrind 1-->
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:155px;'>ANZAHL<br>DER PROBEN</td>
 										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:180px; padding-left:15px;'>AUSWAHL<br>REFERENZ</td>
 										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7588" data-da3bit="8"></div></td>
-										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
+										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='AUSWAHL ANWENDEN' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
 									</tr>
 								</table>
 							</td>
@@ -1199,15 +1204,15 @@
 							<td>
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:145px;'>DURCHFLUSS<br>REFERNZ</td>
 										<td style='width:320px; border-right:solid 1px #999'>
 											<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
 										</td>
-										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
+										<td style='width:175px; padding-left:10px'>POSITIONS<br>REFERNZ</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
-											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
-											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='SAVE VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
+											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">LETZTER DURCHFLUSS POSITION: <br> BITTE KLICKEN SIE AUF <b> AUSWAHL</div>
+											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='WERTE SPEICHERN' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
 										</td>
 									</tr>
 								</table>
@@ -1222,14 +1227,14 @@
 						<tr>
 							<td style="width:260px">
 								POSITION<br>
-								<div style="float:left; margin-right:10px">current value:</div>
+								<div style="float:left; margin-right:10px">AKTUELLER WERT:</div>
 								<div id="pageDevices_vg2" style="float:left" class="bigCaption15">000</div>
 								<div class="clear"></div>
 							</td>
 							<td style="width:440px">
 								<div style="display:none">
 									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>desired value</div>
+									<div style="float:left; margin-right:10px"><br>GEWÜNSCHTER WERT</div>
 									<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="500"></div></dv>
 									<div class="clear"></div>
 								</div>
@@ -1238,7 +1243,7 @@
 								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div>-->
 							</td>
 						</tr>
-						<tr><td>ENABLE AUTO<br>REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NO|1|YES' data-da3='7654' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
+						<tr><td>AUTOMATISCHE<br>REGELUNG DEAKTIVIEREN</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NEIN|1|JA' data-da3='7654' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
 					</table>
 					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
 						<tr>
@@ -1246,11 +1251,11 @@
 								<!-- varigrind 2-->
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>NUMBER OF<br>SAMPLES</td>
+										<td style='width:155px;'>ANZAHL<br>DER PROBEN</td>
 										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7658" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>REFERRING<br>SELECTION</td>
+										<td style='width:180px; padding-left:15px;'>AUSWAHL<br>REFERENZ</td>
 										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7652" data-da3bit="8"></div></td>
-										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
+										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='AUSWAHL ANWENDEN' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
 									</tr>
 								</table>
 							</td>
@@ -1259,15 +1264,15 @@
 							<td>
 								<table class='elenco' border='0'>
 									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>REFERRING<br>FLUX</td>
+										<td style='width:145px;'>DURCHFLUSS<br>REFERNZ</td>
 										<td style='width:320px; border-right:solid 1px #999'>
 											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7656" data-da3bit="16" data-um="cc/sec"></div>
 										</td>
-										<td style='width:175px; padding-left:10px'>REFERRING<br>POSITION</td>
+										<td style='width:175px; padding-left:10px'>POSITIONS<br>REFERNZ</td>
 										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
 										<td align="right">
-											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Last flux/position:<br>please click on <b>RUN SELECTION</b></div>
-											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='SAVE VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
+											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">LETZTER DURCHFLUSS POSITION: <br> BITTE KLICKEN SIE AUF <b> AUSWAHL</div>
+											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='WERTE SPEICHERN' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
 										</td>
 									</tr>
 								</table>
@@ -1284,7 +1289,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|OVERVIEW|1|PARTIALS|2|TOTALS|4|PRESELECTIONS|3|REFRESH DATA' data-onclick='pageDataAudit_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDataAudit_selector' data-option='0|UEBERBLICK|1|PARTIELL|2|GESAMT|4|PRESELECTIONS|3|DATEN AKTUALISIEREN' data-onclick='pageDataAudit_onSelector()'></div></td>
 					</tr>
 				</table>
 				
@@ -1297,9 +1302,9 @@
 					<br>
 					<table border='0' align="center">
 						<tr valign='middle'>
-							<td><div class='UIButton actionButton' data-caption='REFRESH DATA AGAIN' data-onclick="pageDataAudit_downloadEVA()"></div></td>
+							<td><div class='UIButton actionButton' data-caption='DATEN ERNEUT AKTUALISIEREN' data-onclick="pageDataAudit_downloadEVA()"></div></td>
 							<td style="width:100px">&nbsp;</td>
-							<td><div class='UIButton actionButton' data-caption='RESET PARTIAL DATA' data-onclick="pageDataAudit_resetPartialData()"></div></td>
+							<td><div class='UIButton actionButton' data-caption='PARTIELLE DATEN ZURUECKSETZEN' data-onclick="pageDataAudit_resetPartialData()"></div></td>
 						</tr>
 					</table>
 					
@@ -1315,23 +1320,23 @@
 				
 				<table border='0' class='elenco'>
 					<tr style='border-bottom:none'>
-						<td style="width:10%"><b style='color:#fff'>SELECTION</b></td>
+						<td style="width:10%"><b style='color:#fff'>AUSWAHL</b></td>
 						<td style="width:30%" align="center"><div id='pageExpCalib_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48"></div></td>
-						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='RUN SELECTION' data-onclick="pageExpCalib_runSelection()"></div></td>
-						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='EDIT SELECTION' data-onclick="pageExpCalib_editSelection()"></div></td>
+						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='AUSWAHL ANWENDEN' data-onclick="pageExpCalib_runSelection()"></div></td>
+						<td style="width:30%" align="center"><div class='UIButton bigButton60 actionButton' data-caption='AUSWAHL BEARBEITEN' data-onclick="pageExpCalib_editSelection()"></div></td>
 					</tr>
 
 					<tr style='height:50px;'>
 						<td>LAST FLUX</td>
 						<td align="center"><div id='pageExpCalib_lastFlux'>0.00 cc/sec</div></td>
-						<td colspan="2"><span class="tip">Flux information are updated everytime you &quot;run selection&quot;</span></td>
+						<td colspan="2"><span class="tip">Durchlussinformationen werden bei &quot;jeder Auswahl&quot; aktualisiert.</span></td>
 					</tr>					
 
 					<tr>
-						<td><b style='color:#fff'>GRINDER</b></td>
-						<td align="center">current calibration factor<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='START CALIBRATION' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
-						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='RESET CALIBRATION' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
+						<td><b style='color:#fff'>MAHLWERK</b></td>
+						<td align="center">AKTUELLER KALIBRIERUNGSFAKTOR<div id="pageExpCalib_grSec" class="bigCaption15">0 gr/sec</div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIERUNG STARTEN' data-onclick="pageExpCalib_startMacinaCalib()"></div></td>
+						<td align="center"><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIERUNG ZURUECKSETZEN' data-onclick="pageExpCalib_resetMacinaCalib()"></div></td>
 					</tr>					
 
 
@@ -1340,17 +1345,17 @@
 							<b style='color:#fff'>VARIGRIND</b><br>
 							<div class="tip" id="pageExpCalib_vgAutoAjustEnabled"></div>
 						</td>
-						<td align="center">current position<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
-						<td align="center">desired position<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="500"></div></td>
+						<td align="center">AKTUELLE POSITION<div id="pageExpCalib_vgCurPos" class="bigCaption15">000</div></td>
+						<td align="center">SOLL POSITION<div class="UINumber" id="pageExpCalib_vg_target" data-numfigures="3" data-max="500"></div></td>
 						<td align="center"><div class='UIButton bigButton60 actionButton' id="pageExpCalib_vgBtnSet" data-caption='SET' data-onclick="pageExpCalib_regolaVG()"></div></td>
 					</tr>
 					
 					<tr style='border-bottom:none' id="pageExpCalib_rowimpulsi">
-						<td><b style='color:#fff'>IMPULSES</b></td>
-						<td align="center">current<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
+						<td><b style='color:#fff'>IMPULS</b></td>
+						<td align="center">AKTUELL<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
 						<td colspan="2" align="right">
 							<div style="widt:420px; max-width:420px">
-								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|GRINDER 1|2|GRINDER 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>
+								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|MAHLWERK 1|2|MAHLWERK 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>
 							</div>
 						</td>
 					</tr>
@@ -1368,7 +1373,7 @@
 
 	<div id="divFooter" class="footer">
 		<div id="footer_L">
-			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="ZURÜCK" data-onclick="btnBack_onClick()"></div></div>
+			<div style="float:left; margin-right:10px"><div id="bntBack" class="UIButton" data-caption="ZURUECK" data-onclick="btnBack_onClick()"></div></div>
 			<div style="float:left"><div id="btnSave" class="UIButton" data-caption="SPEICHERN" data-onclick="btnSave_onClick()"></div></div>
 			<div class="clear"></div>
 		</div>
@@ -1376,7 +1381,7 @@
 		<div id="footer_C"></div>
 		
 		<div id="footer_R">
-			<div style="float:right"><div id="bntTestSelection" class="UIButton" style="display:none" data-caption="&nbsp&nbsp&nbsp&nbsp;TEST SELECTION &nbsp&nbsp&nbsp;" data-onclick="pageSingleSelection_test(0)"></div></div>
+			<div style="float:right"><div id="bntTestSelection" class="UIButton" style="display:none" data-caption="&nbsp&nbsp&nbsp&nbsp;TEST AUSWAHL &nbsp&nbsp&nbsp;" data-onclick="pageSingleSelection_test(0)"></div></div>
 			<div class="clear"></div>
 		</div>
 		<div class="clear"></div>
@@ -1443,7 +1448,7 @@ function onRheaBootstrapFinished()
 										{
 											isMilkerAlive = 0;
 											rheaAddClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
-											rheaSetDivHTMLByName("pageMilker_status", "NOT CONNECTED or DISABLED");
+											rheaSetDivHTMLByName("pageMilker_status", "NICHT VERBUNDEN BZW. DEAKTIVIERT");
 											rheaSetDivHTMLByName("pageMilker_ver", "??");
 										}
 									}
@@ -1453,7 +1458,7 @@ function onRheaBootstrapFinished()
 										{
 											isMilkerAlive = 1;
 											rheaRemoveClassToElem(rheaGetElemByID("pageCleaning_btnCleanMilker"), "UIdisabled");
-											rheaSetDivHTMLByName("pageMilker_status", "CONNECTED");
+											rheaSetDivHTMLByName("pageMilker_status", "VERBUNDEN");
 
 											//chiedo versione del milker
 											rhea.ajax ("milkver", "").then( function(result)
@@ -1487,7 +1492,7 @@ function onRheaBootstrapFinished()
 	uiStandAloneOptionGrinderCleaning1or2 = ui.setupStandaloneUIOption("pagePleaseWait_grinderCleaning_1or2");
 	
 	pleaseWait_show();
-	pleaseWait_header_setTextL("Please wait ...");
+	pleaseWait_header_setTextL("BITTE WARTEN ...");
 	pleaseWait_freeText_show();
 
 	//scarica il da3, carica guiInfo... in generale fa tutte quelle operazioni che sono necessarie prima di poter visualizzare il main menu
@@ -1562,7 +1567,7 @@ function save (fnToCallWhenFinished)
 	{
 		//ci sono dei blocchi da3 che sono stati modificati
 		pleaseWait_show();
-		pleaseWait_freeText_setText("Saving datafile, please wait...<br>");
+		pleaseWait_freeText_setText("DATENSPEICHERUNG, BITTE WARTEN...<br>");
 		pleaseWait_freeText_show();
 		save_storeDA3Block_step (1, nBlocchi, blockList);
 	}
@@ -1747,7 +1752,7 @@ function manualViewBox_close()		{ rheaHideElem(rheaGetElemByID("manualViewBox"))
 function pageMainMenu_show()
 {
 	pagePinCode_askPinCodeForEnteringProgMenu();
-	var title = "<div style='margin-left:140px'><center><img  src='img/iconHome.png'> Programming Menu</center></div>";
+	var title = "<div style='margin-left:140px'><center><img  src='img/iconHome.png'> PROGRAMMIERMENUE</center></div>";
 	showPage("pageMainMenu", title, 0, 0);
 	rheaShowElem(rheaGetElemByID("divCurLang"));
 }
@@ -1760,7 +1765,7 @@ function pageMainMenu_show()
  */
 function pageGrinderCleaning_show()
 {
-	if (showPage("pageGrinderCleaning", "GRINDER CLEANING", 0, 0))
+	if (showPage("pageGrinderCleaning", "REINIGUNG MAHLWERK", 0, 0))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
@@ -1786,7 +1791,7 @@ function pageGrinderCleaning_goBack()
  */
 function pageMaintenance_show()
 {
-	if (showPage("pageMaintenance", "MAINTENANCE", 1, 1))
+	if (showPage("pageMaintenance", "WARTUNG", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -1882,7 +1887,7 @@ function pageMaintenance_refreshOFFList(startIndex)
 
 function pageMaintenance_formatHTMLForTemperature(jsonObj)
 {
-	var html = "Current temperature: ";
+	var html = "AKTUELLE TEMPERATUR: ";
 	if (da3.isInstant())
 	{
 		html += "boiler=[" +jsonObj.tbol +"&deg;] ";
@@ -1997,7 +2002,7 @@ function pageMaintenance_disinstall_onAbort()
  */
 function pageCleaning_show()
 {
-	if (showPage("pageCleaning", "CLEANING/<br>RINSING", 1 ,1))
+	if (showPage("pageCleaning", "REINIGUNG", 1 ,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -2093,7 +2098,7 @@ var pageMiscellaneous_fvhBefore = 0;
 function pageMiscellaneous_show()
 {
 	var win = ui.getWindowByID("pageMiscellaneous");
-	if (showPage("pageMiscellaneous", "MISCELLANEOUS", 1, 1))
+	if (showPage("pageMiscellaneous", "VERSCHIEDENES", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
@@ -2249,7 +2254,7 @@ function pageMiscellaneous_fv_refresh()
 		if (enddate_gg <10) enddate_gg = "0" +enddate_gg;
 		if (enddate_hh <10) enddate_hh = "0" +enddate_hh;
 		if (enddate_minute <10) enddate_minute = "0" +enddate_minute;
-		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREEVEND will ends on<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
+		rheaSetDivHTMLByName("pageMiscellaneous_fvDateEnd", "<i>FREIVERKAUF ENDET IN<br>" + enddate_yy +"/" +enddate_mm +"/" +enddate_gg +" " +enddate_hh +":" +enddate_minute);
 	}
 }
 
@@ -2354,7 +2359,7 @@ function pageMiscellaneous_onPINCodeInserted()
  */
 function pageProductQty_show()
 {
-	if (showPage("pageProductQty", "PRODUCT<br>QUANTITY", 1,1))
+	if (showPage("pageProductQty", "PRODUKT<br>MENGE", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		pageProductQty_getDecounterValues();
@@ -2400,7 +2405,7 @@ function pageProductQty_build()
 		dataOption += "|" +i +"|" +i;
 		
 	html = 	"<table border='0' width='100%'><tr valign='middle'>"
-			+"	<td style='width:160px'><b>SELECT A<br>DECOUNTER</b></td>"
+			+"	<td style='width:160px'><b>WAEHLEN SIE DEN <br> ABWAERTSZAEHLER</b></td>"
 			+"	<td><div class='UIOptionSmall' id='pageProductQty_decSelector' data-option='" +dataOption +"' data-onclick='pageProductQty_showDecounter()'></div></td>"
 			+"</tr></table><br>";
 	
@@ -2420,13 +2425,13 @@ function pageProductQty_build()
 		html +=  "<div id='" +pageID +"' style='display:none'>"
 				+"<table border='0' class='elenco'>"
 				+"	<tr style='height:70px'>"
-				+"		<td style='width:300px'>DECOUNTER #" +(i+1) +"<br>current value</td>"
+				+"		<td style='width:300px'>DECOUNTER #" +(i+1) +"<br>AKTUELLER WERT</td>"
 				+"		<td style='width:400px'><span id='" +currentValueID +"' class='bigCaption25'>" +currentDecountValue +"</span></td>"
-				+"		<td align='center'><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
+				+"		<td align='center'><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick='pageProductQty_reset(" +(i+1) +")'></div></td>"
 				+"	</tr>"
-				+"	<tr><td>CANISTER<br>CAPACITY</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='60000' data-um='sec'></div></td></tr>"
-				+"	<tr><td>WARNING AT</td><td colspan='2'><div id='" +currentWarningID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='60000' data-um='sec'></div></td></tr>"
-				+"	<tr style='border:0'><td>ENABLE PRODUCT STOP</td><td colspan='2'><div class='UIOption' data-option='1|YES|0|NO' data-da3='" +da3Loc_enable +"'></div></td></tr>"
+				+"	<tr><td>KANISTER <br> KAPAZITÄT</td><td colspan='2'><div id='" +currentCapacityID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_decounter +"' data-max='60000' data-um='sec'></div></td></tr>"
+				+"	<tr><td>WARNUNG BEI</td><td colspan='2'><div id='" +currentWarningID +"' class='UINumber' data-numfigures='5' data-decimal='1' data-da3='" +da3Loc_warning +"' data-max='60000' data-um='sec'></div></td></tr>"
+				+"	<tr style='border:0'><td>PRODUKTSTOP AKTIVIEREN</td><td colspan='2'><div class='UIOption' data-option='1|JA|0|NEIN' data-da3='" +da3Loc_enable +"'></div></td></tr>"
 				+"</table></div>";
 		da3Loc_decounter+=2;
 		da3Loc_warning+=2;
@@ -2518,7 +2523,7 @@ function pageProductQty_getDecounterValues()
  */
 function pageMilker_show()
 {
-	if (showPage("pageMilker", "MILKER", 1,1))
+	if (showPage("pageMilker", "MILCHMODUL", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina.
 	}
@@ -2637,7 +2642,7 @@ function pageMilker_onBtnSave()
  */
 function pageSelections_show()
 {
-	if (showPage("pageSelections", "SELECTIONS", 1,0))
+	if (showPage("pageSelections", "AUSWAHLEN", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
@@ -2658,7 +2663,7 @@ function pageSelections_build()
 		{
 			for (var c=0; c<3; c++)
 			{
-				var caption = "SELECTION " +rheaLeftPad(iSel,2,'0');
+				var caption = "AUSWAHL " +rheaLeftPad(iSel,2,'0');
 				html += "<td width='33%' align='center'><div class='UIButtonSel' "
 						+"data-caption='" +caption +"' "
 						+"data-caption2='" +guiInfo.selInfo[iSel].name +"' "
@@ -2704,7 +2709,7 @@ function pageSingleSelection_show(iSel)
 {
 	pageSingleSelection_curSel = iSel;
 	
-	var title = "SELECTION " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name +"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:0.7em;color:#888'>" +UIUtils_arrangeSelectionOptionDescription2021(guiInfo.selInfo[iSel].short) +"</span>";
+	var title = "AUSWAHL " +rheaLeftPad(iSel,2,'0') +"&nbsp;-&nbsp;" +guiInfo.selInfo[iSel].name +"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:0.7em;color:#888'>" +UIUtils_arrangeSelectionOptionDescription2021(guiInfo.selInfo[iSel].short) +"</span>";
 	if (showPageEx("pageSingleSelection", title, 1, 1, 100 * (iSel-1)))
 	{
 		//è la prima volta che visualizziamo la pagina
@@ -2799,7 +2804,7 @@ function pageSingleSelection_build()
 		da3LocWater = da3ProductLM +3;
 		
 		WATER_COLONNA_FLOW_TYPE = 1;
-		WATER_COLONNA_FLOW_TITLE = "FLOW";
+		WATER_COLONNA_FLOW_TITLE = "DURCHFLUSS";
 	}
 	else
 	{
@@ -2812,7 +2817,7 @@ function pageSingleSelection_build()
 		if (da3.isInduzione())
 		{
 			WATER_COLONNA_FLOW_TYPE=2;
-			WATER_COLONNA_FLOW_TITLE = "EV TEMPERATURE";
+			WATER_COLONNA_FLOW_TITLE = "EV TEMPERATUR";
 			da3LocEVTemperature = 169;
 		}
 		else
@@ -2822,9 +2827,9 @@ function pageSingleSelection_build()
 	
 	var s = "";
 	if (da3.isInstant())
-		s = "0|OVERVIEW|2|PRODUCTS|3|WATERS|4|MIXERS";
+		s = "0|ÜBERBLICK|2|PRODUKTE|3|WASSER|4|MIXERS";
 	else
-		s = "0|OVERVIEW|1|ESPRESSO|2|PRODUCTS|3|WATERS|4|MIXERS";
+		s = "0|ÜBERBLICK|1|ESPRESSO|2|PRODUKTE|3|WASSER|4|MIXERS";
 	rheaSetDivHTMLByName("pageSingleSelection_selectorAtTop", "<div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div>");
 	
 	
@@ -2832,45 +2837,45 @@ function pageSingleSelection_build()
 	if (da3.isEspresso())
 	{
 		htmlE = "<table border='0' class='elenco'>"
-				+"<tr><td>COFFEE SEQUENCE</td><td><div class='UIOption' data-option='0|AFTER|1|BEFORE' data-da3='103' data-da3bit='8'></div></td></tr>"
-				+"<tr><td>COFFEE WATER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
-				+"<tr><td>COFFEE GRINDER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(12)'></div></td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
+				+"<tr><td>KAFFEE FOLGE</td><td><div class='UIOption' data-option='0|DANACH|1|DAVOR' data-da3='103' data-da3bit='8'></div></td></tr>"
+				+"<tr><td>KAFFEE WASEER<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(11)'></div></td><td><div class='UINumber' data-numfigures='3' data-da3='102' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='cc'></div></td></tr>"
+				+"<tr><td>KAFFEE MÜHLE<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(12)'></div></td><td><div class='UINumber' id='pageSingleSelection_coffeeGrinder' data-numfigures='3' data-decimal='1' data-da3='126' data-da3bit='8' data-max='200' data-um='sec'></div></td></tr>"
 				+"<tr><td>PREINFUSION</td><td><div class='UINumber' data-numfigures='2' data-da3='128' data-da3bit='4' data-max='15' data-um='sec'></div></td></tr>";
 
 		if (da3.isGruppoVariflex())
-				htmlE += "<tr><td>BREWER PRESSURE</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>";
+				htmlE += "<tr><td>BRÜHER ANPRESSDRUCK</td><td><div class='UINumber' data-numfigures='2' data-da3='104' data-da3bit='4' data-max='10'></div></td></tr>";
 		
 		if (da3.isInduzione())
-			htmlE += "<tr><td>TEMPERATURE ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-min='75' data-max='110'></div></td></tr>";
+			htmlE += "<tr><td>ESPRESSO TEMPERATUR</td><td><div class='UINumber' data-numfigures='3' data-da3='168' data-da3bit='8' data-min='75' data-max='110'></div></td></tr>";
 			
 		if (da3.isGruppoVariflex())
-			htmlE  +="<tr><td>GRANULOMETRY</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DISABLED|1|FINE|2|REFERRING|3|ROUGHLY' data-da3='175' data-da3bit='8'></div></td></tr>";
+			htmlE  +="<tr><td>GRANULOMETRIE</td><td><div class='UIOption' style='font-size:0.9em' data-option='0|DEAKTIEVIERT|1|FEIN|2|BEZUGNAHME|3|GROB' data-da3='175' data-da3bit='8'></div></td></tr>";
 			
-		htmlE  +="<tr><td>LATTE MACCHIATO<br>START BREWER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>";
+		htmlE  +="<tr><td>LATTE MACCHIATO<br>START BRUEHER</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='127' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um=''></div></td></tr>";
 		
 		if (da3.isGruppoVariflex())
 		{
-			htmlE  += "<tr><td>FRESH MILK<br>VALVE QTY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
-					 +"<tr><td>FRESH MILK<br>VALVE DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>";
+			htmlE  += "<tr><td>FRISCHMILCH VENTIL MENGE</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td></tr>"
+					 +"<tr><td>FRISCHMILCH<br>VENTILVERZOEGERUNG</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>";
 					
 			if (da3.isCappuccinatoreInduzione())
-				htmlE  += "<tr><td>FRESH MILK<br>FOAM TYPE</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|HOT, NO FOAM|1|HOT FOAM 1|2|HOT FOAM 2|3|HOT FOAM 3|4|COLD, NO FOAM|5|COLD FOAM 1|6|COLD FOAM 2|7|COLD FOAM 3' data-da3='164' data-da3bit='4'></div></td></tr>";
+				htmlE  += "<tr><td>FRISCHMILCH<br>SCHAUMTYP</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|HEISS, OHNE SCHAUM|1|HEISSER SCHAUM 1|2|HEISSER SCHAUM 2|3|HEISSER SCHAUM 3|4|KALT, OHNE SCHAUM|5|KALTER SCHAUM 1|6|KALTER SCHAUM 2|7|KALTER SCHAUM 3' data-da3='164' data-da3bit='4'></div></td></tr>";
 		
 			htmlE  += "<tr><td>FRESH MILK<br>AIR DURATION</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td></tr>"
-				     +"<tr><td>FRESH MILK<br>AIR DELAY</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
-				     +"<tr><td>GRINDER</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|1|1|2' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
+				     +"<tr><td>FRISCHMILCH<br>VERZOEGERUNG LUFT</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
+				     +"<tr><td>MAHLWERK</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|1|1|2' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
 		}
 
-		htmlE += "<tr><td>COFFEE REPEAT</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"
+		htmlE += "<tr><td>KAFFEE WIEDERHOLUNG</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"
 				+"</table>";
 	}
 
 	var htmlP = "<table border='0' class='elenco'>"
 				+"<tr>"
-				+"	<th style='width:184px; text-align:left;'>PRODUCT #</th>"
-				+"	<th style='width:290px; text-align:left;'>DOSAGE</th>"
-				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
-				+"	<th style='width:260px; text-align:center;'>NUM BREAKS</th>"
+				+"	<th style='width:184px; text-align:left;'>PRODUKT #</th>"
+				+"	<th style='width:290px; text-align:left;'>DOSIERUNG</th>"
+				+"	<th style='width:290px; text-align:left;'>START VERZOEGERUNG</th>"
+				+"	<th style='width:260px; text-align:center;'>ANZAHL STOPS</th>"
 				+"</tr>";
 	
 	for (var i=0; i<SINGLESEL_NUM_PRODOTTI; i++)
@@ -2887,7 +2892,7 @@ function pageSingleSelection_build()
 			label_prodName = label_prodNum;
 		
 		htmlP +="<tr id='" +rowID +"'>"
-				+"<td>" +label_prodName +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
+				+"<td>" +label_prodName +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
 				+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocProd +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocProd+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
 				+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3LocProd+2) +"' data-da3bit='4'></div></td>"
@@ -2899,32 +2904,32 @@ function pageSingleSelection_build()
 	var rowID = "pageSingleSelection_P_LM";
 	var dosageID = "pageSingleSelection_P_dLM";
 	htmlP +="<tr id='" +rowID +"'>"
-			+"<td>#PRODUCT LM<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
+			+"<td>#PRODUKT LM<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+1) +")'></div></td>"
 			+"<td align='left'><div id='" +dosageID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3ProductLM +"' data-da3bit='9' data-da3bit9='2,4' data-max='500'></div></td>"
 			+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3ProductLM+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
 			+"<td align='center'><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='" +(da3ProductLM+2) +"' data-da3bit='4'></div></td>"
 		+"</tr>";
 	
 	if (da3.isGruppoVariflex() || da3.isInstant())
-		htmlP += "<tr><td>TEA BAG</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
+		htmlP += "<tr><td>TEEBEUTEL</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
 	htmlP += "</table>";
 
 
 	//waters & mixers
 	var htmlW = "<table border='0' class='elenco'>"
 				+"<tr>"
-				+"	<th style='width:184px; text-align:left;'>WATER #</th>"
-				+"	<th style='width:290px; text-align:left;'>TIME</th>"
-				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
+				+"	<th style='width:184px; text-align:left;'>WASSER #</th>"
+				+"	<th style='width:290px; text-align:left;'>ZEIT</th>"
+				+"	<th style='width:290px; text-align:left;'>START VERZOEGERUNG</th>"
 				+"	<th style='width:260px; text-align:center;'>" +WATER_COLONNA_FLOW_TITLE +"</th>"
 				+"</tr>";
 				
 	var htmlM = "<table border='0' class='elenco'>"
 				+"<tr>"
 				+"	<th style='width:184px; text-align:left;'>MIXER #</th>"
-				+"	<th style='width:290px; text-align:left;'>TIME</th>"
-				+"	<th style='width:290px; text-align:left;'>START DELAY</th>"
-				+"	<th style='width:260px; text-align:center;'>SPEED</th>"
+				+"	<th style='width:290px; text-align:left;'>ZEIT</th>"
+				+"	<th style='width:290px; text-align:left;'>START VERZOEGERUNG</th>"
+				+"	<th style='width:260px; text-align:center;'>GESCHWINDIGKEIT</th>"
 				+"</tr>";		
 	for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
 	{
@@ -2937,7 +2942,7 @@ function pageSingleSelection_build()
 		var rowID = "pageSingleSelection_W_" +i;
 		var timeID = "pageSingleSelection_W_t" +i;
 		htmlW +="<tr id='" +rowID +"'>"
-				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+21) +")'></div></td>"
+				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+21) +")'></div></td>"
 				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>";
 
@@ -2949,7 +2954,7 @@ function pageSingleSelection_build()
 			htmlW +="<td></td>"; 
 			break;
 		case 1:
-			htmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|LOW|1|MED|2|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+			htmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|NIEDRIG|1|MITTEL|2|HOCH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
 			break;
 		case 2:
 				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-min='75' data-max='98' data-um='&deg;C'></div></td></tr>";
@@ -2963,10 +2968,10 @@ function pageSingleSelection_build()
 		rowID = "pageSingleSelection_M_" +i;
 		timeID = "pageSingleSelection_M_t" +i;
 		htmlM +="<tr id='" +rowID +"'>"
-				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST IT &nbsp;' data-onclick='pageSingleSelection_test(" +(i+31) +")'></div></td>"
+				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+31) +")'></div></td>"
 				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>"
-				+"<td align='center'><div class='UIOption bigCaption10' data-option='1|LOW|2|MED|3|HIGH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
+				+"<td align='center'><div class='UIOption bigCaption10' data-option='1|NIEDRIG|2|MITTEL|3|HOCH' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>"
 			+"</tr>";		
 		da3LocWater+= 3;
 	}
@@ -3114,7 +3119,7 @@ function pageSingleSelection_test_onFinish()
  */
 function pageTemperature_show()
 {
-	if (showPage("pageTemperature", "TEMPERATURE", 1,1))
+	if (showPage("pageTemperature", "TEMPERATUR", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
@@ -3142,18 +3147,18 @@ function pageTemperature_build()
 		{
 			//solo temp heater (aka camera caffe')
 			if (hasHeaterTemp)
-				html += "<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+				html += "<tr><td>HEIZUNG</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 		else
 		{
 			//(espresso qui significa bollitore, heater significa camera caffe')
 			html += "<tr><td>ESPRESSO</td><td><div class='UINumber' data-numfigures='3' data-decimal='0' data-min='75' data-max='120' data-da3='7032' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
 					+"<tr><td>DELTA</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='25' data-da3='7042' data-da3bit='8' data-um='&deg;C'></div></td></tr>"
-					+"<tr><td>FIRST COFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
-					+"<tr><td>HEATING TIME</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>";
+					+"<tr><td>ERSTER KAFFEE</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='30' data-da3='7034' data-da3bit='8' data-um=''></div></td></tr>"
+					+"<tr><td>HEIZZEIT</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-max='100' data-da3='7036' data-da3bit='8' data-um='sec'></div></td></tr>";
 				   
 			if (hasHeaterTemp)
-				html += "<tr><td>HEATER</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
+				html += "<tr><td>HEIZUNG</td><td><div class='UINumber' data-numfigures='2' data-decimal='0' data-max='40' data-da3='7040' data-da3bit='8' data-um='&deg;C'></div></td></tr>";
 		}
 	}	
 	html += "</table>";
@@ -3167,7 +3172,7 @@ function pageTemperature_build()
  */
 function pageClock_show()
 {
-	if (showPage("pageClock", "CLOCK", 1,1))
+	if (showPage("pageClock", "DATUM/UHRZEIT", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 	}
@@ -3282,7 +3287,7 @@ function pageClock_setDate()
  */
 function pageCalibration_show()
 {
-	if (showPage("pageCalibration", "INSTANT<br>CALIBRATION", 1,0))
+	if (showPage("pageCalibration", "KALIBRIERUNG INSTANT", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())
@@ -3441,7 +3446,7 @@ function pageCalibration_runMotorAgain()
  */
 function pagePayment_show()
 {
-	if (showPage("pagePayment", "PAYMENT<br>SYSTEMS", 1,1))
+	if (showPage("pagePayment", "ZAHLUNGSSYSTEME", 1,1))
 	{
 	}
 	
@@ -3465,7 +3470,7 @@ function pagePayment_show()
 
 function pagePayment_build()
 {
-	var options = "0|GENERAL OPTIONS|1|MDB|2|MACHINE ID|3|RFID CARD";
+	var options = "0|ALLGEMEINE OPTIONEN|1|MDB|2|MASCHINEN ID|3|RFID KARTE";
 	if (da3.isAlipayChinaActive())
 		options += "|4|ALIPAY";
 	options += "|5|PARALLEL";
@@ -3527,7 +3532,7 @@ function pagePayment_onSelector()
 var pageDevices_selector = null;
 function pageDevices_show()
 {
-	if (showPage("pageDevices", "DEVICES", 1,1))
+	if (showPage("pageDevices", "GERÄT", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
 		var win = ui.getWindowByID("pageDevices");
@@ -3638,7 +3643,7 @@ function pageDevices_vgrind_runSelection(whichVG)
 		currentTask.runSelection(selNum);
 	else
 	{
-		currentTask.messageBox ("WARNING: You can't use this selection becase its granularity is FINE or ROUGHLY.<br><br><br>Please choose a selection with granularity DISABLED or REFERRING (or edit the current selection and alter the granularity parameter)."); //you can't use this selection..please choose another one
+		currentTask.messageBox ("WARNUNG: Körnung ist FEIN oder GROB. Deshalb kann diese Auswahl nicht verwendet werden.<br><br><br>Bitte verwenden Sie eine Auswahl mit Körnung DEAKTIVIERT oder REFERENZ (oder ueberarbeiten Sie die Körnung der aktuellen Auswahl)"); //you can't use this selection..please choose another one
 	}
 }
 
@@ -3677,7 +3682,7 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 	var elemBtnUse2 = rheaGetElemByID ("pageDevices_vgrind2_lastFlux_btnUse");
 	if (flux < 0)
 	{
-		var msg = "Last flux/position:<br>please click on <b>RUN SELECTION</b>";
+		var msg = "LETZTER DURCHFLUSS POSITION: <br> BITTE KLICKEN SIE AUF <b> AUSWAHL";
 		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
 		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
 		rheaHideElem (elemBtnUse1);
@@ -3763,7 +3768,7 @@ var pageDA_secretBtnCounter = 0;
 var pageDA_secretBtnLastTimeClickedMSec=0;
 function pageDataAudit_show (bShowCompleteMenu)
 {
-	if (showPage("pageDataAudit", "DATA AUDIT", 1,0))
+	if (showPage("pageDataAudit", "DATA-AUDIT", 1,0))
 	{
 		pageDataAudit_downloadEVA();
 		
@@ -3791,9 +3796,9 @@ function pageDataAudit_show (bShowCompleteMenu)
 	var win = ui.getWindowByID("pageDataAudit");
 	var selector = win.getChildByID("pageDataAudit_selector");
 	if (bShowCompleteMenu)
-		selector.changeOptions ("0|OVERVIEW|1|PARTIALS|2|TOTALS|4|PRESELECTIONS|3|REFRESH DATA");
+		selector.changeOptions ("0|UEBERBLICK|1|PARTIELL|2|GESAMT|4|PRESELECTIONS|3|DATEN AKTUALISIEREN");
 	else
-		selector.changeOptions ("1|PARTIALS|4|PRESELECTIONS");
+		selector.changeOptions ("1|PARTIELL|4|PRESELECTIONS");
 	selector.selectOptionByIndex(0);
 	pageDataAudit_onSelector();
 }
@@ -4144,7 +4149,7 @@ var taskEspressoCalib = null;
 var pageExpCalib_macina1o2 = 1;
 function pageExpCalib_show()
 {
-	if (showPage("pageExpCalib", "ESPRESSO CALIBRATION", 1,0))
+	if (showPage("pageExpCalib", "KALIBRIERUNG ESPRESSO", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isGruppoMicro())
@@ -4170,7 +4175,7 @@ function pageExpCalib_regolaVG()
 	
 	if (da3.isVarigrindAutoRegolationEnabled(currentTask.macina1o2))
 	{
-		currentTask.messageBox("You can't change current Varigrind position because Varigrind auto-regulation is enabled.<br>Please go to DEVICES > VARIGRIND and disable it");
+		currentTask.messageBox("SIE KOENNEN DIE AKTUELLE VARIGRIND POSITION NICHT AENDERN DA DIE AUTOMATISCHE REGULIERUNG VON VARIGRIND AKTIVIERT IST<br>GEHEN SIE ZU GERAET->VARIGRIND UND DEAKTIVIEREN SIE ES");
 	}
 	else
 		currentTask.enterSetMacinaPos(target);
@@ -4200,7 +4205,7 @@ function pageExpCalib_runSelection()
 		currentTask.runSelection(selNum);
 	else
 	{
-		currentTask.messageBox ("WARNING: You can't use this selection becase its granularity is FINE or ROUGHLY.<br><br><br>Please choose a selection with granularity DISABLED or REFERRING (or edit the current selection and alter the granularity parameter)."); //you can't use this selection..please choose another one
+		currentTask.messageBox ("WARNUNG: Körnung ist FEIN oder GROB. Deshalb kann diese Auswahl nicht verwendet werden.<br><br><br>Bitte verwenden Sie eine Auswahl mit Körnung DEAKTIVIERT oder REFERENZ (oder ueberarbeiten Sie die Körnung der aktuellen Auswahl)"); //you can't use this selection..please choose another one
 	}
 }
 
@@ -4273,9 +4278,9 @@ function pageExpCalib_refreshCalibValueOnScreen()
 	rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");
 	
 	if (da3.isVarigrindAutoRegolationEnabled(currentTask.macina1o2))
-		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "auto regulation is ENABLED");
+		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "AUTOMATSCHE REGULIERUNG IST AKTIVIERT");
 	else
-		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "auto regulation is DISABLED");
+		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "AUTOMATISCHE REGULIERUNG IST DEAKTIVIERT");
 	
 }
 

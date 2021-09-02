@@ -173,6 +173,11 @@
 					<li onmousedown="menuLang_onUserSelected('CN')"><img src="img/flags/CN.png"> 中文</li>
 					<li onmousedown="menuLang_onUserSelected('RU')"><img src="img/flags/RU.png"> РУССКИЙ</li>
 					<li onmousedown="menuLang_onUserSelected('RO')"><img src="img/flags/RO.png"> ROMÂNĂ</li>
+
+					<li onmousedown="menuLang_onUserSelected('NL')"><img src="img/flags/NL.png"> NEDERLANDS</li>
+					<li onmousedown="menuLang_onUserSelected('PL')"><img src="img/flags/PL.png"> POLSKIE</li>
+					
+					
 				</ul>
 			</div>
 			<div class="clear"></div>
@@ -194,7 +199,7 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="ВЫБОР" data-onclick="pageSelections_show()"></div></td>
 						<td width="33%" align="center"><div id="pageMainMenu_btnEspressoCalib" class="UIButton bigButton3x4 UIdisabled" data-caption="КАЛИБРОВКА ЭСПРЕССО" data-onclick="pageExpCalib_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="КАЛИБРОВКА<br>РАСТВОРИМЫЙ" data-onclick="pageCalibration_show()"></div></td>
+						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="РАСТВОРИМЫЕ НАПИТКИ<br>КАЛИБРОВКА" data-onclick="pageCalibration_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="ТЕМПЕРАТУРА" data-onclick="pageTemperature_show()"></div></td>
@@ -3282,7 +3287,7 @@ function pageClock_setDate()
  */
 function pageCalibration_show()
 {
-	if (showPage("pageCalibration", "КАЛИБРОВКА<br>РАСТВОРИМЫЙ", 1,0))
+	if (showPage("pageCalibration", "РАСТВОРИМЫЕ НАПИТКИ<br>КАЛИБРОВКА", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isInstant())

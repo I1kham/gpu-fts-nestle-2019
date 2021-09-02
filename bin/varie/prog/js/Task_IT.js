@@ -272,7 +272,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 7:		msg = "Starting to fill hydraulic tubes with descaling detergent, please wait..."; break;
 				case 8:		msg = "Please wait for the descaling liquid action..."; break;
 				case 9:		msg = "Descaling liquid starts draining through the nozzles, please wait..."; break;
-				case 10:	msg = "Check the liquid colour drained from the nozzles, it defines if descaling process successfully completed.<br>Press CONTINUE button to continue, or press REPEAT to repeat previous steps."; break;
+				case 10:	msg = "Check the liquid drained from the nozzles to define if descaling process succesfully completed."; break;
 				case 11:	msg = "Open boiler tap. Press CONTINUE when done."; break;
 				case 12:	msg = "Emptying hydraulic circuit, please wait..."; break;
 				case 13:	msg = "Close boiler tap. Press CONTINUE when done."; break;
@@ -381,11 +381,11 @@ TaskCleaning.prototype.priv_handleSanWashingVFlex = function (timeElapsedMSec)
 			{
 				default: msg = ""; break;
 				case 0: msg = "Cleaning is active"; break;	//Cleaning is active
-				case 1: msg = "Put the pastille in the brewer and press CONTINUE"; break; 	//Put the pastille in the brewer and press CONTINUE
+				case 1: msg = "Put the tablet in the brewer and press CONTINUE"; break; 	//Put the pastille in the brewer and press CONTINUE
 				case 2: msg = "Brewer is closing"; break; 	//Brewer is closing
-				case 3: msg = "Tablet dissolution 1/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
-				case 4: msg = "2nd dissolution cycle is about to starting"; break; 	//2nd dissolution cycle is about to starting
-				case 5: msg = "Tablet dissolution 2/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
+				case 3: msg = "Tablet dissolving 1/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
+				case 4: msg = "2nd dissolving cycle is about to starting"; break; 	//2nd dissolution cycle is about to starting
+				case 5: msg = "Tablet dissolving 2/2, please wait"; break; 	//Tablet dissolution 1/2, please wait
 
 				case 6: msg = "1st Cleaning, please wait 1/3"; break; 	//1st Cleaning, please wait 1/3
 				case 7: msg = "1st Cleaning, active 1/3"; break; 	//1st Cleaning, active 1/3
