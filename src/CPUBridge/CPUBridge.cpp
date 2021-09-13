@@ -2664,15 +2664,25 @@ void cpubridge::translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::threa
 }
 
 //***************************************************
-void cpubridge::ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID)
+void cpubridge::ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID, u8 macinaNumDa1a4)
 {
-	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA, handlerID);
+	u8 optionalData[2];
+	optionalData[0] = macinaNumDa1a4;
+
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA, handlerID, optionalData, 1);
+}
+void cpubridge::translate_CPU_RUN_CAFFE_CORTESIA (const rhea::thread::sMsg &msg, u8 *out_macinaNumDa1a4)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_macinaNumDa1a4 = p[0];
 }
 void cpubridge::notify_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CPU_RUN_CAFFE_CORTESIA\n");
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_RUN_CAFFE_CORTESIA, handlerID);
 }
+
 
 //***************************************************
 void cpubridge::notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger)

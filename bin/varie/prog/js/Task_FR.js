@@ -3272,7 +3272,7 @@ TaskGrinderClean.prototype.step40 = function()
 
 	this.hoVistoCPUInStatoPREP_BEVANDA = 0;
 	this.fase = 41;
-	rhea.ajax ("runCaffeCortesia", "").then( function(result)
+	rhea.ajax ("runCaffeCortesia", {"m":this.grinder1o2}).then( function(result)
 	{
 	})
 	.catch( function(result)

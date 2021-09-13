@@ -1377,8 +1377,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_RUN_CAFFE_CORTESIA:
 			{
+				u8 macinaDa1a4 = 0;
+				cpubridge::translate_CPU_RUN_CAFFE_CORTESIA (msg, &macinaDa1a4);
+
 				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_Programming (eCPUProgrammingCommand::caffeCortesia, NULL, 0, bufferW, sizeof(bufferW));
+				const u16 nBytesToSend = cpubridge::buildMsg_Programming (eCPUProgrammingCommand::caffeCortesia, &macinaDa1a4, 1, bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 					notify_CPU_RUN_CAFFE_CORTESIA (sub->q, handlerID, logger);

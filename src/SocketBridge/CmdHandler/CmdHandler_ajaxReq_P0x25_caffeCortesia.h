@@ -13,12 +13,13 @@ namespace socketbridge
      *
         Input:
             command: runCaffeCortesia
-            params:  none
+            params:
+				m: intero da 1 a 4 ad indicare la macina da usare
 
         Output:
 			"OK"
 
-		Alla ricezione di questo comando., CPU passa in stato PREP_BEVANDA per tutta la durata del caffè
+		Alla ricezione di questo comando, CPU passa in stato PREP_BEVANDA per tutta la durata del caffè
      */
     class CmdHandler_ajaxReq_P0x25_caffeCortesia : public CmdHandler_ajaxReq
     {

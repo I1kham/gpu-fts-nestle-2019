@@ -350,7 +350,7 @@ namespace cpubridge
 	void		translateNotify_CPU_GET_CUPSENSOR_LIVE_VALUE(const rhea::thread::sMsg &msg, u16 *out_value);
 	
 	void		notify_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
-	
+
 	void		notify_CPU_QUERY_ID101 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u32 id101);
 	void		translateNotify_CPU_QUERY_ID101(const rhea::thread::sMsg &msg, u32 *out_id101);
 
@@ -614,7 +614,8 @@ namespace cpubridge
 	void		ask_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_CUPSENSOR_LIVE_VALUE
 
-	void		ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID);
+	void		ask_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &from, u16 handlerID, u8 macinaNumDa1a4);
+	void		translate_CPU_RUN_CAFFE_CORTESIA (const rhea::thread::sMsg &msg, u8 *out_macinaNumDa1a4);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RUN_CAFFE_CORTESIA
 
     void		ask_CPU_QUERY_ID101 (const sSubscriber &from, u16 handlerID);
