@@ -282,7 +282,7 @@ TaskCleaning.prototype.priv_handleDescalingVFlex = function (timeElapsedMSec)
 				case 17:	msg = "Water drained out through nozzles."; break;
 				case 18:	msg = "Dispense water and test the sample. Place a cup to collect the sample. Press CONTINUE when done."; break;
 				case 19:	msg = "Start draining sample through each nozzle."; break;
-				case 20:	msg = "Check the pH of collected sample. Press CONTINUE button to continue or REPEAT to repeat the previous steps to clean properly the hydraulic circuit."; break;
+				case 20:	msg = "Check the collected sample. Press CONTINUE button to continue or REPEAT to repeat the previous steps to clean properly the hydraulic circuit."; break;
 				case 21:	msg = "Descaling procedure finished,  press CLOSE to finish."; break;
 			}
 			
