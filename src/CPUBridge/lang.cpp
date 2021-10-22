@@ -69,7 +69,7 @@ FILE* lang_open_table (sLanguage *lang, unsigned char tableID)
 
 
     char filename[128];
-    sprintf(filename,"%s/lang/%s-MSG%c.lng", rhea::getPhysicalPathToAppFolder(), lang->iso, tableID);
+    sprintf(filename,"%s/current/lang/%s-MSG%c.lng", rhea::getPhysicalPathToAppFolder(), lang->iso, tableID);
 
     if (lang->ff[iTable] != NULL)
         rhea::fs::fileClose (lang->ff[iTable]);
