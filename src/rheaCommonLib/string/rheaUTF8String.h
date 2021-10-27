@@ -17,8 +17,8 @@ namespace rhea
 		public:
 								String()																	{ priv_constructor(); }
 								String (const String &b);
-								String(const u8* const s);
-								String(const char* const s);
+								String(const u8 *s);
+								String(const char* s);
 								~String();
 
 			void				setAllocator (Allocator *allocIN);
@@ -90,7 +90,7 @@ namespace rhea
 			bool				isEqualTo (const String &b, bool bCaseSensitive) const;
 			bool				isEqualTo (const u8 * const b, bool bCaseSensitive) const;
 			bool				isEqualToWithLen (const String &b, u32 lenInBytes, bool bCaseSensitive) const;
-			bool				isEqualToWithLen (const u8* const b, u32 lenInBytes, bool bCaseSensitive) const;
+			bool				isEqualToWithLen (const u8 *b, u32 lenInBytes, bool bCaseSensitive) const;
 
 								//================================================ utils
 			u32					explode (const UTF8Char &cTofind, Array<String> &out) const;

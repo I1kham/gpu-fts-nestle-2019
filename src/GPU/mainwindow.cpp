@@ -85,6 +85,10 @@ void MainWindow::priv_loadURL (const char *url)
     ui->labInfo->setVisible(false);
     this->show();
 
+#ifdef _DEBUG
+    printf ("URL:%s\n", url);
+#endif
+
     //carico la GUI nel browser
     retCode = eRetCode_none;
     ui->webView->setVisible(true);
@@ -435,7 +439,11 @@ void MainWindow::priv_syncWithCPU_onTick()
                     if ((u8)glob->esapiModule.moduleType > 0)
                     {
                         char s[32];
+<<<<<<< HEAD
                         sprintf_s (s, sizeof(s), "rheAPI [%d] [%d] [%d]", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+=======
+                        sprintf_s (s, sizeof(s), "rheAPI [%d] [%d] [%d]", glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
+>>>>>>> r33
                         priv_addText (s);
                         syncWithCPU.stato = 5;
                     }

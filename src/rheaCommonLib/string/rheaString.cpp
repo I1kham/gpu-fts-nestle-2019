@@ -4,8 +4,8 @@
 using namespace rhea;
 
 //**************************************************
-const u16* string_u8_to_u16 (const u8* p) { return (const u16*)p; }
-const u32* string_u8_to_u32 (const u8* p) { return (const u32*)p; }
+const u16* string_u8_to_u16 (const u8 *p) { return (const u16*)p; }
+const u32* string_u8_to_u32 (const u8 *p) { return (const u32*)p; }
 
 
 //**************************************************
@@ -98,7 +98,7 @@ bool string::strANSItoUTF16 (const char* in, u16* out, u32 sizeOfOutInBytes)
 }
 
 //**************************************************
-bool string::strUTF8toUTF16 (const u8* in, u16* outIN, u32 sizeOfOutInBytes)
+bool string::strUTF8toUTF16 (const u8 *in, u16* outIN, u32 sizeOfOutInBytes)
 {
 	assert (outIN && sizeOfOutInBytes);
 

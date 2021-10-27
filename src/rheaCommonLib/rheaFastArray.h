@@ -30,9 +30,9 @@ namespace rhea
 
                         //======================================= get / set
         T&				append (const T& t)																				{ T *ret = _insert(nElem);  (*ret)=t; return *ret; }
-		T&				operator[] (u32 i)																				{ assert(i>=0); return *_insert((u32)i); }
-        T&				getElem (u32 i) const																			{ assert(i<nElem && i>=0);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
-		const T&		queryElem(u32 i) const																			{ assert(i < nElem && i >= 0);	return *(T*)memBlock._getPointer(i * sizeof(T)); }
+        T&				operator[] (u32 i)																				{ return *_insert((u32)i); }
+        T&				getElem (u32 i) const																			{ assert(i<nElem);	return *(T*)memBlock._getPointer(i *sizeof(T)); }
+        const T&		queryElem(u32 i) const																			{ assert(i < nElem);	return *(T*)memBlock._getPointer(i * sizeof(T)); }
 		const T&		operator() (u32 i)	const																		{ return queryElem(i); }
         T&				insertAt (u32 i, const T& t)
                         {

@@ -169,7 +169,7 @@ void Core::priv_close ()
 }
 
 //*********************************************************
-u32 Core::priv_esapi_buildMsg (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer)
+u32 Core::priv_esapi_buildMsg (u8 c1, u8 c2, const u8 *optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
 	const u32 totalSizeOfMsg = 4 + numOfBytesInOptionalData;
 	if (sizeOfOutBuffer < totalSizeOfMsg)
@@ -644,7 +644,7 @@ void Core::priv_boot_rs232_handleCommunication (sBuffer &b)
 }
 
 //*********************************************************
-void Core::priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder)
+void Core::priv_boot_finalizeGUITSInstall (const u8 *const pathToGUIFolder)
 {
     logger->log("priv_finalizeGUITSInstall [%s]\n", pathToGUIFolder);
     logger->incIndent();
@@ -1289,7 +1289,7 @@ bool Core::priv_rs232_handleCommand_R (Core::sBuffer &b)
             if (b.numBytesInBuffer < (u32)(10 + dataLen))
 				return false;
 
-			const u8* data = &b.buffer[9];
+			const u8 *data = &b.buffer[9];
 			const u8 ck = b.buffer[9 + dataLen];
 			if (rhea::utils::simpleChecksum8_calc(b.buffer, 9 + dataLen) != ck)
 			{

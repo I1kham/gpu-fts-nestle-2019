@@ -23,7 +23,7 @@ bool linux_createFolderFromUTF8Path (const u8 *utf8_path, u32 nBytesToUseForPath
 }
 
 //*****************************************************
-bool platform::FS_DirectoryCreate (const u8* const utf8_path)
+bool platform::FS_DirectoryCreate (const u8 *utf8_path)
 {
     if (NULL == utf8_path)
         return false;
@@ -46,13 +46,13 @@ bool platform::FS_DirectoryCreate (const u8* const utf8_path)
 }
 
 //*****************************************************
-bool platform::FS_DirectoryDelete (const u8* const path)
+bool platform::FS_DirectoryDelete (const u8 *path)
 {
     return (rmdir((const char*)path) == 0);
 }
 
 //*****************************************************
-bool platform::FS_DirectoryExists(const u8* const path)
+bool platform::FS_DirectoryExists(const u8 *path)
 {
     struct stat sb;
     if (stat((const char*)path, &sb) == 0 && S_ISDIR(sb.st_mode))
@@ -61,7 +61,7 @@ bool platform::FS_DirectoryExists(const u8* const path)
 }
 
 //*****************************************************
-bool platform::FS_fileExists(const u8* const filename)
+bool platform::FS_fileExists(const u8 *filename)
 {
     FILE *f = fopen((const char*)filename, "r");
     if (NULL == f)
@@ -71,13 +71,13 @@ bool platform::FS_fileExists(const u8* const filename)
 }
 
 //*****************************************************
-bool platform::FS_fileDelete(const u8* const filename)
+bool platform::FS_fileDelete(const u8 *filename)
 {
     return (remove((const char*)filename) == 0);
 }
 
 //*****************************************************
-bool platform::FS_fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, const u8 *utf8_newFilename)
+bool platform::FS_fileRename(const u8 *utf8_path, const u8 *utf8_oldFilename, const u8 *utf8_newFilename)
 {
     char temp1[512];
     sprintf_s (temp1, sizeof(temp1), "%s/%s", utf8_path, utf8_oldFilename);
@@ -89,7 +89,7 @@ bool platform::FS_fileRename(const u8 *utf8_path, const u8* utf8_oldFilename, co
 }
 
 //*****************************************************
-bool platform::FS_findFirst (OSFileFind *ff, const u8* const utf8_path, const u8* const utf8_jolly)
+bool platform::FS_findFirst (OSFileFind *ff, const u8 *utf8_path, const u8 *utf8_jolly)
 {
     assert(ff->dirp == NULL);
 
@@ -142,7 +142,7 @@ bool platform::FS_findIsDirectory(const OSFileFind &ff)
 }
 
 //*****************************************************
-const u8* platform::FS_findGetFileName(const OSFileFind &ff)
+const u8 *platform::FS_findGetFileName(const OSFileFind &ff)
 {
     assert(ff.dirp != NULL);
     return (const u8*)ff.dp->d_name;
@@ -203,31 +203,39 @@ bool platform::FS_getDestkopPath(u8* out_path UNUSED_PARAM, u32 sizeof_out_path 
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForReadBinary (const u8* const utf8_fullFileNameAndPath)
+void platform::FS_fileClose (FILE *f)
+{
+    if (NULL == f)
+        fclose(f);
+    f = NULL;
+}
+
+//**************************************************************************
+FILE* platform::FS_fileOpenForReadBinary (const u8 *utf8_fullFileNameAndPath)
 {
     return fopen((const char*)utf8_fullFileNameAndPath, "rb");
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForWriteBinary (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForWriteBinary (const u8 *utf8_fullFileNameAndPath)
 {
     return fopen((const char*)utf8_fullFileNameAndPath, "wb");
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForReadText (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForReadText (const u8 *utf8_fullFileNameAndPath)
 {
     return fopen((const char*)utf8_fullFileNameAndPath, "rt");
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForWriteText (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForWriteText (const u8 *utf8_fullFileNameAndPath)
 {
     return fopen((const char*)utf8_fullFileNameAndPath, "wt");
 }
 
 //**************************************************************************
-FILE* platform::FS_fileOpenForAppendText (const u8* const utf8_fullFileNameAndPath)
+FILE* platform::FS_fileOpenForAppendText (const u8 *utf8_fullFileNameAndPath)
 {
     return fopen((const char*)utf8_fullFileNameAndPath, "at");
 }

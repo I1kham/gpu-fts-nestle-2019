@@ -151,7 +151,7 @@ namespace raspi
 
 	private:
 		void					priv_close ();
-		u32						priv_esapi_buildMsg (u8 c1, u8 c2, const u8* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
+		u32						priv_esapi_buildMsg (u8 c1, u8 c2, const u8 *optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
 		bool					priv_esapi_isValidChecksum (u8 ck, const u8 *buffer, u32 numBytesToUse);
 
 		void					priv_2280_accept();
@@ -171,7 +171,7 @@ namespace raspi
 		void					priv_boot_rs232_handleCommunication (sBuffer &b);
 		u32						priv_boot_buildMsgBuffer (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
 		void					priv_boot_buildMsgBufferAndSend (u8 *buffer, u32 sizeOfBufer, u8 command, const u8 *data, u32 lenOfData);
-        void                    priv_boot_finalizeGUITSInstall (const u8* const pathToGUIFolder);
+        void                    priv_boot_finalizeGUITSInstall (const u8 *const pathToGUIFolder);
 
         void                    priv_openSocket2280();
         void                    priv_openSocket2281();

@@ -125,8 +125,8 @@ void* platform::alignedAlloc(size_t alignment, size_t size)
 
 //**********************************************
 void platform::alignedFree(void *p)							{ _aligned_free(p);  }
-const u8* platform::getAppPathNoSlash()						{ return win32PlatformData.applicationPathNoSlash; }
-const u8* platform::getPhysicalPathToWritableFolder()		{ return win32PlatformData.writableFolderPathNoSlash; }
+const u8 *platform::getAppPathNoSlash()						{ return win32PlatformData.applicationPathNoSlash; }
+const u8 *platform::getPhysicalPathToWritableFolder()		{ return win32PlatformData.writableFolderPathNoSlash; }
 void platform::sleepMSec(size_t msec)						{ ::Sleep(msec); }
 
 //**********************************************

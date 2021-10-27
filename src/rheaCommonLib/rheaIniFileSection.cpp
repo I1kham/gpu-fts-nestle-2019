@@ -28,7 +28,7 @@ IniFileSection::~IniFileSection()
 }
 
 //********************************************
-IniFileSection* IniFileSection::priv_simpleSubsectionExists (const u8* const name) const
+IniFileSection* IniFileSection::priv_simpleSubsectionExists (const u8 *name) const
 {
 	u32 n = subSection.getNElem();
 	for (u32 i=0; i<n; i++)
@@ -40,7 +40,7 @@ IniFileSection* IniFileSection::priv_simpleSubsectionExists (const u8* const nam
 }
 
 //********************************************
-IniFileSection* IniFileSection::addSubsection (const u8* const name)
+IniFileSection* IniFileSection::addSubsection (const u8 *name)
 {
 	IniFileSection *ret = priv_simpleSubsectionExists (name);
 	if (NULL == ret)
@@ -58,7 +58,7 @@ IniFileSection* IniFileSection::addSubsection (const u8* const name)
 }
 
 //********************************************
-u32 IniFileSection::identifierExists (const u8* const name) const
+u32 IniFileSection::identifierExists (const u8 *name) const
 {
 	u32 n = identifier.getNElem();
 	for (u32 i=0; i<n; i++)
@@ -70,7 +70,7 @@ u32 IniFileSection::identifierExists (const u8* const name) const
 }
 
 //********************************************
-void IniFileSection::set (const u8* const identifierName, const u8* const valueIN, bool bCreateIfNotFound)
+void IniFileSection::set (const u8 *identifierName, const u8 *valueIN, bool bCreateIfNotFound)
 {
 	assert (NULL != identifierName && NULL != allocator);
 	
@@ -123,7 +123,7 @@ void IniFileSection::set (const u8* const identifierName, const u8* const valueI
 }
 
 //********************************************
-void IniFileSection::priv_set (const u8* const identifierName, const u8* const valueIN, u32 valuelen)
+void IniFileSection::priv_set (const u8 *identifierName, const u8 *valueIN, u32 valuelen)
 {
 	u32 i = identifierExists (identifierName);
 	if (u32MAX == i)
@@ -140,7 +140,7 @@ void IniFileSection::priv_set (const u8* const identifierName, const u8* const v
 }
 
 //********************************************
-void IniFileSection::addComment (const u8* const c, u32 len)
+void IniFileSection::addComment (const u8 *c, u32 len)
 {
 	if (NULL == c || len == 0)
 		return;
@@ -154,7 +154,7 @@ void IniFileSection::addComment (const u8* const c, u32 len)
 }
 
 //********************************************
-void IniFileSection::addBlob (const u8* const c, u32 len)
+void IniFileSection::addBlob (const u8 *c, u32 len)
 {
 	if (NULL == c || len == 0)
 		return;
@@ -274,7 +274,7 @@ void IniFileSection::save (FILE *f, u32 tabCount) const
 }
 
 //********************************************
-const u8* IniFileSection::getValueByIndex (u32 index) const
+const u8 *IniFileSection::getValueByIndex (u32 index) const
 {
 	if (index < value.getNElem())
 		return value(index).getBuffer();
@@ -286,7 +286,7 @@ const u8* IniFileSection::getValueByIndex (u32 index) const
 }
 
 //********************************************
-const u8* IniFileSection::getIdentifierByIndex (u32 index) const
+const u8 *IniFileSection::getIdentifierByIndex (u32 index) const
 {
 	if (index < identifier.getNElem())
 		return identifier(index).getBuffer();
@@ -298,7 +298,7 @@ const u8* IniFileSection::getIdentifierByIndex (u32 index) const
 }
 
 //********************************************
-const u8* IniFileSection::priv_get (const u8* const identifier) const
+const u8 *IniFileSection::priv_get (const u8 *identifier) const
 {
 	assert (NULL != identifier);
 	
@@ -312,7 +312,7 @@ const u8* IniFileSection::priv_get (const u8* const identifier) const
 		u32 index = identifierExists (identifier);
 		if (u32MAX == index)
 			return NULL;
-		const u8* const ret = getValueByIndex (index);
+		const u8 *ret = getValueByIndex (index);
 		assert (NULL != ret);
 		return ret;
 	}
@@ -333,9 +333,9 @@ const u8* IniFileSection::priv_get (const u8* const identifier) const
 }
 
 //********************************************
-bool IniFileSection::get (const u8* const identifier, utf8::String &out) const
+bool IniFileSection::get (const u8 *identifier, utf8::String &out) const
 {
-	const u8* const pstr = priv_get (identifier);
+	const u8 *pstr = priv_get (identifier);
 	if (NULL == pstr)
 		return false;
 	out = pstr;
@@ -343,9 +343,9 @@ bool IniFileSection::get (const u8* const identifier, utf8::String &out) const
 }
 
 //********************************************
-bool IniFileSection::get (const u8* const identifier, u8 *out, u32 sizeofout) const
+bool IniFileSection::get (const u8 *identifier, u8 *out, u32 sizeofout) const
 {
-	const u8* const pstr = priv_get (identifier);
+	const u8 *pstr = priv_get (identifier);
 	if (NULL == pstr)
 		return false;
 
@@ -362,7 +362,7 @@ bool IniFileSection::get (const u8* const identifier, u8 *out, u32 sizeofout) co
 }
 
 //********************************************
-void IniFileSection::getOrDefault (const u8* const identifier, const u8* const defaultValue, utf8::String &out) const
+void IniFileSection::getOrDefault (const u8 *identifier, const u8 *defaultValue, utf8::String &out) const
 {
 	if (get(identifier, out))
 		return;
@@ -370,7 +370,7 @@ void IniFileSection::getOrDefault (const u8* const identifier, const u8* const d
 }
 
 //*******************************************
-void IniFileSection::getOrDefault (const u8* const identifier, const u8* const defaultValue, u8 *out, u32 sizeofout) const
+void IniFileSection::getOrDefault (const u8 *identifier, const u8 *defaultValue, u8 *out, u32 sizeofout) const
 {
 	if (get (identifier, out, sizeofout))
 		return;
@@ -387,7 +387,7 @@ void IniFileSection::getOrDefault (const u8* const identifier, const u8* const d
 }
 
 //********************************************
-bool IniFileSection::checkString (const u8* const identifier, const u8* const valueToCmp, bool bCaseSensitive) const
+bool IniFileSection::checkString (const u8 *identifier, const u8 *valueToCmp, bool bCaseSensitive) const
 {
 	u8 out[256];
 	if (!get (identifier, out, sizeof(out)))
@@ -396,37 +396,37 @@ bool IniFileSection::checkString (const u8* const identifier, const u8* const va
 }
 
 //********************************************
-f32 IniFileSection::getOrDefaultAsF32 (const u8* const identifier, f32 defaultValue) const
+f32 IniFileSection::getOrDefaultAsF32 (const u8 *identifier, f32 defaultValue) const
 {
-	const u8* const s = priv_get(identifier);
+	const u8 *s = priv_get(identifier);
 	if (!s)
 		return defaultValue;
 	return string::utf8::toF32(s);
 }
 
 //********************************************
-u32 IniFileSection::getOrDefaultAsU32 (const u8* const identifier, u32 defaultValue) const
+u32 IniFileSection::getOrDefaultAsU32 (const u8 *identifier, u32 defaultValue) const
 {
-	const u8* const s = priv_get(identifier);
+	const u8 *s = priv_get(identifier);
 	if (!s)
 		return defaultValue;
 	return (u32)string::utf8::toI32(s);
 }
 
 //********************************************
-i32 IniFileSection::getOrDefaultAsI32 (const u8* const identifier, i32 defaultValue) const
+i32 IniFileSection::getOrDefaultAsI32 (const u8 *identifier, i32 defaultValue) const
 {
-	const u8* const s = priv_get(identifier);
+	const u8 *s = priv_get(identifier);
 	if (!s)
 		return defaultValue;
 	return string::utf8::toI32(s);
 }
 
 //********************************************
-i32 IniFileSection::getOrDefaultHexToI32 (const u8* const identifier, const u8* const defaultValue) const
+i32 IniFileSection::getOrDefaultHexToI32 (const u8 *identifier, const u8 *defaultValue) const
 {
 	u32 out;
-	const u8* const s = priv_get(identifier);
+	const u8 *s = priv_get(identifier);
 	if (!s)
 		string::ansi::hexToInt ((const char*)defaultValue, &out, (u32)string::utf8::lengthInBytes(defaultValue));
 	else		
@@ -435,7 +435,7 @@ i32 IniFileSection::getOrDefaultHexToI32 (const u8* const identifier, const u8* 
 }
 
 //********************************************
-IniFileSection* IniFileSection::getSubsection (const u8* const name) const
+IniFileSection* IniFileSection::getSubsection (const u8 *name) const
 {
 	if (NULL==name || (NULL!=name && name[0]==0x00))
 		return NULL;

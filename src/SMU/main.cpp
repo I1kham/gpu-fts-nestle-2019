@@ -10,9 +10,12 @@
 #ifdef PLATFORM_UBUNTU_DESKTOP
     #define CPU_COMPORT     "/dev/ttyUSB0"
     #define ESAPI_COMPORT	"/dev/ttyUSB1"
-#elif PLATFORM_YOCTO_EMBEDDED
+#elif defined(PLATFORM_YOCTO_EMBEDDED)
     #define CPU_COMPORT     "/dev/ttymxc3"
     #define ESAPI_COMPORT   "/dev/ttymxc2"
+#elif defined(PLATFORM_ROCKCHIP)
+    #define CPU_COMPORT         "/dev/ttyS0"
+    #define ESAPI_COMPORT       "/dev/ttyFIQ0"
 #else
 	#define CPU_COMPORT		"COM5"
 	#define ESAPI_COMPORT	"COM7"
@@ -41,10 +44,10 @@ bool startCPUBridge()
     bool b = chToCPU->open("/dev/ttymxc3", logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 	
 	//apro un canale con la CPU fisica
-	cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM8", logger);
+	//cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM8", logger);
 #endif
 
     if (!b)

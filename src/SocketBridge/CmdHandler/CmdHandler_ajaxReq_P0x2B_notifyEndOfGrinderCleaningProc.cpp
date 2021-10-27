@@ -11,7 +11,7 @@ struct sInput
 };
 
 //***********************************************************
-bool CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc_jsonTrapFunction(const u8* const fieldName, const u8* const fieldValue, void *userValue)
+bool CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc_jsonTrapFunction(const u8 *const fieldName, const u8 *const fieldValue, void *userValue)
 {
 	sInput *input = (sInput*)userValue;
 

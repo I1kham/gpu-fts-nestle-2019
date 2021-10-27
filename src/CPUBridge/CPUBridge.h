@@ -199,7 +199,7 @@ namespace cpubridge
 	void		translateNotify_CPU_SEL_PRICES_CHANGED(const rhea::thread::sMsg &msg, u8 *out_numPrices, u8 *out_numDecimals, u16 *out_prices);
 					//out_prices deve essere di almeno NUM_MAX_SELECTIONS elementi
 
-    void		notify_CPU_SINGLE_SEL_PRICE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u8* utf8_alreadyFormattedPriceString);
+    void		notify_CPU_SINGLE_SEL_PRICE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u8 *utf8_alreadyFormattedPriceString);
     void        translateNotify_CPU_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum, u8* out_utf8_alreadyFormattedPriceString, u32 sizeOfUtf8FormattedPriceString);
 
 	void		notify_CPU_RUNNING_SEL_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eRunningSelStatus s);
@@ -343,7 +343,7 @@ namespace cpubridge
 	void		notify_MILKER_TYPE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eCPUMilkerType milkerType);
 	void		translateNotify_MILKER_TYPE(const rhea::thread::sMsg &msg, eCPUMilkerType *out_milkerType);
 
-	void		notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const u8 bufLen, const u8* buffer);
+	void		notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const u8 bufLen, const u8 *buffer);
 	void		translateNotify_CPU_GET_JUG_REPETITIONS(const rhea::thread::sMsg& msg, u8 *out_len, u8 *out_buf, u32 sizeof_out_buffer);
 
 	void		notify_CPU_GET_CUPSENSOR_LIVE_VALUE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u16 value);
@@ -435,7 +435,7 @@ namespace cpubridge
 						Il da3 viene letto direttamente dalla CPU e salvato localmente nella cartella temp.
 						Vedi CPUBRidgeServer::priv_downloadVMCDataFile() per ulteriori info */
 
-	void        ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath);
+	void        ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8 *srcFullFileNameAndPath);
 					//alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_VMCDATAFILE_PROGRESS
 	void		translate_WRITE_VMCDATAFILE(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut);
 
@@ -443,7 +443,7 @@ namespace cpubridge
 	void        ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_VMCDATAFILE_TIMESTAMP
 
-    void        ask_WRITE_CPUFW (const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath);
+    void        ask_WRITE_CPUFW (const sSubscriber &from, u16 handlerID, const u8 *srcFullFileNameAndPath);
                      //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_WRITE_CPUFW_PROGRESS
     void		translate_WRITE_CPUFW(const rhea::thread::sMsg &msg, u8 *out_srcFullFileNameAndPath, u32 sizeOfOut);
 

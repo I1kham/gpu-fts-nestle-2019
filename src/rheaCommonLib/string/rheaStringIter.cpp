@@ -127,7 +127,7 @@ bool string::utf8::Iter::backOneChar()
 }
 
 //**************************************************
-const u8* string::utf8::Iter::getPointerToCurrentPosition() const
+const u8 *string::utf8::Iter::getPointerToCurrentPosition() const
 {
 	if (curChar.isEOF())
 		return NULL;

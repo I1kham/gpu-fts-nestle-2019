@@ -25,10 +25,10 @@ namespace esapi
 		static const u32		SIZE_OF_SOKBUFFER = 1024;
 
 	private:
-		enum class eStato: u8
+        enum class eStato : u8
 		{
-			boot = 0,
-			running = 1
+            boot = 0,
+            running = 1
 		};
 
 		struct sConnectedSocket

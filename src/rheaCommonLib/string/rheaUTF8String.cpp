@@ -15,8 +15,8 @@ void String::priv_constructor()
 
 //*******************************************
 String::String (const String &b)				{ priv_constructor(); setAllocator(rhea::getScrapAllocator()); append(b); }
-String::String(const u8* const s)				{ priv_constructor(); setAllocator(rhea::getScrapAllocator()); append(s); }
-String::String(const char* const s)				{ priv_constructor(); setAllocator(rhea::getScrapAllocator()); append(s); }
+String::String(const u8 *s)				{ priv_constructor(); setAllocator(rhea::getScrapAllocator()); append(s); }
+String::String(const char* s)				{ priv_constructor(); setAllocator(rhea::getScrapAllocator()); append(s); }
 
 
 //*******************************************
@@ -117,7 +117,7 @@ bool String::isEqualTo (const String &b, bool bCaseSensitive) const
 }
 
 //*******************************************
-bool String::isEqualTo (const u8* const b, bool bCaseSensitive) const
+bool String::isEqualTo (const u8 *b, bool bCaseSensitive) const
 {
 	if (curSize == 0)
 	{
@@ -146,7 +146,7 @@ bool String::isEqualToWithLen (const String &b, u32 lenInBytes, bool bCaseSensit
 }
 
 //*******************************************
-bool String::isEqualToWithLen (const u8* const b, u32 lenInBytes, bool bCaseSensitive) const
+bool String::isEqualToWithLen (const u8 *b, u32 lenInBytes, bool bCaseSensitive) const
 {
 	if (curSize < lenInBytes)
 		return false;

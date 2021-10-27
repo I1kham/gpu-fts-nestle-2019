@@ -8,7 +8,7 @@ namespace rhea
 	{
 		bool		strANSItoUTF8  (const char* in, u8* out,  u32 sizeOfOut);
 		bool		strANSItoUTF16 (const char* in, u16* out, u32 sizeOfOutInBytes);
-		bool		strUTF8toUTF16 (const u8* in, u16* out, u32 sizeOfOutInBytes);
+		bool		strUTF8toUTF16 (const u8 *in, u16* out, u32 sizeOfOutInBytes);
 		bool		strUTF16toUTF8 (const u16* in, u8* out, u32 sizeOfOutInBytes);
 
 		namespace ansi
@@ -50,7 +50,7 @@ namespace rhea
 									Se [bInclude0x00] == true, mette anche un singolo byte 0x00 alla fine di [out_buffer]
 								*/
 			
-			void			concatFromASCII(u16 *dst, u32 sizeofDstInBytes, const char* const src);
+			void			concatFromASCII(u16 *dst, u32 sizeofDstInBytes, const char* src);
 								/* appende la stringa ASCII [src] alla string utf16 [dst] */
 
 			void			prepend(u16 *dst, u32 sizeOfDstInBytes, const u16* const strToPrepend);
@@ -91,33 +91,37 @@ namespace rhea
 		{
 			extern			UTF8Char charArray_b_r_n_t[4];	// è un array di comodo che contiene i Char \b \r \n \t
 
-			u32				lengthInBytes (const u8* const utf8_str);
+			u32				lengthInBytes (const u8 *utf8_str);
 							//equivalente alla strlen
 
 			bool			toUTF16  (const UTF8Char &in, UTF16Char *out);
 			bool			toUTF32  (const UTF8Char &in, UTF32Char *out);
-			u8				extractAChar (const u8* const utf8_str, u32 lenInBytes, UTF8Char *out);
+			u8				extractAChar (const u8 *utf8_str, u32 lenInBytes, UTF8Char *out);
 							/*	ritorna il num di bytes utilizzati per il char.
 								ritorna 0 in caso di fine string o sequenza invalida
 							*/
 
 			u8*				allocStr	(Allocator *allocator, const char* const src, u32 numBytesDaUtilizzare=u32MAX);
-			u8*				allocStr	(Allocator *allocator, const u8* const src, u32 numBytesDaUtilizzare=u32MAX);
+			u8*				allocStr	(Allocator *allocator, const u8 *const src, u32 numBytesDaUtilizzare=u32MAX);
 			u32				makeStr		(u8 *dst, u32 sizeofDst, const char* const src);	
 								// ritorna la "lengthInBytes" di dst
 
 			void			spf(u8* dest, u32 sizeOfDest, const char* format, ...);
 								//è l'equivalente della sprintf_s, solo che [dest] è di tipo u8 invece che char*
 
-			u32				copyStr		(u8 *dst, u32 sizeofDst, const u8* const src, u32 numBytesDaUtilizzare=u32MAX);
-            u32             copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8* const src);
+			void			spf (u8 *dest, u32 sizeOfDest, const char *format, ...);
+								//è l'equivalente della sprintf_s, solo che [dest] è di tipo u8 invece che char*
+
+
+			u32				copyStr		(u8 *dst, u32 sizeofDst, const u8 *src, u32 numBytesDaUtilizzare=u32MAX);
+            u32             copyStrAsMuchAsYouCan (u8 *dst, u32 sizeOfDest, const u8 *src);
                                 // Copia il [dst] il massimo num di bytes possibili di [src] e mette sempre un 0x00 alla fine di dst
                                 // Se [sizeOfDest] è troppo piccolo, non va in buffer overflow ma copia tutto quello che può da [src]
                                 // e aggiunge uno 0x00 alla fine di dst
                                 // Ritorna length(dst)
 
-			u32				concatStr	(u8 *dst, u32 sizeofDst, const char* const src);
-			inline u32		concatStr	(u8 *dst, u32 sizeofDst, const u8* src)							{ return utf8::concatStr(dst, sizeofDst, (const char*)src);  }
+			u32				concatStr	(u8 *dst, u32 sizeofDst, const char* src);
+			inline u32		concatStr	(u8 *dst, u32 sizeofDst, const u8 *src)							{ return utf8::concatStr(dst, sizeofDst, (const char*)src);  }
 							// ritornano la "lengthInBytes" di dst
 							
 					void	appendUTF8Char (u8 *dst, size_t sizeOfDest, const UTF8Char &ch);
@@ -128,13 +132,13 @@ namespace rhea
 			inline	void	appendI16 (u8 *dst, size_t sizeOfDest, i16 num)							{ appendI32(dst, sizeOfDest, (i32)num); }
 			inline	void	appendI8  (u8 *dst, size_t sizeOfDest, i8 num)							{ appendI32(dst, sizeOfDest, (i32)num); }
 
-			bool			areEqual (const u8* const a, const u8* const b, bool bCaseSensitive);
-			bool			areEqualWithLen (const u8* const a, const u8* const b, bool bCaseSensitive, u32 numBytesToCompare);
+			bool			areEqual (const u8 *a, const u8 *b, bool bCaseSensitive);
+			bool			areEqualWithLen (const u8 *a, const u8 *b, bool bCaseSensitive, u32 numBytesToCompare);
 
-			inline	i32		toI32 (const u8* const s)														{ return ansi::toI32((const char*)s); }
-			inline	u32		toU32 (const u8* const s)														{ return ansi::toU32((const char*)s); }
-			inline	u64		toU64 (const u8* const s)														{ return ansi::toU64((const char*)s); }
-			inline	f32		toF32 (const u8* const s, u32 lenOfS=u32MAX)									{ return ansi::toF32((const char*)s, lenOfS); }
+			inline	i32		toI32 (const u8 *s)														{ return ansi::toI32((const char*)s); }
+			inline	u32		toU32 (const u8 *s)														{ return ansi::toU32((const char*)s); }
+			inline	u64		toU64 (const u8 *s)														{ return ansi::toU64((const char*)s); }
+			inline	f32		toF32 (const u8 *s, u32 lenOfS=u32MAX)									{ return ansi::toF32((const char*)s, lenOfS); }
 
 			u32				decodeURIinPlace(u8 *s);
 							/* sostituisce le sequenze %xx con la relativa rappresentazione in byte
@@ -173,7 +177,7 @@ namespace rhea
 
 				Iter&				operator= (const Iter &b)										{ priv_copyFrom(b); return *this; }
 
-				bool				cmp (const u8* const b, bool bCaseSensitive) const							
+				bool				cmp (const u8 *b, bool bCaseSensitive) const							
 									{ 
 										if (curChar.isEOF()) return false;
 										return utf8::areEqualWithLen (getPointerToCurrentPosition(), b, bCaseSensitive, getBytesLeft());

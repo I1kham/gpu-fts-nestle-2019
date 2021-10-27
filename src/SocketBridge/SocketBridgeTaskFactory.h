@@ -30,7 +30,7 @@ namespace socketbridge
 						}
 
 		Task*			spawn (rhea::Allocator *allocator, const char *taskName) const;
-		TaskStatus*		spawnAndRunTask (rhea::Allocator *allocator, const char *taskName, const u8* const params) const;
+		TaskStatus*		spawnAndRunTask (rhea::Allocator *allocator, const char *taskName, const u8 *params) const;
 
 	private:
 		struct sRecord

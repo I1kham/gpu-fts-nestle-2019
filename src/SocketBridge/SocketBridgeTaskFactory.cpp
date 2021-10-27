@@ -36,7 +36,7 @@ Task* TaskFactory::spawn(rhea::Allocator *allocator, const char *taskName) const
 }
 
 //*********************************************
-TaskStatus*	TaskFactory::spawnAndRunTask (rhea::Allocator *allocator, const char *taskName, const u8* const params) const
+TaskStatus*	TaskFactory::spawnAndRunTask (rhea::Allocator *allocator, const char *taskName, const u8 *params) const
 {
 	Task *task = spawn (allocator, taskName);
 	if (NULL == task)

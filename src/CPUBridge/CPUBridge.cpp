@@ -19,9 +19,9 @@ i16     cpuCommThreadFn (void *userParam);
 //****************************************************************************
 bool cpubridge_helper_folder_create (const char *folder, rhea::ISimpleLogger *logger)
 {
-    char s[512];
-    sprintf_s(s, sizeof(s), "%s/%s", rhea::getPhysicalPathToAppFolder(), folder);
-    if (!rhea::fs::folderCreate((const u8*)s))
+    u8 s[512];
+    rhea::string::utf8::spf (s, sizeof(s), "%s/%s", rhea::getPhysicalPathToAppFolder(), folder);
+    if (!rhea::fs::folderCreate(s))
     {
         logger->log ("ERR: can't create folder [%s]\n", s);
         return false;
@@ -47,9 +47,9 @@ bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, r
     cpubridge_helper_folder_create("last_installed/cpu", logger);
     cpubridge_helper_folder_create("temp", logger);
 
-    char s[512];
-    sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());
-	rhea::fs::deleteAllFileInFolderRecursively((const u8*)s, false);
+    u8 s[512];
+    rhea::string::utf8::spf(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());
+    rhea::fs::deleteAllFileInFolderRecursively(s, false);
 
 	
 	
@@ -83,9 +83,9 @@ void cpubridge::loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out)
 {
     out->setInvalid();
 
-    char s[512];
-    sprintf_s(s, sizeof(s), "%s/current/da3/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
-    FILE *f = rhea::fs::fileOpenForReadBinary((const u8*)s);
+    u8 s[512];
+    rhea::string::utf8::spf(s, sizeof(s), "%s/current/da3/vmcDataFile.timestamp", rhea::getPhysicalPathToAppFolder());
+    FILE *f = rhea::fs::fileOpenForReadBinary(s);
     if (NULL == f)
         return;
     out->readFromFile(f);
@@ -589,7 +589,7 @@ void cpubridge::translate_SUBSCRIPTION_ANSWER (const rhea::thread::sMsg &msg, sS
 {
 	assert(msg.what == CPUBRIDGE_SERVICECH_SUBSCRIPTION_ANSWER);
 	memcpy(out, msg.buffer, sizeof(sSubscriber));
-	*out_cpuBridgeVersion = (u8)msg.paramU32;
+    *out_cpuBridgeVersion = static_cast<u8>(msg.paramU32);
 }
 
 //***************************************************
@@ -756,7 +756,7 @@ void cpubridge::translateNotifyCPU_GET_PRICEHOLDING_PRICELIST (const rhea::threa
 }
 
 //***************************************************
-void cpubridge::notify_CPU_SINGLE_SEL_PRICE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u8* utf8_alreadyFormattedPriceString)
+void cpubridge::notify_CPU_SINGLE_SEL_PRICE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, const u8 *utf8_alreadyFormattedPriceString)
 {
     logger->log("notify_CPU_SINGLE_SEL_PRICE\n");
 
@@ -1804,7 +1804,7 @@ void cpubridge::ask_CPU_QUERY_SINGLE_SEL_PRICE (const sSubscriber &from, u16 han
 void cpubridge::translate_CPU_QUERY_SINGLE_SEL_PRICE(const rhea::thread::sMsg &msg, u8 *out_selNum)
 {
     assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CPU_SINGLE_SEL_PRICE);
-    const u8* p = (const u8*)msg.buffer;
+    const u8 *p = (const u8*)msg.buffer;
     *out_selNum = p[0];
 }
 
@@ -1852,7 +1852,7 @@ void cpubridge::ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID)
 }
 
 //***************************************************
-void cpubridge::ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath)
+void cpubridge::ask_WRITE_VMCDATAFILE(const sSubscriber &from, u16 handlerID, const u8 *srcFullFileNameAndPath)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_VMCDATAFILE, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath)+1);
 }
@@ -1903,7 +1903,7 @@ void cpubridge::ask_CPU_VMCDATAFILE_TIMESTAMP(const sSubscriber &from, u16 handl
 
 
 //***************************************************
-void cpubridge::ask_WRITE_CPUFW(const sSubscriber &from, u16 handlerID, const u8* const srcFullFileNameAndPath)
+void cpubridge::ask_WRITE_CPUFW(const sSubscriber &from, u16 handlerID, const u8 *srcFullFileNameAndPath)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WRITE_CPUFW, handlerID, srcFullFileNameAndPath, rhea::string::utf8::lengthInBytes(srcFullFileNameAndPath) + 1);
 }
@@ -2498,7 +2498,7 @@ void cpubridge::ask_CPU_GET_JUG_REPETITIONS(const sSubscriber& from, u16 handler
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_REPETITONS, handlerId);
 }
 
-void cpubridge::notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const u8 bufLen, const u8* buffer)
+void cpubridge::notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const u8 bufLen, const u8 *buffer)
 {
 	logger->log("notify_CPU_GET_JUG_REPETITIONS\n");
 
@@ -2517,7 +2517,7 @@ void cpubridge::notify_CPU_GET_JUG_REPETITIONS(const sSubscriber& to, u16 handle
 void cpubridge::translateNotify_CPU_GET_JUG_REPETITIONS(const rhea::thread::sMsg& msg, u8* out_len, u8* out_buf, u32 sizeof_out_buf)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_GET_JUG_REPETITIONS);
-	const u8* p = (const u8*)msg.buffer;
+	const u8 *p = (const u8*)msg.buffer;
 	*out_len = p[0];
 	if (*out_len > sizeof_out_buf)
 	{
@@ -2636,7 +2636,7 @@ void cpubridge::notify_CPU_STOP_JUG(const sSubscriber& to, u16 handlerID, rhea::
 void cpubridge::translateNotify_CPU_STOP_JUG(const rhea::thread::sMsg& msg, bool *out_bResult)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_STOP_JUG);
-	const u8* p = (const u8*)msg.buffer;
+	const u8 *p = (const u8*)msg.buffer;
 	if (p[0] == 0x01)
 		*out_bResult = true;
 	else
@@ -2657,7 +2657,7 @@ void cpubridge::notify_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& to, u16
 void cpubridge::translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION);
-	const u8* p = (const u8*)msg.buffer;
+	const u8 *p = (const u8*)msg.buffer;
 
 	*out_nOf = p[0];
 	*out_m = p[1];

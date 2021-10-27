@@ -24,7 +24,7 @@ namespace socketbridge
 		void				purge(u64 timeNowMSec);
 							//elimina i db aperti che non sono stati utilizzati negli ultimi 5 minuti
 
-		u16					getOrCreateDBHandle (u64 timeNowMSec, const u8* const utf8_fullFilePathAndName);
+		u16					getOrCreateDBHandle (u64 timeNowMSec, const u8 *utf8_fullFilePathAndName);
 							//ritorna 0 se non è possibile aprire il DB
 
 		bool				q (u16 dbHandle, u64 timeNowMSec, const u8 * const utf8_sql, rhea::SQLRst *out_result);

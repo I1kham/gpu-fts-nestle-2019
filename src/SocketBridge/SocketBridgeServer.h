@@ -40,21 +40,21 @@ namespace socketbridge
 
 
 								//============================== DB ===============================================
-		u16						DB_getOrCreateHandle (const u8* const utf8_fullFilePathAndName);
+		u16						DB_getOrCreateHandle (const u8 *utf8_fullFilePathAndName);
 								//ritorna 0 se non è possibile aprire il DB
 
-		const rhea::SQLRst*		DB_q (u16 dbHandle, const u8* const utf8_sql);
+		const rhea::SQLRst*		DB_q (u16 dbHandle, const u8 *utf8_sql);
 								//NULL in caso di errore
 
-		bool					DB_exec (u16 dbHandle, const u8* const utf8_sql);
-		void					DB_closeByPath (const u8* const utf8_fullFilePathAndName);
+		bool					DB_exec (u16 dbHandle, const u8 *utf8_sql);
+		void					DB_closeByPath (const u8 *utf8_fullFilePathAndName);
 		void					DB_closeByHandle(u16 dbHandle);
 
 
 								//============================== TASK ===============================================
 								template<class TTask>
 		void					taskAdd(const char *taskName) { taskFactory->add<TTask>(taskName);  }
-		bool					taskSpawnAndRun (const char *taskName, const u8* const params, u32 *out_taskID);
+		bool					taskSpawnAndRun (const char *taskName, const u8 *params, u32 *out_taskID);
 		bool					taskGetStatusAndMesssage (u32 taskID, TaskStatus::eStatus *out_status, char *out_msg, u32 sizeofmsg);
 
 

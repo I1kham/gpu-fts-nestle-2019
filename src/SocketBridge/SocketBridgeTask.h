@@ -91,7 +91,7 @@ namespace socketbridge
 			}
 	 */
 					template<class TTask>
-	TaskStatus*		runTask (rhea::Allocator *localAllocator, const u8* const params)
+	TaskStatus*		runTask (rhea::Allocator *localAllocator, const u8 *params)
 	{
 		TaskStatus*	status = RHEANEW(localAllocator, TaskStatus)();
 		status->_localAllocator = localAllocator;
@@ -126,7 +126,7 @@ namespace socketbridge
 	public:
 							Task() { }
 		virtual				~Task() { }
-		virtual void		run (TaskStatus *status, const u8* const params) = 0;
+		virtual void		run (TaskStatus *status, const u8 *params) = 0;
 	};
 
 

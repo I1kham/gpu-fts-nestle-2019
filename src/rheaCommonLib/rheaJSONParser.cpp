@@ -10,7 +10,7 @@ using namespace rhea;
 using namespace rhea::string;
 
 //*****************************************
-void handleExtractedJSONValue (const u8* const start, u32 len, bool bNeedToBeEscaped, u8 *out_value, u32 sizeOfOut)
+void handleExtractedJSONValue (const u8 *start, u32 len, bool bNeedToBeEscaped, u8 *out_value, u32 sizeOfOut)
 {
     if (len==0)
     {
@@ -135,7 +135,7 @@ bool extractJSONValue (utf8::Iter &srcIN, u8 *out_value, u32 sizeOfOut)
  * parse
  *
  */
-bool json::parse (const u8* const s, RheaJSonTrapFunction onValueFound, void *userValue)
+bool json::parse (const u8 *s, RheaJSonTrapFunction onValueFound, void *userValue)
 {
     const u8 MAX_SIZE_OF_FIELD_NAME = 64;
     u8 fieldName[MAX_SIZE_OF_FIELD_NAME];

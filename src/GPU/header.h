@@ -3,17 +3,25 @@
 
 
 //Versione GPU
+<<<<<<< HEAD
 #define GPU_VERSION     "2.5.1a"
+=======
+#define GPU_VERSION     "2.4.5.r33"
+>>>>>>> r33
 
 
 //nome della porta seriale
-#ifdef PLATFORM_UBUNTU_DESKTOP
-    #define CPU_COMPORT  "/dev/ttyUSB0"
-    #define ESAPI_COMPORT  "/dev/ttyUSB1"
-#else
+#if defined(PLATFORM_UBUNTU_DESKTOP)
+    #define CPU_COMPORT     "/dev/ttyUSB0"
+    #define ESAPI_COMPORT   "/dev/ttyUSB1"
+#elif defined(PLATFORM_YOCTO_EMBEDDED)
     #define CPU_COMPORT     "/dev/ttymxc3"
     #define ESAPI_COMPORT   "/dev/ttymxc2"
     #define USB_MOUNTPOINT  "/run/media/sda1"
+#elif defined(PLATFORM_ROCKCHIP)
+    #define CPU_COMPORT         "/dev/ttyS0"
+    #define ESAPI_COMPORT       "/dev/ttyFIQ0"
+    #define USB_MOUNTPOINT      "/media/SDA1"
 #endif
 
 

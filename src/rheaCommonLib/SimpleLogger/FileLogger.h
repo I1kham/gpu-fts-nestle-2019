@@ -8,13 +8,13 @@ namespace rhea
     /******************************************
      * FileLogger
      *
-     * Semplice log con funzionalit√† di indentazione che butta
+     * Semplice log con funzionalit√  di indentazione che butta
      * tutto su un file
      */
     class FileLogger : public ISimpleLogger
     {
     public:
-                            FileLogger(const u8* const fullFilePathAndName);
+                            FileLogger(const u8 *fullFilePathAndName);
         virtual             ~FileLogger();
 
 		void                incIndent();

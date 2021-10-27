@@ -25,7 +25,7 @@ void CmdHandler_ajaxReqGetLastInstalledGUIFilename::handleRequestFromSocketBridg
 		{
 			if (!rhea::fs::findIsDirectory(h))
 			{
-				const u8* folderName = rhea::fs::findGetFileName(h);
+				const u8 *folderName = rhea::fs::findGetFileName(h);
 				if (folderName[0] != '.')
 				{
 					sprintf_s((char*)fileName, sizeof fileName, "%s", folderName);

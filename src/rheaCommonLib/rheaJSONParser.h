@@ -4,14 +4,14 @@
 
 
 
-typedef bool (*RheaJSonTrapFunction) (const u8* const fieldName, const u8* const fieldValue, void *userValue);
+typedef bool (*RheaJSonTrapFunction) (const u8 *fieldName, const u8 *fieldValue, void *userValue);
 
 namespace rhea
 {
     namespace json
     {
 
-        bool        parse (const u8* const s, RheaJSonTrapFunction onValueFound, void *userValue);
+        bool        parse (const u8 *s, RheaJSonTrapFunction onValueFound, void *userValue);
                         /*  parsa la stringa s che si suppone essere in formato JSON
                          *  Ogni volta che ha disponbibile una coppia field:value, chiama la [onValueFound]
                          *  Se la [onValueFound] ritorna false, il parsing termina, altrimenti prosegue

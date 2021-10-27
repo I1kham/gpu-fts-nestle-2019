@@ -33,7 +33,7 @@ namespace rhea
 	{ 
 							UTF8Char()											{ setEOF(); }
 							UTF8Char(u8 a, u8 b=0, u8 c=0, u8 d=0)				{ setFrom4Byte(a,b,c,d); }
-							UTF8Char(const char* const utf8CharSequence)		{ setFromConstChar(utf8CharSequence); }
+							UTF8Char(const char* utf8CharSequence)		{ setFromConstChar(utf8CharSequence); }
 
 		void				setEOF()											{ data[0] = data[1] = data[2] = data[3] = 0; }
 		bool				isEOF() const										{ return (data[0]==0x00); }
@@ -53,12 +53,12 @@ namespace rhea
 
 		bool				setFrom4Byte (u8 a, u8 b=0, u8 c=0, u8 d=0);
 								//true se la sequenza a b c d è valida
-		bool				setFromConstChar (const char* const utf8CharSequence, u8 *out_numByteConsumed = NULL);
+		bool				setFromConstChar (const char* utf8CharSequence, u8 *out_numByteConsumed = NULL);
 								/*	true se è riuscito ad estrarre un valido utf8 char.
 									Se ritorna true, mette in [out_numByteConsumed] il num di byte di [utf8CharSequence] utilizzati
 								*/
 
-		UTF8Char&			operator= (const char* const utf8CharSequence)		{ setFromConstChar(utf8CharSequence); return *this; }
+		UTF8Char&			operator= (const char* utf8CharSequence)		{ setFromConstChar(utf8CharSequence); return *this; }
 								/* esempio:
 									utf8char1 = u8"夜";	
 

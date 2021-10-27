@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <QDir>
+//#include <QtWebView/QtWebView>
 #include "../CPUBridge/CPUChannelCom.h"
 #include "../CPUBridge/CPUChannelFakeCPU.h"
 #include "../SocketBridge/SocketBridge.h"
@@ -9,7 +10,11 @@
 #include "../rheaExternalSerialAPI/ESAPI.h"
 #include "../rheaCommonLib/SimpleLogger/FileLogger.h"
 
+<<<<<<< HEAD
 MainWindow *myMainWindow = NULL;
+=======
+static MainWindow *myMainWindow = NULL;
+>>>>>>> r33
 
 //****************************************************
 bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)
@@ -98,10 +103,21 @@ bool subscribeToESAPI (cpubridge::sSubscriber *out_subscriber)
 //*****************************************************
 bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logger)
 {
-#ifdef PLATFORM_YOCTO_EMBEDDED
-    //apro un canale di comunicazione con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();
-    bool b = chToCPU->open(CPU_COMPORT, logger);
+#if defined(PLATFORM_YOCTO_EMBEDDED)
+    //apro un canale di comunicazione con la CPU fisica sulla porta seriale COM_PORT (vedi header.h)
+    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+#elif defined(PLATFORM_ROCKCHIP)
+    #ifdef _DEBUG
+        //apro un canale di comunicazione con una finta CPU
+        cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+
+        //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open("dev/ttyUSB0", logger);
+        //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open("/dev/ttyS0", logger);
+    #else
+        //apro un canale con la CPU fisica
+        cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
+        //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    #endif
 #else
     //apro un canale di comunicazione con una finta CPU
     cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
@@ -128,7 +144,16 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
     return true;
 }
 
-
+//*****************************************************
+bool executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult)
+{
+    FILE *fp = popen (shellCommand, "r");
+    if (NULL == fp)
+        return false;
+    fgets (out_result, sizeOfOutResult, fp);
+    fclose (fp);
+    return true;
+}
 
 /****************************************************
  * Filla [glob] con i path dei vari folder utilizzati dalla GPU
@@ -141,38 +166,38 @@ void setupFolderInformation (sGlobal *glob)
     //local folders
     const u8 *baseLocalFolder = rhea::getPhysicalPathToAppFolder();
 
-    sprintf_s ((char*)s, sizeof(s), "%s/temp", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/temp", baseLocalFolder);
     glob->tempFolder = rhea::string::utf8::allocStr(allocator, s);
 
 
-    sprintf_s ((char*)s, sizeof(s), "%s/current", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/current", baseLocalFolder);
     glob->current = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/gui", glob->current);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/gui", glob->current);
     glob->current_GUI = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/lang", glob->current);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/lang", glob->current);
     glob->current_lang = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/da3", glob->current);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/da3", glob->current);
     glob->current_da3 = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/da3", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/da3", baseLocalFolder);
     glob->last_installed_da3 = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/cpu", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/cpu", baseLocalFolder);
     glob->last_installed_cpu = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/manual", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/manual", baseLocalFolder);
     glob->last_installed_manual = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/last_installed/gui", baseLocalFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/last_installed/gui", baseLocalFolder);
     glob->last_installed_gui = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
@@ -181,35 +206,49 @@ void setupFolderInformation (sGlobal *glob)
 
     //USB folders
     u8 baseUSBFolder[256];
-#ifdef PLATFORM_YOCTO_EMBEDDED
-    sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
+#if defined(PLATFORM_YOCTO_EMBEDDED)
+    rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
+#elif defined(PLATFORM_ROCKCHIP)
+    //nel caso della SECO, la cartella /media/SDA1 esiste sempre perchè fa parte del FS.
+    //Per capire se c'è o no la chiavetta, devo invocare la shell usando "mount | grep -c sda1". Questo comando ritorna 0 se non c'è chiavetta montata, 1 se c'è.
+    //Se non c'è, metto un percorso sbagliato in baseUSBFolder per simulare il fatto che la cartella preposta ad ospitare
+    //la chiave USB non esiste
+
+    //const int isUSBMounted = system("mount | grep -c sda1");
+    char isUSBMounted[8];
+    memset (isUSBMounted, 0, sizeof(isUSBMounted));
+    executeShellCommandAndStoreResult ("/bin/mount | /bin/grep -c sda1", isUSBMounted, sizeof(isUSBMounted));
+    if (isUSBMounted[0] == '1')
+        rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
+    else
+        rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), "xxx");
 #else
-    sprintf_s ((char*)baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
+    rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), "%s/simula-chiavetta-usb", baseLocalFolder);
     //sprintf_s (baseUSBFolder, sizeof(baseUSBFolder), "%s/pippo", baseLocalFolder);
 #endif
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rhea", baseUSBFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rhea", baseUSBFolder);
     glob->usbFolder = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaData", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaData", glob->usbFolder);
     glob->usbFolder_VMCSettings = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaFirmwareCPU01", glob->usbFolder);
     glob->usbFolder_CPUFW = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaGUI", glob->usbFolder);
     glob->usbFolder_GUI = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaDataAudit", glob->usbFolder);
     glob->usbFolder_Audit = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/lang", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/lang", glob->usbFolder);
     glob->usbFolder_Lang = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/rheaManual", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/rheaManual", glob->usbFolder);
     glob->usbFolder_Manual = rhea::string::utf8::allocStr(allocator, s);
 
-    sprintf_s ((char*)s, sizeof(s), "%s/AUTOF2", glob->usbFolder);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/AUTOF2", glob->usbFolder);
     glob->usbFolder_AutoF2 = rhea::string::utf8::allocStr(allocator, s);
 
 
@@ -276,7 +315,7 @@ void run(int argc, char *argv[])
 #ifdef _DEBUG
     glob.logger = new rhea::StdoutLogger();
 #else
-#ifdef PLATFORM_YOCTO_EMBEDDED
+#if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
     glob.logger = new rhea::NullLogger();
     //u8 s[256]; sprintf_s ((char*)s, sizeof(s), "%s/output.log", rhea::getPhysicalPathToAppFolder()); glob.logger = new rhea::FileLogger(s);
 #else
@@ -307,6 +346,7 @@ void run(int argc, char *argv[])
     }
 
     //Avvio del main form
+    //QtWebView::initialize();
     QApplication app(argc, argv);
     utils::hideMouse();
 
@@ -322,6 +362,26 @@ void run(int argc, char *argv[])
 //****************************************************
 int main (int argc, char *argv[])
 {
+#if defined(PLATFORM_ROCKCHIP)
+    //sposto la "working directory" nel path di questo exe
+    if (argc > 0)
+    {
+        u8 fullpath[256];
+        if (argv[0][0] == '.')
+        {
+            char *curPath = get_current_dir_name();
+            rhea::string::utf8::spf (fullpath, sizeof(fullpath), "%s%s", curPath, &argv[0][1]);
+            free(curPath);
+        }
+        else
+        {
+            //recupero il path direttamente da argv[0]
+            rhea::fs::extractFilePathWithOutSlash (reinterpret_cast<const u8*>(argv[0]), fullpath, sizeof(fullpath));
+        }
+        chdir(reinterpret_cast<const char*>(fullpath));
+    }
+#endif
+
     rhea::init("rheaGPU", NULL);
 
     run (argc, argv);

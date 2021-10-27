@@ -281,7 +281,7 @@ public:
 						EVADTSParser();
 						~EVADTSParser();
 
-	bool				loadAndParse (const u8* const fullFilePathAndName);
+	bool				loadAndParse (const u8 *fullFilePathAndName);
 	bool				parseFromMemory (const u8 *buffer, u32 firstByte, u32 nBytesToCheck);
 
 	u8*					createBufferWithPackedData(rhea::Allocator *allocator, u32 *out_bufferLen, u8 numDecimali) const;

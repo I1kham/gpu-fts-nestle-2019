@@ -472,7 +472,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 /**************************************************************************
  * priv_onESAPINotification
  *
- * E' arrivato un messaggio da parte di ESAPI sulla msgQ dedicata
+ * E' arrivato un messaggio da parte di rheAPI sulla msgQ dedicata
  */
 void FormBoot::priv_onESAPINotification (rhea::thread::sMsg &msg)
 {
@@ -541,7 +541,7 @@ void FormBoot::on_buttonStart_clicked()
 
     priv_pleaseWaitShow("Starting VMC...");
 
-#ifdef PLATFORM_YOCTO_EMBEDDED
+#if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
     sprintf_s ((char*)s, sizeof(s), "umount -f %s", USB_MOUNTPOINT);
     system((const char*)s);
 #endif
@@ -794,7 +794,7 @@ void FormBoot::priv_uploadManual (const u8 *srcFullFolderPath)
         rhea::fs::deleteAllFileInFolderRecursively (glob->last_installed_manual, false);
 
 
-        sprintf_s ((char*)s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
+        rhea::string::utf8::spf (s, sizeof(s), "%s/%s", glob->last_installed_manual, srcOnlyFolderName);
         rhea::fs::folderCreate (s);
 
         //copio tutto il folder src nel folder in macchina

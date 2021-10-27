@@ -28,7 +28,7 @@ void CmdHandler_ajaxReqGetDA3info::handleRequestFromSocketBridge(socketbridge::S
 		{
 			if (!rhea::fs::findIsDirectory(h))
 			{
-				const u8* fName = rhea::fs::findGetFileName(h);
+				const u8 *fName = rhea::fs::findGetFileName(h);
 				if (fName[0] != '.')
 				{
 					sprintf_s((char*)fileName, sizeof fileName, "%s", fName);

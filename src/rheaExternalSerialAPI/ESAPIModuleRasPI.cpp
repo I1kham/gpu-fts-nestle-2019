@@ -89,7 +89,7 @@ void ModuleRasPI::virt_handleMsgFromSocket (sShared *shared, OSSocket &sok, u32 
         DBGBREAK;
         break;
 
-    case ModuleRasPI::eStato::running:  
+    case ModuleRasPI::eStato::running:
         running_handleMsgFromSocket (shared, sok, userParam);
         break;
 
@@ -269,8 +269,8 @@ void ModuleRasPI::boot_handleMsgFromSubscriber(sShared *shared, sSubscription &s
             const u8 *filename;
             const u8 *dstFolder;
             esapi::translate_RASPI_UNZIP(msg, &filename, &dstFolder);
-            const u8 len1 = rhea::string::utf8::lengthInBytes(filename);
-            const u8 len2 = rhea::string::utf8::lengthInBytes(dstFolder);
+            const u8 len1 = (u8)rhea::string::utf8::lengthInBytes(filename);
+            const u8 len2 = (u8)rhea::string::utf8::lengthInBytes(dstFolder);
 
             //chiedo al rasPI
             //# R [0x05] [lenFilename] [lenFolder] [filename_terminato_con_0x00] [folderDest_con_0x00] [ck]
@@ -584,7 +584,7 @@ void ModuleRasPI::running_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
                 if (b->numBytesInBuffer < 10 + dataLen)
                     return;
 
-                const u8* data = &b->buffer[9];
+                const u8 *data = &b->buffer[9];
                 const u8 ck = b->buffer[9 + dataLen];
                 if (rhea::utils::simpleChecksum8_calc(b->buffer, 9 + dataLen) != ck)
                 {
@@ -598,7 +598,7 @@ void ModuleRasPI::running_handleMsg_R_fromRs232	(sShared *shared, sBuffer *b)
                     sConnectedSocket *cl = priv_2280_findConnectedSocketByUID(uid);
                     if (NULL != cl)
                     {
-                        rhea::socket::write (cl->sok, data, dataLen);
+                        rhea::socket::write (cl->sok, data, (u16)dataLen);
                         shared->logger->log ("esapi::ModuleRasPI::RS232 => rcv [%d] bytes, sending to socket [%d]\n", dataLen, cl->uid);
                     }
                     else
