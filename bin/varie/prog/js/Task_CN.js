@@ -1326,8 +1326,6 @@ function TaskDevices()
 {
 	this.what = 0;
 	this.fase = 0;
-	this.firstTimeMacina1 = 2;
-	this.firstTimeMacina2 = 2;
 	this.cpuStatus = 0;
 	this.selNum = 0;
 	this.enterQueryMacinePos(1);
@@ -1557,26 +1555,8 @@ TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 		rhea.ajax ("getPosMacina", {"m":this.whichMacinaToQuery}).then( function(result)
 		{
 			var obj = JSON.parse(result);
-			if (obj.m == 1) //macina1
-			{
-				rheaSetDivHTMLByName("pageDevices_vg1", obj.v);
-				if (me.firstTimeMacina1>0)
-				{
-					me.firstTimeMacina1--;
-					if (me.firstTimeMacina1==0)					
-						ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg1_target").setValue(obj.v)
-				}
-			}
-			else
-			{
-				rheaSetDivHTMLByName("pageDevices_vg2", obj.v);
-				if (me.firstTimeMacina2 > 0)
-				{
-					me.firstTimeMacina2--;
-					if (me.firstTimeMacina2 == 0)
-						ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg2_target").setValue(obj.v)
-				}
-			}				
+			var macina_1to4 = obj.m;
+			rheaSetDivHTMLByName("pageDevices_vg" +macina_1to4, obj.v);
 			me.fase = 0;
 		})
 		.catch( function(result)
@@ -2679,7 +2659,6 @@ TaskEspressoCalib.prototype.setMacina = function (macina1o2)
 	this.firstTimeMacina = 2;
 	var w = ui.getWindowByID("pageExpCalib");
 	w.getChildByID("pageExpCalib_vgBtnSet").hide();	
-	console.log ("TaskEspressoCalibsetMacina = " +this.macina1o2);
 }
 
 TaskEspressoCalib.prototype.enterQueryMacinePos = function()
@@ -2731,7 +2710,6 @@ TaskEspressoCalib.prototype.onFreeBtn1Clicked	 = function(ev)
 			pleaseWait_btn1_hide();
 			
 			//Attivo la macina
-console.log ("TaskEspressoCalibsetMacina => runMotor " +this.macina);
 			rhea.ajax ("runMotor", { "m":10+this.macina, "d":50, "n":1, "p":0}).then( function(result)
 			{
 				setTimeout ( function() {pleaseWait_btn1_show();}, 5000);
@@ -2810,7 +2788,6 @@ TaskEspressoCalib.prototype.priv_handleRichiestaPosizioneMacina = function()
 		this.fase = 1;
 		if (da3.isGruppoVariflex())
 		{
-console.log ("TaskEspressoCalibsetMacina => getPosMacina " +this.macina1o2);			
 			rhea.ajax ("getPosMacina", {"m":this.macina1o2}).then( function(result)
 			{
 				var obj = JSON.parse(result);

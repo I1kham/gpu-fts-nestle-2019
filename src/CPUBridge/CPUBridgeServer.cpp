@@ -717,22 +717,22 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO:
 		{
-			u8 macina_1o2 = 0;
+			u8 macina_1to4 = 0;
 			u16 totalePesata_dgram = 0;
-			cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(msg, &macina_1o2, &totalePesata_dgram);
+			cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO_AA (msg, &macina_1to4, &totalePesata_dgram);
 
 			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo(macina_1o2, totalePesata_dgram, bufferW, sizeof(bufferW));
+			const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo_AA (macina_1to4, totalePesata_dgram, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
-				notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, logger);
+			if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, macina_1to4, logger);
 		}
 		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO:
 		{
 			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(bufferW, sizeof(bufferW));
+			const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo (bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{

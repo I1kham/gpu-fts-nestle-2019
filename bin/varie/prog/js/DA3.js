@@ -139,6 +139,10 @@ DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 			return 9693;
 		else if (motor==12) //macina 2
 			return 9705;
+		else if (motor==13) //macina 3
+			return 9707;
+		else if (motor==14) //macina 4
+			return 9709;
 	}	
 	return 0;
 }
@@ -185,6 +189,17 @@ DA3.prototype.setImpulsi = function (motor,v)
 		this.write16(7564, parseInt(v)); //macina 2
 }
 
+DA3.prototype.getVarigrindLastPosDa3Loc = function (vgIndex1to4)
+{
+	switch (parseInt())
+	{
+		default:
+		case 1: return 7596;
+		case 2:	return 7660;
+		//case 3: return 0;
+		//case 4: return 0;
+	}
+}
 
 /********************************************************
  * compare

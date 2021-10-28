@@ -214,16 +214,13 @@ u8 cpubridge::buildMsg_getAllDecounterValues(u8 *out_buffer, u8 sizeOfOutBuffer)
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_calcolaImpulsiGruppo (u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_calcolaImpulsiGruppo_AA (u8 macina_1to4, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[4];
 
-	if (macina_1o2 == 2)
-		optionalData[0] = 12;
-	else
-		optionalData[0] = 11;
+	optionalData[0] = 10 + macina_1to4;
 	rhea::utils::bufferWriteU16_LSB_MSB(&optionalData[1], totalePesata_dGrammi);
-	return buildMsg_Programming(eCPUProgrammingCommand::calcolaImpulsiMacina, optionalData, 3, out_buffer, sizeOfOutBuffer);
+	return buildMsg_Programming (eCPUProgrammingCommand::calcolaImpulsiMacina, optionalData, 3, out_buffer, sizeOfOutBuffer);
 }
 
 //***************************************************
@@ -1086,9 +1083,9 @@ void cpubridge::translateNotify_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg
 }
 
 //***************************************************
-void cpubridge::notify_CALCOLA_IMPULSI_GRUPPO_STARTED(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+void cpubridge::notify_CALCOLA_IMPULSI_GRUPPO_STARTED(const sSubscriber &to, u16 handlerID, u8 macina_1to4, rhea::ISimpleLogger *logger)
 {
-	logger->log("notify_CALCOLA_IMPULSI_GRUPPO_STARTED\n");
+	logger->log("notify_CALCOLA_IMPULSI_GRUPPO_STARTED, m=%d\n", macina_1to4);
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CALCOLA_IMPULSI_GRUPPO_STARTED, handlerID);
 }
 
@@ -1995,22 +1992,26 @@ void cpubridge::translate_CPU_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, 
 }
 
 //***************************************************
-void cpubridge::ask_CPU_CALCOLA_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 totalePesata_dGrammi)
+void cpubridge::ask_CPU_CALCOLA_IMPULSI_GRUPPO_AA (const sSubscriber &from, u16 handlerID, u8 macina_1to4, u16 totalePesata_dGrammi)
 {
-	assert(macina_1o2 == 1 || macina_1o2 == 2);
+	if (macina_1to4 < 1 || macina_1to4>4)
+	{
+		DBGBREAK;
+		macina_1to4 = 1;
+	}
 
 	u8 otherData[4];
-	otherData[0] = macina_1o2;
+	otherData[0] = macina_1to4;
 	rhea::utils::bufferWriteU16(&otherData[1], totalePesata_dGrammi);
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO, handlerID, otherData, 3);
 }
 
 //***************************************************
-void cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_totalePesata_dGrammi)
+void cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO_AA (const rhea::thread::sMsg &msg, u8 *out_macina_1to4, u16 *out_totalePesata_dGrammi)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO);
 	const u8 *p = (const u8*)msg.buffer;
-	*out_macina_1o2 = p[0];
+	*out_macina_1to4 = p[0];
 	*out_totalePesata_dGrammi = rhea::utils::bufferReadU16(&p[1]);
 }
 

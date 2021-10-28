@@ -134,7 +134,7 @@ namespace cpubridge
 	u8			buildMsg_getStatoCalcoloImpulsiGruppo (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_setFattoreCalibMotore (eCPUProg_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_calcolaImpulsiGruppo (u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_calcolaImpulsiGruppo_AA (u8 macina_1to4, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getTime (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getDate(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_setTime(u8 *out_buffer, u8 sizeOfOutBuffer, u8 hh, u8 mm, u8 ss);
@@ -253,7 +253,7 @@ namespace cpubridge
 	void		notify_ATTIVAZIONE_MOTORE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec);
 	void		translateNotify_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec);
 
-	void		notify_CALCOLA_IMPULSI_GRUPPO_STARTED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+	void		notify_CALCOLA_IMPULSI_GRUPPO_STARTED (const sSubscriber &to, u16 handlerID, u8 macina_1to4, rhea::ISimpleLogger *logger);
 
 	void		notify_STATO_CALCOLO_IMPULSI_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 stato, u16 valore);
 	void		translateNotify_STATO_CALCOLO_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_stato, u16 *out_valore);
@@ -478,8 +478,8 @@ namespace cpubridge
 	void		translate_CPU_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_ATTIVAZIONE_MOTORE
 	
-	void		ask_CPU_CALCOLA_IMPULSI_GRUPPO (const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 totalePesata_dGrammi);
-	void		translate_CPU_CALCOLA_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_totalePesata_dGrammi);
+	void		ask_CPU_CALCOLA_IMPULSI_GRUPPO_AA (const sSubscriber &from, u16 handlerID, u8 macina_1to4, u16 totalePesata_dGrammi);
+	void		translate_CPU_CALCOLA_IMPULSI_GRUPPO_AA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4, u16 *out_totalePesata_dGrammi);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CALCOLA_IMPULSI_GRUPPO_STARTED
 
 	void		ask_CPU_GET_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID);

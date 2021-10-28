@@ -1115,7 +1115,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|$LAB_DEV_OTHER' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND|0|$LAB_DEV_OTHER' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<table border='0' width='100%' id="pageDevices_selectorTableMicro" style="display:none">
@@ -1167,130 +1167,211 @@
 					</table>				
 				</div>
 				
-				<!--- vgrind 2-->
-				<div id="pageDevices_vgrind1" style="display:none">
-					<table border='0' class='elenco'>
-						<tr>
-							<td style="width:260px">
-								$LAB_DEV_POSITION<br>
-								<div style="float:left; margin-right:10px">$LAB_current_value:</div>
-								<div id="pageDevices_vg1" style="float:left" class="bigCaption15">000</div>
-								<div class="clear"></div>
-							</td>
-							<td style="width:440px">
-								<div style="display:none">
-									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>$LAB_DEV_desired_value</div>
-									<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="500"></div></div>
+				<!--- varigrind-->
+				<div id="pageDevices_vgrind" style="display:none">
+					<div class='UIOptionSmall' id='pageDevices_vgrind_selector' data-option='1|VARIGRIND 1|2|VARIGRIND 2' data-onclick='pageDevices_onVGrindSelector()'></div>
+				
+					<!--- vgrind 1-->
+					<div id="pageDevices_vgrind1" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									$LAB_DEV_POSITION<br>
+									<div style="float:left; margin-right:10px">$LAB_current_value:</div>
+									<div style="float:left" id="pageDevices_vg1" class="bigCaption15">000</div>
 									<div class="clear"></div>
-								</div>
-							</td>
-							<td align="right">
-								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div>-->
-							</td>
-						</tr>
-						<tr>
-							<td>$LAB_DEV_ENABLE_AUTO_REGULATION</td>
-							<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
-						</tr>
-					</table>
-					<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
-						<tr>
-							<td>
-								<!-- varigrind 1-->
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>$LAB_DEV_NUMBER_OF_SAMPLES</td>
-										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>$LAB_DEV_REFERRING_SELECTION</td>
-										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7588" data-da3bit="8"></div></td>
-										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_RUN_SELECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
-									</tr>
-								</table>
-							</td>
-						</tr>
+								</td>
+							</tr>
+							<tr>
+								<td>$LAB_DEV_ENABLE_AUTO_REGULATION</td>
+								<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
+							</tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>$LAB_DEV_NUMBER_OF_SAMPLES</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>$LAB_DEV_REFERRING_SELECTION</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7588" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_RUN_SELECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>$LAB_DEV_REFERRING_FLUX</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>$LAB_DEV_REFERRING_POSITION</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">$LAB_DEV_LAST_FLUX_INFO_1</div>
+												<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='$LAB_USE_LAST_VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>
+					
+					<!--- vgrind 2-->
+					<div id="pageDevices_vgrind2" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									$LAB_DEV_POSITION<br>
+									<div style="float:left; margin-right:10px">$LAB_current_value:</div>
+									<div style="float:left" id="pageDevices_vg2" class="bigCaption15">000</div>
+									<div class="clear"></div>
+								</td>
+							</tr>
+							<tr><td>$LAB_DEV_ENABLE_AUTO_REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='7654' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>$LAB_DEV_NUMBER_OF_SAMPLES</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7658" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>$LAB_DEV_REFERRING_SELECTION</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7652" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_RUN_SELECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>$LAB_DEV_REFERRING_FLUX</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7656" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>$LAB_DEV_REFERRING_POSITION</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">$LAB_DEV_LAST_FLUX_INFO_1</div>
+												<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='$LAB_USE_LAST_VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>
+					
+					<!--- vgrind 3-->
+					<div id="pageDevices_vgrind3" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									$LAB_DEV_POSITION<br>
+									<div style="float:left; margin-right:10px">$LAB_current_value:</div>
+									<div style="float:left" id="pageDevices_vg3" class="bigCaption15">000</div>
+									<div class="clear"></div>
+								</td>
+							</tr>
+							<tr>
+								<td>$LAB_DEV_ENABLE_AUTO_REGULATION</td>
+								<td colspan="2"><div id='pageDevices_vgrind3_selector' class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(3)'></div></td>
+							</tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind3_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>$LAB_DEV_NUMBER_OF_SAMPLES</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>$LAB_DEV_REFERRING_SELECTION</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind3_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7588" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_RUN_SELECTION' data-onclick="pageDevices_vgrind_runSelection(3)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>$LAB_DEV_REFERRING_FLUX</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind3_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>$LAB_DEV_REFERRING_POSITION</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind3_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind3_lastFlux_caption' class="tip" style="color:#fff">$LAB_DEV_LAST_FLUX_INFO_1</div>
+												<div id='pageDevices_vgrind3_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='$LAB_USE_LAST_VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(3)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>
 
-						<tr>
-							<td>
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>$LAB_DEV_REFERRING_FLUX</td>
-										<td style='width:320px; border-right:solid 1px #999'>
-											<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
-										</td>
-										<td style='width:175px; padding-left:10px'>$LAB_DEV_REFERRING_POSITION</td>
-										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
-										<td align="right">
-											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">$LAB_DEV_LAST_FLUX_INFO_1</div>
-											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='$LAB_USE_LAST_VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</table>
-				</div>
-				
-				<!--- vgrind 2-->
-				<div id="pageDevices_vgrind2" style="display:none">
-					<table border='0' class='elenco'>
-						<tr>
-							<td style="width:260px">
-								$LAB_DEV_POSITION<br>
-								<div style="float:left; margin-right:10px">$LAB_current_value:</div>
-								<div id="pageDevices_vg2" style="float:left" class="bigCaption15">000</div>
-								<div class="clear"></div>
-							</td>
-							<td style="width:440px">
-								<div style="display:none">
-									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>$LAB_DEV_desired_value</div>
-									<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="500"></div></dv>
+					<!--- vgrind 4-->
+					<div id="pageDevices_vgrind4" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									$LAB_DEV_POSITION<br>
+									<div style="float:left; margin-right:10px">$LAB_current_value:</div>
+									<div style="float:left" id="pageDevices_vg4" class="bigCaption15">000</div>
 									<div class="clear"></div>
-								</div>
-							</td>
-							<td align="right">
-								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div>-->
-							</td>
-						</tr>
-						<tr><td>$LAB_DEV_ENABLE_AUTO_REGULATION</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='7654' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
-					</table>
-					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
-						<tr>
-							<td>
-								<!-- varigrind 2-->
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>$LAB_DEV_NUMBER_OF_SAMPLES</td>
-										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7658" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>$LAB_DEV_REFERRING_SELECTION</td>
-										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7652" data-da3bit="8"></div></td>
-										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_RUN_SELECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>$LAB_DEV_REFERRING_FLUX</td>
-										<td style='width:320px; border-right:solid 1px #999'>
-											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7656" data-da3bit="16" data-um="cc/sec"></div>
-										</td>
-										<td style='width:175px; padding-left:10px'>$LAB_DEV_REFERRING_POSITION</td>
-										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
-										<td align="right">
-											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">$LAB_DEV_LAST_FLUX_INFO_1</div>
-											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='$LAB_USE_LAST_VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</table>
+								</td>
+							</tr>
+							<tr>
+								<td>$LAB_DEV_ENABLE_AUTO_REGULATION</td>
+								<td colspan="2"><div id='pageDevices_vgrind4_selector' class='UIOption' data-option='0|$LAB_NO|1|$LAB_YES' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(4)'></div></td>
+							</tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind4_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>$LAB_DEV_NUMBER_OF_SAMPLES</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>$LAB_DEV_REFERRING_SELECTION</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind4_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7588" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='$LAB_RUN_SELECTION' data-onclick="pageDevices_vgrind_runSelection(4)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>$LAB_DEV_REFERRING_FLUX</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind4_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>$LAB_DEV_REFERRING_POSITION</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind4_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind4_lastFlux_caption' class="tip" style="color:#fff">$LAB_DEV_LAST_FLUX_INFO_1</div>
+												<div id='pageDevices_vgrind4_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='$LAB_USE_LAST_VALUES' data-onclick="pageDevices_vgrind_useLastFluxAndPos(4)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>						
 				</div>
-				
 			</div>
 		</div><!-- page Devices -->	
 
@@ -3579,8 +3660,16 @@ function pageDevices_show()
 		if (da3.isInduzione())
 			rheaHideElem(rheaGetElemByID("pageDevices_boilerSize"));
 		
-		rheaSetDivHTMLByName("pageDevices_vgrind1_lastPos_caption", da3.read16(7596));
-		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7660));
+		
+		var optionsForVGrindSelector = "1|VARIGRIND 1|2|VARIGRIND 2";
+		for (var i=3; i<=da3.getNumMacine(); i++)
+			optionsForVGrindSelector += "|" +i +"|VARIGRIND " +i;
+		var uiVGrindSelector = win.getChildByID("pageDevices_vgrind_selector");
+		uiVGrindSelector.changeOptions(optionsForVGrindSelector);
+		uiVGrindSelector.selectOptionByIndex(0);
+		
+		for (var i=1; i<=4; i++)
+			rheaSetDivHTMLByName("pageDevices_vgrind" +i +"_lastPos_caption", da3.read16( da3.getVarigrindLastPosDa3Loc(i) ));
 		pageDevices_vgrind_setLastFluxAndPos(pageDevices_vgrind_lastFlux, pageDevices_vgrind_lastPos);
 	}
 
@@ -3588,6 +3677,8 @@ function pageDevices_show()
 	pageDevices_onSelector();
 	pageDevices_onEnableAuto(1);
 	pageDevices_onEnableAuto(2);
+	pageDevices_onEnableAuto(3);
+	pageDevices_onEnableAuto(4);
 }
 
 
@@ -3596,13 +3687,11 @@ function pageDevices_onSelector()
 {
 	var elem0 = rheaGetElemByID("pageDevices_general");
 	var elem1 = rheaGetElemByID("pageDevices_vflex");
-	var elem2 = rheaGetElemByID("pageDevices_vgrind1");
-	var elem3 = rheaGetElemByID("pageDevices_vgrind2");
+	var elem2 = rheaGetElemByID("pageDevices_vgrind");
 
 	rheaHideElem(elem0);
 	rheaHideElem(elem1);
 	rheaHideElem(elem2);
-	rheaHideElem(elem3);
 	
 	var win = ui.getWindowByID("pageDevices");
 	pageDevices_whichPage = parseInt(pageDevices_selector.getSelectedOptionValue());
@@ -3611,25 +3700,36 @@ function pageDevices_onSelector()
 		default: rheaShowElem(elem0); break;
 		case 1:  rheaShowElem(elem1); break;
 		case 2:  
-			currentTask.enterQueryMacinePos(1);
 			rheaShowElem(elem2); 
-			break;
-			
-		case 3:  
-			currentTask.enterQueryMacinePos(2);
-			rheaShowElem(elem3); 
+			pageDevices_onVGrindSelector();
 			break;
 	}
 	
 	win.showHideScrollBar();
 }
 
+function pageDevices_onVGrindSelector()
+{
+	var win = ui.getWindowByID("pageDevices");
+	var uiSelector = win.getChildByID ("pageDevices_vgrind_selector");
+
+	var n = uiSelector.getNumOptions();
+	for (var i=0; i<n; i++)
+		rheaHideElem (rheaGetElemByID("pageDevices_vgrind" +(i+1)));
+
+
+	var selectedVGrindIndex = uiSelector.getSelectedOptionValue();
+	currentTask.enterQueryMacinePos(selectedVGrindIndex);
+	rheaShowElem (rheaGetElemByID("pageDevices_vgrind" +selectedVGrindIndex));
+	win.showHideScrollBar();
+}
 
 
 function pageDevices_vgrind_runSelection(whichVG)
 {
 	var win = ui.getWindowByID("pageDevices");
 	var selNum = parseInt(win.getChildByID("pageDevices_vgrind" +whichVG +"_selNum").getValue())
+	
 	//vogliamo far partire la selezione [selNum].
 	//Devo verificare che la granulometria di questa selezione sia DISABLED o REFERRING, altrimenti non
 	//la si può utilizzare per calibrare la macchina dato che con granulemtria FINE o ROUGHLY la CPU apre/chiude di suo la macina
@@ -3649,7 +3749,7 @@ function pageDevices_vgrind_runSelection_onFinish()
 	rhea.ajax ("getLastFluxInfo", "").then( function(result)
 	{
 		var data = JSON.parse(result);
-		pageDevices_vgrind_setLastFluxAndPos(data.flux, data.grinderPos);
+		pageDevices_vgrind_setLastFluxAndPos (data.flux, data.grinderPos);
 		pageDevices_vgrind_runSelection_onFinish2();
 	})
 	.catch( function(result)
@@ -3674,15 +3774,14 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 	pageDevices_vgrind_lastFlux = flux;
 	pageDevices_vgrind_lastPos = pos;
 	
-	var elemBtnUse1 = rheaGetElemByID ("pageDevices_vgrind1_lastFlux_btnUse");
-	var elemBtnUse2 = rheaGetElemByID ("pageDevices_vgrind2_lastFlux_btnUse");
 	if (flux < 0)
 	{
 		var msg = "$LAB_DEV_LAST_FLUX_INFO_1";
-		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
-		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
-		rheaHideElem (elemBtnUse1);
-		rheaHideElem (elemBtnUse2);
+		for (var i=1; i<=4; i++)
+		{
+			rheaSetDivHTMLByName ("pageDevices_vgrind" +i +"_lastFlux_caption", msg);
+			rheaHideElem (rheaGetElemByID ("pageDevices_vgrind" +i +"_lastFlux_btnUse"));
+		}
 	}
 	else
 	{
@@ -3691,10 +3790,11 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 		while (s.length < 3) s = "0" +s;
 		s = s.substr(0,1) +"." +s.substr(1,2);
 		var msg = "Last flux: " +s +"<br>Last pos: " +pos;
-		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
-		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
-		rheaSetDisplayMode (elemBtnUse1, "table");
-		rheaSetDisplayMode (elemBtnUse2, "table");
+		for (var i=1; i<=4; i++)
+		{
+			rheaSetDivHTMLByName ("pageDevices_vgrind" +i +"_lastFlux_caption", msg);
+			rheaSetDisplayMode (rheaGetElemByID ("pageDevices_vgrind" +i +"_lastFlux_btnUse"), "table");
+		}
 		
 		rheaSetDivHTMLByName("pageExpCalib_lastFlux", s +" cc/sec");
 	}
@@ -3706,10 +3806,7 @@ function pageDevices_vgrind_useLastFluxAndPos(whichVG)
 
 	win.getChildByID("pageDevices_vgrind" +whichVG +"_refFlux").setValue(pageDevices_vgrind_lastFlux);
 	
-	if (whichVG==1)
-		da3.write16 (7596, pageDevices_vgrind_lastPos);
-	else
-		da3.write16 (7660, pageDevices_vgrind_lastPos);
+	da3.write16 ( da3.getVarigrindLastPosDa3Loc(whichVG), pageDevices_vgrind_lastPos);
 	rheaSetDivHTMLByName("pageDevices_vgrind" +whichVG +"_lastPos_caption", pageDevices_vgrind_lastPos);
 	
 	//forzo un salvataggio dei dati
@@ -3733,21 +3830,6 @@ function pageDevices_onEnableAuto(whichVG)
 	}
 	
 	win.showHideScrollBar();
-}
-
-function pageDevices_setVGrind (macina1o2)
-{
-	var win = ui.getWindowByID("pageDevices");
-	var target = 0;
-	
-	if (macina1o2 == 1)
-		target = parseInt(win.getChildByID("pageDevices_vg1_target").getValue());
-	else
-		target = parseInt(win.getChildByID("pageDevices_vg2_target").getValue());
-		
-	//console.log ("pageDevices_setVGrind:: macina[" +macina1o2 +"] target[" +target +"]");
-	
-	currentTask.enterSetMacinaPos(macina1o2, target);
 }
 
 function pageDevices_startModemTest()					{ currentTask.runModemTest(); }

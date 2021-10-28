@@ -177,6 +177,7 @@ UIOption.prototype.bindEvents = function()
 	}	
 }
 
+UIOption.prototype.getNumOptions = function() 				{ return this.optionValue.length; }
 UIOption.prototype.getSelectedOptionIndex = function()		{ return this.selectedOption; }
 UIOption.prototype.selectOptionByIndex = function(i)
 {
