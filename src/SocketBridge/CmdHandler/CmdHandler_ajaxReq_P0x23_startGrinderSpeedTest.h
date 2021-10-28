@@ -12,7 +12,7 @@ namespace socketbridge
         Input:
             command: startGrnSpeedTest
             params:
-				m: 1 o 2 (macina 1 o macina 2)
+				m: 1,2,3,4
 				d: durata in sec (intero)
 
 		Output

@@ -139,8 +139,8 @@ namespace cpubridge
 	u8			buildMsg_getDate(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_setTime(u8 *out_buffer, u8 sizeOfOutBuffer, u8 hh, u8 mm, u8 ss);
 	u8			buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 month, u8 day);
-	u8			buildMsg_getPosizioneMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2);
-	u8			buildMsg_setMotoreMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProg_macinaMove m);
+	u8			buildMsg_getPosizioneMacina_AA (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1to4);
+	u8			buildMsg_setMotoreMacina_AA (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1to4, eCPUProg_macinaMove m);
 	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProg_testSelectionDevice d);
 	u8			buildMsg_getNomiLingueCPU (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer);
@@ -279,8 +279,8 @@ namespace cpubridge
 	void		notify_CPU_POSIZIONE_MACINA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, u16 posizione);
 	void		translateNotify_CPU_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_posizione);
 
-	void		notify_CPU_MOTORE_MACINA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, eCPUProg_macinaMove m);
-	void		translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m);
+	void		notify_CPU_MOTORE_MACINA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1to4, eCPUProg_macinaMove m);
+	void		translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4, eCPUProg_macinaMove *out_m);
 	
 	void		notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProg_testSelectionDevice d);
 	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProg_testSelectionDevice *out_d);
@@ -506,16 +506,16 @@ namespace cpubridge
 	void		translate_CPU_SET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SET_DATE
 
-	void		ask_CPU_GET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2);
-	void		translate_CPU_GET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2);
+	void		ask_CPU_GET_POSIZIONE_MACINA_AA(const sSubscriber &from, u16 handlerID, u8 macina_1to4);
+	void		translate_CPU_GET_POSIZIONE_MACINA_AA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_POSIZIONE_MACINA
 
-	void		ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, eCPUProg_macinaMove m);
-	void		translate_CPU_SET_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m);
+	void		ask_CPU_SET_MOTORE_MACINA_AA (const sSubscriber &from, u16 handlerID, u8 macina_1to4, eCPUProg_macinaMove m);
+	void		translate_CPU_SET_MOTORE_MACINA_AA (const rhea::thread::sMsg &msg, u8 *out_macina_1to4, eCPUProg_macinaMove *out_m);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_MOTORE_MACINA
 
-	void		ask_CPU_SET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 target);
-	void		translate_CPU_SET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_target);
+	void		ask_CPU_SET_POSIZIONE_MACINA_AA(const sSubscriber &from, u16 handlerID, u8 macina_1to4, u16 target);
+	void		translate_CPU_SET_POSIZIONE_MACINA_AA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4, u16 *out_target);
 					//alla ricezione di questo msg, CPUBridge non notificherà alcunchè. Lo stato di CPUBridge dovrebbe passare a eVMCState::REG_APERTURA_MACINA
 
 	void		ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProg_testSelectionDevice d);
@@ -586,8 +586,8 @@ namespace cpubridge
 					//NB: se price==0xffff, allora la CPU si prende comunque in carico il pagamento, a discapito del nome di questa fn
 	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType, bool *out_bForceJUG);
 
-	void		ask_CPU_START_GRINDER_SPEED_TEST (const sSubscriber &from, u16 handlerID, u8 macina1o2, u8 durataMacinataInSec);
-	void		translate_CPU_START_GRINDER_SPEED_TEST(const rhea::thread::sMsg &msg, u8 *out_macina1o2, u8 *out_durataMacinataInSec);
+	void		ask_CPU_START_GRINDER_SPEED_TEST_AA (const sSubscriber &from, u16 handlerID, u8 macina_1to4, u8 durataMacinataInSec);
+	void		translate_CPU_START_GRINDER_SPEED_TEST_AA (const rhea::thread::sMsg &msg, u8 *out_macina_1to4, u8 *out_durataMacinataInSec);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_START_GRINDER_SPEED_TEST
 
 	void		ask_CPU_GET_LAST_GRINDER_SPEED (const sSubscriber &from, u16 handlerID);

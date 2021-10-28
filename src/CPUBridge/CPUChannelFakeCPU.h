@@ -98,7 +98,7 @@ namespace cpubridge
 		u8							curCPUMessageImportanceLevel;
 		u64							timeToSwapCPUMsgMesc;
 		sCleaning					cleaning;
-		sMovimentoMacina			macine[2];
+		sMovimentoMacina			macine[10];
 		sTestModem					testModem;
 		u64							timeToEndTestSelezioneMSec;
 		sTestAssorbGruppo			testAssorbGruppo;

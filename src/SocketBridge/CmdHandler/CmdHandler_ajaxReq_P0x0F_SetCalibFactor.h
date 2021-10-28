@@ -12,7 +12,7 @@ namespace socketbridge
         Input:
             command: setFattoreCalib
             params:
-				m: motor, da 1 a 13 vedi enum cpubridge::eCPUProg_motor
+				m: motor, da 1 a 20 vedi enum cpubridge::eCPUProg_motor
 				v: valore a cui settare (16bit)
 
 		Output

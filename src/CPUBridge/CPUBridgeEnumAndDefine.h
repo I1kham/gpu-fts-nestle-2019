@@ -409,7 +409,9 @@ namespace cpubridge
 		prod9 = 9,
 		prod10 = 10,
 		macina1 = 11,
-		macina2 = 12
+		macina2 = 12,
+		macina3 = 13,
+		macina4 = 14
 	};
 
 	enum class eCPUProg_testSelectionDevice: u8

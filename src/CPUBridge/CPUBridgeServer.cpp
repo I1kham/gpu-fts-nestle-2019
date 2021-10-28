@@ -855,46 +855,41 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA:
 		{
-			u8 macina_1o2 = 0;
-			cpubridge::translate_CPU_GET_POSIZIONE_MACINA(msg, &macina_1o2);
+			u8 macina_1to4 = 0;
+			cpubridge::translate_CPU_GET_POSIZIONE_MACINA_AA(msg, &macina_1to4);
 
 			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
+			const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina_AA(bufferW, sizeof(bufferW), macina_1to4);
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
-				macina_1o2 = answerBuffer[4];
-				if (macina_1o2 == 11) macina_1o2 = 1;
-				else if (macina_1o2 == 12) macina_1o2 = 2;
+				macina_1to4 = answerBuffer[4] - 10;
 				u16 pos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
-				notify_CPU_POSIZIONE_MACINA(sub->q, handlerID, logger, macina_1o2, pos);
+				notify_CPU_POSIZIONE_MACINA(sub->q, handlerID, logger, macina_1to4, pos);
 			}
 		}
 		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA:
 		{
-			u8 macina_1o2 = 0;
+			u8 macina_1to4 = 0;
 			eCPUProg_macinaMove m;
-			cpubridge::translate_CPU_SET_MOTORE_MACINA(msg, &macina_1o2, &m);
+			cpubridge::translate_CPU_SET_MOTORE_MACINA_AA (msg, &macina_1to4, &m);
 
-			if (priv_sendAndHandleSetMotoreMacina(macina_1o2, m))
+			if (priv_sendAndHandleSetMotoreMacina(macina_1to4, m))
 			{
-				macina_1o2 = answerBuffer[4];
-				if (macina_1o2 == 11) macina_1o2 = 1;
-				else if (macina_1o2 == 12) macina_1o2 = 2;
-				notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1o2, (eCPUProg_macinaMove)answerBuffer[5]);
+				macina_1to4 = (answerBuffer[4] - 11);
+				notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1to4, (eCPUProg_macinaMove)answerBuffer[5]);
 			}
 		}
 		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA:
 		{
-			u8 macina_1o2 = 0;
+			u8 macina_1to4 = 0;
 			u16 target = 0;
-			cpubridge::translate_CPU_SET_POSIZIONE_MACINA(msg, &macina_1o2, &target);
-			//priv_setPosMacina(sub->q, handlerID, macina_1o2, target);
-			priv_enterState_regolazioneAperturaMacina(macina_1o2, target);
+			cpubridge::translate_CPU_SET_POSIZIONE_MACINA_AA(msg, &macina_1to4, &target);
+			priv_enterState_regolazioneAperturaMacina (macina_1to4, target);
 		}
 		break;
 
@@ -1189,10 +1184,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST:
 			{
-				u8 macina_1o2 = 0;
+				u8 macina_1to4 = 0;
 				u8 tempoDiMacinaSec = 0;
-				cpubridge::translate_CPU_START_GRINDER_SPEED_TEST(msg, &macina_1o2, &tempoDiMacinaSec);
-				if (priv_enterState_grinderSpeedTest (macina_1o2, tempoDiMacinaSec))
+				cpubridge::translate_CPU_START_GRINDER_SPEED_TEST_AA (msg, &macina_1to4, &tempoDiMacinaSec);
+				if (priv_enterState_grinderSpeedTest_AA (macina_1to4, tempoDiMacinaSec))
 					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, true);
 				else
 					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, false);
@@ -3744,9 +3739,9 @@ void Server::priv_onSelezioneTerminataKO()
  *	ritorna true se ci sono le condizioni per iniziare una regolazione della macina. In questo caso, lo stato passa a stato = eStato::regolazioneAperturaMacina.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  */
-bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target)
+bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1to4, u16 target)
 {
-	logger->log("CPUBridgeServer::priv_enterState_regolazioneAperturaMacina() => [%d] [%d]\n", macina_1o2, target);
+	logger->log("CPUBridgeServer::priv_enterState_regolazioneAperturaMacina() => [%d] [%d]\n", macina_1to4, target);
 
 	if (stato.get() != sStato::eStato::normal && (stato.get() != sStato::eStato::regolazioneAperturaMacina))
 	{
@@ -3762,7 +3757,7 @@ bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 targe
 
 
 	stato.set(sStato::eStato::regolazioneAperturaMacina);
-	regolazioneAperturaMacina.macina_1o2 = macina_1o2;
+	regolazioneAperturaMacina.macina_1to4 = macina_1to4;
 	regolazioneAperturaMacina.target = target;
 	return true;
 }
@@ -3774,7 +3769,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	u8 nRetry = NRETRY;
 
 	eCPUProg_macinaMove move = eCPUProg_macinaMove::stop;
-	priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+	priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1to4, move);
 
 
 	//dico a tutti che sono in uno stato speciale
@@ -3803,7 +3798,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			   
 		//chiede la posizione della macina
 		u16 curpos = 0;
-		if (priv_sendAndHandleGetPosizioneMacina (regolazioneAperturaMacina.macina_1o2, &curpos))
+		if (priv_sendAndHandleGetPosizioneMacina (regolazioneAperturaMacina.macina_1to4, &curpos))
 		{
 			nRetry = NRETRY;
 
@@ -3815,7 +3810,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (diff <= TOLLERANZA || timeNowMSec >= timeToExitMSec)
 			{
 				//fine
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				//priv_enterState_normal();
 				break;
 			}
@@ -3825,9 +3820,9 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 				if (move != eCPUProg_macinaMove::open)
 				{
 					if (move != eCPUProg_macinaMove::stop)
-						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 					move = eCPUProg_macinaMove::open;
-					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, move);
 				}
 			}
 			else
@@ -3835,9 +3830,9 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 				if (move != eCPUProg_macinaMove::close)
 				{
 					if (move != eCPUProg_macinaMove::stop)
-						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 					move = eCPUProg_macinaMove::close;
-					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, move);
 				}
 			}
 		}
@@ -3847,7 +3842,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (nRetry == 0)
 			{
 				//abortisco
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
@@ -3870,7 +3865,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			rhea::thread::sleepMSec(300);
 
 			u16 pos = 0;
-			if (priv_sendAndHandleGetPosizioneMacina(regolazioneAperturaMacina.macina_1o2, &pos))
+			if (priv_sendAndHandleGetPosizioneMacina(regolazioneAperturaMacina.macina_1to4, &pos))
 			{
 				curpos += pos;
 				n++;
@@ -3887,17 +3882,17 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (curpos == regolazioneAperturaMacina.target || rhea::getTimeNowMSec() > timeToExitMSec)
 			{
 				//fine
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
 
 			if (curpos > regolazioneAperturaMacina.target)
-				priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::close);
+				priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::close);
 			else
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::open);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::open);
 
-			priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+			priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 		}
 		else
 		{
@@ -3905,7 +3900,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (nRetry == 0)
 			{
 				//abortisco
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
@@ -3914,10 +3909,10 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 }
 
 //**********************************************
-bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1o2, u16 *out)
+bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1to4, u16 *out)
 {
 	u8 bufferW[16];
-	const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
+	const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina_AA(bufferW, sizeof(bufferW), macina_1to4);
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 400))
 		return false;
@@ -3927,10 +3922,10 @@ bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1o2, u16 *out)
 }
 
 //**********************************************
-bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProg_macinaMove m)
+bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1to4, eCPUProg_macinaMove m)
 {
 	u8 bufferW[16];
-	const u16 nBytesToSend = cpubridge::buildMsg_setMotoreMacina(bufferW, sizeof(bufferW), macina_1o2, m);
+	const u16 nBytesToSend = cpubridge::buildMsg_setMotoreMacina_AA (bufferW, sizeof(bufferW), macina_1to4, m);
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 	
 	u8 nRetry = 8;
@@ -3998,9 +3993,9 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
  *	Lo scopo di questo test è quello di muovere la macina per un tot di tempo e leggere (chiedendo alla CPU) il valore di un certo sensore.
  *	Alla fine della macinata, si ritorna la media delle letture del sensore
  */
-bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec)
+bool Server::priv_enterState_grinderSpeedTest_AA (u8 macina_1to4, u8 tempoDiMacinataInSec)
 {
-	logger->log("CPUBridgeServer::priv_enterState_calcGrinderSpeed() => [%d]\n", macina_1o2);
+	logger->log("CPUBridgeServer::priv_enterState_calcGrinderSpeed() => [%d]\n", macina_1to4);
 
 	if (stato.get() != sStato::eStato::normal)
 	{
@@ -4016,9 +4011,7 @@ bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinata
 
 	
 	stato.set(sStato::eStato::grinderSpeedTest);
-	grinderSpeedTest.motoreID = 11;
-	if (macina_1o2 == 2)
-		grinderSpeedTest.motoreID = 12;
+	grinderSpeedTest.motoreID = 10 + macina_1to4;
 	grinderSpeedTest.lastCalculatedGrinderSpeed = 0;
 	grinderSpeedTest.tempoDiMacinataInSec = tempoDiMacinataInSec;
 	return true;

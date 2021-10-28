@@ -74,7 +74,7 @@ function onDA3Loaded(bResult)
 		setTimeout ( function() { window.location = "index.html"; }, 1000);
 		return;
 	}
-	//console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
+	console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
 	//console.log ("onDA3Loaded:: isGrpVariflex?" + da3.isGruppoVariflex());
 	//console.log ("onDA3Loaded:: isGrpMicro?" + da3.isGruppoMicro());
 	

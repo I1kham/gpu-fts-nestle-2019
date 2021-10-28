@@ -699,6 +699,7 @@ function TaskCalibMotor()
 
 TaskCalibMotor.prototype.startCalibrazioneMacina = function (macina1o2, bAlsoCalcImpulses)
 {
+	console.log ("TaskCalibMotor.startCalibrazioneMacina => macina=" +macina1o2 +", calcImp=" +bAlsoCalcImpulses);
 	var motor = 10 + macina1o2;
 	this.startMotorCalib(motor);
 	this.bAlsoCalcImpulses = bAlsoCalcImpulses;
@@ -719,8 +720,8 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN) //motorIN==11 per 
 	pleaseWait_calibration_motor_hide();
 	
 	this.what = 0;
-	if (motorIN == 11 || motorIN == 12)
-		this.what = 2;
+	if (motorIN >= 11 && motorIN < 20)
+		this.what = 2; //è una macina
 	else
 		this.what = 1;
 }
@@ -909,6 +910,8 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 10:  //attivo le macinate
 		me.fase = 11;
 		pleaseWait_calibration_setText("BITTE WARTEN, MOTOR LAEUFT"); //Please wait while motor is running
+		
+console.log ("TaskCalibMotor.priv_handleCalibMacina() => runMotor, m="  +me.motor);
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -1010,10 +1013,12 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
+console.log	("TaskCalibMotor.priv_handleCalibMacina: fase 30"); 
 		da3.setCalibFactorGSec(me.motor, me.gsec);
 		//var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(me.motor) );
 		//rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
-		
+
+console.log	("TaskCalibMotor.priv_handleCalibMacina: setFattoreCalib m=" +me.motor +",v=" +me.gsec);		
 		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
 		{
 			me.fase = 40;
@@ -2674,6 +2679,7 @@ TaskEspressoCalib.prototype.setMacina = function (macina1o2)
 	this.firstTimeMacina = 2;
 	var w = ui.getWindowByID("pageExpCalib");
 	w.getChildByID("pageExpCalib_vgBtnSet").hide();	
+	console.log ("TaskEspressoCalibsetMacina = " +this.macina1o2);
 }
 
 TaskEspressoCalib.prototype.enterQueryMacinePos = function()
@@ -2725,6 +2731,7 @@ TaskEspressoCalib.prototype.onFreeBtn1Clicked	 = function(ev)
 			pleaseWait_btn1_hide();
 			
 			//Attivo la macina
+console.log ("TaskEspressoCalibsetMacina => runMotor " +this.macina);
 			rhea.ajax ("runMotor", { "m":10+this.macina, "d":50, "n":1, "p":0}).then( function(result)
 			{
 				setTimeout ( function() {pleaseWait_btn1_show();}, 5000);
@@ -2803,6 +2810,7 @@ TaskEspressoCalib.prototype.priv_handleRichiestaPosizioneMacina = function()
 		this.fase = 1;
 		if (da3.isGruppoVariflex())
 		{
+console.log ("TaskEspressoCalibsetMacina => getPosMacina " +this.macina1o2);			
 			rhea.ajax ("getPosMacina", {"m":this.macina1o2}).then( function(result)
 			{
 				var obj = JSON.parse(result);

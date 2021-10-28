@@ -63,7 +63,7 @@ namespace cpubridge
 
 		struct sRegolazioneAperturaMacina
 		{
-			u8 macina_1o2;
+			u8 macina_1to4;
 			u16 target;
 		};
 				
@@ -192,12 +192,12 @@ namespace cpubridge
 		void					priv_enterState_telemetry();
 		void					priv_handleState_telemetry();
 
-		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target);
+		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1to4, u16 target);
 		void                    priv_handleState_regolazioneAperturaMacina();
-		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProg_macinaMove m);
-		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1o2, u16 *out);
+		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1to4, eCPUProg_macinaMove m);
+		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1to4, u16 *out);
 
-		bool					priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec);
+		bool					priv_enterState_grinderSpeedTest_AA (u8 macina_1o2, u8 tempoDiMacinataInSec);
 		void                    priv_handleState_grinderSpeedTest();
 
 		bool					priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub);

@@ -69,11 +69,12 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	utf16_curCPUMessage = utf16_cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;
-	macine[0].reset();
-	macine[0].posizioneMacina = 100 +(u16)rhea::randomU32(100);
-
-	macine[1].reset();
-	macine[1].posizioneMacina = 100 + (u16)rhea::randomU32(100);
+	
+	for (u8 i = 0; i < 10; i++)
+	{
+		macine[i].reset();
+		macine[i].posizioneMacina = 100 + (u16)rhea::randomU32(100);
+	}
 
 	timeToEndTestSelezioneMSec = 0;
 }
@@ -145,8 +146,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
     //u8 msgLen = bufferToSend[2];
 	u32 ct = 0;
 
-	macine[0].update(rhea::getTimeNowMSec());
-	macine[1].update(rhea::getTimeNowMSec());
+	for (u8 i=0; i<10; i++)
+		macine[i].update(rhea::getTimeNowMSec());
 
 	switch (cpuCommand)
 	{
@@ -390,21 +391,29 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 	case eCPUCommand::getExtendedConfigInfo:
 		{
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::instant;	const u8 isInduzione = 0;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso1;	const u8 isInduzione = 1;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 1;
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 0;
+			//tipo gruppo: 'V' = variflex, 'M'= Micro, 'N'= non presente
+
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::instant;	const u8 isInduzione = 0;	const u8 tipoGruppo='N';
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso1;	const u8 isInduzione = 1;	const u8 tipoGruppo='V';
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 1;	const u8 tipoGruppo='V';
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;		const u8 isInduzione = 0;	const u8 tipoGruppo='V';
+
+
+			//MACCHINA: Minibona, espresso, induzione, gruppo micro
+			//const u8 modelloMacchina = 0x56; const u8 tipoGruppo='M'; const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2; const u8 isInduzione = 0;
+
+			//MACCHINA: Brewmatic, espresso, induzione, gruppo variflex
+			const u8 modelloMacchina = 91; const u8 tipoGruppo='V'; const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2; const u8 isInduzione = 1;
+			
 			out_answer[ct++] = '#';
 			out_answer[ct++] = (u8)cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
 			out_answer[ct++] = 0x02;	//versione
 			out_answer[ct++] = machine_type;
+			out_answer[ct++] = modelloMacchina;	
+			out_answer[ct++] = isInduzione; 
+			out_answer[ct++] = tipoGruppo;		
 			
-			//modello macchina, induzione, tipo gruppo ('V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente)
-			out_answer[ct++] = 0x82;	out_answer[ct++] = isInduzione; out_answer[ct++] = 'V';		
-			
-			//modello macchina = Minibona
-			//out_answer[ct++] = 0x56;	out_answer[ct++] = isInduzione;	out_answer[ct++] = 'M';
 
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
@@ -770,58 +779,49 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 
 			case eCPUProgrammingCommand::getPosizioneMacina:
-				out_answer[ct++] = '#';
-				out_answer[ct++] = 'P';
-				out_answer[ct++] = 0; //lunghezza
-				out_answer[ct++] = (u8)subcommand;
-				out_answer[ct++] = bufferToSend[4]; //macina
+				{
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = bufferToSend[4]; //macina
 
-				if (bufferToSend[4] == 11)
-				{
-					u16 pos = macine[0].posizioneMacina;
+					u8 macinaIndex = bufferToSend[4] - 11;
+					if (macinaIndex >= 10)
+						macinaIndex = 0;
+
+					u16 pos = macine[macinaIndex].posizioneMacina;
 					//simulo il fatto che la posizione è un po' ballerina
 					if (rhea::random01() < 0.4f)
 						pos++;
 					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], pos);
+
+					ct += 2;
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
 				}
-				else if (bufferToSend[4] == 12)
-				{
-					u16 pos = macine[1].posizioneMacina;
-					//simulo il fatto che la posizione è un po' ballerina
-					if (rhea::random01() < 0.4f)
-						pos++;
-					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], pos);
-				}
-				else
-				{
-					DBGBREAK;
-				}
-				ct += 2;
-				out_answer[2] = (u8)ct + 1;
-				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
 			case eCPUProgrammingCommand::setMotoreMacina:
-				if (bufferToSend[4] == 11)
-					macine[0].tipoMovimentoMacina = bufferToSend[5];
-				else if (bufferToSend[4] == 12)
-					macine[1].tipoMovimentoMacina = bufferToSend[5];
-				else
 				{
-					DBGBREAK;
-				}
+					u8 macinaIndex = bufferToSend[4] - 11;
+					if (macinaIndex >= 10)
+						macinaIndex = 0;
 
-				
-				out_answer[ct++] = '#';
-				out_answer[ct++] = 'P';
-				out_answer[ct++] = 0; //lunghezza
-				out_answer[ct++] = (u8)subcommand;
-				out_answer[ct++] = bufferToSend[4]; //macina
-				out_answer[ct++] = bufferToSend[5]; //tipo di movimento
-				out_answer[2] = (u8)ct + 1;
-				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-				*in_out_sizeOfAnswer = out_answer[2];
+					macine[macinaIndex].tipoMovimentoMacina = bufferToSend[5];
+
+
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = bufferToSend[4]; //macina
+					out_answer[ct++] = bufferToSend[5]; //tipo di movimento
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
 				return true;
 
 			case eCPUProgrammingCommand::EVAresetPartial:

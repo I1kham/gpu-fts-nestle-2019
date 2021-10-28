@@ -8,9 +8,9 @@ using namespace socketbridge;
 void CmdHandler_eventReq_P0x10_getAperturaVGrind::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen)
 {
     assert (payloadLen >= 1);
-    const u8 macina_1o2 = payload[1];
+    const u8 macina_1to4 = payload[1];
 
-	cpubridge::ask_CPU_GET_POSIZIONE_MACINA(from, getHandlerID(), macina_1o2);
+	cpubridge::ask_CPU_GET_POSIZIONE_MACINA_AA(from, getHandlerID(), macina_1to4);
 }
 
 //***********************************************************

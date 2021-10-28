@@ -384,7 +384,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='0|ALLGEMEINE OPTIONEN|1|MASCHINEN ID|2|MILCH LM|3|FREEVEND|4|GEBLOCKTER ZAEHLER' data-onclick='pageMiscellaneous_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='' data-onclick='pageMiscellaneous_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -538,7 +538,37 @@
 							</tr>
 						</table>
 					</div>
-				</div>				
+				</div>
+				
+				<div id="pageMiscellaneous_advGrinder" style="display:none">
+					<table border='0' class='elenco'>
+						<tr class="smallHeightNoBorder">
+							<th style="text-align:center">MAHLWERK</th>
+							<th style="text-align:center">VIBRATION TIME</th>
+							<th style="text-align:center">VIBRATION SPEED</th>
+						</tr>
+						<tr>
+							<td style="text-align:center">1</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8380" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8382" data-um="%"></div></td>
+						</tr>
+						<tr>
+							<td style="text-align:center">2</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8384" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8386" data-um="%"></div></td>
+						</tr>
+						<tr>
+							<td style="text-align:center">3</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8388" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8390" data-um="%"></div></td>
+						</tr>
+						<tr>
+							<td style="text-align:center">4</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8392" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8394" data-um="%"></div></td>
+						</tr>						
+					</table>						
+				</div>
 			</div>
 		</div>	<!-- page pageMiscellaneous -->
 		
@@ -852,19 +882,6 @@
 		<div id="pageCalibration" class="UIWindow">
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
-					<tr id="pageCalibration_rowGrinder1">
-						<td>MAHLWERK 1</td>
-						<td><div id="pageCalibration_m11" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(11)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(11)"></div></td>
-					</tr>
-					<tr id="pageCalibration_rowGrinder2">
-						<td>MAHLWERK 2</td>
-						<td><div id="pageCalibration_m12" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(12)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(12)"></div></td>
-					</tr>
-					
 					<tr id="pageCalibration_rowMotor1">
 						<td style="width:150px">MOTOR 1</td>
 						<td style="width:274px"><div id="pageCalibration_m1" class="bigCaption15"></div></td>
@@ -905,14 +922,6 @@
 						<td><div class='UIButton bigButton60 actionButton' data-caption='ZURUECKSETZEN' data-onclick="pageCalibration_reset(6)"></div></td>
 						<td><div class='UIButton bigButton60 actionButton' data-caption='KALIBRIEREN' data-onclick="pageCalibration_start(6)"></div></td>
 					</tr>
-					<tr id="pageCalibration_rowEncoder1">
-						<td>IMPULS 1</td>
-						<td colspan="3"><div id="pageCalibration_encoder1" class="bigCaption15"></div></td>
-					</tr>
-					<tr id="pageCalibration_rowEncoder2">
-						<td>IMPULS 2</td>
-						<td colspan="3"><div id="pageCalibration_encoder2" class="bigCaption15"></div></td>
-					</tr>										
 				</table>
 			</div>
 		</div> <!-- pageCalibration -->
@@ -1158,6 +1167,7 @@
 					</table>				
 				</div>
 				
+				<!--- vgrind 2-->
 				<div id="pageDevices_vgrind1" style="display:none">
 					<table border='0' class='elenco'>
 						<tr>
@@ -1354,9 +1364,12 @@
 						<td><b style='color:#fff'>IMPULS</b></td>
 						<td align="center">AKTUELL<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
 						<td colspan="2" align="right">
-							<div style="widt:420px; max-width:420px">
-								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|MAHLWERK 1|2|MAHLWERK 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>
-							</div>
+							<table style="width:100%">
+								<tr>
+									<td style="width:30%; text-align:right"><b style='color:#fff'>MAHLWERK&nbsp;</b></td>
+									<td style="width:70%"><div class='UIOption' id='pageExpCalib_macina1o2' data-option='' data-onclick='pageExpCalib_onChangeGrinder()'></div></td>
+								</tr>
+							</table>
 						</td>
 					</tr>
 				</table>
@@ -1768,6 +1781,12 @@ function pageGrinderCleaning_show()
 	if (showPage("pageGrinderCleaning", "REINIGUNG MAHLWERK", 0, 0))
 	{
 		//è la prima volta che visualizziamo la pagina
+		
+		var opzioniPerMacine = "1|MAHLWERK 1|2|MAHLWERK 2";
+		for (var i=2; i<da3.getNumMacine(); i++)
+			opzioniPerMacine += "|" +(i+1) +"|MAHLWERK " +(i+1);
+		uiStandAloneOptionGrinderCleaning1or2.changeOptions (opzioniPerMacine);
+		uiStandAloneOptionGrinderCleaning1or2.selectOptionByIndex(0);
 	}
 	
 	currentTask = new TaskGrinderClean();
@@ -2101,6 +2120,13 @@ function pageMiscellaneous_show()
 	if (showPage("pageMiscellaneous", "VERSCHIEDENES", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
+		var selOptions = "0|ALLGEMEINE OPTIONEN|1|MASCHINEN ID|2|MILCH LM|3|FREEVEND|4|GEBLOCKTER ZAEHLER";
+		if (da3.isMachine_Brewmatic4Macine())
+			selOptions +="|5|VIBRATION";
+		var uiSelector = win.getChildByID("pageMiscellaneous_selector");
+		uiSelector.changeOptions (selOptions);
+		uiSelector.selectOptionByIndex(0);
+
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
 		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
 		
@@ -2306,12 +2332,14 @@ function  pageMiscellaneous_onSelector()
 	var elemLM = rheaGetElemByID("pageMiscellaneous_lm");
 	var elemFV = rheaGetElemByID("pageMiscellaneous_fv");
 	var elemBCT = rheaGetElemByID("pageMiscellaneous_blockingCt");
+	var elemAdvGrinder = rheaGetElemByID("pageMiscellaneous_advGrinder");
 	
 	rheaHideElem(elemGS);
 	rheaHideElem(elemMID);
 	rheaHideElem(elemLM);
 	rheaHideElem(elemFV);
 	rheaHideElem(elemBCT);
+	rheaHideElem(elemAdvGrinder);
 	
 	var win = ui.getWindowByID("pageMiscellaneous");
 	switch (parseInt(win.getChildByID("pageMiscellaneous_selector").getSelectedOptionValue()))
@@ -2321,6 +2349,7 @@ function  pageMiscellaneous_onSelector()
 		case 2: rheaShowElem(elemLM); break;
 		case 3: rheaShowElem(elemFV); break;
 		case 4: rheaShowElem(elemBCT); break;
+		case 5: rheaShowElem(elemAdvGrinder); break;
 	}
 	win.showHideScrollBar();
 }
@@ -2861,9 +2890,20 @@ function pageSingleSelection_build()
 			if (da3.isCappuccinatoreInduzione())
 				htmlE  += "<tr><td>FRISCHMILCH<br>SCHAUMTYP</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|HEISS, OHNE SCHAUM|1|HEISSER SCHAUM 1|2|HEISSER SCHAUM 2|3|HEISSER SCHAUM 3|4|KALT, OHNE SCHAUM|5|KALTER SCHAUM 1|6|KALTER SCHAUM 2|7|KALTER SCHAUM 3' data-da3='164' data-da3bit='4'></div></td></tr>";
 		
+			//minimo 2 macine, ma potrebbero essercene di +
+			var optionsForGrinder = "0|1|1|2";
+			for (var i=2; i<da3.getNumMacine(); i++)
+				optionsForGrinder += "|" +i +"|" +(i+1);
 			htmlE  += "<tr><td>FRESH MILK<br>AIR DURATION</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td></tr>"
 				     +"<tr><td>FRISCHMILCH<br>VERZOEGERUNG LUFT</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
-				     +"<tr><td>MAHLWERK</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|1|1|2' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
+				     +"<tr><td>MAHLWERK</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='" +optionsForGrinder +"' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
+					 
+			//se macchina Brewmatic, allora ci sono le opzioni di time/speed per la macina
+			if (da3.isMachine_Brewmatic4Macine())
+			{
+				htmlE += 	 "<tr><td>VIBRATION TIME</td><td><div class='UINumber'  data-da3bit='8' data-numfigures='3'  data-da3='182' data-max='255' data-um='sec' data-decimal='1'></div></td></tr>"
+							+"<tr><td>VIBRATION SPEED</td><td><div class='UINumber' data-da3bit='8' data-numfigures='3' data-da3='183' data-max='100' data-um='%'></div></td></tr>"
+			}
 		}
 
 		htmlE += "<tr><td>KAFFEE WIEDERHOLUNG</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"
@@ -3290,24 +3330,11 @@ function pageCalibration_show()
 	if (showPage("pageCalibration", "KALIBRIERUNG INSTANT", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
-		if (da3.isInstant())
-		{
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder1"));
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
-		}
-		else
+		if (da3.isEspresso())
 		{
 			//nascondo motor 1 e motor 2
 			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor1"));
 			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor2"));
-			if (da3.getNumMacine() == 1)
-				rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
-				
-			//nascondo la calibrazione di macina1&2 anche qui perchè ho spostto tuto nel menu ESPRESSO calibration
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder1"));
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));		
-			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
-			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
 		}
 	}
 
@@ -3324,33 +3351,14 @@ function pageCalibration_refreshCalibValueOnScreen()
 			var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
 		}
-		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
-		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
 	}
 	else
 	{
-		//macina 1
-		var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(11) );
-		rheaSetDivHTMLByName("pageCalibration_m11", v +"&nbsp;gr/sec");
-		v = helper_decodeImpulsi(da3.getImpulsi(11));
-		rheaSetDivHTMLByName("pageCalibration_encoder1", v +"&nbsp;imp/gr");
-		
 		//motori
-		for (var i=2; i<=6; i++)
+		for (var i=1; i<=6; i++)
 		{
 			v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
-		}
-		
-		//macina 2
-		if (da3.getNumMacine() == 1)
-			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
-		else
-		{
-			v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(12) );
-			rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
-			v = helper_decodeImpulsi(da3.getImpulsi(12));
-			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/gr");
 		}
 	}	
 	ui.getWindowByID("pageCalibration").showHideScrollBar();
@@ -3364,18 +3372,6 @@ function pageCalibration_reset(motor)
 		rheaSetDivHTMLByName("pageCalibration_m" +motor, "0&nbsp;gr/sec");
 		da3.setCalibFactorGSec(motor, 0);
 
-		if (motor==11) 
-		{
-			da3.setImpulsi(11,0);
-			rheaSetDivHTMLByName("pageCalibration_encoder1", "0");
-		}
-
-		if (motor==12)
-		{
-			da3.setImpulsi(12,0);
-			rheaSetDivHTMLByName("pageCalibration_encoder2", "0");
-		}
-		
 		setTimeout (
 			function()
 			{
@@ -4149,6 +4145,7 @@ var taskEspressoCalib = null;
 var pageExpCalib_macina1o2 = 1;
 function pageExpCalib_show()
 {
+	var win = ui.getWindowByID("pageExpCalib");
 	if (showPage("pageExpCalib", "KALIBRIERUNG ESPRESSO", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
@@ -4158,6 +4155,13 @@ function pageExpCalib_show()
 			rheaHideElem(rheaGetElemByID("pageExpCalib_rowimpulsi"));
 			rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_1_varigrind"));
 		}
+		
+		var optionsForGrinder = "1|1|2|2";
+		for (var i=2; i<da3.getNumMacine(); i++)
+			optionsForGrinder += "|" +(i+1) +"|" +(i+1);			
+		var uiOptions = win.getChildByID("pageExpCalib_macina1o2");
+		uiOptions.changeOptions (optionsForGrinder);
+		uiOptions.selectOptionByIndex(0);
 	}
 	btnTestSelection_hide();
 
@@ -4288,11 +4292,11 @@ function pageExpCalib_onChangeGrinder()
 {
 	pleaseWait_show();
 	var win = ui.getWindowByID("pageExpCalib");
-	switch (parseInt(win.getChildByID("pageExpCalib_macina1o2").getSelectedOptionValue()))
-	{
-		case 2: pageExpCalib_macina1o2=2; break;
-		default: pageExpCalib_macina1o2=1; break;
-	}
+
+	pageExpCalib_macina1o2 = parseInt(win.getChildByID("pageExpCalib_macina1o2").getSelectedOptionValue());
+	if (pageExpCalib_macina1o2 == 0 || pageExpCalib_macina1o2 > da3.getNumMacine())
+		pageExpCalib_macina1o2 = 1;
+
 	rheaSetDivHTMLByName("pageExpCalib_vgCurPos", "");
 	win.getChildByID("pageExpCalib_vg_target").setValue(0);
 	
@@ -4300,3 +4304,4 @@ function pageExpCalib_onChangeGrinder()
 }
 </script>
 </html>
+

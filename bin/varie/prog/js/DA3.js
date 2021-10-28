@@ -76,6 +76,7 @@ DA3.prototype.isMachine_MultibonaEspresso = function()				{ return (this.machine
 DA3.prototype.isMachine_MultibonaInstant  = function()				{ return (this.machineModel==88); }
 DA3.prototype.isMachine_MinibonaEspresso = function()				{ return (this.machineModel==87); }
 DA3.prototype.isMachine_MinibonaInstant  = function()				{ return (this.machineModel==89); }
+DA3.prototype.isMachine_Brewmatic4Macine  = function()				{ return (this.machineModel==91); }
 DA3.prototype.getTipoGruppoCaffe = function ()						{ return this.tipoGruppoCaffe; }
 DA3.prototype.isGruppoMicro = function ()							{ if (this.getTipoGruppoCaffe() == 'M') return 1; return 0;}
 DA3.prototype.isGruppoVariflex = function ()						{ if (this.getTipoGruppoCaffe() == 'V') return 1; return 0;}
@@ -91,7 +92,7 @@ DA3.prototype.isVarigrindAutoRegolationEnabled = function (whichOne)
 		return 1; 
 	return 0; 
 }
-DA3.prototype.getNumMacine = function()								{ if (this.isInstant()) return 0;  return parseInt(this.da3_current[9465]); }
+DA3.prototype.getNumMacine = function()								{ if (this.isMachine_Brewmatic4Macine()) return 4; if (this.isInstant()) return 0;  return parseInt(this.da3_current[9465]); }
 DA3.prototype.getModelCode = function ()							{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		
 { 	return 6;
@@ -162,7 +163,8 @@ DA3.prototype.getCalibFactorGSec = function (motor)
 	var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); 
 	//console.log ("DA3::getCalibFactorGSec motor[" +motor +"] loc[" +loc +"]");
 	if (loc>0) 
-		return this.read16(loc); return 0;
+		return this.read16(loc);
+	return 0;
 }
 
 
