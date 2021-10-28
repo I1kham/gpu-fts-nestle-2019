@@ -57,7 +57,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labESAPI->setText ("rheAPI module: <span style='color:#fff'>none</span>");
 
     //Bottoni
-    ui->btnInstall_languages->setVisible(false);
+    //ui->btnInstall_languages->setVisible(false);
 
     ui->framePleaseWait->setVisible(false);
     ui->framePleaseWait->move (0, 250);
