@@ -123,7 +123,7 @@ DA3.prototype.freevendFasciaOraria_stopItNow = function ()
 	this.write8(8439, 0); //data scadenza anno
 }
 
-
+//*********************************************************************
 DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 {
 	if (this.isInstant())
@@ -146,21 +146,25 @@ DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 	}	
 	return 0;
 }
-
 DA3.prototype.setCalibFactorGSec = function (motor, v)		
 { 
 	var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); 
 	//console.log ("DA3::setCalibFactorGSec motor[" +motor +"] v[" +v +"] loc[" +loc +"]");
-	if (loc>0) 
+	if (loc > 0) 
+	{
 		this.write16(loc, parseInt(v));
 	
-	//macina 1 va salvata anche qui
-	if (motor==11)
-		this.write16(7534, parseInt(v));
-	
-	//macina 2 va salvata anche qui
-	if (motor==12)
-		this.write16(7546, parseInt(v));
+		loc = 0;
+		switch (motor)
+		{
+		case 11: loc = 7534; break; //macina 1 va salvata anche qui
+		case 12: loc = 7546; break; //macina 2 va salvata anche qui
+		case 13: loc = 7548; break; //macina 3 va salvata anche qui
+		case 14: loc = 7550; break; //macina 4 va salvata anche qui
+		}	
+		if (loc != 0)
+			this.write16(loc, parseInt(v));
+	}
 }
 DA3.prototype.getCalibFactorGSec = function (motor)			
 { 
@@ -171,22 +175,33 @@ DA3.prototype.getCalibFactorGSec = function (motor)
 	return 0;
 }
 
-
+//*********************************************************************
+DA3.prototype.priv_getLocationForImpulsi = function (motor)
+{
+	switch (parseInt(motor))
+	{
+		default:	return 0;
+		case 11:	return 7560; //macina 1
+		case 12:	return 7564; //macina 2
+		case 13:	return 7574; //macina 3
+		case 14:	return 7578; //macina 4
+	}
+}
 DA3.prototype.getImpulsi = function (motor)		
 { 
-	if (motor==11)
-		return this.read16(7560); //macina 1
-	else if (motor==12)
-		return this.read16(7564); //macina 2
+	var loc = this.priv_getLocationForImpulsi(motor);
+console.log ("DA3::getImpulsi(" +motor +") => loc=" +loc);
+	if (loc != 0)
+		return this.read16(loc);
 	return 0;
-	
 }
 DA3.prototype.setImpulsi = function (motor,v)	
 { 
-	if (motor==11)
-		this.write16(7560, parseInt(v)); //macina 1
-	else if (motor==12)
-		this.write16(7564, parseInt(v)); //macina 2
+	var loc = this.priv_getLocationForImpulsi(motor);
+	if (loc != 0)
+		this.write16(loc, parseInt(v));
+	
+	console.log ("DA3::setImpulsi(" +motor +"," +v+") => loc=" +loc);
 }
 
 DA3.prototype.getVarigrindLastPosDa3Loc = function (vgIndex1to4)
