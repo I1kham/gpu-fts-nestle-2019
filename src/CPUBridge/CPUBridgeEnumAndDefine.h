@@ -87,6 +87,7 @@
 #define		CPUBRIDGE_NOTIFY_CPU_STOP_JUG						0x013D
 #define		CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION		0x013E
 #define		CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC		0x013F
+#define		CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE					0x0140
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -167,6 +168,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_STOP_JUG									0x0847
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_CURRENT_REPETITION						0x0848
 #define		CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC					0x0849
+#define		CPUBRIDGE_SUBSCRIBER_ASK_BROWSER_URL_CHANGE								0x084A
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask

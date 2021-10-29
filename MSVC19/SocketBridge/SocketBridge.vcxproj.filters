@@ -315,6 +315,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.cpp">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_browserNotifyURLChange.cpp">
+      <Filter>CmdHandler\ajax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -631,6 +634,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h">
       <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_browserNotifyURLChange.h">
+      <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

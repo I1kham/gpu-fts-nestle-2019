@@ -2420,6 +2420,34 @@ void cpubridge::translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread:
 	*out_grinder1_o_2 = p[0];
 }
 
+//***************************************************
+void cpubridge::ask_CPU_BROWSER_URL_CHANGE (const sSubscriber &from, u16 handlerID, const char *url)
+{
+	u8 otherData[512];
+	memset (otherData, 0, sizeof(otherData));
+
+	u32 len = rhea::string::utf8::lengthInBytes (reinterpret_cast<const u8*>(url));
+	if (len > 200)
+		len = 200;
+
+	otherData[0] = static_cast<u8>(len);
+	if (len)
+		memcpy (&otherData[1], url, len);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_BROWSER_URL_CHANGE, handlerID, otherData, len+1);
+}
+void cpubridge::translate_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg &msg, char *out_url, u32 sizeof_out_url)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_BROWSER_URL_CHANGE);
+	const u8 *p = (const u8*)msg.buffer;
+	
+	u8 len = p[0];
+	if (len >= sizeof_out_url)
+		len = sizeof_out_url-1;
+	if (len)
+		memcpy (out_url, &p[1], len);
+	out_url[len] = 0x00;
+}
+
 
 //***************************************************
 void cpubridge::ask_CPU_ACTIVATE_BUZZER (const sSubscriber &from, u16 handlerID, u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec)
@@ -2661,6 +2689,37 @@ void cpubridge::translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::threa
 
 	*out_nOf = p[0];
 	*out_m = p[1];
+}
+
+//***************************************************
+void cpubridge::notify_CPU_BROWSER_URL_CHANGE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const char *url)
+{
+	logger->log("notify_CPU_BROWSER_URL_CHANGE [%s]\n", url);
+	
+	u8 otherData[512];
+	memset (otherData, 0, sizeof(otherData));
+
+	u32 len = rhea::string::utf8::lengthInBytes (reinterpret_cast<const u8*>(url));
+	if (len > 200)
+		len = 200;
+
+	otherData[0] = static_cast<u8>(len);
+	if (len)
+		memcpy (&otherData[1], url, len);
+	
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE, handlerID, &otherData, 1+len);
+}
+void cpubridge::translateNotify_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg& msg, char *out_url, u32 sizeof_out_url)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE);
+	const u8 *p = (const u8*)msg.buffer;
+
+	u8 len = p[0];
+	if (len >= sizeof_out_url)
+		len = sizeof_out_url - 1;
+	if (len)
+		memcpy (out_url, &p[1], len);
+	out_url[len] = 0x00;
 }
 
 //***************************************************

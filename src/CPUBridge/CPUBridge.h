@@ -370,6 +370,9 @@ namespace cpubridge
 	void		translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m);
 
 	void		notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger);
+
+	void		notify_CPU_BROWSER_URL_CHANGE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const char *url);
+	void		translateNotify_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg& msg, char *out_url, u32 sizeof_out_url);
 	
 	/***********************************************
 		ask_xxxx
@@ -648,6 +651,9 @@ namespace cpubridge
 					//notifica CPU segnalando la fine della procedura di grinder cleaning
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_END_OF_GRINDER_CLEANING_PROCEDURE
 	
+	void		ask_CPU_BROWSER_URL_CHANGE (const sSubscriber &from, u16 handlerID, const char *url);
+	void		translate_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg &msg, char *out_url, u32 sizeof_out_url);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_BROWSER_URL_CHANGE
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_
