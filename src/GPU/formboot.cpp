@@ -1,7 +1,6 @@
 #include "header.h"
 #include "formboot.h"
 #include "ui_formboot.h"
-#include "history.h"
 #include "../rheaAppLib/rheaAppUtils.h"
 #include "../rheaExternalSerialAPI/ESAPI.h"
 #include <QWidget>

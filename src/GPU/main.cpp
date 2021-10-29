@@ -10,11 +10,8 @@
 #include "../rheaExternalSerialAPI/ESAPI.h"
 #include "../rheaCommonLib/SimpleLogger/FileLogger.h"
 
-<<<<<<< HEAD
-MainWindow *myMainWindow = NULL;
-=======
+//file:///home/root/Desktop/gpu-fts-nestle-2019/bin/current/gui/web/startup.html
 static MainWindow *myMainWindow = NULL;
->>>>>>> r33
 
 //****************************************************
 bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)

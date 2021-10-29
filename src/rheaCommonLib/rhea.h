@@ -262,6 +262,11 @@ namespace rhea
 		inline bool     writeByte(OSSerialPort &sp, u8 byteToWrite)										{ return (platform::serialPort_writeBuffer(sp, &byteToWrite, 1) == 1); }
 	} //namespace rs232
 
+    namespace browser
+    {
+        inline bool     open (const char *url, bool bFullscreen)                                        { return platform::BROWSER_open (url, bFullscreen); }
+        inline void     closeAllInstances()                                                             { platform::BROWSER_closeAllInstances(); }
+    } //namespace browser
 
 
 } //namespace rhea
