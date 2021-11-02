@@ -81,6 +81,10 @@ namespace platform
 					//====================================== networking
 	sNetworkAdapterInfo*	NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_numFound);
 	bool					NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress);
+
+
+    bool            BROWSER_open (const char *url, bool bFullscreen);
+    void            BROWSER_closeAllInstances();
 }   //namespace platform
 
 #include "linuxOSSocket.h"

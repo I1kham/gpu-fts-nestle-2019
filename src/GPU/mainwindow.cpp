@@ -2,9 +2,9 @@
 #include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "history.h"
 #include "../rheaAppLib/rheaAppUtils.h"
 #include "../rheaExternalSerialAPI/ESAPI.h"
+#include "../rheaCommonLib/rhea.h"
 
 
 
@@ -82,12 +82,21 @@ void MainWindow::priv_scheduleFormChange(eForm w)
 //*****************************************************
 void MainWindow::priv_loadURL (const char *url)
 {
-    ui->labInfo->setVisible(false);
-    this->show();
-
 #ifdef _DEBUG
     printf ("URL:%s\n", url);
 #endif
+
+    retCode = eRetCode_none;
+    rhea::browser::closeAllInstances();
+    ui->labInfo->setVisible(false);
+    this->show();
+    rhea::browser::open (url, false);
+    utils::hideMouse();
+
+
+/*
+    ui->labInfo->setVisible(false);
+    this->show();
 
     //carico la GUI nel browser
     retCode = eRetCode_none;
@@ -96,6 +105,7 @@ void MainWindow::priv_loadURL (const char *url)
     utils::hideMouse();
     ui->webView->raise();
     ui->webView->setFocus();
+*/
 }
 
 //*****************************************************
@@ -214,7 +224,6 @@ void MainWindow::priv_showForm (eForm w)
             sprintf_s (s, sizeof(s), "%s/web/startup.html", glob->current_GUI);
             if (rhea::fs::fileExists((const u8*)s))
                 sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
-
             else
                 sprintf_s (s, sizeof(s), "file://%s/varie/no-gui-installed.html", rhea::getPhysicalPathToAppFolder());
 
@@ -222,6 +231,8 @@ void MainWindow::priv_showForm (eForm w)
             cpubridge::ask_CPU_QUERY_INI_PARAM(glob->cpuSubscriber, 0);
             cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
             cpubridge::ask_CPU_QUERY_STATE(glob->cpuSubscriber, 0);
+
+
         }
         break;
 
@@ -232,7 +243,7 @@ void MainWindow::priv_showForm (eForm w)
         break;
 
     case eForm_newprog:
-        priv_loadURLMenuProg(NULL);
+         priv_loadURLMenuProg(NULL);
         break;
 
     case eForm_newprog_lavaggioSanitario:
@@ -439,11 +450,7 @@ void MainWindow::priv_syncWithCPU_onTick()
                     if ((u8)glob->esapiModule.moduleType > 0)
                     {
                         char s[32];
-<<<<<<< HEAD
                         sprintf_s (s, sizeof(s), "rheAPI [%d] [%d] [%d]", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
-=======
-                        sprintf_s (s, sizeof(s), "rheAPI [%d] [%d] [%d]", glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
->>>>>>> r33
                         priv_addText (s);
                         syncWithCPU.stato = 5;
                     }
@@ -572,10 +579,6 @@ void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &m
     }
 }
 
-
-
-
-
 //********************************************************************************
 eRetCode MainWindow::priv_showBrowser_onTick()
 {
@@ -614,8 +617,6 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
         {
             cpubridge::eRunningSelStatus s = cpubridge::eRunningSelStatus::finished_KO;
             cpubridge::translateNotify_CPU_RUNNING_SEL_STATUS (msg, &s);
-            if (s == cpubridge::eRunningSelStatus::finished_OK)
-                History::incCounterSelezioni();
         }
         break;
 

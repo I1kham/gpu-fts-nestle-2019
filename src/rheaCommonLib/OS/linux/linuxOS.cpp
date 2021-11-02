@@ -224,4 +224,29 @@ bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 	}
 	return false;
 }
+
+//*******************************************************************
+bool platform::BROWSER_open (const char *url, bool bFullscreen)
+{
+    char s[512];
+    if (bFullscreen)
+        sprintf_s (s, sizeof(s), "chromium --kiosk --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito %s", url);
+    else
+        sprintf_s (s, sizeof(s), "chromium %s", url);
+    platform::runShellCommandNoWait (s);
+    return true;
+}
+
+//*******************************************************************
+void platform::BROWSER_closeAllInstances ()
+{
+    //platform::runShellCommandNoWait ("/usr/bin/pkill --oldest --signal TERM -f chromium");
+
+    FILE *fp = popen ("/usr/bin/pkill --signal TERM chromium", "r");
+    if (NULL == fp)
+        return;
+    char result[256];
+    fgets (result, sizeof(result), fp);
+    fclose (fp);
+}
 #endif
