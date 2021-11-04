@@ -2,6 +2,7 @@
 #define FORMPROG_H
 #include "header.h"
 #include <QDialog>
+#include <QKeyEvent>
 #include "../CPUBridge/CPUBridge.h"
 
 namespace Ui
@@ -23,6 +24,7 @@ public:
 
     void                        showMe();
     eRetCode                    onTick();
+    void                        keyPressEvent(QKeyEvent *ev);
 
 private slots:
     void                        on_buttonB1_pressed();
