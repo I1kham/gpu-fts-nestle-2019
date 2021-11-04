@@ -330,8 +330,6 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION:
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG:
 		{
-			bool bForceJug = false;
-
 			sStartSelectionParams params;
 			params.how = eStartSelectionMode_default;
 			params.asDefault.selNum = 0;
@@ -1407,12 +1405,20 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_BROWSER_URL_CHANGE:
 			{
+                //A seguito della creazione delle macchine rhTT1 che non lavorano più con il browser incorporato nelle QT ma lavorano con un browser
+                //esterno, questa notifica nasce per soddisfare l'esigenza di capire quando il browser vuole "uscire" dalla GUI utente per andare in GUI
+                //programmazione e viceversa. Prima questa cosa veniva automaticamente intercettata dalla GPU Qt in quando il browser incorporato inviava
+                //una notifica al codice c++ (vedi progetto GPU, mainwindow.cpp fn on_webView_urlChanged).
+                //Nel caso di macchine rhTT con browser esterno, bisognava trovare un modo per simulare lo stesso comportamente e quindi ho creato questo
+                //messaggio che va inoltrato al "subscriber GPU" per notificarlo del cambio di URL del browser
 				char url[200];
 				translate_CPU_BROWSER_URL_CHANGE (msg, url, sizeof(url));
 
-				//notifico tutti i sub
+                //notify_CPU_BROWSER_URL_CHANGE (sub->q, handlerID, logger, url);
+
+                //notifico tutti i sub
 				for (u32 i = 0; i < subscriberList.getNElem(); i++)
-					notify_CPU_BROWSER_URL_CHANGE (subscriberList(i)->q, handlerID, logger, url);
+                    notify_CPU_BROWSER_URL_CHANGE (subscriberList(i)->q, handlerID, logger, url);
 			}
 			break;
 
@@ -2682,6 +2688,8 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 		cpuParamIniziali.protocol_version = answer[115];
 
 #if defined(PLATFORM_YOCTO_EMBEDDED) || defined(PLATFORM_ROCKCHIP)
+#ifndef _DEBUG
+    //quando siamo davvero sulla macchina del caffè, è la CPU che determina la data e l'ora
 	u16 date_year = answer[3] + 2000;
 	u16 date_month = answer[4];
 	u16 date_dayOfMonth = answer[5];
@@ -2699,6 +2707,7 @@ void Server::priv_parseAnswer_initialParam (const u8 *answer, u16 answerLen)
 	sprintf(s, "date -u %02d%02d%02d%02d%04d.%02d", date_month, date_dayOfMonth, date_hour, date_min, date_year, date_sec);
 	system(s);
 	system("hwclock -w");
+#endif
 #endif
 }
 

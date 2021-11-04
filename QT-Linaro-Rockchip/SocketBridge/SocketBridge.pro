@@ -133,6 +133,7 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_T_VMCDataFileTimestamp.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_isQuickMenuPinCodeSet.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_validateQuickMenuPinCode.h \
@@ -248,6 +249,7 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_T_VMCDataFileTimestamp.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_isQuickMenuPinCodeSet.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_setLastUsedLangForProgMenu.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_validateQuickMenuPinCode.cpp \
@@ -293,3 +295,5 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTask.cpp \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
+
+

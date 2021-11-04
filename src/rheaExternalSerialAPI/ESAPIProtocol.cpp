@@ -100,9 +100,13 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
         switch (msg.what)
         {
         default:
-			DBGBREAK;
-			return false;
+            DBGBREAK;
+            return false;
 		
+        case CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE:
+            //lo ignoriamo
+            break;
+
 		case CPUBRIDGE_NOTIFY_QUERY_ID101:
             //risposta al comando  #A2
             {

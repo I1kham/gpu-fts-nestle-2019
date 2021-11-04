@@ -48,13 +48,13 @@ void platform::event_fire (const OSEvent &ev)
         if (err > 0)
             return;
 
-        /*if (err < 0)
+        if (err < 0)
         {
             //EAGAIN
             int myerrno = errno;
             printf ("%d\n", myerrno);
         }
-        */
+
     }
 }
 

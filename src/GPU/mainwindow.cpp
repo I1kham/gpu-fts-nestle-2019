@@ -94,8 +94,8 @@ void MainWindow::priv_loadURL (const char *url)
     utils::hideMouse();
 
 
-/*
-    ui->labInfo->setVisible(false);
+
+    /*ui->labInfo->setVisible(false);
     this->show();
 
     //carico la GUI nel browser
@@ -272,7 +272,6 @@ void MainWindow::priv_addText (const char *s)
     utils::waitAndProcessEvent(300);
 }
 
-
 //*****************************************************
 void MainWindow::timerInterrupt()
 {
@@ -358,7 +357,6 @@ void MainWindow::timerInterrupt()
 
     isInterruptActive=false;
 }
-
 
 //*****************************************************
 void MainWindow::priv_syncWithCPU_onTick()
@@ -605,6 +603,17 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
+    case CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE:
+        {
+            char newURL[256];
+            memset (newURL, 0, sizeof(newURL));
+            cpubridge::translateNotify_CPU_BROWSER_URL_CHANGE (msg, newURL, sizeof(newURL));
+
+            QUrl url(newURL);
+            on_webView_urlChanged (url);
+        }
+        break;
+
     case CPUBRIDGE_NOTIFY_CPU_INI_PARAM:
         {
             cpubridge::sCPUParamIniziali iniParam;
@@ -688,6 +697,17 @@ void MainWindow::priv_showNewProgrammazione_onCPUBridgeNotification (rhea::threa
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
+    case CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE:
+        {
+            char newURL[256];
+            memset (newURL, 0, sizeof(newURL));
+            cpubridge::translateNotify_CPU_BROWSER_URL_CHANGE (msg, newURL, sizeof(newURL));
+
+            QUrl url(newURL);
+            on_webView_urlChanged (url);
+        }
+        break;
+
     case CPUBRIDGE_NOTIFY_BTN_PROG_PRESSED:
         //l'utente ha premuto il btn PROG
         retCode = eRetCode_gotoFormBrowser;
