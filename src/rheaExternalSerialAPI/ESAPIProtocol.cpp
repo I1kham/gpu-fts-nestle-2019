@@ -105,7 +105,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 		
         case CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE:
             //lo ignoriamo
-            break;
+            return false;
 
 		case CPUBRIDGE_NOTIFY_QUERY_ID101:
             //risposta al comando  #A2

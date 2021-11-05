@@ -32,7 +32,7 @@ namespace platform
 	void            getDateNow(u16 *out_year, u16 *out_month, u16 *out_day);
 	void            getTimeNow(u8 *out_hour, u8 *out_min, u8 *out_sec);
 
-	void            runShellCommandNoWait(const char* cmdIN);
+	bool            runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLineParameters, const u8 *workingDir);
 
 	eThreadError    createThread(OSThread &out_handle, OSThreadFunction threadFunction, size_t stackSizeInKb, void *userParam);
 	void            killThread (OSThread &handle);
@@ -87,6 +87,9 @@ namespace platform
 					//====================================== networking
 	sNetworkAdapterInfo* NET_getListOfAllNerworkAdpaterIPAndNetmask (rhea::Allocator *allocator, u32 *out_numFound);
 	bool				NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress);
+
+	bool			BROWSER_open (const u8 *url, bool bFullscreenMode);
+	void			BROWSER_closeAllInstances ();
 }   //namespace platform
 
 #include "winOSSocket.h"

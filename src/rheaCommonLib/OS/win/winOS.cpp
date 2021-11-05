@@ -9,12 +9,13 @@ struct	sWin32PlatformData
 	HINSTANCE			hInst;
 	u8					applicationPathNoSlash[256];
 	u8					writableFolderPathNoSlash[256];
+	wchar_t				chromeFullPathAndName[256];
 	u64					hiresTimerFreq;
 	uint64_t			timeStarted;
 	WSADATA				wsaData;
 };
 
-sWin32PlatformData	win32PlatformData;
+static sWin32PlatformData	win32PlatformData;
 
 //********************************************* 
 bool platform::win32::utf8_towchar (const u8 *utf8_string, u32 nBytesToUse, wchar_t *out, u32 sizeInBytesOfOut)
@@ -166,12 +167,32 @@ void platform::getTimeNow(u8 *out_hour, u8 *out_min, u8 *out_sec)
 
 
 //*******************************************************************
-void platform::runShellCommandNoWait (const char *cmdIN)
+bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLineParameters, const u8 *workingDir)
 {
-	//non implementata
-	DBGBREAK;
-}
+	wchar_t fullPathExeNameW[256];
+	win32::utf8_towchar (fullPathExeName, u32MAX, fullPathExeNameW, sizeof(fullPathExeNameW));
 
+	wchar_t cmdLineParametersW[256];
+	wchar_t *pCmdLineParms = NULL;
+	if (NULL != cmdLineParameters)
+	{
+		win32::utf8_towchar (cmdLineParameters, u32MAX, cmdLineParametersW, sizeof(cmdLineParametersW));
+		pCmdLineParms = cmdLineParametersW;
+	}
+
+	wchar_t workingDirW[256];
+	wchar_t *pWorkingDir = NULL;
+	if (NULL != workingDir)
+	{
+		win32::utf8_towchar (workingDir, u32MAX, workingDirW, sizeof(workingDirW));
+		pWorkingDir = workingDirW;
+	}
+
+	if ( (uiPtr)ShellExecute (NULL, L"open", fullPathExeNameW, pCmdLineParms, pWorkingDir, SW_SHOWDEFAULT) > 32)
+		return true;
+	return false;
+
+}
 //*******************************************************************
 #include "Iphlpapi.h"
 #include "ws2tcpip.h"
@@ -322,4 +343,93 @@ bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 	RHEAFREE(allocator, AdapterInfo);
 	return false;
 }
+
+//*****************************************************
+bool win32_findChrome (HKEY rootKey, wchar_t *out, u32 sizeofOut)
+{
+	#define CHROME_IN_REGISTRY L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"
+
+	out[0] = 0;
+
+	HKEY hKey;
+	if (ERROR_SUCCESS != RegOpenKeyEx(rootKey, CHROME_IN_REGISTRY, 0, KEY_QUERY_VALUE, &hKey))
+		return false;
+
+	DWORD type = REG_MULTI_SZ;
+	DWORD sizeOfOut = sizeofOut;
+	if (ERROR_SUCCESS != RegQueryValueEx(hKey, NULL, NULL, &type, (LPBYTE)out, &sizeOfOut))
+		return false;
+
+	if (out[0] != 0x00)
+		return true;
+	return false;
+}
+
+//*****************************************************
+bool win32_findChrome()
+{
+	//Cerco chrome
+	if (!win32_findChrome(HKEY_CURRENT_USER, win32PlatformData.chromeFullPathAndName, sizeof(win32PlatformData.chromeFullPathAndName)))
+	{
+		if (!win32_findChrome(HKEY_LOCAL_MACHINE, win32PlatformData.chromeFullPathAndName, sizeof(win32PlatformData.chromeFullPathAndName)))
+		{
+			printf ("ERR: Unable to find the Chrome browser.\nPlease install chrome browser and try again.\n");
+			win32PlatformData.chromeFullPathAndName[0] = 0x00;
+			return false;
+		}
+	}
+
+	//platform::win32::wchar_to_utf8 (chromeFullPathAndName, u32MAX, win32PlatformData.chromeFullPathAndName, sizeof(win32PlatformData.chromeFullPathAndName));
+	return true;
+}
+
+//*******************************************************************
+bool platform::BROWSER_open (const u8 *url, bool bFullscreenMode)
+{
+	if (0x00 == win32PlatformData.chromeFullPathAndName[0])
+	{
+		if (!win32_findChrome())
+			return false;
+	}
+
+	u8	commandLineParams[512];
+	if (bFullscreenMode)
+		//rhea::string::utf8::spf (commandLineParams, sizeof(commandLineParams), "--kiosk --incognito --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --app=%s", url);
+		rhea::string::utf8::spf (commandLineParams, sizeof(commandLineParams), "--kiosk --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito %s", url);
+	else
+		rhea::string::utf8::spf (commandLineParams, sizeof(commandLineParams), "%s", url);
+
+	wchar_t cmdLineParametersW[512];
+	win32::utf8_towchar (commandLineParams, u32MAX, cmdLineParametersW, sizeof(cmdLineParametersW));
+
+	const wchar_t verb[] = L"open";
+
+	SHELLEXECUTEINFO sh;
+	memset (&sh, 0, sizeof(SHELLEXECUTEINFO));
+	sh.cbSize = sizeof(SHELLEXECUTEINFO);
+	sh.fMask = SEE_MASK_DEFAULT | SEE_MASK_NOCLOSEPROCESS;
+	sh.lpVerb = verb;
+	sh.lpFile = win32PlatformData.chromeFullPathAndName;
+	sh.lpParameters = cmdLineParametersW;
+	sh.nShow = SW_SHOWDEFAULT;
+
+
+	if (!ShellExecuteEx (&sh))
+		return false;
+
+/*	::Sleep(5000);
+	TerminateProcess(sh.hProcess, 0);
+	const DWORD result = WaitForSingleObject(sh.hProcess, 500);
+	CloseHandle(sh.hProcess);
+*/
+	return true;
+}
+
+//*******************************************************************
+void platform::BROWSER_closeAllInstances ()
+{
+	platform::runShellCommandNoWait ((const u8*)"taskkill", (const u8*)"/F /IM \"chrome.exe\" /T", NULL);
+}
+
 #endif //WIN32
+

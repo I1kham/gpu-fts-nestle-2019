@@ -40,11 +40,11 @@ namespace rhea
 	inline Allocator*	getScrapAllocator()									{ return memory_getScrapAllocator2(); }
 
 
-    inline void         shell_runCommandNoWait(const char* cmd)										{ platform::runShellCommandNoWait(cmd); }
+    inline bool         runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLineParameters, const u8 *workingDir)		{ return platform::runShellCommandNoWait(fullPathExeName, cmdLineParameters, workingDir); }
                         //esegue un comando di shell senza attenderne la terminazione
 
 	bool				isLittleEndian();
-	inline bool			isBigEndian()																	{ return !rhea::isLittleEndian(); }
+	inline bool			isBigEndian()																		{ return !rhea::isLittleEndian(); }
 
 
 	/************************************************************************************************************
@@ -264,7 +264,7 @@ namespace rhea
 
     namespace browser
     {
-        inline bool     open (const char *url, bool bFullscreen)                                        { return platform::BROWSER_open (url, bFullscreen); }
+        inline bool     open (const u8 *url, bool bFullscreen)											{ return platform::BROWSER_open (url, bFullscreen); }
         inline void     closeAllInstances()                                                             { platform::BROWSER_closeAllInstances(); }
     } //namespace browser
 

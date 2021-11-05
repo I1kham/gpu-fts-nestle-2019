@@ -98,29 +98,37 @@ void platform::getTimeNow (u8 *out_hour, u8 *out_min, u8 *out_sec)
 }
 
 //*******************************************************************
-void platform::runShellCommandNoWait(const char *cmdIN)
+bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLineParameters, const u8 *workingDir)
 {
-    if (fork() != 0)
-        return;
+	//from: http://www.qnx.com/developers/docs/qnxcar2/index.jsp?topic=%2Fcom.qnx.doc.neutrino.lib_ref%2Ftopic%2Fe%2Fexecvpe.html   
+	//The execvpe() function uses the paths listed in the PATH environment variable to locate the program to be loaded, provided that the following conditions are met:
+	//
+	//The file argument identifies the name of program to be loaded.
+	//If no path character (/) is included in the name, an attempt is made to load the program from one of the paths in the PATH environment variable.
+	//If PATH isn't defined, the current working directory is used.
+	//If a path character (/) is included in the name, the program is loaded from the path specified in file.
+	//The process is started with the argument specified in argv, a NULL-terminated array of NULL-terminated strings. The argv[0] entry should point to a filename associated with the program being loaded. The argv argument can't be NULL but argv[0] can be NULL if no arguments are required.
+	//
+	//The new process's environment is specified in envp, a NULL-terminated array of NULL-terminated strings. envp cannot be NULL, but envp[0] can be a NULL pointer if no environment strings are passed.
 
-    char cmd[256];
-    strcpy (cmd, cmdIN);
+    if (fork() != 0)
+        return false;
 
     const char* argv[16];
     memset (argv,0,sizeof(argv));
 
     u8 ct = 0;
-    argv[ct++] = cmd;
+    argv[ct++] = reinterpret_cast<const char*>(fullPathExeName);
 
-    size_t n = strlen(cmd);
-    size_t i=0;
-    while (i<n)
+    u32 n = rhea::string::utf8::lengthInBytes(cmdLineParameters);
+    u32 i=0;
+    while (i < n)
     {
         if (cmd[i] == ' ')
         {
             while (cmd[i] == ' ' && i<n)
                 cmd[i++] = 0x00;
-            argv[ct++] = &(cmd[i]);
+            argv[ct++] = reinterpret_cast<const char*>(&(cmd[i]));
         }
         i++;
     }
@@ -136,8 +144,15 @@ void platform::runShellCommandNoWait(const char *cmdIN)
         }
     }*/
 
+
+    const char* envp[16];
+    memset (envp,0,sizeof(envp));
+	if (NULL != workingDir)
+		envp[0] = reinterpret_cast<const char*>(workingDir);
+
     //run
-    execvp(cmd, (char* const*)argv);
+    execvpe (reinterpret_cast<const char*>(fullPathExeName), (char* const*)argv, (char* const*)envp);
+    return true;
 }
 
 //*******************************************************************
@@ -226,13 +241,13 @@ bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 }
 
 //*******************************************************************
-bool platform::BROWSER_open (const char *url, bool bFullscreen)
+bool platform::BROWSER_open (const char *u8, bool bFullscreen)
 {
     char s[512];
     if (bFullscreen)
-        sprintf_s (s, sizeof(s), "chromium --test-type --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito --kiosk %s", url);
+       rhea::string::utf8::spf (s, sizeof(s), "chromium --test-type --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito --kiosk %s", url);
     else
-        sprintf_s (s, sizeof(s), "chromium --test-type %s", url);
+        rhea::string::utf8::spf (s, sizeof(s), "chromium --test-type %s", url);
     platform::runShellCommandNoWait (s);
     return true;
 }
@@ -247,6 +262,6 @@ void platform::BROWSER_closeAllInstances ()
         return;
     char result[256];
     fgets (result, sizeof(result), fp);
-    fclose (fp);
+    pclose (fp);
 }
 #endif
