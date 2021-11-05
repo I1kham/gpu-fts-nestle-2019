@@ -98,7 +98,7 @@ void platform::getTimeNow (u8 *out_hour, u8 *out_min, u8 *out_sec)
 }
 
 //*******************************************************************
-bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLineParameters, const u8 *workingDir)
+bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLineParameters, const u8 *workingDir UNUSED_PARAM)
 {
 	//from: http://www.qnx.com/developers/docs/qnxcar2/index.jsp?topic=%2Fcom.qnx.doc.neutrino.lib_ref%2Ftopic%2Fe%2Fexecvpe.html   
 	//The execvpe() function uses the paths listed in the PATH environment variable to locate the program to be loaded, provided that the following conditions are met:
@@ -110,7 +110,6 @@ bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLi
 	//The process is started with the argument specified in argv, a NULL-terminated array of NULL-terminated strings. The argv[0] entry should point to a filename associated with the program being loaded. The argv argument can't be NULL but argv[0] can be NULL if no arguments are required.
 	//
 	//The new process's environment is specified in envp, a NULL-terminated array of NULL-terminated strings. envp cannot be NULL, but envp[0] can be a NULL pointer if no environment strings are passed.
-
     if (fork() != 0)
         return false;
 
@@ -121,6 +120,10 @@ bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLi
     argv[ct++] = reinterpret_cast<const char*>(fullPathExeName);
 
     u32 n = rhea::string::utf8::lengthInBytes(cmdLineParameters);
+    u8 *cmd = RHEAALLOCT(u8*, rhea::getScrapAllocator(), n+2);
+    memcpy (cmd, cmdLineParameters, n);
+    cmd[n] = 0x00;
+
     u32 i=0;
     while (i < n)
     {
@@ -144,14 +147,34 @@ bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLi
         }
     }*/
 
-
-    const char* envp[16];
+/*
+    char* envp[16];
     memset (envp,0,sizeof(envp));
-	if (NULL != workingDir)
-		envp[0] = reinterpret_cast<const char*>(workingDir);
 
+    i = 0;
+    envp[i] = getenv("PATH");
+    if (NULL != envp[i])
+    {
+        const u32 len = 6 + strlen(envp[i]);
+        char *s = RHEAALLOCT(char*, rhea::getScrapAllocator(), len);
+        sprintf_s (s, len, "PATH=%s", envp[i]);
+        envp[i] = s;
+        i++;
+    }
+*/
     //run
-    execvpe (reinterpret_cast<const char*>(fullPathExeName), (char* const*)argv, (char* const*)envp);
+    //execvpe (reinterpret_cast<const char*>(fullPathExeName), (char* const*)argv, (char* const*)envp);
+    execvp (reinterpret_cast<const char*>(fullPathExeName), (char* const*)argv);
+
+    RHEAFREE(rhea::getScrapAllocator(), cmd);
+
+/*    i = 0;
+    while (envp[i] != NULL)
+    {
+        RHEAFREE(rhea::getScrapAllocator(), envp[i]);
+        i++;
+    }
+    */
     return true;
 }
 
@@ -241,14 +264,14 @@ bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 }
 
 //*******************************************************************
-bool platform::BROWSER_open (const char *u8, bool bFullscreen)
+bool platform::BROWSER_open (const u8 *url, bool bFullscreen)
 {
-    char s[512];
+    u8 s[512];
     if (bFullscreen)
-       rhea::string::utf8::spf (s, sizeof(s), "chromium --test-type --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito --kiosk %s", url);
+       rhea::string::utf8::spf (s, sizeof(s), "--test-type --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito --kiosk %s", url);
     else
-        rhea::string::utf8::spf (s, sizeof(s), "chromium --test-type %s", url);
-    platform::runShellCommandNoWait (s);
+        rhea::string::utf8::spf (s, sizeof(s), "--test-type %s", url);
+    platform::runShellCommandNoWait (reinterpret_cast<const u8*>("chromium"), s, NULL);
     return true;
 }
 

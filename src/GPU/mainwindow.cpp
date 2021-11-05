@@ -110,7 +110,7 @@ void MainWindow::priv_loadURL (const char *url)
     rhea::browser::closeAllInstances();
     ui->labInfo->setVisible(false);
     this->show();
-    rhea::browser::open (url, true);
+    rhea::browser::open (reinterpret_cast<const u8*>(url), true);
     utils::hideMouse();
 #else
     ui->labInfo->setVisible(false);
@@ -524,8 +524,10 @@ void MainWindow::priv_syncWithCPU_onTick()
  */
 void MainWindow::priv_syncWithCPU_onCPUBridgeNotification (rhea::thread::sMsg &msg)
 {
+#ifdef _DEBUG
     const u16 handlerID = (msg.paramU32 & 0x0000FFFF);
     assert (handlerID == 0);
+#endif
 
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
