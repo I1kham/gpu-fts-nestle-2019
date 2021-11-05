@@ -51,6 +51,13 @@ void FormProg::showMe()
     this->show();
 }
 
+//*****************************************************
+void FormProg::keyPressEvent(QKeyEvent *ev)
+{
+    //simula (+ o -) pressione del btn PROG
+    if (ev->key() == Qt::Key_P)
+        retCode = eRetCode_gotoFormBrowser;
+}
 //*******************************************
 eRetCode FormProg::onTick()
 {

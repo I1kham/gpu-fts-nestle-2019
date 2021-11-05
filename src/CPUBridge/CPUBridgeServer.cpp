@@ -1414,11 +1414,14 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				char url[200];
 				translate_CPU_BROWSER_URL_CHANGE (msg, url, sizeof(url));
 
-                //notify_CPU_BROWSER_URL_CHANGE (sub->q, handlerID, logger, url);
+                notify_CPU_BROWSER_URL_CHANGE (sub->q, handlerID, logger, url);
 
                 //notifico tutti i sub
 				for (u32 i = 0; i < subscriberList.getNElem(); i++)
-                    notify_CPU_BROWSER_URL_CHANGE (subscriberList(i)->q, handlerID, logger, url);
+                {
+                    if (&sub->q != &subscriberList(i)->q)
+                        notify_CPU_BROWSER_URL_CHANGE (subscriberList(i)->q, 0, logger, url);
+                }
 			}
 			break;
 

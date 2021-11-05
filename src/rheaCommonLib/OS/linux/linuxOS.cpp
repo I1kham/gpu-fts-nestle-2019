@@ -230,9 +230,9 @@ bool platform::BROWSER_open (const char *url, bool bFullscreen)
 {
     char s[512];
     if (bFullscreen)
-        sprintf_s (s, sizeof(s), "chromium --kiosk --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito %s", url);
+        sprintf_s (s, sizeof(s), "chromium --test-type --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito --kiosk %s", url);
     else
-        sprintf_s (s, sizeof(s), "chromium %s", url);
+        sprintf_s (s, sizeof(s), "chromium --test-type %s", url);
     platform::runShellCommandNoWait (s);
     return true;
 }

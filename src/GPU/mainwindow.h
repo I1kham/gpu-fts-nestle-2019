@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QMessageBox>
+#include <QKeyEvent>
 #include "formboot.h"
 #include "formprog.h"
 #include "formPreGui.h"
@@ -26,10 +27,12 @@ class MainWindow : public QMainWindow
 public:
     explicit                MainWindow (sGlobal *glob);
                             ~MainWindow();
+    void                    keyPressEvent(QKeyEvent *event);
 
 private slots:
     void                    timerInterrupt();
     void                    on_webView_urlChanged(const QUrl &arg1);
+
 
 private:
     enum eForm

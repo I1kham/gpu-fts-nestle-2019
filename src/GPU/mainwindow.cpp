@@ -74,6 +74,29 @@ MainWindow::~MainWindow()
 }
 
 //*****************************************************
+void MainWindow::keyPressEvent(QKeyEvent *ev)
+{
+    //simula (+ o -) pressione del btn PROG
+    if (ev->key() == Qt::Key_P)
+    {
+        switch (currentForm)
+        {
+        default:
+            break;
+
+        case eForm_main_showBrowser:
+            priv_scheduleFormChange(eForm_newprog);
+            break;
+
+        case eForm_oldprog_legacy:
+        case eForm_newprog:
+            priv_scheduleFormChange(eForm_main_showBrowser);
+            break;
+        }
+    }
+}
+
+//*****************************************************
 void MainWindow::priv_scheduleFormChange(eForm w)
 {
     nextForm = w;
@@ -82,20 +105,15 @@ void MainWindow::priv_scheduleFormChange(eForm w)
 //*****************************************************
 void MainWindow::priv_loadURL (const char *url)
 {
-#ifdef _DEBUG
-    printf ("URL:%s\n", url);
-#endif
-
+#if defined(PLATFORM_ROCKCHIP)
     retCode = eRetCode_none;
     rhea::browser::closeAllInstances();
     ui->labInfo->setVisible(false);
     this->show();
-    rhea::browser::open (url, false);
+    rhea::browser::open (url, true);
     utils::hideMouse();
-
-
-
-    /*ui->labInfo->setVisible(false);
+#else
+    ui->labInfo->setVisible(false);
     this->show();
 
     //carico la GUI nel browser
@@ -105,7 +123,7 @@ void MainWindow::priv_loadURL (const char *url)
     utils::hideMouse();
     ui->webView->raise();
     ui->webView->setFocus();
-*/
+#endif
 }
 
 //*****************************************************
@@ -724,12 +742,15 @@ void MainWindow::on_webView_urlChanged(const QUrl &arg1)
 
         if (currentForm >= eForm_newprog)
         {
-            if (url.indexOf("gotoLegacyMenu.html") > 0)
+            if (url.indexOf("gotoLegacyMenu.html") >= 0)
             {
                 //dal nuovo menu di programmazione, vogliamo andare in quello vecchio!
                 retCode = eRetCode_gotoFormOldMenuProg;
+#if defined(PLATFORM_ROCKCHIP)
+                rhea::browser::closeAllInstances();
+#endif
             }
-            else if (url.indexOf("gotoHMI.html") > 0)
+            else if (url.indexOf("gotoHMI.html") >= 0)
             {
                 //dal nuovo menu di programmazione, vogliamo tornare alla GUI utente
                 retCode = eRetCode_gotoFormBrowser;
@@ -737,12 +758,12 @@ void MainWindow::on_webView_urlChanged(const QUrl &arg1)
         }
         else if (currentForm == eForm_main_showBrowser)
         {
-            if (url.indexOf("gotoMilkerCleaning.html") > 0)
+            if (url.indexOf("gotoMilkerCleaning.html") >= 0)
             {
                 //dalla GUI utente al nuovo menu prog > lavaggio milker
                 retCode = eRetCode_gotoNewMenuProg_lavaggioMilker;
             }
-            else if (url.indexOf("gotoPartialDataAudit.html") > 0)
+            else if (url.indexOf("gotoPartialDataAudit.html") >= 0)
             {
                 //dalla GUI utente al nuovo menu prog > data audit
                 retCode = eRetCode_gotoNewMenuProg_partialDataAudit;
