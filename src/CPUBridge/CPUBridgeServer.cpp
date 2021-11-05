@@ -2113,7 +2113,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	//hack per velocizzare i test
 	{
 		u8 debug_src_eva[256];
-		sprintf_s((char*)debug_src_eva, sizeof(debug_src_eva), "%s/last_installed/eva_test.log", rhea::getPhysicalPathToAppFolder());
+		sprintf_s((char*)debug_src_eva, sizeof(debug_src_eva), "%s/current/eva_test.log", rhea::getPhysicalPathToAppFolder());
 		rhea::fs::fileCopy(debug_src_eva, fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)
