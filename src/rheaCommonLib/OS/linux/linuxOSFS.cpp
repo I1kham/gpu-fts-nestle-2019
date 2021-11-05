@@ -205,7 +205,7 @@ bool platform::FS_getDestkopPath(u8* out_path UNUSED_PARAM, u32 sizeof_out_path 
 //**************************************************************************
 void platform::FS_fileClose (FILE *f)
 {
-    if (NULL == f)
+    if (NULL != f)
         fclose(f);
     f = NULL;
 }

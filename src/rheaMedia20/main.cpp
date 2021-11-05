@@ -175,8 +175,6 @@ int main()
 
 	//varie_patchAllTemplate_updateLanguageNames();
 
-
-
 	wchar_t nameAndVersion[128];
 	swprintf_s(nameAndVersion, _countof(nameAndVersion), L"RheaMedia2 - Version " RHEAMEDIA2_VERSIONE " - " RHEAMEDIA2_DATA);
 

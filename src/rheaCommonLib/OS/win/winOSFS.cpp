@@ -80,7 +80,7 @@ bool platform::FS_DirectoryExists(const u8 *utf8_path)
 //**************************************************************************
 void platform::FS_fileClose (FILE *f)
 {
-    if (NULL == f)
+    if (NULL != f)
         fclose(f);
     f = NULL;
 }

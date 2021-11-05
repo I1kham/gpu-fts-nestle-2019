@@ -1,3 +1,26 @@
+/***********************************************************************************************************
+ *	rheaCommonLib
+ *
+ *	DEFINE DI COMPILAZIONE
+ *		ambiente windows
+ *			32bit debug:	OS_WINDOWS WIN32 _DEBUG _LIB UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS _ALLOW_RTCc_IN_STL
+ *			32bit release:	OS_WINDOWS WIN32 NDEBUG _LIB UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS _ALLOW_RTCc_IN_STL
+ *			64bit debug:	OS_WINDOWS WIN64 _DEBUG _LIB UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS _ALLOW_RTCc_IN_STL
+ *			64bit release:	OS_WINDOWS WIN64 NDEBUG _LIB UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS _ALLOW_RTCc_IN_STL
+ *
+ *		linux desktop
+ *          debug:      DEFINES+=LINUX DEFINES+=PLATFORM_UBUNTU_DESKTOP DEFINES+=_DEBUG
+ *          release:    DEFINES+=LINUX DEFINES+=PLATFORM_UBUNTU_DESKTOP DEFINES+=NDEBUG
+ *
+ *		linux embedded IMX6
+ *          debug:      DEFINES+=LINUX DEFINES+=PLATFORM_YOCTO_EMBEDDED DEFINES+=_DEBUG
+ *          release:    DEFINES+=LINUX DEFINES+=PLATFORM_YOCTO_EMBEDDED DEFINES+=NDEBUG
+ *
+ *		linux embedded ROCKCHIP (SECO)
+ *          debug:      DEFINES+=LINUX DEFINES+=PLATFORM_ROCKCHIP DEFINES+=_DEBUG
+ *          release:    DEFINES+=LINUX DEFINES+=PLATFORM_ROCKCHIP DEFINES+=NDEBUG
+ *
+ ***********************************************************************************************************/
 #ifndef _rhea_h_
 #define _rhea_h_
 #include "OS/OS.h"
