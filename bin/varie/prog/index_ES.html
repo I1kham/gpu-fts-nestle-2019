@@ -1499,8 +1499,27 @@ function onRheaBootstrapFinished()
 	startupOperation();
 }
 
+//***************************************************************************
+function gotoSpecialURL (url)
+{
+	console.log ("gotoSpecialURL(" +url +")");
+	rhea.ajax ("browserURLChange", {"url":url}).then( function(result)
+	{
+		console.log ("OK");
+		window.location = url;
+	})
+	.catch( function(result)
+	{
+		window.location = url;
+	});		
+}
+
 function header_setText(s)				{ s=s.replace(/<br>/, "&nbsp;"); rheaSetDivHTMLByName("divHeaderC", s); }
-function gotoHMI()						{ window.location = "gotoHMI.html"; }
+function gotoHMI()						
+{ 
+	gotoSpecialURL("gotoHMI.html");
+	//window.location = "gotoHMI.html"; 
+}
 
 /***************************************************************************
  *
@@ -2296,7 +2315,7 @@ function pageMiscellaneous_sendP15()
 
 function pageMiscellaneous_oldProgMenu()		
 { 
-	window.location = "gotoLegacyMenu.html"; 
+	gotoSpecialURL ("gotoLegacyMenu.html"); 
 }
 
 function  pageMiscellaneous_onSelector()
