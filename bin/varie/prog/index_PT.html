@@ -856,7 +856,11 @@
 							<tr>
 								<td>FATOR DE ESCALA<br></td>
 								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
-							</tr>						
+							</tr>
+							<tr id="pageSingleSelection_pageSel_rowCupSizeBrewmatic">
+								<td>CUP SIZE<br></td>
+								<td><div class='UISelect' data-da3='184' data-option='0|(173+) mm|1|(145-173) mm|2(|116-145) mm|3|(101-116) mm|4|(90-101) mm'></div></td>
+							</tr>							
 						</table>
 					</div>
 				</div> <!--pageSingleSelection_pagegs-->
@@ -2824,6 +2828,12 @@ function pageSingleSelection_show(iSel)
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isGruppoMicro())
 			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel_rowJug"));
+			
+		//cup-size vale solo per brewmatic
+		if (da3.isMachine_Brewmatic4Macine())
+			rheaShowElem_TR(rheaGetElemByID("pageSingleSelection_pageSel_rowCupSizeBrewmatic"));
+		else
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel_rowCupSizeBrewmatic"));
 	}
 	btnBack_setCallback("pageSelections_show()");
 	btnTestSelection_show();
