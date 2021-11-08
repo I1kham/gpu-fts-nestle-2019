@@ -241,6 +241,9 @@ function rheaRemoveClassToElem (elem, cssClass)	{ elem.classList.remove(cssClass
 
 function rheaHideElem (elem)	{ rheaSetDisplayMode(elem, "none");}
 function rheaShowElem (elem)	{ rheaSetDisplayMode(elem, "block");}
+function rheaShowElem_TABLE (elem)	{ rheaSetDisplayMode(elem, "table");}
+function rheaShowElem_TR (elem)		{ rheaSetDisplayMode(elem, "table-row");}
+function rheaShowElem_TD (elem)		{ rheaSetDisplayMode(elem, "table-column");}
 
 
 
