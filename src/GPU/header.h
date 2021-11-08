@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.5.2Brewmatic"
+#define GPU_VERSION     "2.5.3Brewmatic"
 
 
 //nome della porta seriale

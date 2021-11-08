@@ -1,7 +1,7 @@
 clear
 DATA=`date '+%y%m%d'`
 estensione="_commit.mh6"
-filename="GPU_TS_v.2.5.2Brewmatic_$DATA$estensione"
+filename="GPU_TS_v.2.5.3Brewmatic_$DATA$estensione"
 
 
 FILE_GPU="./EMBEDDED_RELEASE_GPU"
