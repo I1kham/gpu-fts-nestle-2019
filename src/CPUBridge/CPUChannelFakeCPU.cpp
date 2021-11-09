@@ -135,6 +135,32 @@ void CPUChannelFakeCPU::priv_DA3_reload()
 	this->da3 = rhea::fs::fileCopyInMemory(s, rhea::getSysHeapAllocator(), &sizeOfBuffer);
 }
 
+//*****************************************************************
+u32 CPUChannelFakeCPU::priv_utils_giveMeAUTF16StringWithStrangeChar (u16 *out_message, u32 sizeOf_outMessage UNUSED_PARAM) const
+{
+	//Det gør ondt her
+	u32 i = 0;
+	out_message[i++] = 0x0044;
+	out_message[i++] = 0x0065;
+	out_message[i++] = 0x0074;
+	out_message[i++] = 0x0020;
+	out_message[i++] = 0x0067;
+	out_message[i++] = 0x00f8;
+	out_message[i++] = 0x0072;
+	out_message[i++] = 0x0020;
+	out_message[i++] = 0x006f;
+	out_message[i++] = 0x006e;
+	out_message[i++] = 0x0064;
+	out_message[i++] = 0x0074;
+	out_message[i++] = 0x0020;
+	out_message[i++] = 0x0068;
+	out_message[i++] = 0x0065;
+	out_message[i++] = 0x0072;
+	
+	out_message[i++] = 0x0000;
+	
+	return i*2;
+}
 
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
@@ -1150,6 +1176,55 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					out_answer[ct++] = (u8)subcommand;
 					out_answer[ct++] = n;
 					out_answer[ct++] = m;
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
+				return true;
+
+			case eCPUProgrammingCommand::ask_msg_from_table_language:
+				//# P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [ck]
+				{
+					const u8 tableID = bufferToSend[4];
+					const u8 rigaNum = bufferToSend[5];
+					const u8 lingua1or2 = bufferToSend[6];
+
+					/*const u8 isUnicode = 0;
+					u8 msg[32];
+					rhea::string::utf8::spf (msg, sizeof(msg),"tab=%d, row=%d, lang=%d", tableID, rigaNum, lingua1or2);
+					const u8 msgLen = static_cast<u8>(rhea::string::utf8::lengthInBytes(msg));
+					*/
+
+					const u8 isUnicode = 1;
+					u16 msg[64];
+					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAUTF16StringWithStrangeChar (msg, sizeof(msg)));
+
+					//snd: # P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [isUnicode] [msg_utf16_LSB_MSB...] [ck]
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = tableID;
+					out_answer[ct++] = rigaNum;
+					out_answer[ct++] = lingua1or2;
+					out_answer[ct++] = isUnicode;
+					if (isUnicode)
+					{
+						for (u8 i = 0; i < msgLen / 2; i++)
+						{
+							const u16 u = msg[i];
+							const u8 lsb = ((u & 0x00FF));
+							const u8 msb = ((u & 0xFF00) >> 8);
+							out_answer[ct++] = lsb;
+							out_answer[ct++] = msb;
+						}
+					}
+					else
+					{
+						memcpy (&out_answer[ct], msg, msgLen);
+						ct += msgLen;
+					}
+
 					out_answer[2] = (u8)ct + 1;
 					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 					*in_out_sizeOfAnswer = out_answer[2];

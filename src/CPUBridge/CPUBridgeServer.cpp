@@ -1405,6 +1405,51 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_MSG_FROM_LANGUAGE_TABLE:
+			{
+				u8 tableID;
+				u8 msgRowNum;
+				u8 language1or2;
+				translate_MSG_FROM_LANGUAGE_TABLE (msg, &tableID, &msgRowNum, &language1or2);
+
+				u8 bufferW[256];
+				const u16 nBytesToSend = cpubridge::buildMsg_askMessageFromLanguageTable (tableID, msgRowNum, language1or2, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				{
+					//rcv: # P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [isUnicode] [msg...] [ck]"
+					const u8 isUnicode = answerBuffer[7];
+					const u8 msgLenInByte = answerBuffer[2] - 9;
+
+					memset (bufferW, 0, sizeof(bufferW));
+					if (isUnicode)
+					{
+						//CPU risponde con una stringa in formato utf16 LSB MSB
+						//La converto in utf16 MSB_LSB e poi in utf8
+						u16 strUTF16Message[256];
+						memset(strUTF16Message, 0, sizeof(strUTF16Message));
+
+						u8 ct = 8;
+						for (u8 i = 0; i < msgLenInByte/2; i++)
+						{
+							strUTF16Message[i] = (u16)answerBuffer[ct] + (u16)answerBuffer[ct + 1] * 256;
+							ct += 2;
+						}
+
+						
+						rhea::string::strUTF16toUTF8 (strUTF16Message, bufferW, sizeof(bufferW));
+					}
+					else
+					{
+						//CPU ha risposto con una stringa in ASCII
+						memcpy (bufferW, &answerBuffer[8], msgLenInByte);
+					}
+
+					//Notifico il sub
+					notify_MSG_FROM_LANGUAGE_TABLE (sub->q, handlerID, logger, tableID, msgRowNum, bufferW);
+				}
+			}
+			break;
 
 		} //switch (msg.what)
 

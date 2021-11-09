@@ -108,7 +108,7 @@ namespace cpubridge
 	u8			buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writeVMCDataFile (const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
-    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u8			buildMsg_getExtendedConfigInfo (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writePartialVMCDataFile (const u8 *buffer64byte,  u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset, u8 *out_buffer, u8 sizeOfOutBuffer);
 					/* se voglio inviare i blocchi 3, 6, 10, 12 alla cpu, invio 4 messaggi:
@@ -169,6 +169,7 @@ namespace cpubridge
 	u8			buildMsg_getJugCurrentRepetition (u8* out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8* out_buffer, u8 sizeOfOutBuffer);
 					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
+	u8			buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8* out_buffer, u32 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx
@@ -370,6 +371,10 @@ namespace cpubridge
 	void		translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m);
 
 	void		notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger);
+
+	void		notify_MSG_FROM_LANGUAGE_TABLE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 tableID, u8 msgRowNum, const u8 *utf8message);
+	void		translateNotify_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_utf8message, u32 sizeOf_utf8message);
+	
 	
 	/***********************************************
 		ask_xxxx
@@ -648,6 +653,9 @@ namespace cpubridge
 					//notifica CPU segnalando la fine della procedura di grinder cleaning
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_END_OF_GRINDER_CLEANING_PROCEDURE
 	
+	void		ask_MSG_FROM_LANGUAGE_TABLE (const sSubscriber &from, u16 handlerID, u8 tableID, u8 msgRowNum, u8 language1or2);
+	void		translate_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_language1or2);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_MSG_FROM_LANGUAGE_TABLE
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

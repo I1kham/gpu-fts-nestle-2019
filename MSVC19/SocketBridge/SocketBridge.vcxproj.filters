@@ -315,6 +315,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.cpp">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.cpp">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -630,6 +633,9 @@
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h">
+      <Filter>CmdHandler\ajax\Prog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
   </ItemGroup>

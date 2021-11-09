@@ -131,10 +131,10 @@ i16 cpuCommThreadFn (void *userParam)
  * ritorna 0 se out_buffer non è abbastanza grande da contenere il messaggio.
  * altrimenti ritorna il num di byte inseriti in out_buffer
  */
-u8 cpubridge_buildMsg (cpubridge::eCPUCommand command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge_buildMsg (cpubridge::eCPUCommand command, const u8 *optionalData, u16 sizeOfOptionaData, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
 	//calcolo della dimensione totale
-	if (sizeOfOutBuffer < 4 + sizeOfOptionaData)
+	if (sizeOfOutBuffer < (u32)(4 + sizeOfOptionaData))
 		return 0;
 
 	u8 ct = 0;
@@ -517,7 +517,7 @@ u8 cpubridge::buildMsg_getMilkerVer(u8 *out_buffer, u8 sizeOfOutBuffer)
 
 
 //***************************************************
-u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalDataIN, u32 sizeOfOptionalDataIN, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalDataIN, u32 sizeOfOptionalDataIN, u8 *out_buffer, u32 sizeOfOutBuffer)
 {
 	assert(sizeOfOptionalDataIN < 31);
     u8 optionalData[32];
@@ -576,6 +576,17 @@ u8 cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8*
 	return buildMsg_Programming(eCPUProgrammingCommand::notify_end_of_grinder_cleaning_proc, payload, 1, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8* out_buffer, u32 sizeOfOutBuffer)
+{
+	assert (language1or2==1 || language1or2==2);
+
+	u8 payload[4];
+	payload[0] = tableID;
+	payload[1] = msgRowNum;
+	payload[2] = language1or2;
+	return buildMsg_Programming(eCPUProgrammingCommand::ask_msg_from_table_language, payload, 3, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
@@ -1684,8 +1695,6 @@ void cpubridge::notify_CPU_GET_CPU_SELECTION_NAME_UTF16_LSB_MSB (const sSubscrib
 	data[1] = len;
 	rhea::thread::pushMsg2Buffer(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB, handlerID, data, 2, utf16_LSB_MSB_selectioName, len);
 }
-
-//***************************************************
 void cpubridge::translateNotify_CPU_GET_CPU_SELECTION_NAME (const rhea::thread::sMsg &msg, u8 *out_selNum, u16 *out_utf16_LSB_MSB_selectioName, u32 sizeOfOutUTF16_LSB_MSB_selectioName)
 {
 	assert(msg.what == CPUBRIDGE_NOTIFY_SELECTION_NAME_UTF16_LSB_MSB);
@@ -1702,6 +1711,35 @@ void cpubridge::translateNotify_CPU_GET_CPU_SELECTION_NAME (const rhea::thread::
 		memcpy (out_utf16_LSB_MSB_selectioName, &p[2], len);
 }
 
+//***************************************************
+void cpubridge::notify_MSG_FROM_LANGUAGE_TABLE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 tableID, u8 msgRowNum, const u8 *utf8message)
+{
+	logger->log("notify_MSG_FROM_LANGUAGE_TABLE [tabID=%d] [msgRow=%d]\n", tableID, msgRowNum);
+
+	const u8 len = (u8)rhea::string::utf8::lengthInBytes(utf8message);
+	
+	u8 data[4];
+	data[0] = tableID;
+	data[1] = msgRowNum;
+	data[2] = len;
+	rhea::thread::pushMsg2Buffer(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_MSG_FROM_LANGUAGE_TABLE, handlerID, data, 3, utf8message, len);
+}
+void cpubridge::translateNotify_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_utf8message, u32 sizeOf_utf8message)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_MSG_FROM_LANGUAGE_TABLE);
+
+	const u8 *p = (const u8*)msg.buffer;
+	*out_tableID = p[0];
+	*out_msgRowNum = p[1];
+	u8 len = p[2];
+
+	memset (out_utf8message, 0, sizeOf_utf8message);
+    if (sizeOf_utf8message < (u32)(len+2))
+		len = sizeOf_utf8message - 2;
+	
+	if (len)
+		memcpy (out_utf8message, &p[3], len);
+}
 
 
 
@@ -2418,6 +2456,26 @@ void cpubridge::translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread:
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_grinder1_o_2 = p[0];
+}
+
+//***************************************************
+void cpubridge::ask_MSG_FROM_LANGUAGE_TABLE (const sSubscriber &from, u16 handlerID, u8 tableID, u8 msgRowNum, u8 language1or2)
+{
+	assert (language1or2==1 || language1or2==2);
+
+	u8 payload[4];
+	payload[0] = tableID;
+	payload[1] = msgRowNum;
+	payload[2] = language1or2;
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_MSG_FROM_LANGUAGE_TABLE, handlerID, payload, 3);
+}
+void cpubridge::translate_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_language1or2)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_MSG_FROM_LANGUAGE_TABLE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_tableID = p[0];
+	*out_msgRowNum = p[1];
+	*out_language1or2 = p[2];
 }
 
 

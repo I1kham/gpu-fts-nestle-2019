@@ -405,7 +405,7 @@
 							<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
 						</tr>
 						<tr>
-							<td>LANGUE DE LA CPU</td>
+							<td onclick="pageMiscellaneous_onLabCPULangClicked()">LANGUE DE LA CPU</td>
 							<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_r1">
@@ -1370,6 +1370,20 @@
 			<div class="UIWindowContent"></div>
 		</div> <!-- page Grinder cleaning -->
 		
+		<!-- page debugLang -->
+		<div id="pageDebugLang" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageDebugLang_selector' data-option='1|LANG 1|2|LANG 2' data-onclick='pageDebugLang_onSelector()'></div></td>
+					</tr>
+				</table>
+				
+				<div id="pageDebugLang_content1"></div>
+				<div id="pageDebugLang_content2"></div>
+			</div>
+		</div> <!-- page debugLang -->		
+		
 	</div> <!-- divPage -->
 
 	<div id="divFooter" class="footer">
@@ -2096,8 +2110,10 @@ function pageCleaning_onFinished()
  *
  */
 var pageMiscellaneous_fvhBefore = 0;
+var pageMiscellaneous_numClickOnLabCPULang = 0;
 function pageMiscellaneous_show()
 {
+	pageMiscellaneous_numClickOnLabCPULang = 0;
 	var win = ui.getWindowByID("pageMiscellaneous");
 	if (showPage("pageMiscellaneous", "DIVERS", 1, 1))
 	{
@@ -2350,6 +2366,17 @@ function pageMiscellaneous_onPINCodeInserted()
 	rheaHideElem (rheaGetElemByID("pageMiscellaneous_blockingCt_pwd"));
 	rheaShowElem (rheaGetElemByID("pageMiscellaneous_blockingCt_unblocked"));
 	win.showHideScrollBar();
+}
+
+
+function pageMiscellaneous_onLabCPULangClicked()
+{
+	pageMiscellaneous_numClickOnLabCPULang++;
+	if (pageMiscellaneous_numClickOnLabCPULang > 10)
+	{
+		pageMiscellaneous_numClickOnLabCPULang = 0;
+		pageDebugLang_show();
+	}	
 }
 
 
@@ -4299,5 +4326,120 @@ function pageExpCalib_onChangeGrinder()
 	
 	setTimeout ( function() {pageExpCalib_show();}, 200);
 }
+
+
+/***************************************************************************
+ *
+ * pageDebugLang
+ *
+ */
+var PAGE_DEBUGLANG_FIRST_TABLE_ID = 1;
+var PAGE_DEBUGLANG_LAST_TABLE_ID = 16;
+function pageDebugLang_show()
+{
+	if (showPage("pageDebugLang", "DEBUG LANGUAGES", 1,0))
+	{
+		//è la prima volta che visualizziamo la pagina
+		pageDebugLang_build();
+		pageDebugLang_refresh();
+	}
+	
+	pageDebugLang_onSelector();
+}
+
+function pageDebugLang_onSelector()
+{
+	var win = ui.getWindowByID("pageDebugLang");
+	var uiSelector = win.getChildByID("pageDebugLang_selector");
+	var n = uiSelector.optionValue.length;
+	
+	for (var i=1; i<=n; i++)
+		rheaHideElem(rheaGetElemByID("pageDebugLang_content" +i));
+	
+	rheaShowElem(rheaGetElemByID("pageDebugLang_content" +uiSelector.getSelectedOptionValue()));
+	win.showHideScrollBar();
+}
+
+
+function pageDebugLang_build()
+{
+	var htmlTabHeader = "<table class='dataAudit'>"
+				+"<tr>"
+					+"<th style='text-align:right'>TabID</th>"
+					+"<th style='text-align:right'>Row</th>"
+					+"<th style='text-align:left'>MESSAGE</th>"
+				+"</tr>";
+	var html1="";
+	var html2="";
+	for (var i=PAGE_DEBUGLANG_FIRST_TABLE_ID; i<=PAGE_DEBUGLANG_LAST_TABLE_ID; i++)
+	{
+		var tableID = i;
+		var idTabID = "pageDebugLang_c1_" +tableID;
+		var idRowNum = idTabID +"_rowNum";
+		var idMessage = idTabID +"_msg";
+		html1 += "<tr><td id='" +idTabID +"'></td><td id='" +idRowNum +"' align='right'></td><td style='text-align:left' id='" +idMessage +"'></td>";
+		
+		idTabID = "pageDebugLang_c2_" +tableID;
+		idRowNum = idTabID +"_rowNum";
+		idMessage = idTabID +"_msg";
+		html2 += "<tr><td id='" +idTabID +"'></td><td id='" +idRowNum +"' align='right'></td><td style='text-align:left' id='" +idMessage +"'></td>";
+	}
+	
+	html1 += "</table>";
+	html2 += "</table>";
+
+	rheaSetElemHTML (rheaGetElemByID("pageDebugLang_content1"), htmlTabHeader + html1);
+	rheaSetElemHTML (rheaGetElemByID("pageDebugLang_content2"), htmlTabHeader + html2);
+}
+
+function pageDebugLang_refresh()
+{
+	pageDebugLang_refreshSingle (PAGE_DEBUGLANG_FIRST_TABLE_ID, 1);
+	pageDebugLang_refreshSingle (PAGE_DEBUGLANG_FIRST_TABLE_ID, 2);
+}
+	
+function pageDebugLang_refreshSingle (tabID, langNum)
+{
+	console.log ("pageDebugLang_refreshSingle(" +tabID +"," +langNum +")");
+	rhea.ajax ("askMsgFromLangTable", {"tabID":tabID, "rowNum":255, "lang":langNum}).then( function(result)
+	{
+		var idTabID = "pageDebugLang_c" +langNum +"_" +tabID;
+		var idRowNum = idTabID +"_rowNum";
+		var idMessage = idTabID +"_msg";
+		
+		rheaSetElemHTML(rheaGetElemByID(idTabID), tabID);
+
+		try
+		{
+			var j = JSON.parse(result);
+			rheaSetElemHTML(rheaGetElemByID(idRowNum), j.rowNum);
+			rheaSetElemHTML(rheaGetElemByID(idMessage), j.msg);
+		}
+		catch
+		{
+			rheaSetElemHTML(rheaGetElemByID(idRowNum), "§");
+			rheaSetElemHTML(rheaGetElemByID(idMessage), "§§§§§§§§§§§§§§§§");
+		}
+		
+		tabID++;
+		if (tabID <= PAGE_DEBUGLANG_LAST_TABLE_ID)
+			setTimeout (pageDebugLang_refreshSingle(tabID, langNum), 100);
+		else
+			ui.getWindowByID("pageDebugLang").showHideScrollBar();
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX TIMEOUT: pageDebugLang_refresh => askMsgFromLangTable. ERR=[" +result +"]");
+		setTimeout (pageDebugLang_refreshSingle(tabID, langNum), 200);
+		
+		/*tabID++;
+		if (tabID <= PAGE_DEBUGLANG_LAST_TABLE_ID)
+			setTimeout (pageDebugLang_refreshSingle(tabID, langNum), 200);
+		else
+			ui.getWindowByID("pageDebugLang").showHideScrollBar();
+			*/
+	});		
+}
+				
 </script>
 </html>

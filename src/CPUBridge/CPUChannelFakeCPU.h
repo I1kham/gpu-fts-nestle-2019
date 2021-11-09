@@ -85,6 +85,7 @@ namespace cpubridge
 		void						priv_updateCPUMessageToBeSent (u64 timeNowMSec);
 		void						priv_DA3_reload();
 		void						priv_advanceFakeCleaning();
+		u32							priv_utils_giveMeAUTF16StringWithStrangeChar (u16 *out_message, u32 sizeOf_outMessage) const;
 
 	private:
 		bool						bShowDialogStopSelezione;
