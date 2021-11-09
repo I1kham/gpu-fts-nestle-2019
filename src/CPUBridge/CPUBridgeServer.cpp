@@ -1418,6 +1418,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
 				{
 					//rcv: # P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [isUnicode] [msg...] [ck]"
+					msgRowNum = answerBuffer[5];
 					const u8 isUnicode = answerBuffer[7];
 					const u8 msgLenInByte = answerBuffer[2] - 9;
 
