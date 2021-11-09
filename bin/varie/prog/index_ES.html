@@ -405,7 +405,13 @@
 							<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
 						</tr>
 						<tr>
-							<td onclick="pageMiscellaneous_onLabCPULangClicked()">IDIOMA CPU</td>
+							<td>
+								<div style="float:left">IDIOMA CPU</div>
+								<div style="float:right; margin-right:10px">
+									<div id="btnDebugCpuLang" class="UIButton" style="background-color:#000" data-caption="X" data-onclick="pageMiscellaneous_onLabCPULangClicked()"></div>	
+								</div>
+								<div class="clear"></div>
+							</td>
 							<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_r1">
@@ -1504,6 +1510,7 @@ function onRheaBootstrapFinished()
 	ui.setupStandaloneButton("pagePleaseWait_calibration_1_vg_set");
 	ui.setupStandaloneButton("pagePleaseWait_calibration_1_grind");
 	ui.setupStandaloneButton("pagePleaseWait_calibration_2_runMotor");
+	ui.setupStandaloneButton("btnDebugCpuLang");
 	uiStandAloneOptionGrinderCleaning1or2 = ui.setupStandaloneUIOption("pagePleaseWait_grinderCleaning_1or2");
 	
 	pleaseWait_show();
