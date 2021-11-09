@@ -4409,17 +4409,9 @@ function pageDebugLang_refreshSingle (tabID, langNum)
 		
 		rheaSetElemHTML(rheaGetElemByID(idTabID), tabID);
 
-		try
-		{
-			var j = JSON.parse(result);
-			rheaSetElemHTML(rheaGetElemByID(idRowNum), j.rowNum);
-			rheaSetElemHTML(rheaGetElemByID(idMessage), j.msg);
-		}
-		catch
-		{
-			rheaSetElemHTML(rheaGetElemByID(idRowNum), "§");
-			rheaSetElemHTML(rheaGetElemByID(idMessage), "§§§§§§§§§§§§§§§§");
-		}
+		var j = JSON.parse(result);
+		rheaSetElemHTML(rheaGetElemByID(idRowNum), j.rowNum);
+		rheaSetElemHTML(rheaGetElemByID(idMessage), j.msg);
 		
 		tabID++;
 		if (tabID <= PAGE_DEBUGLANG_LAST_TABLE_ID)
