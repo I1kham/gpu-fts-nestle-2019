@@ -105,7 +105,14 @@ var utf8ArrayToStr = (function ()
                 i += 3;
             }
 
-			result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
+			try
+			{
+				result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
+			}
+			catch (error)
+			{
+				result.push("§");
+			}
         }
 
         return result.join('');
