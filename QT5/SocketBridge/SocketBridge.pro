@@ -198,8 +198,7 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqActivateBuzzer.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.cpp
 
 
 HEADERS += \
@@ -315,8 +314,7 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_eventReqActivateBuzzer.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h
 
 
 
