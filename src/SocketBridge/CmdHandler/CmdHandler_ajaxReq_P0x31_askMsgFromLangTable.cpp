@@ -20,7 +20,7 @@ bool CmdHandler_ajaxReq_P0x31_askMsgFromLangTable_jsonTrapFunction(const u8* con
 	if (strcasecmp((const char*)fieldName, "tabID") == 0)
 	{
 		const u32 h = rhea::string::utf8::toU32(fieldValue);
-		if (h >= 0 && h <= 0xff)
+        if (h <= 0xff)
 			input->tabID = (u8)h;
 		else
 			input->tabID = 0xff;
@@ -28,7 +28,7 @@ bool CmdHandler_ajaxReq_P0x31_askMsgFromLangTable_jsonTrapFunction(const u8* con
 	else if (strcasecmp((const char*)fieldName, "rowNum") == 0)
 	{
 		const u32 h = rhea::string::utf8::toU32(fieldValue);
-		if (h >= 0 && h <= 0xff)
+        if (h <= 0xff)
 			input->rowNum = (u8)h;
 		else
 			input->rowNum = 0xff;

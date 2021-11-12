@@ -176,7 +176,7 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, bool forc
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, bool bForceJUG, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, bool bForceJUG UNUSED_PARAM, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[8];
 	u8 ct = 0;
