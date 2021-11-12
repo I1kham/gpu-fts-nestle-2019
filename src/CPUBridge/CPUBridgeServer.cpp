@@ -539,11 +539,15 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
-			if (stato.get() == sStato::eStato::normal)
-				priv_downloadDataAudit(&sub->q, handlerID);
-			else
-				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
-				notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0);
+			{
+				bool bIncludeBufferDataInNotify = false;
+				translate_READ_DATA_AUDIT (msg, &bIncludeBufferDataInNotify);
+				if (stato.get() == sStato::eStato::normal)
+					priv_downloadDataAudit(&sub->q, handlerID, bIncludeBufferDataInNotify);
+				else
+					//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
+					notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0, NULL, 0);
+			}
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE:
@@ -1452,10 +1456,93 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_restart_U (bufferW, sizeof(bufferW));
+				chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
+				notify_CPU_RESTART (sub->q, handlerID, logger);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS:
+		{
+			cpubridge::eLockStatus lockStatus;
+			translate_SET_MACHINE_LOCK_STATUS (msg, &lockStatus);
+			switch (lockStatus)
+			{
+			case cpubridge::eLockStatus::locked:	priv_lockMachine(); break;
+			case cpubridge::eLockStatus::unlocked:	priv_unlockMachine(); break;
+			default:
+				DBGBREAK;
+				break;
+			}
+			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+		}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS:
+			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
 	} //while
+}
+
+
+//**********************************************
+void Server::priv_getLockStatusFilename (u8 *out_filePathAndName, u32 sizeOfOutFilePathAndName) const
+{
+	rhea::string::utf8::spf (out_filePathAndName, sizeOfOutFilePathAndName, "%s/current/lockStatus.rhea", rhea::getPhysicalPathToAppFolder());
+}
+
+//**********************************************
+void Server::priv_writeLockStatus (eLockStatus statusIN) const
+{
+	u8 s[512];
+	priv_getLockStatusFilename (s, sizeof(s));
+
+	const u8 status = static_cast<u8>(statusIN);
+	FILE *f = rhea::fs::fileOpenForWriteBinary(s);
+	rhea::fs::fileWrite (f, &status, 1);
+	rhea::fs::fileClose(f);	
+}
+
+//**********************************************
+eLockStatus Server::priv_getLockStatus() const
+{
+	u8 s[512];
+	priv_getLockStatusFilename (s, sizeof(s));
+
+	if (rhea::fs::fileExists(s))
+	{
+		u8 status = 0;
+		FILE *f = rhea::fs::fileOpenForReadBinary(s);
+		rhea::fs::fileRead (f, &status, 1);
+		rhea::fs::fileClose(f);
+
+		return static_cast<eLockStatus>(status);
+	}
+
+	return eLockStatus::unlocked;
+}
+
+//**********************************************
+void Server::priv_lockMachine()
+{
+	if (eLockStatus::locked == priv_getLockStatus())
+		return;
+	priv_writeLockStatus (eLockStatus::locked);
+}
+
+//**********************************************
+void Server::priv_unlockMachine()
+{
+	if (eLockStatus::unlocked == priv_getLockStatus())
+		return;
+	priv_writeLockStatus (eLockStatus::unlocked);
 }
 
 
@@ -2141,7 +2228,7 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
  * Periodicamente notifica emettendo un messaggio notify_READ_DATA_AUDIT_PROGRESS() che contiene lo stato di avanzamento
  * del download
  */
-eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID)
+eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify)
 {
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
 	u8 fullFilePathAndName[256];
@@ -2155,7 +2242,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	}
 
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 	//hack per velocizzare i test
 	{
 		u8 debug_src_eva[256];
@@ -2168,12 +2255,12 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 		return eReadDataFileStatus::finishedOK;
 	}
 #endif
-
+*/
 	FILE *f = rhea::fs::fileOpenForWriteBinary(fullFilePathAndName);
 	if (NULL == f)
 	{
 		if (NULL != subscriber)
-			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID);
+			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID, NULL, 0);
 		return eReadDataFileStatus::finishedKO_unableToCreateFile;
 	}
 
@@ -2191,7 +2278,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
         {
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID, NULL, 0);
             rhea::fs::fileClose(f);
             return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
         }
@@ -2215,19 +2302,37 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 			
 			//notifico
 			if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID);
-
+			{
+				if (bIncludeBufferDataInNotify)
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, payload, payloadLen);
+				else
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, NULL, 0);
+			}
             return eReadDataFileStatus::finishedOK;
         }
 
-        //notifico che ho letto un altro Kb
-        if (kbReadSoFar != lastKbReadSent)
-        {
-            lastKbReadSent = kbReadSoFar;
+		if (payloadLen > 0)
+		{
+			if (bIncludeBufferDataInNotify)
+			{
+				if (NULL != subscriber)
+				{
+					//notifico il nuovo blocco dati appena ricevuto
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID, payload, payloadLen);
+				}
+			}
+			else
+			{
+				//notifico che ho letto un altro Kb
+				if (kbReadSoFar != lastKbReadSent)
+				{
+					lastKbReadSent = kbReadSoFar;
 
-            if (NULL!= subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID);
-        }
+					if (NULL != subscriber)
+						notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID, NULL, 0);
+				}
+			}
+		}
     }
 }
 
@@ -3547,6 +3652,14 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
 		return false;
 	}
+
+    //se la macchina è "locked", niente selezioni
+    if (eLockStatus::locked == priv_getLockStatus())
+    {
+        logger->log("  machine is loked, aborting.");
+        priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
+        return false;
+    }
 
 
     stato.set (sStato::eStato::selection);

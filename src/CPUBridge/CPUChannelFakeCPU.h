@@ -80,6 +80,14 @@ namespace cpubridge
 			u16	result12[12];
 		};
 
+		struct sDataAuditInProgress
+		{
+			FILE	*f;
+			u32		fileSize;
+			u32		fileOffset;
+			u8		buffer[100];
+		};
+
 	private:
 		void						priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in_out_sizeOfAnswer);
 		void						priv_updateCPUMessageToBeSent (u64 timeNowMSec);
@@ -106,6 +114,7 @@ namespace cpubridge
 		u32							decounterVari[32];
 		u8							*da3;
 		u64							buzzerIsRunnigUntilTime_mSec;
+		sDataAuditInProgress		dataAuditInProgress;
     };
 
 } // namespace cpubridge

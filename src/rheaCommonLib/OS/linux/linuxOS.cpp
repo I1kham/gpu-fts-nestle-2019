@@ -6,6 +6,7 @@
 #include <time.h>
 #include <ifaddrs.h>
 #include <linux/if.h>
+#include <sys/reboot.h>
 #include "../../rhea.h"
 
 struct	sLinuxPlatformData
@@ -74,6 +75,13 @@ void platform::sleepMSec (size_t msec)
     nanosleep(&sleepValue, NULL);
 }
 
+//*******************************************************************
+void platform::reboot()
+{
+    ::sync();
+    ::setuid (0);
+    ::reboot(RB_AUTOBOOT);
+}
 
 //*******************************************************************
 void platform::getDateNow (u16 *out_year, u16 *out_month, u16 *out_day)

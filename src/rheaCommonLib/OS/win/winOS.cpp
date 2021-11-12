@@ -140,7 +140,11 @@ uint64_t platform::getTimeNowMSec()
 }
 
 //*******************************************************************
-
+void platform::reboot()
+{
+	//TODO
+	DBGBREAK;
+}
 
 //*******************************************************************
 void platform::getDateNow(u16 *out_year, u16 *out_month, u16 *out_day)

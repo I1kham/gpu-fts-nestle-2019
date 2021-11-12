@@ -504,7 +504,7 @@ void FormBoot::priv_foreverDisableBtnStartVMC()
 void FormBoot::priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode)
 {
     dwnloadDataAuditCallBack = mode;
-    cpubridge::ask_READ_DATA_AUDIT (glob->cpuSubscriber, 0);
+    cpubridge::ask_READ_DATA_AUDIT (glob->cpuSubscriber, 0, false);
 }
 
 void FormBoot::priv_startUploadDA3 (eUploadDA3CallBack mode, const u8 *fullFilePathAndName)
@@ -1256,7 +1256,7 @@ void FormBoot::priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg)
     cpubridge::eReadDataFileStatus status;
     u16 totKbSoFar = 0;
     u16 fileID = 0;
-    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
+    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, NULL, 0);
 
     char s[512];
     if (status == cpubridge::eReadDataFileStatus::inProgress)
@@ -1331,7 +1331,7 @@ void FormBoot::priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::s
     cpubridge::eReadDataFileStatus status;
     u16 totKbSoFar = 0;
     u16 fileID = 0;
-    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
+    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, NULL, 0);
 
     char s[512];
     if (status == cpubridge::eReadDataFileStatus::inProgress)

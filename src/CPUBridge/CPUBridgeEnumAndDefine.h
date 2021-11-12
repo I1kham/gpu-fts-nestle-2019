@@ -88,6 +88,8 @@
 #define		CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION		0x013E
 #define		CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC		0x013F
 #define		CPUBRIDGE_NOTIFY_MSG_FROM_LANGUAGE_TABLE			0x0140
+#define		CPUBRIDGE_NOTIFY_CUP_RESTART						0x013A
+#define		CPUBRIDGE_NOTIFY_LOCK_STATUS						0x013B
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -169,6 +171,9 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_JUG_CURRENT_REPETITION						0x0848
 #define		CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC					0x0849
 #define		CPUBRIDGE_SUBSCRIBER_ASK_MSG_FROM_LANGUAGE_TABLE						0x084A
+#define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART									0x084B
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS						0x084C
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS						0x084D
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -394,7 +399,7 @@ namespace cpubridge
 		error = 0xff
 	};
 
-	enum class eCPUProg_statoGruppo: u8
+	enum class eCPUProg_statoGruppo : u8
 	{
 		nonAttaccato = 0x00,
 		attaccato = 0x01
@@ -477,6 +482,12 @@ namespace cpubridge
 		none = 0,
 		venturi = 1,
 		indux = 2
+	};
+
+	enum class eLockStatus : u8
+	{
+		unlocked = 0,
+		locked = 1
 	};
 
 	struct sSubscriber

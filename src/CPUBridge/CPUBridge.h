@@ -215,11 +215,12 @@ namespace cpubridge
     void		notify_CPU_BTN_PROG_PRESSED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
     void		translateNotify_CPU_BTN_PROG_PRESSED (const rhea::thread::sMsg &msg);
 
-    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
-    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
-					/* fileID è un numero che viene appeso al nome del file durante lo scaricamento.
-						Posto che il download vada a buon fine, il file localmente si trova in app/temp/dataAudit[FILE_ID].txt (es app/temp/dataAudit5.txt
-					*/
+    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID, const void *readData, u8 nBytesInReadData);
+					//fileID è un numero che viene appeso al nome del file durante lo scaricamento.
+					//Posto che il download vada a buon fine, il file localmente si trova in app/temp/dataAudit[FILE_ID].txt (es app/temp/dataAudit5.txt
+    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID, u8 *out_readData, u8 *out_nBytesInReadData);
+					//[out_readData] può essere NULL se non si desidera recuperare i dati letti da CPU
+					
 
 	void		notify_READ_VMCDATAFILE_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
 	void		translateNotify_READ_VMCDATAFILE_PROGRESS(const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
@@ -375,7 +376,11 @@ namespace cpubridge
 	void		notify_MSG_FROM_LANGUAGE_TABLE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 tableID, u8 msgRowNum, const u8 *utf8message);
 	void		translateNotify_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_utf8message, u32 sizeOf_utf8message);
 	
-	
+	void		notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
+	void		notify_MACHINE_LOCK (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eLockStatus lockStatus);
+	void		translateNotify_MACHINE_LOCK(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus);
+
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -432,8 +437,10 @@ namespace cpubridge
 	void		ask_CPU_QUERY_CUR_SEL_RUNNING(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_CUR_SEL_RUNNING
 
-    void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID);
+    void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID, bool bIncludeDataInNotify);
+	void		translate_READ_DATA_AUDIT(const rhea::thread::sMsg &msg, bool *out_bIncludeDataInNotify);
                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_DATA_AUDIT_PROGRESS.
+					//Se [bIncludeDataInNotify] == true, allora la notify_READ_DATA_AUDIT_PROGRESS riporta anche i byte letti da CPU
 	
 	void        ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID);
 					/* alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_VMCDATAFILE_PROGRESS.
@@ -656,6 +663,15 @@ namespace cpubridge
 	void		ask_MSG_FROM_LANGUAGE_TABLE (const sSubscriber &from, u16 handlerID, u8 tableID, u8 msgRowNum, u8 language1or2);
 	void		translate_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_language1or2);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_MSG_FROM_LANGUAGE_TABLE
+
+	void		ask_CPU_RESTART (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RESTART
+
+	void		ask_SET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID, eLockStatus lockStatus);
+	void		translate_SET_MACHINE_LOCK_STATUS(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus);
+	void		ask_GET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di uno di questi 3 msg, CPUBridge risponderà con un notify_MACHINE_LOCK riportando lo stato attuale del lock
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

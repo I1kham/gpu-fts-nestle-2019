@@ -61,6 +61,7 @@ private:
     void                    priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &msg);
     eRetCode                priv_showNewProgrammazione_onTick();
     void                    priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    void                    priv_showLockedPanel (bool b);
 
 private:
     struct sSyncWithCPU
@@ -85,6 +86,7 @@ private:
     FormProg                *frmProg;
     FormPreGui              *frmPreGUI;
     eRetCode                retCode;
+    u64                     nextTimeAskForCPULockStatus_msec;
 };
 
 #endif // MAINWINDOW_H

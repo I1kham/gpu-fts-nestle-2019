@@ -3,13 +3,15 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.5.2"
+#define GPU_VERSION     "2.5.3rheAPI"
 
 
 //nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
-    #define CPU_COMPORT  "/dev/ttyUSB0"
-    #define ESAPI_COMPORT  "/dev/ttyUSB1"
+    //#define CPU_COMPORT  "/dev/ttyUSB0"
+    //#define ESAPI_COMPORT  "/dev/ttyUSB1"
+    #define CPU_COMPORT  "/dev/ttyUSB1"
+    #define ESAPI_COMPORT  "/dev/ttyUSB0"
 #else
     #define CPU_COMPORT     "/dev/ttymxc3"
     #define ESAPI_COMPORT   "/dev/ttymxc2"

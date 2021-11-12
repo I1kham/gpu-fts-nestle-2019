@@ -2,6 +2,8 @@
 #include "ESAPI.h"
 #include "../CPUBridge/CPUBridge.h"
 #include "../rheaCommonLib/rheaUtils.h"
+#include "../rheaCommonLib/rheaString.h"
+#include "../rheaCommonLib/string/rheaUTF8String.h"
 
 using namespace esapi;
 
@@ -14,6 +16,7 @@ Protocol::Protocol()
     cpuBridgeSubscriber = NULL;
     waitableGrp = NULL;
     bufferOUT = NULL;
+	commandC8InProgress = false;
     runningSel.status = cpubridge::eRunningSelStatus::finished_OK;
 }
 
@@ -92,6 +95,26 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
         case CPUBRIDGE_NOTIFY_CPU_RUNNING_SEL_STATUS:
             priv_onCPUNotify_RUNNING_SEL_STATUS(msg);
             return true;
+
+		case CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS:
+			//risposta a C8 (data audit)
+			//rispondo: # C 8 [payloadLen] [payload] ... [payload] [ck]
+			if (commandC8InProgress)
+			{
+				cpubridge::eReadDataFileStatus status;
+				u16 totKbSoFar = 0;
+				u16 fileID = 0;
+				u8 buffer[256];
+				u8 nBytesInBuffer = 0;
+				cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, &buffer[1], &nBytesInBuffer);
+
+				if (nBytesInBuffer)
+				{
+					buffer[0] = nBytesInBuffer;
+					rs232_esapiSendAnswer ('C', '8', buffer, 1 + nBytesInBuffer);
+				}
+			}
+			return true;
 		}
     }
     else
@@ -103,6 +126,51 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 			DBGBREAK;
 			return false;
 		
+		case CPUBRIDGE_NOTIFY_LOCK_STATUS:
+			//risposta al comando C9
+			//risposta al comando S5
+            {
+	            cpubridge::eLockStatus lockStatus;
+	            cpubridge::translateNotify_MACHINE_LOCK(msg, &lockStatus);
+
+				u8 buffer[2];
+				buffer[0] = static_cast<u8>(lockStatus);
+
+				if (0x0001 == handlerID)
+				{
+					//rispondo: # C 9 [lockStatus] [ck]
+					rs232_esapiSendAnswer ('C', '9', buffer, 1);
+				}
+				else if (0x0002 == handlerID)
+				{
+					//rispondo: # S 5 [current_lock_status] [ck]
+					rs232_esapiSendAnswer ('S', '5', buffer, 1);
+				}
+            }
+            return true;
+
+		case CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER:
+			//risposta al comando A5
+            {
+	            u16 versionString[64];
+				memset (versionString, 0, sizeof(versionString));
+	            cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, versionString, sizeof(versionString));
+
+                //rispondo: # A 5 [ASCII_0] ... [ASCII_7] [ck]
+				char s[8];
+				for (u8 i=0; i<8; i++)
+					s[i] = static_cast<char>(versionString[i]);
+                rs232_esapiSendAnswer ('A', '2', s, 8);
+            }
+            return true;
+
+		case CPUBRIDGE_NOTIFY_CUP_RESTART:
+			//risposta al comando #A3 restart
+			//Arriviamo qui quando abbiamo inviato il comando di reboot alla CPU
+			//A questo punto, dobbiamo fare il reboot di noistessi
+            rhea::reboot();
+			return true;
+
 		case CPUBRIDGE_NOTIFY_QUERY_ID101:
             //risposta al comando  #A2
             {
@@ -190,25 +258,61 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 
 		case CPUBRIDGE_NOTIFY_CPU_FULLSTATE:
 			//risposta al comando  #C6
+			//risposta al comando  #C7
 			{
 				cpubridge::sCPUStatus s;
 				cpubridge::translateNotify_CPU_FULLSTATE (msg, &s);
 
-				//if (0x0001 == handlerID)
-				//{
+				if (0x0001 == handlerID)
+				{
+					//comando #C6
 					u8 status = 'N';
 					if (s.isCupDetected())
 						status = 'Y';
 
 					//rispondo con # C 6 [status] [ck] 
 					rs232_esapiSendAnswer ('C', '6', &status, 1);
-					//}
+				}
+				else if (0x0002 == handlerID)
+				{
+					//comando #C7
+					u8 status = static_cast<u8>(s.VMCstate);
+					//rispondo con # C 7 [status] [ck] 
+					rs232_esapiSendAnswer ('C', '7', &status, 1);
+				}
 			}
 			return true;
+
+		case CPUBRIDGE_NOTIFY_READ_DATA_AUDIT_PROGRESS:
+			//risposta a C8 (data audit)
+			//rispondo: # C 8 [payloadLen] [payload] ... [payload] [ck]
+			if (commandC8InProgress)
+			{
+				//questo è l'ultimo messaggio che ricevo. Lo [status] in questo caso è "finishedOK" oppure "finishedKO"
+				commandC8InProgress = false;
+
+				cpubridge::eReadDataFileStatus status;
+				u16 totKbSoFar = 0;
+				u16 fileID = 0;
+				u8 buffer[256];
+				u8 nBytesInBuffer = 0;
+				cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, &buffer[1], &nBytesInBuffer);
+
+				if (nBytesInBuffer)
+				{
+					buffer[0] = nBytesInBuffer;
+					rs232_esapiSendAnswer ('C', '8', buffer, 1 + nBytesInBuffer);
+				}
+
+				//Segnalo la fine del processo riportando un "payloadLen] == 0
+				u8 data[2] = {0, 0};
+				rs232_esapiSendAnswer ('C', '8', data, 1);
+			}
+			return true;
+
         } //switch (msg.what)
 	}
 }
-
 
 //*********************************************************
 void Protocol::rs232_write (const u8 *buffer, u32 numBytesToSend)
@@ -344,6 +448,83 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
             cpubridge::ask_CPU_QUERY_ID101 (*cpuBridgeSubscriber, 0x01);
 		}
 		return 4;
+
+	case '3':
+		//Restart CPU & GPU
+		//ricevuto: # A 3 [ck]
+        //rispondo: # A 3 [ck]
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+
+			//reboot CPU
+			cpubridge::ask_CPU_RESTART(*cpuBridgeSubscriber, 0x01);
+
+			//rispondo
+            rs232_esapiSendAnswer ('A', '3', NULL, 0);
+		}
+		return 4;
+
+	case '4':
+		//Request GPU version
+		//ricevuto: # A 4 [ck]
+        //rispondo: # A 4 [GPU_ver_major] [GPU_ver_minor] [GPU_ver_build] [ck]
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+
+			//la stringa con la versione di GPU è in un file in current/gpu/ver.txt nel formato x.y.zzzzzz
+			u8 verMajor = 0;
+			u8 verMinor = 0;
+			u8 verBuild = 0;
+			rhea::Allocator* allocator = rhea::getSysHeapAllocator();
+
+			u8	fileName[256];
+			sprintf_s((char*)fileName, sizeof(fileName), "%s/current/gpu/ver.txt", rhea::getPhysicalPathToAppFolder());
+			
+			u32 fileSize;
+			u8* buffer = rhea::fs::fileCopyInMemory(fileName, allocator, &fileSize);
+			if (NULL != buffer)
+			{
+				rhea::utf8::String s;
+				s.setFrom(buffer, fileSize);
+
+				rhea::Array<rhea::utf8::String> e;
+				e.setup (allocator, 3);
+
+				const u32 n = s.explode ('.', e);
+				if (n == 3)
+				{
+					verMajor = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[0].getBuffer()));
+					verMinor = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[1].getBuffer()));
+					verBuild = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[2].getBuffer()));
+				}
+
+				RHEAFREE(allocator, buffer);
+			}
+
+			//rispondo.
+			const u8 data[3] = { verMajor, verMinor, verBuild };
+			rs232_esapiSendAnswer ('A', '4', data, 3);
+		}
+		return 4;
+
+	case '5':
+		//Request CPU version
+		//ricevuto: # A 5 [ck]
+        //rispondo: # A 5 [ASCII_0] ... [ASCII_7] [ck]
+		{
+			//parse del messaggio
+			if (b.buffer[3] != rhea::utils::simpleChecksum8_calc (b.buffer, 3))
+				return 2;
+
+            //chiedo a CPUBridge. Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+            cpubridge::ask_CPU_STRING_VERSION_AND_MODEL (*cpuBridgeSubscriber, 0x01);
+		}
+		return 4;
+		
 	}
 }
 
@@ -449,6 +630,41 @@ u32 Protocol::priv_rs232_handleCommand_C (const sBuffer &b)
 		}
 		return 4;
 		
+	case '7':
+		//Get CPU status
+		//ricevuto: # C 7 [ck]
+		//rispondo: # C 7 [status] [ck]
+		{
+			//chiedo a CPUBridge il suo stato 
+			//Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_CPU_QUERY_FULLSTATE (*cpuBridgeSubscriber, 0x0002);
+		}
+		return 4;
+
+	case '8':
+		//Get daily sales data (eva-dts)
+		//ricevuto: # C 8 [ck]
+		//rispondo: # C 8 [payloadLen] [payload] ... [payload] [ck]
+		if (!commandC8InProgress)
+		{
+			//chiedo a CPUBridge
+			//Alla ricezione delle risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			commandC8InProgress = true;
+			cpubridge::ask_READ_DATA_AUDIT (*cpuBridgeSubscriber, 0x0001, true);
+			
+		}
+		return 4;
+
+	case '9':
+		//Get machine locking status
+		//ricevuto: # C 9 [ck]
+		//rispondo: # C 9 [status] [ck]
+		{
+			//chiedo a CPUBridge
+			//Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_GET_MACHINE_LOCK_STATUS (*cpuBridgeSubscriber, 0x0001);
+		}
+		return 4;
 
     } //switch
 }
@@ -565,6 +781,26 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 			//rispondo
 			rs232_esapiSendAnswer ('S', '4', &btnNum, 1);
 		}
+		return 5;
+
+    case '5': 
+        //Lock or unlock the machine
+        //ricevuto: # S 5 [desired_lock_status] [ck]
+        //rispondo: # S 5 [current_lock_status] [ck]
+        {
+			if (b.numBytesInBuffer < 5)	//devo avere almeno 5 char nel buffer
+				return 0;
+
+			if (b.buffer[4] != rhea::utils::simpleChecksum8_calc (b.buffer, 4))
+				return 2;
+
+			const cpubridge::eLockStatus desiredLockStatus = static_cast<cpubridge::eLockStatus>(b.buffer[3]);
+
+			//chiedo a CPUBridge
+			//Alla ricezione della risposta da parte di CPUBridge, rispondo a mia volta lungo la seriale (vedi onMsgFromCPUBridge)
+			cpubridge::ask_SET_MACHINE_LOCK_STATUS (*cpuBridgeSubscriber, 0x0002, desiredLockStatus);
+
+        }
 		return 5;
 	} //switch
 }
