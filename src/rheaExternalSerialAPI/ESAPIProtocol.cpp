@@ -160,7 +160,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 				char s[8];
 				for (u8 i=0; i<8; i++)
 					s[i] = static_cast<char>(versionString[i]);
-                rs232_esapiSendAnswer ('A', '2', s, 8);
+                rs232_esapiSendAnswer ('A', '5', s, 8);
             }
             return true;
 
