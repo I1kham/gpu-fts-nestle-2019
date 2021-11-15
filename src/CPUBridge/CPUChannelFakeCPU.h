@@ -94,6 +94,7 @@ namespace cpubridge
 		void						priv_DA3_reload();
 		void						priv_advanceFakeCleaning();
 		u32							priv_utils_giveMeAUTF16StringWithStrangeChar (u16 *out_message, u32 sizeOf_outMessage) const;
+		u32							priv_utils_giveMeAUTF16StringWithStrangeChar2 (u16 *out_message, u32 sizeOf_outMessage) const;
 		u32							priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (u8 *out_message, u32 sizeOf_outMessage) const;
 
 	private:

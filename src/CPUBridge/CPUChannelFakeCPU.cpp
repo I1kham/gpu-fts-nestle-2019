@@ -25,6 +25,7 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage1, sizeof(utf16_cpuMessage1));
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage2, sizeof(utf16_cpuMessage2));
+	
 
 	for (u8 i = 0; i < 32; i++)
 		decounterVari[i] = 1000 + i;
@@ -158,6 +159,28 @@ u32 CPUChannelFakeCPU::priv_utils_giveMeAUTF16StringWithStrangeChar (u16 *out_me
 	out_message[i++] = 0x0068;
 	out_message[i++] = 0x0065;
 	out_message[i++] = 0x0072;
+	
+	out_message[i++] = 0x0000;
+	
+	return i*2;
+}
+
+//*****************************************************************
+u32 CPUChannelFakeCPU::priv_utils_giveMeAUTF16StringWithStrangeChar2 (u16 *out_message, u32 sizeOf_outMessage UNUSED_PARAM) const
+{
+	//1=?????????
+	u32 i = 0;
+	out_message[i++] = 0x0031;
+	out_message[i++] = 0x003d;
+	out_message[i++] = 0x05dc;
+	out_message[i++] = 0x05b0;
+	out_message[i++] = 0x05d0;
+	out_message[i++] = 0x05b7;
+	out_message[i++] = 0x05e4;
+	out_message[i++] = 0x05e9;
+	out_message[i++] = 0x05c1;
+	out_message[i++] = 0x05b5;
+	out_message[i++] = 0x05e8;
 	
 	out_message[i++] = 0x0000;
 	
@@ -1278,20 +1301,16 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					const u8 rigaNum = bufferToSend[5];
 					const u8 lingua1or2 = bufferToSend[6];
 
-					/*const u8 isUnicode = 0;
-					u8 msg[32];
-					rhea::string::utf8::spf (msg, sizeof(msg),"tab=%d, row=%d, lang=%d", tableID, rigaNum, lingua1or2);
-					const u8 msgLen = static_cast<u8>(rhea::string::utf8::lengthInBytes(msg));
-					*/
-
+					/*
 					const u8 isUnicode = 0;
 					u8 msg[32];
 					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (msg, sizeof(msg)));
-
-					/*const u8 isUnicode = 1;
-					u16 msg[64];
-					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAUTF16StringWithStrangeChar (msg, sizeof(msg)));
 					*/
+
+					const u8 isUnicode = 1;
+					u16 msg[64];
+					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAUTF16StringWithStrangeChar2 (msg, sizeof(msg)));
+					
 
 					//snd: # P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [isUnicode] [msg_utf16_LSB_MSB...] [ck]
 					out_answer[ct++] = '#';
@@ -1494,8 +1513,8 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	2		lunghezza in byte del messaggio
 	*/
 	out_answer[ct++] = '#';
-	//out_answer[ct++] = 'Z';
-	out_answer[ct++] = 'B';
+	out_answer[ct++] = 'Z';
+	//out_answer[ct++] = 'B';
 	out_answer[ct++] = 0; //lunghezza
 
 	/*
