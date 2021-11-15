@@ -1449,6 +1449,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 						//CPU ha risposto con una stringa in ASCII
 						u16 strUTF16Message[256];
 						memset(strUTF16Message, 0, sizeof(strUTF16Message));
+                        answerBuffer[answerBuffer[2] - 1] = 0x00;
 						rhea::string::strANSItoUTF16 (reinterpret_cast<const char*>(&answerBuffer[8]), strUTF16Message, sizeof(strUTF16Message));
 
 						//memcpy (bufferW, &answerBuffer[8], msgLenInByte);

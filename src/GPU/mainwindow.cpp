@@ -77,6 +77,29 @@ MainWindow::~MainWindow()
 }
 
 //*****************************************************
+void MainWindow::keyPressEvent(QKeyEvent *ev)
+{
+    //simula (+ o -) pressione del btn PROG
+    if (ev->key() == Qt::Key_P)
+    {
+        switch (currentForm)
+        {
+        default:
+            break;
+
+        case eForm_main_showBrowser:
+            priv_scheduleFormChange(eForm_newprog);
+            break;
+
+        case eForm_oldprog_legacy:
+        case eForm_newprog:
+            priv_scheduleFormChange(eForm_main_showBrowser);
+            break;
+        }
+    }
+}
+
+//*****************************************************
 void MainWindow::priv_showLockedPanel (bool b)
 {
     if (!b)

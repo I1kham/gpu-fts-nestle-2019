@@ -26,6 +26,21 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage1, sizeof(utf16_cpuMessage1));
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage2, sizeof(utf16_cpuMessage2));
 	
+    //msg in ebraico
+    /*u32 i = 0;
+    utf16_cpuMessage1[i++] = 0x0031;
+    utf16_cpuMessage1[i++] = 0x003d;
+    utf16_cpuMessage1[i++] = 0x05dc;
+    utf16_cpuMessage1[i++] = 0x05b0;
+    utf16_cpuMessage1[i++] = 0x05d0;
+    utf16_cpuMessage1[i++] = 0x05b7;
+    utf16_cpuMessage1[i++] = 0x05e4;
+    utf16_cpuMessage1[i++] = 0x05e9;
+    utf16_cpuMessage1[i++] = 0x05c1;
+    utf16_cpuMessage1[i++] = 0x05b5;
+    utf16_cpuMessage1[i++] = 0x05e8;
+    utf16_cpuMessage1[i++] = 0x0000;
+    */
 
 	for (u8 i = 0; i < 32; i++)
 		decounterVari[i] = 1000 + i;
