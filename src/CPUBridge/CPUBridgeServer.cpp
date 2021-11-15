@@ -1447,7 +1447,12 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 					else
 					{
 						//CPU ha risposto con una stringa in ASCII
-						memcpy (bufferW, &answerBuffer[8], msgLenInByte);
+						u16 strUTF16Message[256];
+						memset(strUTF16Message, 0, sizeof(strUTF16Message));
+						rhea::string::strANSItoUTF16 (reinterpret_cast<const char*>(&answerBuffer[8]), strUTF16Message, sizeof(strUTF16Message));
+
+						//memcpy (bufferW, &answerBuffer[8], msgLenInByte);
+						rhea::string::strUTF16toUTF8 (strUTF16Message, bufferW, sizeof(bufferW));
 					}
 
 					//Notifico il sub

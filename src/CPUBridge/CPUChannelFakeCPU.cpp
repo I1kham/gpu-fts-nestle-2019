@@ -164,6 +164,41 @@ u32 CPUChannelFakeCPU::priv_utils_giveMeAUTF16StringWithStrangeChar (u16 *out_me
 	return i*2;
 }
 
+//*****************************************************************
+u32 CPUChannelFakeCPU::priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (u8 *out_message, u32 sizeOf_outMessage UNUSED_PARAM) const
+{
+	//Stäbchen nie
+	// 0x53	83
+	// 0x74	116
+	// 0xE4	228
+	// 0x62	98
+	// 0x63	99
+	// 0x68	104
+	// 0x65	101
+	// 0x6E	110
+	// 0x20	32
+	// 0x6E	110
+	// 0x69	105
+	// 0x65	101
+
+	u32 i = 0;
+	out_message[i++] = 0x53;
+	out_message[i++] = 0x74;
+	out_message[i++] = 0xE4;
+	out_message[i++] = 0x62;
+	out_message[i++] = 0x63;
+	out_message[i++] = 0x68;
+	out_message[i++] = 0x65;
+	out_message[i++] = 0x6E;
+	out_message[i++] = 0x20;
+	out_message[i++] = 0x6E;
+	out_message[i++] = 0x69;
+	out_message[i++] = 0x65;
+	out_message[i++] = 0x00;
+
+	return i;
+}
+
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
  */
@@ -1249,9 +1284,14 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 					const u8 msgLen = static_cast<u8>(rhea::string::utf8::lengthInBytes(msg));
 					*/
 
-					const u8 isUnicode = 1;
+					const u8 isUnicode = 0;
+					u8 msg[32];
+					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (msg, sizeof(msg)));
+
+					/*const u8 isUnicode = 1;
 					u16 msg[64];
 					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAUTF16StringWithStrangeChar (msg, sizeof(msg)));
+					*/
 
 					//snd: # P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [isUnicode] [msg_utf16_LSB_MSB...] [ck]
 					out_answer[ct++] = '#';
@@ -1454,7 +1494,8 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	2		lunghezza in byte del messaggio
 	*/
 	out_answer[ct++] = '#';
-	out_answer[ct++] = 'Z';
+	//out_answer[ct++] = 'Z';
+	out_answer[ct++] = 'B';
 	out_answer[ct++] = 0; //lunghezza
 
 	/*
@@ -1489,9 +1530,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	if (out_answer[1] == 'B')
 	{
 		memset(&out_answer[ct], 0x00, 32);
-		u32 n = (u32)rhea::string::utf16::lengthInBytes(utf16_curCPUMessage);
-		for (u32 i=0;i<n;i++)
-			out_answer[ct+i] = (u8)utf16_curCPUMessage[i];
+		priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (&out_answer[ct], 32);
 		ct += 32;
 	}
 	else

@@ -54,7 +54,7 @@ bool string::strANSItoUTF8 (const char* in, u8* out, u32 sizeOfOut)
 }
 
 //**************************************************
-bool string::strANSItoUTF16 (const char* in, u16* out, u32 sizeOfOutInBytes)
+bool string::strANSItoUTF16 (const char *in, u16 *out, u32 sizeOfOutInBytes)
 {
 	assert (out && sizeOfOutInBytes);
 
@@ -90,8 +90,9 @@ bool string::strANSItoUTF16 (const char* in, u16* out, u32 sizeOfOutInBytes)
 			return false;
 		}
 
-		memcpy (&out[n], u.data, nBytes);
-		n += nBytes;
+		out[n++] = u.data[0];
+		if (nBytes == 4)
+			out[n++] = u.data[1];
 	}
 	out[n] = 0;
 	return true;
