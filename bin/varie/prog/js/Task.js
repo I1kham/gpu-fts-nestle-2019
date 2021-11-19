@@ -1365,6 +1365,7 @@ TaskDevices.prototype.messageBox = function (msg)
 TaskDevices.prototype.runTestAssorbGruppo = function()								{ this.what = 5; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runTestAssorbMotoriduttore = function()						{ this.what = 6; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runGrinderSpeedTest = function(macina1o2)						{ this.what = 7; this.fase = 0; this.macina1o2=macina1o2; this.speed1=0; this.speed2=0; this.gruppoTolto=0; pleaseWait_show(); }
+TaskDevices.prototype.runScivoloBrewmatic = function (perc0_100)					{ this.what = 8; this.fase = 0; this.speed1=perc0_100; pleaseWait_show(); }
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr); }
 TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
@@ -1466,7 +1467,12 @@ TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)
 	case 7: //grinder speed Test
 		this.fase = 70;
 		pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
-		break;		
+		break;
+		
+	case 8: //test scivolo Brewmatic
+		pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+		this.fase = 90;
+		break;
 	}
 }
 
@@ -1489,6 +1495,8 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 		this.priv_handleTestAssorbMotoriduttore(timeNowMsec);
 	else if (this.what == 7)
 		this.priv_handleGrinderSpeedTest(timeNowMsec);
+	else if (this.what == 8)
+		this.priv_handleTestScivoloBrewmatic(timeNowMsec);
 }
 
 TaskDevices.prototype.priv_queryCupCoverSensorLiveValue = function(timeNowMsec)
@@ -2216,7 +2224,42 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 	}
 }
 
-
+TaskDevices.prototype.priv_handleTestScivoloBrewmatic = function(timeNowMsec)
+{
+	switch (this.fase)
+	{
+	case 0:
+		this.fase = 1;
+		pleaseWait_show();
+		pleaseWait_rotella_hide();
+		pleaseWait_btn2_setText("$LAB_STOP");
+		pleaseWait_btn2_show();	
+		
+		rhea.ajax ("scivoloBrewmatic", { "perc": this.speed1 }).then( function(result)
+		{
+		})
+		.catch( function(result)
+		{
+		});			
+		break;
+		
+	case 1:	//attendo btn STOP
+		break;
+		
+	//************************************************************ FINE
+	case 90: //fine
+		rhea.ajax ("scivoloBrewmatic", { "perc": 0 }).then( function(result)
+		{
+		})
+		.catch( function(result)
+		{
+		});		
+		
+		pleaseWait_hide();
+		this.what = 0;
+		break;
+	}
+}
 
 /**********************************************************
  * TaskDisintall

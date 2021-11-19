@@ -1400,6 +1400,18 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC:
+			{
+				u8 perc0_100;
+				translate_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (msg, &perc0_100);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_scivoloBrewmatic (perc0_100, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
+				notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (sub->q, handlerID, logger, perc0_100);
+			}
+			break;
 
 		} //switch (msg.what)
 

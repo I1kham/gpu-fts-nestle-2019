@@ -565,6 +565,16 @@ u8 cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8*
 	return buildMsg_Programming(eCPUProgrammingCommand::notify_end_of_grinder_cleaning_proc, payload, 1, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_scivoloBrewmatic (u8 perc0_100, u8* out_buffer, u8 sizeOfOutBuffer)
+{
+	if (perc0_100 > 100)
+		perc0_100 = 100;
+
+	u8 payload[2];
+	payload[0] = perc0_100;
+	return buildMsg_Programming(eCPUProgrammingCommand::scivolo_brewmatic, payload, 1, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
@@ -2413,6 +2423,19 @@ void cpubridge::translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread:
 	*out_grinder1_o_2 = p[0];
 }
 
+//***************************************************
+void cpubridge::ask_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber &from, u16 handlerID, u8 perc0_100)
+{
+	u8 otherData[2];
+	otherData[0] = perc0_100;
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC, handlerID, otherData, 1);
+}
+void cpubridge::translate_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const rhea::thread::sMsg &msg, u8 *out_perc0_100)
+{
+	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_perc0_100 = p[0];
+}
 
 //***************************************************
 void cpubridge::ask_CPU_ACTIVATE_BUZZER (const sSubscriber &from, u16 handlerID, u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec)
@@ -2676,7 +2699,6 @@ void cpubridge::notify_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &to, u16 handle
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_RUN_CAFFE_CORTESIA, handlerID);
 }
 
-
 //***************************************************
 void cpubridge::notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger)
 {
@@ -2684,3 +2706,9 @@ void cpubridge::notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to,
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC, handlerID);
 }
 
+//***************************************************
+void cpubridge::notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 perc0_100)
+{
+	logger->log("notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC [%d]\n", perc0_100);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SCIVOLO_BREWMATIC, handlerID);
+}

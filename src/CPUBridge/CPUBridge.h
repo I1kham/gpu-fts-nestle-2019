@@ -169,6 +169,7 @@ namespace cpubridge
 	u8			buildMsg_getJugCurrentRepetition (u8* out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8* out_buffer, u8 sizeOfOutBuffer);
 					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
+	u8			buildMsg_scivoloBrewmatic (u8 perc0_100, u8* out_buffer, u8 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx
@@ -370,6 +371,7 @@ namespace cpubridge
 	void		translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m);
 
 	void		notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger);
+	void		notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 perc0_100);
 	
 	/***********************************************
 		ask_xxxx
@@ -648,6 +650,10 @@ namespace cpubridge
 					//notifica CPU segnalando la fine della procedura di grinder cleaning
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_END_OF_GRINDER_CLEANING_PROCEDURE
 	
+	void		ask_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber &from, u16 handlerID, u8 perc0_100);
+	void		translate_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const rhea::thread::sMsg &msg, u8 *out_perc0_100);
+					//[perc0_100]== percentuale di attivazione PWM
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

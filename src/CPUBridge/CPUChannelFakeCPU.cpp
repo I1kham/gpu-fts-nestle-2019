@@ -449,6 +449,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return false;
 
 			case eCPUProgrammingCommand::attivazioneMotore:
+			case eCPUProgrammingCommand::scivolo_brewmatic:
 				//rispondo con lo stesso msg che ho ricevuto
 				{
 					const u8 len = bufferToSend[2];

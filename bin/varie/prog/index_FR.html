@@ -1146,6 +1146,19 @@
 						<tr><td>TEST MODEM</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startModemTest()"></div></td></tr>
 						<tr id="pageDevices_grpTest"><td>TEST GROUPE CAFE</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
 						<tr id="pageDevices_motorTest"><td>TEST MOTEUR</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
+						
+						<tr id="pageDevices_vibrationTest">
+							<td>TEST VIBRATION</td>
+							<td>
+								<div style="float:left"><div id="pageDevices_vibrationTest_perc" class="UINumber" data-numfigures="3" data-max="180" data-min="1"></div></div>
+								<div style="float:left; margin-left:40px">
+									<div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startBrewmaticVibrationTest()"></div>
+								</div>
+								<div style="clear"></div>								
+							
+							
+							</td>
+						</tr>
 					</table>
 				</div>
 
@@ -3669,7 +3682,9 @@ function pageDevices_show()
 		if (da3.isInduzione())
 			rheaHideElem(rheaGetElemByID("pageDevices_boilerSize"));
 		
-		
+		if (!da3.isMachine_Brewmatic4Macine())
+			rheaHideElem(rheaGetElemByID("pageDevices_vibrationTest"));
+			
 		var optionsForVGrindSelector = "1|VARIGRIND 1|2|VARIGRIND 2";
 		for (var i=3; i<=da3.getNumMacine(); i++)
 			optionsForVGrindSelector += "|" +i +"|VARIGRIND " +i;
@@ -3845,6 +3860,13 @@ function pageDevices_startModemTest()					{ currentTask.runModemTest(); }
 function pageDevices_startTestAssorbGruppo()			{ currentTask.runTestAssorbGruppo(); }
 function pageDevices_startTestAssorbMotoriduttore()		{ currentTask.runTestAssorbMotoriduttore(); }
 function pageDevices_startGrinderSpeedTest()			{ currentTask.runGrinderSpeedTest(1); }
+function pageDevices_startBrewmaticVibrationTest()
+{ 
+	var win = ui.getWindowByID("pageDevices");
+	var perc0_100 = win.getChildByID("pageDevices_vibrationTest_perc").getValue();
+	currentTask.runScivoloBrewmatic (perc0_100);
+}
+
 /***************************************************************************
  *
  * pageDataAudit
