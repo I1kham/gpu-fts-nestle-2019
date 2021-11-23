@@ -4,6 +4,7 @@
 #include "ESAPIEnumAndDefine.h"
 #include "ESAPIShared.h"
 
+#include "ESAPIFirmwareUpdate.h"
 
 namespace esapi
 {
@@ -17,7 +18,7 @@ namespace esapi
 	{
 	public:
 		static const u8			ESAPI_VERSION_MAJOR = 1;
-		static const u8			ESAPI_VERSION_MINOR = 2;
+		static const u8			ESAPI_VERSION_MINOR = 3;//2;
 
 	public:
 								Protocol();
@@ -34,6 +35,8 @@ namespace esapi
 									//Utilizzare rsr232_getBufferIN() per ottenre il buffer di dati sul quale lavorare per processare il messaggio R
 
 		void					rs232_esapiSendAnswer (u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData);
+
+		void					rs232_esapiSendAnswerWithCrc16(u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData);
 
 
 		bool					onMsgFromCPUBridge(cpubridge::sSubscriber &cpuBridgeSubscriber, const rhea::thread::sMsg &msg, u16 handlerID);
@@ -56,7 +59,8 @@ namespace esapi
 		void					priv_unsetup();
 		u32						priv_rs232_handleCommand_A (const sBuffer &b);
 		u32						priv_rs232_handleCommand_C (const sBuffer &b);
-		u32						priv_rs232_handleCommand_S (const sBuffer &b);
+		u32						priv_rs232_handleCommand_S(const sBuffer& b);
+		u32						priv_rs232_handleCommand_X(const sBuffer& b);
 
 		void					priv_onCPUNotify_RUNNING_SEL_STATUS(const rhea::thread::sMsg &msg);
 
@@ -70,8 +74,11 @@ namespace esapi
 		sBuffer					rs232BufferIN;
 		sRunningSel				runningSel;
 		bool					commandC8InProgress;
-	};
 
+		bool					commandCpuVerExtended;		// selezione del comando A5 di richesta versione CPU in modalita estesa
+
+		FirmwareUpdate			fwUpdate;
+	};
 
 } // namespace esapi
 

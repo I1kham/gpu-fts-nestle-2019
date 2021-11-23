@@ -29,7 +29,7 @@ namespace esapi
 
 
 	u32			buildAnswer (u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
-
+	u32			buildAnswerWithCrc16(u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData, u8* out_buffer, u32 sizeOfOutBuffer);
 
 	/***********************************************
 		buildMsg_xxxx

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPI.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPICore.cpp" />
+    <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIFirmwarUpdate.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRasPI.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRaw.cpp" />
     <ClCompile Include="..\..\src\rheaExternalSerialAPI\ESAPIProtocol.cpp" />
@@ -31,6 +32,7 @@
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPICore.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIFirmwareUpdate.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRasPI.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIModuleRaw.h" />
     <ClInclude Include="..\..\src\rheaExternalSerialAPI\ESAPIProtocol.h" />

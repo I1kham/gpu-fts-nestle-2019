@@ -672,6 +672,9 @@ namespace cpubridge
 	void		ask_GET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di uno di questi 3 msg, CPUBridge risponderà con un notify_MACHINE_LOCK riportando lo stato attuale del lock
 
+	void ask_SELECTION_ENABLE_DISABLE(const sSubscriber& from, u16 handlerId, u8 selNum, bool enable);
+	//void translate_SELECTION_ENABLE_DISABLE(const rhea::thread::sMsg& msg, u8 selNum, bool enable);
+	void notify_SELECTION_ENABLE_DISABLE(const sSubscriber& to, u8 selNum, bool enable, rhea::ISimpleLogger* logger);
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

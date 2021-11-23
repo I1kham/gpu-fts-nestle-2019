@@ -12,9 +12,7 @@ struct sThreadInitParam
 	OSEvent	hEvThreadStarted;
 };
 
-
 i16     cpuCommThreadFn (void *userParam);
-
 
 //****************************************************************************
 bool cpubridge_helper_folder_create (const char *folder, rhea::ISimpleLogger *logger)
@@ -789,7 +787,6 @@ void cpubridge::translateNotify_CPU_SINGLE_SEL_PRICE(const rhea::thread::sMsg &m
     rhea::string::utf8::copyStrAsMuchAsYouCan (out_utf8_alreadyFormattedPriceString, sizeOfUtf8FormattedPriceString, priceStr);
 }
 
-
 //***************************************************
 void cpubridge::notify_CPU_RUNNING_SEL_STATUS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eRunningSelStatus status)
 {
@@ -1288,13 +1285,13 @@ void cpubridge::notify_CPU_POSIZIONE_MACINA(const sSubscriber &to, u16 handlerID
 	u8 buffer[4];
 	rhea::utils::bufferWriteU16(buffer, posizione);
 	buffer[2] = macina_1o2;
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_POSIZIONE_MACINA, handlerID, buffer, 3);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_POSIZIONE_MACINA, handlerID, buffer, 3);
 }
 
 //***************************************************
 void cpubridge::translateNotify_CPU_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_posizione)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_POSIZIONE_MACINA);
+	assert(msg.what == CPUBRIDGE_NOTIFY_POSIZIONE_MACINA);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_posizione = rhea::utils::bufferReadU16(p);
 	*out_macina_1o2 = p[2];
@@ -1308,13 +1305,13 @@ void cpubridge::notify_CPU_MOTORE_MACINA(const sSubscriber &to, u16 handlerID, r
 	u8 buffer[4];
 	buffer[0] = macina_1o2;
 	buffer[1] = (u8)m;
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_MOTORE_MACINA, handlerID, buffer, 2);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_MOTORE_MACINA, handlerID, buffer, 2);
 }
 
 //***************************************************
 void cpubridge::translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_MOTORE_MACINA);
+	assert(msg.what == CPUBRIDGE_NOTIFY_MOTORE_MACINA);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_macina_1o2 = p[0];
 	*out_m = (eCPUProg_macinaMove)p[1];
@@ -1328,12 +1325,12 @@ void cpubridge::notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, 
 	u8 buffer[4];
 	buffer[0] = selNum;
 	buffer[1] = (u8)d;
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_TEST_SELECTION, handlerID, buffer, 2);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_TEST_SELECTION, handlerID, buffer, 2);
 }
 //***************************************************
 void cpubridge::translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProg_testSelectionDevice *out_d)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_TEST_SELECTION);
+	assert(msg.what == CPUBRIDGE_NOTIFY_TEST_SELECTION);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_selNum = p[0];
 	*out_d = (eCPUProg_testSelectionDevice)p[1];
@@ -1361,13 +1358,13 @@ void cpubridge::notify_NOMI_LINGE_CPU(const sSubscriber &to, u16 handlerID, rhea
 			break;
 		buffer[33 + i] = strLingua2UTF16[i];
 	}
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU, handlerID, buffer, sizeof(buffer));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_NOMI_LINGUE_CPU, handlerID, buffer, sizeof(buffer));
 }
 
 //***************************************************
 void cpubridge::translateNotify_NOMI_LINGE_CPU(const rhea::thread::sMsg &msg, u16 *out_strLingua1UTF16, u16 *out_strLingua2UTF16)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU);
+	assert(msg.what == CPUBRIDGE_NOTIFY_NOMI_LINGUE_CPU);
 	const u16 *p = (const u16*)msg.buffer;
 	
 	out_strLingua1UTF16[0] = out_strLingua2UTF16[0] = 0x0000;
@@ -1397,13 +1394,13 @@ void cpubridge::notify_EVA_RESET_PARTIALDATA(const sSubscriber &to, u16 handlerI
 		buffer[0] = 0x01;
 	else
 		buffer[0] = 0x00;
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA, handlerID, buffer, 1);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_EVA_RESET_PARTIALDATA, handlerID, buffer, 1);
 }
 
 //***************************************************
 void cpubridge::translateNotify_EVA_RESET_PARTIALDATA(const rhea::thread::sMsg &msg, bool *out_result)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA);
+	assert(msg.what == CPUBRIDGE_NOTIFY_EVA_RESET_PARTIALDATA);
 	const u8 *p = (const u8*)msg.buffer;
 	if (p[0] == 0x01)
 		*out_result = true;
@@ -1422,13 +1419,13 @@ void cpubridge::notify_GET_VOLT_AND_TEMP(const sSubscriber &to, u16 handlerID, r
 	buffer[1] = tBollitore;
 	buffer[2] = tCappuccinatore;
 	rhea::utils::bufferWriteU16(&buffer[3], voltaggio);
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP, handlerID, buffer, 5);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_VOLT_AND_TEMP, handlerID, buffer, 5);
 }
 
 //***************************************************
 void cpubridge::translateNotify_GET_VOLT_AND_TEMP(const rhea::thread::sMsg &msg, u8 *out_tCamera, u8 *out_tBollitore, u8 *out_tCappuccinatore, u16 *out_voltaggio)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP);
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_VOLT_AND_TEMP);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_tCamera = p[0];
 	*out_tBollitore = p[1];
@@ -1459,13 +1456,13 @@ void cpubridge::notify_GET_OFF_REPORT(const sSubscriber &to, u16 handlerID, rhea
 		buffer[ct++] = offs[i].stato;
 	}
 
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_OFF_REPORT, handlerID, buffer, ct);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_OFF_REPORT, handlerID, buffer, ct);
 }
 
 //***************************************************
 void cpubridge::translateNotify_GET_OFF_REPORT(const rhea::thread::sMsg &msg, u8 *out_indexNum, u8 *out_lastIndexNum, u8 *out_numOffs, sCPUOffSingleEvent *out, u32 sizeofOut)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_GET_OFF_REPORT);
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_OFF_REPORT);
 	const u8 *p = (const u8*)msg.buffer;
 	u16 ct = 0;
 	*out_indexNum = p[ct++];
@@ -1501,13 +1498,13 @@ void cpubridge::notify_GET_LAST_FLUX_INFORMATION(const sSubscriber &to, u16 hand
 	rhea::utils::bufferWriteU16(&buffer[0], lastFlux);
 	rhea::utils::bufferWriteU16(&buffer[2], lastGrinderPosition);
 
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION, handlerID, buffer, 4);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_LAST_FLUX_INFORMATION, handlerID, buffer, 4);
 }
 
 //***************************************************
 void cpubridge::translateNotify_GET_LAST_FLUX_INFORMATION(const rhea::thread::sMsg &msg, u16 *out_lastFlux, u16 *out_lastGrinderPosition)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION);
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_LAST_FLUX_INFORMATION);
 	const u8 *p = (const u8*)msg.buffer;
 	*out_lastFlux = rhea::utils::bufferReadU16(&p[0]);
 	*out_lastGrinderPosition = rhea::utils::bufferReadU16(&p[2]);
@@ -1520,13 +1517,13 @@ void cpubridge::notify_CPU_STRING_VERSION_AND_MODEL(const sSubscriber &to, u16 h
 
 	u32 n = rhea::string::utf16::lengthInBytes(utf16_msg);
 	if (n > 0)
-		rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, utf16_msg, (n+1)*2);
+		rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_CPU_STRING_MODEL_AND_VER, handlerID, utf16_msg, (n+1)*2);
 }
 
 //***************************************************
 void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread::sMsg &msg, u16 *out_utf16msg, u32 sizeOfOutUTF16MsgInBytes)
 {
-	assert(msg.what == CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER);
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_CPU_STRING_MODEL_AND_VER);
 	const u16 *p = (const u16*)msg.buffer;
 
 	const u32 n = rhea::string::utf16::lengthInBytes(p);
@@ -1545,14 +1542,14 @@ void cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(const rhea::thread:
 void cpubridge::notify_CPU_START_MODEM_TEST(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CPU_START_MODEM_TEST\n");
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_CPU_START_MODEM_TEST, handlerID, NULL, 0);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_START_MODEM_TEST, handlerID, NULL, 0);
 }
 
 //***************************************************
 void cpubridge::notify_CPU_EVA_RESET_TOTALS(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CPU_EVA_RESET_TOTALS\n");
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS, handlerID, NULL, 0);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_EVA_RESET_TOTALS, handlerID, NULL, 0);
 }
 
 //***************************************************
@@ -1881,7 +1878,7 @@ void cpubridge::ask_CPU_RESTART (const sSubscriber &from, u16 handlerID)
 void cpubridge::notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
 {
 	logger->log("notify_CPU_RESTART\n");
-	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CUP_RESTART, handlerID);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_CPU_RESTART, handlerID);
 }
 
 //***************************************************
@@ -2261,7 +2258,6 @@ void cpubridge::ask_CPU_DA3SYNC(const sSubscriber &from)
 {
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_DA3_SYNC, 0, NULL, 0);
 }
-
 
 //***************************************************
 void cpubridge::ask_CPU_START_MODEM_TEST(const sSubscriber &from, u16 handlerID)
@@ -2824,7 +2820,6 @@ void cpubridge::notify_CPU_RUN_CAFFE_CORTESIA (const sSubscriber &to, u16 handle
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_RUN_CAFFE_CORTESIA, handlerID);
 }
 
-
 //***************************************************
 void cpubridge::notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger)
 {
@@ -2832,3 +2827,14 @@ void cpubridge::notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to,
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC, handlerID);
 }
 
+/***************************************************/
+void cpubridge::ask_SELECTION_ENABLE_DISABLE(const sSubscriber& from, u16 handlerId, u8 selNum, bool enable)
+{
+//	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE, selNum, enable);
+}
+
+void cpubridge::notify_SELECTION_ENABLE_DISABLE(const sSubscriber& to, u8 selNum, bool enable, rhea::ISimpleLogger* logger)
+{
+	logger->log("notify_SELECTION_ENABLE_DISABLE\n");
+//	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC, handlerID);
+}

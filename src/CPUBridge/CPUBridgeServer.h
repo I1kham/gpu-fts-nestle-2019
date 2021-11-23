@@ -113,10 +113,14 @@ namespace cpubridge
 			{
 				switch (how)
 				{
-				case eStartSelectionMode_default:			return this->asDefault.selNum;
-				case eStartSelectionMode_alreadyPaid:		return this->asAlreadyPaid.selNum;
-				case eStartSelectionMode_CPUSpontaneous:	return this->asCPUSpontaneous.selNum;
-				default:									return 0;
+				case eStartSelectionMode_default:
+					return this->asDefault.selNum;
+				case eStartSelectionMode_alreadyPaid:
+					return this->asAlreadyPaid.selNum;
+				case eStartSelectionMode_CPUSpontaneous:
+					return this->asCPUSpontaneous.selNum;
+				default:
+					return 0;
 				}			
 			}
 
@@ -124,10 +128,14 @@ namespace cpubridge
 			{
 				switch (how)
 				{
-				case eStartSelectionMode_default:			return this->asDefault.bForceJUG;
-				case eStartSelectionMode_alreadyPaid:		return this->asAlreadyPaid.bForceJUG;
-				case eStartSelectionMode_CPUSpontaneous:	return false;
-				default:									return false;
+				case eStartSelectionMode_default:
+					return this->asDefault.bForceJUG;
+				case eStartSelectionMode_alreadyPaid:
+					return this->asAlreadyPaid.bForceJUG;
+				case eStartSelectionMode_CPUSpontaneous:
+					return false;
+				default:
+					return false;
 				}
 			}
 		};
@@ -230,35 +238,42 @@ namespace cpubridge
 		void					priv_lockMachine();
 		void					priv_unlockMachine();
 
-	private:
-		rhea::Allocator         *localAllocator;
-		rhea::ISimpleLogger     *logger;
-		CPUChannel				*chToCPU;
-		OSWaitableGrp			waitList;
-		rhea::NullLogger        nullLogger;
-		HThreadMsgR             hServiceChR;
-        sStato					stato;
-		u8						answerBuffer[2048];
-		sCPUParamIniziali		cpuParamIniziali;
-		sCPUStatus				cpuStatus;
-		sRunningSelection		runningSel;
-		u8						cpu_numDecimalsForPrices;
-		rhea::FastArray<sSubscription*>	subscriberList;
-		sLanguage				language;
-		u16						utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
-		u16						lastCPUMsg_len;
-		u8						lastBtnProgStatus;
-        u8                      keepOnSendingThisButtonNum;
-		sRegolazioneAperturaMacina regolazioneAperturaMacina;
-		sCalcGrinderSpeed		grinderSpeedTest;
-		u16						utf16_CPUMasterVersionString[34];
-		u64						showCPUStringModelAndVersionUntil_msec;
-		sPriceHolding			priceHolding;
-		eCPUMilkerType			milkerType;
-		u32						id101;
-		u16						quickMenuPinCode;
+		bool					IsSelectionEnable(u8 selection);
+		bool					SelectionEnable(u8 selection);
+		bool					SelectionsEnableLoad();
+		bool					SelectionsEnableSave();
+		bool					SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const;
 
-		u8						jugRepetitions[NUM_MAX_SELECTIONS];
+	private:
+		rhea::Allocator				*localAllocator;
+		rhea::ISimpleLogger			*logger;
+		CPUChannel					*chToCPU;
+		OSWaitableGrp				waitList;
+		rhea::NullLogger			nullLogger;
+		HThreadMsgR					hServiceChR;
+        sStato						stato;
+		u8							answerBuffer[2048];
+		sCPUParamIniziali			cpuParamIniziali;
+		sCPUStatus					cpuStatus;
+		sRunningSelection			runningSel;
+		u8							cpu_numDecimalsForPrices;
+		rhea::FastArray<sSubscription*>	subscriberList;
+		sLanguage					language;
+		u16							utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
+		u16							lastCPUMsg_len;
+		u8							lastBtnProgStatus;
+        u8							keepOnSendingThisButtonNum;
+		sRegolazioneAperturaMacina	regolazioneAperturaMacina;
+		sCalcGrinderSpeed			grinderSpeedTest;
+		u16							utf16_CPUMasterVersionString[34];
+		u64							showCPUStringModelAndVersionUntil_msec;
+		sPriceHolding				priceHolding;
+		eCPUMilkerType				milkerType;
+		u32							id101;
+		u16							quickMenuPinCode;
+
+		u8							jugRepetitions[NUM_MAX_SELECTIONS];
+		bool						selectionEnable[NUM_MAX_SELECTIONS];
     };
 
 } // namespace cpubridge

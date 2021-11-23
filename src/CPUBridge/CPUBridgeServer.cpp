@@ -11,7 +11,6 @@
 
 using namespace cpubridge;
 
-
 //***************************************************
 Server::Server()
 {
@@ -32,6 +31,8 @@ Server::Server()
 	memset (&priceHolding, 0, sizeof(priceHolding));
 	milkerType = eCPUMilkerType::none;
 	quickMenuPinCode = 0;
+
+	SelectionsEnableLoad();	// caricamento delle abilitazione delle selezioni
 }
 
 //***************************************************
@@ -1466,19 +1467,23 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS:
-		{
-			cpubridge::eLockStatus lockStatus;
-			translate_SET_MACHINE_LOCK_STATUS (msg, &lockStatus);
-			switch (lockStatus)
 			{
-			case cpubridge::eLockStatus::locked:	priv_lockMachine(); break;
-			case cpubridge::eLockStatus::unlocked:	priv_unlockMachine(); break;
-			default:
-				DBGBREAK;
-				break;
+				cpubridge::eLockStatus lockStatus;
+				translate_SET_MACHINE_LOCK_STATUS (msg, &lockStatus);
+				switch (lockStatus)
+				{
+				case cpubridge::eLockStatus::locked:
+					priv_lockMachine();
+					break;
+				case cpubridge::eLockStatus::unlocked:
+					priv_unlockMachine();
+					break;
+				default:
+					DBGBREAK;
+					break;
+				}
+				notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
 			}
-			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
-		}
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS:
@@ -1491,17 +1496,20 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 	} //while
 }
 
-
 //**********************************************
 void Server::priv_getLockStatusFilename (u8 *out_filePathAndName, u32 sizeOfOutFilePathAndName) const
 {
-	rhea::string::utf8::spf (out_filePathAndName, sizeOfOutFilePathAndName, "%s/current/lockStatus.rhea", rhea::getPhysicalPathToAppFolder());
+	rhea::string::utf8::spf (out_filePathAndName,
+							sizeOfOutFilePathAndName,
+							"%s/current/lockStatus.rhea",
+							rhea::getPhysicalPathToAppFolder());
 }
 
 //**********************************************
 void Server::priv_writeLockStatus (eLockStatus statusIN) const
 {
 	u8 s[512];
+
 	priv_getLockStatusFilename (s, sizeof(s));
 
 	const u8 status = static_cast<u8>(statusIN);
@@ -1520,7 +1528,7 @@ eLockStatus Server::priv_getLockStatus() const
 	{
 		u8 status = 0;
 		FILE *f = rhea::fs::fileOpenForReadBinary(s);
-		rhea::fs::fileRead (f, &status, 1);
+		rhea::fs::fileRead(f, &status, 1);
 		rhea::fs::fileClose(f);
 
 		return static_cast<eLockStatus>(status);
@@ -1544,7 +1552,6 @@ void Server::priv_unlockMachine()
 		return;
 	priv_writeLockStatus (eLockStatus::unlocked);
 }
-
 
 //**********************************************
 bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out)
@@ -3629,46 +3636,53 @@ void Server::priv_notify_CPU_RUNNING_SEL_STATUS (const sSubscription *sub, u16 h
  */
 bool Server::priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub)
 {
-	const u8 selNumber = params.getSelNum();
-	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d, forceJug=%c]\n", (u8)params.how, selNumber, params.isForceJUG()==true ? 'Y':'N');
+	const		u8 selNumber = params.getSelNum();
+	bool		ret = false;	// valore precaricato
+	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d, forceJug=%c]\n",
+							(u8)params.how, selNumber, params.isForceJUG() == true ? 'Y' : 'N');
 
     if (stato.get() != sStato::eStato::normal)
 	{
 		logger->log("  invalid request, CPUServer != eStato::normal, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		return false;
+		//return false;
 	}
-
-	if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
+	else if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
 	{
 		logger->log("  invalid request, VMCState != eVMCState::DISPONIBILE, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		return false;
+		//return false;
 	}
-
-	if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
+	else if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
 	{
 		logger->log("  invalid selection number, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		return false;
+		//return false;
+	}
+	else if(false == IsSelectionEnable(selNumber))
+	{
+		logger->log("  selection disabled, aborting.");
+		priv_notify_CPU_RUNNING_SEL_STATUS(sub, 0, eRunningSelStatus::finished_KO);
+		//return false;
+	}
+	else if (eLockStatus::locked == priv_getLockStatus())    //se la macchina è "locked", niente selezioni
+    {
+        logger->log("  machine is locked, aborting.");
+        priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
+        //return false;
+    }
+	else
+	{
+		stato.set(sStato::eStato::selection);
+		memcpy(&runningSel.params, &params, sizeof(sStartSelectionParams));
+		runningSel.stopSelectionWasRequested = 0;
+		runningSel.sub = sub;
+		runningSel.status = eRunningSelStatus::wait;
+		priv_notify_CPU_RUNNING_SEL_STATUS(sub, 0, runningSel.status);
+		ret = true;
 	}
 
-    //se la macchina è "locked", niente selezioni
-    if (eLockStatus::locked == priv_getLockStatus())
-    {
-        logger->log("  machine is loked, aborting.");
-        priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-        return false;
-    }
-
-
-    stato.set (sStato::eStato::selection);
-	memcpy (&runningSel.params, &params, sizeof(sStartSelectionParams));
-	runningSel.stopSelectionWasRequested = 0;
-	runningSel.sub = sub;
-	runningSel.status = eRunningSelStatus::wait;
-	priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, runningSel.status);
-	return true;
+	return ret;
 }
 
 /***************************************************
@@ -3695,7 +3709,6 @@ void Server::priv_handleState_selection()
     const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 6;
 	u8 nRetry = 0;
 
-	
 	u64	timeStartedMSec = rhea::getTimeNowMSec();
 	u8 bBevandaInPreparazione = 0;
 
@@ -3797,8 +3810,6 @@ void Server::priv_handleState_selection()
 		//schedulo il prossimo msg di stato
 		timeNowMSec = rhea::getTimeNowMSec();
 		nextTimeSendCheckStatusMsgMSec = timeNowMSec + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
-
-
 
 		/* Teoricamente l'intero processo è ora pilotato da "statoPreparazioneBevanda"
 		 * Voglio però essere sicuro di aver letto almeno una volta uno stato != da eStatoPreparazioneBevanda::doing_nothing
@@ -3919,7 +3930,6 @@ bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 targe
 		return false;
 	}
 
-
 	stato.set(sStato::eStato::regolazioneAperturaMacina);
 	regolazioneAperturaMacina.macina_1o2 = macina_1o2;
 	regolazioneAperturaMacina.target = target;
@@ -3934,7 +3944,6 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 
 	eCPUProg_macinaMove move = eCPUProg_macinaMove::stop;
 	priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
-
 
 	//dico a tutti che sono in uno stato speciale
 	cpuStatus.VMCstate = eVMCState::REG_APERTURA_MACINA;
@@ -4197,7 +4206,6 @@ void Server::priv_handleState_grinderSpeedTest()
 		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
 	}
 
-
 	const u32 TEMPO_DI_MACINATA_MSec = (u32)grinderSpeedTest.tempoDiMacinataInSec * 1000;
 
 	u8 bufferW[16];
@@ -4233,4 +4241,75 @@ void Server::priv_handleState_grinderSpeedTest()
 	//fine
 	priv_enterState_normal();
 
+}
+
+/* gestione delle abilitazioni alla esecuzione di una ricetta */
+bool Server::SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const
+{
+	rhea::string::utf8::spf(out_filePathAndName,
+							sizeOfOutFilePathAndName,
+							"%s/current/SelectionEnabled.rhea",
+							rhea::getPhysicalPathToAppFolder());
+
+	return true;
+}
+
+bool Server::SelectionsEnableSave()
+{
+	u8		s[512];
+	u8		buffer[sizeof(selectionEnable) / sizeof(selectionEnable[0])];
+	bool	ret;
+
+	for (u8 i = 0; i < sizeof(selectionEnable) / sizeof(selectionEnable[0]); i++)
+		buffer[i] = (true == selectionEnable[i] ? 1 : 0);
+
+	SelectionsEnableFilename(s, sizeof(s));
+
+	FILE* f = rhea::fs::fileOpenForWriteBinary(s);
+	if (NULL != f)
+	{
+		rhea::fs::fileWrite(f, buffer, sizeof(buffer));
+		rhea::fs::fileClose(f);
+		ret = true;
+	}
+	else
+		ret = false;
+
+	return ret;
+}
+
+bool Server::SelectionsEnableLoad()
+{
+	u8 s[512];
+	u8 buffer[sizeof(selectionEnable) / sizeof(selectionEnable[0])];
+
+	SelectionsEnableFilename(s, sizeof(s));
+	FILE* f = rhea::fs::fileOpenForReadBinary(s);
+	if (NULL == f)
+	{
+		for (u8 i = 0; i < sizeof(selectionEnable) / sizeof(selectionEnable[0]); i++)
+			buffer[i] = 1;
+	}
+	else
+	{
+		rhea::fs::fileRead(f, buffer, sizeof(buffer));
+		rhea::fs::fileClose(f);
+	}
+
+	for (u8 i = 0; i < sizeof(selectionEnable) / sizeof(selectionEnable[0]); i++)
+		selectionEnable[i] = (buffer[i] != 0);
+
+	return true;
+}
+
+bool Server::IsSelectionEnable(u8 selNum)
+{
+	bool ret;
+
+	if (selNum > 1 && selNum <= sizeof(selectionEnable) / sizeof(selectionEnable[0]))
+		ret = selectionEnable[selNum - 1];
+	else
+		ret = false;
+
+	return ret;
 }
