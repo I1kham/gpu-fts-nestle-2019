@@ -426,6 +426,9 @@ bool Protocol::rs232_read ()
         case 'C':
 			nBytesConsumed = priv_rs232_handleCommand_C (rs232BufferIN);
 			break;
+		case 'P':
+			nBytesConsumed = priv_rs232_handleCommand_P(rs232BufferIN);
+			break;
 		case 'S':
 			nBytesConsumed = priv_rs232_handleCommand_S(rs232BufferIN);
 			break;

@@ -59,6 +59,7 @@ namespace esapi
 		void					priv_unsetup();
 		u32						priv_rs232_handleCommand_A (const sBuffer &b);
 		u32						priv_rs232_handleCommand_C (const sBuffer &b);
+		u32						priv_rs232_handleCommand_P(const sBuffer& b);
 		u32						priv_rs232_handleCommand_S(const sBuffer& b);
 		u32						priv_rs232_handleCommand_X(const sBuffer& b);
 
