@@ -3446,6 +3446,11 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	utf16_msgLCD[msgLCD_len] = 0;
 	rhea::string::utf16::rtrim(utf16_msgLCD);
 
+	//se rheAPI ha sovraimposto un messaggio testuale, lo applico ora
+	{}
+
+
+
 	//se la CPU ha alzato il bit di "telemetria in corso", devo fare un override del messaggio testuale
 	if ((cpuStatus.flag1 & sCPUStatus::FLAG1_TELEMETRY_RUNNING) != 0)
 	{
@@ -3511,7 +3516,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		}
 		else
 		{
-			//la CPU non è in uno stato valido per fare erogazioni, per cui forzo a priori  la totalte
+			//la CPU non è in uno stato valido per fare erogazioni, per cui forzo a priori  la totale
 			//indisponibilità delle bevande
 			if (cpuStatus.selAvailability.areAllNotAvail() == false)
 			{
@@ -3520,6 +3525,23 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			}
 		}
 	}
+
+	//se delle selezioni sono state disabilitate via rheAPI, applico qui 
+	for (u8 i = 1; i <= NUM_MAX_SELECTIONS; i++)
+	{
+		if (false == IsSelectionEnable(i))
+		{
+			if (cpuStatus.selAvailability.isAvail(i))
+			{
+				cpuStatus.selAvailability.setAsNotAvail(i);
+				anythingChanged = 1;
+			}
+		}
+	}
+
+
+
+
 	if (anythingChanged)
 	{
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
@@ -3657,12 +3679,6 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
 	{
 		logger->log("  invalid selection number, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		//return false;
-	}
-	else if(false == IsSelectionEnable(selNumber))
-	{
-		logger->log("  selection disabled, aborting.");
-		priv_notify_CPU_RUNNING_SEL_STATUS(sub, 0, eRunningSelStatus::finished_KO);
 		//return false;
 	}
 	else if (eLockStatus::locked == priv_getLockStatus())    //se la macchina è "locked", niente selezioni
@@ -4302,12 +4318,12 @@ bool Server::SelectionsEnableLoad()
 	return true;
 }
 
-bool Server::IsSelectionEnable(u8 selNum)
+bool Server::IsSelectionEnable(u8 selNum_1toN)
 {
 	bool ret;
 
-	if (selNum > 1 && selNum <= sizeof(selectionEnable) / sizeof(selectionEnable[0]))
-		ret = selectionEnable[selNum - 1];
+	if (selNum_1toN >= 1 && selNum_1toN <= NUM_MAX_SELECTIONS)
+		ret = selectionEnable[selNum_1toN - 1];
 	else
 		ret = false;
 

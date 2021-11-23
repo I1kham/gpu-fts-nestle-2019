@@ -2827,14 +2827,3 @@ void cpubridge::notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to,
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC, handlerID);
 }
 
-/***************************************************/
-void cpubridge::ask_SELECTION_ENABLE_DISABLE(const sSubscriber& from, u16 handlerId, u8 selNum, bool enable)
-{
-//	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE, selNum, enable);
-}
-
-void cpubridge::notify_SELECTION_ENABLE_DISABLE(const sSubscriber& to, u8 selNum, bool enable, rhea::ISimpleLogger* logger)
-{
-	logger->log("notify_SELECTION_ENABLE_DISABLE\n");
-//	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC, handlerID);
-}

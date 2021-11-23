@@ -238,8 +238,8 @@ namespace cpubridge
 		void					priv_lockMachine();
 		void					priv_unlockMachine();
 
-		bool					IsSelectionEnable(u8 selection);
-		bool					SelectionEnable(u8 selection);
+		bool					IsSelectionEnable(u8 selNum_1toN);
+		bool					SelectionEnable(u8 selNum_1toN);
 		bool					SelectionsEnableLoad();
 		bool					SelectionsEnableSave();
 		bool					SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const;

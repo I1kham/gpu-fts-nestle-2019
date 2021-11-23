@@ -864,7 +864,6 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 	case '6':
 		{
 			u32	ret;
-			u16	payloadLen;
 
 			if (b.numBytesInBuffer < 7)	//devo avere almeno 5 char nel buffer
 				ret = 0;
@@ -1026,7 +1025,7 @@ u32 Protocol::priv_rs232_handleCommand_X(const sBuffer& b)
 				u16 blockLen = rhea::utils::bufferReadU16_LSB_MSB(&b.buffer[5]);
 				u8 retByte = 0;
 
-				if (blockLen + 9 <= b.numBytesInBuffer)
+				if (static_cast<u32>(blockLen) + 9 <= b.numBytesInBuffer)
 				{
 					u16 bufferLenNoCrc = blockLen + 7;
 					u16 crc = rhea::utils::bufferReadU16_LSB_MSB(&b.buffer[bufferLenNoCrc]);

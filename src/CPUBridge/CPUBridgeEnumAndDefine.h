@@ -91,6 +91,9 @@
 #define		CPUBRIDGE_NOTIFY_CPU_RESTART						0x013A
 #define		CPUBRIDGE_NOTIFY_LOCK_STATUS						0x013B
 #define		CPUBRIDGE_NOTIFY_SELECTION_ENABLE					0x013C
+#define		CPUBRIDGE_NOTIFY_OVERWRITE_CPU_MESSAGE_ON_SCREEN	0x013D
+#define		CPUBRIDGE_NOTIFY_SET_SELECTION_PARAMU16				0x013E
+#define		CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16				0x013F
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -175,7 +178,10 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART									0x084B
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS						0x084C
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS						0x084D
-#define		CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE								0x084D
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE								0x084E
+#define		CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN				0x084F
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16							0x0850
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16							0x0851
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -491,6 +497,14 @@ namespace cpubridge
 		unlocked = 0,
 		locked = 1,
 		onlyAPI = 2,
+	};
+
+	enum class eSelectionParam : u8 
+	{
+		EVFreshMilk = 0x01,
+		EVFreshMilkDelay_dsec = 0x02,
+		EVAirFreshMilk = 0x03,
+		EVAirFreshMilkDelay_dsec = 0x04
 	};
 
 	struct sSubscriber
