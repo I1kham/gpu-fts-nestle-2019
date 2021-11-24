@@ -327,11 +327,106 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 			}
 			return true;
 
-		case CPUBRIDGE_NOTIFY_SELECTION_ENABLE:
+		case CPUBRIDGE_NOTIFY_OVERWRITE_CPU_MESSAGE_ON_SCREEN:
 			{
+				u8		errorCode;
+
+				cpubridge::translateNotify_OVERWRITE_CPU_MESSAGE_ON_SCREEN(msg, &errorCode);
+
+				rs232_esapiSendAnswer('S', '6', &errorCode, 1);
 			}
 			return true;
 
+		case CPUBRIDGE_NOTIFY_SELECTION_ENABLE:
+			{
+				u8		errorCode;
+
+				cpubridge::translateNotify_SELECTION_ENABLE_DISABLE(msg, &errorCode);
+
+				rs232_esapiSendAnswer('S', '7', &errorCode, 1);
+			}
+			return true;
+
+		case CPUBRIDGE_NOTIFY_SET_SELECTION_PARAMU16:
+			{
+				u8							selNum, errorCode;
+				cpubridge::eSelectionParam	param;
+				u8							buffer[3];
+
+				cpubridge::translateNotify_SET_SELECTION_PARAMU16(msg, &selNum, &param, &errorCode);
+
+				buffer[0] = selNum;
+				buffer[1] = (u8)param;
+				buffer[2] = errorCode;
+
+				rs232_esapiSendAnswer('P', 'S', buffer, sizeof buffer / sizeof buffer[0]);
+			}
+			return true;
+		case CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16:
+			{
+				u8							selNum, errorCode;
+				cpubridge::eSelectionParam	param;
+				u16							value;
+				u8							buffer[6];
+
+				cpubridge::translateNotify_GET_SELECTION_PARAMU16(msg, &selNum, &param, &errorCode, &value);
+
+				buffer[0] = selNum;
+				buffer[1] = (u8)param;
+				buffer[2] = errorCode;
+				buffer[3] = 0x10;			// fixed value;
+				rhea::utils::bufferWriteU16_LSB_MSB(&buffer[4], value);
+
+				rs232_esapiSendAnswer('P', 'G', buffer, sizeof buffer / sizeof buffer[0]);
+			}
+			return true;
+
+		case CPUBRIDGE_NOTIFY_WRITE_VMCDATAFILE_PROGRESS:
+			{
+				cpubridge::eWriteCPUFWFileStatus	status;
+				u16									totKbSoFar;
+				u8									buffer;
+
+				cpubridge::translateNotify_WRITE_CPUFW_PROGRESS(msg, &status, &totKbSoFar);
+
+				if (cpubridge::eWriteCPUFWFileStatus::finishedOK == status)
+				{
+					dataUpdate.Reset();
+				}
+				else
+				{
+					if (cpubridge::eWriteCPUFWFileStatus::inProgress == status)
+						buffer = 0;
+					else
+						buffer = (u8)status;
+
+					rs232_esapiSendAnswer('X', '1', &buffer, 1);
+				}
+			}
+			break;
+		case CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS:
+			{
+				cpubridge::eWriteDataFileStatus status;
+				u16								totKbSoFar;
+				u8								buffer;
+
+				cpubridge::translateNotify_WRITE_VMCDATAFILE_PROGRESS(msg, &status, &totKbSoFar);
+
+				if (cpubridge::eWriteDataFileStatus::finishedOK == status)
+				{
+					dataUpdate.Reset();
+				}
+				else
+				{
+					if (cpubridge::eWriteDataFileStatus::inProgress == status)
+						buffer = 0;
+					else
+						buffer = (u8)status;
+
+					rs232_esapiSendAnswer('X', '1', &buffer, 1);
+				}
+			}
+			break;
         } //switch (msg.what)
 	}
 }
@@ -927,43 +1022,49 @@ u32 Protocol::priv_rs232_handleCommand_P(const sBuffer& b)
 
 	case 'G':
 		// Get selection param
-		//ricevuto: # P G 0x10 [selnum] [paramId] [checksum]
-		//risposta prevista: # P G 0x10 [selnum] [paramId] [errorCode] [checksum]
-		if (b.numBytesInBuffer > 7)	//devo avere almeno 10 char nel buffer
+		//ricevuto: # P G [selnum] [paramId] [checksum]
+		//risposta prevista: # P G [selnum] [paramId] [errorCode] 0x10 [vallue LSB-MSB] [checksum]
+		if (b.numBytesInBuffer >= 6)	//devo avere almeno 10 char nel buffer
 		{
-			if (b.buffer[6] == rhea::utils::simpleChecksum8_calc(b.buffer, 6))
+			if (b.buffer[5] == rhea::utils::simpleChecksum8_calc(b.buffer, 5))
 			{
-				u8	dataType = b.buffer[3];	// fisso 0x10
-				u8	selNum = b.buffer[4];
-				u8	paramId = b.buffer[5];
+				u8	selNum = b.buffer[3];
+				u8	paramId = b.buffer[4];
 
-				if(0x10 == dataType)
+				if (paramId >= (u8)cpubridge::eSelectionParam::EVFreshMilk &&
+					paramId <= (u8)cpubridge::eSelectionParam::EVAirFreshMilkDelay_dsec)
 				{
+					cpubridge::eSelectionParam param = static_cast<cpubridge::eSelectionParam>(paramId);
+
 					// invio comando al bridge
-					// cpubridge::ask_CPU_SELECTION_PARAM_GET(*cpuBridgeSubscriber, 0x0002, selNum, paramId);
+					cpubridge::ask_GET_SELECTION_PARAMU16(*cpuBridgeSubscriber, 0x00002, selNum, param);
 				}
 			}
-			ret = 7;
+			ret = 6;
 		}
 		else
 			ret = 3;	// eliminazione header gia riconosciuto
 		break;
 	case 'S':
-		//ricevuto: # P S 0x10 [selnum] [paramId] [value (LSB...MSB)] [checksum]
-		//risposta prevista: # P S 0x10 [selnum] [paramId] [errorCode] [checksum]
-		if (b.numBytesInBuffer > 9)	//devo avere almeno 10 char nel buffer
+		//ricevuto: # P S [selnum] [paramId] [dataType] [value (LSB...MSB)] [checksum]
+		//risposta prevista: # P S [selnum] [paramId] [errorCode] [checksum]
+		if (b.numBytesInBuffer >= 9)	//devo avere almeno 10 char nel buffer
 		{
 			if (b.buffer[8] == rhea::utils::simpleChecksum8_calc(b.buffer, 8))
 			{
-				u8	dataType = b.buffer[3];	// fisso 0x10
-				u8	selNum = b.buffer[4];
-				u8	paramId = b.buffer[5];
+				u8	selNum = b.buffer[3];
+				u8	paramId = b.buffer[4];
+				u8	dataType = b.buffer[5];	// fisso 0x10
 				u16 value = rhea::utils::bufferReadU32_LSB_MSB(&b.buffer[6]);
-
-				if (0x10 == dataType)
+	
+				if (0x10 == dataType && 
+					paramId >= (u8)cpubridge::eSelectionParam::EVFreshMilk &&
+					paramId <= (u8)cpubridge::eSelectionParam::EVAirFreshMilkDelay_dsec)
 				{
+					cpubridge::eSelectionParam param = static_cast<cpubridge::eSelectionParam>(paramId);
+
 					// invio comando al bridge
-					// cpubridge::ask_CPU_SELECTION_PARAM_SET(*cpuBridgeSubscriber, 0x0002, selNum, paramId, dataType, buffer, bufLen);
+					cpubridge::ask_SET_SELECTION_PARAMU16(*cpuBridgeSubscriber, 0x00002, selNum, param, value);
 				}
 			}
 			ret = 9;
@@ -1004,11 +1105,11 @@ u32 Protocol::priv_rs232_handleCommand_X(const sBuffer& b)
 					u32 fileLen = rhea::utils::bufferReadU32_LSB_MSB(&b.buffer[4]);
 					rhea::utils::bufferWriteU16_LSB_MSB(&buffer[1], 500);
 
-					if(false == fwUpdate.Open(fileType, fileLen))
+					if(false == dataUpdate.Open(fileType, fileLen))
 						buffer[0] = 1;
 					else
 					{
-						rhea::utils::bufferWriteU16_LSB_MSB(&buffer[1], fwUpdate.BlockMaxDim());
+						rhea::utils::bufferWriteU16_LSB_MSB(&buffer[1], dataUpdate.BlockMaxDim());
 					}
 				}
 				ret = b.numBytesInBuffer;
@@ -1036,10 +1137,10 @@ u32 Protocol::priv_rs232_handleCommand_X(const sBuffer& b)
 					}
 					else if (blockLen > 0)
 					{
-						if (false == fwUpdate.Append(blockNr, blockLen, &b.buffer[7]))
+						if (false == dataUpdate.Append(blockNr, blockLen, &b.buffer[7]))
 							retByte = 1;
 					}
-					else if(fwUpdate.Complete(blockNr))
+					else if(dataUpdate.Complete(blockNr))
 						retByte = 0;
 				}
 				else

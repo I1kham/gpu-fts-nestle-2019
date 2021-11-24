@@ -3,8 +3,7 @@
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
 #include "ESAPIEnumAndDefine.h"
 #include "ESAPIShared.h"
-
-#include "ESAPIFirmwareUpdate.h"
+#include "ESAPIDataUpdate.h"
 
 namespace esapi
 {
@@ -57,8 +56,8 @@ namespace esapi
 
 	private:
 		void					priv_unsetup();
-		u32						priv_rs232_handleCommand_A (const sBuffer &b);
-		u32						priv_rs232_handleCommand_C (const sBuffer &b);
+		u32						priv_rs232_handleCommand_A(const sBuffer &b);
+		u32						priv_rs232_handleCommand_C(const sBuffer &b);
 		u32						priv_rs232_handleCommand_P(const sBuffer& b);
 		u32						priv_rs232_handleCommand_S(const sBuffer& b);
 		u32						priv_rs232_handleCommand_X(const sBuffer& b);
@@ -78,7 +77,7 @@ namespace esapi
 
 		bool					commandCpuVerExtended;		// selezione del comando A5 di richesta versione CPU in modalita estesa
 
-		FirmwareUpdate			fwUpdate;
+		DataUpdate				dataUpdate;
 	};
 
 } // namespace esapi
