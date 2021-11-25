@@ -344,7 +344,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
-    case CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER:
+    case CPUBRIDGE_NOTIFY_GET_CPU_STRING_MODEL_AND_VER:
         {
             u16  s[64];
             cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, s, sizeof(s));

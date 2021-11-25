@@ -974,11 +974,11 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 					ret = packetLen;
 				else
 				{
-					u8	timer = b.buffer[3];
+                    u8	timeSec = b.buffer[3];
 					u8	*msgTxtUtf8 = new u8[msgByteLen];
 					memcpy(msgTxtUtf8, &b.buffer[6], msgByteLen);
 
-					//cpubridge::ask_SELECTION_ENABLE_DISABLE(*cpuBridgeSubscriber, 0x0002, timer, msgTextUtf8, payloadLen);
+                    cpubridge::ask_OVERWRITE_CPU_MESSAGE_ON_SCREEN(*cpuBridgeSubscriber, 0x0002, msgTxtUtf8, timeSec);
 
 					delete[] msgTxtUtf8;
 					ret = packetLen;
@@ -987,6 +987,7 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 			return ret;
 		}
 		break;
+
 	case '7':
 		{
 			u32	ret;
