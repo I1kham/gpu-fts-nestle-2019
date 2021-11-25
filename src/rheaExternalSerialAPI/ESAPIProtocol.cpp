@@ -403,7 +403,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 					rs232_esapiSendAnswer('X', '1', &buffer, 1);
 				}
 			}
-			break;
+			return true;
 		case CPUBRIDGE_NOTIFY_WRITE_CPUFW_PROGRESS:
 			{
 				cpubridge::eWriteDataFileStatus status;
@@ -426,7 +426,7 @@ bool Protocol::onMsgFromCPUBridge(UNUSED_PARAM cpubridge::sSubscriber &cpuBridge
 					rs232_esapiSendAnswer('X', '1', &buffer, 1);
 				}
 			}
-			break;
+			return true;
         } //switch (msg.what)
 	}
 }
