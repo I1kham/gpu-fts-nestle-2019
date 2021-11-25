@@ -1140,7 +1140,7 @@ u32 Protocol::priv_rs232_handleCommand_X(const sBuffer& b)
 						if (false == dataUpdate.Append(blockNr, blockLen, &b.buffer[7]))
 							retByte = 1;
 					}
-					else if(dataUpdate.Complete(blockNr))
+					else if(dataUpdate.Complete(blockNr, *cpuBridgeSubscriber))
 						retByte = 0;
 				}
 				else

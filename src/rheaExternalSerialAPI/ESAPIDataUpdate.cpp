@@ -181,6 +181,8 @@ bool DataUpdate::UpdateGPU(const cpubridge::sSubscriber& from)
 
 	if (true == rhea::fs::fileCopy((u8*)fileName, (u8*)dstFileName))
 		system("reboot");
+
+	return true;
 }
 
 bool DataUpdate::UpdateGUI(const cpubridge::sSubscriber& from)
@@ -190,7 +192,7 @@ bool DataUpdate::UpdateGUI(const cpubridge::sSubscriber& from)
 
 bool DataUpdate::UpdateDA3(const cpubridge::sSubscriber& from)
 {
-	cpubridge::ask_WRITE_DATAFILE(from, 0, fileName);
+	cpubridge::ask_WRITE_VMCDATAFILE(from, 0, fileName);
 
 	return true;
 }
