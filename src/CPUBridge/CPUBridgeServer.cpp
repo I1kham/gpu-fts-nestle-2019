@@ -31,6 +31,8 @@ Server::Server()
 	memset (&priceHolding, 0, sizeof(priceHolding));
 	milkerType = eCPUMilkerType::none;
 	quickMenuPinCode = 0;
+	
+	memset (&screenMsgOverride, 0, sizeof(screenMsgOverride));
 
 	SelectionsEnableLoad();	// caricamento delle abilitazione delle selezioni
 }
@@ -278,6 +280,85 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 	bool ret = chToCPU->sendAndWaitAnswer(bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
 	return ret;
 }
+
+//***************************************************
+bool Server::priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue)
+{
+	u8 bufferW[32];
+	const u16 nBytesToSend = cpubridge::buildMsg_setSelectionParam (selNum1ToN, whichParam, paramValue, bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+		return true;
+	return false;
+}
+
+//***************************************************
+u16 Server::priv_helper_readDA3_9bit (const u8 *da3, u32 da3Pos, u32 a, u32 b) const
+{
+	//legge i valori a "9" bit dal da3 usando la stessa sintassi usata dai controllo UI.
+	//
+	//es:	data-da3='162' data-da3bit='9' data-da3bit9='2,4'
+	//		da3bit9="a,b" =>	indica dove andare a prendere il nono bit.
+	//							il nono viene preso dalla posizione [da3pos+a] al bit [b] con b che va da 0 a 7
+	u16 ret = da3[da3Pos];
+
+	if ( (da3[da3Pos + a] & (0x01<<b)) != 0)
+		ret |= 0x0100;
+	return ret;
+}
+
+//***************************************************
+bool Server::priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue) const
+{
+	assert (NULL != out_paramValue);
+	*out_paramValue = 0;
+
+	//Carico l'intero da3 in memoria. Lo faccio ogni volta anche se sembra una perdita di tempo, ma almeno sono sicuro
+	//lavorare sempre su dati sincronizzati
+	//TODO: chiaramente la cosa potrebbe essere gestitra in maniera + intelligente... rimane il fatto che questa fn viene chiamata pochissime volte e solo
+	//		da espliciti comandi rheAPI quindi, pur non essendo ottimale, è cmq un male minore
+	u8 s[256];
+	sprintf_s((char*)s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
+	u32 sizeOfBuffer = 0;
+	u8 *da3 = rhea::fs::fileCopyInMemory(s, rhea::getScrapAllocator(), &sizeOfBuffer);
+	if (NULL == da3)
+		return false;
+
+	const u32 selOffset = (selNum1ToN-1) * 100;
+
+	bool ret = true;
+	switch (whichParam)
+	{
+	default:
+		ret = false;
+		DBGBREAK;
+		break;
+
+	case eSelectionParam::EVFreshMilk:
+		//data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'
+		*out_paramValue = priv_helper_readDA3_9bit (da3, 162, 2, 4);
+		break;
+
+	case eSelectionParam::EVFreshMilkDelay_dsec:
+		//data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500'
+		*out_paramValue = priv_helper_readDA3_9bit (da3, 163, 1, 5);
+		break;
+
+	case eSelectionParam::EVAirFreshMilk:
+		//data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'
+		*out_paramValue = priv_helper_readDA3_9bit (da3, 165, 2, 4);
+		break;
+
+	case eSelectionParam::EVAirFreshMilkDelay_dsec:
+		//data-da3='166' data-da3bit='9' data-da3bit9='1,5'  data-max='500'
+		*out_paramValue = priv_helper_readDA3_9bit (da3, 166, 1, 5);
+		break;
+	}
+
+	RHEAFREE(rhea::getScrapAllocator(), da3);
+	return ret;
+}
+
 
 /***************************************************
  * Uno dei miei subscriber mi ha inviato una richiesta
@@ -1490,6 +1571,55 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE:
+			{
+				u8 selNum1toN;
+				bool bEnable;
+				translate_SELECTION_ENABLE_DISABLE (msg, &selNum1toN, &bEnable);
+				SelectionEnable (selNum1toN, bEnable);
+				notify_SELECTION_ENABLE_DISABLE (sub->q, handlerID, logger, 0);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN:
+			{
+				const u8 *utf8msg;
+				u8 timeSec;
+				translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN (msg, &utf8msg, &timeSec);
+				memset (&screenMsgOverride, 0, sizeof(screenMsgOverride));
+				screenMsgOverride.timeToStopShowingMSec = rhea::getTimeNowMSec() + ((u32)timeSec) * 1000;
+				rhea::string::strUTF8toUTF16 (utf8msg, screenMsgOverride.utf16Msg, sizeof(screenMsgOverride.utf16Msg));
+				notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (sub->q, handlerID, logger, 0);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16:
+			{
+				u8 selNumDa1aN;
+				eSelectionParam whichParam;
+				u16 paramValue;
+				translate_SET_SELECTION_PARAMU16 (msg, &selNumDa1aN, &whichParam, &paramValue);
+
+				u8 errorCode = 0;
+				if (!priv_setCPUSelectionParam (selNumDa1aN, whichParam, paramValue))
+					errorCode = 1;
+				notify_SET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16:
+			{
+				u8 selNumDa1aN;
+				eSelectionParam whichParam;
+				translate_GET_SELECTION_PARAMU16 (msg, &selNumDa1aN, &whichParam);
+
+				u16 paramValue = 0;
+				u8 errorCode = 0;
+				if (!priv_getCPUSelectionParam (selNumDa1aN, whichParam, &paramValue))
+					errorCode = 1;
+				notify_GET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode, paramValue);
+			}
+			break;
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -3447,7 +3577,14 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	rhea::string::utf16::rtrim(utf16_msgLCD);
 
 	//se rheAPI ha sovraimposto un messaggio testuale, lo applico ora
-	{}
+	const u64 timeNowMSec = rhea::getTimeNowMSec();
+	if (screenMsgOverride.timeToStopShowingMSec > 0)
+	{
+		if (timeNowMSec >= 	screenMsgOverride.timeToStopShowingMSec)
+			screenMsgOverride.timeToStopShowingMSec = 0;
+		else
+			memcpy (utf16_msgLCD, screenMsgOverride.utf16Msg, sizeof(utf16_msgLCD));
+	}
 
 
 
@@ -4318,6 +4455,7 @@ bool Server::SelectionsEnableLoad()
 	return true;
 }
 
+//*********************************************************
 bool Server::IsSelectionEnable(u8 selNum_1toN)
 {
 	bool ret;
@@ -4327,5 +4465,16 @@ bool Server::IsSelectionEnable(u8 selNum_1toN)
 	else
 		ret = false;
 
+	return ret;
+}
+
+//*********************************************************
+bool Server::SelectionEnable (u8 selNum_1toN, bool bEnable)
+{
+	bool ret = true;
+	if (selNum_1toN >= 1 && selNum_1toN <= NUM_MAX_SELECTIONS)
+		selectionEnable[selNum_1toN - 1] = bEnable;
+	else
+		ret = false;
 	return ret;
 }

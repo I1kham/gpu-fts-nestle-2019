@@ -369,6 +369,8 @@ namespace cpubridge
 		//
 		//
 		ask_msg_from_table_language = 0x31,
+		//
+		setSelectionParam			= 0x33,
 		unknown = 0xff
     };
 

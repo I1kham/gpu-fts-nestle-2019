@@ -587,6 +587,51 @@ u8 cpubridge::buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8
 }
 
 //***************************************************
+u8 cpubridge::buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue, u8* out_buffer, u32 sizeOfOutBuffer)
+{
+	if (selNum1ToN<1 || selNum1ToN > NUM_MAX_SELECTIONS)
+	{
+		DBGBREAK;
+		return 0;
+	}
+
+	u8 paramID = 0xFF;
+	switch (whichParam)
+	{
+	default:
+		DBGBREAK;
+		break;
+
+	case eSelectionParam::EVFreshMilk:
+		if (paramValue > 500) paramValue=500;
+		paramID = 0x01;
+		break;
+
+	case eSelectionParam::EVFreshMilkDelay_dsec:
+		if (paramValue > 500) paramValue=500;
+		paramID = 0x02;
+		break;
+
+	case eSelectionParam::EVAirFreshMilk:
+		if (paramValue > 500) paramValue=500;
+		paramID = 0x03;
+		break;
+
+	case eSelectionParam::EVAirFreshMilkDelay_dsec:
+		if (paramValue > 500) paramValue=500;
+		paramID = 0x04;
+		break;
+	}
+
+	u8 payload[4];
+	payload[0] = selNum1ToN;
+	payload[1] = paramID;
+	rhea::utils::bufferWriteU16_LSB_MSB (&payload[2], paramValue);
+	return buildMsg_Programming(eCPUProgrammingCommand::setSelectionParam, payload, 4, out_buffer, sizeOfOutBuffer);
+}
+
+
+//***************************************************
 void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
 {
 	u32 param32 = hOtherMsgQWrite.asU32();
@@ -2825,5 +2870,144 @@ void cpubridge::notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to,
 {
 	logger->log("notify_END_OF_GRINDER_CLEANING_PROCEDURE\n");
 	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC, handlerID);
+}
+
+//***************************************************
+void cpubridge::ask_SELECTION_ENABLE_DISABLE (const sSubscriber& from, u16 handlerID, u8 selNum, bool bEnable)
+{
+	u8 buffer[2];
+	buffer[0] = selNum;
+	buffer[1] = 0x00;
+	if (bEnable)
+		buffer[1] = 0x01;
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE, handlerID, buffer, 2);
+}
+void cpubridge::translate_SELECTION_ENABLE_DISABLE(const rhea::thread::sMsg& msg, u8 *out_selNum, bool *out_enable)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE);
+    const u8* p = (const u8*)msg.buffer;
+    *out_selNum = p[0];
+	if (p[1] == 0x01)
+		*out_enable= true;
+	else
+		*out_enable= false;
+}
+void cpubridge::notify_SELECTION_ENABLE_DISABLE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode)
+{
+	logger->log("notify_SELECTION_ENABLE_DISABLE[%d]\n", errorCode);
+	u8 optionalData[2];
+	optionalData[0] = errorCode;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SELECTION_ENABLE, handlerID, optionalData, 1);
+}
+void cpubridge::translateNotify_SELECTION_ENABLE_DISABLE (const rhea::thread::sMsg &msg, u8 *out_errorCode)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SELECTION_ENABLE);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_errorCode = p[0];
+}
+
+//***************************************************
+void cpubridge::ask_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber& from, u16 handlerID, const u8 *msgUTF8, u8 timeSec)
+{
+	u8 buffer[256];
+	memset (buffer, 0, sizeof(buffer));
+	buffer[0] = timeSec;
+	
+	u32 msgLen = rhea::string::utf8::lengthInBytes(msgUTF8);
+	if (msgLen > 200)
+		msgLen = 200;
+	memcpy (&buffer[1], msgUTF8, msgLen);
+
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN, handlerID, buffer, 2+msgLen);
+}
+void cpubridge::translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN(const rhea::thread::sMsg& msg, const u8 **out_msgUTF8, u8 *out_timeSec)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN);
+    const u8* p = (const u8*)msg.buffer;
+    *out_timeSec = p[0];
+	*out_msgUTF8 = &p[1];
+}
+void cpubridge::notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode)
+{
+	logger->log("notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN[%d]\n", errorCode);
+	u8 optionalData[2];
+	optionalData[0] = errorCode;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_OVERWRITE_CPU_MESSAGE_ON_SCREEN, handlerID, optionalData, 1);
+}
+void cpubridge::translateNotify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const rhea::thread::sMsg &msg, u8 *out_errorCode)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_OVERWRITE_CPU_MESSAGE_ON_SCREEN);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_errorCode = p[0];
+}
+
+//***************************************************
+void cpubridge::ask_SET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam, u16 paramValue)
+{
+	u8 buffer[4];
+	buffer[0] = selNumDa1aN;
+	buffer[1] = static_cast<u8>(whichParam);
+	rhea::utils::bufferWriteU16 (&buffer[2], paramValue);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16, handlerID, buffer, 4);
+}
+void cpubridge::translate_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam, u16 *out_paramValue)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16);
+    const u8* p = (const u8*)msg.buffer;
+    *out_selNumDa1aN = p[0];
+	*out_whichParam = static_cast<eSelectionParam>(p[1]);
+	*out_paramValue = rhea::utils::bufferReadU16 (&p[2]);
+}
+void cpubridge::notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode)
+{
+	logger->log("notify_SET_SELECTION_PARAMU16[%d,%d,%d]\n", selNum1ToN,whichParam,errorCode);
+	u8 optionalData[4];
+	optionalData[0] = selNum1ToN;
+	optionalData[1] = static_cast<u8>(whichParam);
+	optionalData[2] = errorCode;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SET_SELECTION_PARAMU16, handlerID, optionalData, 3);
+}
+void cpubridge::translateNotify_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SET_SELECTION_PARAMU16);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_selNum1ToN = p[0];
+	*out_whichParam = static_cast<eSelectionParam>(p[1]);
+	*out_errorCode = p[2];
+}
+
+//***************************************************
+void cpubridge::ask_GET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam)
+{
+	u8 buffer[4];
+	buffer[0] = selNumDa1aN;
+	buffer[1] = static_cast<u8>(whichParam);
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16, handlerID, buffer, 2);
+}
+void cpubridge::translate_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16);
+    const u8* p = (const u8*)msg.buffer;
+    *out_selNumDa1aN = p[0];
+	*out_whichParam = static_cast<eSelectionParam>(p[1]);
+}
+void cpubridge::notify_GET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue)
+{
+	logger->log("notify_GET_SELECTION_PARAMU16[%d,%d][err=%d][val=%d]\n", selNum1ToN,whichParam,errorCode,paramValue);
+	u8 optionalData[8];
+	optionalData[0] = selNum1ToN;
+	optionalData[1] = static_cast<u8>(whichParam);
+	optionalData[2] = errorCode;
+	rhea::utils::bufferWriteU16 (&optionalData[3], paramValue);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16, handlerID, optionalData, 5);
+}
+void cpubridge::translateNotify_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode, u16 *out_paramValue)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_selNum1ToN = p[0];
+	*out_whichParam = static_cast<eSelectionParam>(p[1]);
+	*out_errorCode = p[2];
+	*out_paramValue = rhea::utils::bufferReadU16 (&p[3]);
 }
 

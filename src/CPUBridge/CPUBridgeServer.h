@@ -164,6 +164,12 @@ namespace cpubridge
 			u8		jugRepetitions[48];
 		};
 
+		struct sScreenMsgOverride
+		{
+			u16	utf16Msg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
+			u64	timeToStopShowingMSec;
+		};
+
 	private:
 		void					priv_resetInternalState(cpubridge::eVMCState s);
 		bool					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
@@ -237,9 +243,12 @@ namespace cpubridge
 		eLockStatus				priv_getLockStatus() const;
 		void					priv_lockMachine();
 		void					priv_unlockMachine();
+		u16						priv_helper_readDA3_9bit (const u8 *da3, u32 offset, u32 a, u32 b) const;
+		bool					priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue);
+		bool					priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue) const;
 
 		bool					IsSelectionEnable(u8 selNum_1toN);
-		bool					SelectionEnable(u8 selNum_1toN);
+		bool					SelectionEnable (u8 selNum_1toN, bool bEnable);
 		bool					SelectionsEnableLoad();
 		bool					SelectionsEnableSave();
 		bool					SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const;
@@ -271,6 +280,7 @@ namespace cpubridge
 		eCPUMilkerType				milkerType;
 		u32							id101;
 		u16							quickMenuPinCode;
+		sScreenMsgOverride			screenMsgOverride;
 
 		u8							jugRepetitions[NUM_MAX_SELECTIONS];
 		bool						selectionEnable[NUM_MAX_SELECTIONS];

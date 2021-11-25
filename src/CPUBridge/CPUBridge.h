@@ -170,6 +170,7 @@ namespace cpubridge
 	u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8* out_buffer, u8 sizeOfOutBuffer);
 					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
 	u8			buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8* out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue, u8* out_buffer, u32 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx
@@ -672,22 +673,22 @@ namespace cpubridge
 	void		ask_GET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID);
 					//alla ricezione di uno di questi 3 msg, CPUBridge risponderà con un notify_MACHINE_LOCK riportando lo stato attuale del lock
 
-	void		ask_SELECTION_ENABLE_DISABLE (const sSubscriber& from, u16 handlerId, u8 selNum, bool enable);
-	void		translate_SELECTION_ENABLE_DISABLE(const rhea::thread::sMsg& msg, u8 *out_selNum, bool *out_enable);
+	void		ask_SELECTION_ENABLE_DISABLE (const sSubscriber& from, u16 handlerID, u8 selNum1toN, bool bEnable);
+	void		translate_SELECTION_ENABLE_DISABLE(const rhea::thread::sMsg& msg, u8 *out_selNum1toN, bool *out_bEnable);
 	void		notify_SELECTION_ENABLE_DISABLE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode);
 	void		translateNotify_SELECTION_ENABLE_DISABLE (const rhea::thread::sMsg &msg, u8 *out_errorCode);
 
-	void		ask_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber& from, u16 handlerId, const u8 *msgUTF8, u8 timeSec);
+	void		ask_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber& from, u16 handlerID, const u8 *msgUTF8, u8 timeSec);
 	void		translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN(const rhea::thread::sMsg& msg, const u8 **out_msgUTF8, u8 *out_timeSec);
 	void		notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode);
 	void		translateNotify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const rhea::thread::sMsg &msg, u8 *out_errorCode);
 
-	void		ask_SET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerId, u8 selNumDa1aN, eSelectionParam whichParam, u16 paramValue);
+	void		ask_SET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam, u16 paramValue);
 	void		translate_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam, u16 *out_paramValue);
 	void		notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode);
 	void		translateNotify_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode);
 
-	void		ask_GET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerId, u8 selNumDa1aN, eSelectionParam whichParam);
+	void		ask_GET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam);
 	void		translate_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam);
 	void		notify_GET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue);
 	void		translateNotify_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode, u16 *out_paramValue);
