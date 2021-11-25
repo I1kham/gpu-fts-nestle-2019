@@ -978,7 +978,7 @@ u32 Protocol::priv_rs232_handleCommand_S (const sBuffer &b)
 					u8	*msgTxtUtf8 = new u8[msgByteLen];
 					memcpy(msgTxtUtf8, &b.buffer[6], msgByteLen);
 
-					//cpubridge::ask_SELECTION_ENABLE_DISABLE(*cpuBridgeSubscriber, 0x0002, timer, msgTextUtf8, payloadLen);
+					// cpubridge::ask_SELECTION_ENABLE_DISABLE(*cpuBridgeSubscriber, 0x0002, timer, msgTextUtf8, payloadLen);
 
 					delete[] msgTxtUtf8;
 					ret = packetLen;
