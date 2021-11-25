@@ -244,8 +244,9 @@ namespace cpubridge
 		void					priv_lockMachine();
 		void					priv_unlockMachine();
 		u16						priv_helper_readDA3_9bit (const u8 *da3, u32 offset, u32 a, u32 b) const;
+		void					priv_helper_writeDA3_9bit (u8 *da3, u32 offset, u32 a, u32 b, u16 value) const;
 		bool					priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue);
-		bool					priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue) const;
+		bool					priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue);
 
 		bool					IsSelectionEnable(u8 selNum_1toN);
 		bool					SelectionEnable (u8 selNum_1toN, bool bEnable);

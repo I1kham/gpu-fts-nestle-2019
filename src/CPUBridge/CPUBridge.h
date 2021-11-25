@@ -171,6 +171,7 @@ namespace cpubridge
 					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
 	u8			buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8* out_buffer, u32 sizeOfOutBuffer);
 	u8			buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue, u8* out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_getSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u8* out_buffer, u32 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx

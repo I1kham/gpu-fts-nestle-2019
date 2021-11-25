@@ -371,6 +371,7 @@ namespace cpubridge
 		ask_msg_from_table_language = 0x31,
 		//
 		setSelectionParam			= 0x33,
+		getSelectionParam			= 0x34,
 		unknown = 0xff
     };
 
@@ -503,10 +504,11 @@ namespace cpubridge
 
 	enum class eSelectionParam : u8 
 	{
-		EVFreshMilk = 0x01,
-		EVFreshMilkDelay_dsec = 0x02,
-		EVAirFreshMilk = 0x03,
-		EVAirFreshMilkDelay_dsec = 0x04
+		//ATTENZIONE: il valore di questi enum deve matchare i valori riportati nella descrizione del comando P 0x33 (set selection param)
+		EVFreshMilk					= 0x01,
+		EVFreshMilkDelay_dsec		= 0x02,
+		EVAirFreshMilk				= 0x03,
+		EVAirFreshMilkDelay_dsec	= 0x04
 	};
 
 	struct sSubscriber

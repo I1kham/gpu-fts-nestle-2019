@@ -282,14 +282,22 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 }
 
 //***************************************************
-bool Server::priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue)
+void Server::priv_helper_writeDA3_9bit (u8 *da3, u32 da3Pos, u32 a, u32 b, u16 value) const
 {
-	u8 bufferW[32];
-	const u16 nBytesToSend = cpubridge::buildMsg_setSelectionParam (selNum1ToN, whichParam, paramValue, bufferW, sizeof(bufferW));
-	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-	if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
-		return true;
-	return false;
+	//scrive i valori a "9" bit nel da3 usando la stessa sintassi usata dai controllo UI.
+	//
+	//es:	data-da3='162' data-da3bit='9' data-da3bit9='2,4'
+	//		da3bit9="a,b" =>	indica dove andare a prendere il nono bit.
+	//							il nono viene preso dalla posizione [da3pos+a] al bit [b] con b che va da 0 a 7
+	
+	const u8 value8 = static_cast<u8>(value & 0xFF);
+	da3[da3Pos] = value8;
+
+	const u8 mask = (0x01 << b);
+	if ((value & 0x0100) == 0x00)
+		da3[da3Pos + a] &= (~mask);
+	else
+		da3[da3Pos + a] |= mask;
 }
 
 //***************************************************
@@ -308,57 +316,34 @@ u16 Server::priv_helper_readDA3_9bit (const u8 *da3, u32 da3Pos, u32 a, u32 b) c
 }
 
 //***************************************************
-bool Server::priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue) const
+bool Server::priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue)
 {
-	assert (NULL != out_paramValue);
-	*out_paramValue = 0;
-
-	//Carico l'intero da3 in memoria. Lo faccio ogni volta anche se sembra una perdita di tempo, ma almeno sono sicuro
-	//lavorare sempre su dati sincronizzati
-	//TODO: chiaramente la cosa potrebbe essere gestitra in maniera + intelligente... rimane il fatto che questa fn viene chiamata pochissime volte e solo
-	//		da espliciti comandi rheAPI quindi, pur non essendo ottimale, è cmq un male minore
-	u8 s[256];
-	sprintf_s((char*)s, sizeof(s), "%s/current/da3/vmcDataFile.da3", rhea::getPhysicalPathToAppFolder());
-	u32 sizeOfBuffer = 0;
-	u8 *da3 = rhea::fs::fileCopyInMemory(s, rhea::getScrapAllocator(), &sizeOfBuffer);
-	if (NULL == da3)
-		return false;
-
-	const u32 selOffset = (selNum1ToN-1) * 100;
-
-	bool ret = true;
-	switch (whichParam)
-	{
-	default:
-		ret = false;
-		DBGBREAK;
-		break;
-
-	case eSelectionParam::EVFreshMilk:
-		//data-da3='162' data-da3bit='9' data-da3bit9='2,4' data-max='500'
-		*out_paramValue = priv_helper_readDA3_9bit (da3, 162, 2, 4);
-		break;
-
-	case eSelectionParam::EVFreshMilkDelay_dsec:
-		//data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500'
-		*out_paramValue = priv_helper_readDA3_9bit (da3, 163, 1, 5);
-		break;
-
-	case eSelectionParam::EVAirFreshMilk:
-		//data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500'
-		*out_paramValue = priv_helper_readDA3_9bit (da3, 165, 2, 4);
-		break;
-
-	case eSelectionParam::EVAirFreshMilkDelay_dsec:
-		//data-da3='166' data-da3bit='9' data-da3bit9='1,5'  data-max='500'
-		*out_paramValue = priv_helper_readDA3_9bit (da3, 166, 1, 5);
-		break;
-	}
-
-	RHEAFREE(rhea::getScrapAllocator(), da3);
-	return ret;
+	u8 bufferW[32];
+	const u16 nBytesToSend = cpubridge::buildMsg_setSelectionParam (selNum1ToN, whichParam, paramValue, bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+		return true;
+	return false;
 }
 
+//***************************************************
+bool Server::priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue)
+{
+	u8 bufferW[32];
+	const u16 nBytesToSend = cpubridge::buildMsg_getSelectionParam (selNum1ToN, whichParam, bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+	{
+		//rcv: # P [len] 0x34 [selNum] [paramID] [value16 LSB-MSB] [ck]
+		*out_paramValue = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[6]);
+		return true;
+	}
+	else
+	{
+		*out_paramValue = 0;
+		return false;
+	}
+}
 
 /***************************************************
  * Uno dei miei subscriber mi ha inviato una richiesta

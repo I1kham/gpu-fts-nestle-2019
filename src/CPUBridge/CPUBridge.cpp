@@ -595,31 +595,20 @@ u8 cpubridge::buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichPa
 		return 0;
 	}
 
-	u8 paramID = 0xFF;
+	const u8 paramID = static_cast<u8>(whichParam);
 	switch (whichParam)
 	{
 	default:
 		DBGBREAK;
+		return 0;
 		break;
 
 	case eSelectionParam::EVFreshMilk:
-		if (paramValue > 500) paramValue=500;
-		paramID = 0x01;
-		break;
-
 	case eSelectionParam::EVFreshMilkDelay_dsec:
-		if (paramValue > 500) paramValue=500;
-		paramID = 0x02;
-		break;
-
 	case eSelectionParam::EVAirFreshMilk:
-		if (paramValue > 500) paramValue=500;
-		paramID = 0x03;
-		break;
-
 	case eSelectionParam::EVAirFreshMilkDelay_dsec:
-		if (paramValue > 500) paramValue=500;
-		paramID = 0x04;
+		if (paramValue > 500) 
+			paramValue=500;
 		break;
 	}
 
@@ -630,6 +619,21 @@ u8 cpubridge::buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichPa
 	return buildMsg_Programming(eCPUProgrammingCommand::setSelectionParam, payload, 4, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_getSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u8* out_buffer, u32 sizeOfOutBuffer)
+{
+	if (selNum1ToN<1 || selNum1ToN > NUM_MAX_SELECTIONS)
+	{
+		DBGBREAK;
+		return 0;
+	}
+
+	const u8 paramID = static_cast<u8>(whichParam);
+	u8 payload[4];
+	payload[0] = selNum1ToN;
+	payload[1] = paramID;
+	return buildMsg_Programming(eCPUProgrammingCommand::getSelectionParam, payload, 2, out_buffer, sizeOfOutBuffer);
+}
 
 //***************************************************
 void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
