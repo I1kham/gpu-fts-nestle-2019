@@ -10,6 +10,8 @@
 //PIN "universale" code per il menu di programmazione
 #define		CPU_BYPASS_MENU_PROG_PIN_CODE       842
 
+#define		SOCKETBRIDGE_SUBSCRIBER_UID			0x07AB
+#define		ESAPI_SUBSCRIBER_UID				0x0104
 
 /**********************************************************************
  * Messaggi in/out sul canale di "servizio" di CPUBridge
@@ -499,7 +501,7 @@ namespace cpubridge
 	{
 		unlocked = 0,
 		locked = 1,
-		onlyAPI = 2,
+		lockedButRheAPIIsWorking = 2,
 	};
 
 	enum class eSelectionParam : u8 
@@ -517,6 +519,7 @@ namespace cpubridge
 		HThreadMsgW	hFromMeToSubscriberW;
 		HThreadMsgR	hFromSubscriberToMeR;
 		HThreadMsgW	hFromSubscriberToMeW;
+		u16			subscriberUID;
 	};
 
 

@@ -6,6 +6,7 @@
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
 
+#define		ESAPI_SUBSCRIBER_UID 0x0104
 
 namespace esapi
 {

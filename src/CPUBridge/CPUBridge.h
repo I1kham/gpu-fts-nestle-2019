@@ -82,7 +82,7 @@ namespace cpubridge
 						[out_hServiceChannelW]		è il canale di comunicazione di "servizio" da utilizzarsi per richieste speciali (tipo subsribe)
 				*/
 
-	void		subscribe (const HThreadMsgW &hServiceChannelW, const HThreadMsgW &hAnswerHere);
+	void		subscribe (const HThreadMsgW &hServiceChannelW, const HThreadMsgW &hAnswerHere, u16 applicationUID);
 					/*	Qualcuno vuole iscriversi alla coda di messaggi di output di CPUBridge.
 						CPUBridge invierà la risposta a questa richiesta sul canale identificato da [hAnswerHere].
 

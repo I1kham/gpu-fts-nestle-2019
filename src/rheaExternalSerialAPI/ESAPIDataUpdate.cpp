@@ -33,7 +33,7 @@ bool DataUpdate::Reset()
 	if (NULL != fileName)
 	{
 		rhea::fs::fileDelete(fileName);
-		delete[] fileName;
+		RHEAFREE(rhea::getSysHeapAllocator(), fileName);
 		fileName = NULL;
 	}
 
@@ -44,7 +44,6 @@ bool DataUpdate::Open(u8 fileType, u32 totalFileLen)
 // apertura del file
 {
 	bool		ret = true;
-	char		*fileName;
 	u8			idx;
 	struct
 	{
@@ -66,21 +65,18 @@ bool DataUpdate::Open(u8 fileType, u32 totalFileLen)
 
 	if (idx != sizeof arCross / sizeof arCross[0])
 	{
-		const char* path = (char*)rhea::getPhysicalPathToAppFolder();
-
 		type = arCross[idx].type;
 
-		fileName = new char[25 + strlen(path)];
-		strcpy(fileName, path);
-		strcat(fileName, "/temp/Update");
-		strcat(fileName, arCross[idx].extension);
-		strcat(fileName, ".temp");
+		const u8 *path = rhea::getPhysicalPathToAppFolder();
+		const u32 sizeof_filename = 25 + rhea::string::utf8::lengthInBytes(path);
+		fileName = RHEAALLOCT(u8*, rhea::getSysHeapAllocator(), sizeof_filename);
+		rhea::string::utf8::spf (fileName, sizeof_filename, "%s/temp/Update%s.temp", path, arCross[idx].extension);
 
 		handle = rhea::fs::fileOpenForWriteBinary((u8 *)fileName);
 		if (NULL == handle)
 		{
 			type = eDataUpdateType::None;
-			delete[] fileName;
+			RHEAFREE(rhea::getSysHeapAllocator(), fileName);
 			fileName = NULL;
 			ret = false;
 		}
@@ -169,19 +165,20 @@ bool DataUpdate::UpdateCPU(const cpubridge::sSubscriber& from)
 
 bool DataUpdate::UpdateGPU(const cpubridge::sSubscriber& from)
 {
-	const char* path = (char*)rhea::getPhysicalPathToAppFolder();
-	char* dstFileName;
-
-	dstFileName = new char[25 + strlen(path)];
-	strcpy(dstFileName, path);
-	strcat(dstFileName, "/auto/UpdateGPU.mh6");
+	const u8 *path = rhea::getPhysicalPathToAppFolder();
+	const u32 sizeof_dstFileName = 25 + rhea::string::utf8::lengthInBytes(path);
+	
+	u8* dstFileName = RHEAALLOCT(u8*, rhea::getScrapAllocator(), sizeof_dstFileName);
+	rhea::string::utf8::spf (dstFileName, sizeof_dstFileName, "%s/auto/UpdateGPU.mh6", path);
+	const bool bCopyResult = rhea::fs::fileCopy (fileName, dstFileName);
+	RHEAFREE(rhea::getScrapAllocator(), dstFileName);
 
 	rhea::fs::fileDelete(fileName);
-	delete[] fileName;
+	RHEAFREE(rhea::getSysHeapAllocator(), fileName);
+	fileName = NULL;
 
-	if (true == rhea::fs::fileCopy((u8*)fileName, (u8*)dstFileName))
+	if (true == bCopyResult)
 		system("reboot");
-
     return true;
 }
 

@@ -236,15 +236,12 @@ namespace cpubridge
 		void					priv_retreiveSomeDataFromLocalDA3();
 
 		bool					priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
-		sSubscription*			priv_newSubscription();
+		sSubscription*			priv_newSubscription(u16 subscriberUID);
 
 		void					priv_getLockStatusFilename (u8 *out_filePathAndName, u32 sizeOfOutFilePathAndName) const;
 		void					priv_writeLockStatus (eLockStatus s) const;
 		eLockStatus				priv_getLockStatus() const;
-		void					priv_lockMachine();
-		void					priv_unlockMachine();
-		u16						priv_helper_readDA3_9bit (const u8 *da3, u32 offset, u32 a, u32 b) const;
-		void					priv_helper_writeDA3_9bit (u8 *da3, u32 offset, u32 a, u32 b, u16 value) const;
+		void					priv_setLockStatus (eLockStatus lockMode);
 		bool					priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue);
 		bool					priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue);
 

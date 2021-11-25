@@ -223,12 +223,13 @@ bool Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 }
 
 //***************************************************
-Server::sSubscription* Server::priv_newSubscription()
+Server::sSubscription* Server::priv_newSubscription (u16 subscriberUID)
 {
 	//creo le msgQ
 	sSubscription *sub = RHEAALLOCSTRUCT(localAllocator, sSubscription);
 	rhea::thread::createMsgQ (&sub->q.hFromMeToSubscriberR, &sub->q.hFromMeToSubscriberW);
 	rhea::thread::createMsgQ (&sub->q.hFromSubscriberToMeR, &sub->q.hFromSubscriberToMeW);
+	sub->q.subscriberUID = subscriberUID;
 	subscriberList.append (sub);
 
 	//aggiungo la msqQ alla mia waitList
@@ -252,8 +253,9 @@ void Server::priv_handleMsgFromServiceMsgQ()
 				logger->log("CPUBridgeServer => new SUBSCRIPTION_REQUEST\n");
 				logger->incIndent();
 
+				const u16 subscriberUID = rhea::utils::bufferReadU16 ((const u8*)msg.buffer);
 				//creo la subscription
-				sSubscription *sub = priv_newSubscription();
+				sSubscription *sub = priv_newSubscription(subscriberUID);
 
 				//rispondo al thread richiedente
 				HThreadMsgW hToThreadW;
@@ -278,40 +280,6 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 {
 	//invio msg a CPU
 	bool ret = chToCPU->sendAndWaitAnswer(bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
-	return ret;
-}
-
-//***************************************************
-void Server::priv_helper_writeDA3_9bit (u8 *da3, u32 da3Pos, u32 a, u32 b, u16 value) const
-{
-	//scrive i valori a "9" bit nel da3 usando la stessa sintassi usata dai controllo UI.
-	//
-	//es:	data-da3='162' data-da3bit='9' data-da3bit9='2,4'
-	//		da3bit9="a,b" =>	indica dove andare a prendere il nono bit.
-	//							il nono viene preso dalla posizione [da3pos+a] al bit [b] con b che va da 0 a 7
-	
-	const u8 value8 = static_cast<u8>(value & 0xFF);
-	da3[da3Pos] = value8;
-
-	const u8 mask = (0x01 << b);
-	if ((value & 0x0100) == 0x00)
-		da3[da3Pos + a] &= (~mask);
-	else
-		da3[da3Pos + a] |= mask;
-}
-
-//***************************************************
-u16 Server::priv_helper_readDA3_9bit (const u8 *da3, u32 da3Pos, u32 a, u32 b) const
-{
-	//legge i valori a "9" bit dal da3 usando la stessa sintassi usata dai controllo UI.
-	//
-	//es:	data-da3='162' data-da3bit='9' data-da3bit9='2,4'
-	//		da3bit9="a,b" =>	indica dove andare a prendere il nono bit.
-	//							il nono viene preso dalla posizione [da3pos+a] al bit [b] con b che va da 0 a 7
-	u16 ret = da3[da3Pos];
-
-	if ( (da3[da3Pos + a] & (0x01<<b)) != 0)
-		ret |= 0x0100;
 	return ret;
 }
 
@@ -1536,18 +1504,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			{
 				cpubridge::eLockStatus lockStatus;
 				translate_SET_MACHINE_LOCK_STATUS (msg, &lockStatus);
-				switch (lockStatus)
-				{
-				case cpubridge::eLockStatus::locked:
-					priv_lockMachine();
-					break;
-				case cpubridge::eLockStatus::unlocked:
-					priv_unlockMachine();
-					break;
-				default:
-					DBGBREAK;
-					break;
-				}
+				priv_setLockStatus (lockStatus);
 				notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
 			}
 			break;
@@ -1558,23 +1515,35 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE:
 			{
-				u8 selNum1toN;
-				bool bEnable;
-				translate_SELECTION_ENABLE_DISABLE (msg, &selNum1toN, &bEnable);
-				SelectionEnable (selNum1toN, bEnable);
-				notify_SELECTION_ENABLE_DISABLE (sub->q, handlerID, logger, 0);
+				u8 errorCode = 0;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					u8 selNum1toN;
+					bool bEnable;
+					translate_SELECTION_ENABLE_DISABLE (msg, &selNum1toN, &bEnable);
+					SelectionEnable (selNum1toN, bEnable);
+				}
+				notify_SELECTION_ENABLE_DISABLE (sub->q, handlerID, logger, errorCode);
 			}
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN:
 			{
-				const u8 *utf8msg;
-				u8 timeSec;
-				translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN (msg, &utf8msg, &timeSec);
-				memset (&screenMsgOverride, 0, sizeof(screenMsgOverride));
-				screenMsgOverride.timeToStopShowingMSec = rhea::getTimeNowMSec() + ((u32)timeSec) * 1000;
-				rhea::string::strUTF8toUTF16 (utf8msg, screenMsgOverride.utf16Msg, sizeof(screenMsgOverride.utf16Msg));
-				notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (sub->q, handlerID, logger, 0);
+				u8 errorCode = 0;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					const u8 *utf8msg;
+					u8 timeSec;
+					translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN (msg, &utf8msg, &timeSec);
+					memset (&screenMsgOverride, 0, sizeof(screenMsgOverride));
+					screenMsgOverride.timeToStopShowingMSec = rhea::getTimeNowMSec() + ((u32)timeSec) * 1000;
+					rhea::string::strUTF8toUTF16 (utf8msg, screenMsgOverride.utf16Msg, sizeof(screenMsgOverride.utf16Msg));
+				}
+				notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (sub->q, handlerID, logger, errorCode);
 			}
 			break;
 
@@ -1584,10 +1553,14 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				eSelectionParam whichParam;
 				u16 paramValue;
 				translate_SET_SELECTION_PARAMU16 (msg, &selNumDa1aN, &whichParam, &paramValue);
-
 				u8 errorCode = 0;
-				if (!priv_setCPUSelectionParam (selNumDa1aN, whichParam, paramValue))
-					errorCode = 1;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					if (!priv_setCPUSelectionParam (selNumDa1aN, whichParam, paramValue))
+						errorCode = 1;
+				}
 				notify_SET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode);
 			}
 			break;
@@ -1600,8 +1573,13 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 				u16 paramValue = 0;
 				u8 errorCode = 0;
-				if (!priv_getCPUSelectionParam (selNumDa1aN, whichParam, &paramValue))
-					errorCode = 1;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					if (!priv_getCPUSelectionParam (selNumDa1aN, whichParam, &paramValue))
+						errorCode = 1;
+				}
 				notify_GET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode, paramValue);
 			}
 			break;
@@ -1653,19 +1631,11 @@ eLockStatus Server::priv_getLockStatus() const
 }
 
 //**********************************************
-void Server::priv_lockMachine()
+void Server::priv_setLockStatus (eLockStatus lockMode)
 {
-	if (eLockStatus::locked == priv_getLockStatus())
+	if (lockMode == priv_getLockStatus())
 		return;
-	priv_writeLockStatus (eLockStatus::locked);
-}
-
-//**********************************************
-void Server::priv_unlockMachine()
-{
-	if (eLockStatus::unlocked == priv_getLockStatus())
-		return;
-	priv_writeLockStatus (eLockStatus::unlocked);
+	priv_writeLockStatus (lockMode);
 }
 
 //**********************************************
@@ -3568,7 +3538,10 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		if (timeNowMSec >= 	screenMsgOverride.timeToStopShowingMSec)
 			screenMsgOverride.timeToStopShowingMSec = 0;
 		else
+		{
 			memcpy (utf16_msgLCD, screenMsgOverride.utf16Msg, sizeof(utf16_msgLCD));
+			cpuStatus.LCDMsg.importanceLevel = 0xff;
+		}
 	}
 
 
@@ -3610,6 +3583,11 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 				if ((answer[z] & mask) != 0)
 					isSelectionAvail = 0;
 
+
+				//se delle selezioni sono state disabilitate via rheAPI, applico qui 
+				if (false == IsSelectionEnable(i+1))
+					isSelectionAvail = 0;
+
 				if (isSelectionAvail)
 				{
 					if (!cpuStatus.selAvailability.isAvail(i + 1))
@@ -3647,21 +3625,6 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			}
 		}
 	}
-
-	//se delle selezioni sono state disabilitate via rheAPI, applico qui 
-	for (u8 i = 1; i <= NUM_MAX_SELECTIONS; i++)
-	{
-		if (false == IsSelectionEnable(i))
-		{
-			if (cpuStatus.selAvailability.isAvail(i))
-			{
-				cpuStatus.selAvailability.setAsNotAvail(i);
-				anythingChanged = 1;
-			}
-		}
-	}
-
-
 
 
 	if (anythingChanged)
@@ -4381,6 +4344,7 @@ void Server::priv_handleState_grinderSpeedTest()
 
 }
 
+//*********************************************************
 /* gestione delle abilitazioni alla esecuzione di una ricetta */
 bool Server::SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const
 {
@@ -4392,6 +4356,7 @@ bool Server::SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFile
 	return true;
 }
 
+//*********************************************************
 bool Server::SelectionsEnableSave()
 {
 	u8		s[512];
@@ -4416,6 +4381,7 @@ bool Server::SelectionsEnableSave()
 	return ret;
 }
 
+//*********************************************************
 bool Server::SelectionsEnableLoad()
 {
 	u8 s[512];
@@ -4458,7 +4424,10 @@ bool Server::SelectionEnable (u8 selNum_1toN, bool bEnable)
 {
 	bool ret = true;
 	if (selNum_1toN >= 1 && selNum_1toN <= NUM_MAX_SELECTIONS)
+	{
 		selectionEnable[selNum_1toN - 1] = bEnable;
+		SelectionsEnableSave();
+	}
 	else
 		ret = false;
 	return ret;

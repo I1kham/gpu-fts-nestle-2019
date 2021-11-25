@@ -44,6 +44,7 @@ bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, r
     cpubridge_helper_folder_create("/last_installed/da3", logger);
     cpubridge_helper_folder_create("last_installed/cpu", logger);
     cpubridge_helper_folder_create("temp", logger);
+	cpubridge_helper_folder_create("auto", logger);
 
     char s[512];
     sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());
@@ -636,10 +637,12 @@ u8 cpubridge::buildMsg_getSelectionParam (u8 selNum1ToN, eSelectionParam whichPa
 }
 
 //***************************************************
-void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite)
+void cpubridge::subscribe(const HThreadMsgW &hCPUMsgQWrite, const HThreadMsgW &hOtherMsgQWrite, u16 applicationUID)
 {
-	u32 param32 = hOtherMsgQWrite.asU32();
-	rhea::thread::pushMsg (hCPUMsgQWrite, CPUBRIDGE_SERVICECH_SUBSCRIPTION_REQUEST, param32);
+	const u32 param32 = hOtherMsgQWrite.asU32();
+	u8 payload[2];
+	rhea::utils::bufferWriteU16(payload, applicationUID);
+	rhea::thread::pushMsg (hCPUMsgQWrite, CPUBRIDGE_SERVICECH_SUBSCRIPTION_REQUEST, param32, payload, 2);
 }
 
 //***************************************************
