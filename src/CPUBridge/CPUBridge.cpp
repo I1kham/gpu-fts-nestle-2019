@@ -608,9 +608,17 @@ u8 cpubridge::buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichPa
 	case eSelectionParam::EVFreshMilkDelay_dsec:
 	case eSelectionParam::EVAirFreshMilk:
 	case eSelectionParam::EVAirFreshMilkDelay_dsec:
+	case eSelectionParam::CoffeWaterQty:
 		if (paramValue > 500) 
 			paramValue=500;
 		break;
+
+	case eSelectionParam::CoffeeQty:
+		if (paramValue > 200) 
+			paramValue=200;
+		break;
+
+
 	}
 
 	u8 payload[4];

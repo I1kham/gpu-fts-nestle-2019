@@ -511,7 +511,9 @@ namespace cpubridge
 		EVFreshMilk					= 0x01,
 		EVFreshMilkDelay_dsec		= 0x02,
 		EVAirFreshMilk				= 0x03,
-		EVAirFreshMilkDelay_dsec	= 0x04
+		EVAirFreshMilkDelay_dsec	= 0x04,
+		CoffeeQty					= 0x05,
+		CoffeWaterQty				= 0x06
 	};
 
 	struct sSubscriber
