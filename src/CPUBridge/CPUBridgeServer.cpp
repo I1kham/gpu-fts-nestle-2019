@@ -1881,11 +1881,15 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	{
 		//copio il file nella mia directory locale temp
 		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
-		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+
+		if (!rhea::string::utf8::areEqual(srcFullFileNameAndPath, tempFilePathAndName, true))
 		{
-			if (NULL != subscriber)
-				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_unableToCopyFile, 0);
-			return eWriteCPUFWFileStatus::finishedKO_unableToCopyFile;
+			if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+			{
+				if (NULL != subscriber)
+					notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_unableToCopyFile, 0);
+				return eWriteCPUFWFileStatus::finishedKO_unableToCopyFile;
+			}
 		}
 	}
 
@@ -2079,10 +2083,14 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	{
 		//copio il file nella mia directory locale temp
 		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
-		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+
+		if (!rhea::string::utf8::areEqual(srcFullFileNameAndPath, tempFilePathAndName, true))
 		{
-			notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_unableToCopyFile, 0);
-			return eWriteDataFileStatus::finishedKO_unableToCopyFile;
+			if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+			{
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_unableToCopyFile, 0);
+				return eWriteDataFileStatus::finishedKO_unableToCopyFile;
+			}
 		}
 	}
 
