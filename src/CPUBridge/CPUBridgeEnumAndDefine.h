@@ -12,6 +12,7 @@
 
 #define		SOCKETBRIDGE_SUBSCRIBER_UID			0x07AB
 #define		ESAPI_SUBSCRIBER_UID				0x0104
+#define		GPU_SUBSCRIBER_UID                  0x2F06
 
 /**********************************************************************
  * Messaggi in/out sul canale di "servizio" di CPUBridge
