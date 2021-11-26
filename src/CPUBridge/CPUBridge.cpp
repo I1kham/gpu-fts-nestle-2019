@@ -2965,9 +2965,9 @@ void cpubridge::translate_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg,
 	*out_whichParam = static_cast<eSelectionParam>(p[1]);
 	*out_paramValue = rhea::utils::bufferReadU16 (&p[2]);
 }
-void cpubridge::notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode)
+void cpubridge::notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue)
 {
-	logger->log("notify_SET_SELECTION_PARAMU16[%d,%d,%d]\n", selNum1ToN,whichParam,errorCode);
+	logger->log("notify_SET_SELECTION_PARAMU16[sel=%d][paramID=%d][err=%d][val=%d]\n", selNum1ToN,whichParam,errorCode, paramValue);
 	u8 optionalData[4];
 	optionalData[0] = selNum1ToN;
 	optionalData[1] = static_cast<u8>(whichParam);
@@ -3000,7 +3000,7 @@ void cpubridge::translate_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg,
 }
 void cpubridge::notify_GET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue)
 {
-	logger->log("notify_GET_SELECTION_PARAMU16[%d,%d][err=%d][val=%d]\n", selNum1ToN,whichParam,errorCode,paramValue);
+	logger->log("notify_GET_SELECTION_PARAMU16[sel=%d][paramID=%d][err=%d][val=%d]\n", selNum1ToN,whichParam,errorCode,paramValue);
 	u8 optionalData[8];
 	optionalData[0] = selNum1ToN;
 	optionalData[1] = static_cast<u8>(whichParam);

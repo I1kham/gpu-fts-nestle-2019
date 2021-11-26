@@ -686,7 +686,7 @@ namespace cpubridge
 
 	void		ask_SET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam, u16 paramValue);
 	void		translate_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam, u16 *out_paramValue);
-	void		notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode);
+	void		notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue);
 	void		translateNotify_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode);
 
 	void		ask_GET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam);

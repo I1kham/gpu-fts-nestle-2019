@@ -1561,7 +1561,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 					if (!priv_setCPUSelectionParam (selNumDa1aN, whichParam, paramValue))
 						errorCode = 1;
 				}
-				notify_SET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode);
+				notify_SET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode, paramValue);
 			}
 			break;
 
