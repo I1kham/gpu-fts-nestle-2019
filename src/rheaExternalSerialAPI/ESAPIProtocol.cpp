@@ -630,7 +630,7 @@ u32 Protocol::priv_rs232_handleCommand_A (const sBuffer &b)
 				e.setup (allocator, 3);
 
 				const u32 n = s.explode ('.', e);
-				if (n == 3)
+                if (n >= 3)
 				{
 					verMajor = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[0].getBuffer()));
 					verMinor = rhea::string::ansi::toU32(reinterpret_cast<const char*>(e[1].getBuffer()));

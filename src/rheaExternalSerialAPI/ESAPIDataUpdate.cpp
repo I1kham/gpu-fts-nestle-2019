@@ -137,8 +137,7 @@ bool DataUpdate::Complete(u16 blockNr, const cpubridge::sSubscriber& from)
 		rhea::fs::fileClose(handle);
 		handle = NULL;
 
-		if (blockCur != 0 && blockCur != blockNr ||
-			fileLenCur != fileLenMax)
+        if (fileLenCur != fileLenMax || (blockCur != 0 && blockCur != blockNr) )
 		{
 			ret = false;
 		}
@@ -169,7 +168,8 @@ bool DataUpdate::UpdateGPU(const cpubridge::sSubscriber& from)
 	const u32 sizeof_dstFileName = 25 + rhea::string::utf8::lengthInBytes(path);
 	
 	u8* dstFileName = RHEAALLOCT(u8*, rhea::getScrapAllocator(), sizeof_dstFileName);
-	rhea::string::utf8::spf (dstFileName, sizeof_dstFileName, "%s/auto/UpdateGPU.mh6", path);
+    rhea::string::utf8::spf (dstFileName, sizeof_dstFileName, "%s/../AutoUpdateGPU.mh6", path);
+    rhea::fs::sanitizePathInPlace (dstFileName);
 	const bool bCopyResult = rhea::fs::fileCopy (fileName, dstFileName);
 	RHEAFREE(rhea::getScrapAllocator(), dstFileName);
 
@@ -178,7 +178,10 @@ bool DataUpdate::UpdateGPU(const cpubridge::sSubscriber& from)
 	fileName = NULL;
 
 	if (true == bCopyResult)
-		system("reboot");
+    {
+        //system("reboot");
+        //exit(0);
+    }
     return true;
 }
 
