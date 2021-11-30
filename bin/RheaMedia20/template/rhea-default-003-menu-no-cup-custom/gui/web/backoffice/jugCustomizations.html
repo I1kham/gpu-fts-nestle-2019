@@ -1,0 +1,169 @@
+<html>
+
+<head>
+    <title>GUI-Editor</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+    <script src="js/utils.js"></script>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+    <link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+
+    <style>
+            .rhea-selection {padding: .5em; font-weight: bold;}
+            .rhea-selection option {font-size: larger;}
+    </style>
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+    <div id="mainWrapper" class="wrapper">
+        <div id="main-content">
+            <div class="header">
+                <h1>JUG customizations</h1>
+                <div id="tplPath">&nbsp;</div>
+            </div>
+
+            <div class="pulsantiera-sticky">
+                <table border="0" cellspacing='0' cellpadding='2' width="100%">
+                    <tr valign="middle">
+                        <td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+                        <td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE
+                                SETTINGS</a></td>
+                        <td width="33%" align="right"><a class="button arancione"
+                                href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="page">
+                <div id="page-content">
+                    <!-- JUG configuration box -->
+                    <div class="box">
+                        <h2 onclick="box_showHide('boxLangbutton')" style="cursor:pointer">Jug Customizations</h2>
+                        <div class="box-closer" id="boxLangbutton_arrow"><img src="img/dblArrowDown.png"></div>
+                        <div class="box-content" id="boxLangbutton_content">
+                            <p>
+                                Sets the behavior of the icon JUG view, by acting on the selection below:
+                            </p>
+                            <br>
+
+                            <label for="jug">JUG appearance:</label>
+
+                            <select id="jug" class="rhea-selection">
+                                <option value="1">Always visible</option>
+                                <option value="2">Never visible</option>
+                                <option value="3">Visible on RFID card detected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- JUG configuration box -->
+                </div>
+            </div>
+        </div>
+
+        <div id="main-content-wait" style="display:none">
+            <br><br><br><br><br><br><br><br><br><br>
+            <center><img src="img/animationRound.gif"></center>
+            <div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+        </div>
+    </div>
+
+    <div id="previewBox"></div>
+
+    <script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+    <script src="js/rheaDB.js"></script>
+    <script src="js/rheaFileUpload.js"></script>
+    <script src="js/buildConfigFile.js"></script>
+    <script src="../config/allowedLang.js"></script>
+    <script src="../../../../home/js/fileSaveAs.js"></script>
+
+    <script language="javascript">
+        var historyID = -1;
+        var db = null;
+
+        async function onRheaBootstrapFinished() {
+            var urlParams = getUrlVars();
+            historyID = urlParams["his"];
+
+            $("#main-content-wait").show();
+
+            var curPath = rheaGetAbsolutePhysicalPath();
+            db = new RheaDB(curPath + "/guidb.db3");
+
+            await setUpDynamicElems();
+
+            $("#main-content-wait").hide();
+            $("#page-content").show();
+	    getCurrentPath();
+        }
+
+        function getCurrentPath() {
+            if (!rheaGetElemByID('tplPath')) { return; }
+
+            let rheaobj = localStorage.getItem( 'rhea.data' );
+
+            if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+                rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+            } else {
+                rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+            }
+        }
+
+        async function setUpDynamicElems() {
+            let rst = await db.q("SELECT Message, What FROM lang WHERE What='jugConfiguration'");
+
+            document.querySelector('#jug').value = 3;
+
+            for (let r = 0; r < rst.getNumRows(); r++) {
+                let _what = rst.valByColName(r, "What");
+                let _msg  = rst.valByColName(r, "Message");
+
+                if (_msg && _msg !== "NULL") {
+                    document.querySelector('#jug').value = parseInt( _msg );
+                }
+            }
+        }
+
+        async function saveAll() {
+            pleaseWait(1);
+
+            let q = "SELECT * FROM lang WHERE What = 'jugConfiguration'"
+            let rst = await db.q( q );
+            let value = document.querySelector('#jug').value;
+
+            q = !rst.nRows ?
+                "INSERT INTO lang (UID,ISO,What,Message) VALUES(-1,'GB','jugConfiguration','" + value + "')" :
+                "UPDATE lang SET Message='" + value + "' WHERE What='jugConfiguration'";
+
+            await db.exec(q);
+            await db.exec("UPDATE history SET DataUM='" + buildConfigFile_getAAAAMMGGHHMMSS() + "' WHERE ID=" + historyID);
+
+            pleaseWait(0);
+        }
+
+        function box_showHide(elemID) {
+            var cnt = $("#" + elemID + "_content");
+            var arrow = $("#" + elemID + "_arrow");
+            if (cnt.css("display") == "none") {
+                cnt.slideDown();
+                arrow.html("<img src='img/dblArrowDown.png'>");
+            } else {
+                cnt.slideUp();
+                arrow.html("<img src='img/dblArrowRight.png'>");
+            }
+        }
+
+        function box_showItNow(elemID) {
+            var cnt = $("#" + elemID + "_content");
+
+            if (cnt.css("display") == "none") {
+                cnt.slideDown(1);
+                $("#" + elemID + "_arrow").html("<img src='img/dblArrowDown.png'>");
+            }
+        }
+    </script>
+</html>

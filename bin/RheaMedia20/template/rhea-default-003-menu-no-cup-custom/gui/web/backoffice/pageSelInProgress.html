@@ -1,0 +1,226 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Page selection in progress</h1>
+			<div id="tplPath">&nbsp;</div>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>			
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<h2>Slide show</h2>
+					<div class="box-content">
+						<p>Time between one slide and the next <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="gallery_timeToNextImageMSec"> sec</p>
+						
+						<div style="float:left; width:400px">
+							<ul id="elencoItem" class="sortable-list"></ul>
+							
+							<div style="margin-left:30px;">
+								<div id="fileUpload1" data-message="+<br><i style='font-size:0.3em'>click or drag image here</i>"></div>
+							</div>
+						</div>
+						
+						<div style="float:right">
+							<span class="tip">
+								<h2>How to</h2>
+								<ul>
+									<li><b>Drag</b> icons on the left to reorder the list</li>
+									<li>Click on the <b>+ button</b> (or drop an image into it) to add more images</li>
+									<li>Click on the <img src='img/icon_delete24.png' style='background-color:#fff; padding:2px; width:15px'> icon to delete a single image</li>
+								</ul>
+								
+								<br>
+								<h2>Image resolution</h2>
+									Image must be <b>1024 x 300</b> pixel in <b>JPG format</b>
+							</span>
+						</div>
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="js/multilangElem.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var progressivoNuoveImmagini = 1000;
+var db = null;
+
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+	
+	setupUploader("fileUpload1", upload_onEnd);
+	
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+	let rst = await db.q("SELECT * FROM pageSelInProgress WHERE HIS_ID=" +historyID);
+	if (rst.hasError() != "")
+	{
+		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
+		return;
+	}
+	
+	$("#gallery_timeToNextImageMSec").val (Math.floor(rst.valByColName(0, "gallery_timeToNextImageMSec") / 1000));
+
+	imageList_update();
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+
+	getCurrentPath();
+}
+
+function getCurrentPath() {
+	if (!rheaGetElemByID('tplPath')) { return; }
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+	} else {
+		rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+	}
+}
+
+function upload_onEnd (fileName, userValue, error_code)
+{
+	console.log ("onEvent_fileupload_finished [" +userValue +"][err:" +error_code +"]");
+	if (error_code != 0)
+	{
+		alert ("Error during upload. Error code=" +error_code);
+		return;
+	}
+	
+	var imgFilePathAndName = "../upload/" +fileName;
+	$("#elencoItem").append( imageList_getHTML_li(progressivoNuoveImmagini, imgFilePathAndName));
+	progressivoNuoveImmagini++;
+}
+
+function imageList_getHTML_li (progressivo, filename)
+{
+	var id = "imageList_" +progressivo;
+	return "<li id='" +id +"' data-itemprogr='" +progressivo +"' data-filename='" +filename +"' style='display:inline-block'>"
+				+"<div style='position:relative'>"
+					+"<div><img class='slide shadow' src='../upload/" +filename +"'></div>"
+					+"<div style='position:absolute; top:0; left:0; z-index:40;'><a href='javascript:imageList_delete(" +progressivo +")'><img src='img/icon_delete24.png' alt='delete' title='delete'></a></div>"
+				+"</div>"
+			+"</li>";
+}
+
+async function imageList_update()
+{
+	let rst = await db.q("SELECT PROGR,filename FROM pageSelInProgress_images WHERE HIS_ID=" +historyID +" ORDER BY PROGR");
+	if (rst.hasError() != "")
+	{
+		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
+		return;
+	}	
+
+	var html = "";
+	for (var r=0; r<rst.getNumRows(); r++)
+	{
+		var prog = rst.valByColName(r, "PROGR");
+		var filename = rst.valByColName(r, "filename");
+		html += imageList_getHTML_li(prog, filename);
+	}
+	$("#elencoItem").html (html);
+	$("#elencoItem").sortable();
+	$("#elencoItem").disableSelection();	
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+}
+
+function imageList_delete(progressivo)
+{
+	if (!confirm ("Do you really want to remove the selected image?"))
+		return;
+	var id = "#imageList_" +progressivo;
+	$(id).hide();
+}
+
+async function saveAll()
+{
+	//*** 
+	var sql1 = "UPDATE pageSelInProgress SET"
+			+ " gallery_timeToNextImageMSec=" +($("#gallery_timeToNextImageMSec").val() * 1000)
+			+ " WHERE HIS_ID=" +historyID;
+			
+	//slide show images
+	var sqlDelete = "DELETE FROM pageSelInProgress_images WHERE HIS_ID=" +historyID +";";
+	var sqlInsert = "";
+	var progr = 1;
+	$("#elencoItem li").each ( function()
+	{
+		var li = $(this);
+		if (li.css("display") != "none")
+		{
+			var filename = li.attr("data-filename");
+			if (sqlInsert != "")
+				sqlInsert+=",";
+			sqlInsert += "(" +historyID +"," +progr +",'" +filename +"')";
+			progr++;
+		}
+	});
+	if (sqlInsert != "")
+		sqlInsert = "INSERT INTO pageSelInProgress_images(HIS_ID,PROGR,filename) VALUES" +sqlInsert +";";
+		
+
+
+	var sql = sql1 +";" +sqlDelete;	
+	pleaseWait(1);
+
+console.log (sql);
+	await db.exec (sql);
+	if (sqlInsert != "")
+		await db.exec (sqlInsert);
+	
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+</script>
+</html>

@@ -1,0 +1,480 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">	
+	<style>
+		.container-middle { margin: auto; }
+		.container-middle .center-vertical { display: inline-block; vertical-align: middle; }
+		.sortable-list li 			{ width:100%; padding:5px; text-align:left; margin:0; padding:10px 0 10px 0;}
+		.sortable-list li img.slide	{ float:left; width:288px; margin:0 0 0 30px; }
+		.sortable-list li div.info { float:left; margin-left:30px; margin-bottom: 1em; }
+		.sortable-list li:nth-child(even) {background-color:#fff; }
+		
+		.selCustomBox { margin:0 0 20px 0; border:solid 1px #ccc; padding:5px;}
+		.selNumber { font-size:1.6em; background-color:#42a4da; color:#fff; border-radius:3px; width:50px; text-align:center;}
+		.selNumber p {margin:0; padding:0; font-size:0.5em; font-weight:normal; }
+		</style>
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Page General Menu Selections</h1>
+			<div id="tplPath">&nbsp;</div>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+			
+			<div id="divWarnings" style="margin:10px; display:none; background-color:#fcc; border:solid 2px #f00; padding:10px"></div>
+		</div>	
+
+
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<h2>General settings</h2>
+					<div class="box-content">
+						<div style="float:left">
+							Num. row <select class="combo" id="icon_numRow" onchange="updateRowColInfo()"><option value="1">1</option><option value="2">2</option></select>,&nbsp;
+							num. cols <select class="combo" id="icon_numIconPerRow" onchange="updateRowColInfo()"><option value="1">1</option><option value="2">2</option></option></select>
+						</div>
+						
+						<div style="float:left; margin-left:80px">
+							Time to go back to standby page <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="gotoPageStandbyAfterMSec"> sec
+						</div>
+						<div class="clear"></div>
+						
+						
+						<div class="checkboxFive" data-input-id="cbClickMenuEnabled"></div>Enable "page general menu" option
+						
+					</div>
+				</div>
+			
+				<div class="box">
+					<h2>
+						<div style="float:left">Main Menu (MENU)</div>
+						<div style="float:right"><a href="javascript:showHideElem('divHelp1')"><img src="img/icon_help24.png" alt="help"></a></div>
+						<div class="clear"></div>
+					</h2>	
+					<div class="box-content" style="position:relative">
+						<div>
+							<ul id="elencoItem" class="sortable-list"></ul>
+							<div style="margin:10px 0 20px 30px;">
+								<a href="javascript:pageMainMenu_edit(-1)" class="button" style="width:auto">
+									<div style='float:left;font-size:3.0em'>+</div>
+									<div style="float:left;margin-left:10px; line-height:3.2em">add new MENU</div>
+									<div class="clear"></div>
+								</a>
+							</div>
+						</div>
+						
+						<div id="divHelp1" style="display:none; position:absolute; top:0; left:45%; width:60%; padding:10px; background-color:rgba(0,0,0,0.9);">
+							<span class="tip">
+								<h2>How to</h2>
+								<ul>
+									<li>Drag icons on the left to reorder the list (remember to click save when finished)</li>
+									<li>Click on the <img src='img/icon_edit24.png' style='background-color:#fff; padding:2px; width:15px'> icon to edit a single MENUGEN</li>
+									<li>Click on the <img src='img/icon_delete24.png' style='background-color:#fff; padding:2px; width:15px'> icon to delete a MENUGEN</li>
+									<li>Click on the <b>+ button</b> to add more MENU (see bottom of the icon list)</li>
+								</ul>
+								
+								
+								<br>
+								<h2>Default selection</h2>
+									Default selection is composed of 3 charaters, something like this <b>YNM</b>.<br>
+									The first char refers to <b>Option A</b>, the second refers to <b>Option B</b>, the third refers to <b>Cup size</b>.<br>
+									<b>Option A</b> can be:<ul>
+										<li><b>x</b> if the selection does not provide the option</li>
+										<li><b>Y</b> if the option is activated.
+										<li><b>N</b> if the option is not activated.</li>
+									</ul>
+									
+									<b>Option B</b> works the same way as option A.<br>
+									<b>Cup size</b> can be <b>S</b> for small size, <b>M</b> for medium size, <b>L</b> for large size.<br>
+									<br>
+									<b>Examples</b><ul>
+										<li><b>xxM</b> means, no option A, no option B, Medium cup</li>
+										<li><b>NxS</b> means, option A is enabled and it's NO by default, no option B, small cup</li>
+										<li><b>NYL</b> means, option A is enabled and it's NO by default, option B is enabled and it's YES by default, large cup</li>
+									</ul>
+									
+							</span>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="footer">
+			Rhea-Config v0.1 beta 2019-09-30
+		</div>	
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var progressivoNuoveImmagini = 1000;
+var db = null;
+var urlParams;
+var divWarnings_count = 0;
+
+var menuNumberAlreadyInUse = [];
+function addToAlreadyUsedSelectionNumber(iSel1, optional_sel2, optional_sel3, optional_sel4)
+{
+	menuNumberAlreadyInUse[iSel1]++;
+	if (optional_sel2 !== undefined)	menuNumberAlreadyInUse[optional_sel2]++;
+	if (optional_sel3 !== undefined)	menuNumberAlreadyInUse[optional_sel3]++;
+	if (optional_sel4 !== undefined)	menuNumberAlreadyInUse[optional_sel4]++;
+}
+
+async function onRheaBootstrapFinished()
+{
+	for (var i=0; i<64; i++)
+		menuNumberAlreadyInUse[i]=0;
+		
+	urlParams = getUrlVars();
+	historyID = urlParams["his"];
+
+	setupCheckboxes();
+	$("#main-content-wait").show();
+	
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+	
+	let rst = await db.q("SELECT * FROM pagemenu_menugen_gen WHERE HIS_ID=" +historyID);
+	if (rst.hasError())
+	{
+		alert ("onRheaBootstrapFinished::error [" +rst.hasError() +"]");
+		return;
+	}
+
+	$("#icon_numRow").val (rst.valByColName(0, "icon_numRow"));
+	$("#icon_numIconPerRow").val (rst.valByColName(0, "icon_numIconPerRow"));
+	$("#gotoPageStandbyAfterMSec").val (Math.floor(rst.valByColName(0, "gotoPageStandbyAfterMSec") / 1000));
+	if (rst.valByColName(0, "oneClickSelection") == 1)
+		$("#cbOneClickSelection").prop('checked', true);
+	else
+		$("#cbOneClickSelection").prop('checked', false);
+	
+	if (rst.valByColName(0, "menu_enabled") == 1)
+		$("#cbClickMenuEnabled").prop('checked', true);
+	else
+		$("#cbClickMenuEnabled").prop('checked', false);	
+	
+	imageList_update();
+	pleaseWait(0);
+
+	getCurrentPath();
+}
+
+function getCurrentPath() {
+	if (!rheaGetElemByID('tplPath')) { return; }
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+	} else {
+		rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+	}
+}
+
+function image_getHTML_miniTableSelectionWithZeroOption (cupName, selNum)
+{
+	var cupSize="S";
+	if (cupName.substr(0,5).toUpperCase() == "LARGE") cupSize="L";
+	else if (cupName.substr(0,6).toUpperCase() == "MEDIUM") cupSize="M";
+	
+	var imgOption_NN ="<img src='img/xx" +cupSize +".jpg'>";
+	
+	addToAlreadyUsedSelectionNumber (selNum);
+	var html = 	 "<table border='0' cellspacing='0' cellpadding='2'>"
+				+"	<tr valign='middle'>"
+				+"		<td width='70px'>" +cupName +"</td>"
+				+"		<td>" +imgOption_NN +"</td><td width='60px'><div class='selNumber'><p>Selection</p>" +selNum +"</div></td>"
+				+"	</tr></table>";				
+	return html;
+}
+
+function image_getHTML_tableSelectionInfo0Option (allowedCupSize, linkedSel)
+{
+	var html = "";
+//	if (allowedCupSize.substr(0,1)=="1")
+//		html += "<div class='selCustomBox'>" +image_getHTML_miniTableSelectionWithZeroOption ("Small cup", linkedSel[0]) +"</div>";
+		
+//	if (allowedCupSize.substr(1,1)=="1")
+//		html += "<div class='selCustomBox'>" +image_getHTML_miniTableSelectionWithZeroOption ("Medium cup", linkedSel[4]) +"</div>";
+
+//	if (allowedCupSize.substr(2,1)=="1")
+//		html += "<div class='selCustomBox'>" +image_getHTML_miniTableSelectionWithZeroOption ("Large cup", linkedSel[8]) +"</div>";
+	
+	html+="<div class='clear'></div>";
+	return html;
+}
+
+function imageList_getHTML_li (rst, rowNum)
+{
+	var UID = rst.valByColName(rowNum, "UID");
+	var progressivo = rst.valByColName(rowNum, "PROGR");
+	var id = "imageList_" +progressivo;
+	var pageMenuGenImg = rst.valByColName(rowNum, "pageMenuGenImg");
+	var name = rst.valByColName(rowNum, "name");
+	var numMenu = rst.valByColName(rowNum, "menuGenNum");
+	var secondName = rst.valByColName(rowNum, "secondName");
+	var menuGenNum = rst.valByColName(rowNum, "menuGenNum");
+	var keyboardMenu = rst.valByColName(rowNum, "keyboardMenu");
+    var com_keyboardMenu= "";
+
+	if (keyboardMenu==0) {com_keyboardMenu="No"}
+	else {com_keyboardMenu="yes"}
+	var infoSelection = "";
+	var info = "<b>Menu Nr.:</b> "+numMenu+"<br>"+"<b>Name:</b> " +name +"<br>"+"<b>Descr.:</b> "+secondName+"<br>"+"<br>"+"<b>Keyboard:</b> "+com_keyboardMenu;
+	
+	var isHidden = rst.hasColName("HIDDEN_MENU")? parseInt( rst.valByColName(rowNum, "HIDDEN_MENU")) : 0;
+
+	var checkboxHS = '<div>' +
+						'<label for="hide_menu_' + progressivo + '"><b>Hide menu:</b></label>' +
+					  	'<input type="checkbox" id="hide_menu_' + progressivo + '" name="hide_menu_' + progressivo + '" ' + (isHidden? 'checked ' : '') + 'style="vertical-align: middle; margin-left: .5em; cursor: pointer;">' +
+					 '</div>';
+
+	info += checkboxHS;
+
+	var positionInfo = getIconGridPosition( progressivo, rst.getNumRows() );
+
+	return "<li id='" +id +"' data-itemuid='" +UID +"' data-itemprogr='" +progressivo +"' data-filename='" +pageMenuGenImg +"' style='display:inline-block; position:relative'>"
+			+"<div style='margin-bottom: 1em; margin-top: -5px; color: #666666;'>"
+					+ getRowColInfo( 'rowColInfo_' + progressivo, positionInfo )
+			+"</div>"	
+			+"<div style='position:relative'>"
+					+"<img class='slide shadow' src='../upload/" +pageMenuGenImg +"'>"
+					+"<div class='info'>" +info +"</div>"
+					+"<div class='info' style='float:right'>" +infoSelection +"</div>"
+					+"<div style='position:absolute; top:0; left:0; z-index:40;'>"
+					+"	<a href='javascript:pageMainMenu_edit(" +UID +")'><img src='img/icon_edit24.png' alt='edit' title='edit'></a><br><br>"
+					+"	<a href='javascript:imageList_delete(" +progressivo +")'><img src='img/icon_delete24.png' alt='delete' title='delete'></a>"					
+					+"</div>"
+				+"</div>"
+
+			+"</li>";
+}
+
+function getIconGridPosition(position, numItems) {
+	let rowNum = parseInt( document.getElementById( 'icon_numRow' ).value );
+	let colNum = parseInt( document.getElementById( 'icon_numIconPerRow' ).value );
+
+	let iconRowPosition = Math.floor( parseInt(( position / colNum )) );
+	let iconColPosition = parseInt( (position-1) % colNum ) + 1;
+
+	let pages = numItems > (rowNum * colNum)? 2 : 1;
+	let page  = position > (rowNum * colNum)? 2 : 1;
+	
+	if( position % colNum ) {
+		iconRowPosition++;
+	}
+
+	if( iconRowPosition > rowNum ) {
+		iconRowPosition = 1;
+	}
+
+	return { row: iconRowPosition, col: iconColPosition, pag: page, pagOf: pages };
+}
+
+function getRowColInfo(id, positionInfo) {
+	return "<div class='rowColInfo container-middle' id='" + id +"'>"
+				// +"<img src='img/icon_info24.png' class='center-vertical'>"
+				+"<div class='center-vertical'>" +
+					"<b>Row: </b>" + positionInfo.row + 
+					", <b>Column: </b>" + positionInfo.col +
+					", <b>Page: </b>" + positionInfo.pag + "/" + positionInfo.pagOf +
+				"</div>"
+			+"</div>";
+}
+
+function updateRowColInfo() {
+	let rows = document.querySelector( '#elencoItem' ).childNodes.length;
+
+	document.querySelector( '#elencoItem' ).childNodes.forEach( (li, index) => {
+		var currentChildPosition = getIconGridPosition( index + 1, rows );
+
+		// Keeps the previous id
+		var rowColInfoId = li.querySelector( '.rowColInfo' ).id;
+		var html = getRowColInfo(rowColInfoId, currentChildPosition);
+
+		li.querySelector( '.rowColInfo' ).innerHTML = html;
+	});
+}
+
+async function imageList_update()
+{
+	let rst = await db.q("SELECT * FROM pagemenu_menugen WHERE HIS_ID=" +historyID +" ORDER BY PROGR");
+	if (rst.hasError())
+	{
+		alert ("imageList_update::error [" +rst.hasError() +"]");
+		return;
+	}
+	
+	await db.dbConsistency( rst, 'pagemenu_menugen', 'HIDDEN_MENU', 'INTEGER(1)', 0 );
+
+	var lastUID = 0;
+	var html = "";
+	for (var r=0; r<rst.getNumRows(); r++)
+	{
+		html += imageList_getHTML_li(rst, r);
+		lastUID = rst.valByColName(r, "UID");
+	}
+	$("#elencoItem").html (html);
+	$("#elencoItem").sortable({
+		update: (event, ui) => { updateRowColInfo(); }
+	});
+	$("#elencoItem").disableSelection();	
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+	
+	
+	if (urlParams["scrollTo"] != undefined)
+	{
+		var gotoUID = urlParams["scrollTo"];
+		if (gotoUID=="-1")
+			gotoUID = lastUID;
+		$("#elencoItem li").each ( function() 
+		{
+			var li = $(this);
+			if (li.attr("data-itemuid") == gotoUID)
+			{
+				document.getElementById(li.attr("id")).scrollIntoView();
+				return;
+			}
+		});
+
+	}
+	
+	//visualizzo un warning se risulta che una selezione è utilizzata in più di una MMI
+	var warn = "";
+	for (var i=1; i<menuNumberAlreadyInUse.length; i++)
+	{
+		if (menuNumberAlreadyInUse[i] > 1)
+			warn += "Menu number <b>" +i +"</b> is used " +menuNumberAlreadyInUse[i] +" times.<br>";
+	}
+	
+	if (warn != "")
+	{
+		var d = rheaGetElemByID("divWarnings");
+		rheaSetElemHTML(d, "<b>WANINGS</b><br>" +warn);
+		rheaShowElem(d);
+		
+		setInterval( function() {
+			var d = rheaGetElemByID("divWarnings");
+			if (divWarnings_count == 0)
+			{
+				divWarnings_count = 1;
+				rheaSetElemBackgroundColor (d, "#ffeeee");
+			}
+			else
+			{			
+				divWarnings_count = 0;
+				rheaSetElemBackgroundColor (d, "#ffdddd");
+			}
+		
+		}, 600);
+	}
+}
+
+function imageList_delete(progressivo)
+{
+	if (!confirm ("Do you really want to remove the selected MGEN?"))
+		return;
+	var id = "#imageList_" +progressivo;
+	$(id).hide();
+}
+
+async function saveAll()
+{
+	pleaseWait(1);
+
+	var oneClickSelection = 0;
+	if ($("#cbOneClickSelection").prop('checked'))
+		oneClickSelection = 1;
+		
+	var clickMenuEnabled = 0;
+	if ($("#cbClickMenuEnabled").prop('checked'))
+		clickMenuEnabled = 1;		
+
+	//*** general setting
+	var sql = "UPDATE pagemenu_menugen_gen SET"
+			+ " icon_numRow=" +$("#icon_numRow").val()
+			+ ",icon_numIconPerRow=" +$("#icon_numIconPerRow").val()
+			+ ",gotoPageStandbyAfterMSec=" +(1000 * $("#gotoPageStandbyAfterMSec").val())
+			+ ",oneClickSelection=" +oneClickSelection
+			+ ",menu_enabled=" +clickMenuEnabled
+			+ " WHERE HIS_ID=" +historyID +";";
+			
+	await db.exec (sql);
+	
+	//MMI order
+	sql = "";
+	var progr = 1;
+	$("#elencoItem li").each ( function()
+	{
+		var li = $(this);
+		var uid = li.attr("data-itemuid");
+		if (li.css("display") != "none")
+		{
+			var hidden = li[0].querySelector( '#hide_menu_' + li[0].dataset.itemprogr ).checked? 1 : 0;
+
+			sql += "UPDATE pagemenu_menugen SET PROGR=" + progr + ", HIDDEN_MENU=" + hidden + " WHERE UID=" +uid +";";
+			progr++;
+		}
+		else
+		{
+			sql += "DELETE FROM pagemenu_menugen WHERE UID=" +uid +";";
+			sql += "DELETE FROM lang WHERE What='" +uid +"' AND (UID='MGE_NAME' OR UID='MGE_DESCR');";
+		}
+	});
+	if (sql != "")
+	{
+		console.log (sql);
+		await db.exec (sql);
+	}
+	
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+
+
+function pageMainMenu_edit (UID)
+{
+	window.location = "pageMainMenu_edit.html?his=" +historyID +"&uid=" +UID;
+}
+</script>
+</html>
