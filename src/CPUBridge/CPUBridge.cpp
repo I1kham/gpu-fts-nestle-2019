@@ -618,7 +618,10 @@ u8 cpubridge::buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichPa
 			paramValue=200;
 		break;
 
-
+	case eSelectionParam::FoamType:
+		if (paramValue > 7) 
+			paramValue=7;
+		break;
 	}
 
 	u8 payload[4];
