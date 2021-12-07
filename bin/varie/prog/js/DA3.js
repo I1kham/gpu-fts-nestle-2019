@@ -76,7 +76,8 @@ DA3.prototype.isMachine_MultibonaEspresso = function()				{ return (this.machine
 DA3.prototype.isMachine_MultibonaInstant  = function()				{ return (this.machineModel==88); }
 DA3.prototype.isMachine_MinibonaEspresso = function()				{ return (this.machineModel==87); }
 DA3.prototype.isMachine_MinibonaInstant  = function()				{ return (this.machineModel==89); }
-DA3.prototype.isMachine_Brewmatic4Macine  = function()				{ return (this.machineModel==91); }
+DA3.prototype.isMachine_Brewmatic4Macine = function()				{ return (this.machineModel==91); }
+DA3.prototype.hasAnyInstant = function() 							{ if(this.isMachine_Brewmatic4Macine()) return 0; return 1; }
 DA3.prototype.getTipoGruppoCaffe = function ()						{ return this.tipoGruppoCaffe; }
 DA3.prototype.isGruppoMicro = function ()							{ if (this.getTipoGruppoCaffe() == 'M') return 1; return 0;}
 DA3.prototype.isGruppoVariflex = function ()						{ if (this.getTipoGruppoCaffe() == 'V') return 1; return 0;}

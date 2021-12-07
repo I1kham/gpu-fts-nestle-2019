@@ -117,6 +117,13 @@ function onGUIInfoLoaded()
 			rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
 	}
 	
+	//disabilito varie voci "instant" se la macchina non ha funzionalità solubili
+	if (!da3.hasAnyInstant())
+	{
+		rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnInstantCalib"), "UIdisabled");
+		rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnProdQty"), "UIdisabled");
+	}
+	
 	//da ora in poi, il currentTask.onTimer() viene chiamata una volta al secondo
 	setInterval (function() { timeNowMSec+=1000; currentTask.onTimer(timeNowMSec); }, 1000)
 	

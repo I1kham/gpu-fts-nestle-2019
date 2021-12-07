@@ -198,12 +198,12 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="选项" data-onclick="pageSelections_show()"></div></td>
 						<td width="33%" align="center"><div id="pageMainMenu_btnEspressoCalib" class="UIButton bigButton3x4 UIdisabled" data-caption="浓缩咖啡校准" data-onclick="pageExpCalib_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="速溶饮品<br>校准" data-onclick="pageCalibration_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnInstantCalib" class="UIButton bigButton3x4" data-caption="速溶饮品<br>校准" data-onclick="pageCalibration_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="温度" data-onclick="pageTemperature_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="支付<br>系统" data-onclick="pagePayment_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="饮品<br>数量" data-onclick="pageProductQty_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnProdQty" class="UIButton bigButton3x4" data-caption="饮品<br>数量" data-onclick="pageProductQty_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="设备" data-onclick="pageDevices_show()"></div></td>						
@@ -2121,9 +2121,10 @@ function pageCleaning_show()
 	if (showPage("pageCleaning", "清洗/<br>冲洗", 1 ,1))
 	{
 		//è la prima volta che visualizziamo la pagina
+		var w = ui.getWindowByID("pageCleaning");
+		
 		if (da3.isInstant())
 		{
-			var w = ui.getWindowByID("pageCleaning");
 			w.getChildByID("pageCleaning_btnCleanHC").hide();
 			w.getChildByID("pageCleaning_btnCleanGrinder").hide();
 			w.getChildByID("pageCleaning_btnDescaling").hide();
@@ -2133,6 +2134,15 @@ function pageCleaning_show()
 			//macchine espresso
 			if (!da3.isGruppoVariflex())
 				w.getChildByID("pageCleaning_btnDescaling").hide();
+				
+			if (da3.isMachine_Brewmatic4Macine())
+			{
+				w.getChildByID("pageCleaning_btnDescaling").hide();
+				w.getChildByID("pageCleaning_btnClean1").hide();
+				w.getChildByID("pageCleaning_btnClean2").hide();
+				w.getChildByID("pageCleaning_btnClean3").hide();
+				w.getChildByID("pageCleaning_btnClean4").hide();
+			}
 		}
 	}
 }
@@ -2961,7 +2971,14 @@ function pageSingleSelection_build()
 	if (da3.isInstant())
 		s = "0|常规选项|2|饮品|3|水|4|MIXERS";
 	else
-		s = "0|常规选项|1|ESPRESSO|2|饮品|3|水|4|MIXERS";
+	{
+		//Nelle macchine senza solubili, elimino i menu prodotti e mixer
+		if (da3.hasAnyInstant())
+			s = "0|常规选项|1|ESPRESSO|2|饮品|3|水|4|MIXERS";
+		else
+			s = "0|常规选项|1|ESPRESSO|3|水";
+			
+	}
 	rheaSetDivHTMLByName("pageSingleSelection_selectorAtTop", "<div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div>");
 	
 	
@@ -3084,7 +3101,7 @@ function pageSingleSelection_build()
 	
 		var rowID = "pageSingleSelection_W_" +i;
 		var timeID = "pageSingleSelection_W_t" +i;
-		htmlW +="<tr id='" +rowID +"'>"
+		var tempHtmlW ="<tr id='" +rowID +"'>"
 				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; 测试 &nbsp;' data-onclick='pageSingleSelection_test(" +(i+21) +")'></div></td>"
 				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>";
@@ -3094,18 +3111,27 @@ function pageSingleSelection_build()
 		switch (WATER_COLONNA_FLOW_TYPE)
 		{
 		default:
-			htmlW +="<td></td>"; 
+			tempHtmlW +="<td></td>"; 
 			break;
 		case 1:
-			htmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|低|1|中|2|高' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+			tempHtmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|低|1|中|2|高' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
 			break;
 		case 2:
-				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-min='75' data-max='98' data-um='&deg;C'></div></td></tr>";
-				da3LocEVTemperature++;
-				break;
+			tempHtmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-min='75' data-max='98' data-um='&deg;C'></div></td></tr>";
+			da3LocEVTemperature++;
+			break;
 		}
-		htmlW += "</tr>";
+		tempHtmlW += "</tr>";
 		da3LocWater+= 3;	
+		
+		//nelle macchine Brewmatic, solo acqua 3
+		if (da3.isMachine_Brewmatic4Macine())
+		{
+			if (i == 2)
+				htmlW += tempHtmlW;
+		}
+		else
+			htmlW += tempHtmlW;
 
 
 		rowID = "pageSingleSelection_M_" +i;
@@ -3130,8 +3156,11 @@ function pageSingleSelection_build()
 
 function pageSingleSelection_hideIfDosageIsZero (win, dosageID, rowID)
 {
+	var e = rheaGetElemByID(rowID);
+	if (e === undefined)
+		return;
 	if (parseInt(win.getChildByID(dosageID).getValue()) == 0)
-		rheaHideElem(rheaGetElemByID(rowID));
+		rheaHideElem(e);
 }
 
 function pageSingleSelection_onProgramming()
@@ -3168,7 +3197,9 @@ function pageSingleSelection_showPartialFull (win, bPartial)
 		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
 		{
 			var rowID = "pageSingleSelection_W_" +i;
-			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+			var e = rheaGetElemByID(rowID);
+			if (e != undefined)
+				rheaSetDisplayMode(e, "table-row");
 			
 			rowID = "pageSingleSelection_M_" +i;
 			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
