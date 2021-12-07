@@ -2907,18 +2907,10 @@ function pageSingleSelection_show(iSel)
 
 function pageSingleSelection_onChangeGrinder()
 {
-	var win = ui.getWindowByID("pageSingleSelection");
-
-	var macina = 11;
 	if (da3.isEspresso())
 	{
-		//macina2 esiste solo se gruppo==variflex
-		if (da3.isGruppoVariflex())
-		{
-			if (parseInt(win.getChildByID("pageSingleSelection_cofGrnderChoice").getSelectedOptionValue()) > 0)
-				macina = 12	;
-		}
-
+		var win = ui.getWindowByID("pageSingleSelection");
+		var macina = 11 + parseInt(win.getChildByID("pageSingleSelection_cofGrnderChoice").getSelectedOptionValue());
 		if (da3.isMotorCalibrated(macina)) 
 			um = "gr"; 
 		else
@@ -4384,10 +4376,10 @@ function pageExpCalib_resetMacinaCalib()
 	var motor = 10 + currentTask.macina1o2;
 	rhea.ajax ("setFattoreCalib", { "m":motor, "v":0}).then( function(result)
 	{
-		rheaSetDivHTMLByName("pageExpCalib_grSec", "0&nbsp;gr/sec");
+		rheaSetDivHTMLByName("pageExpCalib_grSec", "0");
 		da3.setCalibFactorGSec(motor, 0);
 		da3.setImpulsi(motor,0);
-		rheaSetDivHTMLByName("pageExpCalib_imp", "0.00 imp/gr");
+		rheaSetDivHTMLByName("pageExpCalib_imp", "0.00");
 		
 		setTimeout ( function() { save (function() { pleaseWait_hide();}); }, 1000);
 	})
@@ -4416,15 +4408,21 @@ function pageExpCalib_onFinish ()
 
 function pageExpCalib_refreshCalibValueOnScreen()
 {
-	//macina 1
+	//macina num
 	var motor = 10 + currentTask.macina1o2;
 	
 	var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(motor) );
-	rheaSetDivHTMLByName("pageExpCalib_grSec", v +"&nbsp;gr/sec");
+	if (v == 0)
+		rheaSetDivHTMLByName("pageExpCalib_grSec", "0");
+	else
+		rheaSetDivHTMLByName("pageExpCalib_grSec", v +"&nbsp;gr/sec");
 	
 	v = helper_decodeImpulsi(da3.getImpulsi(motor));
-	rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");
-	
+	if (v == 0)
+		rheaSetDivHTMLByName("pageExpCalib_imp", "0");
+	else
+		rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");
+		
 	if (da3.isVarigrindAutoRegolationEnabled(currentTask.macina1o2))
 		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "Automatische regeling voor Varigrind is INGESCHAKELD");
 	else
@@ -4448,4 +4446,5 @@ function pageExpCalib_onChangeGrinder()
 }
 </script>
 </html>
+
 
