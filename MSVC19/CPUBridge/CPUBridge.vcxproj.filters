@@ -18,6 +18,8 @@
     <ClCompile Include="..\..\src\CPUBridge\EVADTSParser.cpp">
       <Filter>varie</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\CPUBridge\rhFSProtocol.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\RSProto.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
@@ -42,6 +44,9 @@
     <ClInclude Include="..\..\src\CPUBridge\EVADTSParser.h">
       <Filter>varie</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\CPUBridge\rhFSProtocol.h" />
+    <ClInclude Include="..\..\src\CPUBridge\rhFSProtocolEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\CPUBridge\RSProto.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="channel">

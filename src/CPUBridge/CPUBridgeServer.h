@@ -6,6 +6,8 @@
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../rheaCommonLib/rheaFastArray.h"
+#include "rhFSProtocol.h"
+#include "RSProto.h"
 
 namespace cpubridge
 {
@@ -21,8 +23,12 @@ namespace cpubridge
 		void					run ();
 		void                    close ();
 
+
+		void					scheduleAggiornamentoDA3FromFile (const u8 *fullFilePathAndName);
+
 	private:
-		static const u16		CPUFW_BLOCK_SIZE = 400;
+		static const u16		CPUFW_BLOCK_SIZE	= 400;
+		static const u16		RSPROTO_TCP_PORT	= 2283;
 
 	private:
         struct sStato
@@ -156,6 +162,16 @@ namespace cpubridge
 			u8		jugRepetitions[48];
 		};
 
+		struct sIdentifiedTCPClient
+		{
+			HSokServerClient			hClient;
+			u32							customValueOnIdentify;
+			rhFSx::proto::eApplicationType	appType;
+			u8							verMajor;
+			u8							verMinor;
+			u8							verBuild;
+		};
+
 	private:
 		void					priv_resetInternalState(cpubridge::eVMCState s);
 		bool					priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec);
@@ -223,12 +239,19 @@ namespace cpubridge
 
 		bool					priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
 		sSubscription*			priv_newSubscription();
+		
+		void					priv_handleEventFromSocket (HSokServerClient hClient);
+		bool					priv_onMessageIdentifyRcv (HSokServerClient hClient, const rhFSx::proto::sDecodedMsg &ask);
+		void					priv_onTCPClientDisconnected (HSokServerClient hClient);
 
 	private:
 		rhea::Allocator         *localAllocator;
 		rhea::ISimpleLogger     *logger;
 		CPUChannel				*chToCPU;
-		OSWaitableGrp			waitList;
+		rhea::ProtocolSocketServer    *server;
+		rhea::LinearBuffer		bufferTCPRead;
+
+		//OSWaitableGrp			waitList;
 		rhea::NullLogger        nullLogger;
 		HThreadMsgR             hServiceChR;
         sStato					stato;
@@ -253,6 +276,7 @@ namespace cpubridge
 		u16						quickMenuPinCode;
 
 		u8						jugRepetitions[NUM_MAX_SELECTIONS];
+		RSProto					*rsProto;
     };
 
 } // namespace cpubridge

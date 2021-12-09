@@ -8,6 +8,7 @@
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaLogTargetConsole.h"
 #include "EVADTSParser.h"
+#include "rhFSProtocol.h"
 
 using namespace cpubridge;
 
@@ -17,6 +18,8 @@ Server::Server()
 {
 	localAllocator = NULL;
 	chToCPU = NULL;
+	server = NULL;
+	rsProto = NULL;
 	logger = &nullLogger;
 
 	memset(utf16_CPUMasterVersionString, 0, sizeof(utf16_CPUMasterVersionString));
@@ -50,15 +53,33 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	hServiceChR = hServiceChR_IN;
 	logger->log ("CPUBridgeServer::open\n");
 	logger->incIndent();
+
+	localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
+
+	//apro la socket TCP
+    server = RHEANEW(localAllocator, rhea::ProtocolSocketServer)(8, localAllocator);
+    server->useLogger(logger);
+	logger->log("opening TCP socket...");
+    eSocketError err = server->start (RSPROTO_TCP_PORT);
+    if (err != eSocketError::none)
+    {
+        logger->log("FAIL\n");
+        logger->decIndent();
+        RHEADELETE(localAllocator, server);
+		server = NULL;
+        return false;
+    }
+    logger->log("OK\n");
+
 	
 	//recupero l'OSEvent della msgQ e lo aggiunto alla mia wait-list	
 	OSEvent	hMsgQEvent;
 	rhea::thread::getMsgQEvent (hServiceChR, &hMsgQEvent);
-	waitList.addEvent(hMsgQEvent, u32MAX);
+	//waitList.addEvent (hMsgQEvent, u32MAX);
+	server->addOSEventToWaitList (hMsgQEvent, u32MAX);
 
-	localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
 	subscriberList.setup(localAllocator, 8);
-
+	
 	//apro il canale di comunicazione con la CPU fisica
 	bool ret = chToCPU->isOpen();
 	if (ret)	
@@ -71,6 +92,9 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	lang_init(&language);
 	lang_open(&language, "GB");
 
+
+    //linear buffer per la ricezione di msg dai client
+    bufferTCPRead.setup (localAllocator, 128);
 	return ret;
 }
 
@@ -82,10 +106,17 @@ void Server::close()
 	if (NULL == localAllocator)
 		return;
 
+	if (NULL != rsProto)
+	{
+		RHEADELETE(localAllocator, rsProto);
+		rsProto = NULL;
+	}
+
 	//rimuove l'OSEvent della msgQ dalla mia wait-list	
 	OSEvent	hMsgQEvent;
 	rhea::thread::getMsgQEvent(hServiceChR, &hMsgQEvent);
-	waitList.removeEvent(hMsgQEvent);
+	//waitList.removeEvent(hMsgQEvent);
+	server->removeOSEventFromWaitList(hMsgQEvent);
 
 	//notifica i subscriber
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
@@ -96,6 +127,10 @@ void Server::close()
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
 		priv_deleteSubscriber(subscriberList.getElem(i), false);
 	subscriberList.unsetup();
+
+    server->close();
+    RHEADELETE(localAllocator, server);
+	bufferTCPRead.unsetup();
 
 	RHEADELETE (rhea::getSysHeapAllocator(), localAllocator);
 }
@@ -170,7 +205,8 @@ void Server::run()
 //***************************************************
 void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsriberList)
 {
-	waitList.removeEvent(sub->hEvent);
+	//waitList.removeEvent(sub->hEvent);
+	server->removeOSEventFromWaitList (sub->hEvent);
 	rhea::thread::deleteMsgQ(sub->q.hFromMeToSubscriberR, sub->q.hFromMeToSubscriberW);
 	rhea::thread::deleteMsgQ(sub->q.hFromSubscriberToMeR, sub->q.hFromSubscriberToMeW);
 	if (bAlsoRemoveFromSubsriberList)
@@ -184,39 +220,210 @@ void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsr
 bool Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 {
 	//vediamo se ho dei messaggi in coda
-	const u8 nEvent = waitList.wait (timeOutMSec);
+	//const u8 nEvent = waitList.wait (timeOutMSec);
+	const u8 nEvent = server->wait (timeOutMSec);
 
 	for (u8 i = 0; i < nEvent; i++)
 	{
-		switch (waitList.getEventOrigin(i))
+		//switch (waitList.getEventOrigin(i))
+		switch (server->getEventType(i))
 		{
 		default:
 			DBGBREAK;
 			break;
 
-		case OSWaitableGrp::eEventOrigin::osevent:
-			if (waitList.getEventUserParamAsU32(i) == 0x0001)
+		//case OSWaitableGrp::eEventOrigin::osevent:
+		case rhea::ProtocolSocketServer::eEventType::osevent_fired:
+			//siamo nel caso di eventi generati da una delle msgQ thread safe
+			
+			//if (waitList.getEventUserParamAsU32(i) == 0x0001)
+			if (server->getEventSrcUserParam(i) == 0x0001)
 			{
 				//evento generato dalla msgQ di uno dei miei subscriber
 				for (u32 i2 = 0; i2 < subscriberList.getNElem(); i2++)
 				{
-					if (rhea::event::compare(subscriberList(i2)->hEvent, waitList.getEventSrcAsOSEvent(i)))
+					//if (rhea::event::compare(subscriberList(i2)->hEvent, waitList.getEventSrcAsOSEvent(i)))
+					if (rhea::event::compare(subscriberList(i2)->hEvent, *server->getEventSrcAsOSEvent(i)))
 					{
 						priv_handleMsgFromSingleSubscriber(subscriberList.getElem(i2));
 						break;
 					}
 				}
 			}
-			else if (waitList.getEventUserParamAsU32(i) == u32MAX)
+			//else if (waitList.getEventUserParamAsU32(i) == u32MAX)
+			else if (server->getEventSrcUserParam(i) == u32MAX)
 			{
 				//evento generato dalla msg Q di servizio
 				priv_handleMsgFromServiceMsgQ();
 			}
 			break;
+
+		case rhea::ProtocolSocketServer::eEventType::new_client_connected:
+			//siamo nel caso in cui qulcuno si è connesso via socket
+			break;
+
+		case rhea::ProtocolSocketServer::eEventType::client_has_data_avail:
+			//siamo nel caso di eventi generati da una socket di un client connesso
+			{
+				HSokServerClient hClient = server->getEventSrcAsClientHandle(i);
+				priv_handleEventFromSocket (hClient);
+			}
+			break;
+
 		}
 	}
 
 	return (nEvent > 0);
+}
+
+/***************************************************
+ * Uno dei client ha inviato il msg di identificazione, che è obbligatorio in quanto 
+ * io altrimenti rifiuto tutti i suoi futuri messaggio e chiudo la connessione.
+ * Decodifico il messaggio e verifico se è il caso di accettare la sua richiesta
+ */
+bool Server::priv_onMessageIdentifyRcv (HSokServerClient hClient, const rhFSx::proto::sDecodedMsg &ask)
+{
+	if (ask.payloadLen < 7)
+	{
+		logger->log ("Refused, invalid payload len\n");
+		server->client_sendClose (hClient);
+		return false;
+	}
+
+	sIdentifiedTCPClient cl;
+	cl.hClient = hClient;
+	cl.appType = static_cast<rhFSx::proto::eApplicationType>(rhea::utils::bufferReadU32 (ask.payload));
+	cl.verMajor = ask.payload[4];
+	cl.verMinor = ask.payload[5];
+	cl.verBuild = ask.payload[6];
+	cl.customValueOnIdentify = 0;
+
+	if (ask.payloadLen >= 11)
+		cl.customValueOnIdentify = rhea::utils::bufferReadU32 (&ask.payload[7]);
+
+
+	//verifichiamo che l'appType sia valido
+	bool bAccepted = false;
+	switch (cl.appType)
+	{
+	default:
+		logger->log ("Refused, invalid applicationTypeUID [0x%08X]\n", cl.appType);
+		break;
+
+	case rhFSx::proto::eApplicationType::RSPROTO:
+		//eventuale verifica della versione, per accetazione o rifiuto
+		//...
+		if (NULL == rsProto)
+		{
+			rsProto = RHEANEW(localAllocator, RSProto)(server, hClient);
+			bAccepted = true;
+		}
+		break;
+	}
+
+	if (!bAccepted)
+	{
+		logger->log ("App actively refused, app type = 0x%08X, ver %d.%d.%d, custom=0x%08X\n", cl.appType, cl.verMajor, cl.verMinor, cl.verBuild, cl.customValueOnIdentify);
+		server->client_sendClose (hClient);
+		return false;
+	}
+
+	logger->log ("Accepted, app type = 0x%08X, ver %d.%d.%d, custom=0x%08X\n", cl.appType, cl.verMajor, cl.verMinor, cl.verBuild, cl.customValueOnIdentify);
+
+	//rispondo
+	u8 bufferW[8];
+	u16 nByteToSend = rhFSx::proto::encodeMsg (static_cast<u8>(rhFSx::proto::eAsk::allApp_identifyAnsw), ask.userValue, NULL, 0, bufferW, sizeof(bufferW));
+	const u32 nWritten = server->client_writeBuffer (hClient, bufferW, nByteToSend);
+	if (u32MAX == nWritten)
+	{
+		priv_onTCPClientDisconnected (hClient);
+		return false;
+	}
+
+	rsProto->onSMUStateChanged (cpuStatus, logger);
+	return true;
+}
+
+//***************************************************
+void Server::priv_onTCPClientDisconnected (HSokServerClient hClient)
+{
+	if (NULL == rsProto)
+		return;
+	if (!rsProto->isItMe(hClient))
+		return;
+
+	//rimuovo il client dalla lista dei client identificati
+	logger->log ("Server::priv_onTCPClientDisconnected()");
+	logger->incIndent();
+	RHEADELETE(localAllocator, rsProto);
+	rsProto = NULL;
+	logger->decIndent();
+}
+
+
+//***************************************************
+void Server::priv_handleEventFromSocket (HSokServerClient hClient)
+{
+	while (1)
+	{
+		i32 nBytesLetti = server->client_read (hClient, bufferTCPRead);
+		if (nBytesLetti == -1)
+		{
+			logger->log("connection [0x%08X] closed\n", hClient.asU32());
+			priv_onTCPClientDisconnected(hClient);
+			return;
+		}
+
+		if (nBytesLetti < 1)
+		{
+			//logger->log("connection [0x%08X] not enought data [%d bytes]\n", h.asU32(), nBytesLetti);
+			return;
+		}
+
+		//decodifico il messaggio
+		rhFSx::proto::sDecodedMsg ask;
+		if (!rhFSx::proto::decodeMsg (bufferTCPRead._getPointer(0), nBytesLetti, &ask))
+		{
+			//non dovrebbe mai succedere perchè se arrivo qui vuol dire che ho ricevuto un messaggio completo 
+			DBGBREAK;
+			logger->log("Server::priv_handleEventFromSocket() => connection [0x%08X] not enought data [%d]\n", hClient.asU32(), nBytesLetti);
+			return;
+		}
+
+		switch (static_cast<rhFSx::proto::eAsk>(ask.what))
+		{
+		default:
+			DBGBREAK;
+			logger->log("Server::priv_handleEventFromSocket() => invalid msg.what [0x%02X]\n", ask.what);
+			break;
+
+		case rhFSx::proto::eAsk::allApp_ping:
+			{
+				u8 bufferW[8];
+				const u16 nByteToSend = rhFSx::proto::encodeMsg (static_cast<u8>(rhFSx::proto::eAsk::allApp_pong), ask.userValue, NULL, 0, bufferW, sizeof(bufferW));
+				const u32 nWritten = server->client_writeBuffer (hClient, bufferW, nByteToSend);
+				if (u32MAX == nWritten)
+					priv_onTCPClientDisconnected (hClient);
+			}
+			break;
+
+		case rhFSx::proto::eAsk::allApp_identify:
+			{
+				logger->log ("incoming IDENTIFY msg...\n");
+				logger->incIndent();
+				priv_onMessageIdentifyRcv (hClient, ask);
+				logger->decIndent();
+			}
+			break;
+
+		case rhFSx::proto::eAsk::rsproto_service_cmd:
+		case rhFSx::proto::eAsk::rsproto_variabile:
+		case rhFSx::proto::eAsk::rsproto_file:
+			if (NULL != rsProto)
+				rsProto->onMessageRCV (this, ask.what, ask.userValue, ask.payload, ask.payloadLen, logger);
+			break;
+		}
+	}
 }
 
 //***************************************************
@@ -230,9 +437,19 @@ Server::sSubscription* Server::priv_newSubscription()
 
 	//aggiungo la msqQ alla mia waitList
 	rhea::thread::getMsgQEvent(sub->q.hFromSubscriberToMeR, &sub->hEvent);
-	waitList.addEvent(sub->hEvent, 0x0001);
+	//waitList.addEvent (sub->hEvent, 0x0001);
+	server->addOSEventToWaitList (sub->hEvent, 0x0001);
 
 	return sub;
+}
+
+//***************************************************
+void Server::scheduleAggiornamentoDA3FromFile (const u8 *fullFilePathAndName)
+{
+	//mi auto mando un msg lungo la msgQ fingendo di essere uno dei miei subsriber
+	if (subscriberList.getNElem() == 0)
+		return;
+	cpubridge::ask_WRITE_VMCDATAFILE (subscriberList(0)->q, 0x0001, fullFilePathAndName);
 }
 
 //***************************************************
@@ -2915,6 +3132,30 @@ void Server::priv_handleState_normal()
 
 		//ci sono messaggi in ingresso?
 		priv_handleMsgQueues (timeNowMSec, TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec);
+
+
+		//se ho il modulo di telemetria SECO collegato...
+		if (NULL != rsProto)
+		{
+			if (timeNowMSec >= rsProto->nextTimeSendTemperature_msec)
+			{
+				rsProto->nextTimeSendTemperature_msec = timeNowMSec + 5000;
+
+				u8 bufferW[32];
+				u16 nBytesToSend = cpubridge::buildMsg_getVoltAndTemp (bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+				{
+					//rcv: # P [len] 0x17 [temp_camera] [temp_bollitore] [temp_cappuccinatore] [voltage LSB MSB] [Kilowatt hour LSB MSB][ck]
+					const u8 temperatureCamCaffe = answerBuffer[4];
+					const u8 temperatureEsp = answerBuffer[5];
+					const u8 temperatureSol = answerBuffer[5];
+					const u8 temperatureMilker = answerBuffer[6];
+					const u8 temperatureIce = 0;
+					rsProto->sendTemperature (temperatureEsp, temperatureCamCaffe, temperatureSol, temperatureIce, temperatureMilker, logger);
+				}
+			}
+		}
 	}
 }
 
@@ -3454,15 +3695,16 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
             showCPUStringModelAndVersionUntil_msec = 0;
     }
 
-
-
-
 	//se richiesto, notifico tutti del nuovo messaggio LCD di CPU
 	if (bDoNotifyNewLCDMessage)
 	{
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
 			notify_CPU_NEW_LCD_MESSAGE (subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
 	}
+
+
+	if (NULL != rsProto)
+		rsProto->onSMUStateChanged (cpuStatus, logger);
 }
 
 //***************************************************
