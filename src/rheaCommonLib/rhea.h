@@ -92,7 +92,15 @@ namespace rhea
 
 		u64					filesize(const u8* const utf8_srcFullFileNameAndPath);
 		u64					filesize(FILE *fp);
-		bool				fileCopy(const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath);
+
+        bool				fileCopy(const u8* const utf8_srcFullFileNameAndPath, const u8* const utf8_dstFullFileNameAndPath);
+                                //copia il file [utf8_srcFullFileNameAndPath] in [utf8_dstFullFileNameAndPath]
+                                //Sia [utf8_srcFullFileNameAndPath] che [utf8_dstFullFileNameAndPath] indicano path completi, inclusivi anche del filename
+
+        bool				fileCopyAndKeepSameName (const u8 *utf8_srcFullFileNameAndPath, const u8 *utf8_dstPathNOFilename);
+                                //come fileCopy, solo che [utf8_dstPathNOFilename] è un semplice path. Il nome del file viene ricavato automaticamente
+                                //da [utf8_srcFullFileNameAndPath]
+
 		void				fileCopyInChunkWithPreallocatedBuffer (FILE *fSRC, u32 numBytesToCopy, FILE *fDST, void *buffer, u32 BUFFER_SIZE);
 		u8*					fileCopyInMemory(const u8* const srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 		u8*					fileCopyInMemory(FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
@@ -119,6 +127,13 @@ namespace rhea
 		inline void			findGetCreationTime(const OSFileFind &h, rhea::DateTime *out)											{ platform::FS_findGetCreationTime(h, out); }
 		inline void			findGetLastTimeModified(const OSFileFind &h, rhea::DateTime *out)										{ platform::FS_findGetLastTimeModified(h, out); }
 		inline void			findClose(OSFileFind &h)																				{ platform::FS_findClose(h); }
+
+        bool				findFirstFileInFolderWithJolly (const u8 *utf8_path, const u8 *utf8_jolly, bool bReturnFullPathAndName, u8 *out_filename, u32 sizeOfOutFilename);
+                                //cerca nel folder [utf8_path] il primo file che soddisfa [utf8_jolly].
+                                //Ritorna true se lo trova:
+                                //	riempe [out_filename] con il nome del file trovato comprensivo di path se [bReturnFullPathAndName]==true, oppure
+                                //	riempe [out_filename] con il nome del file trovato SENZA path se [bReturnFullPathAndName]==false
+                                //Ritorna false altrimenti
 	} //namespace fs
 
 	/************************************************************************************************************

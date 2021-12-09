@@ -70,4 +70,4 @@ private:
 	u8							lastTemperature[5];
 };
 
-#endif _RSProto_h_
+#endif //_RSProto_h_

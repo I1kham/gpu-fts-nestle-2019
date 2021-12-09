@@ -50,7 +50,7 @@ void RSProto::onSMUStateChanged (const cpubridge::sCPUStatus &status, rhea::ISim
 }
 
 //******************************************* 
-void RSProto::priv_sendLastSMUState (rhea::ISimpleLogger *logger)
+void RSProto::priv_sendLastSMUState (rhea::ISimpleLogger *logger  UNUSED_PARAM)
 {
 	u8 payload[16];
 	u32 ct = 0;
@@ -71,7 +71,7 @@ void RSProto::priv_sendLastSMUState (rhea::ISimpleLogger *logger)
 }
 
 //******************************************* 
-void RSProto::sendTemperature (u8 temperatureEsp, u8 temperatureCamCaffe, u8 temperatureSol, u8 temperatureIce, u8 temperatureMilker, rhea::ISimpleLogger *logger)
+void RSProto::sendTemperature (u8 temperatureEsp, u8 temperatureCamCaffe, u8 temperatureSol, u8 temperatureIce, u8 temperatureMilker, rhea::ISimpleLogger *logger UNUSED_PARAM)
 {
 #define NEED_TO_BE_SENT(newTempValue, oldTempValue, tolleranza)		(newTempValue >= (oldTempValue + tolleranza) || newTempValue <= (oldTempValue - tolleranza))
 	
@@ -266,7 +266,7 @@ void RSProto::priv_RSProtoSentMeAFile (cpubridge::Server *server, u32 fileID, co
 }
 
 //******************************************* 
-void RSProto::priv_RSProtoWantsAFile (cpubridge::Server *server, u32 fileID, u16 userValue, rhea::ISimpleLogger *logger)
+void RSProto::priv_RSProtoWantsAFile (cpubridge::Server *server UNUSED_PARAM, u32 fileID, u16 userValue, rhea::ISimpleLogger *logger)
 {
 	//RSProto vuole che io gli mandi il file [fileID]
 	logger->log ("RSProto wants file [0x%04X]\n", fileID);

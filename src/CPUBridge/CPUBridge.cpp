@@ -176,7 +176,7 @@ u8 cpubridge::buildMsg_checkStatus_B (u8 keyPressed, u8 langErrorCode, bool forc
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, bool bForceJUG, u8 *out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_startSelectionWithPaymentAlreadyHandledByGPU_V (u8 selNum, u16 prezzo, ePaymentMode paymentMode, eGPUPaymentType paymentType, bool bForceJUG UNUSED_PARAM, u8 *out_buffer, u8 sizeOfOutBuffer)
 {
 	u8 optionalData[8];
 	u8 ct = 0;
@@ -555,13 +555,10 @@ u8 cpubridge::buildMsg_activateCPUBuzzer (u8 numRepeat, u8 beepLen_dSec, u8 paus
 }
 
 //***************************************************
-u8 cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8* out_buffer, u8 sizeOfOutBuffer)
+u8 cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1toN, u8* out_buffer, u8 sizeOfOutBuffer)
 {
-	if (grinder1_o_2 != 0x01)
-		grinder1_o_2 = 0x02;
-
 	u8 payload[2];
-	payload[0] = grinder1_o_2;
+    payload[0] = grinder1toN;
 	return buildMsg_Programming(eCPUProgrammingCommand::notify_end_of_grinder_cleaning_proc, payload, 1, out_buffer, sizeOfOutBuffer);
 }
 
@@ -2410,17 +2407,17 @@ void cpubridge::translate_CPU_VALIDATE_QUICK_MENU_PINCODE (const rhea::thread::s
 
 
 //***************************************************
-void cpubridge::ask_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber &from, u16 handlerID, u8 grinder1_o_2)
+void cpubridge::ask_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber &from, u16 handlerID, u8 grinder1toN)
 {
 	u8 otherData[2];
-	otherData[0] = grinder1_o_2;
+    otherData[0] = grinder1toN;
 	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC, handlerID, otherData, 1);
 }
-void cpubridge::translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread::sMsg &msg, u8 *out_grinder1_o_2)
+void cpubridge::translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread::sMsg &msg, u8 *out_grinder1toN)
 {
 	assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC);
 	const u8 *p = (const u8*)msg.buffer;
-	*out_grinder1_o_2 = p[0];
+    *out_grinder1toN = p[0];
 }
 
 //***************************************************

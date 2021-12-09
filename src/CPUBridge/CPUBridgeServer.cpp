@@ -547,8 +547,6 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION:
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG:
 		{
-			bool bForceJug = false;
-
 			sStartSelectionParams params;
 			params.how = eStartSelectionMode_default;
 			params.asDefault.selNum = 0;
@@ -1606,11 +1604,11 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC:
 			{
-				u8 grinder1_o_2;
-				translate_END_OF_GRINDER_CLEANING_PROCEDURE (msg, &grinder1_o_2);
+                u8 grinder1toN;
+                translate_END_OF_GRINDER_CLEANING_PROCEDURE (msg, &grinder1toN);
 
 				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (grinder1_o_2, bufferW, sizeof(bufferW));
+                const u16 nBytesToSend = cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (grinder1toN, bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 				priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
 				notify_END_OF_GRINDER_CLEANING_PROCEDURE (sub->q, handlerID, logger);

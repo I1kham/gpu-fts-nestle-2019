@@ -73,6 +73,7 @@ struct sGlobal
     u8      *last_installed_cpu;
     u8      *last_installed_manual;
     u8      *last_installed_gui;
+    u8      *localAutoUpdateFolder;
 
     u8      *usbFolder;                    //path di base verso il folder rhea su chiavetta USB (NULL se la chiavetta USB non esiste)
     u8      *usbFolder_VMCSettings;        //folder su chiavetta USB per i da3

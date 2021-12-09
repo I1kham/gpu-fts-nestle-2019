@@ -40,7 +40,7 @@ void CmdHandler_ajaxReq_P0x25_caffeCortesia::passDownRequestToCPUBridge (cpubrid
 }
 
 //***********************************************************
-void CmdHandler_ajaxReq_P0x25_caffeCortesia::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge)
+void CmdHandler_ajaxReq_P0x25_caffeCortesia::onCPUBridgeNotification (socketbridge::Server *server, HSokServerClient &hClient, const rhea::thread::sMsg &msgFromCPUBridge UNUSED_PARAM)
 {
 	char resp[8];
 	sprintf_s(resp, sizeof(resp), "OK");

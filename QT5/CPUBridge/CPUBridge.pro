@@ -81,7 +81,9 @@ SOURCES += \
     ../../src/CPUBridge/CPUChannelFakeCPU.cpp \
     ../../src/CPUBridge/DA3.cpp \
     ../../src/CPUBridge/EVADTSParser.cpp \
-    ../../src/CPUBridge/lang.cpp
+    ../../src/CPUBridge/lang.cpp \
+    ../../src/CPUBridge/rhFSProtocol.cpp \
+    ../../src/CPUBridge/RSProto.cpp
 
 
 HEADERS += \
@@ -94,7 +96,10 @@ HEADERS += \
     ../../src/CPUBridge/CPUChannelFakeCPU.h \
     ../../src/CPUBridge/DA3.h \
     ../../src/CPUBridge/EVADTSParser.h \
-    ../../src/CPUBridge/lang.h
+    ../../src/CPUBridge/lang.h \
+    ../../src/CPUBridge/rhFSProtocol.h \
+    ../../src/CPUBridge/rhFSProtocolEnumAndDefine.h \
+    ../../src/CPUBridge/RSProto.h
 
 
 unix {

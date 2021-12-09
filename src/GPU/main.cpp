@@ -176,6 +176,9 @@ void setupFolderInformation (sGlobal *glob)
     glob->last_installed_gui = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
+    sprintf_s ((char*)s, sizeof(s), "%s/autoUpdate", baseLocalFolder);
+    glob->localAutoUpdateFolder = rhea::string::utf8::allocStr(allocator, s);
+    rhea::fs::folderCreate(s);
 
 
 
@@ -235,6 +238,7 @@ void unsetupFolderInformation (sGlobal *glob)
     RHEAFREE(allocator, glob->last_installed_cpu);
     RHEAFREE(allocator, glob->last_installed_manual);
     RHEAFREE(allocator, glob->last_installed_gui);
+    RHEAFREE(allocator, glob->localAutoUpdateFolder);
     RHEAFREE(allocator, glob->usbFolder);
     RHEAFREE(allocator, glob->usbFolder_VMCSettings);
     RHEAFREE(allocator, glob->usbFolder_CPUFW);
