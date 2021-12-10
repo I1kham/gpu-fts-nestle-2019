@@ -199,18 +199,11 @@ void RSProto::onMessageRCV (cpubridge::Server *server, u16 what, u16 userValue, 
 }
 
 //******************************************* 
-bool RSProto::priv_copyFileInTempFolder (const u8 *fullSrcFilePathAndName, const char *fileExt, u8 *out_fullFilePathAndName, u32 sizeof_outFullFilePathAndName) const
+bool RSProto::priv_copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName) const
 {
 	u8 s[512];
-	rhea::fs::extractFileNameWithoutExt (fullSrcFilePathAndName, s, sizeof(s));
-	if (s[0] == 0x00)
-	{
-		DBGBREAK;
-		return false;
-	}
-
-	rhea::string::utf8::spf (out_fullFilePathAndName, sizeof_outFullFilePathAndName, "%s/temp/%s%s", rhea::getPhysicalPathToAppFolder(), s, fileExt);
-	return rhea::fs::fileCopy (fullSrcFilePathAndName, out_fullFilePathAndName);
+    rhea::string::utf8::spf (s, sizeof(s), "%s/autoUpdate", rhea::getPhysicalPathToAppFolder());
+    return rhea::fs::fileCopyAndKeepSameName (fullSrcFilePathAndName, s);
 }
 
 
@@ -221,7 +214,6 @@ void RSProto::priv_RSProtoSentMeAFile (cpubridge::Server *server, u32 fileID, co
 	logger->log ("RSProto sent me a file [id:0x%04X] [path:%s]\n", fileID, fileFullPath);
 	logger->incIndent();
 
-	u8 s[512];
 	switch (fileID)
 	{
 	default:
@@ -236,26 +228,26 @@ void RSProto::priv_RSProtoSentMeAFile (cpubridge::Server *server, u32 fileID, co
 	case FILE_MACHINE_CONFIG:
 		//Mi è arrivato un file di configurazione macchina, lo metto nella cartella dell'auto aggiornamento e schedulo un reboot
 		logger->log ("it's a FILE_MACHINE_CONFIG, copying in autoupdate folder and scheduling a reboot ASAP\n");
-		if (priv_copyFileInTempFolder (fileFullPath, ".da3", s, sizeof(s)))
-			server->scheduleAggiornamentoDA3FromFile(s);
+        if (priv_copyFileInAutoupdateFolder (fileFullPath))
+            server->scheduleAction_relaxedReboot();
 		break;
 
 	case FILE_SMU:
 		logger->log ("it's a FILE_SMU, copying in autoupdate folder and scheduling a reboot ASAP\n");
-		//priv_copyFileInTempFolder (fileFullPath, ".rheasmu");
-		//server->scheduleAction_rebootASAP();
-		break;
+        if (priv_copyFileInAutoupdateFolder (fileFullPath))
+            server->scheduleAction_relaxedReboot();
+        break;
 
 	case FILE_CPU:
 		logger->log ("it's a FILE_CPU, copying in autoupdate folder and scheduling a reboot ASAP\n");
-		//priv_copyFileInTempFolder (fileFullPath, ".mhx");
-		//server->scheduleAction_rebootASAP();
+        if (priv_copyFileInAutoupdateFolder (fileFullPath))
+            server->scheduleAction_relaxedReboot();
 		break;
 
 	case FILE_GUI:
 		logger->log ("it's a FILE_GUI, copying in autoupdate folder and scheduling a reboot ASAP\n");
-		//priv_copyFileInTempFolder (fileFullPath,".rheagui");
-		//server->scheduleAction_rebootASAP();
+        //if (priv_copyFileInAutoupdateFolder (fileFullPath))
+        //	server->scheduleAction_relaxedReboot();
 		break;
 	}
 
@@ -293,7 +285,7 @@ void RSProto::priv_RSProtoWantsAFile (cpubridge::Server *server UNUSED_PARAM, u3
 		answer = eAnswerToFileRequest::wait;
 
 		//il file lo devo prima ottenere da CPU, quindi schedulo un'azione e per il momento non rispondo nulla a RSProto
-//		server->scheduleAction_downloadEVADTSAndAnswerToRSProto();
+        server->scheduleAction_downloadEVADTSAndAnswerToRSProto();
 		break;
 
 	case FILE_MACHINE_CONFIG:

@@ -219,6 +219,10 @@ void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsr
  */
 bool Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 {
+    //se ho delle azioni da schedulare...
+    actionScheduler.run (this);
+
+
 	//vediamo se ho dei messaggi in coda
 	//const u8 nEvent = waitList.wait (timeOutMSec);
 	const u8 nEvent = server->wait (timeOutMSec);
@@ -444,13 +448,71 @@ Server::sSubscription* Server::priv_newSubscription()
 }
 
 //***************************************************
-void Server::scheduleAggiornamentoDA3FromFile (const u8 *fullFilePathAndName)
+void Server::scheduleAction_rebootASAP()
 {
-	//mi auto mando un msg lungo la msgQ fingendo di essere uno dei miei subsriber
-	if (subscriberList.getNElem() == 0)
-		return;
-	cpubridge::ask_WRITE_VMCDATAFILE (subscriberList(0)->q, 0x0001, fullFilePathAndName);
+    actionScheduler.scheduleReboot (5000, 10000);
 }
+
+/***************************************************
+* Attende un minimo di [n] minuti dopodiche inizia a provare a fare un rebootASAP
+* Se durante la fase di attesa viene schedulato un nuovo relaxedReboot, allora il timer dell'attesa riparte da zero
+*/
+void Server::scheduleAction_relaxedReboot()
+{
+    //const u32 RELAXED_PERIOD_MSec = 5 * 60 * 1000;	//5 minuti
+    const u32 RELAXED_PERIOD_MSec = 15 * 1000;	//15 secondi
+    actionScheduler.scheduleReboot (RELAXED_PERIOD_MSec, 10000);
+}
+
+//***************************************************
+eActionResult Server::priv_runAction_rebootASAP()
+{
+    //gli unici stati validi per un reboot ASAP sono lo stato di idle oppure uno stato di errore
+    //Se siamo in uno degli altri stati, allora vuol dire che in questo momento GPU/CPU stanno facendo qualcosa e non
+    //è il caso di fare il reboot
+    if (stato.get() == sStato::eStato::normal || stato.get() == sStato::eStato::CPUNotSupported || stato.get() == sStato::eStato::comError)
+    {
+        system("reboot");
+        return eActionResult::finished;
+    }
+
+    return eActionResult::needToBeRescheduled;
+}
+
+//***************************************************
+void Server::scheduleAction_downloadEVADTSAndAnswerToRSProto()
+{
+    if (!actionScheduler.exists (ActionScheduler::eAction::downloadEVADTSandAnswerToRSProto))
+        actionScheduler.scheduleAction (ActionScheduler::eAction::downloadEVADTSandAnswerToRSProto, 0, 10000);
+}
+eActionResult Server::priv_runAction_downloadEVADTSAndAnswerToRSProto()
+{
+    //se non c'è il modulo RSProto collegato, non dovrei nemmeno arrivare qui. In ogni caso, abortisco l'operazione
+    if (NULL == rsProto)
+        return eActionResult::finished;
+
+    //se non ci sono le condizioni per iniziare il download, termino (quest'action verrà rischedulata automaticamente)
+    if (!priv_downloadDataAudit_canStartADownload())
+        return eActionResult::needToBeRescheduled;
+
+    //avvio la procedura di download da CPU. In caso di successo, il file scaricato si trova in
+    // temp/dataAudit[fileID].txt
+    u16 fileID;
+    if (eReadDataFileStatus::finishedOK == priv_downloadDataAudit (NULL, u16MAX, &fileID))
+    {
+        //a termine dell'operazione, devo comunico a RSProto il nome del file in modo che lui a sua volta possa inviarlo al cloud
+        u8 fullFilePathAndName[512];
+        rhea::string::utf8::spf (fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/dataAudit%d.txt", rhea::getPhysicalPathToAppFolder(), fileID);
+        rsProto->sendFileAnswer (RSProto::FILE_EVA_DTS, 0, fullFilePathAndName);
+        return eActionResult::finished;
+    }
+    else
+    {
+        //mi faccio rischedulare e ci riprovo fra un po'
+        return eActionResult::needToBeRescheduled;
+    }
+}
+
 
 //***************************************************
 void Server::priv_handleMsgFromServiceMsgQ()
@@ -754,7 +816,7 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
-			if (stato.get() == sStato::eStato::normal)
+            if (priv_downloadDataAudit_canStartADownload())
 				priv_downloadDataAudit(&sub->q, handlerID);
 			else
 				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
@@ -2316,8 +2378,10 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
  * [%d] è un progressivo che viene comunicato alla fine del download nel messaggio di conferma.
  * Periodicamente notifica emettendo un messaggio notify_READ_DATA_AUDIT_PROGRESS() che contiene lo stato di avanzamento
  * del download
+ *
+ * [out_fileID] è opzionale. Se != NULL, allora il fileID che viene comunicato a fine download viene anche riportato in questa var
  */
-eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID)
+eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, u16 *out_fileID)
 {
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
 	u8 fullFilePathAndName[256];
@@ -2329,6 +2393,9 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 			break;
 		fileID++;
 	}
+
+    if (NULL != out_fileID)
+        *out_fileID= fileID;
 
 
 #ifdef _DEBUG

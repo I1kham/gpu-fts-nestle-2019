@@ -479,6 +479,12 @@ namespace cpubridge
 		indux = 2
 	};
 
+    enum class eActionResult : u8
+    {
+        needToBeRescheduled = 0,
+        finished = 1
+    };
+
 	struct sSubscriber
 	{
 		HThreadMsgR	hFromMeToSubscriberR;

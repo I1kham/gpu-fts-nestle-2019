@@ -8,9 +8,14 @@
 #include "../rheaCommonLib/rheaFastArray.h"
 #include "rhFSProtocol.h"
 #include "RSProto.h"
+#include "CPUBridgeActionScheduler.h"
 
 namespace cpubridge
 {
+    /**************************************************************************
+     * Server
+     *
+     */
 	class Server
 	{
 	public:
@@ -24,7 +29,9 @@ namespace cpubridge
 		void                    close ();
 
 
-		void					scheduleAggiornamentoDA3FromFile (const u8 *fullFilePathAndName);
+        void                    scheduleAction_rebootASAP();
+        void					scheduleAction_relaxedReboot();
+        void					scheduleAction_downloadEVADTSAndAnswerToRSProto();
 
 	private:
 		static const u16		CPUFW_BLOCK_SIZE	= 400;
@@ -224,7 +231,8 @@ namespace cpubridge
 		void					priv_updateLocalDA3(const u8 *blockOf64Bytes, u8 blockNum) const;
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend, bool bForceJug);
-        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
+        bool                    priv_downloadDataAudit_canStartADownload() const                                                                    { return stato.get() == sStato::eStato::normal; }
+        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID, u16 *out_fileID = NULL);
 		void					priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID);
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
@@ -243,6 +251,9 @@ namespace cpubridge
 		void					priv_handleEventFromSocket (HSokServerClient hClient);
 		bool					priv_onMessageIdentifyRcv (HSokServerClient hClient, const rhFSx::proto::sDecodedMsg &ask);
 		void					priv_onTCPClientDisconnected (HSokServerClient hClient);
+
+        eActionResult           priv_runAction_rebootASAP();
+        eActionResult           priv_runAction_downloadEVADTSAndAnswerToRSProto();
 
 	private:
 		rhea::Allocator         *localAllocator;
@@ -277,6 +288,9 @@ namespace cpubridge
 
 		u8						jugRepetitions[NUM_MAX_SELECTIONS];
 		RSProto					*rsProto;
+        ActionScheduler         actionScheduler;
+
+        friend class ActionScheduler;
     };
 
 } // namespace cpubridge

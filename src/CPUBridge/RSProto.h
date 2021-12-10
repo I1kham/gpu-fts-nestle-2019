@@ -61,7 +61,7 @@ private:
 	void		priv_sendLastSMUState (rhea::ISimpleLogger *logger);
 	void		priv_RSProtoSentMeAFile (cpubridge::Server *server, u32 fileID, const u8 *fileFullPath, rhea::ISimpleLogger *logger);
 	void		priv_RSProtoWantsAFile (cpubridge::Server *server, u32 fileID, u16 userValue, rhea::ISimpleLogger *logger);
-	bool		priv_copyFileInTempFolder (const u8 *fullSrcFilePathAndName, const char *fileExt, u8 *out_fullFilePathAndName, u32 sizeof_outFullFilePathAndName) const;
+    bool		priv_copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName) const;
 
 private:
 	rhea::ProtocolSocketServer	*serverTCP;
