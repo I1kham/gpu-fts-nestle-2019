@@ -502,7 +502,7 @@ eActionResult Server::priv_runAction_downloadEVADTSAndAnswerToRSProto()
     //avvio la procedura di download da CPU. In caso di successo, il file scaricato si trova in
     // temp/dataAudit[fileID].txt
     u16 fileID;
-    if (eReadDataFileStatus::finishedOK == priv_downloadDataAudit (NULL, u16MAX, &fileID))
+    if (eReadDataFileStatus::finishedOK == priv_downloadDataAudit (NULL, u16MAX, false, &fileID))
     {
         //a termine dell'operazione, devo comunico a RSProto il nome del file in modo che lui a sua volta possa inviarlo al cloud
         u8 fullFilePathAndName[512];

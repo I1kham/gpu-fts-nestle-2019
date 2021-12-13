@@ -246,7 +246,7 @@ namespace cpubridge
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend, bool bForceJug);
         bool                    priv_downloadDataAudit_canStartADownload() const                                                                    { return stato.get() == sStato::eStato::normal; }
-        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify, u16 *out_fileID = NULL);
+        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify, u16 *out_fileID);
 
 		void					priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID);
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
