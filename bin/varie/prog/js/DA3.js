@@ -212,8 +212,8 @@ DA3.prototype.getVarigrindLastPosDa3Loc = function (vgIndex1to4)
 		default:
 		case 1: return 7596;
 		case 2:	return 7660;
-		case 3: return 8348;
-		//case 4: return 0;
+		case 3: return 7692;
+		case 4: return 7724;
 	}
 }
 
