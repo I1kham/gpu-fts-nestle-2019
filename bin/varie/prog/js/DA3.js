@@ -214,7 +214,7 @@ DA3.prototype.setImpulsi = function (motor,v)
 
 DA3.prototype.getVarigrindLastPosDa3Loc = function (vgIndex1to4)
 {
-	switch (parseInt())
+	switch (parseInt(vgIndex1to4))
 	{
 		default:
 		case 1: return 7596;
