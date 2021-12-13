@@ -10,6 +10,9 @@
 //PIN "universale" code per il menu di programmazione
 #define		CPU_BYPASS_MENU_PROG_PIN_CODE       842
 
+#define		SOCKETBRIDGE_SUBSCRIBER_UID			0x07AB
+#define		ESAPI_SUBSCRIBER_UID				0x0104
+#define		GPU_SUBSCRIBER_UID                  0x2F06
 
 /**********************************************************************
  * Messaggi in/out sul canale di "servizio" di CPUBridge
@@ -52,17 +55,17 @@
 #define		CPUBRIDGE_NOTIFY_GET_DATE						0x011A
 #define		CPUBRIDGE_NOTIFY_SET_TIME						0x011B
 #define		CPUBRIDGE_NOTIFY_SET_DATE						0x011C
-#define		CPUBRIDGE_NOTITFY_POSIZIONE_MACINA				0x011D
-#define		CPUBRIDGE_NOTITFY_MOTORE_MACINA					0x011E
-#define		CPUBRIDGE_NOTITFY_TEST_SELECTION				0x011F
-#define		CPUBRIDGE_NOTITFY_NOMI_LINGUE_CPU				0x0120
-#define		CPUBRIDGE_NOTITFY_EVA_RESET_PARTIALDATA			0x0121
-#define		CPUBRIDGE_NOTITFY_GET_VOLT_AND_TEMP				0x0122
-#define		CPUBRIDGE_NOTITFY_GET_OFF_REPORT				0x0123
-#define		CPUBRIDGE_NOTITFY_GET_LAST_FLUX_INFORMATION		0x0124
-#define		CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER	0x0125
-#define		CPUBRIDGE_NOTITFY_CPU_START_MODEM_TEST			0x0126
-#define		CPUBRIDGE_NOTITFY_CPU_EVA_RESET_TOTALS			0x0127
+#define		CPUBRIDGE_NOTIFY_POSIZIONE_MACINA				0x011D
+#define		CPUBRIDGE_NOTIFY_MOTORE_MACINA					0x011E
+#define		CPUBRIDGE_NOTIFY_TEST_SELECTION					0x011F
+#define		CPUBRIDGE_NOTIFY_NOMI_LINGUE_CPU				0x0120
+#define		CPUBRIDGE_NOTIFY_EVA_RESET_PARTIALDATA			0x0121
+#define		CPUBRIDGE_NOTIFY_GET_VOLT_AND_TEMP				0x0122
+#define		CPUBRIDGE_NOTIFY_GET_OFF_REPORT					0x0123
+#define		CPUBRIDGE_NOTIFY_GET_LAST_FLUX_INFORMATION		0x0124
+#define		CPUBRIDGE_NOTIFY_GET_CPU_STRING_MODEL_AND_VER	0x0125
+#define		CPUBRIDGE_NOTIFY_CPU_START_MODEM_TEST			0x0126
+#define		CPUBRIDGE_NOTIFY_CPU_EVA_RESET_TOTALS			0x0127
 #define		CPUBRIDGE_NOTIFY_GET_TIME_LAVSAN_CAPPUCINATORE	0x0128
 #define		CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_GRUPPO	0x0129
 #define		CPUBRIDGE_NOTIFY_START_TEST_ASSORBIMENTO_MOTORIDUTTORE		0x012A
@@ -88,8 +91,12 @@
 #define		CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION		0x013E
 #define		CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC		0x013F
 #define		CPUBRIDGE_NOTIFY_MSG_FROM_LANGUAGE_TABLE			0x0140
-#define		CPUBRIDGE_NOTIFY_CUP_RESTART						0x013A
+#define		CPUBRIDGE_NOTIFY_CPU_RESTART						0x013A
 #define		CPUBRIDGE_NOTIFY_LOCK_STATUS						0x013B
+#define		CPUBRIDGE_NOTIFY_SELECTION_ENABLE					0x013C
+#define		CPUBRIDGE_NOTIFY_OVERWRITE_CPU_MESSAGE_ON_SCREEN	0x013D
+#define		CPUBRIDGE_NOTIFY_SET_SELECTION_PARAMU16				0x013E
+#define		CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16				0x013F
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -174,6 +181,10 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART									0x084B
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS						0x084C
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS						0x084D
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE								0x084E
+#define		CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN				0x084F
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16							0x0850
+#define		CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16							0x0851
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -361,6 +372,9 @@ namespace cpubridge
 		//
 		//
 		ask_msg_from_table_language = 0x31,
+		//
+		setSelectionParam			= 0x33,
+		getSelectionParam			= 0x34,
 		unknown = 0xff
     };
 
@@ -487,7 +501,20 @@ namespace cpubridge
 	enum class eLockStatus : u8
 	{
 		unlocked = 0,
-		locked = 1
+		locked = 1,
+		lockedButRheAPIIsWorking = 2,
+	};
+
+	enum class eSelectionParam : u8 
+	{
+		//ATTENZIONE: il valore di questi enum deve matchare i valori riportati nella descrizione del comando P 0x33 (set selection param)
+		EVFreshMilk					= 0x01,
+		EVFreshMilkDelay_dsec		= 0x02,
+		EVAirFreshMilk				= 0x03,
+		EVAirFreshMilkDelay_dsec	= 0x04,
+		CoffeeQty					= 0x05,
+		CoffeWaterQty				= 0x06,
+		FoamType					= 0x07
 	};
 
 	struct sSubscriber
@@ -496,6 +523,7 @@ namespace cpubridge
 		HThreadMsgW	hFromMeToSubscriberW;
 		HThreadMsgR	hFromSubscriberToMeR;
 		HThreadMsgW	hFromSubscriberToMeW;
+		u16			subscriberUID;
 	};
 
 

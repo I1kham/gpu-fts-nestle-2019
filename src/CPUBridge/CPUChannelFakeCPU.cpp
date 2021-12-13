@@ -412,6 +412,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = ' ';
 			out_answer[ct++] = ('0' + selNum);
 	
+			/*out_answer[ct++] = ('0' + (selNum / 100));
+			out_answer[ct++] = ('0' + ((selNum % 100) / 10));
+			out_answer[ct++] = ('0' + (selNum % 10)); */
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			*in_out_sizeOfAnswer = out_answer[2];
@@ -484,7 +487,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			u8 hour, minute, seconds;
 			rhea::Time24::getTimeNow(&hour, &minute, &seconds);
 
-
 			out_answer[ct++] = '#';
 			out_answer[ct++] = 'C';
 			out_answer[ct++] = 0; //lunghezza
@@ -524,7 +526,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
                     out_answer[ct++] = 0;
                 }
             }
-			
 
 			//Da qui in poi sono dati nuovi, introdotti a dicembre 2018
 			//115			versione protocollo.Inizialmente = 1, potrebbe cambiare in futuro
@@ -540,7 +541,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		break;
 
-
 	case eCPUCommand::getExtendedConfigInfo:
 		{
 			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::instant;	const u8 isInduzione = 0;
@@ -554,7 +554,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = machine_type;
 			
 			//modello macchina, induzione, tipo gruppo ('V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente)
-			out_answer[ct++] = 0x82;	out_answer[ct++] = isInduzione; out_answer[ct++] = 'V';		
+			out_answer[ct++] = 0x82;
+			out_answer[ct++] = isInduzione;
+			out_answer[ct++] = 'V';		
 			
 			//modello macchina = Minibona
 			//out_answer[ct++] = 0x56;	out_answer[ct++] = isInduzione;	out_answer[ct++] = 'M';
@@ -581,7 +583,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 		*in_out_sizeOfAnswer = out_answer[2];
 		return true;
-
 
 	case eCPUCommand::programming:
 		{
@@ -849,6 +850,38 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
+
+			case eCPUProgrammingCommand::getSelectionParam:
+				//rcv: # P [len] 0x34 [selNum] [paramID] [ck]
+				{
+					const u16 paramValue = bufferToSend[5] + 100; //rispondo con un valore fittizio
+
+					//snd: # P [len] 0x34 [selNum] [paramID] [value16 LSB-MSB] [ck]
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = (u8)bufferToSend[4];
+					out_answer[ct++] = (u8)bufferToSend[5];
+					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], paramValue);
+					ct+=2;
+					
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+					return true;
+				}
+				break;
+
+			case eCPUProgrammingCommand::setSelectionParam:
+				//rcv: # P [len] 0x33 [selNum] [paramID] [value16 LSB-MSB] [ck]
+				{
+					//fingo di aver fatto qualcosa e rispondo "tutto ok" riportando lo stesso identico msg che ho ricevuto
+					//snd: # P [len] 0x33 [selNum] [paramID] [value16 LSB-MSB] [ck]
+					*in_out_sizeOfAnswer = out_answer[2]; 
+					return true;
+				}
+				break;
 
 			//periodicamente la SMU fa delle query per conoscere lo stato del cleaning. La simulazione dell'avanzamento del processo di cleaning
 			//si trova dentro priv_advanceFakeCleaning()

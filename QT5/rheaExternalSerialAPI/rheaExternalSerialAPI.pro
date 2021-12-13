@@ -91,7 +91,8 @@ SOURCES += \
     ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.cpp \
     ../../src/rheaExternalSerialAPI/ESAPIProtocol.cpp \
     ../../src/rheaExternalSerialAPI/ESAPIShared.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.cpp
+    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIDataUpdate.cpp
 
 
 HEADERS += \
@@ -102,7 +103,10 @@ HEADERS += \
     ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.h \
     ../../src/rheaExternalSerialAPI/ESAPIProtocol.h \
     ../../src/rheaExternalSerialAPI/ESAPIShared.h \
-    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.h
+    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.h \
+
+
+    ../../src/rheaExternalSerialAPI/ESAPIDataUpdate.h
 
 
 

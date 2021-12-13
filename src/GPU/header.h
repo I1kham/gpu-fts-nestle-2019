@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.5.3rheAPI"
+#define GPU_VERSION     "2.5.1-Beta-rheAPIv1.3"
 
 
 //nome della porta seriale

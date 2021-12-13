@@ -89,7 +89,7 @@ bool Core::priv_subscribeToCPUBridge(const HThreadMsgW &hCPUServiceChannelW)
     rhea::thread::createMsgQ (&hTempMsgQR, &hTempMsgQW);
 
     //mando la richiesta
-    cpubridge::subscribe (hCPUServiceChannelW, hTempMsgQW);
+    cpubridge::subscribe (hCPUServiceChannelW, hTempMsgQW, ESAPI_SUBSCRIBER_UID);
 
     //attendo risposta
     bool bSubscribed = false;

@@ -78,7 +78,7 @@ void esapi::unsubscribe (const cpubridge::sSubscriber &sub)
 }
 
 //*********************************************************
-u32 esapi::buildAnswer (u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer)
+u32 esapi::buildAnswer(u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData, u8* out_buffer, u32 sizeOfOutBuffer)
 {
 	const u32 totalSizeOfMsg = 4 + numOfBytesInOptionalData;
 	if (sizeOfOutBuffer < totalSizeOfMsg)
@@ -87,18 +87,44 @@ u32 esapi::buildAnswer (u8 c1, u8 c2, const void* optionalData, u32 numOfBytesIn
 		return 0;
 	}
 
-    u32 ct = 0;
-    out_buffer[ct++] = '#';
-    out_buffer[ct++] = c1;
+	u32 ct = 0;
+	out_buffer[ct++] = '#';
+	out_buffer[ct++] = c1;
 	out_buffer[ct++] = c2;
-    if (NULL != optionalData && numOfBytesInOptionalData)
-    {
-        memcpy (&out_buffer[ct], optionalData, numOfBytesInOptionalData);
-        ct += numOfBytesInOptionalData;
-    }
+	if (NULL != optionalData && numOfBytesInOptionalData)
+	{
+		memcpy(&out_buffer[ct], optionalData, numOfBytesInOptionalData);
+		ct += numOfBytesInOptionalData;
+	}
 
-    out_buffer[ct] = rhea::utils::simpleChecksum8_calc (out_buffer, ct);
-    ct++;
+	out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
+	ct++;
+
+	return ct;
+}
+
+u32 esapi::buildAnswerWithCrc16(u8 c1, u8 c2, const void* optionalData, u32 numOfBytesInOptionalData, u8* out_buffer, u32 sizeOfOutBuffer)
+{
+	const u32 totalSizeOfMsg = 4 + numOfBytesInOptionalData;
+	if (sizeOfOutBuffer < totalSizeOfMsg)
+	{
+		DBGBREAK;
+		return 0;
+	}
+
+	u32 ct = 0;
+	out_buffer[ct++] = '#';
+	out_buffer[ct++] = c1;
+	out_buffer[ct++] = c2;
+	if (NULL != optionalData && numOfBytesInOptionalData)
+	{
+		memcpy(&out_buffer[ct], optionalData, numOfBytesInOptionalData);
+		ct += numOfBytesInOptionalData;
+	}
+
+	out_buffer[ct] = rhea::utils::simpleChecksum8_calc(out_buffer, ct);
+	rhea::utils::bufferWriteU16_LSB_MSB(&out_buffer[ct], rhea::utils::Crc16_calc(out_buffer, ct));
+	ct += 2;
 
 	return ct;
 }
