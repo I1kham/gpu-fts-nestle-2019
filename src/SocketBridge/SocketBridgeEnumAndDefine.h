@@ -12,7 +12,7 @@
 #define GUIBRIDGE_CONSOLE_EVENT_CLIENT_LIST         0x0305
 
 
-
+#define		SOCKETBRIDGE_SUBSCRIBER_UID			0x07AB
 
 namespace socketbridge
 {

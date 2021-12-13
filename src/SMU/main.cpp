@@ -14,8 +14,8 @@
     #define CPU_COMPORT     "/dev/ttymxc3"
     #define ESAPI_COMPORT   "/dev/ttymxc2"
 #else
-	#define CPU_COMPORT		"COM5"
-	#define ESAPI_COMPORT	"COM7"
+	#define CPU_COMPORT		"COM8"
+	#define ESAPI_COMPORT	"COM4"
 #endif
 
 

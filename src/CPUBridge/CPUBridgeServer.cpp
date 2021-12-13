@@ -12,7 +12,6 @@
 
 using namespace cpubridge;
 
-
 //***************************************************
 Server::Server()
 {
@@ -35,6 +34,10 @@ Server::Server()
 	memset (&priceHolding, 0, sizeof(priceHolding));
 	milkerType = eCPUMilkerType::none;
 	quickMenuPinCode = 0;
+	
+	memset (&screenMsgOverride, 0, sizeof(screenMsgOverride));
+
+	SelectionsEnableLoad();	// caricamento delle abilitazione delle selezioni
 }
 
 //***************************************************
@@ -431,12 +434,13 @@ void Server::priv_handleEventFromSocket (HSokServerClient hClient)
 }
 
 //***************************************************
-Server::sSubscription* Server::priv_newSubscription()
+Server::sSubscription* Server::priv_newSubscription (u16 subscriberUID)
 {
 	//creo le msgQ
 	sSubscription *sub = RHEAALLOCSTRUCT(localAllocator, sSubscription);
 	rhea::thread::createMsgQ (&sub->q.hFromMeToSubscriberR, &sub->q.hFromMeToSubscriberW);
 	rhea::thread::createMsgQ (&sub->q.hFromSubscriberToMeR, &sub->q.hFromSubscriberToMeW);
+	sub->q.subscriberUID = subscriberUID;
 	subscriberList.append (sub);
 
 	//aggiungo la msqQ alla mia waitList
@@ -528,8 +532,9 @@ void Server::priv_handleMsgFromServiceMsgQ()
 				logger->log("CPUBridgeServer => new SUBSCRIPTION_REQUEST\n");
 				logger->incIndent();
 
+				const u16 subscriberUID = rhea::utils::bufferReadU16 ((const u8*)msg.buffer);
 				//creo la subscription
-				sSubscription *sub = priv_newSubscription();
+				sSubscription *sub = priv_newSubscription(subscriberUID);
 
 				//rispondo al thread richiedente
 				HThreadMsgW hToThreadW;
@@ -555,6 +560,36 @@ bool Server::priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesTo
 	//invio msg a CPU
 	bool ret = chToCPU->sendAndWaitAnswer(bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
 	return ret;
+}
+
+//***************************************************
+bool Server::priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue)
+{
+	u8 bufferW[32];
+	const u16 nBytesToSend = cpubridge::buildMsg_setSelectionParam (selNum1ToN, whichParam, paramValue, bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+		return true;
+	return false;
+}
+
+//***************************************************
+bool Server::priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue)
+{
+	u8 bufferW[32];
+	const u16 nBytesToSend = cpubridge::buildMsg_getSelectionParam (selNum1ToN, whichParam, bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+	{
+		//rcv: # P [len] 0x34 [selNum] [paramID] [value16 LSB-MSB] [ck]
+		*out_paramValue = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[6]);
+		return true;
+	}
+	else
+	{
+		*out_paramValue = 0;
+		return false;
+	}
 }
 
 /***************************************************
@@ -816,11 +851,15 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_DATA_AUDIT:
-            if (priv_downloadDataAudit_canStartADownload())
-				priv_downloadDataAudit(&sub->q, handlerID);
-			else
-				//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
-				notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0);
+			{
+				bool bIncludeBufferDataInNotify = false;
+				translate_READ_DATA_AUDIT (msg, &bIncludeBufferDataInNotify);
+				if (priv_downloadDataAudit_canStartADownload())
+					priv_downloadDataAudit(&sub->q, handlerID, bIncludeBufferDataInNotify, NULL);
+				else
+					//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
+					notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0, NULL, 0);
+			}
 			break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_READ_VMCDATAFILE:
@@ -1690,12 +1729,205 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_MSG_FROM_LANGUAGE_TABLE:
+			{
+				u8 tableID;
+				u8 msgRowNum;
+				u8 language1or2;
+				translate_MSG_FROM_LANGUAGE_TABLE (msg, &tableID, &msgRowNum, &language1or2);
+
+				u8 bufferW[256];
+				const u16 nBytesToSend = cpubridge::buildMsg_askMessageFromLanguageTable (tableID, msgRowNum, language1or2, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000))
+				{
+					//rcv: # P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [isUnicode] [msg...] [ck]"
+					msgRowNum = answerBuffer[5];
+					const u8 isUnicode = answerBuffer[7];
+					const u8 msgLenInByte = answerBuffer[2] - 9;
+
+					memset (bufferW, 0, sizeof(bufferW));
+					if (isUnicode)
+					{
+						//CPU risponde con una stringa in formato utf16 LSB MSB
+						//La converto in utf16 MSB_LSB e poi in utf8
+						u16 strUTF16Message[256];
+						memset(strUTF16Message, 0, sizeof(strUTF16Message));
+
+						u8 ct = 8;
+						for (u8 i = 0; i < msgLenInByte/2; i++)
+						{
+							strUTF16Message[i] = (u16)answerBuffer[ct] + (u16)answerBuffer[ct + 1] * 256;
+							ct += 2;
+						}
+
+						
+						rhea::string::strUTF16toUTF8 (strUTF16Message, bufferW, sizeof(bufferW));
+					}
+					else
+					{
+						//CPU ha risposto con una stringa in ASCII
+						u16 strUTF16Message[256];
+						memset(strUTF16Message, 0, sizeof(strUTF16Message));
+                        answerBuffer[answerBuffer[2] - 1] = 0x00;
+						rhea::string::strANSItoUTF16 (reinterpret_cast<const char*>(&answerBuffer[8]), strUTF16Message, sizeof(strUTF16Message));
+
+						//memcpy (bufferW, &answerBuffer[8], msgLenInByte);
+						rhea::string::strUTF16toUTF8 (strUTF16Message, bufferW, sizeof(bufferW));
+					}
+
+					//Notifico il sub
+					notify_MSG_FROM_LANGUAGE_TABLE (sub->q, handlerID, logger, tableID, msgRowNum, bufferW);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_RESTART:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_restart_U (bufferW, sizeof(bufferW));
+				chToCPU->sendOnlyAndDoNotWait(bufferW, nBytesToSend, logger);
+				notify_CPU_RESTART (sub->q, handlerID, logger);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MACHINE_LOCK_STATUS:
+			{
+				cpubridge::eLockStatus lockStatus;
+				translate_SET_MACHINE_LOCK_STATUS (msg, &lockStatus);
+				priv_setLockStatus (lockStatus);
+				notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_MACHINE_LOCK_STATUS:
+			notify_MACHINE_LOCK (sub->q, handlerID, logger, priv_getLockStatus());
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SELECTION_ENABLE:
+			{
+				u8 errorCode = 0;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					u8 selNum1toN;
+					bool bEnable;
+					translate_SELECTION_ENABLE_DISABLE (msg, &selNum1toN, &bEnable);
+					SelectionEnable (selNum1toN, bEnable);
+				}
+				notify_SELECTION_ENABLE_DISABLE (sub->q, handlerID, logger, errorCode);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN:
+			{
+				u8 errorCode = 0;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					const u8 *utf8msg;
+					u8 timeSec;
+					translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN (msg, &utf8msg, &timeSec);
+					memset (&screenMsgOverride, 0, sizeof(screenMsgOverride));
+					screenMsgOverride.timeToStopShowingMSec = rhea::getTimeNowMSec() + ((u32)timeSec) * 1000;
+					rhea::string::strUTF8toUTF16 (utf8msg, screenMsgOverride.utf16Msg, sizeof(screenMsgOverride.utf16Msg));
+				}
+				notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (sub->q, handlerID, logger, errorCode);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16:
+			{
+				u8 selNumDa1aN;
+				eSelectionParam whichParam;
+				u16 paramValue;
+				translate_SET_SELECTION_PARAMU16 (msg, &selNumDa1aN, &whichParam, &paramValue);
+				u8 errorCode = 0;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					if (!priv_setCPUSelectionParam (selNumDa1aN, whichParam, paramValue))
+						errorCode = 1;
+				}
+				notify_SET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode, paramValue);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16:
+			{
+				u8 selNumDa1aN;
+				eSelectionParam whichParam;
+				translate_GET_SELECTION_PARAMU16 (msg, &selNumDa1aN, &whichParam);
+
+				u16 paramValue = 0;
+				u8 errorCode = 0;
+				if (eLockStatus::locked == priv_getLockStatus())
+					errorCode = 0xFE;
+				else
+				{
+					if (!priv_getCPUSelectionParam (selNumDa1aN, whichParam, &paramValue))
+						errorCode = 1;
+				}
+				notify_GET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode, paramValue);
+			}
+			break;
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
 	} //while
 }
 
+//**********************************************
+void Server::priv_getLockStatusFilename (u8 *out_filePathAndName, u32 sizeOfOutFilePathAndName) const
+{
+	rhea::string::utf8::spf (out_filePathAndName,
+							sizeOfOutFilePathAndName,
+							"%s/current/lockStatus.rhea",
+							rhea::getPhysicalPathToAppFolder());
+}
+
+//**********************************************
+void Server::priv_writeLockStatus (eLockStatus statusIN) const
+{
+	u8 s[512];
+
+	priv_getLockStatusFilename (s, sizeof(s));
+
+	const u8 status = static_cast<u8>(statusIN);
+	FILE *f = rhea::fs::fileOpenForWriteBinary(s);
+	rhea::fs::fileWrite (f, &status, 1);
+	rhea::fs::fileClose(f);	
+}
+
+//**********************************************
+eLockStatus Server::priv_getLockStatus() const
+{
+	u8 s[512];
+	priv_getLockStatusFilename (s, sizeof(s));
+
+	if (rhea::fs::fileExists(s))
+	{
+		u8 status = 0;
+		FILE *f = rhea::fs::fileOpenForReadBinary(s);
+		rhea::fs::fileRead(f, &status, 1);
+		rhea::fs::fileClose(f);
+
+		return static_cast<eLockStatus>(status);
+	}
+
+	return eLockStatus::unlocked;
+}
+
+//**********************************************
+void Server::priv_setLockStatus (eLockStatus lockMode)
+{
+	if (lockMode == priv_getLockStatus())
+		return;
+	priv_writeLockStatus (lockMode);
+}
 
 //**********************************************
 bool Server::priv_prepareSendMsgAndParseAnswer_getExtendedCOnfgInfo_c(sExtendedCPUInfo *out)
@@ -1940,11 +2172,15 @@ eWriteCPUFWFileStatus Server::priv_uploadCPUFW(cpubridge::sSubscriber *subscribe
 	{
 		//copio il file nella mia directory locale temp
 		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), cpuFWFileNameOnly);
-		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+
+		if (!rhea::string::utf8::areEqual(srcFullFileNameAndPath, tempFilePathAndName, true))
 		{
-			if (NULL != subscriber)
-				notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_unableToCopyFile, 0);
-			return eWriteCPUFWFileStatus::finishedKO_unableToCopyFile;
+			if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+			{
+				if (NULL != subscriber)
+					notify_WRITE_CPUFW_PROGRESS(*subscriber, handlerID, logger, eWriteCPUFWFileStatus::finishedKO_unableToCopyFile, 0);
+				return eWriteCPUFWFileStatus::finishedKO_unableToCopyFile;
+			}
 		}
 	}
 
@@ -2138,10 +2374,14 @@ eWriteDataFileStatus Server::priv_uploadVMCDataFile (cpubridge::sSubscriber *sub
 	{
 		//copio il file nella mia directory locale temp
 		sprintf_s((char*)tempFilePathAndName, sizeof(tempFilePathAndName), "%s/temp/%s", rhea::getPhysicalPathToAppFolder(), fileName);
-		if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+
+		if (!rhea::string::utf8::areEqual(srcFullFileNameAndPath, tempFilePathAndName, true))
 		{
-			notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_unableToCopyFile, 0);
-			return eWriteDataFileStatus::finishedKO_unableToCopyFile;
+			if (!rhea::fs::fileCopy(srcFullFileNameAndPath, tempFilePathAndName))
+			{
+				notify_WRITE_VMCDATAFILE_PROGRESS(*subscriber, handlerID, logger, eWriteDataFileStatus::finishedKO_unableToCopyFile, 0);
+				return eWriteDataFileStatus::finishedKO_unableToCopyFile;
+			}
 		}
 	}
 
@@ -2381,7 +2621,7 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
  *
  * [out_fileID] è opzionale. Se != NULL, allora il fileID che viene comunicato a fine download viene anche riportato in questa var
  */
-eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, u16 *out_fileID)
+eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify, u16 *out_fileID)
 {
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
 	u8 fullFilePathAndName[256];
@@ -2398,11 +2638,11 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
         *out_fileID= fileID;
 
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 	//hack per velocizzare i test
 	{
 		u8 debug_src_eva[256];
-		sprintf_s((char*)debug_src_eva, sizeof(debug_src_eva), "%s/eva_test.log", rhea::getPhysicalPathToAppFolder());
+		sprintf_s((char*)debug_src_eva, sizeof(debug_src_eva), "%s/current/eva_test.log", rhea::getPhysicalPathToAppFolder());
 		rhea::fs::fileCopy(debug_src_eva, fullFilePathAndName);
 		Server::priv_downloadDataAudit_onFinishedOK(fullFilePathAndName, fileID);
 		if (NULL != subscriber)
@@ -2411,12 +2651,12 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 		return eReadDataFileStatus::finishedOK;
 	}
 #endif
-
+*/
 	FILE *f = rhea::fs::fileOpenForWriteBinary(fullFilePathAndName);
 	if (NULL == f)
 	{
 		if (NULL != subscriber)
-			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID);
+			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID, NULL, 0);
 		return eReadDataFileStatus::finishedKO_unableToCreateFile;
 	}
 
@@ -2434,7 +2674,7 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
         {
             //errore, la CPU non ha risposto, abortisco l'operazione
             if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID);
+                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID, NULL, 0);
             rhea::fs::fileClose(f);
             return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
         }
@@ -2458,19 +2698,37 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 			
 			//notifico
 			if (NULL != subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID);
-
+			{
+				if (bIncludeBufferDataInNotify)
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, payload, payloadLen);
+				else
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, NULL, 0);
+			}
             return eReadDataFileStatus::finishedOK;
         }
 
-        //notifico che ho letto un altro Kb
-        if (kbReadSoFar != lastKbReadSent)
-        {
-            lastKbReadSent = kbReadSoFar;
+		if (payloadLen > 0)
+		{
+			if (bIncludeBufferDataInNotify)
+			{
+				if (NULL != subscriber)
+				{
+					//notifico il nuovo blocco dati appena ricevuto
+					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID, payload, payloadLen);
+				}
+			}
+			else
+			{
+				//notifico che ho letto un altro Kb
+				if (kbReadSoFar != lastKbReadSent)
+				{
+					lastKbReadSent = kbReadSoFar;
 
-            if (NULL!= subscriber)
-                notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID);
-        }
+					if (NULL != subscriber)
+						notify_READ_DATA_AUDIT_PROGRESS (*subscriber, 0, logger, eReadDataFileStatus::inProgress, kbReadSoFar, fileID, NULL, 0);
+				}
+			}
+		}
     }
 }
 
@@ -3601,6 +3859,21 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 	utf16_msgLCD[msgLCD_len] = 0;
 	rhea::string::utf16::rtrim(utf16_msgLCD);
 
+	//se rheAPI ha sovraimposto un messaggio testuale, lo applico ora
+	const u64 timeNowMSec = rhea::getTimeNowMSec();
+	if (screenMsgOverride.timeToStopShowingMSec > 0)
+	{
+		if (timeNowMSec >= 	screenMsgOverride.timeToStopShowingMSec)
+			screenMsgOverride.timeToStopShowingMSec = 0;
+		else
+		{
+			memcpy (utf16_msgLCD, screenMsgOverride.utf16Msg, sizeof(utf16_msgLCD));
+			cpuStatus.LCDMsg.importanceLevel = 0xff;
+		}
+	}
+
+
+
 	//se la CPU ha alzato il bit di "telemetria in corso", devo fare un override del messaggio testuale
 	if ((cpuStatus.flag1 & sCPUStatus::FLAG1_TELEMETRY_RUNNING) != 0)
 	{
@@ -3638,6 +3911,11 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 				if ((answer[z] & mask) != 0)
 					isSelectionAvail = 0;
 
+
+				//se delle selezioni sono state disabilitate via rheAPI, applico qui 
+				if (false == IsSelectionEnable(i+1))
+					isSelectionAvail = 0;
+
 				if (isSelectionAvail)
 				{
 					if (!cpuStatus.selAvailability.isAvail(i + 1))
@@ -3666,7 +3944,7 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 		}
 		else
 		{
-			//la CPU non è in uno stato valido per fare erogazioni, per cui forzo a priori  la totalte
+			//la CPU non è in uno stato valido per fare erogazioni, per cui forzo a priori  la totale
 			//indisponibilità delle bevande
 			if (cpuStatus.selAvailability.areAllNotAvail() == false)
 			{
@@ -3675,6 +3953,8 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
 			}
 		}
 	}
+
+
 	if (anythingChanged)
 	{
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
@@ -3792,38 +4072,47 @@ void Server::priv_notify_CPU_RUNNING_SEL_STATUS (const sSubscription *sub, u16 h
  */
 bool Server::priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub)
 {
-	const u8 selNumber = params.getSelNum();
-	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d, forceJug=%c]\n", (u8)params.how, selNumber, params.isForceJUG()==true ? 'Y':'N');
+	const		u8 selNumber = params.getSelNum();
+	bool		ret = false;	// valore precaricato
+	logger->log("CPUBridgeServer::priv_enterState_selectionRequest() => [how=%d, selNum=%d, forceJug=%c]\n",
+							(u8)params.how, selNumber, params.isForceJUG() == true ? 'Y' : 'N');
 
     if (stato.get() != sStato::eStato::normal)
 	{
 		logger->log("  invalid request, CPUServer != eStato::normal, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		return false;
+		//return false;
 	}
-
-	if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
+	else if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
 	{
 		logger->log("  invalid request, VMCState != eVMCState::DISPONIBILE, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		return false;
+		//return false;
 	}
-
-	if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
+	else if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
 	{
 		logger->log("  invalid selection number, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		return false;
+		//return false;
+	}
+	else if (eLockStatus::locked == priv_getLockStatus())    //se la macchina è "locked", niente selezioni
+    {
+        logger->log("  machine is locked, aborting.");
+        priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
+        //return false;
+    }
+	else
+	{
+		stato.set(sStato::eStato::selection);
+		memcpy(&runningSel.params, &params, sizeof(sStartSelectionParams));
+		runningSel.stopSelectionWasRequested = 0;
+		runningSel.sub = sub;
+		runningSel.status = eRunningSelStatus::wait;
+		priv_notify_CPU_RUNNING_SEL_STATUS(sub, 0, runningSel.status);
+		ret = true;
 	}
 
-
-    stato.set (sStato::eStato::selection);
-	memcpy (&runningSel.params, &params, sizeof(sStartSelectionParams));
-	runningSel.stopSelectionWasRequested = 0;
-	runningSel.sub = sub;
-	runningSel.status = eRunningSelStatus::wait;
-	priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, runningSel.status);
-	return true;
+	return ret;
 }
 
 /***************************************************
@@ -3850,7 +4139,6 @@ void Server::priv_handleState_selection()
     const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 6;
 	u8 nRetry = 0;
 
-	
 	u64	timeStartedMSec = rhea::getTimeNowMSec();
 	u8 bBevandaInPreparazione = 0;
 
@@ -3952,8 +4240,6 @@ void Server::priv_handleState_selection()
 		//schedulo il prossimo msg di stato
 		timeNowMSec = rhea::getTimeNowMSec();
 		nextTimeSendCheckStatusMsgMSec = timeNowMSec + TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec;
-
-
 
 		/* Teoricamente l'intero processo è ora pilotato da "statoPreparazioneBevanda"
 		 * Voglio però essere sicuro di aver letto almeno una volta uno stato != da eStatoPreparazioneBevanda::doing_nothing
@@ -4074,7 +4360,6 @@ bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1to4, u16 targ
 		return false;
 	}
 
-
 	stato.set(sStato::eStato::regolazioneAperturaMacina);
 	regolazioneAperturaMacina.macina_1to4 = macina_1to4;
 	regolazioneAperturaMacina.target = target;
@@ -4089,7 +4374,6 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 
 	eCPUProg_macinaMove move = eCPUProg_macinaMove::stop;
 	priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1to4, move);
-
 
 	//dico a tutti che sono in uno stato speciale
 	cpuStatus.VMCstate = eVMCState::REG_APERTURA_MACINA;
@@ -4350,7 +4634,6 @@ void Server::priv_handleState_grinderSpeedTest()
 		notify_CPU_SEL_AVAIL_CHANGED(subscriberList(i)->q, 0, logger, &cpuStatus.selAvailability);
 	}
 
-
 	const u32 TEMPO_DI_MACINATA_MSec = (u32)grinderSpeedTest.tempoDiMacinataInSec * 1000;
 
 	u8 bufferW[16];
@@ -4386,4 +4669,93 @@ void Server::priv_handleState_grinderSpeedTest()
 	//fine
 	priv_enterState_normal();
 
+}
+
+//*********************************************************
+/* gestione delle abilitazioni alla esecuzione di una ricetta */
+bool Server::SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const
+{
+	rhea::string::utf8::spf(out_filePathAndName,
+							sizeOfOutFilePathAndName,
+							"%s/current/SelectionEnabled.rhea",
+							rhea::getPhysicalPathToAppFolder());
+
+	return true;
+}
+
+//*********************************************************
+bool Server::SelectionsEnableSave()
+{
+	u8		s[512];
+	u8		buffer[sizeof(selectionEnable) / sizeof(selectionEnable[0])];
+	bool	ret;
+
+	for (u8 i = 0; i < sizeof(selectionEnable) / sizeof(selectionEnable[0]); i++)
+		buffer[i] = (true == selectionEnable[i] ? 1 : 0);
+
+	SelectionsEnableFilename(s, sizeof(s));
+
+	FILE* f = rhea::fs::fileOpenForWriteBinary(s);
+	if (NULL != f)
+	{
+		rhea::fs::fileWrite(f, buffer, sizeof(buffer));
+		rhea::fs::fileClose(f);
+		ret = true;
+	}
+	else
+		ret = false;
+
+	return ret;
+}
+
+//*********************************************************
+bool Server::SelectionsEnableLoad()
+{
+	u8 s[512];
+	u8 buffer[sizeof(selectionEnable) / sizeof(selectionEnable[0])];
+
+	SelectionsEnableFilename(s, sizeof(s));
+	FILE* f = rhea::fs::fileOpenForReadBinary(s);
+	if (NULL == f)
+	{
+		for (u8 i = 0; i < sizeof(selectionEnable) / sizeof(selectionEnable[0]); i++)
+			buffer[i] = 1;
+	}
+	else
+	{
+		rhea::fs::fileRead(f, buffer, sizeof(buffer));
+		rhea::fs::fileClose(f);
+	}
+
+	for (u8 i = 0; i < sizeof(selectionEnable) / sizeof(selectionEnable[0]); i++)
+		selectionEnable[i] = (buffer[i] != 0);
+
+	return true;
+}
+
+//*********************************************************
+bool Server::IsSelectionEnable(u8 selNum_1toN)
+{
+	bool ret;
+
+	if (selNum_1toN >= 1 && selNum_1toN <= NUM_MAX_SELECTIONS)
+		ret = selectionEnable[selNum_1toN - 1];
+	else
+		ret = false;
+
+	return ret;
+}
+
+//*********************************************************
+bool Server::SelectionEnable (u8 selNum_1toN, bool bEnable)
+{
+	bool ret = true;
+	if (selNum_1toN >= 1 && selNum_1toN <= NUM_MAX_SELECTIONS)
+	{
+		selectionEnable[selNum_1toN - 1] = bEnable;
+		SelectionsEnableSave();
+	}
+	else
+		ret = false;
+	return ret;
 }

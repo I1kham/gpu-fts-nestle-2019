@@ -66,6 +66,7 @@
 #include "CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h"
+#include "CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic.h"
 
 using namespace socketbridge;
@@ -164,6 +165,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition);
 	CHECK(CmdHandler_ajaxReq_P0x2A_stopJug);
 	CHECK(CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc);
+	CHECK(CmdHandler_ajaxReq_P0x31_askMsgFromLangTable);
 	CHECK(CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic);
 
 #undef CHECK

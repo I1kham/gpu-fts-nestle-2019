@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QMessageBox>
+#include <QKeyEvent>
 #include "formboot.h"
 #include "formprog.h"
 #include "formPreGui.h"
@@ -26,6 +27,8 @@ class MainWindow : public QMainWindow
 public:
     explicit                MainWindow (sGlobal *glob);
                             ~MainWindow();
+
+    void                    keyPressEvent(QKeyEvent *event);
 
 private slots:
     void                    timerInterrupt();
@@ -61,6 +64,7 @@ private:
     void                    priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &msg);
     eRetCode                priv_showNewProgrammazione_onTick();
     void                    priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    void                    priv_showLockedPanel (bool b);
 
 private:
     struct sSyncWithCPU
@@ -85,6 +89,7 @@ private:
     FormProg                *frmProg;
     FormPreGui              *frmPreGUI;
     eRetCode                retCode;
+    u64                     nextTimeAskForCPULockStatus_msec;
 };
 
 #endif // MAINWINDOW_H

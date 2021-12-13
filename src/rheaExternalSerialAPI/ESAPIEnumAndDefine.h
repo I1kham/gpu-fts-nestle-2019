@@ -6,6 +6,7 @@
 #include "../rheaCommonLib/SimpleLogger/ISimpleLogger.h"
 #include "../CPUBridge/CPUBridgeEnumAndDefine.h"
 
+#define		ESAPI_SUBSCRIBER_UID					0x0104
 
 #define		ESAPI_SERVICECH_SUBSCRIPTION_REQUEST	0x0001
 #define		ESAPI_SERVICECH_SUBSCRIPTION_ANSWER		0x0003

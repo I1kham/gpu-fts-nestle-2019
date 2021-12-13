@@ -82,7 +82,7 @@ namespace cpubridge
 						[out_hServiceChannelW]		è il canale di comunicazione di "servizio" da utilizzarsi per richieste speciali (tipo subsribe)
 				*/
 
-	void		subscribe (const HThreadMsgW &hServiceChannelW, const HThreadMsgW &hAnswerHere);
+	void		subscribe (const HThreadMsgW &hServiceChannelW, const HThreadMsgW &hAnswerHere, u16 applicationUID);
 					/*	Qualcuno vuole iscriversi alla coda di messaggi di output di CPUBridge.
 						CPUBridge invierà la risposta a questa richiesta sul canale identificato da [hAnswerHere].
 
@@ -108,7 +108,7 @@ namespace cpubridge
 	u8			buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writeVMCDataFile (const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
-    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u8			buildMsg_getExtendedConfigInfo (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writePartialVMCDataFile (const u8 *buffer64byte,  u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset, u8 *out_buffer, u8 sizeOfOutBuffer);
 					/* se voglio inviare i blocchi 3, 6, 10, 12 alla cpu, invio 4 messaggi:
@@ -170,6 +170,9 @@ namespace cpubridge
     u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1toN, u8* out_buffer, u8 sizeOfOutBuffer);
 					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
 	u8			buildMsg_scivoloBrewmatic (u8 perc0_100, u8* out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8* out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue, u8* out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_getSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u8* out_buffer, u32 sizeOfOutBuffer);
 
 	/***********************************************
 		notify_xxxx
@@ -215,11 +218,12 @@ namespace cpubridge
     void		notify_CPU_BTN_PROG_PRESSED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
     void		translateNotify_CPU_BTN_PROG_PRESSED (const rhea::thread::sMsg &msg);
 
-    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
-    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
-					/* fileID è un numero che viene appeso al nome del file durante lo scaricamento.
-						Posto che il download vada a buon fine, il file localmente si trova in app/temp/dataAudit[FILE_ID].txt (es app/temp/dataAudit5.txt
-					*/
+    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID, const void *readData, u8 nBytesInReadData);
+					//fileID è un numero che viene appeso al nome del file durante lo scaricamento.
+					//Posto che il download vada a buon fine, il file localmente si trova in app/temp/dataAudit[FILE_ID].txt (es app/temp/dataAudit5.txt
+    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID, u8 *out_readData, u8 *out_nBytesInReadData);
+					//[out_readData] può essere NULL se non si desidera recuperare i dati letti da CPU
+					
 
 	void		notify_READ_VMCDATAFILE_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
 	void		translateNotify_READ_VMCDATAFILE_PROGRESS(const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
@@ -371,8 +375,17 @@ namespace cpubridge
 	void		translateNotify_CPU_GET_JUG_CURRENT_REPETITION(const rhea::thread::sMsg& msg, u8* out_nOf, u8* out_m);
 
 	void		notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger);
+
 	void		notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 perc0_100);
+
+	void		notify_MSG_FROM_LANGUAGE_TABLE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 tableID, u8 msgRowNum, const u8 *utf8message);
+	void		translateNotify_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_utf8message, u32 sizeOf_utf8message);
 	
+	void		notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
+	void		notify_MACHINE_LOCK (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eLockStatus lockStatus);
+	void		translateNotify_MACHINE_LOCK(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus);
+
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -429,8 +442,10 @@ namespace cpubridge
 	void		ask_CPU_QUERY_CUR_SEL_RUNNING(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_CUR_SEL_RUNNING
 
-    void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID);
+    void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID, bool bIncludeDataInNotify);
+	void		translate_READ_DATA_AUDIT(const rhea::thread::sMsg &msg, bool *out_bIncludeDataInNotify);
                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_DATA_AUDIT_PROGRESS.
+					//Se [bIncludeDataInNotify] == true, allora la notify_READ_DATA_AUDIT_PROGRESS riporta anche i byte letti da CPU
 	
 	void        ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID);
 					/* alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_VMCDATAFILE_PROGRESS.
@@ -654,6 +669,38 @@ namespace cpubridge
 	void		translate_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const rhea::thread::sMsg &msg, u8 *out_perc0_100);
 					//[perc0_100]== percentuale di attivazione PWM
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC
+
+	void		ask_MSG_FROM_LANGUAGE_TABLE (const sSubscriber &from, u16 handlerID, u8 tableID, u8 msgRowNum, u8 language1or2);
+	void		translate_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_language1or2);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_MSG_FROM_LANGUAGE_TABLE
+
+	void		ask_CPU_RESTART (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RESTART
+
+	void		ask_SET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID, eLockStatus lockStatus);
+	void		translate_SET_MACHINE_LOCK_STATUS(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus);
+	void		ask_GET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di uno di questi 3 msg, CPUBridge risponderà con un notify_MACHINE_LOCK riportando lo stato attuale del lock
+
+	void		ask_SELECTION_ENABLE_DISABLE (const sSubscriber& from, u16 handlerID, u8 selNum1toN, bool bEnable);
+	void		translate_SELECTION_ENABLE_DISABLE(const rhea::thread::sMsg& msg, u8 *out_selNum1toN, bool *out_bEnable);
+	void		notify_SELECTION_ENABLE_DISABLE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode);
+	void		translateNotify_SELECTION_ENABLE_DISABLE (const rhea::thread::sMsg &msg, u8 *out_errorCode);
+
+	void		ask_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber& from, u16 handlerID, const u8 *msgUTF8, u8 timeSec);
+	void		translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN(const rhea::thread::sMsg& msg, const u8 **out_msgUTF8, u8 *out_timeSec);
+	void		notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode);
+	void		translateNotify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const rhea::thread::sMsg &msg, u8 *out_errorCode);
+
+	void		ask_SET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam, u16 paramValue);
+	void		translate_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam, u16 *out_paramValue);
+	void		notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue);
+	void		translateNotify_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode);
+
+	void		ask_GET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam);
+	void		translate_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam);
+	void		notify_GET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue);
+	void		translateNotify_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode, u16 *out_paramValue);
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

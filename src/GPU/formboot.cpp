@@ -57,7 +57,7 @@ FormBoot::FormBoot(QWidget *parent, sGlobal *glob) :
     ui->labESAPI->setText ("rheAPI module: <span style='color:#fff'>none</span>");
 
     //Bottoni
-    ui->btnInstall_languages->setVisible(false);
+    //ui->btnInstall_languages->setVisible(false);
 
     ui->framePleaseWait->setVisible(false);
     ui->framePleaseWait->move (0, 250);
@@ -344,7 +344,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
     const u16 notifyID = (u16)msg.what;
     switch (notifyID)
     {
-    case CPUBRIDGE_NOTITFY_GET_CPU_STRING_MODEL_AND_VER:
+    case CPUBRIDGE_NOTIFY_GET_CPU_STRING_MODEL_AND_VER:
         {
             u16  s[64];
             cpubridge::translateNotify_CPU_STRING_VERSION_AND_MODEL(msg, s, sizeof(s));
@@ -504,7 +504,7 @@ void FormBoot::priv_foreverDisableBtnStartVMC()
 void FormBoot::priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode)
 {
     dwnloadDataAuditCallBack = mode;
-    cpubridge::ask_READ_DATA_AUDIT (glob->cpuSubscriber, 0);
+    cpubridge::ask_READ_DATA_AUDIT (glob->cpuSubscriber, 0, false);
 }
 
 void FormBoot::priv_startUploadDA3 (eUploadDA3CallBack mode, const u8 *fullFilePathAndName)
@@ -1256,7 +1256,7 @@ void FormBoot::priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg)
     cpubridge::eReadDataFileStatus status;
     u16 totKbSoFar = 0;
     u16 fileID = 0;
-    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
+    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, NULL, 0);
 
     char s[512];
     if (status == cpubridge::eReadDataFileStatus::inProgress)
@@ -1331,7 +1331,7 @@ void FormBoot::priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::s
     cpubridge::eReadDataFileStatus status;
     u16 totKbSoFar = 0;
     u16 fileID = 0;
-    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID);
+    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, NULL, 0);
 
     char s[512];
     if (status == cpubridge::eReadDataFileStatus::inProgress)

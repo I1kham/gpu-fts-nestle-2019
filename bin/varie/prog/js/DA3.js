@@ -86,9 +86,16 @@ DA3.prototype.isInstant = function ()								{ if (parseInt(this.da3_current[946
 DA3.prototype.isEspresso = function ()								{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
 DA3.prototype.isVarigrindAutoRegolationEnabled = function (whichOne)
 { 
-	var da3Loc = 7590;
-	if (whichOne == 2)
-		da3Loc = 7686;
+	var da3Loc = 0;
+	switch (parseInt(whichOne))
+	{
+	case 1: da3Loc = 7590; break;
+	case 2: da3Loc = 7654; break;
+	case 3: da3Loc = 7686; break;
+	case 4: da3Loc = 7718; break;
+	default:
+		return 0;
+	}
 	if (this.da3_current[da3Loc] > 0)
 		return 1; 
 	return 0; 

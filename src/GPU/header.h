@@ -3,13 +3,19 @@
 
 
 //Versione GPU
+<<<<<<< HEAD
 #define GPU_VERSION     "2.5.3-Beta-Brewmatic"
+=======
+#define GPU_VERSION     "2.5.1-Beta-rheAPIv1.3"
+>>>>>>> develop
 
 
 //nome della porta seriale
 #ifdef PLATFORM_UBUNTU_DESKTOP
-    #define CPU_COMPORT  "/dev/ttyUSB0"
-    #define ESAPI_COMPORT  "/dev/ttyUSB1"
+    //#define CPU_COMPORT  "/dev/ttyUSB0"
+    //#define ESAPI_COMPORT  "/dev/ttyUSB1"
+    #define CPU_COMPORT  "/dev/ttyUSB1"
+    #define ESAPI_COMPORT  "/dev/ttyUSB0"
 #else
     #define CPU_COMPORT     "/dev/ttymxc3"
     #define ESAPI_COMPORT   "/dev/ttymxc2"

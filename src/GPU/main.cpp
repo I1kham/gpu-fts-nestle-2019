@@ -11,6 +11,8 @@
 
 MainWindow *myMainWindow = NULL;
 
+#define		GPU_SUBSCRIBER_UID                  0x2F06
+
 //****************************************************
 bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscriber *out_subscriber)
 {
@@ -22,7 +24,7 @@ bool subscribeToCPU (const HThreadMsgW hCPUServiceChannelW, cpubridge::sSubscrib
     rhea::thread::createMsgQ (&hMsgQR, &hMsgQW);
 
     //invio la richiesta
-    cpubridge::subscribe (hCPUServiceChannelW, hMsgQW);
+    cpubridge::subscribe (hCPUServiceChannelW, hMsgQW, GPU_SUBSCRIBER_UID);
 
     //attendo risposta
     u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;

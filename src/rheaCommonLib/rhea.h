@@ -46,6 +46,7 @@ namespace rhea
 	bool				isLittleEndian();
 	inline bool			isBigEndian()																	{ return !rhea::isLittleEndian(); }
 
+	inline void			reboot()																		{ return platform::reboot(); }
 
 	/************************************************************************************************************
 	 *
