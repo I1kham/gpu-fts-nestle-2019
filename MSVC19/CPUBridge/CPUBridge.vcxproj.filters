@@ -20,6 +20,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\CPUBridge\rhFSProtocol.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\RSProto.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
@@ -47,6 +48,7 @@
     <ClInclude Include="..\..\src\CPUBridge\rhFSProtocol.h" />
     <ClInclude Include="..\..\src\CPUBridge\rhFSProtocolEnumAndDefine.h" />
     <ClInclude Include="..\..\src\CPUBridge\RSProto.h" />
+    <ClInclude Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="channel">

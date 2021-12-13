@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\CPUBridge\CPUBridge.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUBridgeServer.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelCom.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelFakeCPU.cpp" />
@@ -31,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
+    <ClInclude Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeEnumAndDefine.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeServer.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeVersion.h" />
