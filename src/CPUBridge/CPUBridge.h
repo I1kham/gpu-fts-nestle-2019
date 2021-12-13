@@ -96,6 +96,10 @@ namespace cpubridge
     void        loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out);
     bool        saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts);
 	
+    bool        copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName);
+    bool        copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName, const char *dstFileName);
+                //copia [fullSrcFilePathAndName] nella cartella /autoUpdate
+
 	/***********************************************
 		buildMsg_xxxx
 			ritornano 0 se out_buffer non è abbastanza grande da contenere il messaggio.
@@ -701,6 +705,11 @@ namespace cpubridge
 	void		translate_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam);
 	void		notify_GET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue);
 	void		translateNotify_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode, u16 *out_paramValue);
+
+    void		ask_SCHEDULE_ACTION_RELAXED_REBOOT (const sSubscriber& from, u16 handlerID);
+                //CPUBridge alla ricezione di questo messaggio non risponde nulla ma schedula un reboot che verrà eseguito quando le condizioni lo consentono (macchine in idle o in errore e nessuna attività da parte
+                //dell'utente da un po' di tempo)
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

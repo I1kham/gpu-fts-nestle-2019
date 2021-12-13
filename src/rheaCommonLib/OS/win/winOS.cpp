@@ -326,4 +326,12 @@ bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 	RHEAFREE(allocator, AdapterInfo);
 	return false;
 }
+
+//*****************************************************
+bool platform::executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult)
+{
+    //TODO
+    DBGBREAK;
+    return false;
+}
 #endif //WIN32

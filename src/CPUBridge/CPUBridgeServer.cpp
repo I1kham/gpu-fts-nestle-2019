@@ -1856,6 +1856,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+        case CPUBRIDGE_SUBSCRIBER_ASK_SCHEDULE_ACTION_RELAXED_REBOOT:
+            this->scheduleAction_relaxedReboot();
+            break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16:
 			{
 				u8 selNumDa1aN;

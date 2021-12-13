@@ -232,4 +232,15 @@ bool platform::NET_getMACAddress (char *out_macAddress, u32 sizeOfMacAddress)
 	}
 	return false;
 }
+
+//*****************************************************
+bool platform::executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult)
+{
+    FILE *fp = popen (shellCommand, "r");
+    if (NULL == fp)
+        return false;
+    fgets (out_result, sizeOfOutResult, fp);
+    fclose (fp);
+    return true;
+}
 #endif

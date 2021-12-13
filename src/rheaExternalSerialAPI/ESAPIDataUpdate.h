@@ -19,13 +19,19 @@ namespace esapi
 	class DataUpdate
 	{
 	public:
-		DataUpdate();				// costruttore
-		~DataUpdate();				// distruttore
-		bool Reset();
-		bool Open(u8 type, u32 maxLen);	// apertura del file
-		bool Append(u16 block, u16 bufferLen, u8* buffer);		// aggiunge un blocco
-		u16 BlockMaxDim() { return blockLen; };
-		bool Complete(u16 blockNr, const cpubridge::sSubscriber& from);
+                    DataUpdate ();				// costruttore
+                    ~DataUpdate();				// distruttore
+        bool        Reset();
+        bool        Open(u8 type, u32 maxLen);	// apertura del file
+        bool        Append(u16 block, u16 bufferLen, u8 *buffer);		// aggiunge un blocco
+        u16         BlockMaxDim() { return blockLen; };
+        bool        Complete(u16 blockNr, const cpubridge::sSubscriber *from);
+
+    private:
+        bool        UpdateCPU(const cpubridge::sSubscriber *from);
+        bool        UpdateGPU(const cpubridge::sSubscriber *from);
+        bool        UpdateGUI(const cpubridge::sSubscriber *from);
+        bool        UpdateDA3(const cpubridge::sSubscriber *from);
 
 	private:
 		FILE				*handle;
@@ -35,11 +41,6 @@ namespace esapi
 		u32					fileLenMax;	// lunghezza del file massima
 		u32					fileLenCur;	// lunghezza corrente
 		u8					*fileName;	// nome del file in corso
-
-		bool UpdateCPU(const cpubridge::sSubscriber& from);
-		bool UpdateGPU(const cpubridge::sSubscriber& from);
-		bool UpdateGUI(const cpubridge::sSubscriber& from);
-		bool UpdateDA3(const cpubridge::sSubscriber& from);
 	};
 } // namespace esapi
 

@@ -1,4 +1,5 @@
 #include "RSProto.h"
+#include "CPUBridge.h"
 #include "CPUBridgeServer.h"
 #include "rhFSProtocol.h"
 #include "../rheaCommonLib/rheaUtils.h"
@@ -198,14 +199,6 @@ void RSProto::onMessageRCV (cpubridge::Server *server, u16 what, u16 userValue, 
 	}
 }
 
-//******************************************* 
-bool RSProto::priv_copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName) const
-{
-	u8 s[512];
-    rhea::string::utf8::spf (s, sizeof(s), "%s/autoUpdate", rhea::getPhysicalPathToAppFolder());
-    return rhea::fs::fileCopyAndKeepSameName (fullSrcFilePathAndName, s);
-}
-
 
 //******************************************* 
 void RSProto::priv_RSProtoSentMeAFile (cpubridge::Server *server, u32 fileID, const u8 *fileFullPath, rhea::ISimpleLogger *logger)
@@ -228,26 +221,42 @@ void RSProto::priv_RSProtoSentMeAFile (cpubridge::Server *server, u32 fileID, co
 	case FILE_MACHINE_CONFIG:
 		//Mi è arrivato un file di configurazione macchina, lo metto nella cartella dell'auto aggiornamento e schedulo un reboot
 		logger->log ("it's a FILE_MACHINE_CONFIG, copying in autoupdate folder and scheduling a reboot ASAP\n");
-        if (priv_copyFileInAutoupdateFolder (fileFullPath))
+        if (cpubridge::copyFileInAutoupdateFolder (fileFullPath, "da3FromTelemetry.da3"))
             server->scheduleAction_relaxedReboot();
 		break;
 
 	case FILE_SMU:
 		logger->log ("it's a FILE_SMU, copying in autoupdate folder and scheduling a reboot ASAP\n");
-        if (priv_copyFileInAutoupdateFolder (fileFullPath))
+        if (cpubridge::copyFileInAutoupdateFolder (fileFullPath, "gpuFromTelemetry.mh6"))
             server->scheduleAction_relaxedReboot();
         break;
 
 	case FILE_CPU:
 		logger->log ("it's a FILE_CPU, copying in autoupdate folder and scheduling a reboot ASAP\n");
-        if (priv_copyFileInAutoupdateFolder (fileFullPath))
+        if (cpubridge::copyFileInAutoupdateFolder (fileFullPath, "cpuFromTelemetry.mhx"))
             server->scheduleAction_relaxedReboot();
 		break;
 
 	case FILE_GUI:
 		logger->log ("it's a FILE_GUI, copying in autoupdate folder and scheduling a reboot ASAP\n");
-        //if (priv_copyFileInAutoupdateFolder (fileFullPath))
-        //	server->scheduleAction_relaxedReboot();
+        if (cpubridge::copyFileInAutoupdateFolder (fileFullPath, "guiFromTelemetry.gz"))
+        {
+            //la GUI arriva in forma di un file tar. Copio il tar in autoUpdate e poi lo scompatto li
+            char src[512];
+            sprintf_s (src, sizeof(src), "%s/autoUpdate/guiFromTelemetry.gz", rhea::getPhysicalPathToAppFolder());
+
+            char dstFolder[512];
+            sprintf_s (dstFolder, sizeof(dstFolder), "%s/autoUpdate", rhea::getPhysicalPathToAppFolder());
+
+            char cmdLine[256];
+            sprintf_s (cmdLine, sizeof(cmdLine), "tar -xf %s -C %s", src, dstFolder);
+
+            char result[32];
+            memset (result, 0, sizeof(result));
+            rhea::executeShellCommandAndStoreResult (cmdLine, result, sizeof(result));
+
+            server->scheduleAction_relaxedReboot();
+        }
 		break;
 	}
 

@@ -125,6 +125,22 @@ i16 cpuCommThreadFn (void *userParam)
 	return 1;
 }
 
+//*******************************************
+bool cpubridge::copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName)
+{
+    u8 s[512];
+    rhea::string::utf8::spf (s, sizeof(s), "%s/autoUpdate", rhea::getPhysicalPathToAppFolder());
+    return rhea::fs::fileCopyAndKeepSameName (fullSrcFilePathAndName, s);
+}
+
+//*******************************************
+bool cpubridge::copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName, const char *dstFileName)
+{
+    u8 s[512];
+    rhea::string::utf8::spf (s, sizeof(s), "%s/autoUpdate/%s", rhea::getPhysicalPathToAppFolder(), dstFileName);
+    return rhea::fs::fileCopy (fullSrcFilePathAndName, s);
+}
+
 
 /***************************************************
  * ritorna 0 se out_buffer non è abbastanza grande da contenere il messaggio.
@@ -3011,6 +3027,12 @@ void cpubridge::translateNotify_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg
 	*out_selNum1ToN = p[0];
 	*out_whichParam = static_cast<eSelectionParam>(p[1]);
 	*out_errorCode = p[2];
+}
+
+//***************************************************
+void cpubridge::ask_SCHEDULE_ACTION_RELAXED_REBOOT (const sSubscriber& from, u16 handlerID)
+{
+    rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SCHEDULE_ACTION_RELAXED_REBOOT, handlerID, NULL, 0);
 }
 
 //***************************************************

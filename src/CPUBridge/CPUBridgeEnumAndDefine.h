@@ -188,6 +188,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16							0x0850
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16							0x0851
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC								0x0852
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SCHEDULE_ACTION_RELAXED_REBOOT                 0x0853
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask

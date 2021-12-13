@@ -1138,7 +1138,7 @@ u32 Protocol::priv_rs232_handleCommand_X(const sBuffer& b)
 				}
 				else //è implicito che qui blockLen==0
 				{
-					if (dataUpdate.Complete(blockNr, *cpuBridgeSubscriber))
+                    if (dataUpdate.Complete(blockNr, cpuBridgeSubscriber))
 						logger->log("esapi::Protocol => COMPLETE\n");
 					errorCode = 0;
 				}

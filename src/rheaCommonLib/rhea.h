@@ -43,6 +43,8 @@ namespace rhea
     inline void         shell_runCommandNoWait(const char* cmd)										{ platform::runShellCommandNoWait(cmd); }
 						//esegue un comando di shall senza attenderne la terminazione
 
+    inline bool         executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult) { return platform::executeShellCommandAndStoreResult (shellCommand, out_result, sizeOfOutResult); }
+
 	bool				isLittleEndian();
 	inline bool			isBigEndian()																	{ return !rhea::isLittleEndian(); }
 

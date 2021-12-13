@@ -312,6 +312,9 @@ void run(int argc, char *argv[])
         subscribeToESAPI (&glob.esapiSubscriber);
     }
 
+    //faccio partire RSProto per la telemetria con SECO
+    rhea::shell_runCommandNoWait ("./UBUNTU_DEBUG_SecoBridge 127.0.0.1 2283");
+
     //Avvio del main form
     QApplication app(argc, argv);
     utils::hideMouse();
