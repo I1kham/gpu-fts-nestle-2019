@@ -23,24 +23,6 @@ bool executeShellCommandAndStoreResult (const char *shellCommand, char *out_resu
 }
 
 //*****************************************************
-void unzip()
-{
-    char src[] = {"/home/davide/Desktop/aaa/GPU_TS_v.2.5.1-Beta-rheAPIv1.3_211126_commit.mh6"};
-    char dstFolder[] = {"/home/davide/Desktop/aaa"};
-
-
-    char cmdLine[256];
-    sprintf_s (cmdLine, sizeof(cmdLine), "tar -xf %s -C %s", src, dstFolder);
-
-    char result[32];
-    memset (result, 0, sizeof(result));
-    executeShellCommandAndStoreResult (cmdLine, result, sizeof(result));
-    printf ("%s\n", result);
-
-
-}
-
-//*****************************************************
 void checkForGPUUpdate()
 {
 #ifdef _DEBUG

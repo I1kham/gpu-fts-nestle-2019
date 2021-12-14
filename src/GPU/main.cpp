@@ -281,10 +281,11 @@ void run(int argc, char *argv[])
     //creazione del logger
 #ifdef _DEBUG
     glob.logger = new rhea::StdoutLogger();
+
 #else
 #ifdef PLATFORM_YOCTO_EMBEDDED
-    glob.logger = new rhea::NullLogger();
-    //u8 s[256]; sprintf_s ((char*)s, sizeof(s), "%s/output.log", rhea::getPhysicalPathToAppFolder()); glob.logger = new rhea::FileLogger(s);
+    //glob.logger = new rhea::NullLogger();
+    u8 s[256]; sprintf_s ((char*)s, sizeof(s), "%s/output.log", rhea::getPhysicalPathToAppFolder()); glob.logger = new rhea::FileLogger(s);
 #else
     glob.logger = new rhea::NullLogger();
 

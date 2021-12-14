@@ -22,16 +22,16 @@ namespace esapi
                     DataUpdate ();				// costruttore
                     ~DataUpdate();				// distruttore
         bool        Reset();
-        bool        Open(u8 type, u32 maxLen);	// apertura del file
-        bool        Append(u16 block, u16 bufferLen, u8 *buffer);		// aggiunge un blocco
-        u16         BlockMaxDim() { return blockLen; };
-        bool        Complete(u16 blockNr, const cpubridge::sSubscriber *from);
+        bool        Open(u8 type, u32 maxLen, rhea::ISimpleLogger *logger);	// apertura del file
+        bool        Append(u16 block, u16 bufferLen, u8 *buffer, rhea::ISimpleLogger *logger);		// aggiunge un blocco
+        u16         BlockMaxDim()                                                                   { return blockLen; };
+        bool        Complete(u16 blockNr, const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger);
 
     private:
-        bool        UpdateCPU(const cpubridge::sSubscriber *from);
-        bool        UpdateGPU(const cpubridge::sSubscriber *from);
-        bool        UpdateGUI(const cpubridge::sSubscriber *from);
-        bool        UpdateDA3(const cpubridge::sSubscriber *from);
+        bool        UpdateCPU(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger);
+        bool        UpdateGPU(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger);
+        bool        UpdateGUI(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger);
+        bool        UpdateDA3(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger);
 
 	private:
 		FILE				*handle;

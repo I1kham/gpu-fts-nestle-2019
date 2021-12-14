@@ -45,7 +45,7 @@ bool DataUpdate::Reset()
 }
 
 //****************************************************************
-bool DataUpdate::Open(u8 fileType, u32 totalFileLen)
+bool DataUpdate::Open(u8 fileType, u32 totalFileLen, rhea::ISimpleLogger *logger)
 // apertura del file
 {
 	bool		ret = true;
@@ -77,6 +77,7 @@ bool DataUpdate::Open(u8 fileType, u32 totalFileLen)
 		fileName = RHEAALLOCT(u8*, rhea::getSysHeapAllocator(), sizeof_filename);
 		rhea::string::utf8::spf (fileName, sizeof_filename, "%s/temp/Update%s.temp", path, arCross[idx].extension);
 
+        logger->log ("ESAPIDataUpdate::Open => %s\n", fileName);
 		handle = rhea::fs::fileOpenForWriteBinary((u8 *)fileName);
 		if (NULL == handle)
 		{
@@ -100,7 +101,7 @@ bool DataUpdate::Open(u8 fileType, u32 totalFileLen)
 }
 
 //****************************************************************
-bool DataUpdate::Append(u16 block, u16 bufferLen, u8* buffer)
+bool DataUpdate::Append(u16 block, u16 bufferLen, u8* buffer, rhea::ISimpleLogger *logger UNUSED_PARAM)
 // aggiunge un blocco
 {
 	bool	ret;
@@ -132,10 +133,12 @@ bool DataUpdate::Append(u16 block, u16 bufferLen, u8* buffer)
 }
 
 //****************************************************************
-bool DataUpdate::Complete(u16 blockNr, const cpubridge::sSubscriber *from)
+bool DataUpdate::Complete(u16 blockNr, const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger)
 // completamento del trasferimento file
 {
-	bool ret;
+    logger->log ("ESAPIDataUpdate::Complete\n");
+
+    bool ret;
 
 	if (NULL == handle)
 		ret = false;
@@ -149,13 +152,13 @@ bool DataUpdate::Complete(u16 blockNr, const cpubridge::sSubscriber *from)
 			ret = false;
 		}
 		else if (eDataUpdateType::CPU == type)
-			ret = UpdateCPU(from);
+            ret = UpdateCPU(from, logger);
 		else if (eDataUpdateType::GPU == type)
-			ret = UpdateGPU(from);
+            ret = UpdateGPU(from, logger);
 		else if (eDataUpdateType::GUI == type)
-			ret = UpdateGUI(from);
+            ret = UpdateGUI(from, logger);
 		else if (eDataUpdateType::DataFile == type)
-			ret = UpdateDA3(from);
+            ret = UpdateDA3(from, logger);
 		else
 			ret = false;
 	}
@@ -164,9 +167,10 @@ bool DataUpdate::Complete(u16 blockNr, const cpubridge::sSubscriber *from)
 }
 
 //****************************************************************
-bool DataUpdate::UpdateCPU(const cpubridge::sSubscriber *from)
+bool DataUpdate::UpdateCPU(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger)
 {
     //cpubridge::ask_WRITE_CPUFW(from, 0, fileName);
+    logger->log ("ESAPIDataUpdate::UpdateCPU, src-fname:%s\n", fileName);
 
     cpubridge::copyFileInAutoupdateFolder (fileName, "cpuFromRheAPI.mhx");
     rhea::fs::fileDelete(fileName);
@@ -175,8 +179,10 @@ bool DataUpdate::UpdateCPU(const cpubridge::sSubscriber *from)
 }
 
 //****************************************************************
-bool DataUpdate::UpdateGPU(const cpubridge::sSubscriber *from)
+bool DataUpdate::UpdateGPU(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger)
 {
+    logger->log ("ESAPIDataUpdate::UpdateGPU, src-fname:%s\n", fileName);
+
     cpubridge::copyFileInAutoupdateFolder (fileName, "gpuFromRheAPI.mh6");
     rhea::fs::fileDelete(fileName);
     ask_SCHEDULE_ACTION_RELAXED_REBOOT (*from, 0x00002);
@@ -184,8 +190,10 @@ bool DataUpdate::UpdateGPU(const cpubridge::sSubscriber *from)
 }
 
 //****************************************************************
-bool DataUpdate::UpdateDA3(const cpubridge::sSubscriber *from)
+bool DataUpdate::UpdateDA3(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger)
 {
+    logger->log ("ESAPIDataUpdate::UpdateDA3, src-fname:%s\n", fileName);
+
     //cpubridge::ask_WRITE_VMCDATAFILE(from, 0, fileName);
     cpubridge::copyFileInAutoupdateFolder (fileName, "da3FromRheAPI.da3");
     rhea::fs::fileDelete(fileName);
@@ -194,8 +202,10 @@ bool DataUpdate::UpdateDA3(const cpubridge::sSubscriber *from)
 }
 
 //****************************************************************
-bool DataUpdate::UpdateGUI(const cpubridge::sSubscriber *from)
+bool DataUpdate::UpdateGUI(const cpubridge::sSubscriber *from, rhea::ISimpleLogger *logger)
 {
+    logger->log ("ESAPIDataUpdate::UpdateGUI, src-fname:%s\n", fileName);
+
     //la GUI arriva in forma di un file tar. Copio il tar in autoUpdate e poi lo scompatto li
     cpubridge::copyFileInAutoupdateFolder (fileName, "guiFromRheAPI.tar");
     rhea::fs::fileDelete(fileName);
@@ -210,6 +220,7 @@ bool DataUpdate::UpdateGUI(const cpubridge::sSubscriber *from)
     char cmdLine[256];
     sprintf_s (cmdLine, sizeof(cmdLine), "tar -xf %s -C %s", src, dstFolder);
 
+    logger->log ("ESAPIDataUpdate::UpdateGUI, %s\n", cmdLine);
     char result[32];
     memset (result, 0, sizeof(result));
     rhea::executeShellCommandAndStoreResult (cmdLine, result, sizeof(result));
