@@ -455,6 +455,7 @@ Server::sSubscription* Server::priv_newSubscription (u16 subscriberUID)
 void Server::scheduleAction_rebootASAP()
 {
     actionScheduler.scheduleReboot (5000, 10000);
+    logger->log ("scheduleAction_rebootASAP\n");
 }
 
 /***************************************************
@@ -466,6 +467,7 @@ void Server::scheduleAction_relaxedReboot()
     //const u32 RELAXED_PERIOD_MSec = 5 * 60 * 1000;	//5 minuti
     const u32 RELAXED_PERIOD_MSec = 15 * 1000;	//15 secondi
     actionScheduler.scheduleReboot (RELAXED_PERIOD_MSec, 10000);
+    logger->log ("scheduleAction_relaxedReboot\n");
 }
 
 //***************************************************
@@ -487,17 +489,24 @@ eActionResult Server::priv_runAction_rebootASAP()
 void Server::scheduleAction_downloadEVADTSAndAnswerToRSProto()
 {
     if (!actionScheduler.exists (ActionScheduler::eAction::downloadEVADTSandAnswerToRSProto))
+    {
+        logger->log ("scheduleAction_downloadEVADTSAndAnswerToRSProto\n");
         actionScheduler.scheduleAction (ActionScheduler::eAction::downloadEVADTSandAnswerToRSProto, 0, 10000);
+    }
 }
 eActionResult Server::priv_runAction_downloadEVADTSAndAnswerToRSProto()
 {
+    logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: begin\n");
     //se non c'è il modulo RSProto collegato, non dovrei nemmeno arrivare qui. In ogni caso, abortisco l'operazione
     if (NULL == rsProto)
         return eActionResult::finished;
 
     //se non ci sono le condizioni per iniziare il download, termino (quest'action verrà rischedulata automaticamente)
     if (!priv_downloadDataAudit_canStartADownload())
+    {
+        logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: needToBeRescheduled\n");
         return eActionResult::needToBeRescheduled;
+    }
 
     //avvio la procedura di download da CPU. In caso di successo, il file scaricato si trova in
     // temp/dataAudit[fileID].txt
@@ -508,11 +517,13 @@ eActionResult Server::priv_runAction_downloadEVADTSAndAnswerToRSProto()
         u8 fullFilePathAndName[512];
         rhea::string::utf8::spf (fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/dataAudit%d.txt", rhea::getPhysicalPathToAppFolder(), fileID);
         rsProto->sendFileAnswer (RSProto::FILE_EVA_DTS, 0, fullFilePathAndName);
+        logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: got audit file [%s]\n", fullFilePathAndName);
         return eActionResult::finished;
     }
     else
     {
         //mi faccio rischedulare e ci riprovo fra un po'
+        logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: failed, needToBeRescheduled\n");
         return eActionResult::needToBeRescheduled;
     }
 }
@@ -2684,6 +2695,8 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
  */
 eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify, u16 *out_fileID)
 {
+    logger->log ("priv_downloadDataAudit:: begin\n");
+
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
 	u8 fullFilePathAndName[256];
 	u16 fileID = 0;
@@ -2698,6 +2711,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
     if (NULL != out_fileID)
         *out_fileID= fileID;
 
+
+    logger->log ("priv_downloadDataAudit:: dts file: %s\n", fullFilePathAndName);
 
 /*#ifdef _DEBUG
 	//hack per velocizzare i test
@@ -2718,6 +2733,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	{
 		if (NULL != subscriber)
 			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID, NULL, 0);
+
+        logger->log ("priv_downloadDataAudit:: finishedKO_unableToCreateFile\n");
 		return eReadDataFileStatus::finishedKO_unableToCreateFile;
 	}
 
@@ -2737,6 +2754,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
             if (NULL != subscriber)
                 notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID, NULL, 0);
             rhea::fs::fileClose(f);
+
+            logger->log ("priv_downloadDataAudit:: finishedKO_cpuDidNotAnswer\n");
             return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
         }
 
@@ -2765,6 +2784,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 				else
 					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, NULL, 0);
 			}
+
+            logger->log ("priv_downloadDataAudit:: finishedOK\n");
             return eReadDataFileStatus::finishedOK;
         }
 

@@ -108,7 +108,7 @@ void FormBoot::showMe()
         cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
 
         //se esite la cartella AUTOF2, parto con l'autoupdate
-        if (priv_autoupdate_exists())
+        if (does_autoupdate_exists())
             priv_autoupdate_showForm();
     }
     else
@@ -121,7 +121,7 @@ void FormBoot::showMe()
         priv_pleaseWaitSetError("WARNING: There was an error during synchronization with the CPU.<br>Please upgrade the CPU FW to a compatible version.");
 
         //in ogni caso, se esite la cartella AUTOF2, parto con l'autoupdate perchè probabilmente nella cartella AUTOF2 c'è una CPU buona da caricare
-        if (priv_autoupdate_exists())
+        if (does_autoupdate_exists())
             priv_autoupdate_showForm();
 
     }
@@ -1447,7 +1447,7 @@ bool FormBoot::priv_autoupdate_guiSubFolderExists(const u8 *folderPath, char *ou
 /************************************************************+
  * autoupdate handler
  */
-bool FormBoot::priv_autoupdate_exists()
+bool FormBoot::does_autoupdate_exists()
 {
     ui->labFileFound_cpuFW->setText("CPU: nothing found");
     priv_autoupdate_setText (ui->labStatus_cpuFW, "pending...");

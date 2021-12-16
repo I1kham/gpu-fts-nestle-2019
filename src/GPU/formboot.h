@@ -26,6 +26,9 @@ public:
     void                showMe();
     eRetCode            onTick();
 
+
+    bool                does_autoupdate_exists();
+
 private slots:
     void                on_buttonStart_clicked();
     void                on_btnInstall_languages_clicked();
@@ -158,7 +161,6 @@ private:
     void                    priv_uploadESAPI_GUI (rhea::thread::sMsg &msg);
     void                    priv_uploadESAPI_GUI_unzipped(rhea::thread::sMsg &msg);
 
-    bool                    priv_autoupdate_exists();
     bool                    priv_autoupdate_guiSubFolderExists(const u8 *folderPath, char *out_subFolderName, u32 sizeof_subFolderName) const;
     void                    priv_autoupdate_showForm();
     void                    priv_autoupdate_onTick();
