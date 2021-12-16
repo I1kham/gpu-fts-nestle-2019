@@ -1,0 +1,1 @@
+var rheaPageOptions={gallery_timeToNextImageMSec:5000,gallery_images:["../upload/during_selection_01.jpg","../upload/during_selection_02.jpg"]};

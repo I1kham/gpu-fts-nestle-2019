@@ -1,0 +1,24 @@
+.pageConfirm_iconOptionAL, 
+.pageConfirm_iconOptionAR { color:#fff; display:table-cell; vertical-align: middle; width:120px; min-width:120px; max-width:121px; height:54px; min-height:54px; overflow:hidden; text-align:center; background-image:url(img/optionBtnA-OFF.png); background-repeat: no-repeat; background-position: left top; }
+.pageConfirm_iconOptionAL.selected, 
+.pageConfirm_iconOptionAR.selected { background-image:url(img/optionBtnA-ON.png); color:#000; }
+.pageConfirm_iconOptionAL p,
+.pageConfirm_iconOptionAR p { display:inline-block; max-width:109px; line-height:20px; margin:5px 0 0 0; padding:0; font-size:0.75em; font-weight:bold; overflow:hidden;}
+
+.pageConfirm_iconOptionBL,
+.pageConfirm_iconOptionBR { color:#fff; display:table-cell; vertical-align: middle; width:121px; min-width:121px; max-width:121px; height:94px; min-height:94px; overflow:hidden; text-align:center; background-image:url(img/optionBtnB-OFF.png); background-repeat: no-repeat; background-position: left top; }
+.pageConfirm_iconOptionBL.selected,
+.pageConfirm_iconOptionBR.selected { background-image:url(img/optionBtnB-ON.png); color:#000; }
+.pageConfirm_iconOptionBL p,
+.pageConfirm_iconOptionBR p { display:inline-block; max-width:111px; line-height:20px; margin:5px 0 0 0; padding:0; font-size:0.75em; font-weight:bold; overflow:hidden; }
+
+.pageConfirm_iconOptionCL { color:#fff; display:table-cell; vertical-align: middle; width:121px; min-width:121px; max-width:121px; height:94px; min-height:94px; overflow:hidden; text-align:center; background-image:url(img/optionBtnC-OFF.png); background-repeat: no-repeat; background-position: left top; }
+.pageConfirm_iconOptionCR { color:#fff; display:table-cell; vertical-align: middle; width:121px; min-width:121px; max-width:121px; height:94px; min-height:94px; overflow:hidden; text-align:center; background-image:url(img/optionBtnD-OFF.png); background-repeat: no-repeat; background-position: left top; }
+.pageConfirm_iconOptionCL.selected { background-image:url(img/optionBtnC-ON.png); color:#000; }
+.pageConfirm_iconOptionCR.selected { background-image:url(img/optionBtnD-ON.png); color:#000; }
+.pageConfirm_iconOptionCL p,
+.pageConfirm_iconOptionCR p { display:inline-block; max-width:109px; overflow:hidden; line-height:20px; margin:48px 0 0 0; padding:0; font-size:0.75em; font-weight:bold; overflow:hidden;}
+
+.pageConfirm_btnJUG { color:#fff; display:table-cell; vertical-align: middle; width:121px; min-width:121px; max-width:121px; height:94px; min-height:94px; overflow:hidden; text-align:center; background-image:url(img/btnJUG-OFF.png); background-repeat: no-repeat; background-position: left top; }
+.pageConfirm_btnJUG.selected { background-image:url(img/btnJUG-ON.png); color:#000; }
+.pageConfirm_btnJUG p { display:inline-block; max-width:111px; line-height:20px; margin:70px 0 0 0; padding:0; font-size:0.8em; font-weight:bold; overflow:hidden; }
