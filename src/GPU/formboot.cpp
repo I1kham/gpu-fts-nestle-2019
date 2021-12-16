@@ -1769,11 +1769,13 @@ void FormBoot::priv_autoupdate_onTick()
 
 
     case eAutoUpdateFase_finished:
-        autoupdate.fase = eAutoUpdateFase_finished_wait;
+        //autoupdate.fase = eAutoUpdateFase_finished_wait;
+        autoupdate.fase = eAutoUpdateFase_rebooting;
         priv_autoupdate_center(ui->labFileFound_da3);
         priv_autoupdate_center(ui->labStatus_da3);
         priv_autoupdate_setOK (ui->labFinalMessage, "Auto update finished. Please restart the machine");
         priv_autoupdate_removeAllFiles();
+        autoupdate.skipInHowManySec = 5;
         break;
 
     case eAutoUpdateFase_finishedKO:
@@ -1785,6 +1787,17 @@ void FormBoot::priv_autoupdate_onTick()
         break;
 
     case eAutoUpdateFase_finished_wait:
+        break;
+
+    case eAutoUpdateFase_rebooting:
+        if (autoupdate.skipInHowManySec == 0)
+            rhea::reboot();
+        else
+        {
+            sprintf_s (s, sizeof(s), "Auto update finished. Please restart the machine (-%d)", autoupdate.skipInHowManySec);
+            autoupdate.skipInHowManySec--;
+            priv_autoupdate_setOK (ui->labFinalMessage, s);
+        }
         break;
 
     case eAutoUpdateFase_backToFormBoot:

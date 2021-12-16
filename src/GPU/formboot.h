@@ -108,7 +108,9 @@ private:
         eAutoUpdateFase_finished,
         eAutoUpdateFase_finishedKO,
         eAutoUpdateFase_finished_wait,
-        eAutoUpdateFase_backToFormBoot
+        eAutoUpdateFase_backToFormBoot,
+
+        eAutoUpdateFase_rebooting
     };
 
 private:

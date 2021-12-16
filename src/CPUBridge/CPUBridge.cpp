@@ -44,7 +44,7 @@ bool cpubridge::startServer (CPUChannel *chToCPU, rhea::ISimpleLogger *logger, r
     cpubridge_helper_folder_create("/last_installed/da3", logger);
     cpubridge_helper_folder_create("last_installed/cpu", logger);
     cpubridge_helper_folder_create("temp", logger);
-	cpubridge_helper_folder_create("auto", logger);
+    cpubridge_helper_folder_create("autoUpdate", logger);
 
     char s[512];
     sprintf_s(s, sizeof(s), "%s/temp", rhea::getPhysicalPathToAppFolder());

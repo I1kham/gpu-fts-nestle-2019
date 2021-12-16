@@ -478,7 +478,7 @@ eActionResult Server::priv_runAction_rebootASAP()
     //è il caso di fare il reboot
     if (stato.get() == sStato::eStato::normal || stato.get() == sStato::eStato::CPUNotSupported || stato.get() == sStato::eStato::comError)
     {
-        system("reboot");
+        rhea::reboot();
         return eActionResult::finished;
     }
 
@@ -2828,10 +2828,10 @@ void Server::priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAnd
 		u8 *buffer = parser->createBufferWithPackedData(allocator, &bufferSize, this->cpu_numDecimalsForPrices);
 		if (NULL != buffer)
 		{
-			char s[256];
-			sprintf_s(s, sizeof(s), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
-			FILE *f2 = fopen(s, "wb");
-			fwrite(buffer, bufferSize, 1, f2);
+            u8 s[256];
+            rhea::string::utf8::spf (s, sizeof(s), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
+            FILE *f2 = rhea::fs::fileOpenForWriteBinary(s);
+            rhea::fs::fileWrite (f2, buffer, bufferSize);
             rhea::fs::fileClose(f2);
 			RHEAFREE(allocator, buffer);
 		}
