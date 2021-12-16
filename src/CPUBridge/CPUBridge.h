@@ -169,14 +169,20 @@ namespace cpubridge
 	u8			buildMsg_activateCPUBuzzer (u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
 					//[numRepeat], [beepLen_dSec] e [pausaTraUnBeepELAltro_dSec] validi sono compresi tra 0 e 15 inclusi
 	u8			buildMsg_getBuzzerStatus (u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_stopJug(u8* out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_getJugCurrentRepetition (u8* out_buffer, u8 sizeOfOutBuffer);
-    u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1toN, u8* out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_stopJug(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getJugCurrentRepetition (u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1toN, u8 *out_buffer, u8 sizeOfOutBuffer);
 					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
-	u8			buildMsg_scivoloBrewmatic (u8 perc0_100, u8* out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8* out_buffer, u32 sizeOfOutBuffer);
-	u8			buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue, u8* out_buffer, u32 sizeOfOutBuffer);
-	u8			buildMsg_getSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u8* out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_scivoloBrewmatic (u8 perc0_100, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_getSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u8 *out_buffer, u32 sizeOfOutBuffer);
+
+	u8			buildMsg_Snack (eSnackCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_Snack_status_0x03 (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_Snack_enterProg_0x04 (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_Snack_exitProg_0x05 (u8 *out_buffer, u8 sizeOfOutBuffer);
+
 
 	/***********************************************
 		notify_xxxx
@@ -709,6 +715,19 @@ namespace cpubridge
     void		ask_SCHEDULE_ACTION_RELAXED_REBOOT (const sSubscriber& from, u16 handlerID);
                 //CPUBridge alla ricezione di questo messaggio non risponde nulla ma schedula un reboot che verrà eseguito quando le condizioni lo consentono (macchine in idle o in errore e nessuna attività da parte
                 //dell'utente da un po' di tempo)
+
+	void		ask_SNACK_GET_STATUS (const sSubscriber& from, u16 handlerID);
+	void		notify_SNACK_GET_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool isAlive, const u8 *selStatus1_48);
+	void		translateNotify_SNACK_GET_STATUS(const rhea::thread::sMsg &msg, bool *out_isAlive, u8 *out_selStatus1_48, u32 sizeof_outSelStatus);
+
+	void		ask_SNACK_ENTER_PROG (const sSubscriber& from, u16 handlerID);
+	void		notify_SNACK_ENTER_PROG (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
+	void		translateNotify_SNACK_ENTER_PROG(const rhea::thread::sMsg &msg, bool *out_result);
+
+	void		ask_SNACK_EXIT_PROG (const sSubscriber& from, u16 handlerID);
+	void		notify_SNACK_EXIT_PROG (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
+	void		translateNotify_SNACK_EXIT_PROG(const rhea::thread::sMsg &msg, bool *out_result);
+
 
 } // namespace cpubridge
 

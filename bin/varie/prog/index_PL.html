@@ -1118,7 +1118,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND|0|INNE' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND|0|INNE|3|SNACK' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<table border='0' width='100%' id="pageDevices_selectorTableMicro" style="display:none">
@@ -1162,6 +1162,45 @@
 					</table>
 				</div>
 
+				<!--DEVICES SNACK-->
+				<div id="pageDevices_snack" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>SNACK PROGRAMMING</td>
+							<td><div class='UIButton bigButton60 actionButton' data-caption='ENTER PROGRAMMING' data-onclick="pageDevices_snack_enterProg()"></div></td>
+						</tr>
+						<tr>
+							<td>SNACK PROGRAMMING</td>
+							<td><div class='UIButton bigButton60 actionButton' data-caption='EXIT PROGRAMMING' data-onclick="pageDevices_snack_exitProg()"></div></td>
+						</tr>
+						
+						<tr>
+							<td>SNACK PROGRAMMING</td>
+							<td><div class='UIButton bigButton60 actionButton' data-caption='STATUS' data-onclick="pageDevices_snack_status()"></div></td>
+						</tr>
+						
+
+						<tr><td>PRICE 1</td><td><div id='pageDevices_snack_prc1' class="UINumber" data-da3='7746' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 2</td><td><div id='pageDevices_snack_prc2' class="UINumber" data-da3='7748' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 3</td><td><div id='pageDevices_snack_prc3' class="UINumber" data-da3='7750' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 4</td><td><div id='pageDevices_snack_prc4' class="UINumber" data-da3='7752' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 5</td><td><div id='pageDevices_snack_prc5' class="UINumber" data-da3='7754' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 6</td><td><div id='pageDevices_snack_prc6' class="UINumber" data-da3='7756' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 7</td><td><div id='pageDevices_snack_prc7' class="UINumber" data-da3='7758' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 8</td><td><div id='pageDevices_snack_prc8' class="UINumber" data-da3='7760' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 9</td><td><div id='pageDevices_snack_prc9' class="UINumber" data-da3='7762' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 10</td><td><div id='pageDevices_snack_prc10' class="UINumber" data-da3='7764' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 11</td><td><div id='pageDevices_snack_prc11' class="UINumber" data-da3='7766' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 12</td><td><div id='pageDevices_snack_prc12' class="UINumber" data-da3='7768' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 13</td><td><div id='pageDevices_snack_prc13' class="UINumber" data-da3='7770' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 14</td><td><div id='pageDevices_snack_prc14' class="UINumber" data-da3='7772' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 15</td><td><div id='pageDevices_snack_prc15' class="UINumber" data-da3='7774' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 16</td><td><div id='pageDevices_snack_prc16' class="UINumber" data-da3='7776' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 17</td><td><div id='pageDevices_snack_prc17' class="UINumber" data-da3='7778' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 18</td><td><div id='pageDevices_snack_prc18' class="UINumber" data-da3='7780' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+					</table>
+				</div> <!--DEVICES SNACK-->
+				
 				<!--DEVICES VARIFLEX / MICRO-->
 				<div id="pageDevices_vflex" style="display:none">
 					<table border='0' class='elenco'>
@@ -3687,10 +3726,10 @@ function pagePayment_onSelector()
 var pageDevices_selector = null;
 function pageDevices_show()
 {
+	var win = ui.getWindowByID("pageDevices");
 	if (showPage("pageDevices", "URZĄDZENIA", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
-		var win = ui.getWindowByID("pageDevices");
 		if (da3.isGruppoMicro())
 			pageDevices_selector = win.getChildByID("pageDevices_selectorMicro");
 		else
@@ -3753,6 +3792,14 @@ function pageDevices_show()
 		pageDevices_vgrind_setLastFluxAndPos(pageDevices_vgrind_lastFlux, pageDevices_vgrind_lastPos);
 	}
 
+
+	//nella pagina snack, aggiusta i decimali per i prezzi 
+	for (var i=1; i<=18; i++)
+	{
+		var obj = win.getChildByID("pageDevices_snack_prc" +i);
+		obj.setDecimals(da3.getDecimalsForPrices());
+	}
+
 	currentTask = new TaskDevices();
 	pageDevices_onSelector();
 	pageDevices_onEnableAuto(1);
@@ -3768,10 +3815,12 @@ function pageDevices_onSelector()
 	var elem0 = rheaGetElemByID("pageDevices_general");
 	var elem1 = rheaGetElemByID("pageDevices_vflex");
 	var elem2 = rheaGetElemByID("pageDevices_vgrind");
+	var elem3 = rheaGetElemByID("pageDevices_snack");
 
 	rheaHideElem(elem0);
 	rheaHideElem(elem1);
 	rheaHideElem(elem2);
+	rheaHideElem(elem3);
 	
 	var win = ui.getWindowByID("pageDevices");
 	pageDevices_whichPage = parseInt(pageDevices_selector.getSelectedOptionValue());
@@ -3783,9 +3832,57 @@ function pageDevices_onSelector()
 			rheaShowElem(elem2); 
 			pageDevices_onVGrindSelector();
 			break;
+		case 3:  rheaShowElem(elem3); break;
 	}
 	
 	win.showHideScrollBar();
+}
+
+function pageDevices_snack_enterProg()
+{
+	pleaseWait_show();
+	rhea.ajax ("snackEnterProg", "").then( function(result)
+	{
+		console.log (result);
+		if (result!="OK")
+		{
+			pleaseWait_hide();
+		}
+		else
+			currentTask.snackEnterProg();
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX::snackEnterProg ERR=>" +result);
+		pleaseWait_hide();
+	});	
+}
+
+function pageDevices_snack_exitProg()
+{
+	pleaseWait_show();
+	rhea.ajax ("snackExitProg", "").then( function(result)
+	{
+		console.log (result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX::snackExitProg ERR=>" +result);
+		pleaseWait_hide();
+	});	
+}
+
+function pageDevices_snack_status()
+{
+	rhea.ajax ("snackGetState", "").then( function(result)
+	{
+		console.log (result);
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX::snackGetState, err=>" +result);
+	});	
 }
 
 function pageDevices_onVGrindSelector()

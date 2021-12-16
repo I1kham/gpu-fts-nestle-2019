@@ -33,7 +33,7 @@ namespace platform
 	void            getTimeNow(u8 *out_hour, u8 *out_min, u8 *out_sec);
 
 	void            runShellCommandNoWait(const char* cmdIN);
-    void            executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult);
+    bool            executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult);
 
 	void			reboot();
 

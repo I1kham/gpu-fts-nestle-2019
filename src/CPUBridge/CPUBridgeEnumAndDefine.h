@@ -98,6 +98,9 @@
 #define		CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16				0x0145
 #define		CPUBRIDGE_NOTIFY_MSG_FROM_LANGUAGE_TABLE			0x0146
 #define		CPUBRIDGE_NOTIFY_SCIVOLO_BREWMATIC					0x0147
+#define		CPUBRIDGE_NOTIFY_SNACK_ENTER_PROG					0x0148
+#define		CPUBRIDGE_NOTIFY_SNACK_EXIT_PROG					0x0149
+#define		CPUBRIDGE_NOTIFY_SNACK_GET_STATUS					0x014A
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
@@ -189,6 +192,9 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16							0x0851
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC								0x0852
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SCHEDULE_ACTION_RELAXED_REBOOT                 0x0853
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_ENTER_PROG								0x0854
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_EXIT_PROG								0x0855
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_GET_STATUS								0x0856
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -216,7 +222,8 @@ namespace cpubridge
 		getMilkerVer = 'M',
         startSelWithPaymentAlreadyHandled_V = 'V',
 		getNomeSelezioneCPU_d = 'd',
-		requestPriceHoldingPriceList = 'H'
+		requestPriceHoldingPriceList = 'H',
+		snackCommand = 'Y'
 	};
 
 	enum class eRunningSelStatus: u8
@@ -377,6 +384,17 @@ namespace cpubridge
 		scivolo_brewmatic			= 0x32,
 		setSelectionParam			= 0x33,
 		getSelectionParam			= 0x34,
+
+		unknown = 0xff
+    };
+
+	 enum class eSnackCommand: u8
+    {
+        getPrices = 0x01,
+        setPrices = 0x02,
+		machineStatus = 0x03,
+		enterProg = 0x04,
+		exitProg = 0x05,
 
 		unknown = 0xff
     };

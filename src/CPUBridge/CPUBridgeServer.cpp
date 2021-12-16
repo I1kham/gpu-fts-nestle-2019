@@ -1878,6 +1878,63 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				notify_GET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode, paramValue);
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SNACK_ENTER_PROG:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_Snack_enterProg_0x04(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				{
+					//rcv: # Y [len] 0x04 [esito] [ck]
+					bool result = false;
+					if (answerBuffer[4] == 0x01)
+						result = true;
+					notify_SNACK_ENTER_PROG(sub->q, handlerID, logger, result);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SNACK_EXIT_PROG:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_Snack_exitProg_0x05(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				{
+					//rcv: # Y [len] 0x05 [esito] [ck]
+					bool result = false;
+					if (answerBuffer[4] == 0x01)
+						result = true;
+					notify_SNACK_EXIT_PROG(sub->q, handlerID, logger, result);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SNACK_GET_STATUS:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_Snack_status_0x03(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				{
+					//rcv: # Y [len] 0x03 [stato] [stato_sel_1-8]... [stato_sel_41-48] [ck]
+					bool result = false;
+					u8 stato_sel_1_48[6];
+
+					if (answerBuffer[4] == 0x01)
+					{
+						result = true;
+						memcpy (stato_sel_1_48, &answerBuffer[5], 6);
+					}
+					else
+						memset (stato_sel_1_48, 0, sizeof(stato_sel_1_48));
+
+					notify_SNACK_GET_STATUS(sub->q, handlerID, logger, result, stato_sel_1_48);
+				}
+			}
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);

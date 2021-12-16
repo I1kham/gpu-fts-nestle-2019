@@ -1362,12 +1362,22 @@ TaskDevices.prototype.messageBox = function (msg)
 	pleaseWait_freeText_setText(msg);
 }
 
+TaskDevices.prototype.snackEnterProg = function()									{ this.what = 9; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runTestAssorbGruppo = function()								{ this.what = 5; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runTestAssorbMotoriduttore = function()						{ this.what = 6; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runGrinderSpeedTest = function(macina1o2)						{ this.what = 7; this.fase = 0; this.macina1o2=macina1o2; this.speed1=0; this.speed2=0; this.gruppoTolto=0; pleaseWait_show(); }
 TaskDevices.prototype.runScivoloBrewmatic = function (perc0_100)					{ this.what = 8; this.fase = 0; this.speed1=perc0_100; pleaseWait_show(); }
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr); }
-TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
+TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			
+{ 
+	rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); 
+	if (this.what == 9)
+	{
+		//siamo in snaxk prog
+		pleaseWait_freeText_setText(msg);
+		
+	}
+}
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 {
 	switch (this.what)
@@ -1430,6 +1440,17 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 			case 61:	this.fase = 70; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CLOSE
 			case 71:	this.fase = 72; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CONTINUE
 		}
+		break;
+		
+	case 9: //snack prog (Exit)
+		this.what = 0;
+		pleaseWait_hide();
+		rhea.ajax ("snackExitProg", "").then( function(result)
+		{
+		})
+		.catch( function(result)
+		{
+		});		
 		break;
 	}
 }
@@ -1497,6 +1518,27 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 		this.priv_handleGrinderSpeedTest(timeNowMsec);
 	else if (this.what == 8)
 		this.priv_handleTestScivoloBrewmatic(timeNowMsec);
+	else if (this.what == 9)
+		this.priv_handleSnackProg (timeNowMsec);
+}
+
+TaskDevices.prototype.priv_handleSnackProg = function(timeNowMsec)
+{
+	switch (this.fase)
+	{
+	case 0:
+		this.fase = 10;
+		pleaseWait_rotella_hide();
+		pleaseWait_btn1_setText("EXIT PROGRAMMING");
+		pleaseWait_btn1_show();
+		pleaseWait_freeText_setText("");
+		pleaseWait_freeText_show();
+		break;
+		
+	case 10:
+		break;
+	}
+		
 }
 
 TaskDevices.prototype.priv_queryCupCoverSensorLiveValue = function(timeNowMsec)

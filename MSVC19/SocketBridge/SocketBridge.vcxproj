@@ -86,6 +86,9 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_setLastUsedLangForProgMenu.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x2A_stopJug.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x03_stato.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x04_enterProg.cpp" />
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x05_exitProg.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_T_VMCDataFileTimestamp.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.cpp" />
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_validateQuickMenuPinCode.cpp" />
@@ -200,6 +203,9 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_setLastUsedLangForProgMenu.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x2A_stopJug.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x03_stato.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x04_enterProg.h" />
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x05_exitProg.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_T_VMCDataFileTimestamp.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x19_GetLastFLuxInfo.h" />
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_validateQuickMenuPinCode.h" />

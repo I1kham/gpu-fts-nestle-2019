@@ -68,7 +68,9 @@
 #include "CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h"
 #include "CmdHandler/CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic.h"
-
+#include "CmdHandler/CmdHandler_ajaxReq_snack_0x03_stato.h"
+#include "CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.h"
+#include "CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.h"
 using namespace socketbridge;
 
 /***************************************************
@@ -168,6 +170,9 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_P0x31_askMsgFromLangTable);
 	CHECK(CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic);
 
+	CHECK(CmdHandler_ajaxReq_snack_0x03_stato);
+	CHECK(CmdHandler_ajaxReq_snack_0x04_enterProg);
+	CHECK(CmdHandler_ajaxReq_snack_0x05_exitProg);
 #undef CHECK
     return NULL;
 }

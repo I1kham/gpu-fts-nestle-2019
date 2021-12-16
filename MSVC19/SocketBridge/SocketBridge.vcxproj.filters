@@ -321,6 +321,15 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.cpp">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x03_stato.cpp">
+      <Filter>CmdHandler\snack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x04_enterProg.cpp">
+      <Filter>CmdHandler\snack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x05_exitProg.cpp">
+      <Filter>CmdHandler\snack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -644,6 +653,15 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h">
       <Filter>CmdHandler\ajax\Prog</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x03_stato.h">
+      <Filter>CmdHandler\snack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x04_enterProg.h">
+      <Filter>CmdHandler\snack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_snack_0x05_exitProg.h">
+      <Filter>CmdHandler\snack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CmdHandler">
@@ -681,6 +699,9 @@
     </Filter>
     <Filter Include="CmdHandler\ajax\Task">
       <UniqueIdentifier>{3719124b-cde8-464b-98a8-c10a0eae0e38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CmdHandler\snack">
+      <UniqueIdentifier>{15dd595c-7731-4163-bbda-fd8194894cd4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

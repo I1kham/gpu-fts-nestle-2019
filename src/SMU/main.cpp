@@ -41,10 +41,10 @@ bool startCPUBridge()
     bool b = chToCPU->open("/dev/ttymxc3", logger);
 #else
     //apro un canale di comunicazione con una finta CPU
-    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+    //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
 	
 	//apro un canale con la CPU fisica
-	//cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM8", logger);
+	cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();    bool b = chToCPU->open("COM8", logger);
 #endif
 
     if (!b)

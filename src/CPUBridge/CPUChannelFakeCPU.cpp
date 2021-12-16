@@ -238,6 +238,7 @@ u32 CPUChannelFakeCPU::priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (u8
 	return i;
 }
 
+
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
  */
@@ -257,6 +258,10 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		logger->log("CPUChannelFakeCPU::sendAndWaitAnswer() => ERR, cpuCommand not supported [%d]\n", (u8)cpuCommand);
 		*in_out_sizeOfAnswer = 0;
 		return false;
+		break;
+
+	case eCPUCommand::snackCommand:
+		return priv_handleSnackCommand (bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
 		break;
 
 	case eCPUCommand::readDataAudit:
@@ -1712,4 +1717,53 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 	ct++;
 	(*in_out_sizeOfAnswer) = (u16)ct;
+}
+
+
+//*****************************************************************
+bool CPUChannelFakeCPU::priv_handleSnackCommand (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
+{
+	assert ((eCPUCommand)bufferToSend[1] == eCPUCommand::snackCommand);
+
+	// [#] [Y] [len] [subcommand] [optional_data] [ck]
+	const eSnackCommand subcommand = (eSnackCommand)bufferToSend[3];
+	u32 ct = 0;
+	out_answer[ct++] = '#';
+	out_answer[ct++] = 'Y';
+	out_answer[ct++] = 0; //lunghezza
+	out_answer[ct++] = (u8)subcommand;
+
+	switch (subcommand)
+	{
+	default:
+		return false;
+
+	case eSnackCommand::machineStatus:
+		//snd: # Y [len] 0x03 [stato] [stato_sel_1-8]... [stato_sel_41-48] [ck]
+		out_answer[ct++] = 1;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		break;
+
+	case eSnackCommand::enterProg:
+	case eSnackCommand::exitProg:
+		//snd: # Y [len] 0x04 [esito] [ck]
+		out_answer[ct++] = 1;
+		break;
+
+		//case eSnackCommand::getPrices = 0x01,
+		//case eSnackCommand::setPrices = 0x02,
+
+	}
+
+
+	//checksumn
+	out_answer[2] = (u8)ct + 1;
+	out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+	*in_out_sizeOfAnswer = out_answer[2];
+	return true;
 }

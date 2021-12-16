@@ -519,6 +519,21 @@ u8 cpubridge::buildMsg_getMilkerVer(u8 *out_buffer, u8 sizeOfOutBuffer)
 	return cpubridge_buildMsg(cpubridge::eCPUCommand::getMilkerVer, NULL, 0, out_buffer, sizeOfOutBuffer);
 }
 
+//***************************************************
+u8 cpubridge::buildMsg_Snack (eSnackCommand cmd, const u8 *optionalDataIN, u32 sizeOfOptionalDataIN, u8 *out_buffer, u32 sizeOfOutBuffer)
+{
+	assert(sizeOfOptionalDataIN < 31);
+    u8 optionalData[32];
+    optionalData[0] = (u8)cmd;
+	if (NULL != optionalDataIN && sizeOfOptionalDataIN > 0)
+		memcpy(&optionalData[1], optionalDataIN, sizeOfOptionalDataIN);
+    return cpubridge_buildMsg (cpubridge::eCPUCommand::snackCommand, optionalData, 1+ sizeOfOptionalDataIN, out_buffer, sizeOfOutBuffer);
+}
+
+//***************************************************
+u8 cpubridge::buildMsg_Snack_status_0x03 (u8 *out_buffer, u8 sizeOfOutBuffer)					{ return buildMsg_Snack (eSnackCommand::machineStatus, NULL, 0, out_buffer, sizeOfOutBuffer); }
+u8 cpubridge::buildMsg_Snack_enterProg_0x04 (u8* out_buffer, u8 sizeOfOutBuffer)				{ return buildMsg_Snack (eSnackCommand::enterProg, NULL, 0, out_buffer, sizeOfOutBuffer); }
+u8 cpubridge::buildMsg_Snack_exitProg_0x05 (u8* out_buffer, u8 sizeOfOutBuffer)					{ return buildMsg_Snack (eSnackCommand::exitProg, NULL, 0, out_buffer, sizeOfOutBuffer); }
 
 //***************************************************
 u8 cpubridge::buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalDataIN, u32 sizeOfOptionalDataIN, u8 *out_buffer, u32 sizeOfOutBuffer)
@@ -3035,6 +3050,7 @@ void cpubridge::ask_SCHEDULE_ACTION_RELAXED_REBOOT (const sSubscriber& from, u16
     rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SCHEDULE_ACTION_RELAXED_REBOOT, handlerID, NULL, 0);
 }
 
+
 //***************************************************
 void cpubridge::ask_GET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam)
 {
@@ -3070,4 +3086,73 @@ void cpubridge::translateNotify_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg
 	*out_paramValue = rhea::utils::bufferReadU16 (&p[3]);
 }
 
+
+//***************************************************
+void cpubridge::ask_SNACK_ENTER_PROG (const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SNACK_ENTER_PROG, handlerID, NULL, 0);
+}
+void cpubridge::notify_SNACK_ENTER_PROG (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result)
+{
+	logger->log("notify_SNACK_ENTER_PROG [%d]\n", result?0:1);
+	u8 optionalData[2];
+	optionalData[0] = static_cast<u8>(result);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SNACK_ENTER_PROG, handlerID, optionalData, 1);
+}
+void cpubridge::translateNotify_SNACK_ENTER_PROG(const rhea::thread::sMsg &msg, bool *out_result)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SNACK_ENTER_PROG);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_result = false;
+	if (p[0] == 0x01)
+		*out_result = true;
+}
+
+//***************************************************
+void cpubridge::ask_SNACK_EXIT_PROG (const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SNACK_EXIT_PROG, handlerID, NULL, 0);
+}
+void cpubridge::notify_SNACK_EXIT_PROG (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result)
+{
+	logger->log("notify_SNACK_EXIT_PROG [%d]\n", result?0:1);
+	u8 optionalData[2];
+	optionalData[0] = static_cast<u8>(result);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SNACK_EXIT_PROG, handlerID, optionalData, 1);
+}
+void cpubridge::translateNotify_SNACK_EXIT_PROG(const rhea::thread::sMsg &msg, bool *out_result)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SNACK_EXIT_PROG);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_result = false;
+	if (p[0] == 0x01)
+		*out_result = true;
+}
+
+//***************************************************
+void cpubridge::ask_SNACK_GET_STATUS (const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_SNACK_GET_STATUS, handlerID, NULL, 0);
+}
+void cpubridge::notify_SNACK_GET_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool isAlive, const u8 *selStatus1_48)
+{
+	logger->log("notify_SNACK_GET_STATUS [%d] [%d][%d][%d][%d][%d][%d]\n", isAlive?0:1, selStatus1_48[0], selStatus1_48[1], selStatus1_48[2], selStatus1_48[3], selStatus1_48[4], selStatus1_48[5]);
+	u8 optionalData[16];
+	optionalData[0] = isAlive ? 0:1;
+	memcpy (&optionalData[1], selStatus1_48, 6);
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_SNACK_GET_STATUS, handlerID, optionalData, 7);
+}
+void cpubridge::translateNotify_SNACK_GET_STATUS(const rhea::thread::sMsg &msg, bool *out_isAlive, u8 *out_selStatus1_48, u32 sizeof_outSelStatus)
+{
+	assert(msg.what == CPUBRIDGE_NOTIFY_SNACK_GET_STATUS);
+	const u8 *p = (const u8*)msg.buffer;
+	*out_isAlive = false;
+	if (p[0] == 0x01)
+		*out_isAlive = true;
+
+	u32 n = 6;
+	if (sizeof_outSelStatus < n)
+		n = sizeof_outSelStatus;
+	memcpy (out_selStatus1_48, &p[1], n);
+}
 
