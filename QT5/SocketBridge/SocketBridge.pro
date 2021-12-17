@@ -199,7 +199,11 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x03_stato.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.cpp
 
 
 HEADERS += \
@@ -316,7 +320,11 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x29_getJugCurrentRepetition.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2A_stopJug.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x32_ScivoloRotanteBrewmatic.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x03_stato.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.h
 
 
 

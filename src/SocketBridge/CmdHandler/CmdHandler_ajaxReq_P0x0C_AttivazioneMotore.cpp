@@ -62,7 +62,7 @@ void CmdHandler_ajaxReq_P0x0C_AttivazioneMotore::passDownRequestToCPUBridge (cpu
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqAttivazioneMotore_jsonTrapFunction, &data))
 	{
-		if (data.m >= 1 && data.m <= 12)
+		if (data.m >= 1 && data.m < 20)
 		{
 			if (data.n < 1)
 				data.n = 1;

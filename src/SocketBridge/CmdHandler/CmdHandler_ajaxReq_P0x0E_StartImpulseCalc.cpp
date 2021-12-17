@@ -44,9 +44,8 @@ void CmdHandler_ajaxReq_P0x0E_StartImpulseCalc::passDownRequestToCPUBridge (cpub
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqStartImpulseCalc_jsonTrapFunction, &data))
 	{
-		if (data.m == 12) data.m = 2;
-		else data.m = 1;
-		cpubridge::ask_CPU_CALCOLA_IMPULSI_GRUPPO(from, getHandlerID(), data.m, data.v);
+		data.m -= 10;
+		cpubridge::ask_CPU_CALCOLA_IMPULSI_GRUPPO_AA (from, getHandlerID(), data.m, data.v);
 	}
 }
 

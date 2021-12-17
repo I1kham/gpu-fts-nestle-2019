@@ -65,6 +65,7 @@ private:
     eRetCode                priv_showNewProgrammazione_onTick();
     void                    priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg);
     void                    priv_showLockedPanel (bool b);
+    bool                    priv_autoupdate_exists() const;
 
 private:
     struct sSyncWithCPU

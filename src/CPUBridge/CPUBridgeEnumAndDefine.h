@@ -90,13 +90,18 @@
 #define		CPUBRIDGE_NOTIFY_CPU_STOP_JUG						0x013D
 #define		CPUBRIDGE_NOTIFY_CPU_GET_JUG_CURRENT_REPETITION		0x013E
 #define		CPUBRIDGE_NOTIFY_END_OF_GRINDER_CLEANING_PROC		0x013F
-#define		CPUBRIDGE_NOTIFY_MSG_FROM_LANGUAGE_TABLE			0x0140
-#define		CPUBRIDGE_NOTIFY_CPU_RESTART						0x013A
-#define		CPUBRIDGE_NOTIFY_LOCK_STATUS						0x013B
-#define		CPUBRIDGE_NOTIFY_SELECTION_ENABLE					0x013C
-#define		CPUBRIDGE_NOTIFY_OVERWRITE_CPU_MESSAGE_ON_SCREEN	0x013D
-#define		CPUBRIDGE_NOTIFY_SET_SELECTION_PARAMU16				0x013E
-#define		CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16				0x013F
+#define		CPUBRIDGE_NOTIFY_CPU_RESTART						0x0140
+#define		CPUBRIDGE_NOTIFY_LOCK_STATUS						0x0141
+#define		CPUBRIDGE_NOTIFY_SELECTION_ENABLE					0x0142
+#define		CPUBRIDGE_NOTIFY_OVERWRITE_CPU_MESSAGE_ON_SCREEN	0x0143
+#define		CPUBRIDGE_NOTIFY_SET_SELECTION_PARAMU16				0x0144
+#define		CPUBRIDGE_NOTIFY_GET_SELECTION_PARAMU16				0x0145
+#define		CPUBRIDGE_NOTIFY_MSG_FROM_LANGUAGE_TABLE			0x0146
+#define		CPUBRIDGE_NOTIFY_SCIVOLO_BREWMATIC					0x0147
+#define		CPUBRIDGE_NOTIFY_SNACK_ENTER_PROG					0x0148
+#define		CPUBRIDGE_NOTIFY_SNACK_EXIT_PROG					0x0149
+#define		CPUBRIDGE_NOTIFY_SNACK_GET_STATUS					0x014A
+
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
  /**********************************************************************
@@ -185,6 +190,11 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_OVERWRITE_CPU_MESSAGE_ON_SCREEN				0x084F
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SET_SELECTION_PARAMU16							0x0850
 #define		CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16							0x0851
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC								0x0852
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SCHEDULE_ACTION_RELAXED_REBOOT                 0x0853
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_ENTER_PROG								0x0854
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_EXIT_PROG								0x0855
+#define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_GET_STATUS								0x0856
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -212,7 +222,8 @@ namespace cpubridge
 		getMilkerVer = 'M',
         startSelWithPaymentAlreadyHandled_V = 'V',
 		getNomeSelezioneCPU_d = 'd',
-		requestPriceHoldingPriceList = 'H'
+		requestPriceHoldingPriceList = 'H',
+		snackCommand = 'Y'
 	};
 
 	enum class eRunningSelStatus: u8
@@ -369,12 +380,22 @@ namespace cpubridge
 		get_jug_current_repetition = 0x29,
 		stop_jug = 0x2A,
 		notify_end_of_grinder_cleaning_proc = 0x2B,
-		//
-		//
 		ask_msg_from_table_language = 0x31,
-		//
+		scivolo_brewmatic			= 0x32,
 		setSelectionParam			= 0x33,
 		getSelectionParam			= 0x34,
+
+		unknown = 0xff
+    };
+
+	 enum class eSnackCommand: u8
+    {
+        getPrices = 0x01,
+        setPrices = 0x02,
+		machineStatus = 0x03,
+		enterProg = 0x04,
+		exitProg = 0x05,
+
 		unknown = 0xff
     };
 
@@ -433,7 +454,9 @@ namespace cpubridge
 		prod9 = 9,
 		prod10 = 10,
 		macina1 = 11,
-		macina2 = 12
+		macina2 = 12,
+		macina3 = 13,
+		macina4 = 14
 	};
 
 	enum class eCPUProg_testSelectionDevice: u8
@@ -497,6 +520,12 @@ namespace cpubridge
 		venturi = 1,
 		indux = 2
 	};
+
+    enum class eActionResult : u8
+    {
+        needToBeRescheduled = 0,
+        finished = 1
+    };
 
 	enum class eLockStatus : u8
 	{

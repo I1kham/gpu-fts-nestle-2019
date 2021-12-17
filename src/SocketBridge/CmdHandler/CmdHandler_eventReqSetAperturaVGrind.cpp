@@ -13,11 +13,11 @@ void CmdHandler_eventReqSetAperturaVGrind::passDownRequestToCPUBridge (cpubridge
 	rhea::NetStaticBufferViewR nbr;
 	nbr.setup(&payload[1], payloadLen-1, rhea::eEndianess::eBigEndian);
 	
-	u8 macina_1o2 = 0;
+	u8 macina_1to4 = 0;
 	u16 target = 100;
-	nbr.readU8(macina_1o2);
+	nbr.readU8(macina_1to4);
 	nbr.readU16(target);
-	cpubridge::ask_CPU_SET_POSIZIONE_MACINA(from, getHandlerID(), macina_1o2, target);
+	cpubridge::ask_CPU_SET_POSIZIONE_MACINA_AA (from, getHandlerID(), macina_1to4, target);
 }
 
 //***********************************************************

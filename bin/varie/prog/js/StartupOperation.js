@@ -74,7 +74,7 @@ function onDA3Loaded(bResult)
 		setTimeout ( function() { window.location = "index.html"; }, 1000);
 		return;
 	}
-	//console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
+	console.log ("onDA3Loaded:: num macine[" +da3.getNumMacine() +"]");
 	//console.log ("onDA3Loaded:: isGrpVariflex?" + da3.isGruppoVariflex());
 	//console.log ("onDA3Loaded:: isGrpMicro?" + da3.isGruppoMicro());
 	
@@ -115,6 +115,13 @@ function onGUIInfoLoaded()
 		rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnEspressoCalib"), "UIdisabled");
 		if (da3.isGruppoVariflex())
 			rheaRemoveClassToElem(rheaGetElemByID("pageMainMenu_btnMilker"), "UIdisabled");
+	}
+	
+	//disabilito varie voci "instant" se la macchina non ha funzionalità solubili
+	if (!da3.hasAnyInstant())
+	{
+		rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnInstantCalib"), "UIdisabled");
+		rheaAddClassToElem(rheaGetElemByID("pageMainMenu_btnProdQty"), "UIdisabled");
 	}
 	
 	//da ora in poi, il currentTask.onTimer() viene chiamata una volta al secondo

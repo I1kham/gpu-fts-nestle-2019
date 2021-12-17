@@ -108,7 +108,7 @@ void FormBoot::showMe()
         cpubridge::ask_CPU_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
 
         //se esite la cartella AUTOF2, parto con l'autoupdate
-        if (priv_autoupdate_exists())
+        if (does_autoupdate_exists())
             priv_autoupdate_showForm();
     }
     else
@@ -121,7 +121,7 @@ void FormBoot::showMe()
         priv_pleaseWaitSetError("WARNING: There was an error during synchronization with the CPU.<br>Please upgrade the CPU FW to a compatible version.");
 
         //in ogni caso, se esite la cartella AUTOF2, parto con l'autoupdate perchè probabilmente nella cartella AUTOF2 c'è una CPU buona da caricare
-        if (priv_autoupdate_exists())
+        if (does_autoupdate_exists())
             priv_autoupdate_showForm();
 
     }
@@ -1408,12 +1408,46 @@ void FormBoot::priv_on_btnDownload_diagnostic_makeZip()
     priv_pleaseWaitHide();
 }
 
+/************************************************************+
+ * cerca una sottocartella all'interno di [folderPath] la quale contenga il
+ * file template.rheagui. Se questa sottocartella esiste, ritorna true e filla [out_path]
+ * con il nome della cartella in question
+ */
+bool FormBoot::priv_autoupdate_guiSubFolderExists(const u8 *folderPath, char *out_subFolderName, u32 sizeof_subFolderName) const
+{
+    OSFileFind ff;
+    bool ret = false;
 
+    //dentro la cartella, c'è una cartella con una valida gui
+    if (rhea::fs::findFirst(&ff, folderPath, (const u8*)"*.*"))
+    {
+        do
+        {
+            if (!rhea::fs::findIsDirectory(ff))
+                continue;
 
+            const char *dirName = (const char*)rhea::fs::findGetFileName(ff);
+            if (dirName[0] == '.')
+                continue;
+
+            char s[512];
+            sprintf_s (s, sizeof(s), "%s/%s/template.rheagui", folderPath, dirName);
+            if (rhea::fs::fileExists((const u8*)s))
+            {
+                ret = true;
+                rhea::fs::findGetFileName (ff, (u8*)out_subFolderName, sizeof_subFolderName);
+                break;
+            }
+
+        } while (rhea::fs::findNext(ff));
+        rhea::fs::findClose(ff);
+    }
+    return ret;
+}
 /************************************************************+
  * autoupdate handler
  */
-bool FormBoot::priv_autoupdate_exists()
+bool FormBoot::does_autoupdate_exists()
 {
     ui->labFileFound_cpuFW->setText("CPU: nothing found");
     priv_autoupdate_setText (ui->labStatus_cpuFW, "pending...");
@@ -1428,70 +1462,54 @@ bool FormBoot::priv_autoupdate_exists()
     memset (autoupdate.da3FileName, 0, sizeof(autoupdate.da3FileName));
     memset (autoupdate.guiFolderName, 0, sizeof(autoupdate.guiFolderName));
 
-    if (!rhea::fs::folderExists(glob->usbFolder_AutoF2))
-        return false;
+    //se esite la cartella AUTOf2 sulla chiavetta USB, copia i file nella local autoUpdate
+    if (rhea::fs::folderExists(glob->usbFolder_AutoF2))
+    {
+        u8 s[512];
+        if (rhea::fs::findFirstFileInFolderWithJolly (glob->usbFolder_AutoF2, (const u8*)"*.mhx", true, s, sizeof(s)))
+            rhea::fs::fileCopyAndKeepSameName (s, glob->localAutoUpdateFolder);
 
+        if (rhea::fs::findFirstFileInFolderWithJolly (glob->usbFolder_AutoF2, (const u8*)"*.da3", true, s, sizeof(s)))
+            rhea::fs::fileCopyAndKeepSameName (s, glob->localAutoUpdateFolder);
+
+        if (priv_autoupdate_guiSubFolderExists (glob->usbFolder_AutoF2, (char*)s, sizeof(s)))
+        {
+            u8 src[512];
+            rhea::string::utf8::spf (src, sizeof(src), "%s/%s", glob->usbFolder_AutoF2, s);
+
+            u8 dst[512];
+            rhea::string::utf8::spf (dst, sizeof(dst), "%s/%s", glob->localAutoUpdateFolder, s);
+            rhea::fs::folderCopy (src, dst, NULL);
+        }
+    }
+
+
+
+    //se ci sono file validi dentro la cartella [glob->localAutoUpdateFolder], procede con l'installazione
     bool ret = false;
-    OSFileFind ff;
 
     //dentro la cartella, c'è un file per la CPU?
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, (const u8*)"*.mhx"))
+    u8 s[512];
+    if (rhea::fs::findFirstFileInFolderWithJolly (glob->localAutoUpdateFolder, (const u8*)"*.mhx", true, s, sizeof(s)))
     {
-        do
-        {
-            if (rhea::fs::findIsDirectory(ff))
-                continue;
-
-            ret = true;
-            rhea::fs::findGetFileName (ff, (u8*)autoupdate.cpuFileName, sizeof(autoupdate.cpuFileName));
-            ui->labFileFound_cpuFW->setText(QString("CPU: ") +autoupdate.cpuFileName);
-            break;
-
-        } while (rhea::fs::findNext(ff));
-        rhea::fs::findClose(ff);
+        ret = true;
+        rhea::fs::extractFileNameWithExt (s, (u8*)autoupdate.cpuFileName, sizeof(autoupdate.cpuFileName));
+        ui->labFileFound_cpuFW->setText(QString("CPU: ") +autoupdate.cpuFileName);
     }
 
     //dentro la cartella, c'è un file da3?
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, (const u8*)"*.da3"))
+    if (rhea::fs::findFirstFileInFolderWithJolly (glob->localAutoUpdateFolder, (const u8*)"*.da3", true, s, sizeof(s)))
     {
-        do
-        {
-            if (rhea::fs::findIsDirectory(ff))
-                continue;
-
-            ret = true;
-            rhea::fs::findGetFileName (ff, (u8*)autoupdate.da3FileName, sizeof(autoupdate.da3FileName));
-            ui->labFileFound_da3->setText(QString("VMC datafile: ") +autoupdate.da3FileName);
-            break;
-
-        } while (rhea::fs::findNext(ff));
-        rhea::fs::findClose(ff);
+        ret = true;
+        rhea::fs::extractFileNameWithExt (s, (u8*)autoupdate.da3FileName, sizeof(autoupdate.da3FileName));
+        ui->labFileFound_da3->setText(QString("VMC datafile: ") +autoupdate.da3FileName);
     }
 
     //dentro la cartella, c'è una cartella con una valida gui
-    if (rhea::fs::findFirst(&ff, glob->usbFolder_AutoF2, (const u8*)"*.*"))
+    if (priv_autoupdate_guiSubFolderExists (glob->localAutoUpdateFolder, autoupdate.guiFolderName, sizeof(autoupdate.guiFolderName)))
     {
-        do
-        {
-            if (!rhea::fs::findIsDirectory(ff))
-                continue;
-
-            const char *dirName = (const char*)rhea::fs::findGetFileName(ff);
-            if (dirName[0] == '.')
-                continue;
-
-            char s[512];
-            sprintf_s (s, sizeof(s), "%s/%s/template.rheagui", glob->usbFolder_AutoF2, dirName);
-            if (rhea::fs::fileExists((const u8*)s))
-            {
-                ret = true;
-                rhea::fs::findGetFileName (ff, (u8*)autoupdate.guiFolderName, sizeof(autoupdate.guiFolderName));
-                ui->labFileFound_gui->setText(QString("GUI: ") +autoupdate.guiFolderName);
-                break;
-            }
-
-        } while (rhea::fs::findNext(ff));
-        rhea::fs::findClose(ff);
+        ret = true;
+        ui->labFileFound_gui->setText(QString("GUI: ") +autoupdate.guiFolderName);
     }
 
     return ret;
@@ -1528,7 +1546,8 @@ void FormBoot::priv_autoupdate_showForm()
 {
     autoupdate.isRunning = true;
     autoupdate.fase = eAutoUpdateFase_begin;
-    autoupdate.skipInHowManySec = 7;
+    autoupdate.skipInHowManySec = 5;
+    autoupdate.skipHowManySecSingleUpdate = 4;
     autoupdate.nextTimeTickMSec = 0;
 
     ui->labFirstMessage->setVisible(true);
@@ -1596,7 +1615,7 @@ void FormBoot::priv_autoupdate_onTick()
             ui->btnSkipCPU->setText ("SKIP");
             ui->btnSkipCPU->setVisible(true);
             autoupdate.fase = eAutoUpdateFase_cpu_waitForSkip;
-            autoupdate.skipInHowManySec = 5;
+            autoupdate.skipInHowManySec = autoupdate.skipHowManySecSingleUpdate;
         }
         break;
 
@@ -1617,7 +1636,7 @@ void FormBoot::priv_autoupdate_onTick()
     case eAutoUpdateFase_cpu_upload:
         autoupdate.fase = eAutoUpdateFase_cpu_upload_wait;
         priv_autoupdate_setText(ui->labStatus_cpuFW, "Installing CPU FW...");
-        sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.cpuFileName);
+        sprintf_s (s, sizeof(s), "%s/%s", glob->localAutoUpdateFolder, autoupdate.cpuFileName);
         priv_startUploadCPUFW (eUploadCPUFWCallBack_auto, (const u8*)s);
         break;
 
@@ -1625,7 +1644,8 @@ void FormBoot::priv_autoupdate_onTick()
         break;
 
     case eAutoUpdateFase_cpu_upload_finishedKO:
-        autoupdate.fase = eAutoUpdateFase_finishedKO;
+        //autoupdate.fase = eAutoUpdateFase_finishedKO;
+        autoupdate.fase = eAutoUpdateFase_gui_start;
         break;
 
     case eAutoUpdateFase_cpu_upload_finishedOK:
@@ -1651,7 +1671,7 @@ void FormBoot::priv_autoupdate_onTick()
             ui->btnSkipGUI->setText ("SKIP");
             ui->btnSkipGUI->setVisible(true);
             autoupdate.fase = eAutoUpdateFase_gui_waitForSkip;
-            autoupdate.skipInHowManySec = 5;
+            autoupdate.skipInHowManySec = autoupdate.skipHowManySecSingleUpdate;
         }
         break;
 
@@ -1675,7 +1695,7 @@ void FormBoot::priv_autoupdate_onTick()
         break;
 
     case eAutoUpdateFase_gui_upload_copy:
-        sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.guiFolderName);
+        sprintf_s (s, sizeof(s), "%s/%s", glob->localAutoUpdateFolder, autoupdate.guiFolderName);
         if (priv_doInstallGUI ((const u8*)s))
         {
             priv_autoupdate_setOK (ui->labStatus_gui, "SUCCESS, GUI installed");
@@ -1710,7 +1730,7 @@ void FormBoot::priv_autoupdate_onTick()
             ui->btnSkipDA3->setText ("SKIP");
             ui->btnSkipDA3->setVisible(true);
             autoupdate.fase = eAutoUpdateFase_da3_waitForSkip;
-            autoupdate.skipInHowManySec = 5;
+            autoupdate.skipInHowManySec = autoupdate.skipHowManySecSingleUpdate;
         }
         break;
 
@@ -1730,7 +1750,7 @@ void FormBoot::priv_autoupdate_onTick()
 
     case eAutoUpdateFase_da3_upload:
         priv_autoupdate_setText (ui->labStatus_da3, "Installing VMC Settings...");
-        sprintf_s (s, sizeof(s), "%s/%s", glob->usbFolder_AutoF2, autoupdate.da3FileName);
+        sprintf_s (s, sizeof(s), "%s/%s", glob->localAutoUpdateFolder, autoupdate.da3FileName);
         priv_startUploadDA3 (eUploadDA3CallBack_auto, (const u8*)s);
         autoupdate.fase = eAutoUpdateFase_da3_upload_wait;
         break;
@@ -1748,13 +1768,14 @@ void FormBoot::priv_autoupdate_onTick()
 
 
 
-
-
     case eAutoUpdateFase_finished:
-        autoupdate.fase = eAutoUpdateFase_finished_wait;
+        //autoupdate.fase = eAutoUpdateFase_finished_wait;
+        autoupdate.fase = eAutoUpdateFase_rebooting;
         priv_autoupdate_center(ui->labFileFound_da3);
         priv_autoupdate_center(ui->labStatus_da3);
         priv_autoupdate_setOK (ui->labFinalMessage, "Auto update finished. Please restart the machine");
+        priv_autoupdate_removeAllFiles();
+        autoupdate.skipInHowManySec = 5;
         break;
 
     case eAutoUpdateFase_finishedKO:
@@ -1762,15 +1783,51 @@ void FormBoot::priv_autoupdate_onTick()
         priv_autoupdate_center(ui->labFileFound_da3);
         priv_autoupdate_center(ui->labStatus_da3);
         priv_autoupdate_setError (ui->labFinalMessage, "Auto update failed. Please restart the machine");
+        priv_autoupdate_removeAllFiles();
         break;
 
     case eAutoUpdateFase_finished_wait:
         break;
 
+    case eAutoUpdateFase_rebooting:
+        if (autoupdate.skipInHowManySec == 0)
+            rhea::reboot();
+        else
+        {
+            sprintf_s (s, sizeof(s), "Auto update finished. Please restart the machine (-%d)", autoupdate.skipInHowManySec);
+            autoupdate.skipInHowManySec--;
+            priv_autoupdate_setOK (ui->labFinalMessage, s);
+        }
+        break;
+
     case eAutoUpdateFase_backToFormBoot:
         autoupdate.isRunning = false;
         ui->frameAutoUpdate->setVisible(false);
+        priv_autoupdate_removeAllFiles();
         break;
+    }
+}
+
+//*****************************************************
+void FormBoot::priv_autoupdate_removeAllFiles()
+{
+    u8 s[512];
+    if (0x00 != autoupdate.cpuFileName[0])
+    {
+        rhea::string::utf8::spf (s, sizeof(s), "%s/%s", glob->localAutoUpdateFolder, autoupdate.cpuFileName);
+        rhea::fs::fileDelete(s);
+    }
+
+    if (0x00 != autoupdate.guiFolderName[0])
+    {
+        rhea::string::utf8::spf (s, sizeof(s), "%s/%s", glob->localAutoUpdateFolder, autoupdate.guiFolderName);
+        rhea::fs::deleteAllFileInFolderRecursively(s, true);
+    }
+
+    if (0x00 != autoupdate.da3FileName[0])
+    {
+        rhea::string::utf8::spf (s, sizeof(s), "%s/%s", glob->localAutoUpdateFolder, autoupdate.da3FileName);
+        rhea::fs::fileDelete(s);
     }
 }
 

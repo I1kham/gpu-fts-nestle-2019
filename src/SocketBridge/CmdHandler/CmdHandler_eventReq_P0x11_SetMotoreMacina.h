@@ -10,7 +10,7 @@ namespace socketbridge
      * CmdHandler_eventReq_P0x11_SetMotoreMacina
      *
      * params:
-		u8 macina 1 o 2
+		u8 macina 1,2,3,4
 		u8 tipo di movimento (apri chiudi stop), vedi cpubridge::eCPUProg_macinaMove
      *
      */

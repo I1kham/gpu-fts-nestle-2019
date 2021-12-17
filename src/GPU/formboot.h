@@ -26,6 +26,9 @@ public:
     void                showMe();
     eRetCode            onTick();
 
+
+    bool                does_autoupdate_exists();
+
 private slots:
     void                on_buttonStart_clicked();
     void                on_btnInstall_languages_clicked();
@@ -105,7 +108,9 @@ private:
         eAutoUpdateFase_finished,
         eAutoUpdateFase_finishedKO,
         eAutoUpdateFase_finished_wait,
-        eAutoUpdateFase_backToFormBoot
+        eAutoUpdateFase_backToFormBoot,
+
+        eAutoUpdateFase_rebooting
     };
 
 private:
@@ -114,6 +119,7 @@ private:
         bool        isRunning;
         eAutoUpdateFase  fase;
         u8          skipInHowManySec;
+        u8          skipHowManySecSingleUpdate; //sec in cui il pulsante di skip è visibile per ogni singolo file di update
         u64         nextTimeTickMSec;
         char        cpuFileName[256];
         char        da3FileName[256];
@@ -157,7 +163,7 @@ private:
     void                    priv_uploadESAPI_GUI (rhea::thread::sMsg &msg);
     void                    priv_uploadESAPI_GUI_unzipped(rhea::thread::sMsg &msg);
 
-    bool                    priv_autoupdate_exists();
+    bool                    priv_autoupdate_guiSubFolderExists(const u8 *folderPath, char *out_subFolderName, u32 sizeof_subFolderName) const;
     void                    priv_autoupdate_showForm();
     void                    priv_autoupdate_onTick();
     void                    priv_autoupdate_setTextWithColor (QLabel *lab, const char *message, const char *bgColor, const char *textColor);
@@ -168,6 +174,7 @@ private:
     void                    priv_autoupdate_toTheLeft (QLabel *lab);
     void                    priv_autoupdate_onCPU_upload (rhea::thread::sMsg &msg);
     void                    priv_autoupdate_onDA3_upload (rhea::thread::sMsg &msg);
+    void                    priv_autoupdate_removeAllFiles();
 
 private:
     sGlobal                 *glob;

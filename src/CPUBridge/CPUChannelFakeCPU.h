@@ -96,6 +96,7 @@ namespace cpubridge
 		u32							priv_utils_giveMeAUTF16StringWithStrangeChar (u16 *out_message, u32 sizeOf_outMessage) const;
 		u32							priv_utils_giveMeAUTF16StringWithStrangeChar2 (u16 *out_message, u32 sizeOf_outMessage) const;
 		u32							priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (u8 *out_message, u32 sizeOf_outMessage) const;
+		bool						priv_handleSnackCommand (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec);
 
 	private:
 		bool						bShowDialogStopSelezione;
@@ -109,7 +110,7 @@ namespace cpubridge
 		u8							curCPUMessageImportanceLevel;
 		u64							timeToSwapCPUMsgMesc;
 		sCleaning					cleaning;
-		sMovimentoMacina			macine[2];
+		sMovimentoMacina			macine[10];
 		sTestModem					testModem;
 		u64							timeToEndTestSelezioneMSec;
 		sTestAssorbGruppo			testAssorbGruppo;

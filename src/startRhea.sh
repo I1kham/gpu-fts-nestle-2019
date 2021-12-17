@@ -12,7 +12,11 @@ if [ -d "./GPUPackage2019" ]; then
   # Control will enter here if $DIRECTORY exists.
   cp -r ./GPUPackage2019 ../
   rm -r ./GPUPackage2019
+  cp ./EMBEDDED_RELEASE_GPUUpdater ../
+  rm ./EMBEDDED_RELEASE_GPUUpdater
 fi
 
-cd ../GPUPackage2019
-./GPUFusion
+#cd ../GPUPackage2019
+#./GPUFusion
+cd ..
+./EMBEDDED_RELEASE_GPUUpdater

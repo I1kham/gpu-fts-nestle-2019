@@ -6,9 +6,16 @@
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../rheaCommonLib/rheaFastArray.h"
+#include "rhFSProtocol.h"
+#include "RSProto.h"
+#include "CPUBridgeActionScheduler.h"
 
 namespace cpubridge
 {
+    /**************************************************************************
+     * Server
+     *
+     */
 	class Server
 	{
 	public:
@@ -21,8 +28,14 @@ namespace cpubridge
 		void					run ();
 		void                    close ();
 
+
+        void                    scheduleAction_rebootASAP();
+        void					scheduleAction_relaxedReboot();
+        void					scheduleAction_downloadEVADTSAndAnswerToRSProto();
+
 	private:
-		static const u16		CPUFW_BLOCK_SIZE = 400;
+		static const u16		CPUFW_BLOCK_SIZE	= 400;
+		static const u16		RSPROTO_TCP_PORT	= 2283;
 
 	private:
         struct sStato
@@ -63,7 +76,7 @@ namespace cpubridge
 
 		struct sRegolazioneAperturaMacina
 		{
-			u8 macina_1o2;
+			u8 macina_1to4;
 			u16 target;
 		};
 				
@@ -164,6 +177,16 @@ namespace cpubridge
 			u8		jugRepetitions[48];
 		};
 
+		struct sIdentifiedTCPClient
+		{
+			HSokServerClient			hClient;
+			u32							customValueOnIdentify;
+			rhFSx::proto::eApplicationType	appType;
+			u8							verMajor;
+			u8							verMinor;
+			u8							verBuild;
+		};
+
 		struct sScreenMsgOverride
 		{
 			u16	utf16Msg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
@@ -206,12 +229,12 @@ namespace cpubridge
 		void					priv_enterState_telemetry();
 		void					priv_handleState_telemetry();
 
-		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target);
+		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1to4, u16 target);
 		void                    priv_handleState_regolazioneAperturaMacina();
-		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProg_macinaMove m);
-		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1o2, u16 *out);
+		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1to4, eCPUProg_macinaMove m);
+		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1to4, u16 *out);
 
-		bool					priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec);
+		bool					priv_enterState_grinderSpeedTest_AA (u8 macina_1o2, u8 tempoDiMacinataInSec);
 		void                    priv_handleState_grinderSpeedTest();
 
 		bool					priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub);
@@ -222,7 +245,9 @@ namespace cpubridge
 		void					priv_updateLocalDA3(const u8 *blockOf64Bytes, u8 blockNum) const;
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend, bool bForceJug);
-        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify);
+        bool                    priv_downloadDataAudit_canStartADownload() const                                                                    { return stato.get() == sStato::eStato::normal; }
+        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify, u16 *out_fileID);
+
 		void					priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID);
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8* const srcFullFileNameAndPath);
@@ -251,11 +276,24 @@ namespace cpubridge
 		bool					SelectionsEnableSave();
 		bool					SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const;
 
+		void					priv_handleEventFromSocket (HSokServerClient hClient);
+		bool					priv_onMessageIdentifyRcv (HSokServerClient hClient, const rhFSx::proto::sDecodedMsg &ask);
+		void					priv_onTCPClientDisconnected (HSokServerClient hClient);
+
+        eActionResult           priv_runAction_rebootASAP();
+        eActionResult           priv_runAction_downloadEVADTSAndAnswerToRSProto();
+
 	private:
 		rhea::Allocator				*localAllocator;
 		rhea::ISimpleLogger			*logger;
 		CPUChannel					*chToCPU;
-		OSWaitableGrp				waitList;
+
+		rhea::ProtocolSocketServer    *server;
+		rhea::LinearBuffer			bufferTCPRead;
+		//OSWaitableGrp				waitList;
+		RSProto						*rsProto;
+        ActionScheduler				actionScheduler;
+
 		rhea::NullLogger			nullLogger;
 		HThreadMsgR					hServiceChR;
         sStato						stato;
@@ -282,6 +320,8 @@ namespace cpubridge
 
 		u8							jugRepetitions[NUM_MAX_SELECTIONS];
 		bool						selectionEnable[NUM_MAX_SELECTIONS];
+
+		friend class ActionScheduler;
     };
 
 } // namespace cpubridge

@@ -1100,7 +1100,7 @@ u32 Protocol::priv_rs232_handleCommand_X(const sBuffer& b)
 				const u32 fileLen = rhea::utils::bufferReadU32_LSB_MSB(&b.buffer[4]);
 				rhea::utils::bufferWriteU16_LSB_MSB(&buffer[1], 500);
 
-				if(false == dataUpdate.Open(fileType, fileLen))
+                if(false == dataUpdate.Open(fileType, fileLen, logger))
 					buffer[0] = 1;
 				else
 					rhea::utils::bufferWriteU16_LSB_MSB(&buffer[1], dataUpdate.BlockMaxDim());
@@ -1133,12 +1133,12 @@ u32 Protocol::priv_rs232_handleCommand_X(const sBuffer& b)
 				{
 					//if ((blockNr % 40) == 0)
 					//	logger->log("esapi::Protocol => blocco [%d][len=%d]\n", blockNr, blockLen);
-					if (false == dataUpdate.Append(blockNr, blockLen, &b.buffer[7]))
+                    if (false == dataUpdate.Append(blockNr, blockLen, &b.buffer[7], logger))
 						errorCode = 1;
 				}
 				else //è implicito che qui blockLen==0
 				{
-					if (dataUpdate.Complete(blockNr, *cpuBridgeSubscriber))
+                    if (dataUpdate.Complete(blockNr, cpuBridgeSubscriber, logger))
 						logger->log("esapi::Protocol => COMPLETE\n");
 					errorCode = 0;
 				}

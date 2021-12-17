@@ -8,6 +8,7 @@
 #include "../rheaCommonLib/rheaAllocatorSimple.h"
 #include "../rheaCommonLib/rheaLogTargetConsole.h"
 #include "EVADTSParser.h"
+#include "rhFSProtocol.h"
 
 using namespace cpubridge;
 
@@ -16,6 +17,8 @@ Server::Server()
 {
 	localAllocator = NULL;
 	chToCPU = NULL;
+	server = NULL;
+	rsProto = NULL;
 	logger = &nullLogger;
 
 	memset(utf16_CPUMasterVersionString, 0, sizeof(utf16_CPUMasterVersionString));
@@ -53,15 +56,33 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	hServiceChR = hServiceChR_IN;
 	logger->log ("CPUBridgeServer::open\n");
 	logger->incIndent();
+
+	localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
+
+	//apro la socket TCP
+    server = RHEANEW(localAllocator, rhea::ProtocolSocketServer)(8, localAllocator);
+    server->useLogger(logger);
+	logger->log("opening TCP socket...");
+    eSocketError err = server->start (RSPROTO_TCP_PORT);
+    if (err != eSocketError::none)
+    {
+        logger->log("FAIL\n");
+        logger->decIndent();
+        RHEADELETE(localAllocator, server);
+		server = NULL;
+        return false;
+    }
+    logger->log("OK\n");
+
 	
 	//recupero l'OSEvent della msgQ e lo aggiunto alla mia wait-list	
 	OSEvent	hMsgQEvent;
 	rhea::thread::getMsgQEvent (hServiceChR, &hMsgQEvent);
-	waitList.addEvent(hMsgQEvent, u32MAX);
+	//waitList.addEvent (hMsgQEvent, u32MAX);
+	server->addOSEventToWaitList (hMsgQEvent, u32MAX);
 
-	localAllocator = RHEANEW(rhea::getSysHeapAllocator(), rhea::AllocatorSimpleWithMemTrack) ("cpuBrigeServer");
 	subscriberList.setup(localAllocator, 8);
-
+	
 	//apro il canale di comunicazione con la CPU fisica
 	bool ret = chToCPU->isOpen();
 	if (ret)	
@@ -74,6 +95,9 @@ bool Server::start (CPUChannel *chToCPU_IN, const HThreadMsgR hServiceChR_IN)
 	lang_init(&language);
 	lang_open(&language, "GB");
 
+
+    //linear buffer per la ricezione di msg dai client
+    bufferTCPRead.setup (localAllocator, 128);
 	return ret;
 }
 
@@ -85,10 +109,17 @@ void Server::close()
 	if (NULL == localAllocator)
 		return;
 
+	if (NULL != rsProto)
+	{
+		RHEADELETE(localAllocator, rsProto);
+		rsProto = NULL;
+	}
+
 	//rimuove l'OSEvent della msgQ dalla mia wait-list	
 	OSEvent	hMsgQEvent;
 	rhea::thread::getMsgQEvent(hServiceChR, &hMsgQEvent);
-	waitList.removeEvent(hMsgQEvent);
+	//waitList.removeEvent(hMsgQEvent);
+	server->removeOSEventFromWaitList(hMsgQEvent);
 
 	//notifica i subscriber
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
@@ -99,6 +130,10 @@ void Server::close()
 	for (u32 i = 0; i < subscriberList.getNElem(); i++)
 		priv_deleteSubscriber(subscriberList.getElem(i), false);
 	subscriberList.unsetup();
+
+    server->close();
+    RHEADELETE(localAllocator, server);
+	bufferTCPRead.unsetup();
 
 	RHEADELETE (rhea::getSysHeapAllocator(), localAllocator);
 }
@@ -173,7 +208,8 @@ void Server::run()
 //***************************************************
 void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsriberList)
 {
-	waitList.removeEvent(sub->hEvent);
+	//waitList.removeEvent(sub->hEvent);
+	server->removeOSEventFromWaitList (sub->hEvent);
 	rhea::thread::deleteMsgQ(sub->q.hFromMeToSubscriberR, sub->q.hFromMeToSubscriberW);
 	rhea::thread::deleteMsgQ(sub->q.hFromSubscriberToMeR, sub->q.hFromSubscriberToMeW);
 	if (bAlsoRemoveFromSubsriberList)
@@ -186,40 +222,215 @@ void Server::priv_deleteSubscriber(sSubscription *sub, bool bAlsoRemoveFromSubsr
  */
 bool Server::priv_handleMsgQueues(u64 timeNowMSec UNUSED_PARAM, u32 timeOutMSec)
 {
+    //se ho delle azioni da schedulare...
+    actionScheduler.run (this);
+
+
 	//vediamo se ho dei messaggi in coda
-	const u8 nEvent = waitList.wait (timeOutMSec);
+	//const u8 nEvent = waitList.wait (timeOutMSec);
+	const u8 nEvent = server->wait (timeOutMSec);
 
 	for (u8 i = 0; i < nEvent; i++)
 	{
-		switch (waitList.getEventOrigin(i))
+		//switch (waitList.getEventOrigin(i))
+		switch (server->getEventType(i))
 		{
 		default:
 			DBGBREAK;
 			break;
 
-		case OSWaitableGrp::eEventOrigin::osevent:
-			if (waitList.getEventUserParamAsU32(i) == 0x0001)
+		//case OSWaitableGrp::eEventOrigin::osevent:
+		case rhea::ProtocolSocketServer::eEventType::osevent_fired:
+			//siamo nel caso di eventi generati da una delle msgQ thread safe
+			
+			//if (waitList.getEventUserParamAsU32(i) == 0x0001)
+			if (server->getEventSrcUserParam(i) == 0x0001)
 			{
 				//evento generato dalla msgQ di uno dei miei subscriber
 				for (u32 i2 = 0; i2 < subscriberList.getNElem(); i2++)
 				{
-					if (rhea::event::compare(subscriberList(i2)->hEvent, waitList.getEventSrcAsOSEvent(i)))
+					//if (rhea::event::compare(subscriberList(i2)->hEvent, waitList.getEventSrcAsOSEvent(i)))
+					if (rhea::event::compare(subscriberList(i2)->hEvent, *server->getEventSrcAsOSEvent(i)))
 					{
 						priv_handleMsgFromSingleSubscriber(subscriberList.getElem(i2));
 						break;
 					}
 				}
 			}
-			else if (waitList.getEventUserParamAsU32(i) == u32MAX)
+			//else if (waitList.getEventUserParamAsU32(i) == u32MAX)
+			else if (server->getEventSrcUserParam(i) == u32MAX)
 			{
 				//evento generato dalla msg Q di servizio
 				priv_handleMsgFromServiceMsgQ();
 			}
 			break;
+
+		case rhea::ProtocolSocketServer::eEventType::new_client_connected:
+			//siamo nel caso in cui qulcuno si è connesso via socket
+			break;
+
+		case rhea::ProtocolSocketServer::eEventType::client_has_data_avail:
+			//siamo nel caso di eventi generati da una socket di un client connesso
+			{
+				HSokServerClient hClient = server->getEventSrcAsClientHandle(i);
+				priv_handleEventFromSocket (hClient);
+			}
+			break;
+
 		}
 	}
 
 	return (nEvent > 0);
+}
+
+/***************************************************
+ * Uno dei client ha inviato il msg di identificazione, che è obbligatorio in quanto 
+ * io altrimenti rifiuto tutti i suoi futuri messaggio e chiudo la connessione.
+ * Decodifico il messaggio e verifico se è il caso di accettare la sua richiesta
+ */
+bool Server::priv_onMessageIdentifyRcv (HSokServerClient hClient, const rhFSx::proto::sDecodedMsg &ask)
+{
+	if (ask.payloadLen < 7)
+	{
+		logger->log ("Refused, invalid payload len\n");
+		server->client_sendClose (hClient);
+		return false;
+	}
+
+	sIdentifiedTCPClient cl;
+	cl.hClient = hClient;
+	cl.appType = static_cast<rhFSx::proto::eApplicationType>(rhea::utils::bufferReadU32 (ask.payload));
+	cl.verMajor = ask.payload[4];
+	cl.verMinor = ask.payload[5];
+	cl.verBuild = ask.payload[6];
+	cl.customValueOnIdentify = 0;
+
+	if (ask.payloadLen >= 11)
+		cl.customValueOnIdentify = rhea::utils::bufferReadU32 (&ask.payload[7]);
+
+
+	//verifichiamo che l'appType sia valido
+	bool bAccepted = false;
+	switch (cl.appType)
+	{
+	default:
+		logger->log ("Refused, invalid applicationTypeUID [0x%08X]\n", cl.appType);
+		break;
+
+	case rhFSx::proto::eApplicationType::RSPROTO:
+		//eventuale verifica della versione, per accetazione o rifiuto
+		//...
+		if (NULL == rsProto)
+		{
+			rsProto = RHEANEW(localAllocator, RSProto)(server, hClient);
+			bAccepted = true;
+		}
+		break;
+	}
+
+	if (!bAccepted)
+	{
+		logger->log ("App actively refused, app type = 0x%08X, ver %d.%d.%d, custom=0x%08X\n", cl.appType, cl.verMajor, cl.verMinor, cl.verBuild, cl.customValueOnIdentify);
+		server->client_sendClose (hClient);
+		return false;
+	}
+
+	logger->log ("Accepted, app type = 0x%08X, ver %d.%d.%d, custom=0x%08X\n", cl.appType, cl.verMajor, cl.verMinor, cl.verBuild, cl.customValueOnIdentify);
+
+	//rispondo
+	u8 bufferW[8];
+	u16 nByteToSend = rhFSx::proto::encodeMsg (static_cast<u8>(rhFSx::proto::eAsk::allApp_identifyAnsw), ask.userValue, NULL, 0, bufferW, sizeof(bufferW));
+	const u32 nWritten = server->client_writeBuffer (hClient, bufferW, nByteToSend);
+	if (u32MAX == nWritten)
+	{
+		priv_onTCPClientDisconnected (hClient);
+		return false;
+	}
+
+	rsProto->onSMUStateChanged (cpuStatus, logger);
+	return true;
+}
+
+//***************************************************
+void Server::priv_onTCPClientDisconnected (HSokServerClient hClient)
+{
+	if (NULL == rsProto)
+		return;
+	if (!rsProto->isItMe(hClient))
+		return;
+
+	//rimuovo il client dalla lista dei client identificati
+	logger->log ("Server::priv_onTCPClientDisconnected()");
+	logger->incIndent();
+	RHEADELETE(localAllocator, rsProto);
+	rsProto = NULL;
+	logger->decIndent();
+}
+
+
+//***************************************************
+void Server::priv_handleEventFromSocket (HSokServerClient hClient)
+{
+	while (1)
+	{
+		i32 nBytesLetti = server->client_read (hClient, bufferTCPRead);
+		if (nBytesLetti == -1)
+		{
+			logger->log("connection [0x%08X] closed\n", hClient.asU32());
+			priv_onTCPClientDisconnected(hClient);
+			return;
+		}
+
+		if (nBytesLetti < 1)
+		{
+			//logger->log("connection [0x%08X] not enought data [%d bytes]\n", h.asU32(), nBytesLetti);
+			return;
+		}
+
+		//decodifico il messaggio
+		rhFSx::proto::sDecodedMsg ask;
+		if (!rhFSx::proto::decodeMsg (bufferTCPRead._getPointer(0), nBytesLetti, &ask))
+		{
+			//non dovrebbe mai succedere perchè se arrivo qui vuol dire che ho ricevuto un messaggio completo 
+			DBGBREAK;
+			logger->log("Server::priv_handleEventFromSocket() => connection [0x%08X] not enought data [%d]\n", hClient.asU32(), nBytesLetti);
+			return;
+		}
+
+		switch (static_cast<rhFSx::proto::eAsk>(ask.what))
+		{
+		default:
+			DBGBREAK;
+			logger->log("Server::priv_handleEventFromSocket() => invalid msg.what [0x%02X]\n", ask.what);
+			break;
+
+		case rhFSx::proto::eAsk::allApp_ping:
+			{
+				u8 bufferW[8];
+				const u16 nByteToSend = rhFSx::proto::encodeMsg (static_cast<u8>(rhFSx::proto::eAsk::allApp_pong), ask.userValue, NULL, 0, bufferW, sizeof(bufferW));
+				const u32 nWritten = server->client_writeBuffer (hClient, bufferW, nByteToSend);
+				if (u32MAX == nWritten)
+					priv_onTCPClientDisconnected (hClient);
+			}
+			break;
+
+		case rhFSx::proto::eAsk::allApp_identify:
+			{
+				logger->log ("incoming IDENTIFY msg...\n");
+				logger->incIndent();
+				priv_onMessageIdentifyRcv (hClient, ask);
+				logger->decIndent();
+			}
+			break;
+
+		case rhFSx::proto::eAsk::rsproto_service_cmd:
+		case rhFSx::proto::eAsk::rsproto_variabile:
+		case rhFSx::proto::eAsk::rsproto_file:
+			if (NULL != rsProto)
+				rsProto->onMessageRCV (this, ask.what, ask.userValue, ask.payload, ask.payloadLen, logger);
+			break;
+		}
+	}
 }
 
 //***************************************************
@@ -234,10 +445,89 @@ Server::sSubscription* Server::priv_newSubscription (u16 subscriberUID)
 
 	//aggiungo la msqQ alla mia waitList
 	rhea::thread::getMsgQEvent(sub->q.hFromSubscriberToMeR, &sub->hEvent);
-	waitList.addEvent(sub->hEvent, 0x0001);
+	//waitList.addEvent (sub->hEvent, 0x0001);
+	server->addOSEventToWaitList (sub->hEvent, 0x0001);
 
 	return sub;
 }
+
+//***************************************************
+void Server::scheduleAction_rebootASAP()
+{
+    actionScheduler.scheduleReboot (5000, 10000);
+    logger->log ("scheduleAction_rebootASAP\n");
+}
+
+/***************************************************
+* Attende un minimo di [n] minuti dopodiche inizia a provare a fare un rebootASAP
+* Se durante la fase di attesa viene schedulato un nuovo relaxedReboot, allora il timer dell'attesa riparte da zero
+*/
+void Server::scheduleAction_relaxedReboot()
+{
+    //const u32 RELAXED_PERIOD_MSec = 5 * 60 * 1000;	//5 minuti
+    const u32 RELAXED_PERIOD_MSec = 15 * 1000;	//15 secondi
+    actionScheduler.scheduleReboot (RELAXED_PERIOD_MSec, 10000);
+    logger->log ("scheduleAction_relaxedReboot\n");
+}
+
+//***************************************************
+eActionResult Server::priv_runAction_rebootASAP()
+{
+    //gli unici stati validi per un reboot ASAP sono lo stato di idle oppure uno stato di errore
+    //Se siamo in uno degli altri stati, allora vuol dire che in questo momento GPU/CPU stanno facendo qualcosa e non
+    //è il caso di fare il reboot
+    if (stato.get() == sStato::eStato::normal || stato.get() == sStato::eStato::CPUNotSupported || stato.get() == sStato::eStato::comError)
+    {
+        rhea::reboot();
+        return eActionResult::finished;
+    }
+
+    return eActionResult::needToBeRescheduled;
+}
+
+//***************************************************
+void Server::scheduleAction_downloadEVADTSAndAnswerToRSProto()
+{
+    if (!actionScheduler.exists (ActionScheduler::eAction::downloadEVADTSandAnswerToRSProto))
+    {
+        logger->log ("scheduleAction_downloadEVADTSAndAnswerToRSProto\n");
+        actionScheduler.scheduleAction (ActionScheduler::eAction::downloadEVADTSandAnswerToRSProto, 0, 10000);
+    }
+}
+eActionResult Server::priv_runAction_downloadEVADTSAndAnswerToRSProto()
+{
+    logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: begin\n");
+    //se non c'è il modulo RSProto collegato, non dovrei nemmeno arrivare qui. In ogni caso, abortisco l'operazione
+    if (NULL == rsProto)
+        return eActionResult::finished;
+
+    //se non ci sono le condizioni per iniziare il download, termino (quest'action verrà rischedulata automaticamente)
+    if (!priv_downloadDataAudit_canStartADownload())
+    {
+        logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: needToBeRescheduled\n");
+        return eActionResult::needToBeRescheduled;
+    }
+
+    //avvio la procedura di download da CPU. In caso di successo, il file scaricato si trova in
+    // temp/dataAudit[fileID].txt
+    u16 fileID;
+    if (eReadDataFileStatus::finishedOK == priv_downloadDataAudit (NULL, u16MAX, false, &fileID))
+    {
+        //a termine dell'operazione, devo comunico a RSProto il nome del file in modo che lui a sua volta possa inviarlo al cloud
+        u8 fullFilePathAndName[512];
+        rhea::string::utf8::spf (fullFilePathAndName, sizeof(fullFilePathAndName), "%s/temp/dataAudit%d.txt", rhea::getPhysicalPathToAppFolder(), fileID);
+        rsProto->sendFileAnswer (RSProto::FILE_EVA_DTS, 0, fullFilePathAndName);
+        logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: got audit file [%s]\n", fullFilePathAndName);
+        return eActionResult::finished;
+    }
+    else
+    {
+        //mi faccio rischedulare e ci riprovo fra un po'
+        logger->log ("priv_runAction_downloadEVADTSAndAnswerToRSProto:: failed, needToBeRescheduled\n");
+        return eActionResult::needToBeRescheduled;
+    }
+}
+
 
 //***************************************************
 void Server::priv_handleMsgFromServiceMsgQ()
@@ -365,8 +655,6 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION:
 		case CPUBRIDGE_SUBSCRIBER_ASK_CPU_START_SELECTION_AND_FORCE_JUG:
 		{
-			bool bForceJug = false;
-
 			sStartSelectionParams params;
 			params.how = eStartSelectionMode_default;
 			params.asDefault.selNum = 0;
@@ -577,8 +865,8 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			{
 				bool bIncludeBufferDataInNotify = false;
 				translate_READ_DATA_AUDIT (msg, &bIncludeBufferDataInNotify);
-				if (stato.get() == sStato::eStato::normal)
-					priv_downloadDataAudit(&sub->q, handlerID, bIncludeBufferDataInNotify);
+				if (priv_downloadDataAudit_canStartADownload())
+					priv_downloadDataAudit(&sub->q, handlerID, bIncludeBufferDataInNotify, NULL);
 				else
 					//rifiuto la richiesta perchè non sono in uno stato valido per la lettura del data audit
 					notify_READ_DATA_AUDIT_PROGRESS(sub->q, handlerID, logger, eReadDataFileStatus::finishedKO_cantStart_invalidState, 0, 0, NULL, 0);
@@ -756,22 +1044,22 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_CALCOLA_IMPULSI_GRUPPO:
 		{
-			u8 macina_1o2 = 0;
+			u8 macina_1to4 = 0;
 			u16 totalePesata_dgram = 0;
-			cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO(msg, &macina_1o2, &totalePesata_dgram);
+			cpubridge::translate_CPU_CALCOLA_IMPULSI_GRUPPO_AA (msg, &macina_1to4, &totalePesata_dgram);
 
 			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo(macina_1o2, totalePesata_dgram, bufferW, sizeof(bufferW));
+			const u16 nBytesToSend = cpubridge::buildMsg_calcolaImpulsiGruppo_AA (macina_1to4, totalePesata_dgram, bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
-				notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, logger);
+			if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				notify_CALCOLA_IMPULSI_GRUPPO_STARTED(sub->q, handlerID, macina_1to4, logger);
 		}
 		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_STATO_CALCOLO_IMPULSI_GRUPPO:
 		{
 			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo(bufferW, sizeof(bufferW));
+			const u16 nBytesToSend = cpubridge::buildMsg_getStatoCalcoloImpulsiGruppo (bufferW, sizeof(bufferW));
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
@@ -894,46 +1182,41 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_POSIZIONE_MACINA:
 		{
-			u8 macina_1o2 = 0;
-			cpubridge::translate_CPU_GET_POSIZIONE_MACINA(msg, &macina_1o2);
+			u8 macina_1to4 = 0;
+			cpubridge::translate_CPU_GET_POSIZIONE_MACINA_AA(msg, &macina_1to4);
 
 			u8 bufferW[16];
-			const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
+			const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina_AA(bufferW, sizeof(bufferW), macina_1to4);
 			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
 			{
-				macina_1o2 = answerBuffer[4];
-				if (macina_1o2 == 11) macina_1o2 = 1;
-				else if (macina_1o2 == 12) macina_1o2 = 2;
+				macina_1to4 = answerBuffer[4] - 10;
 				u16 pos = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[5]);
-				notify_CPU_POSIZIONE_MACINA(sub->q, handlerID, logger, macina_1o2, pos);
+				notify_CPU_POSIZIONE_MACINA(sub->q, handlerID, logger, macina_1to4, pos);
 			}
 		}
 		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_MOTORE_MACINA:
 		{
-			u8 macina_1o2 = 0;
+			u8 macina_1to4 = 0;
 			eCPUProg_macinaMove m;
-			cpubridge::translate_CPU_SET_MOTORE_MACINA(msg, &macina_1o2, &m);
+			cpubridge::translate_CPU_SET_MOTORE_MACINA_AA (msg, &macina_1to4, &m);
 
-			if (priv_sendAndHandleSetMotoreMacina(macina_1o2, m))
+			if (priv_sendAndHandleSetMotoreMacina(macina_1to4, m))
 			{
-				macina_1o2 = answerBuffer[4];
-				if (macina_1o2 == 11) macina_1o2 = 1;
-				else if (macina_1o2 == 12) macina_1o2 = 2;
-				notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1o2, (eCPUProg_macinaMove)answerBuffer[5]);
+				macina_1to4 = (answerBuffer[4] - 11);
+				notify_CPU_MOTORE_MACINA(sub->q, handlerID, logger, macina_1to4, (eCPUProg_macinaMove)answerBuffer[5]);
 			}
 		}
 		break;
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_SET_POSIZIONE_MACINA:
 		{
-			u8 macina_1o2 = 0;
+			u8 macina_1to4 = 0;
 			u16 target = 0;
-			cpubridge::translate_CPU_SET_POSIZIONE_MACINA(msg, &macina_1o2, &target);
-			//priv_setPosMacina(sub->q, handlerID, macina_1o2, target);
-			priv_enterState_regolazioneAperturaMacina(macina_1o2, target);
+			cpubridge::translate_CPU_SET_POSIZIONE_MACINA_AA(msg, &macina_1to4, &target);
+			priv_enterState_regolazioneAperturaMacina (macina_1to4, target);
 		}
 		break;
 
@@ -1228,10 +1511,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_START_GRINDER_SPEED_TEST:
 			{
-				u8 macina_1o2 = 0;
+				u8 macina_1to4 = 0;
 				u8 tempoDiMacinaSec = 0;
-				cpubridge::translate_CPU_START_GRINDER_SPEED_TEST(msg, &macina_1o2, &tempoDiMacinaSec);
-				if (priv_enterState_grinderSpeedTest (macina_1o2, tempoDiMacinaSec))
+				cpubridge::translate_CPU_START_GRINDER_SPEED_TEST_AA (msg, &macina_1to4, &tempoDiMacinaSec);
+				if (priv_enterState_grinderSpeedTest_AA (macina_1to4, tempoDiMacinaSec))
 					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, true);
 				else
 					notify_CPU_START_GRINDER_SPEED_TEST (sub->q, handlerID, logger, false);
@@ -1433,14 +1716,27 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_END_OF_GRINDER_CLEANING_PROC:
 			{
-				u8 grinder1_o_2;
-				translate_END_OF_GRINDER_CLEANING_PROCEDURE (msg, &grinder1_o_2);
+                u8 grinder1toN;
+                translate_END_OF_GRINDER_CLEANING_PROCEDURE (msg, &grinder1toN);
 
 				u8 bufferW[16];
-				const u16 nBytesToSend = cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (grinder1_o_2, bufferW, sizeof(bufferW));
+                const u16 nBytesToSend = cpubridge::buildMsg_notifyEndOfGrinderCleaningProcedure (grinder1toN, bufferW, sizeof(bufferW));
 				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 				priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
 				notify_END_OF_GRINDER_CLEANING_PROCEDURE (sub->q, handlerID, logger);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC:
+			{
+				u8 perc0_100;
+				translate_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (msg, &perc0_100);
+
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_scivoloBrewmatic (perc0_100, bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 1000);
+				notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (sub->q, handlerID, logger, perc0_100);
 			}
 			break;
 
@@ -1571,6 +1867,10 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+        case CPUBRIDGE_SUBSCRIBER_ASK_SCHEDULE_ACTION_RELAXED_REBOOT:
+            this->scheduleAction_relaxedReboot();
+            break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_SELECTION_PARAMU16:
 			{
 				u8 selNumDa1aN;
@@ -1589,6 +1889,63 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 				notify_GET_SELECTION_PARAMU16 (sub->q, handlerID, logger, selNumDa1aN, whichParam, errorCode, paramValue);
 			}
 			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SNACK_ENTER_PROG:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_Snack_enterProg_0x04(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				{
+					//rcv: # Y [len] 0x04 [esito] [ck]
+					bool result = false;
+					if (answerBuffer[4] == 0x01)
+						result = true;
+					notify_SNACK_ENTER_PROG(sub->q, handlerID, logger, result);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SNACK_EXIT_PROG:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_Snack_exitProg_0x05(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				{
+					//rcv: # Y [len] 0x05 [esito] [ck]
+					bool result = false;
+					if (answerBuffer[4] == 0x01)
+						result = true;
+					notify_SNACK_EXIT_PROG(sub->q, handlerID, logger, result);
+				}
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_SNACK_GET_STATUS:
+			{
+				u8 bufferW[16];
+				const u16 nBytesToSend = cpubridge::buildMsg_Snack_status_0x03(bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 4000))
+				{
+					//rcv: # Y [len] 0x03 [stato] [stato_sel_1-8]... [stato_sel_41-48] [ck]
+					bool result = false;
+					u8 stato_sel_1_48[6];
+
+					if (answerBuffer[4] == 0x01)
+					{
+						result = true;
+						memcpy (stato_sel_1_48, &answerBuffer[5], 6);
+					}
+					else
+						memset (stato_sel_1_48, 0, sizeof(stato_sel_1_48));
+
+					notify_SNACK_GET_STATUS(sub->q, handlerID, logger, result, stato_sel_1_48);
+				}
+			}
+			break;
+
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -2333,9 +2690,13 @@ eReadDataFileStatus Server::priv_downloadVMCDataFile(cpubridge::sSubscriber *sub
  * [%d] è un progressivo che viene comunicato alla fine del download nel messaggio di conferma.
  * Periodicamente notifica emettendo un messaggio notify_READ_DATA_AUDIT_PROGRESS() che contiene lo stato di avanzamento
  * del download
+ *
+ * [out_fileID] è opzionale. Se != NULL, allora il fileID che viene comunicato a fine download viene anche riportato in questa var
  */
-eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify)
+eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify, u16 *out_fileID)
 {
+    logger->log ("priv_downloadDataAudit:: begin\n");
+
 	//il file che scarico dalla CPU lo salvo localmente con un nome ben preciso
 	u8 fullFilePathAndName[256];
 	u16 fileID = 0;
@@ -2347,6 +2708,11 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 		fileID++;
 	}
 
+    if (NULL != out_fileID)
+        *out_fileID= fileID;
+
+
+    logger->log ("priv_downloadDataAudit:: dts file: %s\n", fullFilePathAndName);
 
 /*#ifdef _DEBUG
 	//hack per velocizzare i test
@@ -2367,6 +2733,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 	{
 		if (NULL != subscriber)
 			notify_READ_DATA_AUDIT_PROGRESS(*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_unableToCreateFile, 0, fileID, NULL, 0);
+
+        logger->log ("priv_downloadDataAudit:: finishedKO_unableToCreateFile\n");
 		return eReadDataFileStatus::finishedKO_unableToCreateFile;
 	}
 
@@ -2386,6 +2754,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
             if (NULL != subscriber)
                 notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedKO_cpuDidNotAnswer, kbReadSoFar, fileID, NULL, 0);
             rhea::fs::fileClose(f);
+
+            logger->log ("priv_downloadDataAudit:: finishedKO_cpuDidNotAnswer\n");
             return eReadDataFileStatus::finishedKO_cpuDidNotAnswer;
         }
 
@@ -2414,6 +2784,8 @@ eReadDataFileStatus Server::priv_downloadDataAudit (cpubridge::sSubscriber *subs
 				else
 					notify_READ_DATA_AUDIT_PROGRESS (*subscriber, handlerID, logger, eReadDataFileStatus::finishedOK, kbReadSoFar, fileID, NULL, 0);
 			}
+
+            logger->log ("priv_downloadDataAudit:: finishedOK\n");
             return eReadDataFileStatus::finishedOK;
         }
 
@@ -2456,10 +2828,10 @@ void Server::priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAnd
 		u8 *buffer = parser->createBufferWithPackedData(allocator, &bufferSize, this->cpu_numDecimalsForPrices);
 		if (NULL != buffer)
 		{
-			char s[256];
-			sprintf_s(s, sizeof(s), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
-			FILE *f2 = fopen(s, "wb");
-			fwrite(buffer, bufferSize, 1, f2);
+            u8 s[256];
+            rhea::string::utf8::spf (s, sizeof(s), "%s/temp/packedDataAudit%d.dat", rhea::getPhysicalPathToAppFolder(), fileID);
+            FILE *f2 = rhea::fs::fileOpenForWriteBinary(s);
+            rhea::fs::fileWrite (f2, buffer, bufferSize);
             rhea::fs::fileClose(f2);
 			RHEAFREE(allocator, buffer);
 		}
@@ -3165,6 +3537,30 @@ void Server::priv_handleState_normal()
 
 		//ci sono messaggi in ingresso?
 		priv_handleMsgQueues (timeNowMSec, TIME_BETWEEN_ONE_STATUS_MSG_AND_ANOTHER_MSec);
+
+
+		//se ho il modulo di telemetria SECO collegato...
+		if (NULL != rsProto)
+		{
+			if (timeNowMSec >= rsProto->nextTimeSendTemperature_msec)
+			{
+				rsProto->nextTimeSendTemperature_msec = timeNowMSec + 5000;
+
+				u8 bufferW[32];
+				u16 nBytesToSend = cpubridge::buildMsg_getVoltAndTemp (bufferW, sizeof(bufferW));
+				u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+				if (priv_sendAndWaitAnswerFromCPU (bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
+				{
+					//rcv: # P [len] 0x17 [temp_camera] [temp_bollitore] [temp_cappuccinatore] [voltage LSB MSB] [Kilowatt hour LSB MSB][ck]
+					const u8 temperatureCamCaffe = answerBuffer[4];
+					const u8 temperatureEsp = answerBuffer[5];
+					const u8 temperatureSol = answerBuffer[5];
+					const u8 temperatureMilker = answerBuffer[6];
+					const u8 temperatureIce = 0;
+					rsProto->sendTemperature (temperatureEsp, temperatureCamCaffe, temperatureSol, temperatureIce, temperatureMilker, logger);
+				}
+			}
+		}
 	}
 }
 
@@ -3726,15 +4122,16 @@ void Server::priv_parseAnswer_checkStatus (const u8 *answer, u16 answerLen UNUSE
             showCPUStringModelAndVersionUntil_msec = 0;
     }
 
-
-
-
 	//se richiesto, notifico tutti del nuovo messaggio LCD di CPU
 	if (bDoNotifyNewLCDMessage)
 	{
 		for (u32 i = 0; i < subscriberList.getNElem(); i++)
 			notify_CPU_NEW_LCD_MESSAGE (subscriberList(i)->q, 0, logger, &cpuStatus.LCDMsg);
 	}
+
+
+	if (NULL != rsProto)
+		rsProto->onSMUStateChanged (cpuStatus, logger);
 }
 
 //***************************************************
@@ -4029,9 +4426,9 @@ void Server::priv_onSelezioneTerminataKO()
  *	ritorna true se ci sono le condizioni per iniziare una regolazione della macina. In questo caso, lo stato passa a stato = eStato::regolazioneAperturaMacina.
  *	In caso contrario, ritorna false e non cambia l'attuale stato.
  */
-bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target)
+bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1to4, u16 target)
 {
-	logger->log("CPUBridgeServer::priv_enterState_regolazioneAperturaMacina() => [%d] [%d]\n", macina_1o2, target);
+	logger->log("CPUBridgeServer::priv_enterState_regolazioneAperturaMacina() => [%d] [%d]\n", macina_1to4, target);
 
 	if (stato.get() != sStato::eStato::normal && (stato.get() != sStato::eStato::regolazioneAperturaMacina))
 	{
@@ -4046,7 +4443,7 @@ bool Server::priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 targe
 	}
 
 	stato.set(sStato::eStato::regolazioneAperturaMacina);
-	regolazioneAperturaMacina.macina_1o2 = macina_1o2;
+	regolazioneAperturaMacina.macina_1to4 = macina_1to4;
 	regolazioneAperturaMacina.target = target;
 	return true;
 }
@@ -4058,7 +4455,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 	u8 nRetry = NRETRY;
 
 	eCPUProg_macinaMove move = eCPUProg_macinaMove::stop;
-	priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+	priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1to4, move);
 
 	//dico a tutti che sono in uno stato speciale
 	cpuStatus.VMCstate = eVMCState::REG_APERTURA_MACINA;
@@ -4086,7 +4483,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			   
 		//chiede la posizione della macina
 		u16 curpos = 0;
-		if (priv_sendAndHandleGetPosizioneMacina (regolazioneAperturaMacina.macina_1o2, &curpos))
+		if (priv_sendAndHandleGetPosizioneMacina (regolazioneAperturaMacina.macina_1to4, &curpos))
 		{
 			nRetry = NRETRY;
 
@@ -4098,7 +4495,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (diff <= TOLLERANZA || timeNowMSec >= timeToExitMSec)
 			{
 				//fine
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				//priv_enterState_normal();
 				break;
 			}
@@ -4108,9 +4505,9 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 				if (move != eCPUProg_macinaMove::open)
 				{
 					if (move != eCPUProg_macinaMove::stop)
-						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 					move = eCPUProg_macinaMove::open;
-					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, move);
 				}
 			}
 			else
@@ -4118,9 +4515,9 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 				if (move != eCPUProg_macinaMove::close)
 				{
 					if (move != eCPUProg_macinaMove::stop)
-						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+						priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 					move = eCPUProg_macinaMove::close;
-					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, move);
+					priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, move);
 				}
 			}
 		}
@@ -4130,7 +4527,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (nRetry == 0)
 			{
 				//abortisco
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
@@ -4153,7 +4550,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			rhea::thread::sleepMSec(300);
 
 			u16 pos = 0;
-			if (priv_sendAndHandleGetPosizioneMacina(regolazioneAperturaMacina.macina_1o2, &pos))
+			if (priv_sendAndHandleGetPosizioneMacina(regolazioneAperturaMacina.macina_1to4, &pos))
 			{
 				curpos += pos;
 				n++;
@@ -4170,17 +4567,17 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (curpos == regolazioneAperturaMacina.target || rhea::getTimeNowMSec() > timeToExitMSec)
 			{
 				//fine
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
 
 			if (curpos > regolazioneAperturaMacina.target)
-				priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::close);
+				priv_sendAndHandleSetMotoreMacina (regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::close);
 			else
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::open);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::open);
 
-			priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+			priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 		}
 		else
 		{
@@ -4188,7 +4585,7 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 			if (nRetry == 0)
 			{
 				//abortisco
-				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1o2, eCPUProg_macinaMove::stop);
+				priv_sendAndHandleSetMotoreMacina(regolazioneAperturaMacina.macina_1to4, eCPUProg_macinaMove::stop);
 				priv_enterState_normal();
 				return;
 			}
@@ -4197,10 +4594,10 @@ void Server::priv_handleState_regolazioneAperturaMacina()
 }
 
 //**********************************************
-bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1o2, u16 *out)
+bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1to4, u16 *out)
 {
 	u8 bufferW[16];
-	const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina(bufferW, sizeof(bufferW), macina_1o2);
+	const u16 nBytesToSend = cpubridge::buildMsg_getPosizioneMacina_AA(bufferW, sizeof(bufferW), macina_1to4);
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 400))
 		return false;
@@ -4210,10 +4607,10 @@ bool Server::priv_sendAndHandleGetPosizioneMacina (u8 macina_1o2, u16 *out)
 }
 
 //**********************************************
-bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1o2, eCPUProg_macinaMove m)
+bool Server::priv_sendAndHandleSetMotoreMacina(u8 macina_1to4, eCPUProg_macinaMove m)
 {
 	u8 bufferW[16];
-	const u16 nBytesToSend = cpubridge::buildMsg_setMotoreMacina(bufferW, sizeof(bufferW), macina_1o2, m);
+	const u16 nBytesToSend = cpubridge::buildMsg_setMotoreMacina_AA (bufferW, sizeof(bufferW), macina_1to4, m);
 	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
 	
 	u8 nRetry = 8;
@@ -4281,9 +4678,9 @@ void Server::priv_retreiveSomeDataFromLocalDA3()
  *	Lo scopo di questo test è quello di muovere la macina per un tot di tempo e leggere (chiedendo alla CPU) il valore di un certo sensore.
  *	Alla fine della macinata, si ritorna la media delle letture del sensore
  */
-bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec)
+bool Server::priv_enterState_grinderSpeedTest_AA (u8 macina_1to4, u8 tempoDiMacinataInSec)
 {
-	logger->log("CPUBridgeServer::priv_enterState_calcGrinderSpeed() => [%d]\n", macina_1o2);
+	logger->log("CPUBridgeServer::priv_enterState_calcGrinderSpeed() => [%d]\n", macina_1to4);
 
 	if (stato.get() != sStato::eStato::normal)
 	{
@@ -4299,9 +4696,7 @@ bool Server::priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinata
 
 	
 	stato.set(sStato::eStato::grinderSpeedTest);
-	grinderSpeedTest.motoreID = 11;
-	if (macina_1o2 == 2)
-		grinderSpeedTest.motoreID = 12;
+	grinderSpeedTest.motoreID = 10 + macina_1to4;
 	grinderSpeedTest.lastCalculatedGrinderSpeed = 0;
 	grinderSpeedTest.tempoDiMacinataInSec = tempoDiMacinataInSec;
 	return true;

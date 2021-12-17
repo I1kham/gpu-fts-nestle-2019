@@ -178,6 +178,9 @@ void setupFolderInformation (sGlobal *glob)
     glob->last_installed_gui = rhea::string::utf8::allocStr(allocator, s);
     rhea::fs::folderCreate(s);
 
+    sprintf_s ((char*)s, sizeof(s), "%s/autoUpdate", baseLocalFolder);
+    glob->localAutoUpdateFolder = rhea::string::utf8::allocStr(allocator, s);
+    rhea::fs::folderCreate(s);
 
 
 
@@ -237,6 +240,7 @@ void unsetupFolderInformation (sGlobal *glob)
     RHEAFREE(allocator, glob->last_installed_cpu);
     RHEAFREE(allocator, glob->last_installed_manual);
     RHEAFREE(allocator, glob->last_installed_gui);
+    RHEAFREE(allocator, glob->localAutoUpdateFolder);
     RHEAFREE(allocator, glob->usbFolder);
     RHEAFREE(allocator, glob->usbFolder_VMCSettings);
     RHEAFREE(allocator, glob->usbFolder_CPUFW);
@@ -277,6 +281,7 @@ void run(int argc, char *argv[])
     //creazione del logger
 #ifdef _DEBUG
     glob.logger = new rhea::StdoutLogger();
+
 #else
 #ifdef PLATFORM_YOCTO_EMBEDDED
     glob.logger = new rhea::NullLogger();
@@ -307,6 +312,15 @@ void run(int argc, char *argv[])
         //Mi iscrivo a ESAPI per ricevere direttamente le notifiche che questa manda al cambiare del suo stato
         subscribeToESAPI (&glob.esapiSubscriber);
     }
+
+    //faccio partire RSProto per la telemetria con SECO
+#ifdef _DEBUG
+    rhea::shell_runCommandNoWait ("./UBUNTU_DEBUG_SecoBridge 127.0.0.1 2283");
+#else
+    #ifdef PLATFORM_YOCTO_EMBEDDED
+        rhea::shell_runCommandNoWait ("./RSProto 127.0.0.1 2283");
+    #endif
+#endif
 
     //Avvio del main form
     QApplication app(argc, argv);

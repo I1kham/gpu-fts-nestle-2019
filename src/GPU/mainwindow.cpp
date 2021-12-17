@@ -77,6 +77,14 @@ MainWindow::~MainWindow()
 }
 
 //*****************************************************
+bool MainWindow::priv_autoupdate_exists() const
+{
+    if (NULL == frmBoot)
+        return false;
+    return frmBoot->does_autoupdate_exists();
+}
+
+//*****************************************************
 void MainWindow::keyPressEvent(QKeyEvent *ev)
 {
     //simula (+ o -) pressione del btn PROG
@@ -488,7 +496,7 @@ void MainWindow::priv_syncWithCPU_onTick()
     {
         //Ora abbiamo tutte le info, possiamo partire
         //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
-        if (this->glob->bSyncWithCPUResult == false || rhea::fs::folderExists(glob->usbFolder))
+        if (this->glob->bSyncWithCPUResult == false || rhea::fs::folderExists(glob->usbFolder) || priv_autoupdate_exists())
             priv_scheduleFormChange (eForm_boot);
         else
         {
