@@ -1141,6 +1141,10 @@
 								<div style="clear"></div>								
 							</td>
 						</tr>
+						<tr id="pageDevices_cupSensorBrewmatic">
+							<td>$LAB_DEV_CUP_SIZE_DETECTED</td>
+							<td><div id="divCupSensorLiveValueBrewmatic" class="bigCaption15"></div></td>
+						</tr>
 						<tr id="pageDevices_boilerSize"><td>$LAB_BOILER</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>$LAB_DEV_MODEM_TEST</td><td><div class='UIButton bigButton60 actionButton' data-caption='$LAB_START' data-onclick="pageDevices_startModemTest()"></div></td></tr>
@@ -3781,6 +3785,15 @@ function pageDevices_show()
 		for (var i=1; i<=4; i++)
 			rheaSetDivHTMLByName("pageDevices_vgrind" +i +"_lastPos_caption", da3.read16( da3.getVarigrindLastPosDa3Loc(i) ));
 		pageDevices_vgrind_setLastFluxAndPos(pageDevices_vgrind_lastFlux, pageDevices_vgrind_lastPos);
+		
+		
+		if (da3.isMachine_Brewmatic4Macine())
+		{
+			rheaHideElem(rheaGetElemByID("pageDevices_cupSensor"));
+			rheaShowElem_TR(rheaGetElemByID("pageDevices_cupSensorBrewmatic"));
+		}
+		else
+			rheaHideElem(rheaGetElemByID("pageDevices_cupSensorBrewmatic"));
 	}
 
 

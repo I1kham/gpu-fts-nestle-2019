@@ -1588,6 +1588,17 @@ TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 	rhea.ajax ("getCupSensorLiveValue", "" ).then( function(result)
 	{
 		rheaSetDivHTMLByName("divCupSensorLiveValue", result);
+		
+		switch (parseInt(result))
+		{
+		case 0:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(173+) mm"); break;
+		case 1:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(145-173) mm"); break;
+		case 2:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(116-145) mm"); break;
+		case 3:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(101-116) mm"); break;
+		case 4:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(90-101) mm"); break;
+		case 5:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(65-90) mm"); break;
+		default: rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "$LAB_DEV_NO_CUP_DETECTED"); break;
+		}
 	})
 	.catch( function(result)
 	{
