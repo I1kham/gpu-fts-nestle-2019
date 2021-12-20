@@ -77,10 +77,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
-    <TargetName>RheaMedia2_v2.5_2021-07-26</TargetName>
+    <TargetName>RheaMedia2_v2.5.1_2021-12-20</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>RheaMedia2_v2.5_2021-07-26</TargetName>
+    <TargetName>RheaMedia2_v2.5.1_2021-12-20</TargetName>
     <OutDir>$(SolutionDir)..\bin\RheaMedia20\</OutDir>
     <IntDir>$(ProjectDir)build\WIN$(Configuration)\</IntDir>
   </PropertyGroup>
