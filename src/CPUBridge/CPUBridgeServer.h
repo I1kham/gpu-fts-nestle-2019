@@ -269,6 +269,7 @@ namespace cpubridge
 		void					priv_setLockStatus (eLockStatus lockMode);
 		bool					priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue);
 		bool					priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue);
+		bool					priv_askCPUAllDecounters (u32 *out_decounter15, u32 sizeof_out_decounter15);
 
 		bool					IsSelectionEnable(u8 selNum_1toN);
 		bool					SelectionEnable (u8 selNum_1toN, bool bEnable);
@@ -279,7 +280,8 @@ namespace cpubridge
 		void					priv_handleEventFromSocket (HSokServerClient hClient);
 		bool					priv_onMessageIdentifyRcv (HSokServerClient hClient, const rhFSx::proto::sDecodedMsg &ask);
 		void					priv_onTCPClientDisconnected (HSokServerClient hClient);
-
+		
+		void					priv_telemetry_sendDecounters();
         eActionResult           priv_runAction_rebootASAP();
         eActionResult           priv_runAction_downloadEVADTSAndAnswerToRSProto();
 

@@ -72,6 +72,32 @@ void RSProto::priv_sendLastSMUState (rhea::ISimpleLogger *logger  UNUSED_PARAM)
 }
 
 //******************************************* 
+void RSProto::sendDecounterProdotto (u8 prodotto1_n, u32 decValue, rhea::ISimpleLogger *logger UNUSED_PARAM)
+{
+	u8 payload[16];
+	rhea::utils::bufferWriteU32 (payload, VAR_DECOUNTER_PRODOTTO);
+	payload[4] = VAR_TYPE_u32;
+	payload[5] = prodotto1_n;
+	rhea::utils::bufferWriteU24 (&payload[6], decValue);
+	priv_send (static_cast<u16>(rhFSx::proto::eAsk::rsproto_variabile), (u16)0, payload, 9);
+
+	logger->log ("RSProto::sendDecounterProdotto prd=%d, val=%d\n", prodotto1_n, decValue);
+}
+
+//******************************************* 
+void RSProto::sendDecounterOther (eDecounter which, u32 decValue, rhea::ISimpleLogger *logger UNUSED_PARAM)
+{
+	u8 payload[16];
+	rhea::utils::bufferWriteU32 (payload, VAR_DECOUNTER_OTHER);
+	payload[4] = VAR_TYPE_u32;
+	payload[5] = static_cast<u8>(which);
+	rhea::utils::bufferWriteU24 (&payload[6], decValue);
+	priv_send (static_cast<u16>(rhFSx::proto::eAsk::rsproto_variabile), (u16)0, payload, 9);
+
+	logger->log ("RSProto::sendDecounterOther decNum=%d, val=%d\n", which, decValue);
+}
+
+//******************************************* 
 void RSProto::sendTemperature (u8 temperatureEsp, u8 temperatureCamCaffe, u8 temperatureSol, u8 temperatureIce, u8 temperatureMilker, rhea::ISimpleLogger *logger UNUSED_PARAM)
 {
 #define NEED_TO_BE_SENT(newTempValue, oldTempValue, tolleranza)		(newTempValue >= (oldTempValue + tolleranza) || newTempValue <= (oldTempValue - tolleranza))

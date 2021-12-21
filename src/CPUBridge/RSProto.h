@@ -13,12 +13,20 @@ namespace cpubridge
 **/
 class RSProto
 {
-	public:
-		static const u16 FILE_EVA_DTS					= 0x0001;
-		static const u16 FILE_MACHINE_CONFIG			= 0x0002;
-		static const u16 FILE_SMU						= 0x0003;
-		static const u16 FILE_CPU						= 0x0004;
-		static const u16 FILE_GUI						= 0x0005;
+public:
+	static const u16 FILE_EVA_DTS					= 0x0001;
+	static const u16 FILE_MACHINE_CONFIG			= 0x0002;
+	static const u16 FILE_SMU						= 0x0003;
+	static const u16 FILE_CPU						= 0x0004;
+	static const u16 FILE_GUI						= 0x0005;
+
+public:
+	enum class eDecounter : u8
+	{
+		WATER_FILTER	= 0x01,
+		COFFEE_BREWER	= 0x02,
+		COFFEE_GROUND	= 0x03
+	};
 
 public:
 				RSProto (rhea::ProtocolSocketServer *serverTCP, const HSokServerClient hClient);
@@ -26,9 +34,13 @@ public:
 
 	void		onMessageRCV (cpubridge::Server *server, u16 what, u16 userValue, const u8 *payload, u32 payloadLen, rhea::ISimpleLogger *logger);
 	void		onSMUStateChanged (const cpubridge::sCPUStatus &status, rhea::ISimpleLogger *logger);
-	void		sendTemperature (u8 temperatureEsp, u8 temperatureCamCaffe, u8 temperatureSol, u8 temperatureIce, u8 temperatureMilker, rhea::ISimpleLogger *logger);
+	void		sendTemperature (u8 temperatureEsp, u8 temperatureCamCaffe, u8 temperatureSol, u8 temperatureIce, u8 temperatureMilker, rhea::ISimpleLogger *logger UNUSED_PARAM);
 	void		sendFileAnswer (u32 fileID, u16 userValue, const u8 *fullPathName);
-	
+
+	void		sendDecounterProdotto (u8 prodotto1_n, u32 decValue, rhea::ISimpleLogger *logger UNUSED_PARAM);
+	void		sendDecounterOther (eDecounter which, u32 decValue, rhea::ISimpleLogger *logger UNUSED_PARAM);
+
+
 	bool		isItMe (const HSokServerClient hClientIN) const					{ return hClientIN == hClient; }
 
 public:
@@ -46,6 +58,13 @@ private:
 	static const u32 VAR_TEMPERATURA_CAM_CAFFE		= 0x00000006;
 	static const u32 VAR_TEMPERATURA_BANCO_GHIACCIO = 0x00000007;
 	static const u32 VAR_TEMPERATURA_MILKER			= 0x00000008;
+
+	static const u32 VAR_DECOUNTER_PRODOTTO			= 0x00000002;
+	static const u32 VAR_DECOUNTER_OTHER			= 0x00000003;
+
+
+
+
 
 private:
 	enum class eAnswerToFileRequest

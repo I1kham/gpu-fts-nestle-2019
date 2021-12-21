@@ -604,6 +604,39 @@ bool Server::priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichPara
 }
 
 /***************************************************
+ * chiede a CPU tutti i decount, 10 di prodotto + water_filter, coffee_brewer, coffee_ground, blocking_counter, maintenance
+ * [out_decounter15] punta ad un array di almeno 15 u32
+ */
+bool Server::priv_askCPUAllDecounters (u32 *out_decounter15, u32 sizeof_out_decounter15)
+{
+	if (sizeof_out_decounter15 < sizeof(u32) * 15)
+	{
+		DBGBREAK;
+		return false;
+	}
+	
+	u8 bufferW[64];
+	const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
+	u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
+	if (!priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
+		return false;
+	
+	for (u8 i = 0; i < 14; i++)
+		out_decounter15[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4 + i * 2]);
+
+	//il decounter [14] è passato su 3 byte invece che i normali 2 e non esisteva prima del 2021/05/10
+	out_decounter15[14] = 0;
+	if (sizeOfAnswerBuffer > 33)
+	{
+		u8 ct = 32;
+		out_decounter15[14] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[ct]);
+		ct += 2;
+		out_decounter15[14] |= (((u32)answerBuffer[ct++]) << 16);
+	}
+	return true;
+}
+
+/***************************************************
  * Uno dei miei subscriber mi ha inviato una richiesta
  */
 void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
@@ -994,28 +1027,9 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 
 		case CPUBRIDGE_SUBSCRIBER_ASK_GET_ALL_DECOUNTER_VALUES:
 		{
-			u8 bufferW[64];
-			const u16 nBytesToSend = cpubridge::buildMsg_getAllDecounterValues(bufferW, sizeof(bufferW));
-			u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-			if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 2000))
-			{
-				u32 decounters[15];
-				for (u8 i=0; i < 14; i++)
-					decounters[i] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[4 + i * 2]);
-
-				//il decounter [14] è passato su 3 byte invece che i normali 2 e non esisteva prima del 2021/05/10
-				decounters[14] = 0;
-				if (sizeOfAnswerBuffer > 33)
-				{
-					u8 ct = 32;
-					decounters[14] = rhea::utils::bufferReadU16_LSB_MSB(&answerBuffer[ct]);
-					ct += 2;
-					decounters[14] |= (((u32)answerBuffer[ct++]) << 16);
-				}
-
-
+			u32 decounters[15];
+			if (priv_askCPUAllDecounters (decounters, sizeof(decounters)))
 				notify_CPU_ALL_DECOUNTER_VALUES(sub->q, handlerID, logger, decounters, sizeof(decounters));
-			}
 		}
 		break;
 
@@ -4397,6 +4411,7 @@ void Server::priv_handleState_selection()
 					runningSel.status = eRunningSelStatus::finished_OK;
 					priv_notify_CPU_RUNNING_SEL_STATUS (runningSel.sub, 0, runningSel.status);
 					priv_enterState_normal();
+					priv_telemetry_sendDecounters();
 					return;
 				}
 				else
@@ -4841,3 +4856,29 @@ bool Server::SelectionEnable (u8 selNum_1toN, bool bEnable)
 		ret = false;
 	return ret;
 }
+
+
+//*********************************************************
+void Server::priv_telemetry_sendDecounters()
+{
+	if (NULL == rsProto)
+		return;
+
+	u32 decounters[15];
+	if (!priv_askCPUAllDecounters(decounters, sizeof(decounters)))
+		return;
+
+	//prodotti
+	for (u8 i=0; i<10; i++)
+		rsProto->sendDecounterProdotto (i+1, decounters[i], logger);
+
+	//10=water_filter
+	//11=coffee_brewer
+	//12=coffee_ground
+	//13=blocking_counter
+	//14=maintenance
+	rsProto->sendDecounterOther (RSProto::eDecounter::WATER_FILTER, decounters[10], logger);
+	rsProto->sendDecounterOther (RSProto::eDecounter::COFFEE_BREWER, decounters[11], logger);
+	rsProto->sendDecounterOther (RSProto::eDecounter::COFFEE_GROUND, decounters[12], logger);
+}
+
