@@ -82,7 +82,7 @@ namespace cpubridge
 						[out_hServiceChannelW]		è il canale di comunicazione di "servizio" da utilizzarsi per richieste speciali (tipo subsribe)
 				*/
 
-	void		subscribe (const HThreadMsgW &hServiceChannelW, const HThreadMsgW &hAnswerHere);
+	void		subscribe (const HThreadMsgW &hServiceChannelW, const HThreadMsgW &hAnswerHere, u16 applicationUID);
 					/*	Qualcuno vuole iscriversi alla coda di messaggi di output di CPUBridge.
 						CPUBridge invierà la risposta a questa richiesta sul canale identificato da [hAnswerHere].
 
@@ -96,6 +96,10 @@ namespace cpubridge
     void        loadVMCDataFileTimeStamp (sCPUVMCDataFileTimeStamp *out);
     bool        saveVMCDataFileTimeStamp(const sCPUVMCDataFileTimeStamp &ts);
 	
+    bool        copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName);
+    bool        copyFileInAutoupdateFolder (const u8 *fullSrcFilePathAndName, const char *dstFileName);
+                //copia [fullSrcFilePathAndName] nella cartella /autoUpdate
+
 	/***********************************************
 		buildMsg_xxxx
 			ritornano 0 se out_buffer non è abbastanza grande da contenere il messaggio.
@@ -108,7 +112,7 @@ namespace cpubridge
 	u8			buildMsg_readVMCDataFile(u8 blockNum, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writeVMCDataFile (const u8 *buffer64yteLettiDalFile, u8 blockNum, u8 totNumBlocks, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getVMCDataFileTimeStamp (u8 *out_buffer, u8 sizeOfOutBuffer);
-    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_Programming (eCPUProgrammingCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
 	u8			buildMsg_getExtendedConfigInfo (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_writePartialVMCDataFile (const u8 *buffer64byte,  u8 blocco_n_di, u8 tot_num_blocchi, u8 blockNumOffset, u8 *out_buffer, u8 sizeOfOutBuffer);
 					/* se voglio inviare i blocchi 3, 6, 10, 12 alla cpu, invio 4 messaggi:
@@ -134,13 +138,13 @@ namespace cpubridge
 	u8			buildMsg_getStatoCalcoloImpulsiGruppo (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_setFattoreCalibMotore (eCPUProg_motor motore, u16 valoreInGr, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getStatoGruppo(u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_calcolaImpulsiGruppo (u8 macina_1o2, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_calcolaImpulsiGruppo_AA (u8 macina_1to4, u16 totalePesata_dGrammi, u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getTime (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_getDate(u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_setTime(u8 *out_buffer, u8 sizeOfOutBuffer, u8 hh, u8 mm, u8 ss);
 	u8			buildMsg_setDate(u8 *out_buffer, u8 sizeOfOutBuffer, u16 year, u8 month, u8 day);
-	u8			buildMsg_getPosizioneMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2);
-	u8			buildMsg_setMotoreMacina (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1o2, eCPUProg_macinaMove m);
+	u8			buildMsg_getPosizioneMacina_AA (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1to4);
+	u8			buildMsg_setMotoreMacina_AA (u8 *out_buffer, u8 sizeOfOutBuffer, u8 macina_1to4, eCPUProg_macinaMove m);
 	u8			buildMsg_testSelection (u8 *out_buffer, u8 sizeOfOutBuffer, u8 selNum, eCPUProg_testSelectionDevice d);
 	u8			buildMsg_getNomiLingueCPU (u8 *out_buffer, u8 sizeOfOutBuffer);
 	u8			buildMsg_disintallazione(u8 *out_buffer, u8 sizeOfOutBuffer);
@@ -165,10 +169,20 @@ namespace cpubridge
 	u8			buildMsg_activateCPUBuzzer (u8 numRepeat, u8 beepLen_dSec, u8 pausaTraUnBeepELAltro_dSec, u8 *out_buffer, u8 sizeOfOutBuffer);
 					//[numRepeat], [beepLen_dSec] e [pausaTraUnBeepELAltro_dSec] validi sono compresi tra 0 e 15 inclusi
 	u8			buildMsg_getBuzzerStatus (u8 *out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_stopJug(u8* out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_getJugCurrentRepetition (u8* out_buffer, u8 sizeOfOutBuffer);
-	u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1_o_2, u8* out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_stopJug(u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_getJugCurrentRepetition (u8 *out_buffer, u8 sizeOfOutBuffer);
+    u8			buildMsg_notifyEndOfGrinderCleaningProcedure (u8 grinder1toN, u8 *out_buffer, u8 sizeOfOutBuffer);
 					//grinder1_o_2==1 se grinder1, grinder1_o_2==2 se grinder 2
+	u8			buildMsg_scivoloBrewmatic (u8 perc0_100, u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_askMessageFromLanguageTable (u8 tableID, u8 msgRowNum, u8 language1or2, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_setSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_getSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u8 *out_buffer, u32 sizeOfOutBuffer);
+
+	u8			buildMsg_Snack (eSnackCommand cmd, const u8 *optionalData, u32 sizeOfOptionalData, u8 *out_buffer, u32 sizeOfOutBuffer);
+	u8			buildMsg_Snack_status_0x03 (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_Snack_enterProg_0x04 (u8 *out_buffer, u8 sizeOfOutBuffer);
+	u8			buildMsg_Snack_exitProg_0x05 (u8 *out_buffer, u8 sizeOfOutBuffer);
+
 
 	/***********************************************
 		notify_xxxx
@@ -214,11 +228,12 @@ namespace cpubridge
     void		notify_CPU_BTN_PROG_PRESSED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
     void		translateNotify_CPU_BTN_PROG_PRESSED (const rhea::thread::sMsg &msg);
 
-    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
-    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
-					/* fileID è un numero che viene appeso al nome del file durante lo scaricamento.
-						Posto che il download vada a buon fine, il file localmente si trova in app/temp/dataAudit[FILE_ID].txt (es app/temp/dataAudit5.txt
-					*/
+    void		notify_READ_DATA_AUDIT_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID, const void *readData, u8 nBytesInReadData);
+					//fileID è un numero che viene appeso al nome del file durante lo scaricamento.
+					//Posto che il download vada a buon fine, il file localmente si trova in app/temp/dataAudit[FILE_ID].txt (es app/temp/dataAudit5.txt
+    void		translateNotify_READ_DATA_AUDIT_PROGRESS (const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID, u8 *out_readData, u8 *out_nBytesInReadData);
+					//[out_readData] può essere NULL se non si desidera recuperare i dati letti da CPU
+					
 
 	void		notify_READ_VMCDATAFILE_PROGRESS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eReadDataFileStatus status, u16 totKbSoFar, u16 fileID);
 	void		translateNotify_READ_VMCDATAFILE_PROGRESS(const rhea::thread::sMsg &msg, eReadDataFileStatus *out_status, u16 *out_totKbSoFar, u16 *out_fileID);
@@ -253,7 +268,7 @@ namespace cpubridge
 	void		notify_ATTIVAZIONE_MOTORE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 motore_1_10, u8 durata_dSec, u8 numRipetizioni, u8 pausaTraRipetizioni_dSec);
 	void		translateNotify_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec);
 
-	void		notify_CALCOLA_IMPULSI_GRUPPO_STARTED (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+	void		notify_CALCOLA_IMPULSI_GRUPPO_STARTED (const sSubscriber &to, u16 handlerID, u8 macina_1to4, rhea::ISimpleLogger *logger);
 
 	void		notify_STATO_CALCOLO_IMPULSI_GRUPPO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 stato, u16 valore);
 	void		translateNotify_STATO_CALCOLO_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_stato, u16 *out_valore);
@@ -279,8 +294,8 @@ namespace cpubridge
 	void		notify_CPU_POSIZIONE_MACINA(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, u16 posizione);
 	void		translateNotify_CPU_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_posizione);
 
-	void		notify_CPU_MOTORE_MACINA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1o2, eCPUProg_macinaMove m);
-	void		translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m);
+	void		notify_CPU_MOTORE_MACINA (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 macina_1to4, eCPUProg_macinaMove m);
+	void		translateNotify_CPU_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4, eCPUProg_macinaMove *out_m);
 	
 	void		notify_CPU_TEST_SELECTION(const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum, eCPUProg_testSelectionDevice d);
 	void		translateNotify_CPU_TEST_SELECTION(const rhea::thread::sMsg &msg, u8 *out_selNum, eCPUProg_testSelectionDevice *out_d);
@@ -373,7 +388,16 @@ namespace cpubridge
 
 	void		notify_CPU_BROWSER_URL_CHANGE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const char *url);
 	void		translateNotify_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg& msg, char *out_url, u32 sizeof_out_url);
+	void		notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 perc0_100);
+
+	void		notify_MSG_FROM_LANGUAGE_TABLE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 tableID, u8 msgRowNum, const u8 *utf8message);
+	void		translateNotify_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_utf8message, u32 sizeOf_utf8message);
 	
+	void		notify_CPU_RESTART  (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+
+	void		notify_MACHINE_LOCK (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, eLockStatus lockStatus);
+	void		translateNotify_MACHINE_LOCK(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus);
+
 	/***********************************************
 		ask_xxxx
 			Un subsriber di CPUBridge può richiedere le seguenti cose
@@ -430,8 +454,10 @@ namespace cpubridge
 	void		ask_CPU_QUERY_CUR_SEL_RUNNING(const sSubscriber &from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_CUR_SEL_RUNNING
 
-    void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID);
+    void        ask_READ_DATA_AUDIT (const sSubscriber &from, u16 handlerID, bool bIncludeDataInNotify);
+	void		translate_READ_DATA_AUDIT(const rhea::thread::sMsg &msg, bool *out_bIncludeDataInNotify);
                     //alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_DATA_AUDIT_PROGRESS.
+					//Se [bIncludeDataInNotify] == true, allora la notify_READ_DATA_AUDIT_PROGRESS riporta anche i byte letti da CPU
 	
 	void        ask_READ_VMCDATAFILE(const sSubscriber &from, u16 handlerID);
 					/* alla ricezione di questo msg, CPUBridge risponderà con una o più notify_READ_VMCDATAFILE_PROGRESS.
@@ -481,8 +507,8 @@ namespace cpubridge
 	void		translate_CPU_ATTIVAZIONE_MOTORE(const rhea::thread::sMsg &msg, u8 *out_motore_1_10, u8 *out_durata_dSec, u8 *out_numRipetizioni, u8 *out_pausaTraRipetizioni_dSec);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_ATTIVAZIONE_MOTORE
 	
-	void		ask_CPU_CALCOLA_IMPULSI_GRUPPO (const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 totalePesata_dGrammi);
-	void		translate_CPU_CALCOLA_IMPULSI_GRUPPO(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_totalePesata_dGrammi);
+	void		ask_CPU_CALCOLA_IMPULSI_GRUPPO_AA (const sSubscriber &from, u16 handlerID, u8 macina_1to4, u16 totalePesata_dGrammi);
+	void		translate_CPU_CALCOLA_IMPULSI_GRUPPO_AA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4, u16 *out_totalePesata_dGrammi);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CALCOLA_IMPULSI_GRUPPO_STARTED
 
 	void		ask_CPU_GET_STATO_CALCOLO_IMPULSI_GRUPPO(const sSubscriber &from, u16 handlerID);
@@ -509,16 +535,16 @@ namespace cpubridge
 	void		translate_CPU_SET_DATE(const rhea::thread::sMsg &msg, u16 *out_year, u8 *out_month, u8 *out_day);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_SET_DATE
 
-	void		ask_CPU_GET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2);
-	void		translate_CPU_GET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2);
+	void		ask_CPU_GET_POSIZIONE_MACINA_AA(const sSubscriber &from, u16 handlerID, u8 macina_1to4);
+	void		translate_CPU_GET_POSIZIONE_MACINA_AA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_POSIZIONE_MACINA
 
-	void		ask_CPU_SET_MOTORE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, eCPUProg_macinaMove m);
-	void		translate_CPU_SET_MOTORE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, eCPUProg_macinaMove *out_m);
+	void		ask_CPU_SET_MOTORE_MACINA_AA (const sSubscriber &from, u16 handlerID, u8 macina_1to4, eCPUProg_macinaMove m);
+	void		translate_CPU_SET_MOTORE_MACINA_AA (const rhea::thread::sMsg &msg, u8 *out_macina_1to4, eCPUProg_macinaMove *out_m);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_MOTORE_MACINA
 
-	void		ask_CPU_SET_POSIZIONE_MACINA(const sSubscriber &from, u16 handlerID, u8 macina_1o2, u16 target);
-	void		translate_CPU_SET_POSIZIONE_MACINA(const rhea::thread::sMsg &msg, u8 *out_macina_1o2, u16 *out_target);
+	void		ask_CPU_SET_POSIZIONE_MACINA_AA(const sSubscriber &from, u16 handlerID, u8 macina_1to4, u16 target);
+	void		translate_CPU_SET_POSIZIONE_MACINA_AA(const rhea::thread::sMsg &msg, u8 *out_macina_1to4, u16 *out_target);
 					//alla ricezione di questo msg, CPUBridge non notificherà alcunchè. Lo stato di CPUBridge dovrebbe passare a eVMCState::REG_APERTURA_MACINA
 
 	void		ask_CPU_TEST_SELECTION(const sSubscriber &from, u16 handlerID, u8 selNum, eCPUProg_testSelectionDevice d);
@@ -589,8 +615,8 @@ namespace cpubridge
 					//NB: se price==0xffff, allora la CPU si prende comunque in carico il pagamento, a discapito del nome di questa fn
 	void		translate_CPU_START_SELECTION_WITH_PAYMENT_ALREADY_HANDLED(const rhea::thread::sMsg &msg, u8 *out_selNumber, u16 *out_price, eGPUPaymentType *out_paymentType, bool *out_bForceJUG);
 
-	void		ask_CPU_START_GRINDER_SPEED_TEST (const sSubscriber &from, u16 handlerID, u8 macina1o2, u8 durataMacinataInSec);
-	void		translate_CPU_START_GRINDER_SPEED_TEST(const rhea::thread::sMsg &msg, u8 *out_macina1o2, u8 *out_durataMacinataInSec);
+	void		ask_CPU_START_GRINDER_SPEED_TEST_AA (const sSubscriber &from, u16 handlerID, u8 macina_1to4, u8 durataMacinataInSec);
+	void		translate_CPU_START_GRINDER_SPEED_TEST_AA (const rhea::thread::sMsg &msg, u8 *out_macina_1to4, u8 *out_durataMacinataInSec);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_START_GRINDER_SPEED_TEST
 
 	void		ask_CPU_GET_LAST_GRINDER_SPEED (const sSubscriber &from, u16 handlerID);
@@ -645,8 +671,8 @@ namespace cpubridge
 	void		ask_CPU_GET_JUG_CURRENT_REPETITION(const sSubscriber& from, u16 handlerID);
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_GET_JUG_CURRENT_REPETITION
 
-	void		ask_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber &from, u16 handlerID, u8 grinder1_o_2);
-	void		translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread::sMsg &msg, u8 *out_grinder1_o_2);
+    void		ask_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber &from, u16 handlerID, u8 grinder1toN);
+    void		translate_END_OF_GRINDER_CLEANING_PROCEDURE (const rhea::thread::sMsg &msg, u8 *out_grinder1toN);
 					//[grinder1_o_2]==1 se grinder1, [grinder1_o_2]==2 se grinder 2
 					//notifica CPU segnalando la fine della procedura di grinder cleaning
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_END_OF_GRINDER_CLEANING_PROCEDURE
@@ -654,6 +680,61 @@ namespace cpubridge
 	void		ask_CPU_BROWSER_URL_CHANGE (const sSubscriber &from, u16 handlerID, const char *url);
 	void		translate_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg &msg, char *out_url, u32 sizeof_out_url);
 				//alla ricezione di questo msg, CPUBridge risponderà con un notify_BROWSER_URL_CHANGE
+
+	void		ask_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber &from, u16 handlerID, u8 perc0_100);
+	void		translate_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const rhea::thread::sMsg &msg, u8 *out_perc0_100);
+					//[perc0_100]== percentuale di attivazione PWM
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC
+
+	void		ask_MSG_FROM_LANGUAGE_TABLE (const sSubscriber &from, u16 handlerID, u8 tableID, u8 msgRowNum, u8 language1or2);
+	void		translate_MSG_FROM_LANGUAGE_TABLE (const rhea::thread::sMsg &msg, u8 *out_tableID, u8 *out_msgRowNum, u8 *out_language1or2);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_MSG_FROM_LANGUAGE_TABLE
+
+	void		ask_CPU_RESTART (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di questo msg, CPUBridge risponderà con un notify_CPU_RESTART
+
+	void		ask_SET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID, eLockStatus lockStatus);
+	void		translate_SET_MACHINE_LOCK_STATUS(const rhea::thread::sMsg &msg, eLockStatus *out_lockStatus);
+	void		ask_GET_MACHINE_LOCK_STATUS (const sSubscriber &from, u16 handlerID);
+					//alla ricezione di uno di questi 3 msg, CPUBridge risponderà con un notify_MACHINE_LOCK riportando lo stato attuale del lock
+
+	void		ask_SELECTION_ENABLE_DISABLE (const sSubscriber& from, u16 handlerID, u8 selNum1toN, bool bEnable);
+	void		translate_SELECTION_ENABLE_DISABLE(const rhea::thread::sMsg& msg, u8 *out_selNum1toN, bool *out_bEnable);
+	void		notify_SELECTION_ENABLE_DISABLE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode);
+	void		translateNotify_SELECTION_ENABLE_DISABLE (const rhea::thread::sMsg &msg, u8 *out_errorCode);
+
+	void		ask_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber& from, u16 handlerID, const u8 *msgUTF8, u8 timeSec);
+	void		translate_OVERWRITE_CPU_MESSAGE_ON_SCREEN(const rhea::thread::sMsg& msg, const u8 **out_msgUTF8, u8 *out_timeSec);
+	void		notify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 errorCode);
+	void		translateNotify_OVERWRITE_CPU_MESSAGE_ON_SCREEN (const rhea::thread::sMsg &msg, u8 *out_errorCode);
+
+	void		ask_SET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam, u16 paramValue);
+	void		translate_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam, u16 *out_paramValue);
+	void		notify_SET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue);
+	void		translateNotify_SET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode);
+
+	void		ask_GET_SELECTION_PARAMU16 (const sSubscriber& from, u16 handlerID, u8 selNumDa1aN, eSelectionParam whichParam);
+	void		translate_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg& msg, u8 *out_selNumDa1aN, eSelectionParam *out_whichParam);
+	void		notify_GET_SELECTION_PARAMU16 (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 selNum1ToN, eSelectionParam whichParam, u8 errorCode, u16 paramValue);
+	void		translateNotify_GET_SELECTION_PARAMU16 (const rhea::thread::sMsg &msg, u8 *out_selNum1ToN, eSelectionParam *out_whichParam, u8 *out_errorCode, u16 *out_paramValue);
+
+    void		ask_SCHEDULE_ACTION_RELAXED_REBOOT (const sSubscriber& from, u16 handlerID);
+                //CPUBridge alla ricezione di questo messaggio non risponde nulla ma schedula un reboot che verrà eseguito quando le condizioni lo consentono (macchine in idle o in errore e nessuna attività da parte
+                //dell'utente da un po' di tempo)
+
+	void		ask_SNACK_GET_STATUS (const sSubscriber& from, u16 handlerID);
+	void		notify_SNACK_GET_STATUS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool isAlive, const u8 *selStatus1_48);
+	void		translateNotify_SNACK_GET_STATUS(const rhea::thread::sMsg &msg, bool *out_isAlive, u8 *out_selStatus1_48, u32 sizeof_outSelStatus);
+
+	void		ask_SNACK_ENTER_PROG (const sSubscriber& from, u16 handlerID);
+	void		notify_SNACK_ENTER_PROG (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
+	void		translateNotify_SNACK_ENTER_PROG(const rhea::thread::sMsg &msg, bool *out_result);
+
+	void		ask_SNACK_EXIT_PROG (const sSubscriber& from, u16 handlerID);
+	void		notify_SNACK_EXIT_PROG (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
+	void		translateNotify_SNACK_EXIT_PROG(const rhea::thread::sMsg &msg, bool *out_result);
+
+
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

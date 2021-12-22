@@ -41,6 +41,9 @@ namespace rhea
         u16         simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes);
                     /*  calcola un semplice checksum 16 bit */
 
+        u16         Crc16_calc(const uint8_t* data, const size_t leninBytes);
+                    /* calcola un crc a 16 bit */
+
 		void		dumpBufferInASCII(FILE *f, const u8 *buffer, u32 lenInBytes);
 					/* dumpa su file i primi [lenInBytes] bytes di buffer. Se possibile, usa caratteri ASCII printabili
 						altrimenti scrive la rappresentazione in hex del numero racchiuso tra quadre (es: [A5]).

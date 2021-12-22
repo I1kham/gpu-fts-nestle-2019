@@ -176,7 +176,7 @@
 
 					<li onmousedown="menuLang_onUserSelected('NL')"><img src="img/flags/NL.png"> NEDERLANDS</li>
 					<li onmousedown="menuLang_onUserSelected('PL')"><img src="img/flags/PL.png"> POLSKIE</li>
-					<li onmousedown="menuLang_onUserSelected('JP')"><img src="img/flags/JP.png"> 日本</li>					
+					<li onmousedown="menuLang_onUserSelected('JP')"><img src="img/flags/JP.png"> 日本</li>
 				</ul>
 			</div>
 			<div class="clear"></div>
@@ -198,12 +198,12 @@
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SÉLECTIONS" data-onclick="pageSelections_show()"></div></td>
 						<td width="33%" align="center"><div id="pageMainMenu_btnEspressoCalib" class="UIButton bigButton3x4 UIdisabled" data-caption="CALIBRATION ESPRESSO" data-onclick="pageExpCalib_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="CALIBRATION INSTANT" data-onclick="pageCalibration_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnInstantCalib" class="UIButton bigButton3x4" data-caption="CALIBRATION INSTANT" data-onclick="pageCalibration_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="TEMPÉRATURE" data-onclick="pageTemperature_show()"></div></td>
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="SYSTÈMES DE PAIEMENT" data-onclick="pagePayment_show()"></div></td>
-						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="QUANTITE DE<br>PRODUIT" data-onclick="pageProductQty_show()"></div></td>
+						<td width="33%" align="center"><div id="pageMainMenu_btnProdQty" class="UIButton bigButton3x4" data-caption="QUANTITE DE<br>PRODUIT" data-onclick="pageProductQty_show()"></div></td>
 					</tr>
 					<tr valign="middle">
 						<td width="33%" align="center"><div class="UIButton bigButton3x4" data-caption="DISPOSITIFS" data-onclick="pageDevices_show()"></div></td>						
@@ -383,7 +383,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%'>
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='0|OPTIONS GÉNÉRALES|1|ID MACHINE|2|LAIT LM|3|FREEVEND|4|COMPTEUR BLOCAGE' data-onclick='pageMiscellaneous_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' style='font-size:0.9em' id='pageMiscellaneous_selector' data-option='' data-onclick='pageMiscellaneous_onSelector()'></div></td>
 					</tr>
 				</table>
 				<br>
@@ -403,7 +403,7 @@
 							<td><div class="UINumber" data-numfigures="2" data-decimal='1' data-max="13" data-da3="7064" data-da3bit="8" data-um="sec"></div></td>
 						</tr>
 						<tr>
-							<td>LANGUE DE LA CPU</td>
+							<td><div onMouseUp="pageMiscellaneous_onLabCPULangClicked()">LANGUE DE LA CPU</div></td>
 							<td><div id='pageMiscellaneous_cpuLang' class='UISelect' data-option='0|lang 1|1|lang 2' data-da3='7068' data-da3bit='8'></div></td>
 						</tr>
 						<tr id="pageMiscellaneous_r1">
@@ -537,7 +537,37 @@
 							</tr>
 						</table>
 					</div>
-				</div>				
+				</div>
+				
+				<div id="pageMiscellaneous_advGrinder" style="display:none">
+					<table border='0' class='elenco'>
+						<tr class="smallHeightNoBorder">
+							<th style="text-align:center">MOULIN</th>
+							<th style="text-align:center">VIBRATION TIME</th>
+							<th style="text-align:center">VIBRATION SPEED</th>
+						</tr>
+						<tr>
+							<td style="text-align:center">1</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8380" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8382" data-um="%"></div></td>
+						</tr>
+						<tr>
+							<td style="text-align:center">2</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8384" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8386" data-um="%"></div></td>
+						</tr>
+						<tr>
+							<td style="text-align:center">3</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8388" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8390" data-um="%"></div></td>
+						</tr>
+						<tr>
+							<td style="text-align:center">4</td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="255" data-da3bit="8" data-da3="8392" data-decimal="1" data-um="sec"></div></td>
+							<td style="text-align:center"><div class="UINumber" data-numfigures="3" data-max="100" data-da3bit="8" data-da3="8394" data-um="%"></div></td>
+						</tr>						
+					</table>						
+				</div>
 			</div>
 		</div>	<!-- page pageMiscellaneous -->
 		
@@ -733,40 +763,40 @@
 							</tr>
 							
 							<tr>
-								<td style="color:#f99">MOUSSE CHAUDE 1</td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7634" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7636" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td style="color:#f99">HOT CLASSIC FOAM</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7634" data-da3bit="16" data-min="30" data-max="40" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7636" data-da3bit="16" data-min="60" data-max="85" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7638" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#f99">MOUSSE CHAUDE 2</td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7640" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7642" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td style="color:#f99">HOT FLUFFY FOAM</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7640" data-da3bit="16" data-min="35" data-max="45" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7642" data-da3bit="16" data-min="70" data-max="85" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="7644" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#f99">MOUSSE CHAUDE 3</td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7646" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="7648" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td style="color:#f99">HOT BARISTA FOAM</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7646" data-da3bit="16" data-min="30" data-max="50" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="7648" data-da3bit="16" data-min="40" data-max="85" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8338" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							
 							<tr>
-								<td style="color:#00f">MOUSSE FROIDE 1</td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="8340" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="8342" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td style="color:#00f">COLD CLASSIC FOAM</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="8340" data-da3bit="16" data-min="30" data-max="55" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="8342" data-da3bit="16" data-min="40" data-max="95" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8344" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#00f">MOUSSE FROIDE 2</td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="8346" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="8348" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td style="color:#00f">COLD FLUFFY FOAM</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="8346" data-da3bit="16" data-min="30" data-max="55" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="8348" data-da3bit="16" data-min="40" data-max="95" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8350" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							<tr>
-								<td style="color:#00f">MOUSSE FROIDE 3</td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="8352" data-da3bit="16" data-max="100" data-um="%"></div></td>
-								<td><div class="UINumber" data-numfigures="3" data-da3="8354" data-da3bit="16" data-max="100" data-um="%"></div></td>
+								<td style="color:#00f">COLD BARISTA FOAM</td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="8352" data-da3bit="16" data-min="0" data-max="100" data-um="%"></div></td>
+								<td><div class="UINumber" data-numfigures="3" data-da3="8354" data-da3bit="16" data-min="0" data-max="100" data-um="%"></div></td>
 								<td><div class="UINumber" data-numfigures="3" data-da3="8356" data-da3bit="16" data-max="500"></div></td>
 							</tr>
 							</tbody>
@@ -823,10 +853,14 @@
 								<td>JUG<br><span class="tip">nom. répétitions</span></td>
 								<td><div class="UINumber" data-numfigures="2" data-max="10" data-da3="177" data-da3bit='8'></div></td>
 							</tr>
-							<tr>
+							<tr id="pageSingleSelection_pageSel_scalingF">
 								<td>FACTEUR D'ÉCHELLE<br></td>
 								<td><div class='UINumber' id='pageSingleSelection_sfactor' data-numfigures='3' data-da3='180' data-da3bit='8' data-min='80' data-max='120' data-um='%'></div></td>
-							</tr>						
+							</tr>
+							<tr id="pageSingleSelection_pageSel_rowCupSizeBrewmatic">
+								<td>CUP SIZE<br></td>
+								<td><div class='UISelect' data-da3='184' data-option='0|(173+) mm|1|(145-173) mm|2|(116-145) mm|3|(101-116) mm|4|(90-101) mm|5|(65-90) mm'></div></td>
+							</tr>							
 						</table>
 					</div>
 				</div> <!--pageSingleSelection_pagegs-->
@@ -851,19 +885,6 @@
 		<div id="pageCalibration" class="UIWindow">
 			<div class="UIWindowContent">
 				<table border='0' class='elenco'>
-					<tr id="pageCalibration_rowGrinder1">
-						<td>MOULIN 1</td>
-						<td><div id="pageCalibration_m11" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(11)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='ÉTALONNER' data-onclick="pageCalibration_start(11)"></div></td>
-					</tr>
-					<tr id="pageCalibration_rowGrinder2">
-						<td>MOULIN 2</td>
-						<td><div id="pageCalibration_m12" class="bigCaption15"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(12)"></div></td>
-						<td><div class='UIButton bigButton60 actionButton' data-caption='ÉTALONNER' data-onclick="pageCalibration_start(12)"></div></td>
-					</tr>
-					
 					<tr id="pageCalibration_rowMotor1">
 						<td style="width:150px">MOTEUR 1</td>
 						<td style="width:274px"><div id="pageCalibration_m1" class="bigCaption15"></div></td>
@@ -904,14 +925,6 @@
 						<td><div class='UIButton bigButton60 actionButton' data-caption='RESET' data-onclick="pageCalibration_reset(6)"></div></td>
 						<td><div class='UIButton bigButton60 actionButton' data-caption='ÉTALONNER' data-onclick="pageCalibration_start(6)"></div></td>
 					</tr>
-					<tr id="pageCalibration_rowEncoder1">
-						<td>IMPULSION 1</td>
-						<td colspan="3"><div id="pageCalibration_encoder1" class="bigCaption15"></div></td>
-					</tr>
-					<tr id="pageCalibration_rowEncoder2">
-						<td>IMPULSION 2</td>
-						<td colspan="3"><div id="pageCalibration_encoder2" class="bigCaption15"></div></td>
-					</tr>										
 				</table>
 			</div>
 		</div> <!-- pageCalibration -->
@@ -1105,7 +1118,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND 1|3|VARIGRIND 2|0|AUTRE' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND|0|AUTRE|3|SNACK' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<table border='0' width='100%' id="pageDevices_selectorTableMicro" style="display:none">
@@ -1128,14 +1141,60 @@
 								<div style="clear"></div>								
 							</td>
 						</tr>
+						<tr id="pageDevices_cupSensorBrewmatic">
+							<td>DETECTED CUP SIZE</td>
+							<td><div id="divCupSensorLiveValueBrewmatic" class="bigCaption15"></div></td>
+						</tr>
 						<tr id="pageDevices_boilerSize"><td>CHAUDIERE</td><td><div class='UIOption' data-option='0|400 cc|1|800 cc' data-da3='7072' data-da3bit='8'></div></td></tr>
 						
 						<tr><td>TEST MODEM</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startModemTest()"></div></td></tr>
 						<tr id="pageDevices_grpTest"><td>TEST GROUPE CAFE</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbGruppo()"></div></td></tr>
 						<tr id="pageDevices_motorTest"><td>TEST MOTEUR</td><td><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startTestAssorbMotoriduttore()"></div></td></tr>
+						
+						<tr id="pageDevices_vibrationTest">
+							<td>TEST VIBRATION</td>
+							<td>
+								<div style="float:left"><div id="pageDevices_vibrationTest_perc" class="UINumber" data-numfigures="3" data-max="100" data-min="1"></div></div>
+								<div style="float:left; margin-left:40px">
+									<div class='UIButton bigButton60 actionButton' data-caption='DÉBUT' data-onclick="pageDevices_startBrewmaticVibrationTest()"></div>
+								</div>
+								<div style="clear"></div>								
+							
+							
+							</td>
+						</tr>
 					</table>
 				</div>
 
+				<!--DEVICES SNACK-->
+				<div id="pageDevices_snack" style="display:none">
+					<table border='0' class='elenco'>
+						<tr>
+							<td>SNACK PROGRAMMING</td>
+							<td><div class='UIButton bigButton60 actionButton' data-caption='ENTER PROGRAMMING' data-onclick="pageDevices_snack_enterProg()"></div></td>
+							<td><div class='UIButton bigButton60 actionButton' data-caption='EXIT PROGRAMMING' data-onclick="pageDevices_snack_exitProg()"></div></td>
+						</tr>
+						<tr><td>PRICE 1</td><td colspan='2'><div id='pageDevices_snack_prc1' class="UINumber" data-da3='7746' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 2</td><td colspan='2'><div id='pageDevices_snack_prc2' class="UINumber" data-da3='7748' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 3</td><td colspan='2'><div id='pageDevices_snack_prc3' class="UINumber" data-da3='7750' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 4</td><td colspan='2'><div id='pageDevices_snack_prc4' class="UINumber" data-da3='7752' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 5</td><td colspan='2'><div id='pageDevices_snack_prc5' class="UINumber" data-da3='7754' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 6</td><td colspan='2'><div id='pageDevices_snack_prc6' class="UINumber" data-da3='7756' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 7</td><td colspan='2'><div id='pageDevices_snack_prc7' class="UINumber" data-da3='7758' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 8</td><td colspan='2'><div id='pageDevices_snack_prc8' class="UINumber" data-da3='7760' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 9</td><td colspan='2'><div id='pageDevices_snack_prc9' class="UINumber" data-da3='7762' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 10</td><td colspan='2'><div id='pageDevices_snack_prc10' class="UINumber" data-da3='7764' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 11</td><td colspan='2'><div id='pageDevices_snack_prc11' class="UINumber" data-da3='7766' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 12</td><td colspan='2'><div id='pageDevices_snack_prc12' class="UINumber" data-da3='7768' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 13</td><td colspan='2'><div id='pageDevices_snack_prc13' class="UINumber" data-da3='7770' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 14</td><td colspan='2'><div id='pageDevices_snack_prc14' class="UINumber" data-da3='7772' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 15</td><td colspan='2'><div id='pageDevices_snack_prc15' class="UINumber" data-da3='7774' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 16</td><td colspan='2'><div id='pageDevices_snack_prc16' class="UINumber" data-da3='7776' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 17</td><td colspan='2'><div id='pageDevices_snack_prc17' class="UINumber" data-da3='7778' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+						<tr><td>PRICE 18</td><td colspan='2'><div id='pageDevices_snack_prc18' class="UINumber" data-da3='7780' data-da3bit='16' data-numfigures="5" data-decimal='0' data-max="65000"></div></td></tr>
+					</table>
+				</div> <!--DEVICES SNACK-->
+				
 				<!--DEVICES VARIFLEX / MICRO-->
 				<div id="pageDevices_vflex" style="display:none">
 					<table border='0' class='elenco'>
@@ -1157,129 +1216,211 @@
 					</table>				
 				</div>
 				
-				<div id="pageDevices_vgrind1" style="display:none">
-					<table border='0' class='elenco'>
-						<tr>
-							<td style="width:260px">
-								POSITION<br>
-								<div style="float:left; margin-right:10px">valeur actuelle:</div>
-								<div id="pageDevices_vg1" style="float:left" class="bigCaption15">000</div>
-								<div class="clear"></div>
-							</td>
-							<td style="width:440px">
-								<div style="display:none">
-									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>valeur<br>de consigne</div>
-									<div style="float:left;"><div class="UINumber" id="pageDevices_vg1_target" data-numfigures="3" data-max="500"></div></div>
+				<!--- varigrind-->
+				<div id="pageDevices_vgrind" style="display:none">
+					<div class='UIOptionSmall' id='pageDevices_vgrind_selector' data-option='1|VARIGRIND 1|2|VARIGRIND 2' data-onclick='pageDevices_onVGrindSelector()'></div>
+				
+					<!--- vgrind 1-->
+					<div id="pageDevices_vgrind1" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									POSITION<br>
+									<div style="float:left; margin-right:10px">valeur actuelle:</div>
+									<div style="float:left" id="pageDevices_vg1" class="bigCaption15">000</div>
 									<div class="clear"></div>
-								</div>
-							</td>
-							<td align="right">
-								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(1)"></div>-->
-							</td>
-						</tr>
-						<tr>
-							<td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td>
-							<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|NON|1|OUI' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
-						</tr>
-					</table>
-					<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
-						<tr>
-							<td>
-								<!-- varigrind 1-->
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
-										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
-										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7588" data-da3bit="8"></div></td>
-										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
-									</tr>
-								</table>
-							</td>
-						</tr>
+								</td>
+							</tr>
+							<tr>
+								<td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td>
+								<td colspan="2"><div id='pageDevices_vgrind1_selector' class='UIOption' data-option='0|NON|1|OUI' data-da3='7590' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(1)'></div></td>
+							</tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind1_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7594" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7588" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(1)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
+												<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>
+					
+					<!--- vgrind 2-->
+					<div id="pageDevices_vgrind2" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									POSITION<br>
+									<div style="float:left; margin-right:10px">valeur actuelle:</div>
+									<div style="float:left" id="pageDevices_vg2" class="bigCaption15">000</div>
+									<div class="clear"></div>
+								</td>
+							</tr>
+							<tr><td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NON|1|OUI' data-da3='7654' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7658" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7652" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7656" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
+												<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>
+					
+					<!--- vgrind 3-->
+					<div id="pageDevices_vgrind3" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									POSITION<br>
+									<div style="float:left; margin-right:10px">valeur actuelle:</div>
+									<div style="float:left" id="pageDevices_vg3" class="bigCaption15">000</div>
+									<div class="clear"></div>
+								</td>
+							</tr>
+							<tr>
+								<td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td>
+								<td colspan="2"><div id='pageDevices_vgrind3_selector' class='UIOption' data-option='0|NON|1|OUI' data-da3='7686' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(3)'></div></td>
+							</tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind3_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7690" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind3_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7684" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(3)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind3_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7688" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind3_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind3_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
+												<div id='pageDevices_vgrind3_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(3)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>
 
-						<tr>
-							<td>
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
-										<td style='width:320px; border-right:solid 1px #999'>
-											<div class="UINumber" id='pageDevices_vgrind1_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7592" data-da3bit="16" data-um="cc/sec"></div>
-										</td>
-										<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
-										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind1_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
-										<td align="right">
-											<div id='pageDevices_vgrind1_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
-											<div id='pageDevices_vgrind1_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(1)"></div>
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</table>
-				</div>
-				
-				<!--- vgrind 2-->
-				<div id="pageDevices_vgrind2" style="display:none">
-					<table border='0' class='elenco'>
-						<tr>
-							<td style="width:260px">
-								POSITION<br>
-								<div style="float:left; margin-right:10px">valeur actuelle:</div>
-								<div id="pageDevices_vg2" style="float:left" class="bigCaption15">000</div>
-								<div class="clear"></div>
-							</td>
-							<td style="width:440px">
-								<div style="display:none">
-									<!-- le nascondo perchè ho messo tutto in nel nuovo menu ESPRESSO calibration -->
-									<div style="float:left; margin-right:10px"><br>valeur<br>de consigne</div>
-									<div style="float:left;"><div class="UINumber" id="pageDevices_vg2_target" data-numfigures="3" data-max="500"></div></dv>
+					<!--- vgrind 4-->
+					<div id="pageDevices_vgrind4" style="display:none">
+						<table border='0' class='elenco'>
+							<tr>
+								<td style="width:260px">
+									POSITION<br>
+									<div style="float:left; margin-right:10px">valeur actuelle:</div>
+									<div style="float:left" id="pageDevices_vg4" class="bigCaption15">000</div>
 									<div class="clear"></div>
-								</div>
-							</td>
-							<td align="right">
-								<!--<div class='UIButton bigButton60 actionButton' data-caption='SET' data-onclick="pageDevices_setVGrind(2)"></div>-->
-							</td>
-						</tr>
-						<tr><td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td><td colspan="2"><div id='pageDevices_vgrind2_selector' class='UIOption' data-option='0|NON|1|OUI' data-da3='7654' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(2)'></div></td></tr>
-					</table>
-					<table border='0' class='elenco' id='pageDevices_vgrind2_params'>
-						<tr>
-							<td>
-								<!-- varigrind 2-->
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
-										<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7658" data-da3bit="16"></div></td>
-										<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
-										<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7652" data-da3bit="8"></div></td>
-										<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(2)"></div></td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<table class='elenco' border='0'>
-									<tr valign="middle" style='border:none'>
-										<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
-										<td style='width:320px; border-right:solid 1px #999'>
-											<div class="UINumber" id='pageDevices_vgrind2_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7656" data-da3bit="16" data-um="cc/sec"></div>
-										</td>
-										<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
-										<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind2_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
-										<td align="right">
-											<div id='pageDevices_vgrind2_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
-											<div id='pageDevices_vgrind2_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(2)"></div>
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</table>
+								</td>
+							</tr>
+							<tr>
+								<td>ACTIVER LE RÉGLAGE AUTOMATIQUE</td>
+								<td colspan="2"><div id='pageDevices_vgrind4_selector' class='UIOption' data-option='0|NON|1|OUI' data-da3='7718' data-da3bit='8' data-onclick='pageDevices_onEnableAuto(4)'></div></td>
+							</tr>
+						</table>
+						<table border='0' class='elenco' id='pageDevices_vgrind4_params'>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:155px;'>NOMBRE<br>D'ÉCHANTILLONS</td>
+											<td style='width:210px; border-right:solid 1px #999'><div class="UINumber" data-numfigures="3" data-min="10" data-max="100" data-da3="7722" data-da3bit="16"></div></td>
+											<td style='width:180px; padding-left:15px;'>SÉLECTION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:160px; border-right:solid 1px #999'><div id='pageDevices_vgrind4_selNum' class="UINumber" data-numfigures="2" data-min="1" data-max="48" data-da3="7716" data-da3bit="8"></div></td>
+											<td align="right"><div class='UIButton bigButton60 actionButton' data-caption='DÉBUT SÉLECTION' data-onclick="pageDevices_vgrind_runSelection(4)"></div></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class='elenco' border='0'>
+										<tr valign="middle" style='border:none'>
+											<td style='width:145px;'>FLUX DE<br>LA RÉFÉRENCE</td>
+											<td style='width:320px; border-right:solid 1px #999'>
+												<div class="UINumber" id='pageDevices_vgrind4_refFlux' data-numfigures="3" data-max="900" data-decimal="2" data-da3="7720" data-da3bit="16" data-um="cc/sec"></div>
+											</td>
+											<td style='width:175px; padding-left:10px'>POSITION DE<br>LA RÉFÉRENCE</td>
+											<td style='width:70px; border-right:solid 1px #999'><div id='pageDevices_vgrind4_lastPos_caption' style='color:#fff; font-size:1.5em'>000</div></td>
+											<td align="right">
+												<div id='pageDevices_vgrind4_lastFlux_caption' class="tip" style="color:#fff">Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b></div>
+												<div id='pageDevices_vgrind4_lastFlux_btnUse' class='UIButton bigButton60 actionButton' style='font-size:1.0em' data-caption='ENREGISTRER CES VALEURS' data-onclick="pageDevices_vgrind_useLastFluxAndPos(4)"></div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>						
 				</div>
-				
 			</div>
 		</div><!-- page Devices -->	
 
@@ -1353,9 +1494,12 @@
 						<td><b style='color:#fff'>IMPULSION</b></td>
 						<td align="center">courant<div id="pageExpCalib_imp" class="bigCaption15">0.00 imp/gr</div></td>
 						<td colspan="2" align="right">
-							<div style="widt:420px; max-width:420px">
-								<div class='UIOption' id='pageExpCalib_macina1o2' data-option='1|MOULIN 1|2|MOULIN 2' data-onclick='pageExpCalib_onChangeGrinder()'></div>
-							</div>
+							<table style="width:100%">
+								<tr>
+									<td style="width:30%; text-align:right"><b style='color:#fff'>MOULIN&nbsp;</b></td>
+									<td style="width:70%"><div class='UIOption' id='pageExpCalib_macina1o2' data-option='' data-onclick='pageExpCalib_onChangeGrinder()'></div></td>
+								</tr>
+							</table>
 						</td>
 					</tr>
 				</table>
@@ -1367,6 +1511,20 @@
 		<div id="pageGrinderCleaning" class="UIWindow">
 			<div class="UIWindowContent"></div>
 		</div> <!-- page Grinder cleaning -->
+		
+		<!-- page debugLang -->
+		<div id="pageDebugLang" class="UIWindow">
+			<div class="UIWindowContent">
+				<table border='0' width='100%'>
+					<tr valign='middle'>
+						<td><div class='UIOptionSmall' id='pageDebugLang_selector' data-option='1|LANG 1|2|LANG 2' data-onclick='pageDebugLang_onSelector()'></div></td>
+					</tr>
+				</table>
+				
+				<div id="pageDebugLang_content1"></div>
+				<div id="pageDebugLang_content2"></div>
+			</div>
+		</div> <!-- page debugLang -->		
 		
 	</div> <!-- divPage -->
 
@@ -1498,27 +1656,8 @@ function onRheaBootstrapFinished()
 	startupOperation();
 }
 
-//***************************************************************************
-function gotoSpecialURL (url)
-{
-	console.log ("gotoSpecialURL(" +url +")");
-	rhea.ajax ("browserURLChange", {"url":url}).then( function(result)
-	{
-		console.log ("OK");
-		window.location = url;
-	})
-	.catch( function(result)
-	{
-		window.location = url;
-	});		
-}
-
 function header_setText(s)				{ s=s.replace(/<br>/, "&nbsp;"); rheaSetDivHTMLByName("divHeaderC", s); }
-function gotoHMI()						
-{ 
-	gotoSpecialURL("gotoHMI.html");
-	//window.location = "gotoHMI.html"; 
-}
+function gotoHMI()						{ window.location = "gotoHMI.html"; }
 
 /***************************************************************************
  *
@@ -1786,6 +1925,12 @@ function pageGrinderCleaning_show()
 	if (showPage("pageGrinderCleaning", "Nettoyage moulin", 0, 0))
 	{
 		//è la prima volta che visualizziamo la pagina
+		
+		var opzioniPerMacine = "1|MOULIN 1|2|MOULIN 2";
+		for (var i=2; i<da3.getNumMacine(); i++)
+			opzioniPerMacine += "|" +(i+1) +"|MOULIN " +(i+1);
+		uiStandAloneOptionGrinderCleaning1or2.changeOptions (opzioniPerMacine);
+		uiStandAloneOptionGrinderCleaning1or2.selectOptionByIndex(0);
 	}
 	
 	currentTask = new TaskGrinderClean();
@@ -2023,9 +2168,10 @@ function pageCleaning_show()
 	if (showPage("pageCleaning", "LAVAGE", 1 ,1))
 	{
 		//è la prima volta che visualizziamo la pagina
+		var w = ui.getWindowByID("pageCleaning");
+		
 		if (da3.isInstant())
 		{
-			var w = ui.getWindowByID("pageCleaning");
 			w.getChildByID("pageCleaning_btnCleanHC").hide();
 			w.getChildByID("pageCleaning_btnCleanGrinder").hide();
 			w.getChildByID("pageCleaning_btnDescaling").hide();
@@ -2035,6 +2181,14 @@ function pageCleaning_show()
 			//macchine espresso
 			if (!da3.isGruppoVariflex())
 				w.getChildByID("pageCleaning_btnDescaling").hide();
+				
+			if (da3.isMachine_Brewmatic4Macine())
+			{
+				w.getChildByID("pageCleaning_btnClean1").hide();
+				w.getChildByID("pageCleaning_btnClean2").hide();
+				w.getChildByID("pageCleaning_btnClean3").hide();
+				w.getChildByID("pageCleaning_btnClean4").hide();
+			}
 		}
 	}
 }
@@ -2113,12 +2267,21 @@ function pageCleaning_onFinished()
  *
  */
 var pageMiscellaneous_fvhBefore = 0;
+var pageMiscellaneous_numClickOnLabCPULang = 0;
 function pageMiscellaneous_show()
 {
+	pageMiscellaneous_numClickOnLabCPULang = 0;
 	var win = ui.getWindowByID("pageMiscellaneous");
 	if (showPage("pageMiscellaneous", "DIVERS", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
+		var selOptions = "0|OPTIONS GÉNÉRALES|1|ID MACHINE|2|LAIT LM|3|FREEVEND|4|COMPTEUR BLOCAGE";
+		if (da3.isMachine_Brewmatic4Macine())
+			selOptions +="|5|VIBRATION";
+		var uiSelector = win.getChildByID("pageMiscellaneous_selector");
+		uiSelector.changeOptions (selOptions);
+		uiSelector.selectOptionByIndex(0);
+
 		var opt = win.getChildByID("pageMiscellaneous_cpuLang");
 		opt.changeOptions ("0|" +cpuLangName1 +"|1|" +cpuLangName2);
 		
@@ -2314,7 +2477,7 @@ function pageMiscellaneous_sendP15()
 
 function pageMiscellaneous_oldProgMenu()		
 { 
-	gotoSpecialURL ("gotoLegacyMenu.html"); 
+	window.location = "gotoLegacyMenu.html"; 
 }
 
 function  pageMiscellaneous_onSelector()
@@ -2324,12 +2487,14 @@ function  pageMiscellaneous_onSelector()
 	var elemLM = rheaGetElemByID("pageMiscellaneous_lm");
 	var elemFV = rheaGetElemByID("pageMiscellaneous_fv");
 	var elemBCT = rheaGetElemByID("pageMiscellaneous_blockingCt");
+	var elemAdvGrinder = rheaGetElemByID("pageMiscellaneous_advGrinder");
 	
 	rheaHideElem(elemGS);
 	rheaHideElem(elemMID);
 	rheaHideElem(elemLM);
 	rheaHideElem(elemFV);
 	rheaHideElem(elemBCT);
+	rheaHideElem(elemAdvGrinder);
 	
 	var win = ui.getWindowByID("pageMiscellaneous");
 	switch (parseInt(win.getChildByID("pageMiscellaneous_selector").getSelectedOptionValue()))
@@ -2339,6 +2504,7 @@ function  pageMiscellaneous_onSelector()
 		case 2: rheaShowElem(elemLM); break;
 		case 3: rheaShowElem(elemFV); break;
 		case 4: rheaShowElem(elemBCT); break;
+		case 5: rheaShowElem(elemAdvGrinder); break;
 	}
 	win.showHideScrollBar();
 }
@@ -2367,6 +2533,17 @@ function pageMiscellaneous_onPINCodeInserted()
 	rheaHideElem (rheaGetElemByID("pageMiscellaneous_blockingCt_pwd"));
 	rheaShowElem (rheaGetElemByID("pageMiscellaneous_blockingCt_unblocked"));
 	win.showHideScrollBar();
+}
+
+
+function pageMiscellaneous_onLabCPULangClicked()
+{
+	pageMiscellaneous_numClickOnLabCPULang++;
+	if (pageMiscellaneous_numClickOnLabCPULang > 10)
+	{
+		pageMiscellaneous_numClickOnLabCPULang = 0;
+		pageDebugLang_show();
+	}	
 }
 
 
@@ -2733,6 +2910,18 @@ function pageSingleSelection_show(iSel)
 		//è la prima volta che visualizziamo la pagina
 		if (da3.isGruppoMicro())
 			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel_rowJug"));
+			
+		//cup-size vale solo per brewmatic
+		if (da3.isMachine_Brewmatic4Macine())
+		{
+			rheaShowElem_TR(rheaGetElemByID("pageSingleSelection_pageSel_rowCupSizeBrewmatic"));
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel_scalingF"));
+			}
+		else
+		{
+			rheaHideElem(rheaGetElemByID("pageSingleSelection_pageSel_rowCupSizeBrewmatic"));
+			rheaShowElem_TR(rheaGetElemByID("pageSingleSelection_pageSel_scalingF"));
+		}
 	}
 	btnBack_setCallback("pageSelections_show()");
 	btnTestSelection_show();
@@ -2783,18 +2972,10 @@ function pageSingleSelection_show(iSel)
 
 function pageSingleSelection_onChangeGrinder()
 {
-	var win = ui.getWindowByID("pageSingleSelection");
-
-	var macina = 11;
 	if (da3.isEspresso())
 	{
-		//macina2 esiste solo se gruppo==variflex
-		if (da3.isGruppoVariflex())
-		{
-			if (parseInt(win.getChildByID("pageSingleSelection_cofGrnderChoice").getSelectedOptionValue()) > 0)
-				macina = 12	;
-		}
-
+		var win = ui.getWindowByID("pageSingleSelection");
+		var macina = 11 + parseInt(win.getChildByID("pageSingleSelection_cofGrnderChoice").getSelectedOptionValue());
 		if (da3.isMotorCalibrated(macina)) 
 			um = "gr"; 
 		else
@@ -2847,7 +3028,14 @@ function pageSingleSelection_build()
 	if (da3.isInstant())
 		s = "0|OPTIONS GÉNÉRAL.|2|PRODUIT|3|EAUX|4|MIXERS";
 	else
-		s = "0|OPTIONS GÉNÉRAL.|1|ESPRESSO|2|PRODUIT|3|EAUX|4|MIXERS";
+	{
+		//Nelle macchine senza solubili, elimino i menu prodotti e mixer
+		if (da3.hasAnyInstant())
+			s = "0|OPTIONS GÉNÉRAL.|1|ESPRESSO|2|PRODUIT|3|EAUX|4|MIXERS";
+		else
+			s = "0|OPTIONS GÉNÉRAL.|1|ESPRESSO|3|EAUX";
+			
+	}
 	rheaSetDivHTMLByName("pageSingleSelection_selectorAtTop", "<div class='UIOptionSmall' id='pageSingleSelection_selector' data-option='" +s +"' data-onclick='pageSingleSelection_onSelector()'></div>");
 	
 	
@@ -2877,11 +3065,23 @@ function pageSingleSelection_build()
 					 +"<tr><td>LAIT FRAIS<br>RETARD</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='163' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>";
 					
 			if (da3.isCappuccinatoreInduzione())
-				htmlE  += "<tr><td>LAIT FRAIS<br>TYPE DE CREME</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|PAS DE MOUSSE CHAUDE|1|MOUSSE CHAUDE 1|2|MOUSSE CHAUDE 2|3|MOUSSE CHAUDE 3|4|PAS DE MOUSSE FROIDE|5|MOUSSE FROIDE 1|6|MOUSSE FROIDE 2|7|MOUSSE FROIDE 3' data-da3='164' data-da3bit='4'></div></td></tr>";
+				htmlE  += "<tr><td>LAIT FRAIS<br>TYPE DE CREME</td><td><div id='pageSingleSelection_cappInduxFoamType' class='UISelect' data-option='0|HOT, NO FOAM|1|HOT CLASSIC FOAM|2|HOT FLUFFY FOAM|3|HOT BARISTA FOAM|4|COLD, NO FOAM|5|COLD CLASSIC FOAM|6|COLD FLUFFY FOAM|7|COLD BARISTA FOAM' data-da3='164' data-da3bit='4'></div></td></tr>";
+
 		
+			//minimo 2 macine, ma potrebbero essercene di +
+			var optionsForGrinder = "0|1|1|2";
+			for (var i=2; i<da3.getNumMacine(); i++)
+				optionsForGrinder += "|" +i +"|" +(i+1);
 			htmlE  += "<tr><td>EV AIR LAIT FRAIS</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='165' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td></tr>"
 				     +"<tr><td>EV AIR LAIT FRAIS<br>RETARD</td><td><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='166' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td></tr>"
-				     +"<tr><td>MOULIN</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='0|1|1|2' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
+				     +"<tr><td>MOULIN</td><td><div id='pageSingleSelection_cofGrnderChoice' class='UIOption' data-option='" +optionsForGrinder +"' data-da3='179' data-da3bit='8' data-onclick='pageSingleSelection_onChangeGrinder()'></div></td></tr>";
+					 
+			//se macchina Brewmatic, allora ci sono le opzioni di time/speed per la macina
+			if (da3.isMachine_Brewmatic4Macine())
+			{
+				htmlE += 	 "<tr><td>VIBRATION TIME</td><td><div class='UINumber'  data-da3bit='8' data-numfigures='3'  data-da3='182' data-max='255' data-um='sec' data-decimal='1'></div></td></tr>"
+							+"<tr><td>VIBRATION SPEED</td><td><div class='UINumber' data-da3bit='8' data-numfigures='3' data-da3='183' data-max='100' data-um='%'></div></td></tr>"
+			}
 		}
 
 		htmlE += "<tr><td>REPETRE CYCLE CAFE</td><td><div class='UIOption' data-option='0|0|1|1|2|2' data-da3='181' data-da3bit='8'></div></td></tr>"
@@ -2929,7 +3129,8 @@ function pageSingleSelection_build()
 		+"</tr>";
 	
 	if (da3.isGruppoVariflex() || da3.isInstant())
-		htmlP += "<tr><td>SACHET DE THE</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
+		//htmlP += "<tr><td>SACHET DE THE</td><td colspan='3'><div class='UIOption' data-option='0|0|1|1|2|2|3|3' data-da3='176' data-da3bit='8'></div></td></tr>"
+		htmlP += "<tr><td>SNACK</td><td colspan='3'><div class='UINumber' data-numfigures='2' data-max='48' data-da3='176' data-da3bit='8' data-um='sel num'></div></td></tr>"
 	htmlP += "</table>";
 
 
@@ -2959,7 +3160,7 @@ function pageSingleSelection_build()
 	
 		var rowID = "pageSingleSelection_W_" +i;
 		var timeID = "pageSingleSelection_W_t" +i;
-		htmlW +="<tr id='" +rowID +"'>"
+		var tempHtmlW ="<tr id='" +rowID +"'>"
 				+"<td>#" +prodNum +"<br><div class='UIButton actionButton' data-caption='&nbsp; TEST &nbsp;' data-onclick='pageSingleSelection_test(" +(i+21) +")'></div></td>"
 				+"<td align='left'><div id='" +timeID +"' class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +da3LocWater +"' data-da3bit='9' data-da3bit9='2,4' data-max='500' data-um='sec'></div></td>"
 				+"<td align='left'><div class='UINumber' data-numfigures='3' data-decimal='1' data-da3='" +(da3LocWater+1) +"' data-da3bit='9' data-da3bit9='1,5' data-max='500' data-um='sec'></div></td>";
@@ -2969,18 +3170,27 @@ function pageSingleSelection_build()
 		switch (WATER_COLONNA_FLOW_TYPE)
 		{
 		default:
-			htmlW +="<td></td>"; 
+			tempHtmlW +="<td></td>"; 
 			break;
 		case 1:
-			htmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|LENT|1|MOYEN|2|RAPIDE' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
+			tempHtmlW += "<td align='center'><div class='UIOption bigCaption10' data-option='0|LENT|1|MOYEN|2|RAPIDE' data-da3='" +(da3LocWater+2) +"' data-da3bit='4'></div></td>";
 			break;
 		case 2:
-				htmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-min='75' data-max='98' data-um='&deg;C'></div></td></tr>";
-				da3LocEVTemperature++;
-				break;
+			tempHtmlW += "<td align='center'><div class='UINumber' data-numfigures='2' data-da3='" +da3LocEVTemperature +"' data-da3bit='8' data-min='75' data-max='98' data-um='&deg;C'></div></td></tr>";
+			da3LocEVTemperature++;
+			break;
 		}
-		htmlW += "</tr>";
+		tempHtmlW += "</tr>";
 		da3LocWater+= 3;	
+		
+		//nelle macchine Brewmatic, solo acqua 3
+		if (da3.isMachine_Brewmatic4Macine())
+		{
+			if (i == 2)
+				htmlW += tempHtmlW;
+		}
+		else
+			htmlW += tempHtmlW;
 
 
 		rowID = "pageSingleSelection_M_" +i;
@@ -3005,8 +3215,11 @@ function pageSingleSelection_build()
 
 function pageSingleSelection_hideIfDosageIsZero (win, dosageID, rowID)
 {
+	var e = rheaGetElemByID(rowID);
+	if (e === undefined)
+		return;
 	if (parseInt(win.getChildByID(dosageID).getValue()) == 0)
-		rheaHideElem(rheaGetElemByID(rowID));
+		rheaHideElem(e);
 }
 
 function pageSingleSelection_onProgramming()
@@ -3043,7 +3256,9 @@ function pageSingleSelection_showPartialFull (win, bPartial)
 		for (var i=0; i<SINGLESEL_NUM_ACQUE; i++)
 		{
 			var rowID = "pageSingleSelection_W_" +i;
-			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
+			var e = rheaGetElemByID(rowID);
+			if (e != undefined)
+				rheaSetDisplayMode(e, "table-row");
 			
 			rowID = "pageSingleSelection_M_" +i;
 			rheaSetDisplayMode(rheaGetElemByID(rowID), "table-row");
@@ -3308,24 +3523,11 @@ function pageCalibration_show()
 	if (showPage("pageCalibration", "CALIBRATION INSTANT", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
-		if (da3.isInstant())
-		{
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder1"));
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
-		}
-		else
+		if (da3.isEspresso())
 		{
 			//nascondo motor 1 e motor 2
 			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor1"));
 			rheaHideElem (rheaGetElemByID("pageCalibration_rowMotor2"));
-			if (da3.getNumMacine() == 1)
-				rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));
-				
-			//nascondo la calibrazione di macina1&2 anche qui perchè ho spostto tuto nel menu ESPRESSO calibration
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder1"));
-			rheaHideElem (rheaGetElemByID("pageCalibration_rowGrinder2"));		
-			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
-			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
 		}
 	}
 
@@ -3342,33 +3544,14 @@ function pageCalibration_refreshCalibValueOnScreen()
 			var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
 		}
-		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder1"));
-		rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
 	}
 	else
 	{
-		//macina 1
-		var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(11) );
-		rheaSetDivHTMLByName("pageCalibration_m11", v +"&nbsp;gr/sec");
-		v = helper_decodeImpulsi(da3.getImpulsi(11));
-		rheaSetDivHTMLByName("pageCalibration_encoder1", v +"&nbsp;imp/gr");
-		
 		//motori
-		for (var i=2; i<=6; i++)
+		for (var i=1; i<=6; i++)
 		{
 			v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(i) );
 			rheaSetDivHTMLByName("pageCalibration_m" +i, v +"&nbsp;gr/sec");
-		}
-		
-		//macina 2
-		if (da3.getNumMacine() == 1)
-			rheaHideElem(rheaGetElemByID("pageCalibration_rowEncoder2"));
-		else
-		{
-			v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(12) );
-			rheaSetDivHTMLByName("pageCalibration_m12", v +"&nbsp;gr/sec");
-			v = helper_decodeImpulsi(da3.getImpulsi(12));
-			rheaSetDivHTMLByName("pageCalibration_encoder2", v +"&nbsp;imp/gr");
 		}
 	}	
 	ui.getWindowByID("pageCalibration").showHideScrollBar();
@@ -3382,18 +3565,6 @@ function pageCalibration_reset(motor)
 		rheaSetDivHTMLByName("pageCalibration_m" +motor, "0&nbsp;gr/sec");
 		da3.setCalibFactorGSec(motor, 0);
 
-		if (motor==11) 
-		{
-			da3.setImpulsi(11,0);
-			rheaSetDivHTMLByName("pageCalibration_encoder1", "0");
-		}
-
-		if (motor==12)
-		{
-			da3.setImpulsi(12,0);
-			rheaSetDivHTMLByName("pageCalibration_encoder2", "0");
-		}
-		
 		setTimeout (
 			function()
 			{
@@ -3550,10 +3721,10 @@ function pagePayment_onSelector()
 var pageDevices_selector = null;
 function pageDevices_show()
 {
+	var win = ui.getWindowByID("pageDevices");
 	if (showPage("pageDevices", "DISPOSITIFS", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
-		var win = ui.getWindowByID("pageDevices");
 		if (da3.isGruppoMicro())
 			pageDevices_selector = win.getChildByID("pageDevices_selectorMicro");
 		else
@@ -3601,15 +3772,44 @@ function pageDevices_show()
 		if (da3.isInduzione())
 			rheaHideElem(rheaGetElemByID("pageDevices_boilerSize"));
 		
-		rheaSetDivHTMLByName("pageDevices_vgrind1_lastPos_caption", da3.read16(7596));
-		rheaSetDivHTMLByName("pageDevices_vgrind2_lastPos_caption", da3.read16(7660));
+		if (!da3.isMachine_Brewmatic4Macine())
+			rheaHideElem(rheaGetElemByID("pageDevices_vibrationTest"));
+			
+		var optionsForVGrindSelector = "1|VARIGRIND 1|2|VARIGRIND 2";
+		for (var i=3; i<=da3.getNumMacine(); i++)
+			optionsForVGrindSelector += "|" +i +"|VARIGRIND " +i;
+		var uiVGrindSelector = win.getChildByID("pageDevices_vgrind_selector");
+		uiVGrindSelector.changeOptions(optionsForVGrindSelector);
+		uiVGrindSelector.selectOptionByIndex(0);
+		
+		for (var i=1; i<=4; i++)
+			rheaSetDivHTMLByName("pageDevices_vgrind" +i +"_lastPos_caption", da3.read16( da3.getVarigrindLastPosDa3Loc(i) ));
 		pageDevices_vgrind_setLastFluxAndPos(pageDevices_vgrind_lastFlux, pageDevices_vgrind_lastPos);
+		
+		
+		if (da3.isMachine_Brewmatic4Macine())
+		{
+			rheaHideElem(rheaGetElemByID("pageDevices_cupSensor"));
+			rheaShowElem_TR(rheaGetElemByID("pageDevices_cupSensorBrewmatic"));
+		}
+		else
+			rheaHideElem(rheaGetElemByID("pageDevices_cupSensorBrewmatic"));
+	}
+
+
+	//nella pagina snack, aggiusta i decimali per i prezzi 
+	for (var i=1; i<=18; i++)
+	{
+		var obj = win.getChildByID("pageDevices_snack_prc" +i);
+		obj.setDecimals(da3.getDecimalsForPrices());
 	}
 
 	currentTask = new TaskDevices();
 	pageDevices_onSelector();
 	pageDevices_onEnableAuto(1);
 	pageDevices_onEnableAuto(2);
+	pageDevices_onEnableAuto(3);
+	pageDevices_onEnableAuto(4);
 }
 
 
@@ -3618,8 +3818,8 @@ function pageDevices_onSelector()
 {
 	var elem0 = rheaGetElemByID("pageDevices_general");
 	var elem1 = rheaGetElemByID("pageDevices_vflex");
-	var elem2 = rheaGetElemByID("pageDevices_vgrind1");
-	var elem3 = rheaGetElemByID("pageDevices_vgrind2");
+	var elem2 = rheaGetElemByID("pageDevices_vgrind");
+	var elem3 = rheaGetElemByID("pageDevices_snack");
 
 	rheaHideElem(elem0);
 	rheaHideElem(elem1);
@@ -3633,25 +3833,84 @@ function pageDevices_onSelector()
 		default: rheaShowElem(elem0); break;
 		case 1:  rheaShowElem(elem1); break;
 		case 2:  
-			currentTask.enterQueryMacinePos(1);
 			rheaShowElem(elem2); 
+			pageDevices_onVGrindSelector();
 			break;
-			
-		case 3:  
-			currentTask.enterQueryMacinePos(2);
-			rheaShowElem(elem3); 
-			break;
+		case 3:  rheaShowElem(elem3); break;
 	}
 	
 	win.showHideScrollBar();
 }
 
+function pageDevices_snack_enterProg()
+{
+	pleaseWait_show();
+	rhea.ajax ("snackEnterProg", "").then( function(result)
+	{
+		console.log (result);
+		if (result!="OK")
+		{
+			pleaseWait_hide();
+		}
+		else
+			currentTask.snackEnterProg();
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX::snackEnterProg ERR=>" +result);
+		pleaseWait_hide();
+	});	
+}
+
+function pageDevices_snack_exitProg()
+{
+	pleaseWait_show();
+	rhea.ajax ("snackExitProg", "").then( function(result)
+	{
+		console.log (result);
+		pleaseWait_hide();
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX::snackExitProg ERR=>" +result);
+		pleaseWait_hide();
+	});	
+}
+
+function pageDevices_snack_status()
+{
+	rhea.ajax ("snackGetState", "").then( function(result)
+	{
+		console.log (result);
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX::snackGetState, err=>" +result);
+	});	
+}
+
+function pageDevices_onVGrindSelector()
+{
+	var win = ui.getWindowByID("pageDevices");
+	var uiSelector = win.getChildByID ("pageDevices_vgrind_selector");
+
+	var n = uiSelector.getNumOptions();
+	for (var i=0; i<n; i++)
+		rheaHideElem (rheaGetElemByID("pageDevices_vgrind" +(i+1)));
+
+
+	var selectedVGrindIndex = uiSelector.getSelectedOptionValue();
+	currentTask.enterQueryMacinePos(selectedVGrindIndex);
+	rheaShowElem (rheaGetElemByID("pageDevices_vgrind" +selectedVGrindIndex));
+	win.showHideScrollBar();
+}
 
 
 function pageDevices_vgrind_runSelection(whichVG)
 {
 	var win = ui.getWindowByID("pageDevices");
 	var selNum = parseInt(win.getChildByID("pageDevices_vgrind" +whichVG +"_selNum").getValue())
+	
 	//vogliamo far partire la selezione [selNum].
 	//Devo verificare che la granulometria di questa selezione sia DISABLED o REFERRING, altrimenti non
 	//la si può utilizzare per calibrare la macchina dato che con granulemtria FINE o ROUGHLY la CPU apre/chiude di suo la macina
@@ -3671,7 +3930,7 @@ function pageDevices_vgrind_runSelection_onFinish()
 	rhea.ajax ("getLastFluxInfo", "").then( function(result)
 	{
 		var data = JSON.parse(result);
-		pageDevices_vgrind_setLastFluxAndPos(data.flux, data.grinderPos);
+		pageDevices_vgrind_setLastFluxAndPos (data.flux, data.grinderPos);
 		pageDevices_vgrind_runSelection_onFinish2();
 	})
 	.catch( function(result)
@@ -3696,15 +3955,14 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 	pageDevices_vgrind_lastFlux = flux;
 	pageDevices_vgrind_lastPos = pos;
 	
-	var elemBtnUse1 = rheaGetElemByID ("pageDevices_vgrind1_lastFlux_btnUse");
-	var elemBtnUse2 = rheaGetElemByID ("pageDevices_vgrind2_lastFlux_btnUse");
 	if (flux < 0)
 	{
 		var msg = "Dernier flux/pos:<br>cliquez sur <b>EXECUTE SELECTION</b>";
-		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
-		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
-		rheaHideElem (elemBtnUse1);
-		rheaHideElem (elemBtnUse2);
+		for (var i=1; i<=4; i++)
+		{
+			rheaSetDivHTMLByName ("pageDevices_vgrind" +i +"_lastFlux_caption", msg);
+			rheaHideElem (rheaGetElemByID ("pageDevices_vgrind" +i +"_lastFlux_btnUse"));
+		}
 	}
 	else
 	{
@@ -3713,10 +3971,11 @@ function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 		while (s.length < 3) s = "0" +s;
 		s = s.substr(0,1) +"." +s.substr(1,2);
 		var msg = "Last flux: " +s +"<br>Last pos: " +pos;
-		rheaSetDivHTMLByName ("pageDevices_vgrind1_lastFlux_caption", msg);
-		rheaSetDivHTMLByName ("pageDevices_vgrind2_lastFlux_caption", msg);
-		rheaSetDisplayMode (elemBtnUse1, "table");
-		rheaSetDisplayMode (elemBtnUse2, "table");
+		for (var i=1; i<=4; i++)
+		{
+			rheaSetDivHTMLByName ("pageDevices_vgrind" +i +"_lastFlux_caption", msg);
+			rheaSetDisplayMode (rheaGetElemByID ("pageDevices_vgrind" +i +"_lastFlux_btnUse"), "table");
+		}
 		
 		rheaSetDivHTMLByName("pageExpCalib_lastFlux", s +" cc/sec");
 	}
@@ -3728,10 +3987,7 @@ function pageDevices_vgrind_useLastFluxAndPos(whichVG)
 
 	win.getChildByID("pageDevices_vgrind" +whichVG +"_refFlux").setValue(pageDevices_vgrind_lastFlux);
 	
-	if (whichVG==1)
-		da3.write16 (7596, pageDevices_vgrind_lastPos);
-	else
-		da3.write16 (7660, pageDevices_vgrind_lastPos);
+	da3.write16 ( da3.getVarigrindLastPosDa3Loc(whichVG), pageDevices_vgrind_lastPos);
 	rheaSetDivHTMLByName("pageDevices_vgrind" +whichVG +"_lastPos_caption", pageDevices_vgrind_lastPos);
 	
 	//forzo un salvataggio dei dati
@@ -3757,25 +4013,17 @@ function pageDevices_onEnableAuto(whichVG)
 	win.showHideScrollBar();
 }
 
-function pageDevices_setVGrind (macina1o2)
-{
-	var win = ui.getWindowByID("pageDevices");
-	var target = 0;
-	
-	if (macina1o2 == 1)
-		target = parseInt(win.getChildByID("pageDevices_vg1_target").getValue());
-	else
-		target = parseInt(win.getChildByID("pageDevices_vg2_target").getValue());
-		
-	//console.log ("pageDevices_setVGrind:: macina[" +macina1o2 +"] target[" +target +"]");
-	
-	currentTask.enterSetMacinaPos(macina1o2, target);
-}
-
 function pageDevices_startModemTest()					{ currentTask.runModemTest(); }
 function pageDevices_startTestAssorbGruppo()			{ currentTask.runTestAssorbGruppo(); }
 function pageDevices_startTestAssorbMotoriduttore()		{ currentTask.runTestAssorbMotoriduttore(); }
 function pageDevices_startGrinderSpeedTest()			{ currentTask.runGrinderSpeedTest(1); }
+function pageDevices_startBrewmaticVibrationTest()
+{ 
+	var win = ui.getWindowByID("pageDevices");
+	var perc0_100 = win.getChildByID("pageDevices_vibrationTest_perc").getValue();
+	currentTask.runScivoloBrewmatic (perc0_100);
+}
+
 /***************************************************************************
  *
  * pageDataAudit
@@ -4167,6 +4415,7 @@ var taskEspressoCalib = null;
 var pageExpCalib_macina1o2 = 1;
 function pageExpCalib_show()
 {
+	var win = ui.getWindowByID("pageExpCalib");
 	if (showPage("pageExpCalib", "CALIBRATION ESPRESSO", 1,0))
 	{
 		//è la prima volta che visualizziamo la pagina
@@ -4176,6 +4425,13 @@ function pageExpCalib_show()
 			rheaHideElem(rheaGetElemByID("pageExpCalib_rowimpulsi"));
 			rheaHideElem(rheaGetElemByID("pagePleaseWait_calibration_1_varigrind"));
 		}
+		
+		var optionsForGrinder = "1|1|2|2";
+		for (var i=2; i<da3.getNumMacine(); i++)
+			optionsForGrinder += "|" +(i+1) +"|" +(i+1);			
+		var uiOptions = win.getChildByID("pageExpCalib_macina1o2");
+		uiOptions.changeOptions (optionsForGrinder);
+		uiOptions.selectOptionByIndex(0);
 	}
 	btnTestSelection_hide();
 
@@ -4254,10 +4510,10 @@ function pageExpCalib_resetMacinaCalib()
 	var motor = 10 + currentTask.macina1o2;
 	rhea.ajax ("setFattoreCalib", { "m":motor, "v":0}).then( function(result)
 	{
-		rheaSetDivHTMLByName("pageExpCalib_grSec", "0&nbsp;gr/sec");
+		rheaSetDivHTMLByName("pageExpCalib_grSec", "0");
 		da3.setCalibFactorGSec(motor, 0);
 		da3.setImpulsi(motor,0);
-		rheaSetDivHTMLByName("pageExpCalib_imp", "0.00 imp/gr");
+		rheaSetDivHTMLByName("pageExpCalib_imp", "0.00");
 		
 		setTimeout ( function() { save (function() { pleaseWait_hide();}); }, 1000);
 	})
@@ -4286,15 +4542,21 @@ function pageExpCalib_onFinish ()
 
 function pageExpCalib_refreshCalibValueOnScreen()
 {
-	//macina 1
+	//macina num
 	var motor = 10 + currentTask.macina1o2;
 	
 	var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(motor) );
-	rheaSetDivHTMLByName("pageExpCalib_grSec", v +"&nbsp;gr/sec");
+	if (v == 0)
+		rheaSetDivHTMLByName("pageExpCalib_grSec", "0");
+	else
+		rheaSetDivHTMLByName("pageExpCalib_grSec", v +"&nbsp;gr/sec");
 	
 	v = helper_decodeImpulsi(da3.getImpulsi(motor));
-	rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");
-	
+	if (v == 0)
+		rheaSetDivHTMLByName("pageExpCalib_imp", "0");
+	else
+		rheaSetDivHTMLByName("pageExpCalib_imp", v +"&nbsp;imp/gr");
+		
 	if (da3.isVarigrindAutoRegolationEnabled(currentTask.macina1o2))
 		rheaSetDivHTMLByName("pageExpCalib_vgAutoAjustEnabled", "le réglage automatique est ACTIVÉ");
 	else
@@ -4306,15 +4568,126 @@ function pageExpCalib_onChangeGrinder()
 {
 	pleaseWait_show();
 	var win = ui.getWindowByID("pageExpCalib");
-	switch (parseInt(win.getChildByID("pageExpCalib_macina1o2").getSelectedOptionValue()))
-	{
-		case 2: pageExpCalib_macina1o2=2; break;
-		default: pageExpCalib_macina1o2=1; break;
-	}
+
+	pageExpCalib_macina1o2 = parseInt(win.getChildByID("pageExpCalib_macina1o2").getSelectedOptionValue());
+	if (pageExpCalib_macina1o2 == 0 || pageExpCalib_macina1o2 > da3.getNumMacine())
+		pageExpCalib_macina1o2 = 1;
+
 	rheaSetDivHTMLByName("pageExpCalib_vgCurPos", "");
 	win.getChildByID("pageExpCalib_vg_target").setValue(0);
 	
 	setTimeout ( function() {pageExpCalib_show();}, 200);
 }
+
+
+/***************************************************************************
+ *
+ * pageDebugLang
+ *
+ */
+var PAGE_DEBUGLANG_FIRST_TABLE_ID = 1;
+var PAGE_DEBUGLANG_LAST_TABLE_ID = 16;
+function pageDebugLang_show()
+{
+	if (showPage("pageDebugLang", "DEBUG LANGUAGES", 1,0))
+	{
+		//è la prima volta che visualizziamo la pagina
+		pageDebugLang_build();
+		pageDebugLang_refresh();
+	}
+	
+	pageDebugLang_onSelector();
+}
+
+function pageDebugLang_onSelector()
+{
+	var win = ui.getWindowByID("pageDebugLang");
+	var uiSelector = win.getChildByID("pageDebugLang_selector");
+	var n = uiSelector.optionValue.length;
+	
+	for (var i=1; i<=n; i++)
+		rheaHideElem(rheaGetElemByID("pageDebugLang_content" +i));
+	
+	rheaShowElem(rheaGetElemByID("pageDebugLang_content" +uiSelector.getSelectedOptionValue()));
+	win.showHideScrollBar();
+}
+
+
+function pageDebugLang_build()
+{
+	var htmlTabHeader = "<table class='dataAudit'>"
+				+"<tr>"
+					+"<th style='text-align:right'>TabID</th>"
+					+"<th style='text-align:right'>Row</th>"
+					+"<th style='text-align:left'>MESSAGE</th>"
+				+"</tr>";
+	var html1="";
+	var html2="";
+	for (var i=PAGE_DEBUGLANG_FIRST_TABLE_ID; i<=PAGE_DEBUGLANG_LAST_TABLE_ID; i++)
+	{
+		var tableID = i;
+		var idTabID = "pageDebugLang_c1_" +tableID;
+		var idRowNum = idTabID +"_rowNum";
+		var idMessage = idTabID +"_msg";
+		html1 += "<tr><td id='" +idTabID +"'></td><td id='" +idRowNum +"' align='right'></td><td style='text-align:left' id='" +idMessage +"'></td>";
+		
+		idTabID = "pageDebugLang_c2_" +tableID;
+		idRowNum = idTabID +"_rowNum";
+		idMessage = idTabID +"_msg";
+		html2 += "<tr><td id='" +idTabID +"'></td><td id='" +idRowNum +"' align='right'></td><td style='text-align:left' id='" +idMessage +"'></td>";
+	}
+	
+	html1 += "</table>";
+	html2 += "</table>";
+
+	rheaSetElemHTML (rheaGetElemByID("pageDebugLang_content1"), htmlTabHeader + html1);
+	rheaSetElemHTML (rheaGetElemByID("pageDebugLang_content2"), htmlTabHeader + html2);
+}
+
+function pageDebugLang_refresh()
+{
+	pageDebugLang_refreshSingle (PAGE_DEBUGLANG_FIRST_TABLE_ID, 1);
+	pageDebugLang_refreshSingle (PAGE_DEBUGLANG_FIRST_TABLE_ID, 2);
+}
+	
+function pageDebugLang_refreshSingle (tabID, langNum)
+{
+	console.log ("pageDebugLang_refreshSingle(" +tabID +"," +langNum +")");
+	rhea.ajax ("askMsgFromLangTable", {"tabID":tabID, "rowNum":255, "lang":langNum}).then( function(result)
+	{
+		var idTabID = "pageDebugLang_c" +langNum +"_" +tabID;
+		var idRowNum = idTabID +"_rowNum";
+		var idMessage = idTabID +"_msg";
+		
+		rheaSetElemHTML(rheaGetElemByID(idTabID), tabID);
+
+		try
+		{
+			var j = JSON.parse(result);
+			rheaSetElemHTML(rheaGetElemByID(idRowNum), j.rowNum);
+			rheaSetElemHTML(rheaGetElemByID(idMessage), j.msg);
+		}
+		catch (error)
+		{
+			rheaSetElemHTML(rheaGetElemByID(idRowNum), "§");
+			rheaSetElemHTML(rheaGetElemByID(idMessage), "§§§§§§§§§§§");
+		}
+		
+		
+		tabID++;
+		if (tabID <= PAGE_DEBUGLANG_LAST_TABLE_ID)
+			setTimeout (pageDebugLang_refreshSingle(tabID, langNum), 100);
+		else
+			ui.getWindowByID("pageDebugLang").showHideScrollBar();
+	})
+	.catch( function(result)
+	{
+		console.log ("AJAX TIMEOUT: pageDebugLang_refresh => askMsgFromLangTable. ERR=[" +result +"]");
+		setTimeout (pageDebugLang_refreshSingle(tabID, langNum), 200);
+	});		
+}
+				
 </script>
 </html>
+
+

@@ -677,3 +677,45 @@ u32 fs::fileWrite (FILE *f, const void *bufferIN, u32 numBytesToWrite)
 
 	return ct;
 }
+
+//**************************************************************************
+bool fs::findFirstFileInFolderWithJolly (const u8 *utf8_path, const u8 *utf8_jolly, bool bReturnFullPathAndName, u8 *out_filename, u32 sizeOfOutFilename)
+{
+    assert (sizeOfOutFilename > 0);
+
+    OSFileFind ff;
+    if (!fs::findFirst (&ff, utf8_path, utf8_jolly))
+    {
+        out_filename[0] = 0x00;
+        return false;
+    }
+
+    do
+    {
+        if (fs::findIsDirectory(ff))
+            continue;
+
+        if (bReturnFullPathAndName)
+            fs::findComposeFullFilePathAndName (ff, utf8_path, out_filename, sizeOfOutFilename);
+        else
+            fs::findGetFileName (ff, out_filename, sizeOfOutFilename);
+        fs::findClose(ff);
+        return true;
+
+    } while (fs::findNext(ff));
+
+    fs::findClose(ff);
+    return false;
+}
+
+//**************************************************************************
+bool fs::fileCopyAndKeepSameName (const u8 *utf8_srcFullFileNameAndPath, const u8 *utf8_dstPathNOFilename)
+{
+    u8 fileNameOnly[128];
+    fs::extractFileNameWithExt (utf8_srcFullFileNameAndPath, fileNameOnly, sizeof(fileNameOnly));
+
+    u8 dstFullFileNameAndPath[512];
+    rhea::string::utf8::spf (dstFullFileNameAndPath, sizeof(dstFullFileNameAndPath), "%s/%s", utf8_dstPathNOFilename, fileNameOnly);
+    return fs::fileCopy (utf8_srcFullFileNameAndPath, dstFullFileNameAndPath);
+}
+

@@ -8,10 +8,10 @@ using namespace socketbridge;
 void CmdHandler_eventReq_P0x11_SetMotoreMacina::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload, u16 payloadLen)
 {
     assert (payloadLen >= 2);
-    const u8 macina_1o2 = payload[1];
+    const u8 macina_1to4 = payload[1];
 	const cpubridge::eCPUProg_macinaMove m = (cpubridge::eCPUProg_macinaMove)payload[2];
 
-	cpubridge::ask_CPU_SET_MOTORE_MACINA(from, getHandlerID(), macina_1o2, m);
+	cpubridge::ask_CPU_SET_MOTORE_MACINA_AA (from, getHandlerID(), macina_1to4, m);
 }
 
 //***********************************************************
@@ -22,13 +22,13 @@ void CmdHandler_eventReq_P0x11_SetMotoreMacina::onCPUBridgeNotification(socketbr
 	//rispondo con:
 	//  1 byte per il numero macina
 	//  1 byte per il tipo di movimento
-	u8 macina_1o2 = 0;
+	u8 macina_1to4 = 0;
 	cpubridge::eCPUProg_macinaMove m;
-	cpubridge::translateNotify_CPU_MOTORE_MACINA(msgFromCPUBridge, &macina_1o2, &m);
+	cpubridge::translateNotify_CPU_MOTORE_MACINA (msgFromCPUBridge, &macina_1to4, &m);
 
 
 	u8 buffer[2];
-	buffer[0] = macina_1o2;
+	buffer[0] = macina_1to4;
 	buffer[1] = (u8)m;
-	server->sendEvent(hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, 2);
+	server->sendEvent (hClient, EVENT_TYPE_FROM_SOCKETCLIENT, buffer, 2);
 }

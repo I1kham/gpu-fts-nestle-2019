@@ -183,10 +183,10 @@ async function onRheaBootstrapFinished()
 	await mlBR.load(db);
 
 	var mlObject = [
-		{ target: document.querySelector( '#textAL_GB'), reference: '#divOption1-0' }, 
-		{ target: document.querySelector( '#textAR_GB'), reference: '#divOption1-1' }, 
-		{ target: document.querySelector( '#textBL_GB'), reference: '#divOption2-0' }, 
-		{ target: document.querySelector( '#textBR_GB'), reference: '#divOption2-1' }
+		{ target: document.querySelector( '#textAL input'), reference: '#divOption1-0' }, 
+		{ target: document.querySelector( '#textAR input'), reference: '#divOption1-1' }, 
+		{ target: document.querySelector( '#textBL input'), reference: '#divOption2-0' }, 
+		{ target: document.querySelector( '#textBR input'), reference: '#divOption2-1' }
 	];
 	
 	mlObject.forEach( obj => {

@@ -20,15 +20,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\CPUBridge\CPUBridge.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUBridgeServer.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelCom.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUChannelFakeCPU.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\DA3.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\EVADTSParser.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\lang.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\rhFSProtocol.cpp" />
+    <ClCompile Include="..\..\src\CPUBridge\RSProto.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
+    <ClInclude Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeEnumAndDefine.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeServer.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeVersion.h" />
@@ -38,6 +42,9 @@
     <ClInclude Include="..\..\src\CPUBridge\DA3.h" />
     <ClInclude Include="..\..\src\CPUBridge\EVADTSParser.h" />
     <ClInclude Include="..\..\src\CPUBridge\lang.h" />
+    <ClInclude Include="..\..\src\CPUBridge\rhFSProtocol.h" />
+    <ClInclude Include="..\..\src\CPUBridge\rhFSProtocolEnumAndDefine.h" />
+    <ClInclude Include="..\..\src\CPUBridge\RSProto.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

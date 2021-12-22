@@ -5,7 +5,7 @@
 namespace esapi
 {	
 	class ModuleRasPI : public Module
-{
+	{
 	public:
 								ModuleRasPI();
 								~ModuleRasPI()													{ }
@@ -46,7 +46,6 @@ namespace esapi
 			u64				lastTimeUpdatedMSec;
 		};
 
-
 	private:
 		void					priv_unsetup(sShared *shared);
 
@@ -69,8 +68,6 @@ namespace esapi
 		rhea::FastArray<sConnectedSocket>	sockettList;
 		sFileUpload				fileUpload;
 	};
-
-
 
 } // namespace esapi
 

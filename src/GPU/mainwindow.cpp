@@ -16,9 +16,12 @@ MainWindow::MainWindow (sGlobal *globIN) :
     glob = globIN;
     retCode = eRetCode_none;
     frmPreGUI = NULL;
+    nextTimeAskForCPULockStatus_msec = 0;
     syncWithCPU.reset();
 
     ui->setupUi(this);
+    priv_showLockedPanel(false);
+
 #ifdef _DEBUG
     setWindowFlags(Qt::Window);
 #else
@@ -74,6 +77,14 @@ MainWindow::~MainWindow()
 }
 
 //*****************************************************
+bool MainWindow::priv_autoupdate_exists() const
+{
+    if (NULL == frmBoot)
+        return false;
+    return frmBoot->does_autoupdate_exists();
+}
+
+//*****************************************************
 void MainWindow::keyPressEvent(QKeyEvent *ev)
 {
     //simula (+ o -) pressione del btn PROG
@@ -93,6 +104,19 @@ void MainWindow::keyPressEvent(QKeyEvent *ev)
             priv_scheduleFormChange(eForm_main_showBrowser);
             break;
         }
+    }
+}
+
+//*****************************************************
+void MainWindow::priv_showLockedPanel (bool b)
+{
+    if (!b)
+        ui->panelLocked->setVisible(false);
+    else
+    {
+        ui->panelLocked->move (10, 10);
+        ui->panelLocked->setVisible(true);
+        ui->panelLocked->raise();
     }
 }
 
@@ -480,7 +504,7 @@ void MainWindow::priv_syncWithCPU_onTick()
     {
         //Ora abbiamo tutte le info, possiamo partire
         //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
-        if (this->glob->bSyncWithCPUResult == false || rhea::fs::folderExists(glob->usbFolder))
+        if (this->glob->bSyncWithCPUResult == false || rhea::fs::folderExists(glob->usbFolder) || priv_autoupdate_exists())
             priv_scheduleFormChange (eForm_boot);
         else
         {
@@ -603,6 +627,16 @@ eRetCode MainWindow::priv_showBrowser_onTick()
     if (retCode != eRetCode_none)
         return retCode;
 
+    //ogni tot, chiedo a CPUBridge il suo stato di lock per eventualmente sovraimporre
+    //la schermata di "CAUTION! machine locked"
+    const u64 timeNowMSec = rhea::getTimeNowMSec();
+    if (timeNowMSec >= nextTimeAskForCPULockStatus_msec)
+    {
+        cpubridge::ask_GET_MACHINE_LOCK_STATUS(glob->cpuSubscriber, 0);
+        nextTimeAskForCPULockStatus_msec = timeNowMSec +10000;
+    }
+
+
     //vediamo se CPUBridge ha qualcosa da dirmi
     rhea::thread::sMsg msg;
     while (rhea::thread::popMsg(glob->cpuSubscriber.hFromMeToSubscriberR, &msg))
@@ -631,6 +665,17 @@ void MainWindow::priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &m
 
             QUrl url(newURL);
             on_webView_urlChanged (url);
+        }
+        break;
+
+    case CPUBRIDGE_NOTIFY_LOCK_STATUS:
+        {
+            cpubridge::eLockStatus lockStatus;
+            cpubridge::translateNotify_MACHINE_LOCK (msg, &lockStatus);
+            if (cpubridge::eLockStatus::unlocked == lockStatus)
+                priv_showLockedPanel(false);
+            else
+                priv_showLockedPanel(true);
         }
         break;
 

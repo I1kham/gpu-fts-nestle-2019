@@ -84,27 +84,6 @@ CONFIG(release, debug|release) {
 }
 
 
-SOURCES += \
-    ../../src/rheaExternalSerialAPI/ESAPI.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPICore.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPIModuleRasPI.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPIProtocol.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPIShared.cpp \
-    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.cpp
-
-
-HEADERS += \
-    ../../src/rheaExternalSerialAPI/ESAPI.h \
-    ../../src/rheaExternalSerialAPI/ESAPICore.h \
-    ../../src/rheaExternalSerialAPI/ESAPIEnumAndDefine.h \
-    ../../src/rheaExternalSerialAPI/ESAPIModuleRasPI.h \
-    ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.h \
-    ../../src/rheaExternalSerialAPI/ESAPIProtocol.h \
-    ../../src/rheaExternalSerialAPI/ESAPIShared.h \
-    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.h
-
-
 
 
 
@@ -112,3 +91,24 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+HEADERS += \
+    ../../src/rheaExternalSerialAPI/ESAPI.h \
+    ../../src/rheaExternalSerialAPI/ESAPICore.h \
+    ../../src/rheaExternalSerialAPI/ESAPIDataUpdate.h \
+    ../../src/rheaExternalSerialAPI/ESAPIEnumAndDefine.h \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRasPI.h \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.h \
+    ../../src/rheaExternalSerialAPI/ESAPIProtocol.h \
+    ../../src/rheaExternalSerialAPI/ESAPIShared.h \
+    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.h
+
+SOURCES += \
+    ../../src/rheaExternalSerialAPI/ESAPI.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPICore.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIDataUpdate.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRasPI.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIModuleRaw.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIProtocol.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPIShared.cpp \
+    ../../src/rheaExternalSerialAPI/ESAPISubscriberList.cpp

@@ -21,8 +21,26 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	memset(utf16_cpuMessage1, 0x00, sizeof(utf16_cpuMessage1));
 	memset(utf16_cpuMessage2, 0x00, sizeof(utf16_cpuMessage2));
 
+	memset (&dataAuditInProgress, 0x00, sizeof(dataAuditInProgress));
+
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage1, sizeof(utf16_cpuMessage1));
     rhea::string::strUTF8toUTF16 ((const u8*)"CPU msg example 1", utf16_cpuMessage2, sizeof(utf16_cpuMessage2));
+	
+    //msg in ebraico
+    /*u32 i = 0;
+    utf16_cpuMessage1[i++] = 0x0031;
+    utf16_cpuMessage1[i++] = 0x003d;
+    utf16_cpuMessage1[i++] = 0x05dc;
+    utf16_cpuMessage1[i++] = 0x05b0;
+    utf16_cpuMessage1[i++] = 0x05d0;
+    utf16_cpuMessage1[i++] = 0x05b7;
+    utf16_cpuMessage1[i++] = 0x05e4;
+    utf16_cpuMessage1[i++] = 0x05e9;
+    utf16_cpuMessage1[i++] = 0x05c1;
+    utf16_cpuMessage1[i++] = 0x05b5;
+    utf16_cpuMessage1[i++] = 0x05e8;
+    utf16_cpuMessage1[i++] = 0x0000;
+    */
 
 	for (u8 i = 0; i < 32; i++)
 		decounterVari[i] = 1000 + i;
@@ -69,11 +87,12 @@ CPUChannelFakeCPU::CPUChannelFakeCPU()
 	utf16_curCPUMessage = utf16_cpuMessage2;
 	curCPUMessageImportanceLevel = 1;
 	timeToSwapCPUMsgMesc = 0;
-	macine[0].reset();
-	macine[0].posizioneMacina = 100 +(u16)rhea::randomU32(100);
-
-	macine[1].reset();
-	macine[1].posizioneMacina = 100 + (u16)rhea::randomU32(100);
+	
+	for (u8 i = 0; i < 10; i++)
+	{
+		macine[i].reset();
+		macine[i].posizioneMacina = 100 + (u16)rhea::randomU32(100);
+	}
 
 	timeToEndTestSelezioneMSec = 0;
 }
@@ -135,6 +154,90 @@ void CPUChannelFakeCPU::priv_DA3_reload()
 	this->da3 = rhea::fs::fileCopyInMemory(s, rhea::getSysHeapAllocator(), &sizeOfBuffer);
 }
 
+//*****************************************************************
+u32 CPUChannelFakeCPU::priv_utils_giveMeAUTF16StringWithStrangeChar (u16 *out_message, u32 sizeOf_outMessage UNUSED_PARAM) const
+{
+	//Det gør ondt her
+	u32 i = 0;
+	out_message[i++] = 0x0044;
+	out_message[i++] = 0x0065;
+	out_message[i++] = 0x0074;
+	out_message[i++] = 0x0020;
+	out_message[i++] = 0x0067;
+	out_message[i++] = 0x00f8;
+	out_message[i++] = 0x0072;
+	out_message[i++] = 0x0020;
+	out_message[i++] = 0x006f;
+	out_message[i++] = 0x006e;
+	out_message[i++] = 0x0064;
+	out_message[i++] = 0x0074;
+	out_message[i++] = 0x0020;
+	out_message[i++] = 0x0068;
+	out_message[i++] = 0x0065;
+	out_message[i++] = 0x0072;
+	
+	out_message[i++] = 0x0000;
+	
+	return i*2;
+}
+
+//*****************************************************************
+u32 CPUChannelFakeCPU::priv_utils_giveMeAUTF16StringWithStrangeChar2 (u16 *out_message, u32 sizeOf_outMessage UNUSED_PARAM) const
+{
+	//1=?????????
+	u32 i = 0;
+	out_message[i++] = 0x0031;
+	out_message[i++] = 0x003d;
+	out_message[i++] = 0x05dc;
+	out_message[i++] = 0x05b0;
+	out_message[i++] = 0x05d0;
+	out_message[i++] = 0x05b7;
+	out_message[i++] = 0x05e4;
+	out_message[i++] = 0x05e9;
+	out_message[i++] = 0x05c1;
+	out_message[i++] = 0x05b5;
+	out_message[i++] = 0x05e8;
+	
+	out_message[i++] = 0x0000;
+	
+	return i*2;
+}
+
+//*****************************************************************
+u32 CPUChannelFakeCPU::priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (u8 *out_message, u32 sizeOf_outMessage UNUSED_PARAM) const
+{
+	//Stäbchen nie
+	// 0x53	83
+	// 0x74	116
+	// 0xE4	228
+	// 0x62	98
+	// 0x63	99
+	// 0x68	104
+	// 0x65	101
+	// 0x6E	110
+	// 0x20	32
+	// 0x6E	110
+	// 0x69	105
+	// 0x65	101
+
+	u32 i = 0;
+	out_message[i++] = 0x53;
+	out_message[i++] = 0x74;
+	out_message[i++] = 0xE4;
+	out_message[i++] = 0x62;
+	out_message[i++] = 0x63;
+	out_message[i++] = 0x68;
+	out_message[i++] = 0x65;
+	out_message[i++] = 0x6E;
+	out_message[i++] = 0x20;
+	out_message[i++] = 0x6E;
+	out_message[i++] = 0x69;
+	out_message[i++] = 0x65;
+	out_message[i++] = 0x00;
+
+	return i;
+}
+
 
 /*****************************************************************
  * Qui facciamo finta di mandare il msg ad una vera CPU e forniamo una risposta d'ufficio sempre valida
@@ -145,8 +248,8 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
     //u8 msgLen = bufferToSend[2];
 	u32 ct = 0;
 
-	macine[0].update(rhea::getTimeNowMSec());
-	macine[1].update(rhea::getTimeNowMSec());
+	for (u8 i=0; i<10; i++)
+		macine[i].update(rhea::getTimeNowMSec());
 
 	switch (cpuCommand)
 	{
@@ -156,6 +259,62 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		*in_out_sizeOfAnswer = 0;
 		return false;
 		break;
+
+	case eCPUCommand::snackCommand:
+		return priv_handleSnackCommand (bufferToSend, nBytesToSend, out_answer, in_out_sizeOfAnswer, logger, timeoutRCVMsec);
+		break;
+
+	case eCPUCommand::readDataAudit:
+		{
+			if (NULL == dataAuditInProgress.f)
+			{
+				dataAuditInProgress.fileOffset = 0;
+				dataAuditInProgress.fileSize = 0;
+
+				u8 s[256];
+				rhea::string::utf8::spf (s, sizeof(s), "%s/current/eva-dts.log", rhea::getPhysicalPathToAppFolder());
+				dataAuditInProgress.f = rhea::fs::fileOpenForReadBinary (s);
+				assert (NULL != dataAuditInProgress.f);
+				if (NULL != dataAuditInProgress.f)
+					dataAuditInProgress.fileSize = static_cast<u32>(rhea::fs::filesize (dataAuditInProgress.f));
+			}
+
+			const u32 MAX_TO_READ = sizeof(dataAuditInProgress.buffer);
+			u32 nToRead = MAX_TO_READ;
+			if (dataAuditInProgress.fileOffset + nToRead > dataAuditInProgress.fileSize)
+				nToRead = dataAuditInProgress.fileSize - dataAuditInProgress.fileOffset;
+
+			if (nToRead)
+			{
+				rhea::fs::fileRead (dataAuditInProgress.f, dataAuditInProgress.buffer, nToRead);
+				dataAuditInProgress.fileOffset += nToRead;
+			}
+
+			u8 finished = 0;
+			if (dataAuditInProgress.fileOffset >= dataAuditInProgress.fileSize)
+			{
+				finished = 1;
+				rhea::fs::fileClose (dataAuditInProgress.f);
+				dataAuditInProgress.f = NULL;
+			}
+
+			//rispondo # L [len] [finished] [unused] [payload....] [ck]
+			out_answer[ct++] = '#';
+			out_answer[ct++] = (u8)cpuCommand;
+			out_answer[ct++] = 0; //lunghezza
+			out_answer[ct++] = finished;
+			out_answer[ct++] = 0;
+
+			if (nToRead)
+			{
+				memcpy (&out_answer[ct], dataAuditInProgress.buffer, nToRead);
+				ct += nToRead;
+			}
+			out_answer[2] = (u8)ct + 1;
+			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+			*in_out_sizeOfAnswer = out_answer[2];
+		}
+		return true;
 
 	case eCPUCommand::requestPriceHoldingPriceList:
 		{
@@ -259,6 +418,9 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			out_answer[ct++] = ' ';
 			out_answer[ct++] = ('0' + selNum);
 	
+			/*out_answer[ct++] = ('0' + (selNum / 100));
+			out_answer[ct++] = ('0' + ((selNum % 100) / 10));
+			out_answer[ct++] = ('0' + (selNum % 10)); */
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 			*in_out_sizeOfAnswer = out_answer[2];
@@ -331,7 +493,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			u8 hour, minute, seconds;
 			rhea::Time24::getTimeNow(&hour, &minute, &seconds);
 
-
 			out_answer[ct++] = '#';
 			out_answer[ct++] = 'C';
 			out_answer[ct++] = 0; //lunghezza
@@ -371,7 +532,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
                     out_answer[ct++] = 0;
                 }
             }
-			
 
 			//Da qui in poi sono dati nuovi, introdotti a dicembre 2018
 			//115			versione protocollo.Inizialmente = 1, potrebbe cambiare in futuro
@@ -387,24 +547,30 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		}
 		break;
 
-
 	case eCPUCommand::getExtendedConfigInfo:
 		{
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::instant;	const u8 isInduzione = 0;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso1;	const u8 isInduzione = 1;
-			//const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 1;
-			const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 0;
+			//tipo gruppo: 'V' = variflex, 'M'= Micro, 'N'= non presente
+
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::instant;	const u8 isInduzione = 0;	const u8 tipoGruppo='N';
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso1;	const u8 isInduzione = 1;	const u8 tipoGruppo='V';
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 1;	const u8 tipoGruppo='V';
+			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;		const u8 isInduzione = 0;	const u8 tipoGruppo='V';
+
+
+			//MACCHINA: Minibona, espresso, induzione, gruppo micro
+			//const u8 modelloMacchina = 0x56; const u8 tipoGruppo='M'; const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2; const u8 isInduzione = 0;
+
+			//MACCHINA: Brewmatic, espresso, induzione, gruppo variflex
+			const u8 modelloMacchina = 91; const u8 tipoGruppo='V'; const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2; const u8 isInduzione = 1;
+			
 			out_answer[ct++] = '#';
 			out_answer[ct++] = (u8)cpuCommand;
 			out_answer[ct++] = 0; //lunghezza
 			out_answer[ct++] = 0x02;	//versione
 			out_answer[ct++] = machine_type;
-			
-			//modello macchina, induzione, tipo gruppo ('V' gruppo Variflex, 'M' gruppo Micro, 'N' gruppo non presente)
-			out_answer[ct++] = 0x82;	out_answer[ct++] = isInduzione; out_answer[ct++] = 'V';		
-			
-			//modello macchina = Minibona
-			//out_answer[ct++] = 0x56;	out_answer[ct++] = isInduzione;	out_answer[ct++] = 'M';
+			out_answer[ct++] = modelloMacchina;	
+			out_answer[ct++] = isInduzione; 
+			out_answer[ct++] = tipoGruppo;		
 
 			out_answer[2] = (u8)ct + 1;
 			out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
@@ -429,7 +595,6 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 		*in_out_sizeOfAnswer = out_answer[2];
 		return true;
 
-
 	case eCPUCommand::programming:
 		{
 			// [#] [P] [len] [subcommand] [optional_data] [ck]
@@ -440,6 +605,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return false;
 
 			case eCPUProgrammingCommand::attivazioneMotore:
+			case eCPUProgrammingCommand::scivolo_brewmatic:
 				//rispondo con lo stesso msg che ho ricevuto
 				{
 					const u8 len = bufferToSend[2];
@@ -697,6 +863,38 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
+			case eCPUProgrammingCommand::getSelectionParam:
+				//rcv: # P [len] 0x34 [selNum] [paramID] [ck]
+				{
+					const u16 paramValue = bufferToSend[5] + 100; //rispondo con un valore fittizio
+
+					//snd: # P [len] 0x34 [selNum] [paramID] [value16 LSB-MSB] [ck]
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = (u8)bufferToSend[4];
+					out_answer[ct++] = (u8)bufferToSend[5];
+					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], paramValue);
+					ct+=2;
+					
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+					return true;
+				}
+				break;
+
+			case eCPUProgrammingCommand::setSelectionParam:
+				//rcv: # P [len] 0x33 [selNum] [paramID] [value16 LSB-MSB] [ck]
+				{
+					//fingo di aver fatto qualcosa e rispondo "tutto ok" riportando lo stesso identico msg che ho ricevuto
+					//snd: # P [len] 0x33 [selNum] [paramID] [value16 LSB-MSB] [ck]
+					*in_out_sizeOfAnswer = out_answer[2]; 
+					return true;
+				}
+				break;
+
 			//periodicamente la SMU fa delle query per conoscere lo stato del cleaning. La simulazione dell'avanzamento del processo di cleaning
 			//si trova dentro priv_advanceFakeCleaning()
 			case eCPUProgrammingCommand::querySanWashingStatus:
@@ -770,58 +968,49 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				return true;
 
 			case eCPUProgrammingCommand::getPosizioneMacina:
-				out_answer[ct++] = '#';
-				out_answer[ct++] = 'P';
-				out_answer[ct++] = 0; //lunghezza
-				out_answer[ct++] = (u8)subcommand;
-				out_answer[ct++] = bufferToSend[4]; //macina
+				{
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = bufferToSend[4]; //macina
 
-				if (bufferToSend[4] == 11)
-				{
-					u16 pos = macine[0].posizioneMacina;
+					u8 macinaIndex = bufferToSend[4] - 11;
+					if (macinaIndex >= 10)
+						macinaIndex = 0;
+
+					u16 pos = macine[macinaIndex].posizioneMacina;
 					//simulo il fatto che la posizione è un po' ballerina
 					if (rhea::random01() < 0.4f)
 						pos++;
 					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], pos);
+
+					ct += 2;
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
 				}
-				else if (bufferToSend[4] == 12)
-				{
-					u16 pos = macine[1].posizioneMacina;
-					//simulo il fatto che la posizione è un po' ballerina
-					if (rhea::random01() < 0.4f)
-						pos++;
-					rhea::utils::bufferWriteU16_LSB_MSB(&out_answer[ct], pos);
-				}
-				else
-				{
-					DBGBREAK;
-				}
-				ct += 2;
-				out_answer[2] = (u8)ct + 1;
-				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-				*in_out_sizeOfAnswer = out_answer[2];
 				return true;
 
 			case eCPUProgrammingCommand::setMotoreMacina:
-				if (bufferToSend[4] == 11)
-					macine[0].tipoMovimentoMacina = bufferToSend[5];
-				else if (bufferToSend[4] == 12)
-					macine[1].tipoMovimentoMacina = bufferToSend[5];
-				else
 				{
-					DBGBREAK;
-				}
+					u8 macinaIndex = bufferToSend[4] - 11;
+					if (macinaIndex >= 10)
+						macinaIndex = 0;
 
-				
-				out_answer[ct++] = '#';
-				out_answer[ct++] = 'P';
-				out_answer[ct++] = 0; //lunghezza
-				out_answer[ct++] = (u8)subcommand;
-				out_answer[ct++] = bufferToSend[4]; //macina
-				out_answer[ct++] = bufferToSend[5]; //tipo di movimento
-				out_answer[2] = (u8)ct + 1;
-				out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
-				*in_out_sizeOfAnswer = out_answer[2];
+					macine[macinaIndex].tipoMovimentoMacina = bufferToSend[5];
+
+
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = bufferToSend[4]; //macina
+					out_answer[ct++] = bufferToSend[5]; //tipo di movimento
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
 				return true;
 
 			case eCPUProgrammingCommand::EVAresetPartial:
@@ -1156,6 +1345,56 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 				}
 				return true;
 
+			case eCPUProgrammingCommand::ask_msg_from_table_language:
+				//# P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [ck]
+				{
+					const u8 tableID = bufferToSend[4];
+					const u8 rigaNum = bufferToSend[5];
+					const u8 lingua1or2 = bufferToSend[6];
+
+					/*
+					const u8 isUnicode = 0;
+					u8 msg[32];
+					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (msg, sizeof(msg)));
+					*/
+
+					const u8 isUnicode = 1;
+					u16 msg[64];
+					const u8 msgLen = static_cast<u8>(priv_utils_giveMeAUTF16StringWithStrangeChar2 (msg, sizeof(msg)));
+					
+
+					//snd: # P [len] 0x31 [tabellaID] [rigaNum] [lingua1o2] [isUnicode] [msg_utf16_LSB_MSB...] [ck]
+					out_answer[ct++] = '#';
+					out_answer[ct++] = 'P';
+					out_answer[ct++] = 0; //lunghezza
+					out_answer[ct++] = (u8)subcommand;
+					out_answer[ct++] = tableID;
+					out_answer[ct++] = rigaNum;
+					out_answer[ct++] = lingua1or2;
+					out_answer[ct++] = isUnicode;
+					if (isUnicode)
+					{
+						for (u8 i = 0; i < msgLen / 2; i++)
+						{
+							const u16 u = msg[i];
+							const u8 lsb = ((u & 0x00FF));
+							const u8 msb = ((u & 0xFF00) >> 8);
+							out_answer[ct++] = lsb;
+							out_answer[ct++] = msb;
+						}
+					}
+					else
+					{
+						memcpy (&out_answer[ct], msg, msgLen);
+						ct += msgLen;
+					}
+
+					out_answer[2] = (u8)ct + 1;
+					out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+					*in_out_sizeOfAnswer = out_answer[2];
+				}
+				return true;
+
 			} //switch (subcommand)
 		}
 		break;
@@ -1326,6 +1565,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	*/
 	out_answer[ct++] = '#';
 	out_answer[ct++] = 'Z';
+	//out_answer[ct++] = 'B';
 	out_answer[ct++] = 0; //lunghezza
 
 	/*
@@ -1360,9 +1600,7 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	if (out_answer[1] == 'B')
 	{
 		memset(&out_answer[ct], 0x00, 32);
-		u32 n = (u32)rhea::string::utf16::lengthInBytes(utf16_curCPUMessage);
-		for (u32 i=0;i<n;i++)
-			out_answer[ct+i] = (u8)utf16_curCPUMessage[i];
+		priv_utils_giveMeAnExtendedASCIIStringWithStrangeChar (&out_answer[ct], 32);
 		ct += 32;
 	}
 	else
@@ -1479,4 +1717,53 @@ void CPUChannelFakeCPU::priv_buildAnswerTo_checkStatus_B(u8 *out_answer, u16 *in
 	out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
 	ct++;
 	(*in_out_sizeOfAnswer) = (u16)ct;
+}
+
+
+//*****************************************************************
+bool CPUChannelFakeCPU::priv_handleSnackCommand (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, rhea::ISimpleLogger *logger, u64 timeoutRCVMsec)
+{
+	assert ((eCPUCommand)bufferToSend[1] == eCPUCommand::snackCommand);
+
+	// [#] [Y] [len] [subcommand] [optional_data] [ck]
+	const eSnackCommand subcommand = (eSnackCommand)bufferToSend[3];
+	u32 ct = 0;
+	out_answer[ct++] = '#';
+	out_answer[ct++] = 'Y';
+	out_answer[ct++] = 0; //lunghezza
+	out_answer[ct++] = (u8)subcommand;
+
+	switch (subcommand)
+	{
+	default:
+		return false;
+
+	case eSnackCommand::machineStatus:
+		//snd: # Y [len] 0x03 [stato] [stato_sel_1-8]... [stato_sel_41-48] [ck]
+		out_answer[ct++] = 1;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		out_answer[ct++] = 0xff;
+		break;
+
+	case eSnackCommand::enterProg:
+	case eSnackCommand::exitProg:
+		//snd: # Y [len] 0x04 [esito] [ck]
+		out_answer[ct++] = 1;
+		break;
+
+		//case eSnackCommand::getPrices = 0x01,
+		//case eSnackCommand::setPrices = 0x02,
+
+	}
+
+
+	//checksumn
+	out_answer[2] = (u8)ct + 1;
+	out_answer[ct] = rhea::utils::simpleChecksum8_calc(out_answer, ct);
+	*in_out_sizeOfAnswer = out_answer[2];
+	return true;
 }

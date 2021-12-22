@@ -141,7 +141,11 @@ uint64_t platform::getTimeNowMSec()
 }
 
 //*******************************************************************
-
+void platform::reboot()
+{
+	//TODO
+	DBGBREAK;
+}
 
 //*******************************************************************
 void platform::getDateNow(u16 *out_year, u16 *out_month, u16 *out_day)
@@ -429,6 +433,13 @@ bool platform::BROWSER_open (const u8 *url, bool bFullscreenMode)
 void platform::BROWSER_closeAllInstances ()
 {
 	platform::runShellCommandNoWait ((const u8*)"taskkill", (const u8*)"/F /IM \"chrome.exe\" /T", NULL);
+}
+
+bool platform::executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult)
+{
+    //TODO
+    DBGBREAK;
+    return false;
 }
 
 #endif //WIN32

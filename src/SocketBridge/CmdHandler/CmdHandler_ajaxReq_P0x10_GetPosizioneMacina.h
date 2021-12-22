@@ -13,12 +13,12 @@ namespace socketbridge
         Input:
             command: getPosMacina
             params:
-				m: macina (1=macina1, 2=macina2)
+				m: macina (1=macina1, 2=macina2, ..)
 
 		Output
 			json
 			{
-				m: macina (1=macina1, 2=macina2)
+				m: macina (1=macina1, 2=macina2, ..)
 				v: intero, posizione della macina
 			}
      */

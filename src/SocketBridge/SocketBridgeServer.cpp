@@ -373,7 +373,7 @@ bool Server::priv_subsribeToCPU(const HThreadMsgW &hCPUServiceChannelW)
 	rhea::thread::createMsgQ (&hMsgQR, &hMsgQW);
 
 	//invio la richiesta
-	cpubridge::subscribe (hCPUServiceChannelW, hMsgQW);
+	cpubridge::subscribe (hCPUServiceChannelW, hMsgQW, SOCKETBRIDGE_SUBSCRIBER_UID);
 
 	//attendo risposta
 	u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;

@@ -24,6 +24,31 @@ u16 utils::simpleChecksum16_calc (const void *bufferIN, u32 lenInBytes)
     return ret;
 }
 
+u16 utils::Crc16_calc(const uint8_t* data, const size_t len)
+/* calcolo del CRC (Cyclic Redundancy Check) su un buffer di lunghezza definita
+parametri:
+	data - puntatore al buffer da analizzare
+	len - lunghezza del buffer
+valore restituito:
+	valore del CRC */
+{
+	size_t		i, j;
+	uint16_t    crc = 0;
+
+	for (i = 0; i < len; i++)
+	{
+		crc ^= (data[i] << 8);              /* data at top end, not bottom */
+		for (j = 0; j < 8; j++)
+		{
+			if ((crc & 0x8000) == 0x8000)   /* top bit, not bottom */
+				crc = (crc << 1) ^ 0x0589;  /* shift left, not right */
+			else
+				crc <<= 1;                  /* shift left, not right */
+		}
+	}
+
+	return crc;
+}
 
 //*************************************************************************
 void utils::dumpBufferInASCII (FILE *f, const u8 *buffer, u32 lenInBytes)

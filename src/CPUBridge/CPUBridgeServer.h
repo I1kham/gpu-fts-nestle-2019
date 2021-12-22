@@ -6,9 +6,16 @@
 #include "../rheaCommonLib/rheaThread.h"
 #include "../rheaCommonLib/SimpleLogger/NullLogger.h"
 #include "../rheaCommonLib/rheaFastArray.h"
+#include "rhFSProtocol.h"
+#include "RSProto.h"
+#include "CPUBridgeActionScheduler.h"
 
 namespace cpubridge
 {
+    /**************************************************************************
+     * Server
+     *
+     */
 	class Server
 	{
 	public:
@@ -21,8 +28,14 @@ namespace cpubridge
 		void					run ();
 		void                    close ();
 
+
+        void                    scheduleAction_rebootASAP();
+        void					scheduleAction_relaxedReboot();
+        void					scheduleAction_downloadEVADTSAndAnswerToRSProto();
+
 	private:
-		static const u16		CPUFW_BLOCK_SIZE = 400;
+		static const u16		CPUFW_BLOCK_SIZE	= 400;
+		static const u16		RSPROTO_TCP_PORT	= 2283;
 
 	private:
         struct sStato
@@ -63,7 +76,7 @@ namespace cpubridge
 
 		struct sRegolazioneAperturaMacina
 		{
-			u8 macina_1o2;
+			u8 macina_1to4;
 			u16 target;
 		};
 				
@@ -113,10 +126,14 @@ namespace cpubridge
 			{
 				switch (how)
 				{
-				case eStartSelectionMode_default:			return this->asDefault.selNum;
-				case eStartSelectionMode_alreadyPaid:		return this->asAlreadyPaid.selNum;
-				case eStartSelectionMode_CPUSpontaneous:	return this->asCPUSpontaneous.selNum;
-				default:									return 0;
+				case eStartSelectionMode_default:
+					return this->asDefault.selNum;
+				case eStartSelectionMode_alreadyPaid:
+					return this->asAlreadyPaid.selNum;
+				case eStartSelectionMode_CPUSpontaneous:
+					return this->asCPUSpontaneous.selNum;
+				default:
+					return 0;
 				}			
 			}
 
@@ -124,10 +141,14 @@ namespace cpubridge
 			{
 				switch (how)
 				{
-				case eStartSelectionMode_default:			return this->asDefault.bForceJUG;
-				case eStartSelectionMode_alreadyPaid:		return this->asAlreadyPaid.bForceJUG;
-				case eStartSelectionMode_CPUSpontaneous:	return false;
-				default:									return false;
+				case eStartSelectionMode_default:
+					return this->asDefault.bForceJUG;
+				case eStartSelectionMode_alreadyPaid:
+					return this->asAlreadyPaid.bForceJUG;
+				case eStartSelectionMode_CPUSpontaneous:
+					return false;
+				default:
+					return false;
 				}
 			}
 		};
@@ -154,6 +175,22 @@ namespace cpubridge
 		struct sJugRepetitions
 		{
 			u8		jugRepetitions[48];
+		};
+
+		struct sIdentifiedTCPClient
+		{
+			HSokServerClient			hClient;
+			u32							customValueOnIdentify;
+			rhFSx::proto::eApplicationType	appType;
+			u8							verMajor;
+			u8							verMinor;
+			u8							verBuild;
+		};
+
+		struct sScreenMsgOverride
+		{
+			u16	utf16Msg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
+			u64	timeToStopShowingMSec;
 		};
 
 	private:
@@ -192,12 +229,12 @@ namespace cpubridge
 		void					priv_enterState_telemetry();
 		void					priv_handleState_telemetry();
 
-		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1o2, u16 target);
+		bool					priv_enterState_regolazioneAperturaMacina (u8 macina_1to4, u16 target);
 		void                    priv_handleState_regolazioneAperturaMacina();
-		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1o2, eCPUProg_macinaMove m);
-		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1o2, u16 *out);
+		bool					priv_sendAndHandleSetMotoreMacina (u8 macina_1to4, eCPUProg_macinaMove m);
+		bool					priv_sendAndHandleGetPosizioneMacina(u8 macina_1to4, u16 *out);
 
-		bool					priv_enterState_grinderSpeedTest (u8 macina_1o2, u8 tempoDiMacinataInSec);
+		bool					priv_enterState_grinderSpeedTest_AA (u8 macina_1o2, u8 tempoDiMacinataInSec);
 		void                    priv_handleState_grinderSpeedTest();
 
 		bool					priv_enterState_selection (const sStartSelectionParams &params, const sSubscription *sub);
@@ -208,8 +245,10 @@ namespace cpubridge
 		void					priv_updateLocalDA3(const u8 *blockOf64Bytes, u8 blockNum) const;
 
         u16                     priv_prepareAndSendMsg_checkStatus_B (u8 btnNumberToSend, bool bForceJug);
-        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID);
-		void					priv_downloadDataAudit_onFinishedOK(const u8 *fullFilePathAndName, u32 fileID);
+        bool                    priv_downloadDataAudit_canStartADownload() const                                                                    { return stato.get() == sStato::eStato::normal; }
+        eReadDataFileStatus		priv_downloadDataAudit(cpubridge::sSubscriber *subscriber,u16 handlerID, bool bIncludeBufferDataInNotify, u16 *out_fileID);
+		void					priv_downloadDataAudit_onFinishedOK(const u8* const fullFilePathAndName, u32 fileID);
+
 		eReadDataFileStatus		priv_downloadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, u16 *out_fileID = NULL);
 		eWriteDataFileStatus	priv_uploadVMCDataFile(cpubridge::sSubscriber *subscriber, u16 handlerID, const u8 *srcFullFileNameAndPath);
 		eWriteCPUFWFileStatus	priv_uploadCPUFW (cpubridge::sSubscriber *subscriber, u16 handlerID, const u8 *srcFullFileNameAndPath);
@@ -222,37 +261,69 @@ namespace cpubridge
 		void					priv_retreiveSomeDataFromLocalDA3();
 
 		bool					priv_sendAndWaitAnswerFromCPU (const u8 *bufferToSend, u16 nBytesToSend, u8 *out_answer, u16 *in_out_sizeOfAnswer, u64 timeoutRCVMsec);
-		sSubscription*			priv_newSubscription();
+		sSubscription*			priv_newSubscription(u16 subscriberUID);
+
+		void					priv_getLockStatusFilename (u8 *out_filePathAndName, u32 sizeOfOutFilePathAndName) const;
+		void					priv_writeLockStatus (eLockStatus s) const;
+		eLockStatus				priv_getLockStatus() const;
+		void					priv_setLockStatus (eLockStatus lockMode);
+		bool					priv_setCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 paramValue);
+		bool					priv_getCPUSelectionParam (u8 selNum1ToN, eSelectionParam whichParam, u16 *out_paramValue);
+		bool					priv_askCPUAllDecounters (u32 *out_decounter15, u32 sizeof_out_decounter15);
+
+		bool					IsSelectionEnable(u8 selNum_1toN);
+		bool					SelectionEnable (u8 selNum_1toN, bool bEnable);
+		bool					SelectionsEnableLoad();
+		bool					SelectionsEnableSave();
+		bool					SelectionsEnableFilename(u8* out_filePathAndName, u32 sizeOfOutFilePathAndName) const;
+
+		void					priv_handleEventFromSocket (HSokServerClient hClient);
+		bool					priv_onMessageIdentifyRcv (HSokServerClient hClient, const rhFSx::proto::sDecodedMsg &ask);
+		void					priv_onTCPClientDisconnected (HSokServerClient hClient);
+		
+		void					priv_telemetry_sendDecounters();
+        eActionResult           priv_runAction_rebootASAP();
+        eActionResult           priv_runAction_downloadEVADTSAndAnswerToRSProto();
 
 	private:
-		rhea::Allocator         *localAllocator;
-		rhea::ISimpleLogger     *logger;
-		CPUChannel				*chToCPU;
-		OSWaitableGrp			waitList;
-		rhea::NullLogger        nullLogger;
-		HThreadMsgR             hServiceChR;
-        sStato					stato;
-		u8						answerBuffer[2048];
-		sCPUParamIniziali		cpuParamIniziali;
-		sCPUStatus				cpuStatus;
-		sRunningSelection		runningSel;
-		u8						cpu_numDecimalsForPrices;
-		rhea::FastArray<sSubscription*>	subscriberList;
-		sLanguage				language;
-		u16						utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
-		u16						lastCPUMsg_len;
-		u8						lastBtnProgStatus;
-        u8                      keepOnSendingThisButtonNum;
-		sRegolazioneAperturaMacina regolazioneAperturaMacina;
-		sCalcGrinderSpeed		grinderSpeedTest;
-		u16						utf16_CPUMasterVersionString[34];
-		u64						showCPUStringModelAndVersionUntil_msec;
-		sPriceHolding			priceHolding;
-		eCPUMilkerType			milkerType;
-		u32						id101;
-		u16						quickMenuPinCode;
+		rhea::Allocator				*localAllocator;
+		rhea::ISimpleLogger			*logger;
+		CPUChannel					*chToCPU;
 
-		u8						jugRepetitions[NUM_MAX_SELECTIONS];
+		rhea::ProtocolSocketServer    *server;
+		rhea::LinearBuffer			bufferTCPRead;
+		//OSWaitableGrp				waitList;
+		RSProto						*rsProto;
+        ActionScheduler				actionScheduler;
+
+		rhea::NullLogger			nullLogger;
+		HThreadMsgR					hServiceChR;
+        sStato						stato;
+		u8							answerBuffer[2048];
+		sCPUParamIniziali			cpuParamIniziali;
+		sCPUStatus					cpuStatus;
+		sRunningSelection			runningSel;
+		u8							cpu_numDecimalsForPrices;
+		rhea::FastArray<sSubscription*>	subscriberList;
+		sLanguage					language;
+		u16							utf16_lastCPUMsg[sCPULCDMessage::BUFFER_SIZE_IN_U16];
+		u16							lastCPUMsg_len;
+		u8							lastBtnProgStatus;
+        u8							keepOnSendingThisButtonNum;
+		sRegolazioneAperturaMacina	regolazioneAperturaMacina;
+		sCalcGrinderSpeed			grinderSpeedTest;
+		u16							utf16_CPUMasterVersionString[34];
+		u64							showCPUStringModelAndVersionUntil_msec;
+		sPriceHolding				priceHolding;
+		eCPUMilkerType				milkerType;
+		u32							id101;
+		u16							quickMenuPinCode;
+		sScreenMsgOverride			screenMsgOverride;
+
+		u8							jugRepetitions[NUM_MAX_SELECTIONS];
+		bool						selectionEnable[NUM_MAX_SELECTIONS];
+
+		friend class ActionScheduler;
     };
 
 } // namespace cpubridge

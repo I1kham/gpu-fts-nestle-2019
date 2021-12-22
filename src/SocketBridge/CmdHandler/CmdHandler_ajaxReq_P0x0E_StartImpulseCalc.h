@@ -14,7 +14,7 @@ namespace socketbridge
         Input:
             command: startImpulseCalc
             params:
-				m: macina (11=macina1, 12=macina2)
+				m: macina (11=macina1, 12=macina2, ..)
 				v: valore della pesata in dGrammi
 
 		Output

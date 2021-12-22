@@ -76,6 +76,8 @@ DA3.prototype.isMachine_MultibonaEspresso = function()				{ return (this.machine
 DA3.prototype.isMachine_MultibonaInstant  = function()				{ return (this.machineModel==88); }
 DA3.prototype.isMachine_MinibonaEspresso = function()				{ return (this.machineModel==87); }
 DA3.prototype.isMachine_MinibonaInstant  = function()				{ return (this.machineModel==89); }
+DA3.prototype.isMachine_Brewmatic4Macine = function()				{ return (this.machineModel==91); }
+DA3.prototype.hasAnyInstant = function() 							{ if(this.isMachine_Brewmatic4Macine()) return 0; return 1; }
 DA3.prototype.getTipoGruppoCaffe = function ()						{ return this.tipoGruppoCaffe; }
 DA3.prototype.isGruppoMicro = function ()							{ if (this.getTipoGruppoCaffe() == 'M') return 1; return 0;}
 DA3.prototype.isGruppoVariflex = function ()						{ if (this.getTipoGruppoCaffe() == 'V') return 1; return 0;}
@@ -84,14 +86,21 @@ DA3.prototype.isInstant = function ()								{ if (parseInt(this.da3_current[946
 DA3.prototype.isEspresso = function ()								{ if (parseInt(this.da3_current[9465]) > 0) return 1; return 0; }
 DA3.prototype.isVarigrindAutoRegolationEnabled = function (whichOne)
 { 
-	var da3Loc = 7590;
-	if (whichOne == 2)
-		da3Loc = 7686;
+	var da3Loc = 0;
+	switch (parseInt(whichOne))
+	{
+	case 1: da3Loc = 7590; break;
+	case 2: da3Loc = 7654; break;
+	case 3: da3Loc = 7686; break;
+	case 4: da3Loc = 7718; break;
+	default:
+		return 0;
+	}
 	if (this.da3_current[da3Loc] > 0)
 		return 1; 
 	return 0; 
 }
-DA3.prototype.getNumMacine = function()								{ if (this.isInstant()) return 0;  return parseInt(this.da3_current[9465]); }
+DA3.prototype.getNumMacine = function()								{ if (this.isMachine_Brewmatic4Macine()) return 4; if (this.isInstant()) return 0;  return parseInt(this.da3_current[9465]); }
 DA3.prototype.getModelCode = function ()							{ return parseInt(this.da3_current[9466]); }
 DA3.prototype.getNumProdotti = function ()		
 { 	return 6;
@@ -122,7 +131,7 @@ DA3.prototype.freevendFasciaOraria_stopItNow = function ()
 	this.write8(8439, 0); //data scadenza anno
 }
 
-
+//*********************************************************************
 DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 {
 	if (this.isInstant())
@@ -138,51 +147,82 @@ DA3.prototype.priv_getLocationForCalibFactor = function (motor)
 			return 9693;
 		else if (motor==12) //macina 2
 			return 9705;
+		else if (motor==13) //macina 3
+			return 9707;
+		else if (motor==14) //macina 4
+			return 9709;
 	}	
 	return 0;
 }
-
 DA3.prototype.setCalibFactorGSec = function (motor, v)		
 { 
 	var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); 
 	//console.log ("DA3::setCalibFactorGSec motor[" +motor +"] v[" +v +"] loc[" +loc +"]");
-	if (loc>0) 
+	if (loc > 0) 
+	{
 		this.write16(loc, parseInt(v));
 	
-	//macina 1 va salvata anche qui
-	if (motor==11)
-		this.write16(7534, parseInt(v));
-	
-	//macina 2 va salvata anche qui
-	if (motor==12)
-		this.write16(7546, parseInt(v));
+		loc = 0;
+		switch (motor)
+		{
+		case 11: loc = 7534; break; //macina 1 va salvata anche qui
+		case 12: loc = 7546; break; //macina 2 va salvata anche qui
+		case 13: loc = 7548; break; //macina 3 va salvata anche qui
+		case 14: loc = 7550; break; //macina 4 va salvata anche qui
+		}	
+		if (loc != 0)
+			this.write16(loc, parseInt(v));
+	}
 }
 DA3.prototype.getCalibFactorGSec = function (motor)			
 { 
 	var loc = this.priv_getLocationForCalibFactor(parseInt(motor)); 
 	//console.log ("DA3::getCalibFactorGSec motor[" +motor +"] loc[" +loc +"]");
 	if (loc>0) 
-		return this.read16(loc); return 0;
+		return this.read16(loc);
+	return 0;
 }
 
-
+//*********************************************************************
+DA3.prototype.priv_getLocationForImpulsi = function (motor)
+{
+	switch (parseInt(motor))
+	{
+		default:	return 0;
+		case 11:	return 7560; //macina 1
+		case 12:	return 7564; //macina 2
+		case 13:	return 7574; //macina 3
+		case 14:	return 7578; //macina 4
+	}
+}
 DA3.prototype.getImpulsi = function (motor)		
 { 
-	if (motor==11)
-		return this.read16(7560); //macina 1
-	else if (motor==12)
-		return this.read16(7564); //macina 2
+	var loc = this.priv_getLocationForImpulsi(motor);
+console.log ("DA3::getImpulsi(" +motor +") => loc=" +loc);
+	if (loc != 0)
+		return this.read16(loc);
 	return 0;
-	
 }
 DA3.prototype.setImpulsi = function (motor,v)	
 { 
-	if (motor==11)
-		this.write16(7560, parseInt(v)); //macina 1
-	else if (motor==12)
-		this.write16(7564, parseInt(v)); //macina 2
+	var loc = this.priv_getLocationForImpulsi(motor);
+	if (loc != 0)
+		this.write16(loc, parseInt(v));
+	
+	console.log ("DA3::setImpulsi(" +motor +"," +v+") => loc=" +loc);
 }
 
+DA3.prototype.getVarigrindLastPosDa3Loc = function (vgIndex1to4)
+{
+	switch (parseInt(vgIndex1to4))
+	{
+		default:
+		case 1: return 7596;
+		case 2:	return 7660;
+		case 3: return 7692;
+		case 4: return 7724;
+	}
+}
 
 /********************************************************
  * compare

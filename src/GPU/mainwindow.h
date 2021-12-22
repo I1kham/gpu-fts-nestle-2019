@@ -29,6 +29,8 @@ public:
                             ~MainWindow();
     void                    keyPressEvent(QKeyEvent *event);
 
+    void                    keyPressEvent(QKeyEvent *event);
+
 private slots:
     void                    timerInterrupt();
     void                    on_webView_urlChanged(const QUrl &arg1);
@@ -64,6 +66,8 @@ private:
     void                    priv_showBrowser_onCPUBridgeNotification (rhea::thread::sMsg &msg);
     eRetCode                priv_showNewProgrammazione_onTick();
     void                    priv_showNewProgrammazione_onCPUBridgeNotification (rhea::thread::sMsg &msg);
+    void                    priv_showLockedPanel (bool b);
+    bool                    priv_autoupdate_exists() const;
 
 private:
     struct sSyncWithCPU
@@ -88,6 +92,7 @@ private:
     FormProg                *frmProg;
     FormPreGui              *frmPreGUI;
     eRetCode                retCode;
+    u64                     nextTimeAskForCPULockStatus_msec;
 };
 
 #endif // MAINWINDOW_H

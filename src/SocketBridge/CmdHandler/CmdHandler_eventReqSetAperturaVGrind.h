@@ -16,7 +16,7 @@ namespace socketbridge
      *  Al termine della regolazione, CPU torna nello stato disponibile (e notifica con CPUBRIDGE_NOTIFY_CPU_STATE_CHANGED)
      *
 		params:
-			u8	macina 1 o 2
+			u8	macina 1,2,3,4
 			u16	posizione target
      *
      */

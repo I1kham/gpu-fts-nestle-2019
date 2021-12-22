@@ -18,7 +18,7 @@ bool ajaxReqGetPosizioneMacina_jsonTrapFunction(const u8 *fieldName, const u8 *f
 	if (strcasecmp((const char*)fieldName, "m") == 0)
 	{
 		const u32 h = rhea::string::utf8::toU32(fieldValue);
-        if (h==1 || h==2)
+        if (h<=4)
 			input->m = (u8)h;
 		else
 			input->m = 0;
@@ -36,7 +36,7 @@ void CmdHandler_ajaxReq_P0x10_GetPosizioneMacina::passDownRequestToCPUBridge (cp
 	if (rhea::json::parse(params, ajaxReqGetPosizioneMacina_jsonTrapFunction, &data))
 	{
 		if (data.m != 0)
-			cpubridge::ask_CPU_GET_POSIZIONE_MACINA(from, getHandlerID(), data.m);
+			cpubridge::ask_CPU_GET_POSIZIONE_MACINA_AA(from, getHandlerID(), data.m);
 	}
 }
 

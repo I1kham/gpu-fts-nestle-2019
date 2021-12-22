@@ -276,9 +276,9 @@ VMC</string>
    <widget class="QPushButton" name="btnInstall_CPU">
     <property name="geometry">
      <rect>
-      <x>44</x>
+      <x>20</x>
       <y>20</y>
-      <width>200</width>
+      <width>180</width>
       <height>90</height>
      </rect>
     </property>
@@ -301,9 +301,9 @@ CPU FW</string>
    <widget class="QPushButton" name="btnInstall_DA3">
     <property name="geometry">
      <rect>
-      <x>288</x>
+      <x>220</x>
       <y>20</y>
-      <width>200</width>
+      <width>180</width>
       <height>90</height>
      </rect>
     </property>
@@ -326,9 +326,9 @@ VMC settings</string>
    <widget class="QPushButton" name="btnInstall_GUI">
     <property name="geometry">
      <rect>
-      <x>532</x>
+      <x>420</x>
       <y>20</y>
-      <width>200</width>
+      <width>180</width>
       <height>90</height>
      </rect>
     </property>
@@ -351,9 +351,9 @@ GUI</string>
    <widget class="QPushButton" name="btnInstall_manual">
     <property name="geometry">
      <rect>
-      <x>776</x>
+      <x>620</x>
       <y>20</y>
-      <width>200</width>
+      <width>180</width>
       <height>90</height>
      </rect>
     </property>
@@ -373,17 +373,69 @@ GUI</string>
 Manual</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnInstall_languages">
+   <widget class="QFrame" name="framePleaseWait">
     <property name="geometry">
      <rect>
-      <x>1000</x>
-      <y>70</y>
-      <width>150</width>
-      <height>71</height>
+      <x>980</x>
+      <y>-70</y>
+      <width>1051</width>
+      <height>131</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:#000; background-color:#fff</string>
+     <string notr="true">background-color:#111; color:#fff</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>40</y>
+       <width>1024</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Roboto</family>
+       <pointsize>24</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>P L E A S E     W A I T ...</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btnInstall_languages">
+    <property name="geometry">
+     <rect>
+      <x>820</x>
+      <y>20</y>
+      <width>180</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
      <string>INSTALL
@@ -720,50 +772,6 @@ VMC settings</string>
    <property name="text">
     <string>Manual: xxxxxxxxxxxxxxxxxxxx</string>
    </property>
-  </widget>
-  <widget class="QFrame" name="framePleaseWait">
-   <property name="geometry">
-    <rect>
-     <x>970</x>
-     <y>180</y>
-     <width>1051</width>
-     <height>131</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color:#111; color:#fff</string>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::NoFrame</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>40</y>
-      <width>1024</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Roboto</family>
-      <pointsize>24</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>P L E A S E     W A I T ...</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
   </widget>
   <widget class="Line" name="line">
    <property name="geometry">
@@ -1337,7 +1345,6 @@ Click on SKIP if you do not want to auto update this machine.</string>
   <zorder>labCPUStatus</zorder>
   <zorder>labWait</zorder>
   <zorder>labInstalled_Manual</zorder>
-  <zorder>framePleaseWait</zorder>
   <zorder>line</zorder>
   <zorder>line_2</zorder>
   <zorder>line_3</zorder>

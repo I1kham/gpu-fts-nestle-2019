@@ -8,7 +8,7 @@ using namespace socketbridge;
 //***********************************************************
 void CmdHandler_eventReqDataAudit::passDownRequestToCPUBridge (cpubridge::sSubscriber &from, const u8 *payload UNUSED_PARAM, u16 payloadLen UNUSED_PARAM)
 {
-	cpubridge::ask_READ_DATA_AUDIT(from, getHandlerID());
+	cpubridge::ask_READ_DATA_AUDIT(from, getHandlerID(), false);
 }
 
 //***********************************************************
@@ -24,7 +24,7 @@ void CmdHandler_eventReqDataAudit::onCPUBridgeNotification (socketbridge::Server
 	cpubridge::eReadDataFileStatus status;
 	u16 totKbSoFar;
 	u16 fileID;
-	cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS(msgFromCPUBridge, &status, &totKbSoFar, &fileID);
+	cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS(msgFromCPUBridge, &status, &totKbSoFar, &fileID, NULL, 0);
 
 
 	u8 buffer[8];

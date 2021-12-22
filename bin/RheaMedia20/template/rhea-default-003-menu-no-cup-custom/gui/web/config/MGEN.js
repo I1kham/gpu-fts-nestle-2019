@@ -1,0 +1,82 @@
+
+/*********************************************************
+ * MMI_getCount
+ *
+ *	ritorna il numero di icone Menu da visualizzare nel main menu
+ */
+function MGEN_getCount ()														{ return rheaMainMenuIconsGen.length; }
+
+/*********************************************************
+ * MGEN_getDisplayName
+ *
+ *	ritorna la stringa da utilizzare per visualizzare il nome del menu generale.
+ *	La stringa è già tradotta nel linguaggio corrente
+ *
+ *	[iIcon] va da 0 a MGEN_getCount()-1
+ */
+function MGEN_getDisplayName (iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	return rheaLang_mainMenuMenuName[iIcon];
+}
+
+
+/*********************************************************
+ * MGEN_getImgForPageMenu
+ *
+ *	ritorna il nome della img da usare in pagina menu
+ *
+ *	[iIcon] va da 0 a MGEN_getCount()-1
+ */
+function MGEN_getImgForPageMenu (iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	return "upload/" +rheaMainMenuIconsGen[iIcon].pageMenuGenImg;
+}
+
+
+/*********************************************************
+ * MMI_getImgForPageConfirm
+ *
+ *	ritorna il nome della img da usare in pagina confirm
+ *
+ *	[iIcon] va da 0 a MMI_getCount()-1
+ */
+function MGEN_getImgForPageConfirm (iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	return "upload/" +rheaMainMenuIconsGen[iIcon].pageMenuGenImg;
+}
+
+
+/*********************************************************
+ * MMI_getLinkedSelectionNumber
+ *
+ *	ritorna il menu [1..4] associato all'icona.
+ *	Se ritorna 0, vuol dire che l'icona è associata ad una "selezione virtuale", ovvero una sorta di sottomenu di selezioni
+ *
+ *	[iIcon] va da 0 a MMI_getCount()-1
+ */
+function MGEN_getLinkedSelectionNumber (iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	return rheaMainMenuIconsGen[iIcon].MenuGenNum;
+}
+
+
+function MGEN_keyboardIsEnabled(iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	
+	var comkeyboardMenu=0;
+	if ((rheaMainMenuIconsGen[iIcon].keyboardMenu==0) || (rheaMainMenuIconsGen[iIcon].keyboardMenu==1))
+		comkeyboardMenu=rheaMainMenuIconsGen[iIcon].keyboardMenu;
+		
+	return comkeyboardMenu;
+}

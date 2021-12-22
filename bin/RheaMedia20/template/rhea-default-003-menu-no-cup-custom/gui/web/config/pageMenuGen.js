@@ -1,0 +1,1 @@
+var mainMenuGenPageOptions={menu_numRow:2,menu_numIconPerRow:2,menu_gotoPageStandbyAfterMSec:30000,menu_oneClickSelection:0,menu_enabled:1};

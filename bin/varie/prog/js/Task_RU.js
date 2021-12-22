@@ -699,6 +699,7 @@ function TaskCalibMotor()
 
 TaskCalibMotor.prototype.startCalibrazioneMacina = function (macina1o2, bAlsoCalcImpulses)
 {
+	console.log ("TaskCalibMotor.startCalibrazioneMacina => macina=" +macina1o2 +", calcImp=" +bAlsoCalcImpulses);
 	var motor = 10 + macina1o2;
 	this.startMotorCalib(motor);
 	this.bAlsoCalcImpulses = bAlsoCalcImpulses;
@@ -719,8 +720,8 @@ TaskCalibMotor.prototype.startMotorCalib = function (motorIN) //motorIN==11 per 
 	pleaseWait_calibration_motor_hide();
 	
 	this.what = 0;
-	if (motorIN == 11 || motorIN == 12)
-		this.what = 2;
+	if (motorIN >= 11 && motorIN < 20)
+		this.what = 2; //è una macina
 	else
 		this.what = 1;
 }
@@ -909,6 +910,8 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 	case 10:  //attivo le macinate
 		me.fase = 11;
 		pleaseWait_calibration_setText("Подождите, пока работает мотор"); //Please wait while motor is running
+		
+console.log ("TaskCalibMotor.priv_handleCalibMacina() => runMotor, m="  +me.motor);
 		rhea.ajax ("runMotor", { "m":me.motor, "d":TIME_ATTIVAZIONE_dSEC, "n":2, "p":10}).then( function(result)
 		{
 			setTimeout ( function() { me.fase=20; }, TIME_ATTIVAZIONE_dSEC*2*100 - 1000);
@@ -1010,10 +1013,12 @@ TaskCalibMotor.prototype.priv_handleCalibMacina = function (timeElapsedMSec)
 		me.gsec = parseInt( Math.round(me.value / (TIME_ATTIVAZIONE_dSEC*0.2)) );
 		pleaseWait_calibration_num_hide();
 		
+console.log	("TaskCalibMotor.priv_handleCalibMacina: fase 30"); 
 		da3.setCalibFactorGSec(me.motor, me.gsec);
 		//var v = helper_intToFixedOnePointDecimal( da3.getCalibFactorGSec(me.motor) );
 		//rheaSetDivHTMLByName("pageCalibration_m" +me.motor, v +"&nbsp;gr/sec");
-		
+
+console.log	("TaskCalibMotor.priv_handleCalibMacina: setFattoreCalib m=" +me.motor +",v=" +me.gsec);		
 		rhea.ajax ("setFattoreCalib", { "m":me.motor, "v":me.gsec}).then( function(result)
 		{
 			me.fase = 40;
@@ -1321,8 +1326,6 @@ function TaskDevices()
 {
 	this.what = 0;
 	this.fase = 0;
-	this.firstTimeMacina1 = 2;
-	this.firstTimeMacina2 = 2;
 	this.cpuStatus = 0;
 	this.selNum = 0;
 	this.enterQueryMacinePos(1);
@@ -1359,11 +1362,22 @@ TaskDevices.prototype.messageBox = function (msg)
 	pleaseWait_freeText_setText(msg);
 }
 
+TaskDevices.prototype.snackEnterProg = function()									{ this.what = 9; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runTestAssorbGruppo = function()								{ this.what = 5; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runTestAssorbMotoriduttore = function()						{ this.what = 6; this.fase = 0; pleaseWait_show(); }
 TaskDevices.prototype.runGrinderSpeedTest = function(macina1o2)						{ this.what = 7; this.fase = 0; this.macina1o2=macina1o2; this.speed1=0; this.speed2=0; this.gruppoTolto=0; pleaseWait_show(); }
+TaskDevices.prototype.runScivoloBrewmatic = function (perc0_100)					{ this.what = 8; this.fase = 0; this.speed1=perc0_100; pleaseWait_show(); }
 TaskDevices.prototype.onEvent_cpuStatus  = function(statusID, statusStr, flag16)	{ this.cpuStatus = statusID; pleaseWait_header_setTextL(statusStr); }
-TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			{ rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); }
+TaskDevices.prototype.onEvent_cpuMessage = function(msg, importanceLevel)			
+{ 
+	rheaSetDivHTMLByName("footer_C", msg); pleaseWait_header_setTextR(msg); 
+	if (this.what == 9)
+	{
+		//siamo in snaxk prog
+		pleaseWait_freeText_setText(msg);
+		
+	}
+}
 TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 {
 	switch (this.what)
@@ -1427,6 +1441,17 @@ TaskDevices.prototype.onFreeBtn1Clicked	 = function(ev)
 			case 71:	this.fase = 72; pleaseWait_btn1_hide(); pleaseWait_btn2_hide(); break;	//ho premuto CONTINUE
 		}
 		break;
+		
+	case 9: //snack prog (Exit)
+		this.what = 0;
+		pleaseWait_hide();
+		rhea.ajax ("snackExitProg", "").then( function(result)
+		{
+		})
+		.catch( function(result)
+		{
+		});		
+		break;
 	}
 }
 
@@ -1463,7 +1488,12 @@ TaskDevices.prototype.onFreeBtn2Clicked	 = function(ev)
 	case 7: //grinder speed Test
 		this.fase = 70;
 		pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
-		break;		
+		break;
+		
+	case 8: //test scivolo Brewmatic
+		pleaseWait_btn1_hide(); pleaseWait_btn2_hide();
+		this.fase = 90;
+		break;
 	}
 }
 
@@ -1486,6 +1516,29 @@ TaskDevices.prototype.onTimer = function (timeNowMsec)
 		this.priv_handleTestAssorbMotoriduttore(timeNowMsec);
 	else if (this.what == 7)
 		this.priv_handleGrinderSpeedTest(timeNowMsec);
+	else if (this.what == 8)
+		this.priv_handleTestScivoloBrewmatic(timeNowMsec);
+	else if (this.what == 9)
+		this.priv_handleSnackProg (timeNowMsec);
+}
+
+TaskDevices.prototype.priv_handleSnackProg = function(timeNowMsec)
+{
+	switch (this.fase)
+	{
+	case 0:
+		this.fase = 10;
+		pleaseWait_rotella_hide();
+		pleaseWait_btn1_setText("EXIT PROGRAMMING");
+		pleaseWait_btn1_show();
+		pleaseWait_freeText_setText("");
+		pleaseWait_freeText_show();
+		break;
+		
+	case 10:
+		break;
+	}
+		
 }
 
 TaskDevices.prototype.priv_queryCupCoverSensorLiveValue = function(timeNowMsec)
@@ -1535,6 +1588,17 @@ TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 	rhea.ajax ("getCupSensorLiveValue", "" ).then( function(result)
 	{
 		rheaSetDivHTMLByName("divCupSensorLiveValue", result);
+		
+		switch (parseInt(result))
+		{
+		case 0:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(173+) mm"); break;
+		case 1:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(145-173) mm"); break;
+		case 2:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(116-145) mm"); break;
+		case 3:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(101-116) mm"); break;
+		case 4:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(90-101) mm"); break;
+		case 5:rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "(65-90) mm"); break;
+		default: rheaSetDivHTMLByName("divCupSensorLiveValueBrewmatic", "NO CUP DETECTED"); break;
+		}
 	})
 	.catch( function(result)
 	{
@@ -1552,26 +1616,8 @@ TaskDevices.prototype.priv_handleRichiestaPosizioneMacina = function()
 		rhea.ajax ("getPosMacina", {"m":this.whichMacinaToQuery}).then( function(result)
 		{
 			var obj = JSON.parse(result);
-			if (obj.m == 1) //macina1
-			{
-				rheaSetDivHTMLByName("pageDevices_vg1", obj.v);
-				if (me.firstTimeMacina1>0)
-				{
-					me.firstTimeMacina1--;
-					if (me.firstTimeMacina1==0)					
-						ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg1_target").setValue(obj.v)
-				}
-			}
-			else
-			{
-				rheaSetDivHTMLByName("pageDevices_vg2", obj.v);
-				if (me.firstTimeMacina2 > 0)
-				{
-					me.firstTimeMacina2--;
-					if (me.firstTimeMacina2 == 0)
-						ui.getWindowByID("pageDevices").getChildByID("pageDevices_vg2_target").setValue(obj.v)
-				}
-			}				
+			var macina_1to4 = obj.m;
+			rheaSetDivHTMLByName("pageDevices_vg" +macina_1to4, obj.v);
 			me.fase = 0;
 		})
 		.catch( function(result)
@@ -2231,7 +2277,42 @@ TaskDevices.prototype.priv_handleGrinderSpeedTest = function(timeNowMsec)
 	}
 }
 
-
+TaskDevices.prototype.priv_handleTestScivoloBrewmatic = function(timeNowMsec)
+{
+	switch (this.fase)
+	{
+	case 0:
+		this.fase = 1;
+		pleaseWait_show();
+		pleaseWait_rotella_hide();
+		pleaseWait_btn2_setText("STOP");
+		pleaseWait_btn2_show();	
+		
+		rhea.ajax ("scivoloBrewmatic", { "perc": this.speed1 }).then( function(result)
+		{
+		})
+		.catch( function(result)
+		{
+		});			
+		break;
+		
+	case 1:	//attendo btn STOP
+		break;
+		
+	//************************************************************ FINE
+	case 90: //fine
+		rhea.ajax ("scivoloBrewmatic", { "perc": 0 }).then( function(result)
+		{
+		})
+		.catch( function(result)
+		{
+		});		
+		
+		pleaseWait_hide();
+		this.what = 0;
+		break;
+	}
+}
 
 /**********************************************************
  * TaskDisintall

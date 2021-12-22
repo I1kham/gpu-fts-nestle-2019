@@ -44,7 +44,7 @@ void CmdHandler_ajaxReq_P0x0F_SetCalibFactor::passDownRequestToCPUBridge (cpubri
 	sInput data;
 	if (rhea::json::parse(params, ajaxReqSetCalibFactor_jsonTrapFunction, &data))
 	{
-		if (data.m >= 1 && data.m <= 12)
+		if (data.m >= 1 && data.m < 20)
 			cpubridge::ask_CPU_SET_FATTORE_CALIB_MOTORE(from, getHandlerID(), (cpubridge::eCPUProg_motor)data.m, data.v);
 	}
 }

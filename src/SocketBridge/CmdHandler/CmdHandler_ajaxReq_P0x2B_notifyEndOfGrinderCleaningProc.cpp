@@ -7,7 +7,7 @@ using namespace socketbridge;
 
 struct sInput
 {
-	u8		macina1o2;
+    u8		macinaNumDa1AN;
 };
 
 //***********************************************************
@@ -18,10 +18,10 @@ bool CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc_jsonTrapFunction(co
 	if (strcasecmp((const char*)fieldName, "m") == 0)
 	{
 		const u32 h = rhea::string::utf8::toU32(fieldValue);
-        if (h != 2)
-			input->macina1o2 = 1;
+        if (h < 0XFF)
+            input->macinaNumDa1AN = static_cast<u8>(h);
 		else
-			input->macina1o2 = 2;
+            input->macinaNumDa1AN = 1;
 		return false;
 	}
 
@@ -34,7 +34,7 @@ void CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc::passDownRequestToC
 {
 	sInput data;
 	if (rhea::json::parse(params, CmdHandler_ajaxReq_P0x2B_notifyEndOfGrinderCleaningProc_jsonTrapFunction, &data))
-		cpubridge::ask_END_OF_GRINDER_CLEANING_PROCEDURE (from, getHandlerID(), data.macina1o2);
+        cpubridge::ask_END_OF_GRINDER_CLEANING_PROCEDURE (from, getHandlerID(), data.macinaNumDa1AN);
 }
 
 //***********************************************************

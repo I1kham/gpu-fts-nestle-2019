@@ -33,6 +33,9 @@ namespace platform
 	void            getTimeNow(u8 *out_hour, u8 *out_min, u8 *out_sec);
 
 	bool            runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLineParameters, const u8 *workingDir);
+    bool            executeShellCommandAndStoreResult (const char *shellCommand, char *out_result, u32 sizeOfOutResult);
+
+	void			reboot();
 
 	eThreadError    createThread(OSThread &out_handle, OSThreadFunction threadFunction, size_t stackSizeInKb, void *userParam);
 	void            killThread (OSThread &handle);
