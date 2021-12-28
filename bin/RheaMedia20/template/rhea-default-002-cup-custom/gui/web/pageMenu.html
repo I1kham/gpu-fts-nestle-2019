@@ -827,7 +827,7 @@ function onBtnMilkerCleaning()
 						
 					case 2: //indux
 						rhea.requestGPUCleaning(32);
-						window.location = "gotoMilkerCleaning.html";
+						rhea.gotoSpecialURL("gotoMilkerCleaning.html");
 						break;
 				}
 			})
@@ -845,7 +845,7 @@ function onBtnDataAudit()
 {
 	resetTimerGotoPageStandby();
 	pinCodePanel.show (
-		function callbackOK() 	{ window.location = "gotoPartialDataAudit.html"; }
+		function callbackOK() 	{ rhea.gotoSpecialURL("gotoPartialDataAudit.html"); }
 		,function callbackKO()	{ hideFastMenu(); }
 	);	
 }

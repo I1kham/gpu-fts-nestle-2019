@@ -27,7 +27,6 @@ class MainWindow : public QMainWindow
 public:
     explicit                MainWindow (sGlobal *glob);
                             ~MainWindow();
-    void                    keyPressEvent(QKeyEvent *event);
 
     void                    keyPressEvent(QKeyEvent *event);
 

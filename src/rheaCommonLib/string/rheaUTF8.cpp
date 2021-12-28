@@ -459,6 +459,45 @@ void string::utf8::advanceToEOL (Iter &src, bool bskipEOL)
 }
 
 //**************************************************
+bool string::utf8::find (Iter &src, const char *whatToFind)		{ return utf8::find (src, reinterpret_cast<const u8*>(whatToFind)); }
+bool string::utf8::find (Iter &src, const u8 *whatToFind)
+{
+	if (NULL == whatToFind)
+		return false;
+	const u32 whatToFindLEN = utf8::lengthInBytes(whatToFind);
+	if (0 == whatToFindLEN)
+		return false;
+
+
+	Iter iterWhat;
+	iterWhat.setup (whatToFind, 0, whatToFindLEN);
+
+	rhea::UTF8Char c;
+	while (!(c = src.getCurChar()).isEOF())
+	{
+		if (c != iterWhat.getCurChar())
+		{
+			src.advanceOneChar();
+			continue;
+		}
+
+		//ho trovato un ch di [src] che è == al primo ch di [whatToFind].
+		//Ora faccio un memcmp
+		const u32 bytesLeftSRC = src.getBytesLeft();
+		if (bytesLeftSRC >= whatToFindLEN)
+		{
+			if (0 == memcmp (src.getPointerToCurrentPosition(), whatToFind, whatToFindLEN))
+				return true;
+		}
+		
+		src.advanceOneChar();
+	}
+
+	return false;
+}
+
+
+//**************************************************
 void string::utf8::extractLine (Iter &srcIN, Iter *out_result)
 {
 	assert (out_result);

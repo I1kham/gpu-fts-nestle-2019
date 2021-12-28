@@ -102,6 +102,11 @@
 #define		CPUBRIDGE_NOTIFY_SNACK_EXIT_PROG					0x0149
 #define		CPUBRIDGE_NOTIFY_SNACK_GET_STATUS					0x014A
 #define		CPUBRIDGE_NOTIFY_BROWSER_URL_CHANGE					0x014B
+#define		CPUBRIDGE_NOTIFY_NETWORK_SETTINGS					0x014C
+#define		CPUBRIDGE_NOTIFY_MODEM_LTE_ENABLED					0x014D
+#define		CPUBRIDGE_NOTIFY_WIFI_SET_MODE_HOTSPOT				0x014E
+#define		CPUBRIDGE_NOTIFY_WIFI_SET_MODE_CONNECTTO			0x014F
+#define		CPUBRIDGE_NOTIFY_WIFI_GET_SSID_LIST					0x0150
 
 #define		CPUBRIDGE_NOTIFY_MAX_ALLOWED						0x01FF
 
@@ -197,6 +202,11 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_EXIT_PROG								0x0855
 #define		CPUBRIDGE_SUBSCRIBER_ASK_SNACK_GET_STATUS								0x0856
 #define		CPUBRIDGE_SUBSCRIBER_ASK_BROWSER_URL_CHANGE								0x0857
+#define		CPUBRIDGE_SUBSCRIBER_ASK_NETWORK_SETTINGS								0x0858
+#define		CPUBRIDGE_SUBSCRIBER_ASK_MODEM_LTE_ENABLE								0x0859
+#define		CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_HOTSPOT							0x085A
+#define		CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_CONNECTTO						0x085B
+#define		CPUBRIDGE_SUBSCRIBER_ASK_WIFI_GET_SSID_LIST								0x085C
 
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
@@ -548,6 +558,12 @@ namespace cpubridge
 		FoamType					= 0x07
 	};
 
+	enum class eWifiMode : u8
+	{
+		hotSpot = 0,
+		connectTo = 1
+	};
+
 	struct sSubscriber
 	{
 		HThreadMsgR	hFromMeToSubscriberR;
@@ -652,6 +668,19 @@ namespace cpubridge
 		u8				isInduzione;		//induzione o bollitore?
 		eCPUGruppoCaffe	tipoGruppoCaffe;
 	};
+
+	struct sNetworkSettings
+	{
+		u8			lanIP[16];
+		u8			wifiIP[16];
+		u8			macAddress[32];
+		u8			wifiHotSpotSSID[64];		//se [wifiMode] == hotspot, [wifiHotSpotSSID] indica il nome dell'hotspot creato
+		u8			wifiConnectTo_SSID[128];	//se [wifiMode] == connectTo, [wifiConnectTo_SSID] indica l'SSID alla quale collegarsi
+		u8			wifiConnectTo_pwd[128];		//se [wifiMode] == connectTo, [wifiConnectTo_pwd] indica la pwd da usare per la connessione
+		eWifiMode	wifiMode;					//se == connectTo, allora wifi è in modalità "connect to" e tenta di collegarsi alla rete [wifiConnectTo_SSID] con pwd [wifiConnectTo_pwd]
+		u8			wifiConnectTo_isConnected;	//se [wifiMode] == connectTo, allora [wifiConnectTo_isConnected]==1 se la connessione con SSID è stata stabilita
+		u8			isModemLTEEnabled;
+};
 
 	struct sCPUOffSingleEvent
 	{

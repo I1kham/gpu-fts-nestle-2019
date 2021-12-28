@@ -573,6 +573,20 @@ void Server::sendEvent (const HSokServerClient &h, eEventType eventType, const v
 }
 
 //***************************************************
+bool Server::isMotherboard_D23() const
+{
+#ifdef PLATFORM_ROCKCHIP
+	return true;
+#else
+	#ifdef _DEBUG
+		return true;
+	#else
+		return false;
+#endif
+#endif
+}
+
+//***************************************************
 void Server::formatSinglePrice(u16 price, u8 numDecimals, char *out, u16 sizeofOut) const
 {
 	const char DECIMAL_SEP = '.';
@@ -892,7 +906,6 @@ void Server::priv_onClientHasDataAvail(u8 iEvent, u64 timeNowMSec)
 
 void Server::priv_onClientHasDataAvail2(u64 timeNowMSec, HSokServerClient &h, const sIdentifiedClientInfo *identifiedClient, socketbridge::sDecodedMessage &decoded)
 {
-printf ("priv_onClientHasDataAvail2\n");
 	//se la socket in questione non è stata ancora bindata ad un client, allora il cliente mi deve per
 	//forza aver mandato un messaggio di tipo [eOpcode::request_idCode] oppure [eOpcode::identify_W], altrimenti killo la connessione.
 	//Se invece la socket è già  bindata ad un identified-client, nessun problema, passo ad analizzare il messaggio perchè il client è stato già  identificato ad 

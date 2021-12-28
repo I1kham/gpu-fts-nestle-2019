@@ -22,6 +22,7 @@ namespace socketbridge
 			    mModel: numero intero 8bit
 			    isInduzione: numero intero 8bit, vale 0 o 1
                 aliChina: numero intero 8bit, vale 0 o 1 che indica se il thread AlipayChina è stato lanciato
+                motherboard: variscite|D23
 		    }
      */
 

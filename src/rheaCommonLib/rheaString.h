@@ -160,6 +160,7 @@ namespace rhea
 				void				toLast();
 				bool				advanceOneChar();	//ritorna false quando si va oltre la fine
 				bool				backOneChar();		//ritorna false quando si va sotto zero
+				bool				advanceNChar(u32 n);//ritorna false quando si va oltre la fine
 			
 				const UTF8Char&		getCurChar() const												{ return curChar; }
 				const u8*			getPointerToCurrentPosition() const;
@@ -227,6 +228,10 @@ namespace rhea
 									All'uscita, src punta a EOL oppure al primo char subito dopo EOL (se bskipEOL=true), oppure a fine buffer
 								*/
 
+			bool			find (Iter &src, const u8 *whatToFind);
+			bool			find (Iter &src, const char *whatToFind);
+								//ritorna true se trova esattamente la stringa [whatToFind]. In questo caso, [src] punta al primo carattere dell'istanza di [whatToFind]
+								//Ritorna false altrimenti. In questo caso, [src] è avanzato fino a EOF
 
 
 			void			extractLine (Iter &src, Iter *out_result);

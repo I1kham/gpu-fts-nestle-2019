@@ -129,6 +129,9 @@ namespace rhea
 		void				fileCopyInChunkWithPreallocatedBuffer (FILE *fSRC, u32 numBytesToCopy, FILE *fDST, void *buffer, u32 BUFFER_SIZE);
 		u8*					fileCopyInMemory(const u8 *srcFullFileNameAndPath, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
 		u8*					fileCopyInMemory(FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer);
+		u32					fileReadInPreallocatedBuffer(const u8 *srcFullFileNameAndPath, void *dstBuffer, u32 sizeOfDstBuffer);
+								//apre il file srcFullFileNameAndPath e lo copia in [dstBuffer]. Se il filesize è > di [sizeOfDstBuffer], legge solo i primi [sizeOfDstBuffer] byte
+								//Ritorna il num di byte letti e memorizzati in [dstBuffer]
         u32					fileRead (FILE *f, void *out_buffer, u32 numBytesToRead);
         u32					fileWrite (FILE *f, const void *buffer, u32 numBytesToWrite);
 

@@ -113,3 +113,5 @@ MSVC19/rheaMedia2.0/build/
 MSVC19/rheaUnzip/build/
 MSVC19/SMU/build/
 MSVC19/SocketBridge/build/
+bin/SECOOs-services/keepMODEMdown
+bin/SECOOs-services/wpa_key

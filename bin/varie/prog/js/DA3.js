@@ -11,7 +11,7 @@ var DA3_BLOCK_SIZE = 64;
 	In teoria queste informazioni sono nel DA3, in pratica non è detto che quello che trovi nel DA3 rappresenti l'attuale macchina.
 	E' necessario quindi chiedere alla CPU tipo e modello e fare finta che queste informazioni ricevute dalla CPU siano davvero nel DA3
 */
-function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe, aliChinaActivated)
+function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe, aliChinaActivated, motherboard)
 {
 	console.log ("DA3: machineType[" +machineType +"], model[" +machineModel +"], isInduzione[" +isInduzione +"], grpCaffe[" +tipoGruppoCaffe +"]");
 	this.da3_original = null;
@@ -22,6 +22,11 @@ function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe, aliChinaAc
 	this.bInduzione = parseInt(isInduzione);
 	this.tipoGruppoCaffe = tipoGruppoCaffe;
 	this.aliChinaActivated = aliChinaActivated;
+	
+	if (typeof motherboard === 'undefined')
+		this.motherboard = "variscite";
+	else
+		this.motherboard = motherboard;
 }
 
 
@@ -65,6 +70,8 @@ function DA3_load_onEnd (theDa3, reasonRefused, obj)
 	
 }
 
+DA3.prototype.isMotherboardVariscite = function()					{ return this.motherboard == "variscite"; }
+DA3.prototype.isMotherboardD23 = function()							{ return this.motherboard == "D23"; }
 DA3.prototype.isProgMenuPinCodeEmpy = function() 					{ if (this.read16(7060) == 0) return 1; return 0; }
 DA3.prototype.validateProgMenuPinCode = function (pin)				{ if (pin == this.read16(7060) || pin==842) return 1; return 0; }
 DA3.prototype.isQuickMenuPinCodeEmpy = function() 					{ if (this.read16(8378) == 0) return 1; return 0; }

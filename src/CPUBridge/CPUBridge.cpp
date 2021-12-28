@@ -3216,3 +3216,158 @@ void cpubridge::translateNotify_SNACK_GET_STATUS(const rhea::thread::sMsg &msg, 
 	memcpy (out_selStatus1_48, &p[1], n);
 }
 
+//***************************************************
+void cpubridge::ask_CPU_GET_NETWORK_SETTINGS (const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_NETWORK_SETTINGS, handlerID, NULL, 0);
+}
+void cpubridge::notify_NETWORK_SETTINGS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sNetworkSettings *info)
+{
+	logger->log("notify_NETWORK_SETTINGS\n");
+	u8 optionalData[512];
+	u16 ct = 0;
+	
+	memset (optionalData, 0, sizeof(optionalData));
+	optionalData[ct++] = info->isModemLTEEnabled;
+	optionalData[ct++] = static_cast<u8>(info->wifiMode);
+	optionalData[ct++] = info->wifiConnectTo_isConnected;
+
+	memcpy (&optionalData[ct], info->lanIP, sizeof(info->lanIP));	ct += sizeof(info->lanIP);
+	memcpy (&optionalData[ct], info->wifiIP, sizeof(info->wifiIP));	ct += sizeof(info->wifiIP);
+	memcpy (&optionalData[ct], info->macAddress, sizeof(info->macAddress));	ct += sizeof(info->macAddress);
+	memcpy (&optionalData[ct], info->wifiHotSpotSSID, sizeof(info->wifiHotSpotSSID));	ct += sizeof(info->wifiHotSpotSSID);
+	memcpy (&optionalData[ct], info->wifiConnectTo_SSID, sizeof(info->wifiConnectTo_SSID));	ct += sizeof(info->wifiConnectTo_SSID);
+	memcpy (&optionalData[ct], info->wifiConnectTo_pwd, sizeof(info->wifiConnectTo_pwd));	ct += sizeof(info->wifiConnectTo_pwd);
+	
+	assert (ct < sizeof(optionalData));
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_NETWORK_SETTINGS, handlerID, optionalData, ct);
+}
+void cpubridge::translateNotify_NETWORK_SETTINGS (const rhea::thread::sMsg &msg, sNetworkSettings *out_result)
+{
+	assert (msg.what == CPUBRIDGE_NOTIFY_NETWORK_SETTINGS);
+	assert (NULL != out_result);
+	
+	const u8 *p = (const u8*)msg.buffer;
+	u16 ct = 0;
+	out_result->isModemLTEEnabled = p[ct++];
+	out_result->wifiMode = static_cast<cpubridge::eWifiMode>(p[ct++]);
+	out_result->wifiConnectTo_isConnected = p[ct++];
+
+	memcpy (out_result->lanIP, &p[ct], sizeof(out_result->lanIP));	ct += sizeof(out_result->lanIP);
+	memcpy (out_result->wifiIP, &p[ct], sizeof(out_result->wifiIP));	ct += sizeof(out_result->wifiIP);
+	memcpy (out_result->macAddress, &p[ct], sizeof(out_result->macAddress));	ct += sizeof(out_result->macAddress);
+	memcpy (out_result->wifiHotSpotSSID, &p[ct], sizeof(out_result->wifiHotSpotSSID));	ct += sizeof(out_result->wifiHotSpotSSID);
+	memcpy (out_result->wifiConnectTo_SSID, &p[ct], sizeof(out_result->wifiConnectTo_SSID));	ct += sizeof(out_result->wifiConnectTo_SSID);
+	memcpy (out_result->wifiConnectTo_pwd, &p[ct], sizeof(out_result->wifiConnectTo_pwd));	ct += sizeof(out_result->wifiConnectTo_pwd);
+}
+
+
+//***************************************************
+void cpubridge::ask_MODEM_LTE_ENABLE (const sSubscriber& from, u16 handlerID, bool bEnable)
+{
+	u8 buffer[4];
+	buffer[0] = 0;
+	if (bEnable)
+		buffer[0] = 0x01;
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_MODEM_LTE_ENABLE, handlerID, buffer, 1);
+}
+void cpubridge::translate_MODEM_LTE_ENABLE (const rhea::thread::sMsg& msg, bool *out_bEnable)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_MODEM_LTE_ENABLE);
+    const u8* p = (const u8*)msg.buffer;
+    *out_bEnable = false;
+	if (p[0] == 0x01)
+		*out_bEnable = true;
+}
+void cpubridge::notify_MODEM_LTE_ENABLE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bEnable)
+{
+	logger->log("notify_MODEM_LTE_ENABLE [%d]\n", bEnable?1:0);
+	u8 optionalData[4];
+	optionalData[0] = bEnable ? 1:0;
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_MODEM_LTE_ENABLED, handlerID, optionalData, 1);
+}
+void cpubridge::translateNotify_MODEM_LTE_ENABLE (const rhea::thread::sMsg &msg, bool *out_bEnable)
+{
+	assert (msg.what == CPUBRIDGE_NOTIFY_MODEM_LTE_ENABLED);
+	assert (NULL != out_bEnable);
+	
+	const u8 *p = (const u8*)msg.buffer;
+	if (p[0] == 0x00)
+		*out_bEnable = false;
+	else
+		*out_bEnable = true;
+}
+
+
+//***************************************************
+void cpubridge::ask_WIFI_SET_MODE_HOTSPOT  (const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_HOTSPOT, handlerID, NULL, 0);
+}
+void cpubridge::notify_WIFI_SET_MODE_HOTSPOT (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_WIFI_SET_MODE_HOTSPOT\n");
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WIFI_SET_MODE_HOTSPOT, handlerID, NULL, 0);
+}
+
+
+//***************************************************
+void cpubridge::ask_WIFI_SET_MODE_CONNECTTO  (const sSubscriber& from, u16 handlerID, const u8 *ssid, const u8 *pwd)
+{
+	assert (NULL != ssid);
+	assert (NULL != pwd);
+	const u8 lenSSID = static_cast<u8>(rhea::string::utf8::lengthInBytes(ssid));
+	const u8 lenPWD = static_cast<u8>(rhea::string::utf8::lengthInBytes(pwd));
+	
+	
+	u8 *buffer = RHEAALLOCT (u8*, rhea::getScrapAllocator(), lenSSID+lenPWD+4);
+	u32 ct = 0;
+	buffer[ct++] = lenSSID;
+	buffer[ct++] = lenPWD;
+	memcpy (&buffer[ct], ssid, lenSSID+1);
+	ct += lenSSID+1;
+	memcpy (&buffer[ct], pwd, lenPWD+1);
+	ct += lenPWD+1;
+
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_CONNECTTO, handlerID, buffer, ct);
+	RHEAFREE(rhea::getScrapAllocator(), buffer);
+}
+void cpubridge::translate_WIFI_SET_MODE_CONNECTTO (const rhea::thread::sMsg& msg, const u8 **out_ssid, const u8 **out_pwd)
+{
+    assert(msg.what == CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_CONNECTTO);
+    const u8* p = (const u8*)msg.buffer;
+    *out_ssid = &p[2];
+	*out_pwd = &p[3 + p[0]];
+}
+void cpubridge::notify_WIFI_SET_MODE_CONNECTTO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger)
+{
+	logger->log("notify_WIFI_SET_MODE_CONNECTTO\n");
+	rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WIFI_SET_MODE_CONNECTTO, handlerID, NULL, 0);
+}
+
+//***************************************************
+void cpubridge::ask_WIFI_GET_SSID_LIST  (const sSubscriber& from, u16 handlerID)
+{
+	rhea::thread::pushMsg(from.hFromSubscriberToMeW, CPUBRIDGE_SUBSCRIBER_ASK_WIFI_GET_SSID_LIST, handlerID, NULL, 0);
+}
+void cpubridge::notify_WIFI_GET_SSID_LIST (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 nSSID, const u8 *ssidList)
+{
+	logger->log("notify_WIFI_GET_SSID_LIST [nSSID=%d]\n", nSSID);
+	if (nSSID > 0)
+		rhea::thread::pushMsg2Buffer(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WIFI_GET_SSID_LIST, handlerID, &nSSID, 1, ssidList, rhea::string::utf8::lengthInBytes(ssidList)+1);
+	else
+		rhea::thread::pushMsg(to.hFromMeToSubscriberW, CPUBRIDGE_NOTIFY_WIFI_GET_SSID_LIST, handlerID, &nSSID, 1);
+}
+void cpubridge::translateNotify_WIFI_GET_SSID_LIST (const rhea::thread::sMsg& msg, u8 *out_nSSID, const u8 **out_ssidList)
+{
+	assert (msg.what == CPUBRIDGE_NOTIFY_WIFI_GET_SSID_LIST);
+	assert (NULL != out_nSSID);
+	assert (NULL != out_ssidList);
+	
+	const u8 *p = (const u8*)msg.buffer;
+	*out_nSSID = p[0];
+	if (p[0] > 0)
+		*out_ssidList = &p[1];
+	else
+		*out_ssidList = NULL;
+}

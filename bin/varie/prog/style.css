@@ -18,6 +18,7 @@
 *		{ font-family: "MyFont", "Roboto-Light", "Noto Sans CJK SC", "DejaVu Sans"; }
 html	{ background-color:#bbb; }
 body 	{ font-size:15px; background-color:#bbb; color:#fff; margin:0; padding:0;}
+html, body { overscroll-behavior-x: none; }
 form, div, input, h1, h2, h3, h4, h5	{ margin:0; padding:0; }
 table 	{ font-size:1.0em; }
 h1		{ font-size:1.3em; }	

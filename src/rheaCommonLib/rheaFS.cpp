@@ -600,6 +600,28 @@ u8* fs::fileCopyInMemory(const u8 *utf8_srcFullFileNameAndPath, rhea::Allocator 
 	return ret;
 }
 
+//*********************************************
+u32 fs::fileReadInPreallocatedBuffer (const u8 *srcFullFileNameAndPath, void *dstBuffer, u32 sizeOfDstBuffer)
+{
+	if (NULL == dstBuffer || 0 == sizeOfDstBuffer)
+	{
+		DBGBREAK;
+		return 0;
+	}
+
+	FILE *f = fs::fileOpenForReadBinary(srcFullFileNameAndPath);
+	if (NULL == f)
+		return 0;
+
+	const u32 fsize = static_cast<u32>(filesize(f));
+	u32 nToRead = fsize;
+	if (nToRead > sizeOfDstBuffer)
+		nToRead = sizeOfDstBuffer;
+	fileRead (f, dstBuffer, nToRead);
+	fileClose(f);
+	return nToRead;
+}
+
 
 //*********************************************
 u8* fs::fileCopyInMemory (FILE *f, rhea::Allocator *allocator, u32 *out_sizeOfAllocatedBuffer)

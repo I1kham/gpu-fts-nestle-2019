@@ -132,17 +132,30 @@ bool platform::runShellCommandNoWait (const u8 *fullPathExeName, const u8 *cmdLi
     memcpy (cmd, cmdLineParameters, n);
     cmd[n] = 0x00;
 
-    u32 i=0;
-    while (i < n)
+    if (cmd[0] != 0x00)
     {
-        if (cmd[i] == ' ')
+        argv[ct++] = reinterpret_cast<const char*>(cmd);
+
+        u32 i=0;
+        while (i < n)
         {
-            while (cmd[i] == ' ' && i<n)
-                cmd[i++] = 0x00;
-            argv[ct++] = reinterpret_cast<const char*>(&(cmd[i]));
+            if (cmd[i] == ' ')
+            {
+                while (cmd[i] == ' ' && i<n)
+                    cmd[i++] = 0x00;
+                argv[ct++] = reinterpret_cast<const char*>(&(cmd[i]));
+            }
+            i++;
         }
-        i++;
     }
+
+    /*for (u8 i=0; i<10; i++)
+    {
+        if (argv[i] != 0x00)
+            printf ("======arg %d: %s\n", i, argv[i]);
+    }
+    */
+
 
     /*devo togliere il path da argv[0]
     n = strlen(argv[0]);
@@ -276,9 +289,9 @@ bool platform::BROWSER_open (const u8 *url, bool bFullscreen)
 {
     u8 s[512];
     if (bFullscreen)
-       rhea::string::utf8::spf (s, sizeof(s), "--test-type --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito --kiosk %s", url);
+       rhea::string::utf8::spf (s, sizeof(s), "--no-sandbox --test-type --remote-debugging-port=9222 --disable-pinch --disable-session-crashed-bubble --overscroll-history-navigation=0 --incognito --kiosk %s", url);
     else
-        rhea::string::utf8::spf (s, sizeof(s), "--test-type %s", url);
+        rhea::string::utf8::spf (s, sizeof(s), "--no-sandbox --test-type %s", url);
     platform::runShellCommandNoWait (reinterpret_cast<const u8*>("chromium"), s, NULL);
     return true;
 }

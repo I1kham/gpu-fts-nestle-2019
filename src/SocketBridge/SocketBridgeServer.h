@@ -39,6 +39,9 @@ namespace socketbridge
 		const IdentifiedClientList*	getIdentifieidClientList() const							{ return &identifiedClientList; }
 
 
+		bool					isMotherboard_D23() const;
+
+
 								//============================== DB ===============================================
 		u16						DB_getOrCreateHandle (const u8 *utf8_fullFilePathAndName);
 								//ritorna 0 se non è possibile aprire il DB

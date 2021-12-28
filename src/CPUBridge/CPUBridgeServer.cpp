@@ -9,8 +9,14 @@
 #include "../rheaCommonLib/rheaLogTargetConsole.h"
 #include "EVADTSParser.h"
 #include "rhFSProtocol.h"
+#include "SECOOs.h"
 
 using namespace cpubridge;
+
+
+
+
+
 
 //***************************************************
 Server::Server()
@@ -1977,11 +1983,56 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 					else
 						memset (stato_sel_1_48, 0, sizeof(stato_sel_1_48));
 
-					notify_SNACK_GET_STATUS(sub->q, handlerID, logger, result, stato_sel_1_48);
+					notify_SNACK_GET_STATUS (sub->q, handlerID, logger, result, stato_sel_1_48);
 				}
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_NETWORK_SETTINGS:
+			{
+				sNetworkSettings info;
+				priv_retreiveNetworkSettings (&info);
+				notify_NETWORK_SETTINGS (sub->q, handlerID, logger, &info);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_MODEM_LTE_ENABLE:
+			{
+				bool bEnable;
+				cpubridge::translate_MODEM_LTE_ENABLE (msg, &bEnable);
+				secoos::modemLTE::enable (bEnable);
+				notify_MODEM_LTE_ENABLE (sub->q, handlerID, logger, bEnable);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_HOTSPOT:
+			secoos::wifi::setModeHotspot ();
+			notify_WIFI_SET_MODE_HOTSPOT (sub->q, handlerID, logger);
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_CONNECTTO:
+			{
+				const u8 *ssid = NULL;
+				const u8 *pwd = NULL;
+				cpubridge::translate_WIFI_SET_MODE_CONNECTTO (msg, &ssid, &pwd);
+				secoos::wifi::setModeConnectTo (ssid, pwd);
+				notify_WIFI_SET_MODE_CONNECTTO (sub->q, handlerID, logger);
+			}
+			break;
+
+		case CPUBRIDGE_SUBSCRIBER_ASK_WIFI_GET_SSID_LIST:
+			{
+				u32 nSSID = 0;
+				u8 *ssidList = secoos::wifi::getListOfAvailableSSID (rhea::getScrapAllocator(), &nSSID);
+				if (NULL == ssidList)
+					notify_WIFI_GET_SSID_LIST (sub->q, handlerID, logger, 0, NULL);
+				else
+				{
+					notify_WIFI_GET_SSID_LIST (sub->q, handlerID, logger, static_cast<u8>(nSSID), ssidList);
+					RHEAFREE(rhea::getScrapAllocator(), ssidList);
+				}
+			}
+			break;
 		} //switch (msg.what)
 
 		rhea::thread::deleteMsg(msg);
@@ -4907,3 +4958,56 @@ void Server::priv_telemetry_sendDecounters()
 	rsProto->sendDecounterOther (RSProto::eDecounter::COFFEE_GROUND, decounters[12], logger);
 }
 
+
+//*********************************************************
+void Server::priv_retreiveNetworkSettings (sNetworkSettings *out) const
+{
+	assert (NULL != out);
+	memset (out, 0, sizeof(sNetworkSettings));
+
+	//mac address
+	secoos::getMACAddress (out->macAddress, sizeof(out->macAddress));
+
+	//lan ip
+	secoos::getLANAddress (out->lanIP, sizeof(out->lanIP));
+
+	//modem LTE attivo?
+	if (secoos::modemLTE::isEnabled())
+		out->isModemLTEEnabled = 1;
+	else
+		out->isModemLTEEnabled = 0;
+
+	//wifi mode
+	out->wifiMode = secoos::wifi::getMode();
+	if (eWifiMode::connectTo == out->wifiMode)
+	{
+		//wifi IP
+		secoos::wifi::connectTo_getIP (out->wifiIP, sizeof(out->wifiIP));
+		if (secoos::wifi::connectTo_isConnected ())
+			out->wifiConnectTo_isConnected = 1;
+
+		//wifi-ssid
+		secoos::wifi::connectTo_getSSID (out->wifiConnectTo_SSID, sizeof(out->wifiConnectTo_SSID));
+		secoos::wifi::connectTo_getPwd (out->wifiConnectTo_pwd, sizeof(out->wifiConnectTo_pwd));
+
+		//nome hotspot wifi
+		out->wifiHotSpotSSID[0] = 0x00;
+	}
+	else
+	{
+		out->wifiMode = eWifiMode::hotSpot;
+
+		//wifi IP
+		out->wifiIP[0] = 0x00;
+
+		//wifi-ssid
+		out->wifiConnectTo_SSID[0] = 0x00;
+		out->wifiConnectTo_pwd[0] = 0x00;
+
+		//nome hotspot wifi
+		secoos::wifi::hotspot_getSSID (out->wifiHotSpotSSID, sizeof(out->wifiHotSpotSSID));
+	}
+
+
+//#endif
+}

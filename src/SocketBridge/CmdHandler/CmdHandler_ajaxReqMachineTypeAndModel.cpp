@@ -21,7 +21,14 @@ void CmdHandler_ajaxReqMachineTypeAndModel::onCPUBridgeNotification (socketbridg
 	if (server->module_alipayChina_hasBeenActivated())
 		alipayChinaActive = 1;
 
+	char motherboard[32];
+	if (server->isMotherboard_D23())
+		sprintf_s (motherboard, sizeof(motherboard), "D23");
+	else
+		sprintf_s (motherboard, sizeof(motherboard), "variscite");
+
+
 	char resp[128];
-	sprintf_s(resp, sizeof(resp), "{\"mType\":%d,\"mModel\":%d,\"isInduzione\":%d,\"gruppo\":\"%c\",\"aliChina\":%d}", (u8)info.machineType, info.machineModel, info.isInduzione, (char)info.tipoGruppoCaffe, alipayChinaActive);
+	sprintf_s(resp, sizeof(resp), "{\"mType\":%d,\"mModel\":%d,\"isInduzione\":%d,\"gruppo\":\"%c\",\"aliChina\":%d,\"motherboard\":\"%s\"}", (u8)info.machineType, info.machineModel, info.isInduzione, (char)info.tipoGruppoCaffe, alipayChinaActive, motherboard);
 	server->sendAjaxAnwer(hClient, ajaxRequestID, (const u8*)resp, (u16)strlen(resp));
 }

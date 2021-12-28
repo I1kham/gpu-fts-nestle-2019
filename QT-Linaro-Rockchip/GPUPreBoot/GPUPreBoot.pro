@@ -43,7 +43,7 @@ CONFIG(release, debug|release) {
 	QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable
 }
 
-
+QMAKE_CXXFLAGS += -Wno-deprecated-copy
 CONFIG(release, debug|release) {
 	QMAKE_CXXFLAGS += -O2
 	QMAKE_CFLAGS += -O2

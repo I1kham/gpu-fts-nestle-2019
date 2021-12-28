@@ -732,9 +732,28 @@ namespace cpubridge
 
 	void		ask_SNACK_EXIT_PROG (const sSubscriber& from, u16 handlerID);
 	void		notify_SNACK_EXIT_PROG (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool result);
-	void		translateNotify_SNACK_EXIT_PROG(const rhea::thread::sMsg &msg, bool *out_result);
+	void		translateNotify_SNACK_EXIT_PROG (const rhea::thread::sMsg &msg, bool *out_result);
 
+	void		ask_CPU_GET_NETWORK_SETTINGS (const sSubscriber& from, u16 handlerID);
+	void		notify_NETWORK_SETTINGS (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, const sNetworkSettings *info);
+	void		translateNotify_NETWORK_SETTINGS (const rhea::thread::sMsg &msg, sNetworkSettings *out_result);
+		
+	void		ask_MODEM_LTE_ENABLE (const sSubscriber& from, u16 handlerID, bool bEnable);
+	void		translate_MODEM_LTE_ENABLE (const rhea::thread::sMsg& msg, bool *out_bEnable);
+	void		notify_MODEM_LTE_ENABLE (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, bool bEnable);
+	void		translateNotify_MODEM_LTE_ENABLE (const rhea::thread::sMsg &msg, bool *out_bEnable);
+	
+	void		ask_WIFI_SET_MODE_HOTSPOT  (const sSubscriber& from, u16 handlerID);
+	void		notify_WIFI_SET_MODE_HOTSPOT (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
 
+	void		ask_WIFI_SET_MODE_CONNECTTO  (const sSubscriber& from, u16 handlerID, const u8 *ssid, const u8 *pwd);
+	void		translate_WIFI_SET_MODE_CONNECTTO (const rhea::thread::sMsg& msg, const u8 **out_ssid, const u8 **out_pwd);
+	void		notify_WIFI_SET_MODE_CONNECTTO (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger);
+	
+	void		ask_WIFI_GET_SSID_LIST  (const sSubscriber& from, u16 handlerID);
+	void		notify_WIFI_GET_SSID_LIST (const sSubscriber &to, u16 handlerID, rhea::ISimpleLogger *logger, u8 nSSID, const u8 *ssidList);
+	void		translateNotify_WIFI_GET_SSID_LIST (const rhea::thread::sMsg& msg, u8 *out_nSSID, const u8 **out_ssidList);
+					//out_ssidList è un elenco di SSID separati da \n
 } // namespace cpubridge
 
 #endif // _CPUBridge_h_

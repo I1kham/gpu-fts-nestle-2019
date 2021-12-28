@@ -71,6 +71,17 @@ bool string::utf8::Iter::advanceOneChar()
 }
 
 //**************************************************
+bool string::utf8::Iter::advanceNChar(u32 n)
+{
+	while (n--)
+	{
+		if (!advanceOneChar())
+			return false;
+	}
+	return true;
+}
+
+//**************************************************
 bool string::utf8::Iter::backOneChar()
 {
 	if (cursorPos == 0 || seq_length==0)

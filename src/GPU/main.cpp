@@ -114,8 +114,8 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
         //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open("/dev/ttyS0", logger);
     #else
         //apro un canale con la CPU fisica
-        cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
-        //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+        //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
+        cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
     #endif
 #else
     //apro un canale di comunicazione con una finta CPU
@@ -350,13 +350,27 @@ void run(int argc, char *argv[])
     }
 
     //faccio partire RSProto per la telemetria con SECO
-#ifdef _DEBUG
-    rhea::shell_runCommandNoWait ("./UBUNTU_DEBUG_SecoBridge 127.0.0.1 2283");
-#else
-    #ifdef PLATFORM_YOCTO_EMBEDDED
-        rhea::shell_runCommandNoWait ("./RSProto 127.0.0.1 2283");
+    {
+        u8 rsProtoExe[512];
+
+        rsProtoExe[0] = 0x00;
+#if defined(PLATFORM_UBUNTU_DESKTOP)
+        rhea::string::utf8::spf (rsProtoExe, sizeof(rsProtoExe), "%s/UBUNTU_DEBUG_SecoBridge", rhea::getPhysicalPathToAppFolder());
+#elif defined(PLATFORM_YOCTO_EMBEDDED)
+        rhea::string::utf8::spf (rsProtoExe, sizeof(rsProtoExe), "%s/RSProto", rhea::getPhysicalPathToAppFolder());
+#elif defined(PLATFORM_ROCKCHIP)
+    #ifdef _DEBUG
+        rhea::string::utf8::spf (rsProtoExe, sizeof(rsProtoExe), "%s/ROCKCHIP_DEBUG_SecoBridge", rhea::getPhysicalPathToAppFolder());
+    #else
+        rhea::string::utf8::spf (rsProtoExe, sizeof(rsProtoExe), "%s/ROCKCHIP_RELEASE_SecoBridge", rhea::getPhysicalPathToAppFolder());
     #endif
 #endif
+
+        if (rsProtoExe[0] != 0x00)
+        {
+            rhea::runShellCommandNoWait (rsProtoExe, (const u8*)"127.0.0.1 2283", NULL);
+        }
+    }
 
     //Avvio del main form
     //QtWebView::initialize();

@@ -285,6 +285,8 @@ namespace cpubridge
         eActionResult           priv_runAction_rebootASAP();
         eActionResult           priv_runAction_downloadEVADTSAndAnswerToRSProto();
 
+		void					priv_retreiveNetworkSettings (sNetworkSettings *out) const;
+
 	private:
 		rhea::Allocator				*localAllocator;
 		rhea::ISimpleLogger			*logger;
