@@ -29,6 +29,8 @@ MainWindow::MainWindow (sGlobal *globIN) :
     utils::hideMouse();
 #endif
 
+    this->move(QPoint(0,0));
+
     //Settaggi del browser
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::AutoLoadImages, true);

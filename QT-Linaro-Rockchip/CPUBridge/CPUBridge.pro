@@ -18,7 +18,7 @@ contains(DEFINES, PLATFORM_ROCKCHIP) {
 THIS_LIBRARY_NAME="CPUBridge"
 
 message ("$${THIS_LIBRARY_NAME}: configuration is $${CONFIG_NAME}")
-	PATH_TO_ROOT = "../../../.."
+        PATH_TO_ROOT = "/data/dev/gpu-fts-nestle-2019"
 	PATH_TO_BIN = "$${PATH_TO_ROOT}/bin"
 	PATH_TO_SRC = "$${PATH_TO_ROOT}/src"
 	PATH_TO_LIB = "$${PATH_TO_ROOT}/lib"
@@ -50,6 +50,7 @@ SOURCES += \
     ../../src/CPUBridge/CPUChannelFakeCPU.cpp \
     ../../src/CPUBridge/DA3.cpp \
     ../../src/CPUBridge/EVADTSParser.cpp \
+    ../../src/CPUBridge/SECOOs.cpp \
     ../../src/CPUBridge/lang.cpp \
     ../../src/CPUBridge/rhFSProtocol.cpp \
     ../../src/CPUBridge/RSProto.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
     ../../src/CPUBridge/CPUChannelFakeCPU.h \
     ../../src/CPUBridge/DA3.h \
     ../../src/CPUBridge/EVADTSParser.h \
+    ../../src/CPUBridge/SECOOs.h \
     ../../src/CPUBridge/lang.h \
     ../../src/CPUBridge/rhFSProtocol.h \
     ../../src/CPUBridge/rhFSProtocolEnumAndDefine.h \

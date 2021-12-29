@@ -114,8 +114,8 @@ bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logg
         //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open("/dev/ttyS0", logger);
     #else
         //apro un canale con la CPU fisica
-        //cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
-        cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
+        cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom(); bool b = chToCPU->open(CPU_COMPORT, logger);
+        //cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);
     #endif
 #else
     //apro un canale di comunicazione con una finta CPU
@@ -212,15 +212,9 @@ void setupFolderInformation (sGlobal *glob)
     rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
 #elif defined(PLATFORM_ROCKCHIP)
     //nel caso della SECO, la cartella /media/SDA1 esiste sempre perchè fa parte del FS.
-    //Per capire se c'è o no la chiavetta, devo invocare la shell usando "mount | grep -c sda1". Questo comando ritorna 0 se non c'è chiavetta montata, 1 se c'è.
-    //Se non c'è, metto un percorso sbagliato in baseUSBFolder per simulare il fatto che la cartella preposta ad ospitare
-    //la chiave USB non esiste
-
-    //const int isUSBMounted = system("mount | grep -c sda1");
-    char isUSBMounted[8];
-    memset (isUSBMounted, 0, sizeof(isUSBMounted));
-    executeShellCommandAndStoreResult ("/bin/mount | /bin/grep -c sda1", isUSBMounted, sizeof(isUSBMounted));
-    if (isUSBMounted[0] == '1')
+    //Per capire se c'è o no la chiavetta, verifico l'esistenza della cartella /media/SDA1/rhea
+    rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), "%s/rhea", USB_MOUNTPOINT);
+    if (rhea::fs::folderExists((baseUSBFolder)))
         rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), USB_MOUNTPOINT);
     else
         rhea::string::utf8::spf (baseUSBFolder, sizeof(baseUSBFolder), "xxx");

@@ -61,7 +61,7 @@ contains(DEFINES, PLATFORM_RASPI) {
 THIS_LIBRARY_NAME="SocketBridge"
 
 message ("$${THIS_LIBRARY_NAME}: configuration is $${CONFIG_NAME}")
-	PATH_TO_ROOT = "../../../.."
+        PATH_TO_ROOT = "/data/dev/gpu-fts-nestle-2019"
 	PATH_TO_BIN = "$${PATH_TO_ROOT}/bin"
 	PATH_TO_SRC = "$${PATH_TO_ROOT}/src"
 	PATH_TO_LIB = "$${PATH_TO_ROOT}/lib"
@@ -125,13 +125,17 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqJugRepetitions.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqLTEModemEnable.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMachineTypeAndModel.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMilkerType.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqNetworkSettings.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSelAvailability.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSelPrices.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskSpawn.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTestSelection.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqWiFiGetSSIDList.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqWiFiSetMode.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_abort.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_activate.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getConnDetail.h \
@@ -246,13 +250,17 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqGetLastInstalledGUIFilename.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqIsManualInstalled.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqJugRepetitions.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqLTEModemEnable.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMachineTypeAndModel.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqMilkerType.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqNetworkSettings.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSelAvailability.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqSelPrices.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskSpawn.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTaskStatus.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqTestSelection.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqWiFiGetSSIDList.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReqWiFiSetMode.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_abort.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_activate.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_AliChina_getConnDetail.cpp \
@@ -345,3 +353,4 @@ SOURCES += \
     ../../src/SocketBridge/SocketBridgeTask.cpp \
     ../../src/SocketBridge/SocketBridgeTaskFactory.cpp \
     ../../src/SocketBridge/SocketBridgeTaskStatus.cpp
+

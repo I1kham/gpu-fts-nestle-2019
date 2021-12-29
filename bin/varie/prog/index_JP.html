@@ -5,6 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="keyboard.css" rel="stylesheet" type="text/css">
 </head>
 
 <body onLoad="rheaBootstrap()">
@@ -37,6 +38,23 @@
 			<div style="position:absolute; top:450px; left:20px;"><div class="UIButton bigButton3x4" onclick="areYouSure_onBtnNO()"><p>ナンバー</p></div></div>
 		</div>
 	</div> <!-- modal "are you sure" -->
+	
+	<!--modal wifi password -->
+	<div id="pagePasswordForWiFi" class="pagePleaseWait" style="background-color:rgba(0,0,0,0.95)">
+		<div class="page">
+			<div id="pagePasswordForWiFi_pwd" style="margin-top:60px; padding:10px">
+				PASSWORD:
+				<input type='text' id='txtPasswordForWiFi' class='UITextInputBox use-keyboard-input' style='width:800px;'>
+				<div style="margin-left:600px"><div class="UIButton bigButton3x4" onclick="pageDevices_network_onWiFiPwdEntered()"><p>OK</p></div></div>
+			</div>
+			
+			<div id="pagePasswordForWiFi_list" class="UISelectFullPage" style="padding:10px">
+				<div id="pagePasswordForWiFi_list_cnt"></div>
+				<div style="position:absolute; top:5px; right:25px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="javascript:pageDevices_network_hidePagePasswordWiFi()"></div>
+			</div>
+		</div>
+	</div>	<!--modal wifi password -->
+	
 	
 	<div id="pagePleaseWait" class="pagePleaseWait">
 		<div id="pagePleaseWait_header_left" class="pagePleaseWait_header_left"></div>
@@ -135,7 +153,7 @@
 		</div>
 	</div>
 	
-	<div id="UISelectFullPage">
+	<div id="UISelectFullPage" class="UISelectFullPage">
 		<div id="UISelectFullPage_cnt" style="padding:10px"></div>
 		<div style="position:absolute; top:5px; right:5px"><img src="img/close32x32.png" style="width:48px" draggable='false' onmousedown="javascript:UISelect_hideFullPage()"></div>
 	</div>
@@ -1589,6 +1607,11 @@
 	<div class='manualViewBox_close' onclick='manualViewBox_close()'><img src='img/close32x32.png'></div>
 </div>
 
+
+
+
+
+
 <script src="js/Helper.js"></script>
 <script src="js/PleaseWait.js"></script>
 <script src="js/DataOra.js"></script>
@@ -1601,10 +1624,8 @@
 <script src="js/UITime24.js"></script>
 <script src="js/UISelect.js"></script>
 <script src="js/StartupOperation.js"></script>
+<script src="js/keyboard.js"></script>
 <script src="js/Task_JP.js"></script> <!-- questo viene automaticamente sostituito da Task_CUR_LANG.js quando si lancia il prg di traduzione -->
-
-
-
 
 
 
@@ -4044,7 +4065,6 @@ function pageDevices_vgrind_runSelection_onFinish2()
 
 var pageDevices_vgrind_lastFlux = -1;
 var pageDevices_vgrind_lastPos = -1
-var pageDevice_handlerRefreshNetSettings = null;
 function pageDevices_vgrind_setLastFluxAndPos(flux, pos)
 {
 	pageDevices_vgrind_lastFlux = flux;
@@ -4119,6 +4139,25 @@ function pageDevices_startBrewmaticVibrationTest()
 	currentTask.runScivoloBrewmatic (perc0_100);
 }
 
+function pageDevices_network_onFirstTimeShow()
+{
+	pleaseWait_show();
+	pleaseWait_freeText_setText("Retrieving LAN settings...");
+	pleaseWait_freeText_show();
+	
+	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_lanIP"), "");
+	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_wifiIP"), "");
+	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_mac"), "");
+	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_ssid"), "");
+
+	pageDevices_network_stopForeverRefresh();
+	pageDevices_network_refresh( () => {
+		pleaseWait_hide();		
+		pageDevices_network_startForeverRefresh();
+	});
+}
+
+var pageDevice_handlerRefreshNetSettings = null;
 function pageDevices_network_startForeverRefresh()
 {
 	if (null == pageDevice_handlerRefreshNetSettings)
@@ -4139,23 +4178,28 @@ function pageDevices_network_stopForeverRefresh()
 	}
 }
 
-function pageDevices_network_onFirstTimeShow()
+var pageDevice_handlerRefreshWifiSSID = null;
+function pageDevices_network_startForeverSSIDRefresh()
 {
-	pleaseWait_show();
-	pleaseWait_freeText_setText("Retrieving LAN settings...");
-	pleaseWait_freeText_show();
-	
-	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_lanIP"), "");
-	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_wifiIP"), "");
-	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_mac"), "");
-	rheaSetElemHTML(rheaGetElemByID("pageDevices_network_ssid"), "");
-
-	pageDevices_network_stopForeverRefresh();
-	pageDevices_network_refresh( () => {
-		pleaseWait_hide();		
-		pageDevices_network_startForeverRefresh();
-	});
+	if (null == pageDevice_handlerRefreshWifiSSID)
+	{
+		console.log ("START SSID REFRESH");
+		pageDevices_network_onScanWIFISSID_step2();
+		pageDevice_handlerRefreshWifiSSID = setInterval (pageDevices_network_onScanWIFISSID_step2, 5000);
+	}
 }
+
+function pageDevices_network_stopForeverSSIDRefresh()
+{
+	if (null != pageDevice_handlerRefreshWifiSSID)
+	{
+		console.log ("STOP SSID REFRESH");
+		clearInterval (pageDevice_handlerRefreshWifiSSID);
+		pageDevice_handlerRefreshWifiSSID = null;
+	}
+}
+
+
 
 function pageDevices_network_refresh(callback)
 {
@@ -4175,10 +4219,13 @@ function pageDevices_network_refresh(callback)
 		win.getChildByID("pageDevices_network_WIFISelector").selectOptionByValue(wifiMode);
 		
 		var wifiSSID = data.wifiSSID +"&nbsp;&nbsp;"; 
-		if (parseInt(data.wifiConnected) == 1)
-			wifiSSID += "<span style='color:#0f0'>connected</span>";
-		else
-			wifiSSID += "<span style='color:#f00'>connecting...</span>";
+		if (data.wifiSSID != "")
+		{
+			if (parseInt(data.wifiConnected) == 1)
+				wifiSSID += "<span style='color:#0f0'>connected</span>";
+			else
+				wifiSSID += "<span style='color:#f00'>connecting...</span>";
+		}
 		rheaSetElemHTML(rheaGetElemByID("pageDevices_network_WIFI_ssid"), wifiSSID);
 		rheaSetElemHTML(rheaGetElemByID("pageDevices_network_WIFI_ssidPwd"), data.wifiPwd);
 		pageDevices_network_showHideStuff();
@@ -4246,6 +4293,9 @@ function pageDevices_network_onWIFISelector2 (ssid_canBeUndefined, pwd_canBeUnde
 		if (typeof pwd_canBeUndefined !== undefined)
 			pwd = pwd_canBeUndefined;
 			
+			
+console.log ("onWIFISelector2 [ssid=" +ssid +"][pwd=" +pwd +"]");
+			
 		rheaSetElemHTML(rheaGetElemByID("pageDevices_network_WIFI_ssid"), ssid);
 		rheaSetElemHTML(rheaGetElemByID("pageDevices_network_WIFI_ssidPwd"), pwd);
 		rhea.ajax ("wifiSetMode", { "mode":1, "SSID":ssid, "pwd":pwd }).then( function(result)
@@ -4300,7 +4350,7 @@ function pageDevices_network_onScanWIFISSID_step2()
 	rhea.ajax ("wifiGetSSIDList", "").then( function(result)
 	{
 		pleaseWait_hide();
-		pageDevices_network_startForeverRefresh();
+		//pageDevices_network_startForeverRefresh();
 		
 		console.log ("wifiGetSSIDList => " +result);
 		var data = JSON.parse(result);
@@ -4308,34 +4358,63 @@ function pageDevices_network_onScanWIFISSID_step2()
 		var nSSID = parseInt(data.n);
 		var ssidList = data.list.split("|");
 		
-		var html = "<ul>";
-		for (var i=0; i<nSSID; i++)	
-			html += "<li onmousedown='pageDevices_network_onWiFiSSIDChoosen(\""+ ssidList[i] +"\")'>" +ssidList[i] +"</li>";
-		html += "</ul>";
-		rheaSetDivHTMLByName("UISelectFullPage_cnt", html);
-		rheaShowElem (rheaGetElemByID("UISelectFullPage"));		
+		var html = "";
 		
+		if (nSSID == 0)
+			html = "Searching for SSID...";
+		else
+		{
+			html = "<ul>";
+			for (var i=0; i<nSSID; i++)	
+				html += "<li onmousedown='pageDevices_network_onWiFiSSIDChoosen(\""+ ssidList[i] +"\")'>" +ssidList[i] +"</li>";
+			html += "</ul>";
+		}
+		rheaSetDivHTMLByName("pagePasswordForWiFi_list_cnt", html);
+		rheaShowElem (rheaGetElemByID("pagePasswordForWiFi_list"));
+		rheaHideElem (rheaGetElemByID("pagePasswordForWiFi_pwd"));
+		rheaShowElem (rheaGetElemByID("pagePasswordForWiFi"));
+		
+		pageDevices_network_startForeverSSIDRefresh();		
 	})
 	.catch( function(result)
 	{
 		pleaseWait_hide();
-		pageDevices_network_startForeverRefresh();
+		//pageDevices_network_startForeverRefresh();
 		console.log ("AJAX wifiGetSSIDList::ERR = " +result);
+		pageDevices_network_startForeverSSIDRefresh();		
 	});	
 }
 
+var pageDevices_ssidName = "";
 function pageDevices_network_onWiFiSSIDChoosen (ssidName)
 {
-	console.log ("SSID=" +ssidName);
-	
+	//E' stata scelta una rete SSID, chiedo di inserire la pwd
+	pageDevices_ssidName = ssidName;
 	pageDevices_network_stopForeverRefresh();
-	rheaHideElem (rheaGetElemByID("UISelectFullPage"));
-	var ssidPwd = "";
-	if (ssidName == "rheaguest")
-		ssidPwd = "rhea*02mag21";
-	pageDevices_network_onWIFISelector2 (ssidName, ssidPwd);	
+	pageDevices_network_stopForeverSSIDRefresh();
+
+	rheaHideElem (rheaGetElemByID("pagePasswordForWiFi_list"));
+	rheaGetElemByID("txtPasswordForWiFi").value = "";
+	rheaShowElem (rheaGetElemByID("pagePasswordForWiFi_pwd"));
+	rheaShowElem(rheaGetElemByID("pagePasswordForWiFi"));
 }
 
+function pageDevices_network_onWiFiPwdEntered ()
+{
+	var ssidPwd = rheaGetElemByID("txtPasswordForWiFi").value;
+	pageDevices_network_hidePagePasswordWiFi();
+	if (pageDevices_ssidName == "rheaguest" && ssidPwd=="")
+		ssidPwd = "rhea*02mag21";
+	pageDevices_network_onWIFISelector2 (pageDevices_ssidName, ssidPwd);	
+}
+
+function pageDevices_network_hidePagePasswordWiFi ()
+{
+	pageDevices_network_stopForeverSSIDRefresh();
+	pageDevices_network_stopForeverRefresh();
+	pageDevices_network_startForeverRefresh();
+	rheaHideElem(rheaGetElemByID("pagePasswordForWiFi"));
+}
 
 /***************************************************************************
  *

@@ -75,14 +75,11 @@ a:hover	{ text-decoration:none; outline: 0; }
 .UIButtonSel table td { vertical-align:top; color:#000; font-size:1.0em;}
 .UIButtonSel table td img { margin-bottom:6px;}
 
-
-
-
-
 .UIButton:active { background-color:#858585; color:#000; }
 .UIButton.UIdisabled:active {background-color:#222; color:#181818; }
 
-
+.UIText 		{ }
+.UITextInputBox { border:solid 1px #656565; margin:3px 0 3px 0; background-color:#111; color:#fff; padding:2px; font-size:1.4em; }
 
 .tip { font-size:0.8em; font-style:italic; color:#555; }
 .bigCaption25 { color:#fff; font-size:2.5em; }
@@ -145,9 +142,9 @@ table.dataAudit tr.rowTot {background-color:#005f00; }
 table.dataAudit tr.rowTot td { color:#fff; }
 table.dataAudit tr.rowAllZero td { color:#666; font-size:0.7em; padding:2px; }
 
-#UISelectFullPage { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
-#UISelectFullPage ul { list-style-type:none; margin:0; padding:0;}
-#UISelectFullPage ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }
+.UISelectFullPage { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
+.UISelectFullPage ul { list-style-type:none; margin:0; padding:0;}
+.UISelectFullPage ul li { margin:0; padding:10px 0 10px 0; font-size:1.5em; border-bottom: solid 1px #656565; cursor:pointer; }
 
 #divMenuLang { display:none; position:absolute; top:0; left:0; background-color:rgba(0,0,0,0.8); width:1024px; height:600px; z-index:999; color:#fff; font-size:1.0em; }
 #divMenuLang ul { list-style-type:none; margin:0; padding:0;}

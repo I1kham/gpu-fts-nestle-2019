@@ -237,7 +237,8 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 		this.childList[childNum] =  new UIButton(this.id, childNum, nodeList[i]);
 		childNum++;
 	}
-	
+
+
 	var nodeList = elemContent.querySelectorAll(":scope div.UIButtonSel");
 	for (var i = 0; i < nodeList.length; i++)
 	{
@@ -296,6 +297,7 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	
 	theWrapper.innerHTML += html;
 	theWrapper.querySelector("#" +me.divIDArrowDown).style.display = "block";
+
 
 	elemContent = document.getElementById(this.contentID);
 	me.info = new UIWindowScrollable(elemContent, contentH, wrapperH);
@@ -386,6 +388,11 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 		this.childList[i].bindEvents();	
 	
 	this.showHideScrollBar();
+	
+	
+	console.log ("main=" +Keyboard.elements.main);
+	if (Keyboard.elements.main === null)
+		Keyboard.init ("EN");
 }
 
 

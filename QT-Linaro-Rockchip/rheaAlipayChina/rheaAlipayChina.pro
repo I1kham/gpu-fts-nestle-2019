@@ -18,7 +18,7 @@ contains(DEFINES, PLATFORM_ROCKCHIP) {
 THIS_LIBRARY_NAME="rheaAlipayChina"
 
 message ("$${THIS_LIBRARY_NAME}: configuration is $${CONFIG_NAME}")
-	PATH_TO_ROOT = "../../../.."
+        PATH_TO_ROOT = "/data/dev/gpu-fts-nestle-2019"
 	PATH_TO_BIN = "$${PATH_TO_ROOT}/bin"
 	PATH_TO_SRC = "$${PATH_TO_ROOT}/src"
 	PATH_TO_LIB = "$${PATH_TO_ROOT}/lib"

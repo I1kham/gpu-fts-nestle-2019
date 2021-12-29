@@ -1,0 +1,256 @@
+[data-rhea-keyboard-element="true"].keyboard {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 5px 0;
+    background: #111;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    user-select: none;
+    transition: bottom 0.4s;
+	z-index: 9999;
+}
+
+[data-rhea-keyboard-element="true"].keyboard--hidden {
+    bottom: -100%;
+}
+
+
+[data-rhea-keyboard-element="true"]
+.key__container {
+    position: relative;
+    width: 100%;
+}
+
+[data-rhea-keyboard-element="true"]
+.key__container.left {
+    text-align: left;
+    padding-left: 10px;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__keys {
+    text-align: center;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key {
+    height: 45px;
+    width: 6%;
+    max-width: 65px;
+    margin: 3px;
+    border-radius: 4px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 1.05rem;
+    outline: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: top;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+[data-rhea-keyboard-element="true"]
+.key__container .std {
+    width: 6%;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    height: 45px;
+}
+
+[data-rhea-keyboard-element="true"]
+.key__sup.disabled {
+    color: #111;
+}
+
+[data-rhea-keyboard-element="true"]
+.key__sub.disabled {
+    color: #111;
+}
+
+[data-rhea-keyboard-element="true"]
+.std.altgr {
+    color: #111;
+}
+
+[data-rhea-keyboard-element="true"]
+.key__sup.altgr {
+    color: #111;
+}
+
+[data-rhea-keyboard-element="true"]
+.key__sub.altgr {
+    color: #111;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key__altgr.altgr {
+    color: #111;
+}
+
+[data-rhea-keyboard-element="true"]
+.accent {
+    color: #111;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key.mini {
+    height: 25px!important;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key:active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key--wide {
+    width: 10%;
+    max-width: 90px;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key--extra-wide {
+    width: 36%;
+    max-width: 500px;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key--activatable::after {
+    content: '';
+    top: 5px;
+    right: 5px;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key--active::after {
+    background: #08ff00;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key--dark {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key.invisible {
+    visibility: hidden;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key__altgr {
+    position: absolute;
+    bottom: 0;
+    right: 5px;
+}
+
+[data-rhea-keyboard-element="true"]
+.keyboard__key__altgrsup {
+	position: absolute;
+    top: 0;
+    right: 5px;
+}
+
+[data-rhea-keyboard-element="true"]
+.enter::before {
+    content: '\21B2';
+}
+
+[data-rhea-keyboard-element="true"]
+.backspace::before {
+    content: '\2190';
+}
+
+[data-rhea-keyboard-element="true"]
+.shift::before {
+    content: '\21D1';
+}
+
+[data-rhea-keyboard-element="true"]
+.check::before {
+    content: '\2611';
+}
+
+[data-rhea-keyboard-element="true"]
+button.keyboard__key[disabled] {
+    background-color: rgba(255,255,255,.1);
+}
+
+[data-rhea-keyboard-element="true"]
+[data-special="true"] {
+    background-color: rgba(255,255,255,.35);
+}
+
+[data-rhea-keyboard-element="true"]
+.layout-type-container {
+    width: 200px;
+    background: rgb(202 94 41);
+    border-radius: 4px;
+    margin: .5em;
+    padding: .5em;
+    box-shadow: 0 4px 1px -2px rgb(0 0 0 / 23%), 
+				0 2px 8px 0 rgb(0 0 0 / 19%), 
+				0 1px 5px 0 rgb(0 0 0 / 21%);
+    display: none;
+    position: absolute;
+    bottom: 50px;
+}
+
+[data-rhea-keyboard-element="true"]
+.layout-type-container
+label {
+    text-transform: uppercase;
+    font-size: x-small;
+}
+
+[data-rhea-keyboard-element="true"]
+.layout-type-container
+select {
+    background-color: transparent;
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    margin-top: .75em;
+    outline: none;
+}
+
+[data-rhea-keyboard-element="true"]
+.key__flag {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+	
+	background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+[data-rhea-keyboard-element="true"]
+.text-reference {
+    height: 50px;
+    width: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+[data-rhea-keyboard-element="true"]
+.text-reference
+.txt {
+    width: 100%;
+	min-height: 20px;
+	border: 1px solid #777;
+	padding: .5em;
+	border-radius: 10px;
+}
