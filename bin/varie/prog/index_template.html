@@ -2275,7 +2275,10 @@ function pageMiscellaneous_show()
 	if (showPage("pageMiscellaneous", "$LAB_MM_MISCELLANEOUS", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
-		var selOptions = "0|$LAB_GENERAL_OPTIONS|1|$LAB_MACHINEID|2|$LAB_MISC_MILK_LM|3|FREEVEND|4|$LAB_MISC_BLOCKING_COUNTER";
+		var selOptions = "0|$LAB_GENERAL_OPTIONS|1|$LAB_MACHINEID"
+		if (!da3.isMachine_Brewmatic4Macine())
+			selOptions += "|2|$LAB_MISC_MILK_LM";
+		selOptions += "|3|FREEVEND|4|$LAB_MISC_BLOCKING_COUNTER";
 		if (da3.isMachine_Brewmatic4Macine())
 			selOptions +="|5|$LAB_4GRINDER_SETTINGS";
 		var uiSelector = win.getChildByID("pageMiscellaneous_selector");
@@ -2294,7 +2297,7 @@ function pageMiscellaneous_show()
 		{
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		}
-		if (da3.isGruppoMicro())
+		if (da3.isGruppoMicro() || da3.isMachine_Brewmatic4Macine())
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		
 		if (da3.isMachine_MultibonaInstant() || da3.isMachine_MinibonaInstant())

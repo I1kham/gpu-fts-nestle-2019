@@ -2275,7 +2275,10 @@ function pageMiscellaneous_show()
 	if (showPage("pageMiscellaneous", "MISCELLANEOUS", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
-		var selOptions = "0|OPTIUNI GENERALE|1|MACHINE ID|2|MILK LM|3|FREEVEND|4|BLOCKING COUNTER";
+		var selOptions = "0|OPTIUNI GENERALE|1|MACHINE ID"
+		if (!da3.isMachine_Brewmatic4Macine())
+			selOptions += "|2|MILK LM";
+		selOptions += "|3|FREEVEND|4|BLOCKING COUNTER";
 		if (da3.isMachine_Brewmatic4Macine())
 			selOptions +="|5|VIBRATION";
 		var uiSelector = win.getChildByID("pageMiscellaneous_selector");
@@ -2294,7 +2297,7 @@ function pageMiscellaneous_show()
 		{
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		}
-		if (da3.isGruppoMicro())
+		if (da3.isGruppoMicro() || da3.isMachine_Brewmatic4Macine())
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		
 		if (da3.isMachine_MultibonaInstant() || da3.isMachine_MinibonaInstant())

@@ -2275,7 +2275,10 @@ function pageMiscellaneous_show()
 	if (showPage("pageMiscellaneous", "VERSCHIEDENES", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
-		var selOptions = "0|ALLGEMEINE OPTIONEN|1|MASCHINEN ID|2|MILCH LM|3|FREEVEND|4|GEBLOCKTER ZAEHLER";
+		var selOptions = "0|ALLGEMEINE OPTIONEN|1|MASCHINEN ID"
+		if (!da3.isMachine_Brewmatic4Macine())
+			selOptions += "|2|MILCH LM";
+		selOptions += "|3|FREEVEND|4|GEBLOCKTER ZAEHLER";
 		if (da3.isMachine_Brewmatic4Macine())
 			selOptions +="|5|VIBRATION";
 		var uiSelector = win.getChildByID("pageMiscellaneous_selector");
@@ -2294,7 +2297,7 @@ function pageMiscellaneous_show()
 		{
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		}
-		if (da3.isGruppoMicro())
+		if (da3.isGruppoMicro() || da3.isMachine_Brewmatic4Macine())
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		
 		if (da3.isMachine_MultibonaInstant() || da3.isMachine_MinibonaInstant())
