@@ -1118,7 +1118,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND|0|ALTRO|3|SNACK' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<table border='0' width='100%' id="pageDevices_selectorTableMicro" style="display:none">
@@ -3728,10 +3728,27 @@ function pageDevices_show()
 	if (showPage("pageDevices", "DISPOSITIVI", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
+		var selOptions = "";
+		
 		if (da3.isGruppoMicro())
+		{
 			pageDevices_selector = win.getChildByID("pageDevices_selectorMicro");
+			selOptions = "1|MICRO|0|OTHER";
+		}
 		else
+		{
 			pageDevices_selector = win.getChildByID("pageDevices_selectorVFlex");
+			selOptions = "1|VARIFLEX|2|VARIGRIND|0|OTHER";
+		}
+		
+		if (!da3.isMachine_Brewmatic4Macine())
+			selOptions += "|3|SNACK";
+		
+		//if (da3.isMotherboardD23())
+		//	selOptions += "|4|NETWORK";
+		
+		pageDevices_selector.changeOptions(selOptions);
+		
 	
 		if (da3.isInstant())
 		{
@@ -3833,13 +3850,19 @@ function pageDevices_onSelector()
 	pageDevices_whichPage = parseInt(pageDevices_selector.getSelectedOptionValue());
 	switch (pageDevices_whichPage)
 	{
-		default: rheaShowElem(elem0); break;
-		case 1:  rheaShowElem(elem1); break;
+		default:
+			rheaShowElem(elem0);
+			break;
+		case 1:
+			rheaShowElem(elem1);
+			break;
 		case 2:  
 			rheaShowElem(elem2); 
 			pageDevices_onVGrindSelector();
 			break;
-		case 3:  rheaShowElem(elem3); break;
+		case 3:
+			rheaShowElem(elem3);
+			break;
 	}
 	
 	win.showHideScrollBar();
