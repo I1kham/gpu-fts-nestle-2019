@@ -224,6 +224,39 @@ UIWindow.prototype.enablePageScroll = function (b)
 	this.allowScroll=b; 
 }
 
+
+function UIWindow_onMouseMove (me, y)
+{
+	//console.log ("mouse move")
+	if (!me.info.mouse_pressed || me.allowScroll==0)
+		return;
+		
+	var offset = y - me.info.mouse_y;
+	if (Math.abs(offset) < 10)
+		return;
+	me.info.mouse_y = y;
+	
+	var top = oldTop = rheaGetElemTop(me.info.elem);
+	top += offset;
+	if (top >= 0)
+		top = 0;
+	if (top < me.info.scroll_miny)
+		top = me.info.scroll_miny;
+	
+	rheaSetElemTop(me.info.elem, top);
+	//console.log ("move::rheaSetElemTop[" +top +"], offset[" +offset +"]");
+	
+	if (top < -me.info.scroll_tollerance_at_border)
+		rheaShowElem(rheaGetElemByID(me.divIDArrowUp));
+	else
+		rheaHideElem(rheaGetElemByID(me.divIDArrowUp));
+
+	if (top < (me.info.scroll_miny + me.info.scroll_tollerance_at_border))
+		rheaHideElem(rheaGetElemByID(me.divIDArrowDown));
+	else
+		rheaShowElem(rheaGetElemByID(me.divIDArrowDown));
+}
+
 UIWindow.prototype.priv_setupAtFirstShow = function()
 {
 	var theWrapper = document.getElementById(this.id);
@@ -303,11 +336,10 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	me.info = new UIWindowScrollable(elemContent, contentH, wrapperH);
 	elemContent.addEventListener('mousedown', function (ev)
 	{
-		//console.log ("UIWindow::mousedown");
 		me.info.mouse_pressed = 1;
 		me.info.mouse_y = ev.clientY;
+		//console.log ("UIWindow::mousedown, y="+me.info.mouse_y);
 	}, true);
-
 
 	elemContent.addEventListener('mouseup', function (ev) 
 	{
@@ -317,36 +349,27 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 
 	elemContent.addEventListener('mousemove', function (ev) 
 	{
-		//console.log ("UIWindow::mousemove");
-		if (!me.info.mouse_pressed || me.allowScroll==0)
-			return;
-			
-		var y = ev.clientY;
-		var offset = y - me.info.mouse_y;
-		if (Math.abs(offset) < 10)
-			return;
-		me.info.mouse_y = y;
-		
-		var top = oldTop = rheaGetElemTop(me.info.elem);
-		top += offset;
-		if (top >= 0)
-			top = 0;
-		if (top < me.info.scroll_miny)
-			top = me.info.scroll_miny;
-		
-		rheaSetElemTop(me.info.elem, top);
-		//console.log ("move::rheaSetElemTop[" +top +"], offset[" +offset +"]");
-		
-		if (top < -me.info.scroll_tollerance_at_border)
-			rheaShowElem(rheaGetElemByID(me.divIDArrowUp));
-		else
-			rheaHideElem(rheaGetElemByID(me.divIDArrowUp));
+		UIWindow_onMouseMove (me, ev.clientY);
+	}, true);
 
-		if (top < (me.info.scroll_miny + me.info.scroll_tollerance_at_border))
-			rheaHideElem(rheaGetElemByID(me.divIDArrowDown));
-		else
-			rheaShowElem(rheaGetElemByID(me.divIDArrowDown));
-		
+
+	elemContent.addEventListener('touchstart', function (ev)
+	{
+		me.info.mouse_pressed = 1;
+		me.info.mouse_y = ev.touches[0].clientY;
+		//console.log ("UIWindow::touchstart, y="+me.info.mouse_y);
+	}, true);
+
+	elemContent.addEventListener('touchend', function (ev)
+	{
+		me.info.mouse_pressed = 0;
+		//console.log ("UIWindow::touchend");
+	}, true);
+
+	elemContent.addEventListener('touchmove', function (ev) 
+	{
+		//console.log (ev);
+		UIWindow_onMouseMove (me, ev.touches[0].clientY);
 	}, true);
 
 	//bindo onclick della freccia giù
@@ -390,7 +413,6 @@ UIWindow.prototype.priv_setupAtFirstShow = function()
 	this.showHideScrollBar();
 	
 	
-	console.log ("main=" +Keyboard.elements.main);
 	if (Keyboard.elements.main === null)
 		Keyboard.init ("EN");
 }

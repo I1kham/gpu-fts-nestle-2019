@@ -30,7 +30,6 @@ const Keyboard = {
 
     init(layout, root) {
 		
-		console.log ("Keyboard::init");
         this._resetKeyboard();
 
         // Create main elements
