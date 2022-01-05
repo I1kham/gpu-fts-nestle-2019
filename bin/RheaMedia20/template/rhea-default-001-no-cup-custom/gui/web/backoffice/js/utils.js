@@ -195,7 +195,14 @@ function priv_upload_onProgress(fileName, userValue, byteTransferred, bytesTotal
 {
 	if (byteTransferred >= bytesTotal)
 		$("#" +userValue +"_wait").hide();
+	
 	console.log ("onEvent_fileupload_progress [" +userValue +"][" +byteTransferred +"]/[" +bytesTotal+"]");
+
+	var progressEvent = new CustomEvent(userValue, {
+		"detail": { "perc": Math.round((byteTransferred / bytesTotal) * 100) }
+	});
+	
+	document.dispatchEvent(progressEvent);
 }
 
 /**************************************************************
