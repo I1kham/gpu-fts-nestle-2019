@@ -4177,25 +4177,25 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
 	{
 		logger->log("  invalid request, CPUServer != eStato::normal, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		//return false;
 	}
 	else if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
 	{
 		logger->log("  invalid request, VMCState != eVMCState::DISPONIBILE, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		//return false;
 	}
+
+	/* questa condizione non è più valida in quanto abbiamo aggiunto il supporto alle selezion snack le quali partono dal selNum = 50 quindi
+	* selezioni > di 48 sono da ritenersi valide
 	else if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
 	{
 		logger->log("  invalid selection number, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		//return false;
 	}
+	*/
 	else if (eLockStatus::locked == priv_getLockStatus())    //se la macchina è "locked", niente selezioni
     {
         logger->log("  machine is locked, aborting.");
         priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-        //return false;
     }
 	else
 	{

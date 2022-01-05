@@ -59,7 +59,8 @@
 	
 	<!-- menu di accesso veloce -->
 	<div id="divFastMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
-		<div style="width:94%; margin:20px auto auto auto; position:relative">
+		<div id="divFastMenu_wait" style="padding-top:10%;"><center><img src="img/animationRound.gif"></center></div>
+		<div id="divFastMenu_cnt" style="width:94%; margin:20px auto auto auto; position:relative">
 			<div style="margin:160px 60px 0 90px">
 				<div id="btnBO_cleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:205px;" onclick="onBtnCleaning()"></div>
 				<div id="btnBO_milkerCleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:555px;" onclick="onBtnMilkerCleaning()"></div>
@@ -845,7 +846,14 @@ function showFastMenu()
 	d = rheaGetElemByID("btnBO_FileInfo");
 	rheaSetElemHTML(d, "<p>SW VERSION</p>");
 	
+	rheaHideElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaShowElem (rheaGetElemByID("divFastMenu_cnt")); 		
 	rheaShowElem (rheaGetElemByID("divFastMenu")); 
+}
+function showFastMenu_wait()
+{
+	rheaShowElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaHideElem (rheaGetElemByID("divFastMenu_cnt")); 
 }
 function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }
 function onBtnCleaning()		
@@ -875,7 +883,8 @@ function onBtnMilkerCleaning()
 						
 					case 2: //indux
 						rhea.requestGPUCleaning(32);
-						window.location = "gotoMilkerCleaning.html";
+						showFastMenu_wait();
+						rhea.gotoSpecialURL("gotoMilkerCleaning.html");
 						break;
 				}
 			})

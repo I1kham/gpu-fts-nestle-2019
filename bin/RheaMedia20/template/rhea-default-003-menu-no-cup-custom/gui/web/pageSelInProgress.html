@@ -88,34 +88,28 @@ function onAfterLangLoaded()
 	}*/
 	
 	
+	var iconDisplayName = "";
 	if (selNum > 49)
-	{
-		var iconDisplayName = MGEN_getDisplayName(iconNum-1);
-	}
+		iconDisplayName = MGEN_getDisplayName(iconNum-1);
 	else
-	{
-		var iconDisplayName = MMI_getDisplayName(iconNum);
-	}
+		iconDisplayName = MMI_getDisplayName(iconNum);
 	
 	rheaSetDivHTMLByName("selName", iconDisplayName);
 	
 	if (selNum > 49)
-	{
-		document.getElementById("selImage").src =MGEN_getImgForPageMenu (iconNum-1)	
-	}
+		document.getElementById("selImage").src = MGEN_getImgForPageMenu (iconNum-1)	
 	else
-	{
 		document.getElementById("selImage").src = MMI_getImgForPageMenu(iconNum);
-	}
+
 	rheaSetDivHTMLByName("divTextAtBottom", rheaLang.LAB_YOUR_DRINK_IS_BEING_PREPARED);
 	setupGallery();
 	
 	
 	//carica i contenuti in lingua di questa pagina
-	lang_loadJS ("mainMenuIconsInfo")
-		.then ( function()
+	lang_loadJS ("mainMenuIconsInfo").then ( function()
 		{
-			rheaSetDivHTMLByName("selText", rheaMainMenuIconsInfo[iconNum]);
+			if (undefined != rheaMainMenuIconsInfo[iconNum])
+				rheaSetDivHTMLByName("selText", rheaMainMenuIconsInfo[iconNum]);
 		});	
 }
 	

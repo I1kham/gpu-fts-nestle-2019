@@ -125,8 +125,6 @@ PanelKeyboard.prototype.onBtnPressed = function(btnPressed)
 
 function startSelectionSnack(valSelez, numMenuGen)
 {	
-		//deve partire la selezione direttamente da qui, senza passare per pageConfirm. 
-		//E' necessario che la selezione prezzo a 0 (oppure siamo in freevend) --> perchè?????????
-		console.log ("Starting sel num:" +valSelez);
-		window.location = "pageSelInProgress.html?iconMenu=" + numMenuGen+"&selNum=" +valSelez +"&btnStop=" +0;
+	console.log ("Starting sel num:" +valSelez);
+	rhea.selection_start (valSelez);
 }

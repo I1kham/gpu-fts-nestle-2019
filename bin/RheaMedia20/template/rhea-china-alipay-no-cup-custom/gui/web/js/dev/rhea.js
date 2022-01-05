@@ -793,3 +793,19 @@ Rhea.prototype.isAlipayChinaOnline = function ()
 		return 1;
 	return 0;
 }
+
+//*********************************************************
+Rhea.prototype.gotoSpecialURL = function (url)
+{
+    console.log ("gotoSpecialURL(" +url +")");
+    this.ajax ("browserURLChange", {"url":url}).then( function(result)
+    {
+        console.log ("OK");
+        window.location = url;
+    })
+    .catch( function(result)
+    {
+		console.log ("browserURLChange not implemented, reverting to window.location");
+        window.location = url;
+    });        
+}
