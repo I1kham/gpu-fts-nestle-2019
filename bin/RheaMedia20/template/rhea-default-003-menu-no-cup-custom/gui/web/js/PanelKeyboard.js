@@ -8,15 +8,15 @@ function PanelKeyboard (fatherDivID, numMenuGen)
 	var descr=rheaLang.LAB_SNACK_INSTRUCTION; 			//"please digit here the snack selection number and press 'OK' to confim it";
 	var descr1=rheaLang.LAB_SNACK_SELECTION_NUMBER;		//"Selection Number";
 	var style_pageNumKeyboard = "display:none; position:absolute;  background-color:rgba(0,0,0,0.8); z-index:999; color:#fff; font-size:1.0em; text-align:center;";
-	var style_pageNumKeyboardButton = "border:solid 1px #666; width:115px; height:35px; padding:0.2em 0 0.4em 0; text-align:center; font-size:1.5em; margin:4px; display:inline-block; background-color:#666; border-radius: 1px;";
-	var style_pageNumKeyboardDisplay = "border:solid 1px #666; border-radius:1px 1px 0 0; text-align:center; color:#fff; width:100%; padding:1.0em 0 0.5em 0; background-color:#000; min-height:30px;";
 	var com_SnackValInit = parseInt(MGEN_getKeyboard_SnackValInit(parseInt(numMenuGen)));
+	
+console.log ("com_SnackValInit=" +com_SnackValInit);	
 	var com_daSel=parseInt(MGEN_getKeyboard_daSel(parseInt(numMenuGen)));	
 	var com_aSel=parseInt(MGEN_getKeyboard_aSel(parseInt(numMenuGen)));	
 
 	var html =   "<div id='divPanelKeyboard' style='" +style_pageNumKeyboard +"'>"
 				+"	<div style='margin:40px 40px 40px 20px; display:inline-block; width:400px;'>"  //margin: top,right,bottom,left
-				+"  <div id='pageNumKeyboardDisplay' style='" +style_pageNumKeyboardDisplay +"'>"
+				+"  <div id='pageNumKeyboardDisplay' class='Keyboard_pageNumKeyboardDisplay'>"
 				+"</div>";
 				
 				
@@ -27,7 +27,7 @@ function PanelKeyboard (fatherDivID, numMenuGen)
 		if (i==11) com_vis="0";
 		if (i==12) com_vis="OK";
 		if (i==10) com_vis="X";
-		html += "<div id='" +divID +"' data-num='" +i +"' style='" +style_pageNumKeyboardButton +"'>" +com_vis +"</div>";
+		html += "<div id='" +divID +"' data-num='" +i +"' class='KeyboardBtn'>" +com_vis +"</div>";
 	}
 	html +=	" <div class='KeyboardDisplay_descrSel' style='text-align:center;'>"+descr1+"</div>";
 	html += "<div id='descrKeyboardDisplay' class='KeyboardDisplay_descr'>"+'<BR>'+descr+"</div>";
@@ -46,6 +46,8 @@ function PanelKeyboard (fatherDivID, numMenuGen)
 				var valSelez=me.onBtnPressed (this.getAttribute("data-num"));
 				if ((valSelez!=undefined) && (valSelez!="") && (valSelez!="0") && (parseInt(valSelez) <= com_aSel) && (parseInt(valSelez) >= com_daSel))
 				{
+					resetTimerGotoPageStandby();
+					
 					//	var numMaxSel = MMI_getCount();
 					//	if (parseInt(valSelez) <= numMaxSel)
 					valSelez=parseInt(valSelez) + com_SnackValInit;
@@ -69,8 +71,8 @@ PanelKeyboard.prototype.show = function ()
 		me.priv_doShow();
 
 	}
-		if (this.isNumKeyboardSet == 1)
-			this.priv_doShow();
+	if (this.isNumKeyboardSet == 1)
+		this.priv_doShow();
 }
 
 PanelKeyboard.prototype.priv_doShow = function ()
