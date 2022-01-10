@@ -44,7 +44,7 @@ RheaFileUpload.prototype.priv_requestUpload = function(usage)
 	buffer[ct++] = usage.length;		//u8 usageLen;
 	
 	//u16 packetSizeInBytes;
-	rheaAddU16ToUint8Buffer(buffer, ct, 1024);
+	rheaAddU16ToUint8Buffer(buffer, ct, 61440);
 	ct+=2;
 
 	//u32 fileSizeInBytes;
