@@ -1139,11 +1139,6 @@
 						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND|0|ANDERE|3|SNACK|4|NETWORK' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
-				<table border='0' width='100%' id="pageDevices_selectorTableMicro" style="display:none">
-					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorMicro' data-option='1|MICRO|0|ANDERE' data-onclick='pageDevices_onSelector()'></div></td>
-					</tr>
-				</table>
 				<div style='height:5px'></div>
 			
 				<!--DEVICES OTHER-->
@@ -3805,18 +3800,13 @@ function pageDevices_show()
 	if (showPage("pageDevices", "GERÄT", 1,1))
 	{
 		//è la prima volta che visualizziamo la pagina
+		pageDevices_selector = win.getChildByID("pageDevices_selectorVFlex");
+
 		var selOptions = "";
-		
 		if (da3.isGruppoMicro())
-		{
-			pageDevices_selector = win.getChildByID("pageDevices_selectorMicro");
 			selOptions = "1|MICRO|0|OTHER";
-		}
 		else
-		{
-			pageDevices_selector = win.getChildByID("pageDevices_selectorVFlex");
 			selOptions = "1|VARIFLEX|2|VARIGRIND|0|OTHER";
-		}
 		
 		if (da3.isInstant())
 			selOptions = "0|OTHER";
@@ -3828,13 +3818,12 @@ function pageDevices_show()
 			selOptions += "|4|NETWORK";
 		
 		pageDevices_selector.changeOptions(selOptions);
-	
-	
+		pageDevices_selector.selectOptionByIndex(0);
+		if (pageDevices_selector.optionValue.length < 2)
+			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
 	
 		if (da3.isInstant())
 		{
-			pageDevices_selector.selectOptionByValue(0);
-			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
 			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
 			rheaHideElem(rheaGetElemByID("pageDevices_grpTest"));
 			rheaHideElem(rheaGetElemByID("pageDevices_motorTest"));
@@ -3843,8 +3832,7 @@ function pageDevices_show()
 		
 		if (da3.isGruppoMicro())
 		{
-			rheaHideElem(rheaGetElemByID("pageDevices_selectorTable"));
-			rheaSetDisplayMode(rheaGetElemByID("pageDevices_selectorTableMicro"), "table");
+			
 			rheaHideElem(rheaGetElemByID("pageDevices_cofSensor"));
 			rheaHideElem(rheaGetElemByID("pageDevices_cupSensor"));
 			rheaHideElem(rheaGetElemByID("pageDevices_vflex_autoAdjust"));
