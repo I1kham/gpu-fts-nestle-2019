@@ -118,20 +118,20 @@ CONFIG(release, debug|release) {
 SOURCES += \
     ../../src/GPU/formboot.cpp \
     ../../src/GPU/formprog.cpp \
-    ../../src/GPU/history.cpp \
     ../../src/GPU/main.cpp \
     ../../src/GPU/mainwindow.cpp \
     ../../src/GPU/Utils.cpp \
-    ../../src/GPU/formPreGui.cpp
+    ../../src/GPU/formPreGui.cpp \
+    ../../src/GPU/history.cpp
 
 HEADERS  += \
     ../../src/GPU/formboot.h \
     ../../src/GPU/formprog.h \
     ../../src/GPU/header.h \
-    ../../src/GPU/history.h \
     ../../src/GPU/mainwindow.h \
     ../../src/GPU/Utils.h \
-    ../../src/GPU/formPreGui.h
+    ../../src/GPU/formPreGui.h \
+    ../../src/GPU/history.h
 
 FORMS    += \
     ../../src/GPU/formboot.ui \
