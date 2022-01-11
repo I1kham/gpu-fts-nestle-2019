@@ -3810,15 +3810,18 @@ function pageDevices_show()
 		if (da3.isGruppoMicro())
 		{
 			pageDevices_selector = win.getChildByID("pageDevices_selectorMicro");
-			selOptions = "1|MICRO|0|ДРУГОЕ";
+			selOptions = "1|MICRO|0|OTHER";
 		}
 		else
 		{
 			pageDevices_selector = win.getChildByID("pageDevices_selectorVFlex");
-			selOptions = "1|VARIFLEX|2|VARIGRIND|0|ДРУГОЕ";
+			selOptions = "1|VARIFLEX|2|VARIGRIND|0|OTHER";
 		}
+		
+		if (da3.isInstant())
+			selOptions = "0|OTHER";
 	
-		if (da3.isMotherboardVariscite())
+		if (da3.isMotherboardVariscite() && !da3.isMachine_Brewmatic4Macine())
 			selOptions += "|3|SNACK";
 		
 		if (da3.isMotherboardD23())
