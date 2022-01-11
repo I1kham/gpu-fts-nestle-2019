@@ -21,7 +21,6 @@
     <ClCompile Include="..\..\src\CPUBridge\rhFSProtocol.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\RSProto.cpp" />
     <ClCompile Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.cpp" />
-    <ClCompile Include="..\..\src\CPUBridge\SECOOs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\CPUBridge\CPUBridge.h" />
@@ -50,7 +49,6 @@
     <ClInclude Include="..\..\src\CPUBridge\rhFSProtocolEnumAndDefine.h" />
     <ClInclude Include="..\..\src\CPUBridge\RSProto.h" />
     <ClInclude Include="..\..\src\CPUBridge\CPUBridgeActionScheduler.h" />
-    <ClInclude Include="..\..\src\CPUBridge\SECOOs.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="channel">
