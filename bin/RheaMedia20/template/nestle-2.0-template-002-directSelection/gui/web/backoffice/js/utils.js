@@ -130,8 +130,14 @@ function setupUploader (elemID, callback_onEnd)
 	var callback_onProgress = priv_upload_onProgress;
 
 	var divElem = document.getElementById(elemID);
+	var accept = "";
+	
+	if (divElem) {
+		accept = divElem.dataset.accept? " accept='" + divElem.dataset.accept + "'" : "";
+	}
+	
 	divElem.classList.add("inputfile_wrapper");
-	html =   "<input type='file' name='" +elemID +"_file' id='" +elemID +"_file' class='inputfile'>"
+	html =   "<input type='file' name='" + elemID +"_file' id='" + elemID +"_file' class='inputfile'" + accept + ">"
 			+"<label id='" +elemID +"_label' for='" +elemID +"_file'>" +divElem.getAttribute("data-message") +"</label>"
 			+"<div id='" +elemID +"_wait' class='inputfile_wait'><img src='img/animationRound32x32.gif'></div>";
 	divElem.innerHTML=html;
@@ -222,4 +228,4 @@ function wrapHTMLElement(elem, type, classes) {
 function removeHTMLElement(elem) {
     elem.parentNode.removeChild(elem);
     return false;
-}								
+}

@@ -13,6 +13,9 @@
 	<div id="divGalleryWindow" class="pageStandby_galleryContainer_window">
 		<div id="divGallery" class="pageStandby_galleryContainer"></div>
 	</div>
+
+	<video style="display: none; width: 100%; height: 100%; background-color: black;" autolpay muted loop></video>
+
 	<div style="position:relative">
 		<div id="divOverlay" class="pageStandby_overlay"></div>
 	</div>
@@ -93,6 +96,8 @@ function onAfterLangLoaded()
 	
 	setupOverlay();
 	setupGallery();
+	setupVideo();
+
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	
 	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
@@ -126,6 +131,28 @@ function setupOverlay()
 	rheaSetElemTextColor(d,standbyPageOptions.overlay_textColor);
 }
 
+function setupVideo()
+{
+	if (
+		typeof standByVideoEnabled === 'undefined' || 
+		typeof standByVideoPath === 'undefined'
+	) { 
+		return; 
+	}
+
+	if (!standByVideoEnabled || !standByVideoPath ) {
+		document.querySelector('video').style.display = 'none';
+		document.querySelector('#divGalleryWindow').style.display = 'block';
+	} else {
+		var video = document.querySelector('video');
+
+		video.style.display = 'block';
+		video.src = 'upload/' + standByVideoPath;
+		video.play();
+
+		document.querySelector('#divGalleryWindow').style.display = 'none';
+	}
+}
 
 var numImages = standbyPageOptions.gallery_images.length;
 var curImage = 0;

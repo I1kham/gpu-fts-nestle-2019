@@ -26,9 +26,7 @@
 <script src="config/lang.js"></script>
 <script src="config/mainMenuIcons.js"></script>
 <script src="config/pageMenuGen.js"></script>
-<script src="config/mainMenuIconsGen.js"></script>
 <script src="config/MMI.js"></script>
-<script src="config/MGEN.js"></script>
 <script src="config/pageSelFinished.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 
@@ -57,18 +55,9 @@ function onAfterLangLoaded()
 	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
 	var iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
 	var selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
-
-	if (selNum > 49)
-	{
-		var iconDisplayName = MGEN_getDisplayName(iconNum-1);
-		var image = "<img draggable='false' src='" +MGEN_getImgForPageMenu (iconNum-1) +"'>";
-	}
-	else
-	{
-		var iconDisplayName = MMI_getDisplayName(iconNum);
-		var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
-	}
-
+	
+	var iconDisplayName = MMI_getDisplayName(iconNum);
+	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
 	
 	var d = rheaGetElemByID("divImage");
 	rheaSetElemHTML(d, image);

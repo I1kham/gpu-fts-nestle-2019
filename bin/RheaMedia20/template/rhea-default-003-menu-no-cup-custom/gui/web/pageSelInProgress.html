@@ -39,9 +39,7 @@
 <script src="config/lang.js"></script>
 <script src="config/mainMenuIcons.js"></script>
 <script src="config/pageMenuGen.js"></script>
-<script src="config/mainMenuIconsGen.js"></script>
 <script src="config/MMI.js"></script>
-<script src="config/MGEN.js"></script>
 <script src="config/pageSelInProgress.js"></script>
 <script src="config/pageSelFinished.js"></script>
 <script src="js/rheaBootstrap.js"></script>
@@ -87,29 +85,19 @@ function onAfterLangLoaded()
 		rheaShowElem(rheaGetElemByID("divSpacerWhenNoBtnStop"));
 	}*/
 	
-	
-	var iconDisplayName = "";
-	if (selNum > 49)
-		iconDisplayName = MGEN_getDisplayName(iconNum-1);
-	else
-		iconDisplayName = MMI_getDisplayName(iconNum);
-	
+	var iconDisplayName = MMI_getDisplayName(iconNum);
 	rheaSetDivHTMLByName("selName", iconDisplayName);
 	
-	if (selNum > 49)
-		document.getElementById("selImage").src = MGEN_getImgForPageMenu (iconNum-1)	
-	else
-		document.getElementById("selImage").src = MMI_getImgForPageMenu(iconNum);
-
+	document.getElementById("selImage").src = MMI_getImgForPageMenu(iconNum);
 	rheaSetDivHTMLByName("divTextAtBottom", rheaLang.LAB_YOUR_DRINK_IS_BEING_PREPARED);
 	setupGallery();
 	
 	
 	//carica i contenuti in lingua di questa pagina
-	lang_loadJS ("mainMenuIconsInfo").then ( function()
+	lang_loadJS ("mainMenuIconsInfo")
+		.then ( function()
 		{
-			if (undefined != rheaMainMenuIconsInfo[iconNum])
-				rheaSetDivHTMLByName("selText", rheaMainMenuIconsInfo[iconNum]);
+			rheaSetDivHTMLByName("selText", rheaMainMenuIconsInfo[iconNum]);
 		});	
 }
 	

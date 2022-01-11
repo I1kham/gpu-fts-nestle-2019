@@ -779,15 +779,14 @@ Rhea.prototype.filetransfer_startDownload = function(usage, userValue, callback_
 //*********************************************************
 Rhea.prototype.gotoSpecialURL = function (url)
 {
-    console.log ("gotoSpecialURL(" +url +")");
-    this.ajax ("browserURLChange", {"url":url}).then( function(result)
-    {
-        console.log ("OK");
-        window.location = url;
-    })
-    .catch( function(result)
-    {
-		console.log ("browserURLChange not implemented, reverting to window.location");
-        window.location = url;
-    });        
+	console.log ("gotoSpecialURL(" +url +")");
+	this.ajax ("browserURLChange", {"url":url}).then( function(result)
+	{
+		console.log ("OK");
+		window.location = url;
+	})
+	.catch( function(result)
+	{
+		window.location = url;
+	});		
 }

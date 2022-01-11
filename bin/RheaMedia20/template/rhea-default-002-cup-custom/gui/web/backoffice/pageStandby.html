@@ -13,6 +13,16 @@
 	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
 	<script src="js/colorPicker/colpick.js"></script>	
 	<link href="js/colorPicker/colpick.css" rel="stylesheet" type="text/css">
+	<style>
+		video.bg {
+			width: 300px; height: 100%;
+			background-color: #333;
+			background-image: url(img/video_broken.png);
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: 64px;
+		}
+	</style>
 </head>
 
 <body onLoad="rheaBootstrapWithPathPrefix('../')">
@@ -91,32 +101,57 @@
 				
 					<div class="box">
 						<h2>Slide show</h2>
+						
 						<div class="box-content">
-							<p>Time between one slide and the next <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="gallery_timeToNextImageMSec"> sec</p>
-							
-							<div style="float:left; width:400px">
-								<ul id="elencoItem" class="sortable-list"></ul>
+							<div>
+								<input type="checkbox" id="isVideo" name="isVideo" onclick="onVideoRequired(event)">
+								<label for="isVideo">Enable video instead of slideshow (<b>only for RHTT11 MODEL)</b></label>
+							</div>
+
+							<div id="boxSlideShow">
+								<p>Time between one slide and the next <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="gallery_timeToNextImageMSec"> sec</p>
 								
-								<div style="margin-left:30px;">
-									<div id="fileUpload1" data-message="+<br><i style='font-size:0.3em'>click or drag image here</i>"></div>
+								<div style="float:left; width:400px">
+									<ul id="elencoItem" class="sortable-list"></ul>
+									
+									<div style="margin-left:30px;">
+										<div id="fileUpload1" data-message="+<br><i style='font-size:0.3em'>click or drag image here</i>"></div>
+									</div>
+								</div>
+								
+								<div style="float:right">
+									<span class="tip">
+										<h2>How to</h2>
+										<ul>
+											<li><b>Drag</b> icons on the left to reorder the list</li>
+											<li>Click on the <b>+ button</b> (or drop an image into it) to add more images</li>
+											<li>Click on the <img src='img/icon_delete24.png' style='background-color:#fff; padding:2px; width:15px'> icon to delete a single image</li>
+										</ul>
+										
+										<br>
+										<h2>Image resolution</h2>
+											Image must be <b>1024 x 600</b> pixel in <b>JPG format</b>
+									</span>
+								</div>
+								<div class="clear"></div>
+							</div>
+
+							<div id="boxVideo" style="display: none;">
+								<div style="float:left; height:300px; overflow:hidden; margin-right:80px; margin-top: 10px;">
+									<video id="splashVideo" class="bg" autoplay loop muted alt="No video selected yet">
+								</div>
+		
+								<div style="float:left; width:400px">
+									<div style="margin-left:30px;">
+										<div id="splashVideoUpload" data-accept=".mp4" data-refer-to="splashVideo" data-message="+<br><i style='font-size:0.3em'>click to upload an mp4 video<br/><br/> (1024x600 .mp4 format)</i>"></div>
+									</div>
+		
+									<div style="margin-left:30px; width: 280px;">
+										<br /><br />
+										<a class="button rosso" href="javascript:deleteCurrentVideo('#splashVideoUpload_file', '#splashVideo')">Delete current video</a>
+									</div>
 								</div>
 							</div>
-							
-							<div style="float:right">
-								<span class="tip">
-									<h2>How to</h2>
-									<ul>
-										<li><b>Drag</b> icons on the left to reorder the list</li>
-										<li>Click on the <b>+ button</b> (or drop an image into it) to add more images</li>
-										<li>Click on the <img src='img/icon_delete24.png' style='background-color:#fff; padding:2px; width:15px'> icon to delete a single image</li>
-									</ul>
-									
-									<br>
-									<h2>Image resolution</h2>
-										Image must be <b>1024 x 600</b> pixel in <b>JPG format</b>
-								</span>
-							</div>
-							<div class="clear"></div>
 						</div>
 					</div>
 				</div> <!-- divIfEnabled -->
@@ -145,7 +180,7 @@ var historyID = -1;
 var progressivoNuoveImmagini = 1000;
 var db = null;
 var ml_message = null;
-
+var video = "";
 
 function setupColorPickers()
 {
@@ -226,6 +261,7 @@ async function onRheaBootstrapFinished()
 	$("#main-content-wait").show();
 	
 	setupUploader("fileUpload1", upload_onEnd);
+	setupUploader("splashVideoUpload", videoUpload_onEnd);
 	
 	var curPath = rheaGetAbsolutePhysicalPath();
 	db = new RheaDB (curPath +"/guidb.db3");
@@ -252,6 +288,30 @@ async function onRheaBootstrapFinished()
 
 	setupColorPickers();
 
+	rst = await db.q("SELECT * FROM lang WHERE What = 'splashVideo'");
+	let checked = false;
+	
+	if(!rst.hasError() && rst.getNumRows()) {
+		checked = rst.valByColName(0,'Message')? JSON.parse(rst.valByColName(0,'Message')) : false;
+
+		if(checked) {
+			document.querySelector( '#isVideo' ).checked = value;
+
+			rheaHideElem(document.getElementById('boxSlideShow'));
+			rheaShowElem(document.getElementById('boxVideo'));
+
+			rst = await db.q("SELECT * FROM lang WHERE What = 'splashVideoPath'");
+
+			if(!rst.hasError() && rst.getNumRows()) {
+				const value = rst.valByColName(0,'Message')? rst.valByColName(0,'Message') : "";
+
+				if(value) {
+					document.querySelector( '#splashVideo' ).src = '../upload/' + value;
+					video = value;
+				}
+			}
+		}
+	}
 
 	//carico e creo i controlli per il messaggio in ML	
 	ml_message = new MultilangElem("txtMessage", "STDBY", "MSG", "EDIT", "700px", allLang);
@@ -336,6 +396,34 @@ function imageList_delete(progressivo)
 	$(id).hide();
 }
 
+function onVideoRequired(e) {
+	if(e.target.checked) {
+		rheaHideElem(document.getElementById('boxSlideShow'));
+		rheaShowElem(document.getElementById('boxVideo'));
+	} else {
+		rheaShowElem(document.getElementById('boxSlideShow'));
+		rheaHideElem(document.getElementById('boxVideo'));
+	}
+}
+
+function videoUpload_onEnd (fileName, userValue, error_code) {
+	if ( error_code != 0 ) { return; }
+
+	var videoId = document.querySelector( '#' + userValue ).dataset.referTo
+	$( "#" + videoId ).attr("src", "../upload/" + fileName);
+
+	video = fileName;
+}
+
+function deleteCurrentVideo( fileUploadId, id ) {
+	if(!id) { return; }
+
+	video = '';    // Remove prefix id to string key object
+	
+	$(id).attr("src", '');
+	$(fileUploadId).val('')
+}
+
 async function saveAll()
 {
 	//il messaggio nella lingua di default è obbligatorio
@@ -392,6 +480,27 @@ async function saveAll()
 	
 	//salvataggio del "messaggio" in multilingua
 	await ml_message.save(db);
+
+	// Enable/disable video 
+	let q   = "SELECT * FROM lang WHERE What = 'splashVideo'"
+	let rst = await db.q( q );
+	let checked = JSON.stringify( document.querySelector( '#isVideo' ).checked );
+
+	q = !rst.nRows?
+		"INSERT INTO lang (UID,ISO,What,Message) VALUES('STDBY','GB','splashVideo','" + checked + "')":
+		"UPDATE lang SET Message='" + checked + "' WHERE What='splashVideo'";
+
+	await db.exec( q );
+
+	// Save video path
+	q   = "SELECT * FROM lang WHERE What = 'splashVideoPath'"
+	rst = await db.q( q );
+
+	q = !rst.nRows?
+		"INSERT INTO lang (UID,ISO,What,Message) VALUES('STDBY','GB','splashVideoPath','" + video + "')":
+		"UPDATE lang SET Message='" + video + "' WHERE What='splashVideoPath'";
+
+	await db.exec( q );
 
 	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
 	pleaseWait(0);

@@ -102,16 +102,8 @@
 								</select>
 							</p>  -->
 							
-							</div>
-										
-							<div style="float:left; margin-left:1px">
-							keyboard value From<input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:40px; text-align:right" id="idKeyboardDaSel">
-						    To<input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:40px; text-align:right" id="idKeyboardASel">
-							<BR><BR>initial SNACK value  <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:50px; text-align:right" id="idKeyboardSnackValInit">
-							</div>
-							
-							<div class="clear"></div>
-						
+						</div>
+						<div class="clear"></div>
 					</div>
 				</div> <!-- general settings -->
 				
@@ -353,18 +345,13 @@ async function loadExistingRecord()
 	document.querySelector( '#MGENdName_input' ).value = 
 		(rst.hasColName( 'secondName' ) && rst.valByColName(0, "secondName") !== 'NULL')?  rst.valByColName(0, "secondName") : '';
 
+//	var allowedCupSize = rst.valByColName(0, "allowedCupSize").toString();
 	var menuGenNum = rst.valByColName(0, "menuGenNum");
-	var keyboard_daSelVal = rst.valByColName(0, "keyboard_daSel");
-	var keyboard_aSelVal = rst.valByColName(0, "keyboard_aSel");
-	var keyboard_SnackValInit = rst.valByColName(0, "keyboard_SnackValInit");	
 	
 	$("#pageMenuGenImg").attr("src", "../upload/" +rst.valByColName(0, "pageMenuGenImg"));
 	if (rst.valByColName(0, "keyboardMenu") == 0)
 	{
 		$("#cbKeyboardMenu").prop('checked', false);
-		keyboard_daSelVal=0;
-		keyboard_aSelVal=0;
-		keyboard_SnackValInit=0;
 	}
 	else
 	{
@@ -373,11 +360,6 @@ async function loadExistingRecord()
 
 	//caso di cup non customizzata
 	$("#selNoCustom_menuGenNum").val(menuGenNum);
-
-	$("#idKeyboardDaSel").val(keyboard_daSelVal);
-	$("#idKeyboardASel").val(keyboard_aSelVal);
-	$("#idKeyboardSnackValInit").val(keyboard_SnackValInit);	
-		
 //	$("#selNoCustom_cupSize").val("S");
 //	if (allowedCupSize=="010") $("#selNoCustom_cupSize").val("M");
 //	if (allowedCupSize=="001") $("#selNoCustom_cupSize").val("L");
@@ -405,41 +387,6 @@ function queryNextProgressivo()
 
 async function saveAll()
 {
-	var clickedKeyboardMenu = 0;
-	if ($("#cbKeyboardMenu").prop('checked'))
-		clickedKeyboardMenu = 1;			
-
-	var keyboard_daSelVal = parseInt ($("#idKeyboardDaSel").val());
-	var keyboard_aSelVal = parseInt ($("#idKeyboardASel").val());
-	var keyboard_SnackValInit = parseInt ($("#idKeyboardSnackValInit").val());
-	
-	if (clickedKeyboardMenu == 1)
-	{	
-		if ((keyboard_daSelVal <0) || (keyboard_daSelVal >40))
-		{
-			alert ("the keboard value 'FROM' is not acceptable");
-			return;
-		}
-	
-		if ((keyboard_aSelVal <0) || (keyboard_aSelVal >40))
-		{
-			alert ("the keboard value 'TO' is not acceptable");
-			return;
-		}	
-	
-		if ((keyboard_aSelVal < keyboard_daSelVal))
-		{
-			alert ("range keboard values is not acceptable");
-			return;
-		}	
-	}
-	else	
-	{
-		keyboard_daSelVal = 0;
-		keyboard_aSelVal = 0;
-		keyboard_SnackValInit = 0;
-	}
-	
 	box_showItNow("boxGeneralContent");
 	
 	let progressivo;
@@ -456,8 +403,14 @@ async function saveAll()
 	if (pageMenuGenImg == "")
 		err += "Selection image is mandatory.\n";
 	
-	var menuGenNum = parseInt ($("#selNoCustom_menuGenNum").val());	
+	var menuGenNum = parseInt ($("#selNoCustom_menuGenNum").val());
+	
 	var linkedMenu=menuGenNum;
+	
+	var clickedKeyboardMenu = 0;
+	if ($("#cbKeyboardMenu").prop('checked'))
+		clickedKeyboardMenu = 1;			
+	
 	
 	if (UID == -1)
 	{
@@ -465,7 +418,7 @@ async function saveAll()
 		progressivo = await queryNextProgressivo();
 			
 		//preparo insert
-		sql = "INSERT INTO pagemenu_menugen (HIS_ID,PROGR,menuGenNum,pageMenuGenImg,linkedMenu,name,secondName,keyboardMenu,keyboard_daSel,keyboard_aSel,keyboard_SnackValInit) VALUES("
+		sql = "INSERT INTO pagemenu_menugen (HIS_ID,PROGR,menuGenNum,pageMenuGenImg,linkedMenu,name,secondName,keyboardMenu) VALUES("
 				+historyID
 				+"," +progressivo
 				+"," +menuGenNum
@@ -474,9 +427,6 @@ async function saveAll()
 				+",'" +db.toDBString(menuName) +"'"
 				+",'" +db.toDBString(menuNdName) +"'"
 				+",'" +clickedKeyboardMenu +"'"
-				+",'" +keyboard_daSelVal +"'"
-				+",'" +keyboard_aSelVal +"'"
-				+",'" +keyboard_SnackValInit +"'"
 				+")";							
 	}
 	else
@@ -488,14 +438,9 @@ async function saveAll()
 				+",name='" +db.toDBString(menuName) +"'"
 				+",secondName='" +db.toDBString(menuNdName) +"'"
 				+",keyboardMenu='"+clickedKeyboardMenu+"'"
-				+",keyboard_daSel='" +keyboard_daSelVal +"'"
-				+",keyboard_aSel='" +keyboard_aSelVal +"'"
-				+",keyboard_SnackValInit='" +keyboard_SnackValInit +"'"				
 				+" WHERE UID=" +UID;
 	}
 
-	
-	
 	
 	//se durante la raccolta dati ho notato degli errori, avviso e mi fermo
 	if (err != "")

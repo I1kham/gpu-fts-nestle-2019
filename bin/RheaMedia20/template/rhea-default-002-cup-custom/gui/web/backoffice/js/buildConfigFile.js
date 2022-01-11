@@ -287,6 +287,22 @@ console.timeEnd("  page standby[rst2]");
 	}
 	result += "]};";
 	
+	rst =  await db.q("SELECT * FROM lang WHERE What = 'splashVideo'");
+	
+	let checked = false;
+	let path = "";
+
+	if(!rst.hasError() && rst.getNumRows()) {
+		checked = rst.valByColName(0, 'Message')? JSON.parse(rst.valByColName(0, 'Message')) : false;
+		rst = await db.q("SELECT * FROM lang WHERE What = 'splashVideoPath'");
+		
+		if(!rst.hasError() && rst.getNumRows()) {
+			path = (rst.valByColName(0, 'Message') && rst.valByColName(0, 'Message') !== 'NULL')? rst.valByColName(0, 'Message') : "";
+		}
+	}
+
+	result += " var standByVideoEnabled = " + checked + "; var standByVideoPath = '" + path + "';";
+
 console.time("  page standby[saveas]");	
 	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageStandby.js");
 console.timeEnd("  page standby[saveas]");		

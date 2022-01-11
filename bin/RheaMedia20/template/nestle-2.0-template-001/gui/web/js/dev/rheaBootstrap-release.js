@@ -4,6 +4,12 @@ var rheaPathPrefix = "";
 function rheaBootstrap() { rheaBootstrapWithPathPrefix(""); }
 function rheaBootstrapWithPathPrefix (pathPrefix)
 {
+	//nasconde il mouse (serve per le rhTT)
+	var tmpCanvas = document.createElement("canvas");
+    tmpCanvas.setAttribute("width",1);
+    tmpCanvas.setAttribute("height",1);
+    document.body.style.cursor = "url('"+tmpCanvas.toDataURL()+"'), pointer";
+	
 	rheaPathPrefix = pathPrefix;
 	var script = document.createElement('script');
 	script.onload = function () { rheaBootstrap_step2(); };
