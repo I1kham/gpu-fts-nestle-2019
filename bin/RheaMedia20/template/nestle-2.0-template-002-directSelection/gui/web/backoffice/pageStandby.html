@@ -22,6 +22,20 @@
 			background-repeat: no-repeat;
 			background-size: 64px;
 		}
+
+		.splashVideoUploadProgressPerc {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: absolute;
+			color: #000;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			margin: 0px auto;
+			margin-top: 4px;
+		}
 	</style>
 </head>
 
@@ -105,7 +119,7 @@
 						<div class="box-content">
 							<div>
 								<input type="checkbox" id="isVideo" name="isVideo" onclick="onVideoRequired(event)">
-								<label for="isVideo">Enable video instead of slideshow (<b>only for RHTT11 MODEL)</b></label>
+								<label for="isVideo">Enable video instead of slideshow (<b>only for RHTT1 MODEL)</b></label>
 							</div>
 
 							<div id="boxSlideShow">
@@ -137,13 +151,24 @@
 							</div>
 
 							<div id="boxVideo" style="display: none;">
+								<div style="position: relative;">
+									<progress id="splashVideoUploadProgress" value="0" max="100" style="
+										height: 35px;
+										margin-top: 5px;
+										width: 100%;
+									"></progress>
+									<div class="splashVideoUploadProgressPerc">
+										0%
+									</div>
+								</div>
+
 								<div style="float:left; height:300px; overflow:hidden; margin-right:80px; margin-top: 10px;">
 									<video id="splashVideo" class="bg" autoplay loop muted alt="No video selected yet">
 								</div>
 		
 								<div style="float:left; width:400px">
 									<div style="margin-left:30px;">
-										<div id="splashVideoUpload" data-accept=".mp4" data-refer-to="splashVideo" data-message="+<br><i style='font-size:0.3em'>click to upload an mp4 video<br/><br/> (1024x600 .mp4 format)</i>"></div>
+										<div id="splashVideoUpload" data-accept=".mp4" data-refer-to="splashVideo" data-message="+<br><i style='font-size:0.3em'>click to upload an mp4 (H264) video<br/><br/> (1024x600 .mp4 format)</i>"></div>
 									</div>
 		
 									<div style="margin-left:30px; width: 280px;">
@@ -264,6 +289,8 @@ async function onRheaBootstrapFinished()
 	setupUploader("fileUpload1", upload_onEnd);
 	setupUploader("splashVideoUpload", videoUpload_onEnd);
 
+	setProgressListener("splashVideoUpload");
+
 	var curPath = rheaGetAbsolutePhysicalPath();
 	db = new RheaDB (curPath +"/guidb.db3");
 	let rst = await db.q("SELECT * FROM pageStandby WHERE HIS_ID=" +historyID);
@@ -296,7 +323,7 @@ async function onRheaBootstrapFinished()
 		checked = rst.valByColName(0,'Message')? JSON.parse(rst.valByColName(0,'Message')) : false;
 
 		if(checked) {
-			document.querySelector( '#isVideo' ).checked = checked;
+			document.querySelector( '#isVideo' ).checked = true;
 
 			rheaHideElem(document.getElementById('boxSlideShow'));
 			rheaShowElem(document.getElementById('boxVideo'));
@@ -405,6 +432,18 @@ function onVideoRequired(e) {
 		rheaShowElem(document.getElementById('boxSlideShow'));
 		rheaHideElem(document.getElementById('boxVideo'));
 	}
+}
+
+function setProgressListener(elementID) {
+	document.addEventListener(elementID, (e) => {
+		const progress = e.detail.perc;
+
+		const progressBar = document.getElementById(elementID + 'Progress');
+		const progressLabel = document.querySelector('.' + elementID + 'ProgressPerc');
+
+		progressBar.value = progress;
+		progressLabel.innerHTML = progress + '%';
+	});
 }
 
 function videoUpload_onEnd (fileName, userValue, error_code) {

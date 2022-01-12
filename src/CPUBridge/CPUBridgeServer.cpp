@@ -1741,6 +1741,28 @@ void Server::priv_handleMsgFromSingleSubscriber (sSubscription *sub)
 			}
 			break;
 
+		case CPUBRIDGE_SUBSCRIBER_ASK_BROWSER_URL_CHANGE:
+			{
+                //A seguito della creazione delle macchine rhTT1 che non lavorano più con il browser incorporato nelle QT ma lavorano con un browser
+                //esterno, questa notifica nasce per soddisfare l'esigenza di capire quando il browser vuole "uscire" dalla GUI utente per andare in GUI
+                //programmazione e viceversa. Prima questa cosa veniva automaticamente intercettata dalla GPU Qt in quando il browser incorporato inviava
+                //una notifica al codice c++ (vedi progetto GPU, mainwindow.cpp fn on_webView_urlChanged).
+                //Nel caso di macchine rhTT con browser esterno, bisognava trovare un modo per simulare lo stesso comportamente e quindi ho creato questo
+                //messaggio che va inoltrato al "subscriber GPU" per notificarlo del cambio di URL del browser
+				char url[200];
+				translate_CPU_BROWSER_URL_CHANGE (msg, url, sizeof(url));
+
+                notify_CPU_BROWSER_URL_CHANGE (sub->q, handlerID, logger, url);
+
+                //notifico tutti i sub
+				for (u32 i = 0; i < subscriberList.getNElem(); i++)
+                {
+                    if (&sub->q != &subscriberList(i)->q)
+                        notify_CPU_BROWSER_URL_CHANGE (subscriberList(i)->q, 0, logger, url);
+                }
+			}
+			break;
+
 		case CPUBRIDGE_SUBSCRIBER_ASK_SCIVOLO_BREWMATIC:
 			{
 				u8 perc0_100;

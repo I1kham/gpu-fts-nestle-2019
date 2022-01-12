@@ -10,6 +10,9 @@
 
 <body onLoad="rheaBootstrap()">
 <div id="mainWrapper" class="wrapper1024x600">
+
+    <div id="keyboardWrapper" class="KeyboardWrapper" ></div>
+	
 	<div id="lngPanel" onclick="lngPanelOff()">
 		<div id="lngSelections" style="background-color:black;">Overlay Text</div>
 	</div>
@@ -19,14 +22,12 @@
 	</div>
 	
 	<div class="page">
-		
 		<div id="divPageMenuLeft" class="pageMenuLeft" onclick="onLeftArrowClicked()">
 			<br><br><br><br><br><br><br><img draggable='false' id="btnLeftArrow" class="pageMenuArrow disabled" src="img/leftArrow.png">
 		</div>
 	
 		<div class="pageMenuCenter" style="overflow:hidden;">
 			<div id="divIconMenuWindow" style="width:100%; height:100%; position:relative; left:0;">
-			
 				<div id="divIconMenuContainer" style="position:absolute; left:0; top:0"></div>
 			</div>
 			<div class="clear"></div>
@@ -39,11 +40,10 @@
 	</div>
 
 	<div class="footer">
-	
 		<div class="footer_left">
 			<div id="divPageMenuBack" class="pageMenuBack" onclick="onPageMenuBackClicked()" style="display: none;">
 				<img draggable="false" src="img/pageMenuBack.png">
-		</div>
+			</div>
 			<img id="PageMenuBackImg" draggable="false" src="" onclick="onPageMenuBackClicked()" style="display: none; cursor:pointer; position: relative; bottom: 10px; right: 15px;"> 
 		</div>
 		
@@ -67,7 +67,8 @@
 	
 	<!-- menu di accesso veloce -->
 	<div id="divFastMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
-		<div style="width:94%; margin:20px auto auto auto; position:relative">
+		<div id="divFastMenu_wait" style="padding-top:10%;"><center><img src="img/animationRound.gif"></center></div>
+		<div id="divFastMenu_cnt" style="width:94%; margin:20px auto auto auto; position:relative">
 			<div style="margin:160px 60px 0 90px">
 				<div id="btnBO_cleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:205px;" onclick="onBtnCleaning()"></div>
 				<div id="btnBO_milkerCleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:555px;" onclick="onBtnMilkerCleaning()"></div>
@@ -90,6 +91,10 @@
 		</div>
 	</div>	
 
+	<div id="divMenuKeyB" style="display:none; position:absolute; top:92px; left:520px; width:450; height:405px; background-color:rgba(0,0,0,0.9); overflow:hidden;">
+		<div id="divMenuKeyB_content"></div>
+	</div>	
+	
 	<!-- menu lingue -->
 	<div id="divLangMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
 		<div class="btnIndietro" onclick="divLangMenu_close()"><img draggable='false' src="img/btnHome.png"></div> 
@@ -98,10 +103,11 @@
 		<div id="divLangMenu_content"></div>
 	</div>
 	
-	<div id="divPleaseWait" style="display:none; position:absolute; top:30px; left:0; width:100%; height:570px; z-index:200; background-color:rgba(0,0,0,0.9)">
+	<div id="divPleaseWait" style="display:none; position:absolute; top:35px; left:0; width:100%; height:520px; z-index:200; background-color:rgba(0,0,0,0.9)">
 		<br><br><br><br><br><br><br>
 		<center><img src="img/animationRound.gif"></center>
 	</div>
+	
 </div>
 
 
@@ -111,12 +117,15 @@
 <script src="config/allowedLang.js"></script>
 <script src="config/lang.js"></script>
 <script src="config/mainMenuIcons.js"></script>
+<script src="config/mainMenuIconsGen.js"></script>
+<script src="config/MGEN.js"></script>
 <script src="config/pageMenu.js"></script>
 <script src="config/pageMenuGen.js"></script>
 <script src="config/MMI.js"></script>
 <script src="config/pageStandby.js"></script>
 <script src="js/rheaBootstrap.js"></script>
 <script src="js/PanelPinCode.js"></script>
+<script src="js/PanelKeyboard.js"></script>
 <script language="javascript">
 
 var timerGotoPageStandby = null;
@@ -231,29 +240,46 @@ function onAfterJugInfoLoaded()
 	
 	rhea.onEvent_selectionReqStatus = function (status)
 	{
+		//status=1 => wait
+		//status=2 => running
+		//status=5 => running, stop btn can be shown
 		switch (status)
 		{
 			case 1: // wait for credit
-				console.log ("sel waiting..");
-				break;
-				
 			case 2:// selection started
-				gotoPagePreparingSel(0);
+			case 5:// selection started, can use btnStop
+				//è partita una selezione "spontanea" (probabilmente tramite interfaccia wifi).
+				//Me ne sono accorto, per cui voglio andare in pagina pageSelInProgress.html
+		
+				//chiedo il num della selezione running
+				showPleaseWait();
+				rhea.ajax ("getCurSelRunning", "").then( function(result)
+				{
+					var selNum = parseInt(result);
+					if (selNum >0)
+					{
+						var iconNum = 0;
+						if (selNum >= 50)
+							iconNum = selNum;
+						else
+							iconNum = MMI_fromSelNumToIconNum(selNum);
+							window.location = "pageSelInProgress.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+					}
+				})
+				.catch( function(result)
+				{
+				});
 				break;
 				
-			case 5:// selection started, can use btnStop
-				gotoPagePreparingSel(1);
-				break;
-
 			default:				
 			case 3: // selection aborted
 				console.log ("sel aborted [" +status +"]");
-				rheaHideElem (rheaGetElemByID("divPleaseWait"));
+				hidePleaseWait();
 				selRunning_iconNum = 0;
 				selRunning_selThatWasStarted = 0;
 				break;
+				
 		}
-	
 	}	
 	
 	//rhea.onEvent_selectionPricesUpdated = function () {}
@@ -309,8 +335,6 @@ function prepareFooterBack() {
 	}
 }
 function prepareFooterItems() {
-
-
 	var langDefBtn = document.querySelector( '#langButtonImg_def' );
 
 	if( typeof objFooter === 'undefined' || !objFooter || !Object.keys( objFooter ).length ) {
@@ -645,9 +669,16 @@ function setupIconContainer(nRow, nIconPerRow, nMenuGen)
 	Rhea_session_setValue ("jug", "0");
 	if ((parseInt(nMenuGen)>0) && (parseInt(nMenuGen) <5))
 	{ 
-//?????????????????????????		
+//??????????  bosognerà passare il numero corretto non + 1 !!!!  da sistemare ???????????????		
 		var com_nMenuGen = parseInt(nMenuGen) - 1;
-		setupIconPage (com_nMenuGen, nIconPerPage);
+        if (MGEN_keyboardIsEnabled(com_nMenuGen) == 1)				
+		{
+			setupPanelKeyboard(com_nMenuGen);
+		}
+		else
+		{
+			setupIconPage (com_nMenuGen, nIconPerPage);
+		}
 	}
 	else
 	{
@@ -897,9 +928,17 @@ function showFastMenu()
 	d = rheaGetElemByID("btnBO_FileInfo");
 	rheaSetElemHTML(d, "<p>SW VERSION</p>");
 	
+	panelKeyboardHideAll();
+	rheaHideElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaShowElem (rheaGetElemByID("divFastMenu_cnt")); 		
 	rheaShowElem (rheaGetElemByID("divFastMenu")); 
 }
-function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }
+function showFastMenu_wait()
+{
+	rheaShowElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaHideElem (rheaGetElemByID("divFastMenu_cnt")); 
+}
+function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); panelKeyboardShowAll(); }
 function onBtnCleaning()		
 { 
 	resetTimerGotoPageStandby();
@@ -927,6 +966,7 @@ function onBtnMilkerCleaning()
 						
 					case 2: //indux
 						rhea.requestGPUCleaning(32);
+						showFastMenu_wait();
 						rhea.gotoSpecialURL("gotoMilkerCleaning.html");
 						break;
 				}
@@ -945,7 +985,7 @@ function onBtnDataAudit()
 {
 	resetTimerGotoPageStandby();
 	pinCodePanel.show (
-		function callbackOK() 	{ rhea.gotoSpecialURL("gotoPartialDataAudit.html"); }
+		function callbackOK() 	{ showFastMenu_wait(); rhea.gotoSpecialURL("gotoPartialDataAudit.html"); }
 		,function callbackKO()	{ hideFastMenu(); }
 	);	
 }
@@ -1053,6 +1093,69 @@ function gotoPagePreparingSel(bCanUseBtnStop)
 	window.location = url;
 }
 
+
+function setupPanelKeyboard(com_nMenuGen)
+{
+	//setupNavigator();   //per ora non gestisco le pagine a scorrere per il menu keyboard
+	rheaHideElem (rheaGetElemByID("btnLeftArrow"));
+	rheaHideElem (rheaGetElemByID("btnRightArrow"));
+	initScrollMenu();
+	var styleForIconDiv = "id='pageMenu_keyboard' class='KeyboardImg_MasterSlave'";
+	var html = "";
+    var imgKey="img/img_menuKeyboard.png";
+	var iconDisplayName1=rheaLang.LAB_SLAVE_DISPENSER_IMG;		//"Slave: Dispenser per snack a a a a a aaaaaaaaaaaaaa";
+	var iconDisplayName2=rheaLang.LAB_MASTER_DISPENSER_IMG;		//"Master: Macchina su cui f a r e le selezioni";
+	
+	html = "<div " + styleForIconDiv + ">"
+	          + " <img draggable='false' src="+"'"+imgKey+"'"+">"
+		 + "  <div class='KeyboardDisplay_descrImg'>" + iconDisplayName1 + "</div>"
+	     + "  <div class='KeyboardDisplay_descrImg1'>" +iconDisplayName2 + "</div>"
+		 + " </div>";
+
+
+
+		var d = rheaGetElemByID("divMenuKeyB");
+		rheaSetElemHTML(d, html);
+		rheaShowElem(d);
+	
+	prepareFooterBack();
+//	prepareFooterItems();     //da sistemare - tolta la visualizzazione bottone cambio lingua
+	resetTimerGotoPageStandby();
+	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED);
+		
+	divLangMenu_setup(lang_getCurLangISOCode());
+
+	var numPanelKeyboard = new PanelKeyboard("keyboardWrapper", com_nMenuGen);
+	
+	numPanelKeyboard.show ();
+}
+
+function panelKeyboardShowAll()
+{
+	rheaShowElem(rheaGetElemByID("keyboardWrapper"));
+	rheaShowElem(rheaGetElemByID("divMenuKeyB"));
+}
+
+function panelKeyboardHideAll()
+{
+	rheaHideElem(rheaGetElemByID("keyboardWrapper"));
+	rheaHideElem(rheaGetElemByID("divMenuKeyB"));
+}
+
+
+function showPleaseWait()
+{
+	panelKeyboardHideAll();
+	rheaShowElem (rheaGetElemByID("divPleaseWait"));
+	rheaHideElem (rheaGetElemByID("divPageMenuBack"));
+}
+
+function hidePleaseWait()
+{
+	panelKeyboardShowAll();
+	rheaHideElem (rheaGetElemByID("divPleaseWait"));
+	rheaShowElem (rheaGetElemByID("divPageMenuBack"));
+}
 </script>
 
 

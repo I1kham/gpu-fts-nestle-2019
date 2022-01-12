@@ -542,7 +542,10 @@ function priv_buildConfigFile_mainMenuIconsGen_2 (rst, row)
 		//selezione senza cup customization
 		var result = "menuGenNum:" +rst.valByColName(row, "menuGenNum")
 					+",pageMenuGenImg:\"" +rst.valByColName(row, "pageMenuGenImg") +"\""
-					+",keyboardMenu:\"" +rst.valByColName(row, "keyboardMenu") +"\"";
+					+",keyboardMenu:\"" +rst.valByColName(row, "keyboardMenu") +"\""
+					+",keyboard_daSel:" +rst.valByColName(row, "keyboard_daSel") 
+					+",keyboard_aSel:" +rst.valByColName(row, "keyboard_aSel")
+					+",keyboard_SnackValInit:" +rst.valByColName(row, "keyboard_SnackValInit");
 		//			+",hidden:\"" + (rst.hasColName("HIDDEN_SELECTION")? parseInt(rst.valByColName(row, "HIDDEN_SELECTION")) : 0) +"\""
 		return result;
 	}
@@ -572,7 +575,13 @@ console.time("translation 01");
 	let rstFOOTER_BTNS = await db.q("SELECT What,Message FROM lang WHERE What='langButtonImg' OR What='promoButtonImg' OR What='disablePromo'");
 	let rstJUG_CONFIG = await db.q("SELECT What,Message FROM lang WHERE What='jugConfiguration'");
 	let rstLearnMore = await db.q("SELECT ISO,bgImage FROM pageLearnMore WHERE HIS_ID=" +his_id);		
-	let rstRinsing = await db.q("SELECT ISO,Message FROM lang WHERE What='rinsingImg'");		
+	let rstRinsing = await db.q("SELECT ISO,Message FROM lang WHERE What='rinsingImg'");	
+
+	let rstLAB_SNACK_SELECTION_NUMBER= await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_SNACK_SELECTION_NUMBER' AND What='MSG'");
+	let rstLAB_MASTER_DISPENSER_IMG= await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_MASTER_DISPENSER_IMG' AND What='MSG'");
+	let rstLAB_SLAVE_DISPENSER_IMG= await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_SLAVE_DISPENSER_IMG' AND What='MSG'");
+	let rstLAB_SNACK_INSTRUCTION= await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_SNACK_INSTRUCTION' AND What='MSG'");
+	
 console.timeEnd ("translation 01");
 
 	//cup custom btn appearance
@@ -672,7 +681,12 @@ console.time("  " +iso +"04");
 		var msgLabPleaseScanQRCode = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_PLEASE_SCAN_QRCODE, iso, iLang, allLang[0]);
 		var msgLabCurrency = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_CURRENCY_SIMBOL, iso, iLang, allLang[0]);
 		var msgLabDrinkReady = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_YOUR_DRINK_IS_READY, iso, iLang, allLang[0]);
-		var msgLabDrinkBeingPrepared = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_YOUR_DRINK_IS_BEING_PREPARED, iso, iLang, allLang[0])
+		var msgLabDrinkBeingPrepared = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_YOUR_DRINK_IS_BEING_PREPARED, iso, iLang, allLang[0]);
+			
+		var msgLabSnackSelectionNumber = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_SNACK_SELECTION_NUMBER, iso, iLang, allLang[0]);
+		var msgLabMasterDispenserImg   = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_MASTER_DISPENSER_IMG, iso, iLang, allLang[0]);
+		var msgLabSlaveDispenserImg    = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_SLAVE_DISPENSER_IMG, iso, iLang, allLang[0]);
+		var msgLabSnackInstruction     = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_SNACK_INSTRUCTION, iso, iLang, allLang[0]);			
 console.timeEnd("  " +iso +"04");
 
 		var result = "var rheaLang = {"
@@ -684,7 +698,11 @@ console.timeEnd("  " +iso +"04");
 						+",LAB_YOUR_DRINK_IS_BEING_PREPARED: \"" +msgLabDrinkBeingPrepared +"\""
 						+",LAB_PAGE_STANDBY: \"" +stndByMsg +"\""
 						+",BTN_ABORT: \"" +msgBtnAbort +"\""
-						+",LAB_PLEASE_SCAN_QRCODE: \"" +msgLabPleaseScanQRCode +"\""
+						+",LAB_PLEASE_SCAN_QRCODE: \"" +msgLabPleaseScanQRCode +"\""			
+						+",LAB_SNACK_SELECTION_NUMBER: \"" +msgLabSnackSelectionNumber+"\""
+						+",LAB_MASTER_DISPENSER_IMG: \"" +msgLabMasterDispenserImg+"\""
+						+",LAB_SLAVE_DISPENSER_IMG: \"" +msgLabSlaveDispenserImg+"\""
+						+",LAB_SNACK_INSTRUCTION: \"" +msgLabSnackInstruction+"\""	
 						+"};";
 		var objectFooter = "var objFooter = {";
 		

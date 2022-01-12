@@ -386,6 +386,9 @@ namespace cpubridge
 
 	void		notify_END_OF_GRINDER_CLEANING_PROCEDURE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger);
 
+	void		notify_CPU_BROWSER_URL_CHANGE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const char *url);
+	void		translateNotify_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg& msg, char *out_url, u32 sizeof_out_url);
+	
 	void		notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 perc0_100);
 
 	void		notify_MSG_FROM_LANGUAGE_TABLE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 tableID, u8 msgRowNum, const u8 *utf8message);
@@ -675,6 +678,10 @@ namespace cpubridge
 					//notifica CPU segnalando la fine della procedura di grinder cleaning
 					//alla ricezione di questo msg, CPUBridge risponderà con un notify_END_OF_GRINDER_CLEANING_PROCEDURE
 	
+	void		ask_CPU_BROWSER_URL_CHANGE (const sSubscriber &from, u16 handlerID, const char *url);
+	void		translate_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg &msg, char *out_url, u32 sizeof_out_url);
+				//alla ricezione di questo msg, CPUBridge risponderà con un notify_BROWSER_URL_CHANGE
+
 	void		ask_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber &from, u16 handlerID, u8 perc0_100);
 	void		translate_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const rhea::thread::sMsg &msg, u8 *out_perc0_100);
 					//[perc0_100]== percentuale di attivazione PWM

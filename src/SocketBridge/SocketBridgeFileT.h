@@ -24,9 +24,17 @@ namespace socketbridge
 		void					handleMsg (Server *server, const HSokServerClient &h, socketbridge::sDecodedMessage &decoded, u64 timeNowMSec);
 
 	private:
+#ifdef _DEBUG
+		//quest valori sono quelli in campo da 2 anni, funzionano e non li vorrei toccare
 		static const u16		SIZE_OF_BUFFERW = 1024 + 256;
 		static const u16		PACKET_SIZE = 900;
 		static const u8			NUM_PACKET_IN_A_CHUNK = 24;
+#else
+		//questi valori sono maggiorati rispetto a quelli sopra perchè cos'i rheaMedia trasferisce i file + velocemente
+		static const u16		SIZE_OF_BUFFERW = 8192; //1024 + 256;
+		static const u16		PACKET_SIZE = 4096; //900;
+		static const u8			NUM_PACKET_IN_A_CHUNK = 12;
+#endif
 
 	private:
 		enum class eTransferStatus: u8

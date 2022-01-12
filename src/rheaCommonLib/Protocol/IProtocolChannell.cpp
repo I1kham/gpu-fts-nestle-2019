@@ -12,8 +12,8 @@ IProtocolChannell::IProtocolChannell(Allocator *allocatorIN, u16 startingSizeOfR
 	allocator = allocatorIN; 
 	
 	nBytesInReadBuffer = 0;
-	RBUFFER_SIZE = startingSizeOfReadBufferInBytes;
-	MAX_RBUFFER_SIZE = maxSizeOfReadBufferInBytes;
+	RBUFFER_SIZE = 8192; //startingSizeOfReadBufferInBytes;
+	MAX_RBUFFER_SIZE = 65000; //maxSizeOfReadBufferInBytes;
 	rBuffer = (u8*)RHEAALLOC(allocator, RBUFFER_SIZE);
 }
 
@@ -29,7 +29,7 @@ bool IProtocolChannell::priv_growReadBuffer()
 	if (RBUFFER_SIZE < MAX_RBUFFER_SIZE)
 	{
 		u32 newReadBufferSize = RBUFFER_SIZE * 2;
-		if (newReadBufferSize < 0xffff)
+		if (newReadBufferSize < MAX_RBUFFER_SIZE)
 		{
 			u8 *p = (u8*)RHEAALLOC(allocator, newReadBufferSize);
 			memcpy(p, rBuffer, RBUFFER_SIZE);

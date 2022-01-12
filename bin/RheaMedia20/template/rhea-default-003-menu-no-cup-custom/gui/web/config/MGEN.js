@@ -75,8 +75,47 @@ function MGEN_keyboardIsEnabled(iIcon)
 	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
 	
 	var comkeyboardMenu=0;
-	if ((rheaMainMenuIconsGen[iIcon].keyboardMenu==0) || (rheaMainMenuIconsGen[iIcon].keyboardMenu==1))
+	if ((rheaMainMenuIconsGen[iIcon].keyboardMenu=="0") || (rheaMainMenuIconsGen[iIcon].keyboardMenu=="1"))
 		comkeyboardMenu=rheaMainMenuIconsGen[iIcon].keyboardMenu;
 		
 	return comkeyboardMenu;
+}
+
+function MGEN_getKeyboard_daSel(iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	
+	var comKeyboard_daSel=0;
+	if ((rheaMainMenuIconsGen[iIcon].keyboard_daSel!=undefined) || (rheaMainMenuIconsGen[iIcon].keyboard_daSel!=""))
+		comKeyboard_daSel=rheaMainMenuIconsGen[iIcon].keyboard_daSel;
+		
+	return comKeyboard_daSel;
+}
+
+function MGEN_getKeyboard_aSel(iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	
+	var comKeyboard_aSel=0;
+	if ((rheaMainMenuIconsGen[iIcon].keyboard_aSel!=undefined) || (rheaMainMenuIconsGen[iIcon].keyboard_aSel!=""))
+		comKeyboard_aSel=rheaMainMenuIconsGen[iIcon].keyboard_aSel;
+		
+	return comKeyboard_aSel;
+}
+
+function MGEN_getKeyboard_SnackValInit(iIcon)
+{
+	if (iIcon < 0) iIcon = 0;
+	
+	if (iIcon >= MGEN_getCount()) iIcon = MGEN_getCount()-1;
+	
+	var comKeyboard_SnackValInit=0;
+	if ((rheaMainMenuIconsGen[iIcon].keyboard_SnackValInit!=undefined) || (rheaMainMenuIconsGen[iIcon].keyboard_SnackValInit!=""))
+		comKeyboard_SnackValInit=rheaMainMenuIconsGen[iIcon].keyboard_SnackValInit;
+		
+	return comKeyboard_SnackValInit;
 }
