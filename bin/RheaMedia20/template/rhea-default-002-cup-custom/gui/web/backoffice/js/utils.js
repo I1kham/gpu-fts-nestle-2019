@@ -170,6 +170,8 @@ function setupUploader (elemID, callback_onEnd)
 
 function priv_upload_begin (elemID, theFile, callback_onStart, callback_onProgress, callback_onEnd)
 {
+	if ( !theFile ) { return; }
+	
 	$("#" +elemID +"_wait").show();
 	var reader = new FileReader();
 	var rawData = new ArrayBuffer();            
@@ -198,8 +200,9 @@ function priv_upload_onProgress(fileName, userValue, byteTransferred, bytesTotal
 	
 	console.log ("onEvent_fileupload_progress [" +userValue +"][" +byteTransferred +"]/[" +bytesTotal+"]");
 
+	var perc = byteTransferred >= bytesTotal? 100 : Math.round((byteTransferred / bytesTotal) * 100);
 	var progressEvent = new CustomEvent(userValue, {
-		"detail": { "perc": Math.round((byteTransferred / bytesTotal) * 100) }
+		"detail": { "perc": perc }
 	});
 	
 	document.dispatchEvent(progressEvent);
