@@ -1,0 +1,51 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div id="mainWrapper" class="wrapper1024x600">
+	<div id="divBG"></div>
+
+	<!-- il btn home lo metto qui in position absolute per dargli una maggiore area di click -->
+	<div id="divBtnHome" class="btnIndietro">
+		<img draggable='false' src="img/btnHome.png">
+	</div>
+</div> <!-- wrapper1024x600 -->
+
+<script src="config/lang.js"></script>
+<script src="config/pageMenuGen.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+<script language="javascript">
+function onRheaBootstrapFinished()
+{
+	//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
+	var d = rheaGetElemByID("divBtnHome");
+	d.addEventListener('mouseup', function (ev)
+	{
+		if (mainMenuGenPageOptions.menu_enabled==1)
+			{window.location = "pageMenuGen.html";}
+		else
+			{window.location = "pageMenu.html";  }	
+	}, true);			
+	
+	
+	//carica i contenuti in lingua di questa pagina
+	lang_loadJS ("pageInfo")
+		.then ( function()
+		{
+			var bg = "<img draggable='false' src='upload/" +pageInfo_bg +"'>";
+			rheaSetDivHTMLByName ("divBG", bg);
+		});
+		
+	
+}
+</script>
+
+
+</html>

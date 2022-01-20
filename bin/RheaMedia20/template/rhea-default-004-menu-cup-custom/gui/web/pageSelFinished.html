@@ -1,0 +1,102 @@
+<html>
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+
+<div id="mainWrapper" class="wrapper1024x600">
+	<div class="header">
+		<center><img src="img/logo_rhea.jpg"></center>
+	</div>
+
+	<div class="page" style="position:relative; text-align:center;">
+		<div id="divImage" class="pageSelInProg_image"></div>
+		<div id="divTitle" class="pageSelInProg_title"></div>
+	</div>
+
+	<div id="divTextAtBottom" style="position:absolute; bottom:40px; width:100%; height:40px; overflow:hidden; font-style:italic; font-size:1.0em; text-align:center"></div>
+	<div id="divCPUMessage" style="position:absolute; bottom:5px; left:0; padding:5px 0 3px 0;width:100%; text-align:center; display:none; background-color:rgba(0,0,0,0.8); color:#fff"></div>
+
+</div>
+
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/pageMenuGen.js"></script>
+<script src="config/mainMenuIconsGen.js"></script>
+<script src="config/MMI.js"></script>
+<script src="config/MGEN.js"></script>
+<script src="config/pageSelFinished.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+
+<script language="javascript">
+function onRheaBootstrapFinished() 
+{
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
+}
+
+function onAfterLangLoaded()
+{
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		if (importanceLevel == 0)
+			rheaHideElem(dCPU);
+		else
+		{
+			rheaSetElemHTML(dCPU, msg);
+			rheaShowElem(dCPU);
+		}
+	}
+
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+	
+	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
+	var iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+	var selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+	
+	if (selNum > 49)
+	{
+		var iconDisplayName = MGEN_getDisplayName(iconNum-1);
+		var image = "<img draggable='false' src='" +MGEN_getImgForPageMenu (iconNum-1) +"'>";
+	}
+	else
+	{
+		var iconDisplayName = MMI_getDisplayName(iconNum);
+		var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
+	}
+
+	
+	var d = rheaGetElemByID("divImage");
+	rheaSetElemHTML(d, image);
+	
+	d = rheaGetElemByID("divTitle");
+	rheaSetElemHTML(d, iconDisplayName);	
+		
+	//your drink is ready msg..
+	var d = rheaGetElemByID("divTextAtBottom");
+	rheaSetElemHTML (d, rheaLang["LAB_YOUR_DRINK_IS_READY"]);
+	rheaShowElem (d);	
+	
+	
+	setTimeout (gotoMenuPage, selFinishedPageOptions.timeToGoBack);
+}
+
+function gotoMenuPage()
+{
+		if (mainMenuGenPageOptions.menu_enabled==1)
+			{window.location = "pageMenuGen.html";}
+		else
+			{window.location = "pageMenu.html";  }
+}
+
+
+
+</script>
+
+
+</html>

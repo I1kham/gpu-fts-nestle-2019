@@ -75,6 +75,7 @@ bin/RASPI_DEBUG_rasPIBootLoader
 bin/varie/prog/debug.log
 MSVC17/rheaUnzip/build/
 *.tlog
+*bak
 bin/DA2Parser.txt
 MSVC17/Da2Parser/build/WINDebug/Da2Parser.log
 bin/ROCKCHIP_DEBUG_GPU

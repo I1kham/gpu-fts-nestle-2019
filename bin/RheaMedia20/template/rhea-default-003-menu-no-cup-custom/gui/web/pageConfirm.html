@@ -189,7 +189,11 @@ function onAfterLangLoaded2()
 	var d = rheaGetElemByID("divBtnHome");
 	d.addEventListener('mouseup', function (ev)
 	{
-		window.location = "pageMenu.html";
+		if (mainMenuGenPageOptions.menu_enabled==1)
+			{window.location = "pageMenuGen.html";}
+		else
+			{window.location = "pageMenu.html";  }	
+
 	}, true);	
 	
 	resetTimerGotoPageMainMenu();
@@ -332,7 +336,7 @@ function doUpdateCredit()
 var iconDisplayName="";
 function setupPageContent()
 {
-	var iconDisplayName = MMI_getDisplayName(iconNum);
+	iconDisplayName = MMI_getDisplayName(iconNum);
 	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
 	var selNum = MMI_getLinkedSelectionNumber(iconNum);
 	

@@ -1,0 +1,1123 @@
+<html>
+
+<head>
+	<title>GUI</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onLoad="rheaBootstrap()">
+<div id="mainWrapper" class="wrapper1024x600">
+
+    <div id="keyboardWrapper" class="KeyboardWrapper" ></div>
+	
+	<div id="lngPanel" onclick="lngPanelOff()">
+		<div id="lngSelections" style="background-color:black;">Overlay Text</div>
+	</div>
+
+	<div class="header">
+		<center><img src="img/logo_rhea.jpg"></center>
+	</div>
+
+	<div class="page">
+		<div id="divPageMenuLeft" class="pageMenuLeft" onclick="onLeftArrowClicked()">
+			<br><br><br><br><br><br><br><img draggable='false' id="btnLeftArrow" class="pageMenuArrow disabled" src="img/leftArrow.png">
+		</div>
+
+		<div class="pageMenuCenter" style="overflow:hidden;">
+			<div id="divIconMenuWindow" style="width:100%; height:100%; position:relative; left:0;">
+				<div id="divIconMenuContainer" style="position:absolute; left:0; top:0"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+
+		<div id="divPageMenuRight" class="pageMenuRight" onclick="onRightArrowClicked()">
+			<br><br><br><br><br><br><br><img draggable='false' id="btnRightArrow" class="pageMenuArrow disabled" src="img/rightArrow.png">
+		</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="footer">
+		<div class="footer_left">
+			<div id="divPageMenuBack" class="pageMenuBack" onclick="onPageMenuBackClicked()" style="display: none;">
+				<img draggable="false" src="img/pageMenuBack.png">
+		</div>
+			<img id="PageMenuBackImg" draggable="false" src="" onclick="onPageMenuBackClicked()" style="display: none; cursor:pointer;"> 
+		</div>
+		
+		<div class="footer_center">
+			<div id="divCPUMessage" style="display:none;"></div>	
+		</div>
+		<div class="footer_right">
+			<div id="langButtonImg_def" class="btnLang" onclick="divLangMenu_open()" style="display: none;">
+				<img draggable="false" src="img/flagsButton.png">
+				<p>LANGUAGE</p>
+			</div>
+			<img id="langButtonImg" draggable="false" src="" onclick="divLangMenu_open()" style="display: none; cursor:pointer; position: absolute; bottom: 10px; right: 15px;">
+		</div>
+		<div class="clear"></div>
+	</div>
+	
+	
+	<!-- hotspot nell'angolo in alto a sx. Cliccando 4/5 volte su questo hotspot compare al "menu di acesso veloce"-->
+	<div id="divASx" style="position:absolute; top:0; left:0; width:110px; height:150px; background-color:transparent" onclick="onLogoClicked()">&nbsp;</div>
+	
+	
+	<!-- menu di accesso veloce -->
+	<div id="divFastMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
+		<div id="divFastMenu_wait" style="padding-top:10%;"><center><img src="img/animationRound.gif"></center></div>
+		<div id="divFastMenu_cnt" style="width:94%; margin:20px auto auto auto; position:relative">
+			<div style="margin:160px 60px 0 90px">
+				<div id="btnBO_cleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:205px;" onclick="onBtnCleaning()"></div>
+				<div id="btnBO_milkerCleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:555px;" onclick="onBtnMilkerCleaning()"></div>
+				<div id="btnBO_FileInfo" class="btnQuadratoGrosso" style="position:absolute; top:120px; left:205px;" onclick="onBtnFileInfo()"></div>
+				<div id="btnBO_dataAudit" class="btnQuadratoGrosso" style="position:absolute; top:120px; left:555px;" onclick="onBtnDataAudit()"><p>DATA AUDIT</p></div>
+			</div>
+			<div class="btnQuadratoGrosso" style="position:absolute; top:300px; left:700px; color:#f00" onclick="hideFastMenu()"><p>CLOSE</p></div>
+		</div>
+	</div>
+
+	<!-- menu sw version -->
+	<div id="FileInfo_div" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
+		<div style="width:94%; margin:20px auto auto auto; position:relative">
+			<p>CPU: <b id="FileInfo_CpuModel">...</b></p>
+			<p>&nbsp;&nbsp;&nbsp;<b id="FileInfo_CpuFilename">...</b></p><br>
+			<p>GPU: <b id="FileInfo_GpuVersion">...</b></p><br>
+			<p>GUI: <b id="FileInfo_GuiFilename">...</b></p><br>
+			<p>VMC SETTINGS: <b id="FileInfo_Da3Filename">...</b></p>
+			<div class="btnQuadratoGrosso" style="position:absolute; top:400px; left:700px; color:#f00" onclick="onFileInfoClose()"><p>CLOSE</p></div>
+		</div>
+	</div>	
+	
+	<div id="divMenuKeyB" style="display:none; position:absolute; top:92px; left:520px; width:450; height:405px; background-color:rgba(0,0,0,0.9); overflow:hidden;">
+		<div id="divMenuKeyB_content"></div>
+	</div>	
+	
+	<!-- menu lingue -->
+	<div id="divLangMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
+		<div class="btnIndietro" onclick="divLangMenu_close()"><img draggable='false' src="img/btnHome.png"></div> 
+		<div class="pageConfirm_bigFont" style="text-align:center; color:#aaa; margin:25px 0 60px 0;">SELECT YOUR LANGUAGE</div>
+
+		<div id="divLangMenu_content"></div>
+	</div>
+	
+	<div id="divPleaseWait" style="display:none; position:absolute; top:35px; left:0; width:100%; height:520px; z-index:200; background-color:rgba(0,0,0,0.9)">
+		<br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+	</div>
+	
+</div>
+
+
+
+
+<!-- le opzioni di layout per questa pagina sono qui -->
+<script src="config/allowedLang.js"></script>
+<script src="config/lang.js"></script>
+<script src="config/mainMenuIcons.js"></script>
+<script src="config/mainMenuIconsGen.js"></script>
+<script src="config/MGEN.js"></script>
+<script src="config/pageMenu.js"></script>
+<script src="config/pageMenuGen.js"></script>
+<script src="config/MMI.js"></script>
+<script src="config/pageStandby.js"></script>
+<script src="js/rheaBootstrap.js"></script>
+<script src="js/PanelPinCode.js"></script>
+<script src="js/PanelKeyboard.js"></script>
+<script language="javascript">
+
+var timerGotoPageStandby = null;
+var isMilkerAlive = 0;
+var bShowOnlyImportantCPUMessages = 0;
+var selRunning_iconNum = 0;
+var selRunning_selThatWasStarted = 0;
+var isRheamediaPreviewBox = 0;
+var currentMenu=0;
+var isRFIDJugDetected = 0;
+
+var JUG_STATUS = {
+	ALWAYS_VISIBLE: 1,
+	NEVER_VISIBLE: 2,
+	ON_RFID_STATUS: 3
+};
+
+function onRheaBootstrapFinished() 		
+{ 
+	pinCodePanel = new PanelPinCode("mainWrapper"); 
+	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded); 
+}
+function onAfterLangLoaded()
+{
+
+	if ("jug" in rhea.selection_getBySelNumber(1))
+		onAfterJugInfoLoaded();
+	else
+	{
+		for (var i=1; i<=rhea.selection_getCount(); i++)
+			rhea.selection_getBySelNumber(i).jug = 0;
+		
+		rhea.ajax ("jugRepetitions", "").then( function(result)
+		{
+			var j = JSON.parse(result);
+			for (var i=0; i<j.n; i++)
+			{
+				if (j.s[i]=='a' || j.s[i]=='A')
+					rhea.selection_getBySelNumber(i+1).jug = 10;
+				else
+					rhea.selection_getBySelNumber(i+1).jug = parseInt(j.s[i]);
+			}
+			onAfterJugInfoLoaded();
+		})
+		.catch( function(result)
+		{
+			onAfterJugInfoLoaded();
+		});	
+	}
+}
+
+function onAfterJugInfoLoaded() 
+{
+	rhea.onEvent_selectionAvailabilityUpdated = function () 
+	{
+		onSelectionAvailabilitUpdated();
+	}
+
+	rhea.onEvent_cpuStatus = function (statusID, statusStr, flag16)
+	{
+		console.log ("onEvent_cpuStatus[" +statusID +"][" +statusStr +"][" +flag16 +"]");
+		//stato del cappuccinatore
+		if (isMilkerAlive)
+		{
+			if ((flag16 & 0x04) == 0)
+				isMilkerAlive = 0;
+		}
+		else
+		{
+			if ((flag16 & 0x04) != 0)
+				isMilkerAlive = 1;
+		}
+		
+		if (isRFIDJugDetected)
+		{
+			if ((flag16 & 0x0040) == 0){
+				isRFIDJugDetected = 0;
+				toggleJugIcons( false );
+			}	
+		}
+		else
+		{
+			if ((flag16 & 0x0040) != 0) {
+				isRFIDJugDetected = 1;
+				toggleJugIcons( true );
+			}	
+		}
+		if ( parseInt(statusID) === 8 ) {	// Start of washing process
+			gotoRinsingPage();
+		}
+	}
+	
+	rhea.onEvent_cpuMessage = function(msg, importanceLevel)
+	{
+		//console.log ("onEvent_cpuMessage[" +msg +"][" +importanceLevel +"]");
+		if (!bShowOnlyImportantCPUMessages)
+			importanceLevel = 100;
+		var dCPU = rheaGetElemByID ("divCPUMessage");
+		if (importanceLevel == 0)
+			rheaHideElem(dCPU)
+		else
+		{			
+			rheaSetElemHTML(dCPU, msg);
+			rheaShowElem(dCPU);
+		}
+	}
+	
+	rhea.onEvent_selectionReqStatus = function (status)
+	{
+		//status=1 => wait
+		//status=2 => running
+		//status=5 => running, stop btn can be shown
+		if (status == 1 || status == 2|| status == 5)
+		{
+			//è partita una selezione "spontanea" (probabilmente tramite interfaccia wifi).
+			//Me ne sono accorto, per cui voglio andare in pagina pageSelInProgress.html
+
+			//disabilito le icone bevanda
+			var nIcon = MMI_getCount();
+			for (var i=0; i<nIcon; i++)
+			{
+				var d = rheaGetElemByID("divIcon" +i);
+				rheaAddClassToElem(d, "disabled");
+			}
+	
+			//chiedo il num della selezione running
+			showPleaseWait();
+			rhea.ajax ("getCurSelRunning", "").then( function(result)
+			{
+				var selNum = parseInt(result);
+				if (selNum >0)
+				{
+					var iconNum = 0;
+					if (selNum >= 50)
+						iconNum = selNum;
+					else
+						iconNum = MMI_fromSelNumToIconNum(selNum);
+					window.location = "pageSelInProgress.html?iconMenu=" +iconNum +"&selNum=" +selNum;
+				}
+			})
+			.catch( function(result)
+			{
+			});	
+		}
+	}	
+	
+	//rhea.onEvent_selectionPricesUpdated = function () {}
+	//rhea.onEvent_creditUpdated = function () {}
+
+
+	//il numero di righe/colonne della grid può essere passato anche via urlGet
+	var nGridRow = rheaGetURLParamOrDefault("gridR", mainMenuPageOptions.icon_numRow);
+	var nGridCol = rheaGetURLParamOrDefault("gridC", mainMenuPageOptions.icon_numIconPerRow);
+	var nGridPageMenuGen = rheaGetURLParamOrDefault("gridM", 0);
+	
+	currentMenu = nGridPageMenuGen;
+	
+	//prepara la griglia delle icone
+	setupIconContainer(nGridRow, nGridCol, nGridPageMenuGen);
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
+	rhea.requestGPUEvent(RHEA_EVENT_CPU_STATUS);
+}
+
+function toggleJugIcons( show ) {
+	if (jugConfiguration === JUG_STATUS.ON_RFID_STATUS) {
+		var jugIcons = document.querySelectorAll( '.pageMenu_jugIcon' );
+
+		for (var i=0; i<jugIcons.length; i++ ) {
+			show? rheaShowElem( jugIcons[i] ) : rheaHideElem(jugIcons[i]);
+		}
+	}
+}
+
+function onAfterIconAreDisplayed()
+{
+	setupNavigator();
+	initScrollMenu();
+	prepareFooterBack();
+	prepareFooterItems();
+	resetTimerGotoPageStandby();
+	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED);
+		
+	divLangMenu_setup(lang_getCurLangISOCode());
+}
+
+function prepareFooterBack() {
+	var backButtonM = document.querySelector( '#divPageMenuBack' );     //testTia
+	rheaShowElem(backButtonM);
+	var langBtntest = document.querySelector( '#PageMenuBackImg' );
+	rheaShowElem(langBtntest);
+}
+function prepareFooterItems() {
+	var langDefBtn = document.querySelector( '#langButtonImg_def' );
+
+	if( typeof objFooter === 'undefined' || !objFooter || !Object.keys( objFooter ).length ) {
+		rheaShowElem(langDefBtn);
+
+		return; 
+	}
+
+
+	var langBtn = document.querySelector( '#langButtonImg' );
+	
+
+
+	if( objFooter.langButtonImg && objFooter.langButtonImg !== 'NULL')  { 
+		langBtn.src = 'upload/' + objFooter.langButtonImg; 
+		rheaShowElem(langBtn);
+	} else {
+		rheaShowElem(langDefBtn);
+	}
+}
+
+function onSelectionAvailabilitUpdated()
+{
+	var nIcon = MMI_getCount();
+	for (var i=0; i<nIcon; i++)
+	{
+		var d = rheaGetElemByID("divIcon" +i);
+		if (d!=null) 
+        {
+			rheaRemoveClassToElem(d, "disabled");
+		
+			if (MMI_isEnabled(i) == 0)
+				rheaAddClassToElem(d, "disabled");
+		}
+	}						
+}						
+
+function getTimeMSec() { return Date.now(); }
+
+
+//------- Selection scroll
+var scrollInfo = null;
+var animInterval = null;
+function ScrollInfo()
+{
+	this.mouseStartClickPosX = 0;
+	this.btnPressed = false;
+	this.startTimeMSec = 0;
+	this.lastTimeMovedMSec = 0;
+	this.lastTimePosX = 0;
+	this.iconClicked = -1;
+	this.divLeftAtStart = 0;
+}
+
+function initScrollMenu() 
+{
+	scrollInfo = new ScrollInfo();
+	
+	//--------- Page Scroll Funzioni -------------------------------------
+	divIconMenuWindow.addEventListener('mouseleave', function (ev)
+	{
+		if (!scrollInfo.btnPressed)
+			return;
+		if (ev.relatedTarget.id == "divPageMenuLeft" || ev.relatedTarget.id == "divPageMenuRight")
+		{
+			doEvent_mouseUp(ev);
+		}
+	}, true);
+	
+	divIconMenuWindow.addEventListener('mousedown', function (ev)
+	{
+		resetTimerGotoPageStandby();
+		scrollInfo.iconClicked = ev.srcElement.getAttribute("iconNum");
+		scrollInfo.btnPressed = true;
+		scrollInfo.startTimeMSec = ev.timeStamp;
+		scrollInfo.lastTimeMovedMSec = scrollInfo.startTimeMSec;
+		scrollInfo.divLeftAtStart = parseInt(divIconMenuWindow.style.left);
+		scrollInfo.mouseStartClickPosX = ev.clientX;
+	}, true);
+
+	divIconMenuWindow.addEventListener('mouseup', function (ev)
+	{
+		doEvent_mouseUp(ev);
+	}, true);
+
+	divIconMenuWindow.addEventListener('mousemove', function (ev) 
+	{
+		ev.preventDefault();
+		if (!scrollInfo.btnPressed)
+			return;
+			
+		//se il time trascorso dall'ultimo mouse move è alto, lo considero come un nuovo "primo mouse down"
+		var timeElaspedSinceLastMoveMSec = ev.timeStamp - scrollInfo.lastTimeMovedMSec;
+		if (timeElaspedSinceLastMoveMSec > 300)
+		{
+			scrollInfo.mouseStartClickPosX = ev.clientX;
+			scrollInfo.divLeftAtStart = parseInt(divIconMenuWindow.style.left);
+		}	
+	
+		scrollInfo.lastTimeMovedMSec = ev.timeStamp;
+		var offsetX = ev.clientX - scrollInfo.mouseStartClickPosX;
+			
+		var new_x = scrollInfo.divLeftAtStart + offsetX;
+		if (new_x > 0)
+			new_x = 0;
+		divIconMenuWindow.style.left = new_x + 'px';
+		
+		//in che pagina siamo?
+		var curPage = (-new_x / mainMenuIconPageW);
+		updateNavigatorIcon(curPage);
+
+	}, true);
+}
+
+function doEvent_mouseUp (ev)
+{
+	if (!scrollInfo.btnPressed)
+		return;
+
+	resetTimerGotoPageStandby();
+	scrollInfo.btnPressed = false;
+	
+	var THRESHOLD = 20;
+	var delta = (ev.clientX - scrollInfo.mouseStartClickPosX);
+	if (delta < -THRESHOLD || delta > THRESHOLD)
+	{
+		//ho rilasciato il pulsante ma sono a più di THRESHOLD pixel dal punto in cui ho originalmente cliccato,
+		//quindi non lo posso considerare un mouseclick, lo considero come una strisciata.
+		//Se ho tolto il dito in fretta, scrollo, se invece ho lasciato il dito appoggiato per un po', rimango fermo dove sono
+		var elapsedClickTimeSinceLastMoveMSec = ev.timeStamp - scrollInfo.lastTimeMovedMSec;
+		if (elapsedClickTimeSinceLastMoveMSec < 100)
+		{
+			var THRESHOLD_TO_SCROLL_A_PAGE = 100;
+			if (delta > THRESHOLD_TO_SCROLL_A_PAGE || delta <-THRESHOLD_TO_SCROLL_A_PAGE)
+			{
+				var toScroll = mainMenuIconPageW;
+				if (delta < -THRESHOLD)
+					toScroll = -toScroll;
+
+				var d = rheaGetElemByID("divIconMenuWindow");
+				var cur_x = rheaGetElemLeft(d);
+				var new_x = cur_x + toScroll;
+				
+				//console.log ("SCROOOOL, cur_x=" +cur_x +", new_x="+new_x);
+				//console.log ("mainMenuIconPageW="+mainMenuIconPageW);
+				
+				if (new_x > 0)
+					new_x = 0;
+					
+				var min_x = -mainMenuIconPageW * (mainMenuIconNumPage-1)
+				if (new_x < min_x)	
+					new_x = min_x;
+					
+				clearInterval(animInterval);
+				animInterval = rheaSmoothScrollElemLeft(d, new_x, 500);
+				
+				var page = -new_x / mainMenuIconPageW;
+				updateNavigatorIcon(page);
+				return;
+			}
+		}
+	}
+	else 
+	{
+		//ho rilasciato il dito nei pressi di dove ho cliccato all'inizio
+		//Se non è passato troppo tempo, lo passo per click
+		var elapsedClickTimeMSec = ev.timeStamp - scrollInfo.startTimeMSec;
+		if (elapsedClickTimeMSec < 750)
+		{
+			//console.log ("delta=" +delta +",elapsedClickTimeMSec="+elapsedClickTimeMSec);
+			//alert ("Click");
+			onIconMenuClicked(scrollInfo.iconClicked);
+			return;
+		}
+	}
+	
+	alignToClosestMenuIcon();
+}
+
+function alignToClosestMenuIcon()
+{
+	var d = rheaGetElemByID("divIconMenuWindow");
+	var curx = rheaGetElemLeft(d);
+	var curCol = parseInt(curx / mainMenuIconW);
+
+	clearInterval(animInterval);
+	animInterval = rheaSmoothScrollElemLeft(d, curCol*mainMenuIconW, 200);
+}
+
+function setupNavigator()
+{
+	if (mainMenuIconNumPage < 2)
+	{
+		rheaHideElem (rheaGetElemByID("btnLeftArrow"));
+		rheaHideElem (rheaGetElemByID("btnRightArrow"));
+		return;
+		}
+	var html = "";
+	var i;
+	var d = rheaGetElemByID("divIconMenuWindow");
+	var x = rheaGetElemLeft(d);
+	var curPage = parseInt(-x / mainMenuIconPageW);
+
+	for (i = 0; i < mainMenuIconNumPage; i++) 
+	{
+		var id = "nav_page_" +i;
+		var css = "pageMenu_navigatorIcon";
+		if(i == curPage)
+			css += " selected";
+		html += "<div id='" +id +"' class='" +css +"' onclick='goToPageMenu(" + i + ");' >";
+		html += "</div>";
+	}
+	html += "<div class='clear'></div>";
+	if(document.getElementById('pageIndex'))
+		rheaSetDivHTMLByName("pageIndex", html);
+
+	updateNavigatorIcon(0);
+}
+
+function updateNavigatorIcon(pageIN)
+{
+	if (mainMenuIconNumPage < 2)
+		return;
+
+
+	if (pageIN < 0)
+		pageIN = 0;
+	else if (pageIN >= mainMenuIconNumPage) 
+		pageIN = mainMenuIconNumPage - 1;
+
+	//accende/spegne le frecce	sx/dx
+	var d = rheaGetElemByID("btnLeftArrow");
+	rheaRemoveClassToElem (d, "disabled");
+	if (pageIN == 0)
+		rheaAddClassToElem (d, "disabled");
+	
+	d = rheaGetElemByID("btnRightArrow");
+	rheaRemoveClassToElem (d, "disabled");
+	if (pageIN >= mainMenuIconNumPage-1)
+		rheaAddClassToElem (d, "disabled");		
+		
+	//accende il pallino giusto
+	var page = parseInt(pageIN);
+	for (var i = 0; i < mainMenuIconNumPage; i++)
+	{
+		var d = rheaGetElemByID("nav_page_" +i);
+		if (d) rheaRemoveClassToElem (d,"selected");
+		if (page == i)
+			if (d) rheaAddClassToElem (d,"selected");
+	}
+}
+	
+function goToPageMenu(pageIN) 
+{
+	resetTimerGotoPageStandby();
+	var page = parseInt(pageIN);
+	if (page < 0)
+		page = 0;
+	else if (page >= mainMenuIconNumPage) 
+		page = mainMenuIconNumPage - 1;
+		
+	var d = rheaGetElemByID("divIconMenuWindow");
+	x = page * mainMenuIconPageW;
+	clearInterval(animInterval);
+	animInterval = rheaSmoothScrollElemLeft(d, -x, 500);
+	updateNavigatorIcon(page);
+}
+//-----------------------------------------------------------------------------
+
+
+function resetTimerGotoPageStandby() 
+{
+	if (mainMenuPageOptions.gotoPageStandbyAfterMSec <= 1000)
+		return;
+
+	if (null != timerGotoPageStandby)
+		clearInterval(timerGotoPageStandby);
+
+	timerGotoPageStandby = setInterval(gotoPageStandby, mainMenuPageOptions.gotoPageStandbyAfterMSec);
+}
+
+function gotoPageStandby()  
+{ 
+	if (standbyPageOptions.enabled==0)
+	{
+		//allo scattare del timeout, anche se non vado in pagina standy, ricarico la
+		//lingua di default
+		if (defaultLang != lang_getCurLangISOCode())
+			setLanguage(defaultLang);
+		return;
+	}
+	window.location = "pageStandby.html"; 
+}
+
+function gotoRinsingPage() { window.location = "pageRinsing.html";  }
+
+var mainMenuIconW = 0;
+var mainMenuIconH = 0;
+var mainMenuIconPageW = 0;
+var mainMenuIconNumPage = 0;
+
+//--- gestione pagine ------------------------------
+function setupIconContainer(nRow, nIconPerRow, nMenuGen)
+{
+	var d = rheaGetElemByID("divIconMenuWindow");
+	mainMenuIconPageW = rheaGetElemWidth(d);
+	var pageH = rheaGetElemHeight(d);
+
+
+	mainMenuIconW = parseInt(mainMenuIconPageW / nIconPerRow);
+	mainMenuIconH = parseInt(pageH / nRow);
+
+	var nIcon = MMI_getCount();
+	var nIconPerPage = nIconPerRow * nRow;
+	var styleForIconPage = "class='pageMenu_iconPage' style='width:" + mainMenuIconPageW + "px'";
+	
+	//prepara le pagine di icone
+	mainMenuIconNumPage = 0;
+	var n = 0;
+	var html = "";
+	while (n < nIcon)
+	{
+		var pageID = "mainMenuIconPage" + mainMenuIconNumPage;
+		html += "<div id='" + pageID + "' " + styleForIconPage + "></div>";
+		
+		mainMenuIconNumPage++;
+		n+= nIconPerPage;
+	}
+	html += "<div class='clear'></div>";
+	d = rheaGetElemByID("divIconMenuContainer");	
+	rheaSetElemWidth(d, mainMenuIconNumPage * mainMenuIconPageW);
+	rheaSetElemHTML(d, html);
+	
+	Rhea_session_setValue ("jug", "0");
+	if ((parseInt(nMenuGen)>0) && (parseInt(nMenuGen) <5))
+	{ 
+//??????????  bosognerà passare il numero corretto non + 1 !!!!  da sistemare ???????????????		
+		var com_nMenuGen = parseInt(nMenuGen) - 1;
+        if (MGEN_keyboardIsEnabled(com_nMenuGen) == 1)				
+		{
+			setupPanelKeyboard(com_nMenuGen);
+		}
+		else
+		{
+			setupIconPage (com_nMenuGen, nIconPerPage);
+		}
+	}
+	else
+	{
+		setupIconPage (0, nIconPerPage);
+	}
+}
+
+var jug_iconNum = -1;
+var jug_isIconSelected = 0;
+function setupIconPage (iPage, nIconPerPage)
+{
+	//console.log ("setupIconPage (" +iPage +", " +nIconPerPage +")");
+
+	var styleForIconDiv = "class='pageMenu_iconWrapper' style='width:" + mainMenuIconW + "px; height:" + mainMenuIconH + "px;'";
+	var nIcon = MMI_getCount();
+	
+	var startIcon = iPage * nIconPerPage;
+	var n = nIconPerPage;
+	if (startIcon + n > nIcon)
+		n = nIcon - startIcon; 
+	
+	var html = "";
+	var ndTextConfigured = false;
+
+	while (n--)
+	{
+		var iconDisplayName = MMI_getDisplayName(startIcon);
+		var image = "<img iconNum='" + startIcon + "' draggable='false' src='" + MMI_getImgForPageMenu(startIcon) + "'>";
+
+		var cssForIconDisabled="";
+		if (MMI_isEnabled(startIcon) == 0)
+			cssForIconDisabled=" disabled";
+
+		if (iconDisplayName=="JUG")
+			jug_iconNum = startIcon;
+		
+		var ndIconText = rhea_mainMenuIconSecondName[startIcon] && rhea_mainMenuIconSecondName[startIcon] !== 'NULL'? "<div id='icon_nd_text" +startIcon +"' class='pageMenu_icon_nd_text' iconNum='" + startIcon + "'>" + rhea_mainMenuIconSecondName[startIcon] + "</div>" : '';
+		
+		if( ndIconText ) {
+			ndTextConfigured = true;
+		}
+
+		var isHidden  = JSON.parse(rheaMainMenuIcons[startIcon].hidden);
+		var visibility = isHidden? "style='display: none'" : ""; 
+		
+		html += "<div " + styleForIconDiv + ">"
+			  + " <div id='divIcon" + startIcon + "'  iconNum='" + startIcon + "' class='pageMenu_icon" + cssForIconDisabled + "'" + visibility  + " >"
+			  + "  <div class='pageMenu_icon_img' iconNum='" + startIcon + "'>" + image + "</div>"
+			  + "  <div id='icon_text" +startIcon +"' class='pageMenu_icon_text' iconNum='" + startIcon + "'>" + iconDisplayName + "</div>"
+			  + ndIconText;
+			  
+		if ( typeof MMI_isJuggable !== 'undefined' && MMI_isJuggable(startIcon) && jugConfiguration !== JUG_STATUS.NEVER_VISIBLE ) {
+			var style = '';
+
+			if( jugConfiguration === JUG_STATUS.ON_RFID_STATUS ) {
+				style = isRFIDJugDetected? " style='display: block;'" : " style='display: none;'";
+			}
+
+			html += "<div class='pageMenu_jugIcon'" + style + "><img src='img/jugIcon.png'></div>";
+		}
+			  
+		html += " </div>"
+			  + "</div>";
+		startIcon++;
+	}
+
+	var pageID = "mainMenuIconPage" + iPage;
+	d = rheaGetElemByID(pageID);
+	rheaSetElemHTML(d, html);
+	
+	
+	iPage++;
+	if (iPage < mainMenuIconNumPage)
+		setTimeout(function() { setupIconPage (iPage, nIconPerPage);}, 100);
+	else
+		onAfterIconAreDisplayed();
+	
+	if( ndTextConfigured ) {
+		var pageMenuElems = document.querySelectorAll( '.pageMenu_icon_text' );
+	
+		for (var i=0; i<pageMenuElems.length; i++) {
+			pageMenuElems[i].style = 'font-size:0.85em!important';
+		}
+	}
+}
+
+function onPageMenuBackClicked()
+{
+	resetTimerGotoPageStandby();
+	
+	window.location = "pageMenuGen.html"; 
+}
+
+
+function onLeftArrowClicked() 
+{
+	resetTimerGotoPageStandby();
+
+	var d = rheaGetElemByID("divIconMenuWindow");
+	var x = rheaGetElemLeft(d);
+
+	var curPage = -x / mainMenuIconPageW;
+	curPage--;
+	goToPageMenu(curPage);
+}
+
+function onRightArrowClicked() 
+{
+	resetTimerGotoPageStandby();
+
+	var d = rheaGetElemByID("divIconMenuWindow");
+	var x = rheaGetElemLeft(d);
+
+	var curPage = -x / mainMenuIconPageW;
+	curPage++;
+
+//?????????????????????????	da sistemare 'gabola' temporanea	
+	
+	if (mainMenuGenPageOptions.menu_enabled==1)
+	{
+	    var max_page=4;
+	    if (currentMenu==2) max_page=2;
+		if (currentMenu==3) max_page=1;
+		if (currentMenu==4) max_page=0;
+		if (curPage > max_page) curPage=max_page;
+	}
+
+	goToPageMenu(curPage);
+	
+}
+
+/****************************************
+ * chiamata quando una icona bevanda viene cliccata
+ */
+function onIconMenuClicked(iconNum)
+{
+	resetTimerGotoPageStandby();
+	
+	if (iconNum == jug_iconNum)
+	{	
+		//ho cliccato l'icona JUG
+		var d = rheaGetElemByID("icon_text" + iconNum);
+		if (jug_isIconSelected)
+		{
+			jug_isIconSelected=0;
+			rheaRemoveClassToElem (d, "pageMenu_icon_text_hl");
+			Rhea_session_setValue ("jug", "0");
+		}
+		else
+		{
+			jug_isIconSelected=1;
+			rheaAddClassToElem (d, "pageMenu_icon_text_hl");
+			Rhea_session_setValue ("jug", rheaMainMenuIcons[iconNum].selNum);
+		}
+		return;
+	}
+	
+	if( !iconNum ) { return; }
+
+	if (MMI_isEnabled(iconNum))
+		window.location = "pageConfirm.html?iconMenu=" + iconNum;
+}
+
+function setLanguage(twoCharISOCode) 
+{
+	resetTimerGotoPageStandby();
+
+	lang_loadLang(twoCharISOCode)
+		.then(function (result) {
+			window.location = window.location;
+		})
+		.catch(function (result) {
+			rheaLog("AJAX::error => " + result);
+		});
+}
+
+function onBtnInfoClicked() 	{ resetTimerGotoPageStandby(); }
+function changeGrid(nRow, nCol, menuGenNum) { window.location = "pageMenu.html?gridR=" +nRow + "&gridC=" +nCol+"&gridPageMenu"+menuGenNum; }
+function gotoPageInfo()			{ window.location = "pageInfo.html"; }
+
+
+//******************************************
+var debug_logo_nClick = 0;
+var debug_logo_lastTimeClicked = 0;	
+function onLogoClicked()
+{
+	if (debug_logo_lastTimeClicked == 0)
+	{
+		debug_logo_lastTimeClicked = getTimeMSec();
+		debug_logo_nClick = 1;
+	}
+	else
+	{
+		var timeNowMSec = getTimeMSec();
+		var diffMSec =  timeNowMSec - debug_logo_lastTimeClicked;
+		if (diffMSec > 1500)
+			debug_logo_lastTimeClicked = debug_logo_nClick = 0;
+		else
+		{
+			debug_logo_lastTimeClicked = timeNowMSec;
+			debug_logo_nClick++;
+			if (debug_logo_nClick >= 3)
+			{
+				debug_logo_lastTimeClicked = debug_logo_nClick = 0;
+				showFastMenu();
+			}
+		}
+	}
+}
+
+function showFastMenu() 		
+{ 
+	var d = rheaGetElemByID("btnBO_cleaning");	
+	rheaSetElemHTML(d, "<p>RINSING</p>");
+	
+	d = rheaGetElemByID("btnBO_milkerCleaning");	
+	rheaSetElemHTML(d, "<p>MILKER<br>CLEANING</p>");
+	if (isMilkerAlive)
+		rheaSetDisplayMode (d, "table");
+	else
+		rheaHideElem (d);
+		
+	d = rheaGetElemByID("btnBO_FileInfo");
+	rheaSetElemHTML(d, "<p>SW VERSION</p>");
+		
+	panelKeyboardHideAll();
+	rheaHideElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaShowElem (rheaGetElemByID("divFastMenu_cnt")); 		
+	rheaShowElem (rheaGetElemByID("divFastMenu")); 
+}
+function showFastMenu_wait()
+{
+	rheaShowElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaHideElem (rheaGetElemByID("divFastMenu_cnt")); 
+}
+function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); panelKeyboardShowAll(); }
+function onBtnCleaning()		
+{ 
+	resetTimerGotoPageStandby();
+	pinCodePanel.show (
+		function callbackOK()		{ console.log("rinsing"); rhea.requestGPUCleaning(160); hideFastMenu(); }
+		,function callbackKO()		{ hideFastMenu(); }
+	);
+}
+
+function onBtnMilkerCleaning()
+{
+	resetTimerGotoPageStandby();
+	pinCodePanel.show (
+		function callbackOK() {
+			console.log("milker cleaning");
+			rhea.ajax ("getMilkerType", "").then( function(result)
+			{
+				var data = JSON.parse(result);
+				switch (parseInt(data.mType))
+				{
+					default: //venturi:
+						rhea.requestGPUCleaning(32);
+						hideFastMenu();
+						break;
+						
+					case 2: //indux
+						rhea.requestGPUCleaning(32);
+						showFastMenu_wait();
+						rhea.gotoSpecialURL("gotoMilkerCleaning.html");
+						break;
+				}
+			})
+			.catch( function(result)
+			{
+				rhea.requestGPUCleaning(32);
+			});		
+		}
+
+		,function callbackKO()		{ hideFastMenu(); }
+	);	
+}
+
+function onBtnDataAudit()
+{
+	resetTimerGotoPageStandby();
+	pinCodePanel.show (
+		function callbackOK() 	{ showFastMenu_wait(); rhea.gotoSpecialURL("gotoPartialDataAudit.html"); }
+		,function callbackKO()	{ hideFastMenu(); }
+	);	
+}
+
+function onBtnFileInfo()
+{
+	var cpu = rheaGetElemByID("FileInfo_CpuFilename");
+	var cpuModel = rheaGetElemByID("FileInfo_CpuModel");
+	var gui = rheaGetElemByID("FileInfo_GuiFilename");
+	var gpuVer = rheaGetElemByID("FileInfo_GpuVersion");
+	var da3 = rheaGetElemByID("FileInfo_Da3Filename");
+
+	resetTimerGotoPageStandby();
+
+	hideFastMenu();
+	rheaShowElem(rheaGetElemByID("FileInfo_div"));
+
+	rhea.ajax ("getLastInstalledCPUFilename", "").then( function(result)
+	{
+		rheaSetElemHTML(cpu, result);
+	});
+
+	rhea.ajax ("getLastInstalledGUIFilename", "").then( function(result)
+	{
+		rheaSetElemHTML(gui, result);
+	});
+
+	rhea.ajax ("getDA3info", "").then( function(result)
+	{
+		var resJson = JSON.parse(result);
+		rheaSetElemHTML(da3, resJson.filename + "<br><i>last time updated: " + resJson.lastUpdate + "</i>"); 
+	});
+	
+	rhea.ajax("getGPUVer", "").then( function(result)
+	{
+		rheaSetElemHTML(gpuVer, result);
+	});
+	
+	rhea.ajax("getCPUStrModelAndVer", "").then( function(result)
+	{
+		rheaSetElemHTML(cpuModel, result);
+	});
+}
+
+function onFileInfoClose()
+{
+	resetTimerGotoPageStandby();
+	rheaHideElem(rheaGetElemByID("FileInfo_div"));
+}
+
+//--------------------------------------------------------
+function divLangMenu_setup(currentLangISO)
+{
+	var html = "<ul class='langList'>";
+	var eLang = allLang.split(",");
+	for (var i=0; i<eLang.length; i++)
+	{
+		var iso = eLang[i];
+		var text= allLangLocale[i];
+		
+		var cssClass = "btnSingleLang";
+		if (iso == currentLangISO)
+			cssClass += " selected";
+		html += "<li><div id='divLangMenu_" +iso +"' class='" +cssClass +"' onclick='divLangMenu_select(\"" +iso +"\")'><img draggable='false' src='img/flags/" +iso +".png'><p>" +text +"</p></div></li>";
+	}
+	html += "</ul>";
+	
+	var d = rheaGetElemByID("divLangMenu_content");
+	rheaSetElemHTML(d, html);
+}
+		
+function divLangMenu_open()
+{
+	var d = rheaGetElemByID("divLangMenu");
+	rheaShowElem(d);
+}
+
+function divLangMenu_close()
+{
+	var d = rheaGetElemByID("divLangMenu");
+	rheaHideElem(d);
+}
+
+function divLangMenu_select(isoOfSelectedLang)
+{
+	var eLang = allLang.split(",");
+	for (var i=0; i<eLang.length; i++)
+	{
+		var iso = eLang[i];
+		var d = rheaGetElemByID("divLangMenu_" +iso);
+		rheaRemoveClassToElem(d, "selected");
+		if (iso == isoOfSelectedLang)
+		{
+			rheaAddClassToElem(d, "selected");
+			setLanguage(iso);
+		}
+	}
+	divLangMenu_close();
+}
+
+function gotoPagePreparingSel(bCanUseBtnStop)
+{
+	var url = "pageSelInProgress.html";
+	url += "?iconMenu=" +selRunning_iconNum +"&selNum=" +selRunning_selThatWasStarted +"&btnStop=" +bCanUseBtnStop;
+	window.location = url;
+}
+
+
+function setupPanelKeyboard(com_nMenuGen)
+{
+	//setupNavigator();   //per ora non gestisco le pagine a scorrere per il menu keyboard
+	rheaHideElem (rheaGetElemByID("btnLeftArrow"));
+	rheaHideElem (rheaGetElemByID("btnRightArrow"));
+	initScrollMenu();
+	var styleForIconDiv = "id='pageMenu_keyboard' class='KeyboardImg_MasterSlave'";
+	var html = "";
+    var imgKey="img/img_menuKeyboard.png";
+	var iconDisplayName1=rheaLang.LAB_SLAVE_DISPENSER_IMG;		//"Slave: Dispenser per snack a a a a a aaaaaaaaaaaaaa";
+	var iconDisplayName2=rheaLang.LAB_MASTER_DISPENSER_IMG;		//"Master: Macchina su cui f a r e le selezioni";
+	
+	html = "<div " + styleForIconDiv + ">"
+	          + " <img draggable='false' src="+"'"+imgKey+"'"+">"
+		 + "  <div class='KeyboardDisplay_descrImg'>" + iconDisplayName1 + "</div>"
+	     + "  <div class='KeyboardDisplay_descrImg1'>" +iconDisplayName2 + "</div>"
+		 + " </div>";
+
+
+
+		var d = rheaGetElemByID("divMenuKeyB");
+		rheaSetElemHTML(d, html);
+		rheaShowElem(d);
+	
+	prepareFooterBack();
+//	prepareFooterItems();     //da sistemare - tolta la visualizzazione bottone cambio lingua
+	resetTimerGotoPageStandby();
+	rhea.requestGPUEvent(RHEA_EVENT_SELECTION_AVAILABILITY_UPDATED);
+		
+	divLangMenu_setup(lang_getCurLangISOCode());
+
+	var numPanelKeyboard = new PanelKeyboard("keyboardWrapper", com_nMenuGen);
+	
+	numPanelKeyboard.show ();
+}
+
+function panelKeyboardShowAll()
+{
+	rheaShowElem(rheaGetElemByID("keyboardWrapper"));
+	rheaShowElem(rheaGetElemByID("divMenuKeyB"));
+}
+
+function panelKeyboardHideAll()
+{
+	rheaHideElem(rheaGetElemByID("keyboardWrapper"));
+	rheaHideElem(rheaGetElemByID("divMenuKeyB"));
+}
+
+
+function showPleaseWait()
+{
+	panelKeyboardHideAll();
+	rheaShowElem (rheaGetElemByID("divPleaseWait"));
+	rheaHideElem (rheaGetElemByID("divPageMenuBack"));
+}
+
+function hidePleaseWait()
+{
+	panelKeyboardShowAll();
+	rheaHideElem (rheaGetElemByID("divPleaseWait"));
+	rheaShowElem (rheaGetElemByID("divPageMenuBack"));
+}
+</script>
+
+
+</html>

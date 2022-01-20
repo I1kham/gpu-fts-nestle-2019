@@ -1,0 +1,232 @@
+<html>
+	<head>
+		<title>GUI-Editor</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+		<script src="js/utils.js"></script>
+		<link href="style.css" rel="stylesheet" type="text/css">
+		<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+		<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+	</head>
+
+	<body onLoad="rheaBootstrapWithPathPrefix('../')">
+		<div id="mainWrapper" class="wrapper">
+			<div id="main-content">
+				<div class="header">
+					<h1>Page learn more</h1>
+					<div id="tplPath">&nbsp;</div>
+				</div>
+
+				<div class="pulsantiera-sticky">
+					<table border="0" cellspacing='0' cellpadding='2' width="100%">
+						<tr valign="middle">
+							<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+							<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+							<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+						</tr>
+					</table>
+				</div>			
+				
+				<div class="page">
+					<div id="page-content">
+						<div class="box">
+							<h2>Rinsing configuration</h2>
+							<div class="box-content">
+								<p>
+									Drag & drop the image that will be shown on the "Rinsing page". The image must be a jpg with a resolution of 1024x600 pixel.
+									<br>
+									You can upload a different image for each language. If you do not upload an image for a certain language, then the image 
+									associated with the default language will be automatically used.
+								</p>
+								<br>&nbsp;
+								
+								<ul id="rinsing_langSelector" class="langSelector"></ul>
+								<div class="clear"></div>
+
+								<div style="float:left; width:512px; height:300px; overflow:hidden; margin-right:10px">
+									<img id="pageRinsingImg" src="../img/TS_hot_water_warning.png" data-default="../img/TS_hot_water_warning.png" alt="Image not set yet" style="width:512px">
+								</div>
+								
+								<div style="float:left; width: 280px;">
+									<div id="rinsingFileUpload" style="width:280px" data-message="+<br><i style='font-size:0.3em'>drag an image here<br><br>(1024x600 jpg image)</i>"></div>
+									<br><br>
+									<br><br>
+									<br><br>
+									<center><a class="button rosso" href="javascript:rinsing_deleteCurrentImage('pageRinsingImg')">Delete current image</a></center>
+								</div>
+								
+								<div class="clear"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="main-content-wait" style="display:none">
+				<br><br><br><br><br><br><br><br><br><br>
+				<center><img src="img/animationRound.gif"></center>
+				<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+			</div>
+		</div>
+
+		<div id="previewBox"></div>
+
+		<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+		<script src="js/rheaDB.js"></script>
+		<script src="js/rheaFileUpload.js"></script>
+		<script src="js/buildConfigFile.js"></script>
+		<script src="../config/allowedLang.js"></script>
+		<script src="../../../../home/js/fileSaveAs.js"></script>
+		<script language="javascript">
+
+			var historyID = -1;
+			var db = null;
+			var rst = null;
+			var nutritionalInfoImg = [];
+
+			async function onRheaBootstrapFinished() {
+				var urlParams = getUrlVars();
+				historyID = urlParams["his"];
+				
+				$("#main-content-wait").show();
+				
+				setupUploader("rinsingFileUpload", uploadNutri_onEnd);
+				
+				var curPath = rheaGetAbsolutePhysicalPath();
+				db = new RheaDB (curPath +"/guidb.db3");
+
+				//selettore lingue per la pagina
+				var html = "";
+				var langList = allLang.split(",");
+
+				for( var i=0; i<langList.length; i++ ) {
+					nutritionalInfoImg[i] = "";
+					var css="";
+					
+					if (i == 0) { css = "selected"; }
+						
+					var id = "rinsing_langSelector_" +i;
+					html += "<li id='" + id + "' class='" + css + "' onclick='rinsing_langSelector_onClick(" + i + ");'><img src='img/flags/" + langList[i] + ".svg'></li>";
+				}
+
+				rheaSetDivHTMLByName("rinsing_langSelector", html);	
+				
+				rst = await db.q( "SELECT ISO,Message FROM lang WHERE What='rinsingImg'" );
+				
+				for (var i=0; i<langList.length; i++) {
+					var bAlreadyInDB = 0;
+					
+					for (var r=0; r<rst.getNumRows(); r++) {
+						var iso = rst.valByColName(r, "ISO");
+						
+						if (iso == langList[i]) {
+							bAlreadyInDB = 1;
+							nutritionalInfoImg[i] = rst.valByColName(r, "Message");
+							
+							if (nutritionalInfoImg[i] == "NULL")
+								nutritionalInfoImg[i] = "";
+							
+							break;
+						}
+					}
+					
+					if ( !bAlreadyInDB )
+						await db.exec ("INSERT INTO lang (UID,ISO,What,Message) VALUES(RINS_SRC, '" + langList[i] + "','rinsingImg', '" + nutritionalInfoImg[i] + "')");
+				}
+
+				rinsing_langSelector_onChange();
+
+				$("#main-content-wait").hide();
+				$("#page-content").show();
+				
+				getCurrentPath();
+			}
+
+			function getCurrentPath() {
+				if (!rheaGetElemByID('tplPath')) { return; }
+
+				let rheaobj = localStorage.getItem( 'rhea.data' );
+
+				if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+					rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+				} else {
+					rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+				}
+			}
+
+			function rinsing_langSelector_onClick(iClicked) {
+				var langList = allLang.split(",");
+				for (var i=0; i<langList.length; i++) {
+					var e = rheaGetElemByID("rinsing_langSelector_" +i);
+					rheaRemoveClassToElem(e,"selected");
+				}
+				
+				var e = rheaGetElemByID("rinsing_langSelector_" +iClicked);
+				rheaAddClassToElem(e,"selected");
+				rinsing_langSelector_onChange();
+			}
+
+			function rinsing_langSelector_getIndexOfCurrentSelectedLang() {
+				var langList = allLang.split(",");
+				for (var i=0; i<langList.length; i++) {
+					if ( $("#rinsing_langSelector_" + i).hasClass("selected") )
+						return i;
+				}
+
+				return 0;
+			}
+
+			function rinsing_langSelector_onChange() {
+				var i = rinsing_langSelector_getIndexOfCurrentSelectedLang();
+				var path = !nutritionalInfoImg[i] && !i? document.querySelector( '#pageRinsingImg' ).dataset.default : "../upload/" + nutritionalInfoImg[i];
+
+				$("#pageRinsingImg").attr("src", path);
+			}
+
+			function uploadNutri_onEnd (fileName, userValue, error_code) {
+				if (error_code != 0)
+					return;
+				
+				var i = rinsing_langSelector_getIndexOfCurrentSelectedLang();
+				nutritionalInfoImg[i] = '../upload/' + fileName;
+				$("#pageRinsingImg").attr("src", nutritionalInfoImg[i]);
+			}
+
+			function rinsing_deleteCurrentImage(referer) {
+				var i = rinsing_langSelector_getIndexOfCurrentSelectedLang();
+				nutritionalInfoImg[i] = !i? document.querySelector( '#' + referer ).dataset.default : '../upload/';
+
+				$("#pageRinsingImg").attr( "src", nutritionalInfoImg[i] );
+			}
+
+			async function saveAll() {
+				if (!nutritionalInfoImg.length) {
+					alert ("Nothing to save");
+					return;
+				}
+
+				//*** 
+				pleaseWait(1);
+
+				var langList = allLang.split(",");
+				for (var i=0; i<langList.length; i++) {
+					nutritionalInfoImg[i] = nutritionalInfoImg[i] || '../upload/TS_hot_water_warning.png'
+
+					let sql = rst.getNumRows()?
+						"UPDATE lang SET Message='" + nutritionalInfoImg[i] + "' WHERE What='rinsingImg' AND ISO='" + langList[i] + "'" 
+						:
+						"INSERT INTO lang (UID,ISO,What,Message) VALUES(-1,'" + langList[i] + "','rinsingImg','" + nutritionalInfoImg[i] + "')"
+					
+					await db.exec(sql);
+				}
+
+				await db.exec ("UPDATE history SET DataUM='" + buildConfigFile_getAAAAMMGGHHMMSS() + "' WHERE ID=" + historyID);
+				pleaseWait(0);
+			}
+		</script>
+	</body>
+</html>
