@@ -3,7 +3,7 @@
 clear
 DATA=`date '+%y%m%d'`
 estensione="_commit.mh210"
-filename="GPU_TS_v.2.4.5.r33_$DATA$estensione"
+filename="GPU_TS_v.2.6.0_RC1_rhTT1_$DATA$estensione"
 
 
 FILE_GPU="./ROCKCHIP_RELEASE_GPU"
@@ -14,17 +14,28 @@ if [ ! -f "$FILE_GPU" ]; then
 fi
 
 
+FILE_RSProto="./ROCKCHIP_RELEASE_SecoBridge"
+if [ ! -f "$FILE_RSProto" ]; then
+    echo "$FILE_RSProto does not exist"
+	cp ./aaa_MH210_CREATE_ESAPI.sh ./error_ROCKCHIP_RELEASE_SecoBridge
+	exit 1
+fi
+
+
+
 #la roba che mi interessa la metto tutta in GPUPackage2019
 rm -r ./GPUPackage2019
 mkdir ./GPUPackage2019
 mkdir ./GPUPackage2019/current
 mkdir ./GPUPackage2019/current/lang
 cp "$FILE_GPU" ./GPUPackage2019/GPUFusion
+cp "$FILE_RSProto" ./GPUPackage2019/RSProto
 cp ./current/lang/*.* ./GPUPackage2019/current/lang
 cp ../src/makeRheaServicePack.sh ./GPUPackage2019
 rm ./varie/prog/lastUsedLang.txt
 cp -r ./varie ./GPUPackage2019
 chmod 777 ./GPUPackage2019/GPUFusion
+chmod 777 ./GPUPackage2019/RSProto
 chmod 777 ./GPUPackage2019/makeRheaServicePack.sh
 chmod 777 ./GPUPackage2019/current/lang
 rm ./GPUPackage2019/varie/prog/js/dev/compiler.jar

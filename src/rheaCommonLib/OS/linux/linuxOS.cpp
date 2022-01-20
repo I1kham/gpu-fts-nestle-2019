@@ -79,8 +79,20 @@ void platform::sleepMSec (size_t msec)
 void platform::reboot()
 {
     ::sync();
+
+#ifdef PLATFORM_ROCKCHIP
+    //per fare il reboot dei docker sulla D23, basta creare il file in /data/seco/services/RESTART_DOCKERS
+    FILE *f = rhea::fs::fileOpenForWriteBinary ((const u8*)"/data/seco/services/RESTART_DOCKERS");
+    if (NULL != f)
+    {
+        const u8 data[2] = {'A', 'A'};
+        rhea::fs::fileWrite (f, data, 1);
+        rhea::fs::fileClose(f);
+    }
+#else
     ::setuid (0);
     ::reboot(RB_AUTOBOOT);
+#endif
 }
 
 //*******************************************************************

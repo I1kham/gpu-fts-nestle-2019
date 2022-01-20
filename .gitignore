@@ -91,6 +91,9 @@ QT-Linaro-Rockchip/rheaDB/build/
 QT-Linaro-Rockchip/rheaExternalSerialAPI/
 QT-Linaro-Rockchip/SMU/build/
 QT-Linaro-Rockchip/SocketBridge/build/
+QT-Linaro-Rockchip/GPUBoot/build/
+QT-Linaro-Rockchip/GPUPreBoot/build/
+QT-Linaro-Rockchip/build7GPUPreBootProject-Desktop_a8141c-Release/
 bin/ROCKCHIP_DEBUG_GPUBoot
 bin/ROCKCHIP_RELEASE_GPUBoot
 bin/ROCKCHIP_DEBUG_GPUPreBoot
