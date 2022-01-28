@@ -32,8 +32,22 @@ using namespace cpubridge;
 
 
 	#define DUMP_CLOSE()				if (NULL != fDUMP_CPUChannelCom)	{ rhea::fs::fileClose(fDUMP_CPUChannelCom); fDUMP_CPUChannelCom = NULL; }
-	#define DUMP(buffer, lenInBytes)	rhea::utils::dumpBufferInASCII(fDUMP_CPUChannelCom, buffer, lenInBytes);
-	#define DUMPMSG(string)				fprintf(fDUMP_CPUChannelCom, string); fflush(fDUMP_CPUChannelCom);
+	
+	#define DUMP(buffer, lenInBytes) \
+	{ \
+		u8 dump_hh, dump_mm, dump_ss; \
+		rhea::Time24::getTimeNow (&dump_hh, &dump_mm, &dump_ss); \
+		fprintf(fDUMP_CPUChannelCom, "%02d:%02d:%02d ", dump_hh, dump_mm, dump_ss); \
+		rhea::utils::dumpBufferInASCII(fDUMP_CPUChannelCom, buffer, lenInBytes); \
+	}
+	
+	#define DUMPMSG(string) \
+		{ \
+			u8 dump_hh, dump_mm, dump_ss; \
+			rhea::Time24::getTimeNow (&dump_hh, &dump_mm, &dump_ss); \
+			fprintf(fDUMP_CPUChannelCom, "%02d:%02d:%02d ", dump_hh, dump_mm, dump_ss); \
+			fprintf(fDUMP_CPUChannelCom, string); fflush(fDUMP_CPUChannelCom); \
+		}
 #else
 	#define DUMP_OPEN()
 	#define DUMP_CLOSE()	

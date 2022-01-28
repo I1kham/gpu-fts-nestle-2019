@@ -3380,6 +3380,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 5;
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
 	u8 nRetry = 0;
+logger->log ("handleState_downloadPriceHoldingPriceList() => waiting for CPU to be ready\n");
 	while ((cpuStatus.flag1 & sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT) == 0)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
@@ -3414,6 +3415,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 	}
 
 
+logger->log ("handleState_downloadPriceHoldingPriceList() => ready to ask prices\n");
 
 	//determino quali e quanti prezzi devo recuperare dalla gettoniera
 	u16 firstPriceList = 100;
