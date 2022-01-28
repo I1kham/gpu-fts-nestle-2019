@@ -2979,7 +2979,7 @@ void Server::priv_handleState_compatibilityCheck()
 		//invio comando initalParam
 		const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 200))
+        if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 		{
 			priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 			if (strcmp(cpuParamIniziali.CPU_version, "FAKE CPU") == 0)

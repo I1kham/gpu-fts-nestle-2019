@@ -203,7 +203,8 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x03_stato.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.cpp
 
 
 HEADERS += \
@@ -324,7 +325,8 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_P0x31_askMsgFromLangTable.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x03_stato.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.h
 
 
 
