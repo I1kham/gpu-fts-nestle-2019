@@ -1,0 +1,26 @@
+* {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+*		{ }
+html	{ background-color:#bbb; }
+body 	{ font-size:14px; background-color:#bbb; color:#fff; margin:0; padding:0;}
+form, div, input, h1, h2, h3, h4, h5	{ margin:0; padding:0; }
+table 	{ font-size:1.0em; }
+h1		{ font-size:1.3em; }	
+h2		{ font-size:1.2em; }
+h3		{ font-size:1.1em; }
+input 	{ font-size:14px;}
+a		{ color: #fff; text-decoration:none; outline: 0;}
+a:hover	{ text-decoration:none; outline: 0; }
+
+.clear 	{ float:none; clear:both; }
+.wrapper1024x600 	{ font-size:22px; background-color:#000; color:#fff; width:1024px; height:600px; margin:0 auto; overflow:hidden; position:relative;}
+.block	{ display: inline-block; position:absolute; top:0; left:0; color:#fff; text-align:center; }
