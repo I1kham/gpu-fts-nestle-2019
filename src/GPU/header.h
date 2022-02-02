@@ -3,7 +3,7 @@
 
 
 //Versione GPU
-#define GPU_VERSION     "2.6.0-RC1"
+#define GPU_VERSION     "CR90-OpticalBnd"
 
 
 //nome della porta seriale

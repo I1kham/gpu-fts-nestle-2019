@@ -204,7 +204,10 @@ SOURCES += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x03_stato.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.cpp \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.cpp \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.cpp
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_CR90_load.cpp \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_CR90_save.cpp \
+    ../../src/SocketBridge/CR90File.cpp
 
 
 HEADERS += \
@@ -326,7 +329,10 @@ HEADERS += \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x03_stato.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.h \
     ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.h \
-    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.h
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_CR90_load.h \
+    ../../src/SocketBridge/CmdHandler/CmdHandler_ajaxReq_CR90_save.h \
+    ../../src/SocketBridge/CR90File.h
 
 
 

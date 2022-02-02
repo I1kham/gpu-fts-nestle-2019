@@ -101,9 +101,9 @@ bool subscribeToESAPI (cpubridge::sSubscriber *out_subscriber)
 bool startCPUBridge (HThreadMsgW *hCPUServiceChannelW, rhea::ISimpleLogger *logger)
 {
 #ifdef PLATFORM_YOCTO_EMBEDDED
-    //apro un canale di comunicazione con la CPU fisica
-    cpubridge::CPUChannelCom *chToCPU = new cpubridge::CPUChannelCom();
-    bool b = chToCPU->open(CPU_COMPORT, logger);
+    //apro un canale di comunicazione con una finta CPU
+    cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU();
+    bool b = chToCPU->open (logger);
 #else
     //apro un canale di comunicazione con una finta CPU
     cpubridge::CPUChannelFakeCPU *chToCPU = new cpubridge::CPUChannelFakeCPU(); bool b = chToCPU->open (logger);

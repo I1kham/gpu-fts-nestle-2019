@@ -178,29 +178,7 @@ void MainWindow::priv_loadURLMenuProg (const char *paramsInGet)
 //*****************************************************
 bool MainWindow::priv_shouldIShowFormPreGUI()
 {
-    char s[256];
-    sprintf_s (s, sizeof(s), "%s/vmcDataFile.da3", glob->current_da3);
-    DA3 *da3 = new DA3();
-    da3->loadInMemory (rhea::getSysHeapAllocator(), (const u8*)s, glob->extendedCPUInfo.machineType, glob->extendedCPUInfo.machineModel);
-
-    u16 groundCounterLimit = da3->getDecounterCoffeeGround();
-    bool bShowBtnResetGroundConter = false;
-    if (!da3->isInstant())
-        bShowBtnResetGroundConter = (groundCounterLimit > 0);
-
-    bool bShowBtnCleanMilker = false;
-    if (!da3->isInstant() && da3->getMilker_showCleanBtnAtStartup() > 0 && da3->getMilker_steamTemp()>0)
-        bShowBtnCleanMilker = true;
-
-    delete da3;
-
-    if (!bShowBtnResetGroundConter && !bShowBtnCleanMilker)
-        return false;
-
-    if (NULL == frmPreGUI)
-        frmPreGUI = new FormPreGui(this, glob);
-    frmPreGUI->showMe(groundCounterLimit, bShowBtnCleanMilker);
-    return true;
+    return false;
 }
 
 //*****************************************************
@@ -250,7 +228,7 @@ void MainWindow::priv_showForm (eForm w)
     case eForm_main_showBrowser:
         {
             char s[1024];
-			sprintf_s (s, sizeof(s), "file://%s/GUIOpticalBonding/web/startup.html", rhea::getPhysicalPathToAppFolder());
+            sprintf_s (s, sizeof(s), "file://%s/current/GUIOpticalBonding/web/startup.html", rhea::getPhysicalPathToAppFolder());
             priv_loadURL(s);
         }
         break;
@@ -290,7 +268,6 @@ void MainWindow::priv_addText (const char *s)
     //ui->labInfo->setText(s);
     utils::waitAndProcessEvent(300);
 }
-
 
 //*****************************************************
 void MainWindow::timerInterrupt()
@@ -368,7 +345,6 @@ void MainWindow::timerInterrupt()
     isInterruptActive=false;
 }
 
-
 //*****************************************************
 void MainWindow::priv_syncWithCPU_onTick()
 {
@@ -396,117 +372,13 @@ void MainWindow::priv_syncWithCPU_onTick()
 
     if (syncWithCPU.stato == 0)
     {
-        if (syncWithCPU.vmcState != cpubridge::eVMCState::COMPATIBILITY_CHECK && syncWithCPU.vmcState != cpubridge::eVMCState::DA3_SYNC)
-        {
-            if (syncWithCPU.vmcState == cpubridge::eVMCState::CPU_NOT_SUPPORTED)
-            {
-                //CPU non supportata, andiamo direttamente in form boot dove mostriamo il msg di errore e chiediamo di uppare un nuovo FW
-                this->glob->bSyncWithCPUResult = false;
-                //priv_scheduleFormChange (eForm_boot);
-                syncWithCPU.stato = 3;
-                return;
-            }
+        this->glob->bSyncWithCPUResult = true;
+        syncWithCPU.stato = 99;
 
-
-            //Se siamo in com_error, probabilmente non c'era nemmeno un FW CPU in grado di rispondere, per cui funziona come sopra
-            if (syncWithCPU.vmcState == cpubridge::eVMCState::COM_ERROR)
-            {
-                //CPU non supportata, andiamo direttamente in form boot dove mostriamo il msg di errore e chiediamo di uppare un nuovo FW
-                this->glob->bSyncWithCPUResult = false;
-                //priv_scheduleFormChange (eForm_boot);
-                syncWithCPU.stato = 3;
-                return;
-            }
-
-            //Ok, pare che tutto sia in ordine
-            this->glob->bSyncWithCPUResult = true;
-
-            //Prima di proseguire chiedo un po' di parametri di configurazione
-            syncWithCPU.stato = 1;
-            cpubridge::ask_CPU_QUERY_INI_PARAM(glob->cpuSubscriber, 0);
-        }
-    }
-    else if (syncWithCPU.stato == 3)
-    {
-        //GIX 2020/05/25
-        //abbiamo tutte le info, potremmo partire ma abbiamo aggiunto il supporto per il modulo rasPI per
-        //cui aggiungo uno step per detectare o meno la presenza del modulo
-        //non possiamo partire :) Bisogna verificare
-        priv_addText ("Checking for rheAPI module...");
-        glob->logger->log ("\n\n");
-        glob->logger->log ("asking rheAPI module type and ver\n");
-        syncWithCPU.esapiTimeoutMSec = rhea::getTimeNowMSec() + 4000;
-        syncWithCPU.stato = 4;
-    }
-    else if (syncWithCPU.stato == 4)
-    {
-        if (rhea::getTimeNowMSec() > syncWithCPU.esapiTimeoutMSec)
-            syncWithCPU.stato = 5;
-        else
-        {
-            esapi::ask_GET_MODULE_TYPE_AND_VER(glob->esapiSubscriber, (u32)0);
-            priv_addText (".");
-            rhea::thread::sleepMSec (200);
-
-            rhea::thread::sMsg msgESAPI;
-            while (rhea::thread::popMsg(glob->esapiSubscriber.hFromMeToSubscriberR, &msgESAPI))
-            {
-                switch (msgESAPI.what)
-                {
-                case ESAPI_NOTIFY_MODULE_TYPE_AND_VER:
-                    esapi::translateNotify_MODULE_TYPE_AND_VER (msgESAPI, &glob->esapiModule.moduleType, &glob->esapiModule.verMajor, &glob->esapiModule.verMinor);
-
-                    if ((u8)glob->esapiModule.moduleType > 0)
-                    {
-                        char s[32];
-                        sprintf_s (s, sizeof(s), "rheAPI [%d] [%d] [%d]", (u8)glob->esapiModule.moduleType, glob->esapiModule.verMajor, glob->esapiModule.verMinor);
-                        priv_addText (s);
-                        syncWithCPU.stato = 5;
-                    }
-                    break;
-                }
-                rhea::thread::deleteMsg(msgESAPI);
-            }
-        }
-    }
-    else if (syncWithCPU.stato == 5)
-    {
-        //Ora abbiamo tutte le info, possiamo partire
-        //Se c'è la chiavetta USB, andiamo in frmBoot, altrimenti direttamente in frmBrowser
         if (this->glob->bSyncWithCPUResult == false || rhea::fs::folderExists(glob->usbFolder) || priv_autoupdate_exists())
             priv_scheduleFormChange (eForm_boot);
         else
-        {
-            //se ESAPI::rasPI esiste, attivo la sua interfaccia web
-            if (glob->esapiModule.moduleType == esapi::eExternalModuleType::rasPI_wifi_REST)
-            {
-                priv_addText ("\nStarting rasPI module web interface");
-                u64 timeToExitMSec = rhea::getTimeNowMSec() + 2000;
-                while (rhea::getTimeNowMSec() < timeToExitMSec)
-                {
-                    esapi::ask_RASPI_START (glob->esapiSubscriber, (u32)0);
-                    priv_addText (".");
-                    rhea::thread::sleepMSec(200);
-
-                    rhea::thread::sMsg msgESAPI;
-                    while (rhea::thread::popMsg(glob->esapiSubscriber.hFromMeToSubscriberR, &msgESAPI))
-                    {
-                        switch (msgESAPI.what)
-                        {
-                        case ESAPI_NOTIFY_RASPI_STARTED:
-                            rhea::thread::deleteMsg(msgESAPI);
-                            timeToExitMSec = 0;
-                            break;
-                        }
-
-                        rhea::thread::deleteMsg(msgESAPI);
-                    }
-                }
-            }
-
             priv_scheduleFormChange (eForm_specialActionBeforeGUI);
-        }
-        return;
     }
 }
 

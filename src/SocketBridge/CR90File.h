@@ -15,6 +15,7 @@ namespace socketbridge
                     CR90File();
                     ~CR90File();
 
+        void        resetFile();
         void        load();
         void        save() const;
         u16         getValue (u16 index) const;
