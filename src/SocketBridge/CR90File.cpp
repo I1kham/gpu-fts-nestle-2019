@@ -35,6 +35,23 @@ void CR90File::priv_new()
 	memset (values, 0, size);
 	values[0] = CELLX;
 	values[1] = CELLY;
+
+    priv_newLOG();
+}
+
+//***************************************************
+void CR90File::priv_newLOG()
+{
+    rhea::DateTime dt;
+    dt.setNow();
+    char ts[64];
+    dt.formatAs_YYYYMMDDHHMMSS (ts, sizeof(ts), ' ', '-', ':');
+
+    u8 fname[256];
+    rhea::string::utf8::spf (fname, sizeof(fname), "%s/current/CR90-log.txt", rhea::getPhysicalPathToAppFolder());
+    FILE *f = rhea::fs::fileOpenForWriteText (fname);
+    fprintf (f, "%s File created\n", ts);
+    rhea::fs::fileClose(f);
 }
 
 //***************************************************
@@ -70,6 +87,11 @@ void CR90File::load()
 			save();
 		}
 	}
+
+    rhea::string::utf8::spf (fname, sizeof(fname), "%s/current/CR90-log.txt", rhea::getPhysicalPathToAppFolder());
+    if (!rhea::fs::fileExists(fname))
+        priv_newLOG();
+
 }
 
 //***************************************************
@@ -119,4 +141,27 @@ void CR90File::setValue (u16 index, u16 value)
 	{
 		DBGBREAK;
 	}
+
+    //logga data e ora del click
+    if (value != 0)
+    {
+        const u16 row = index / CELLX;
+        const u16 col = index - (row * CELLX);
+
+        rhea::DateTime dt;
+        dt.setNow();
+
+        char ts[64];
+        dt.formatAs_YYYYMMDDHHMMSS (ts, sizeof(ts), ' ', '-', ':');
+
+        u8 fname[512];
+        rhea::string::utf8::spf (fname, sizeof(fname), "%s/current/CR90-log.txt", rhea::getPhysicalPathToAppFolder());
+        FILE *f = rhea::fs::fileOpenForAppendText (fname);
+        if (NULL != f)
+        {
+            fprintf (f, "%s (%d,%d) = %d\n", ts, row, col, value);
+            rhea::fs::fileClose(f);
+        }
+
+    }
 }

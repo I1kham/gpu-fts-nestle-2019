@@ -31,6 +31,7 @@ namespace socketbridge
     private:
         void        priv_free();
         void        priv_new();
+        void        priv_newLOG();
 
     private:
         rhea::Allocator *localAllocator;

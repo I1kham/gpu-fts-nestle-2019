@@ -1249,14 +1249,23 @@ void FormBoot::on_btnDownload_audit_clicked()
     sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder, dstFilename);
 
     if (!rhea::fs::fileCopy((const u8*)src, (const u8*)dst))
-        priv_pleaseWaitSetError("ERROR copying file to USB pendrive");
+        priv_pleaseWaitSetError("ERROR copying file (1) to USB pendrive");
     else
     {
-        priv_pleaseWaitSetText("Finalizing copy...");
-        priv_syncUSBFileSystem(5000);
+        //copia anche il file  dei log
+        sprintf_s (src, sizeof(src), "%s/CR90-log.txt", glob->current);
+        dt.formatAs_YYYYMMDDHHMMSS (s, sizeof(s), '_', '-', '-');
+        sprintf_s (dst, sizeof(dst), "%s/CR90-log_%s.txt", glob->usbFolder, s);
+        if (!rhea::fs::fileCopy((const u8*)src, (const u8*)dst))
+            priv_pleaseWaitSetError("ERROR copying file (2) to USB pendrive");
+        else
+        {
+            priv_pleaseWaitSetText("Finalizing copy...");
+            priv_syncUSBFileSystem(5000);
 
-        sprintf_s (s, sizeof(s),"SUCCESS.<br>A file named [<b>%s</b>] has been put on your USB pendrive in the folder /rhea.", dstFilename);
-        priv_pleaseWaitSetOK(s);
+            sprintf_s (s, sizeof(s),"SUCCESS.<br>A file named [<b>%s</b>] has been put on your USB pendrive in the folder /rhea.", dstFilename);
+            priv_pleaseWaitSetOK(s);
+        }
     }
     priv_pleaseWaitHide();
 }
