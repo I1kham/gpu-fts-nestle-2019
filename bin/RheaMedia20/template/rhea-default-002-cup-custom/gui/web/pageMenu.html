@@ -269,7 +269,7 @@ function prepareFooterItems() {
 	var langDefBtn = document.querySelector( '#langButtonImg_def' );
 
 	if( typeof objFooter === 'undefined' || !objFooter || !Object.keys( objFooter ).length ) {
-		rheaShowElem(langDefBtn);
+		if (allLang.split(",").length > 1) { rheaShowElem(langDefBtn); }
 
 		return; 
 	}
@@ -281,9 +281,9 @@ function prepareFooterItems() {
 
 	if( objFooter.langButtonImg && objFooter.langButtonImg !== 'NULL')  { 
 		langBtn.src = 'upload/' + objFooter.langButtonImg; 
-		rheaShowElem(langBtn);
+		if (allLang.split(",").length > 1) { rheaShowElem(langBtn); }
 	} else {
-		rheaShowElem(langDefBtn);
+		if (allLang.split(",").length > 1) { rheaShowElem(langDefBtn); }
 	}
 }
 

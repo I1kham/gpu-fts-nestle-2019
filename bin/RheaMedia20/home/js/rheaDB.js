@@ -65,7 +65,19 @@ RheaDB.prototype.exec = function(sql)
 	}
 }
 
+//*********************************************************
+RheaDB.prototype.dbConsistency = async function(rst, dbTbl, dbCol, dbColType, dfColVal) {
+	if ( !rst || !dbTbl || !dbCol || !dbColType ) { return false; }
 
+	let exist = rst.hasColName( dbCol );
+
+	if( !exist ) {
+		var def = dfColVal !== undefined? " DEFAULT " + dfColVal : "";
+		var q = "ALTER TABLE " + dbTbl + " ADD " + dbCol +" " + dbColType + def;
+
+		await this.exec(q);
+	}
+}
 
 /*********************************************************
  * RheaRST
@@ -147,4 +159,12 @@ RheaRST.prototype.valByColName = function (iRow, colName)
 	if (iCol<0)
 		return "err::valByColName(" +iRow +"," +colName +")";
 	return this.val(iRow,iCol);
+}
+
+/***************************************
+ */
+ RheaRST.prototype.hasColName = function (colName) { 
+	var iCol = this.fromColNameToColIndex(colName);
+	
+	return (iCol >= 0);
 }

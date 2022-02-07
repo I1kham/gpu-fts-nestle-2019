@@ -52,7 +52,7 @@
 					<div class="wrapper" style="float:left;">
 						<div class="box " style="float:left;">
 							<div class="box-content" style="min-height:300px">
-								<div style="float:left; width:12%"><a href="javascript:scrollToPage(0)" class="button giallo"><< BACK</a></div>
+								<div style="float:left; width:12%"><a href="javascript:scrollToPage(0); delete window.imported" class="button giallo"><< BACK</a></div>
 								<div style="float:left; margin-top:6px; width:88%"><h2>Please select a template</h2></div>
 								<div class="clear"></div>
 								<br>
@@ -94,6 +94,8 @@
 <script src="js/fileSaveAs.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/rheaDB.js"></script>
+<script src="js/rhea.migration.js"></script>
+
 <script language="javascript">
 var fileBrowser1 = null;
 var fileSaveAs1 = null;
@@ -269,15 +271,19 @@ function templateList_load2(index)
 
 function templateList_showPrefabs (index)
 {
-	var html = "<ul class='prefabs'>";
-	for (var i=0; i<templateList[index].prefabs.length; i++)
-	{
-		var folderName = templateList[index].prefabs[i];
-		html += "<li onclick='createNewGUI(" +index +"," +i +")'>" +folderName +"</li>";
+	if (window.imported && window.imported.oldTemplateConfiguration) {
+		createNewGUI(index, 0);
+	} else {
+		var html = "<ul class='prefabs'>";
+		for (var i=0; i<templateList[index].prefabs.length; i++)
+		{
+			var folderName = templateList[index].prefabs[i];
+			html += "<li onclick='createNewGUI(" +index +"," +i +")'>" +folderName +"</li>";
+		}
+		html += "</ul>";
+		$("#page2PrefabsList").html(html);
+		scrollToPage(2);
 	}
-	html += "</ul>";
-	$("#page2PrefabsList").html(html);
-	scrollToPage(2);
 }
 
 
@@ -314,7 +320,7 @@ function createNewGUI_onFinishTemplateCopy(taskFinalMsg)
 	copyFolderToFolder (prefabsSrcFolder, absTempFolderPath +"/web", createNewGUI_onFinishPrefabsCopy);
 }
 
-function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
+async function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
 {
 	if (taskFinalMsg != "OK")
 	{
@@ -323,11 +329,35 @@ function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
 		return;
 	}
 
-	window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
-	
+	if(window.imported && window.imported.oldTemplateConfiguration) {
+		var path = rheaGetAbsolutePhysicalPath().split('/');
+		path.pop(); path = path.join('/');
+
+		var tempFolder = `${path}/temp/${tempFolderName}/web/backoffice`;
+		var pathDB = `${tempFolder}/guidb.db3`;
+		var tempDb = new RheaDB(pathDB);
+
+		var rMig = new RheaMigration( 
+			tempFolder,
+			window.imported.oldTemplateConfiguration.root, 
+			window.imported.configurationPath, 
+			tempDb );
+
+		await rMig.convert();
+
+		// chiudo il DB
+		rhea.ajax ("DBClose", { "path" : pathDB})
+			.then( function(result){ })
+			.catch ( function(result) { })
+			.finally( function() {
+				window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
+			});
+	} else {
+		window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
+	}
+
 	pleaseWait(0);
 }
-
 
 
 /*****************************************************
@@ -337,7 +367,7 @@ function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
  */
 function existingGUI_openFileBrowser()
 {
-	fileBrowser1.openFile("c:", "*.rheagui *.rheaRasGuiTP", existingGUI_onFileOpenFinished, "Browse to locate a GUI folder. Look for a file by the name of <b>template.rheagui</b> and click on it");
+	fileBrowser1.openFile("c:", "*.rheagui *.rheaRasGuiTP GuiConfig.xml", existingGUI_onFileOpenFinished, "Browse to locate a GUI folder. Look for a file by the name of <b>template.rheagui</b> and click on it. If you want to import a GUI from RheaMedia 1.x, click on the file named <b>GuiConfig.xml</b>");
 }
 
 async function existingGUI_onFileOpenFinished(fileName, path)
@@ -356,6 +386,9 @@ async function existingGUI_onFileOpenFinished(fileName, path)
 		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
 	} else if (fileName.indexOf(".rheaRasGuiTP") !== -1) {
 		existingGUI_beginImport_rheaRasGuiTP(fileName, path);
+		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
+	} else if (fileName.indexOf("GuiConfig.xml") !== -1) {				// RheaMedia 1.x
+		existingGUI_beginImport_old_rheaMedia(fileName, path);
 		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
 	}
 	else
@@ -466,6 +499,79 @@ async function existingGUI_beginImport_rheaRasGuiTP(fileName, path)
 	//a questo punto ho la GUI unzippata in [destUnzippedFolder], procedo come al solito
 	existingGUI_beginImport_rheagui("", destUnzippedFolder);
 	
+}
+
+/***************************************************************
+ * importazione	di gui con estensione .xml relativa ad una GUI generata con RheaMedia 1.x
+ */
+async function existingGUI_beginImport_old_rheaMedia(fileName, path)
+{
+	pleaseWait(1);
+	
+	// Read xml FILE
+
+	// READ PROCEDURE -> remember to remove the <?xml version="1.0" encoding="UTF-8"?> line
+	var xml = // xml
+	`
+			<root><info><version>4</version><modelcode>82</modelcode><templatecode>0</templatecode></info><Cino_generalSettings><NumSelections>12</NumSelections><NumTableSelColumns>4</NumTableSelColumns><NumTableSelRows>3</NumTableSelRows><Cino_ShowConfirmPageFlag>1</Cino_ShowConfirmPageFlag><Cino_ConfirmPageTimeout>20</Cino_ConfirmPageTimeout><Cino_MenuPageTimeout>6</Cino_MenuPageTimeout><Cino_MouseMode>0</Cino_MouseMode><Cino_SelEndPageTimeout>4</Cino_SelEndPageTimeout><Cino_ShowPrices>0</Cino_ShowPrices><Cino_NumDecimals>2</Cino_NumDecimals><Cino_Text_Currency>€</Cino_Text_Currency><Cino_Text_MenuAHeader><![CDATA[MENU: MAIN DRINKS]]></Cino_Text_MenuAHeader><Cino_Text_MenuBHeader><![CDATA[MENU: XL DRINKS]]></Cino_Text_MenuBHeader><Cino_Text_MenuCHeader><![CDATA[MENU: C]]></Cino_Text_MenuCHeader><Cino_Text_MenuDHeader><![CDATA[MENU: D]]></Cino_Text_MenuDHeader><Cino_Text_MenuEHeader><![CDATA[MENU: E]]></Cino_Text_MenuEHeader><Cino_Text_MenuFHeader><![CDATA[MENU: F]]></Cino_Text_MenuFHeader><Cino_Text_GoStandby><![CDATA[INFO]]></Cino_Text_GoStandby><Cino_Text_GoMenuB><![CDATA[GO TO XL MENU >]]></Cino_Text_GoMenuB><Cino_Text_GoMenuC><![CDATA[GO TO MENU C >]]></Cino_Text_GoMenuC><Cino_Text_GoMenuD><![CDATA[GO TO MENU D >]]></Cino_Text_GoMenuD><Cino_Text_GoMenuE><![CDATA[GO TO MENU E >]]></Cino_Text_GoMenuE><Cino_Text_GoMenuF><![CDATA[GO TO MENU F >]]></Cino_Text_GoMenuF><Cino_Text_ConfirmHeader><![CDATA[SELECTED DRINK:]]></Cino_Text_ConfirmHeader><Cino_Text_ConfirmQuestion><![CDATA[Do you want to start this drink?]]></Cino_Text_ConfirmQuestion><Cino_Text_NutritionalInfo><![CDATA[Nutritional info:]]></Cino_Text_NutritionalInfo><Cino_Text_Back><![CDATA[< BACK]]></Cino_Text_Back><Cino_Text_Ok><![CDATA[OK]]></Cino_Text_Ok><Cino_Text_SelPreparingHeader><![CDATA[DRINK PREPARATION]]></Cino_Text_SelPreparingHeader><Cino_Text_SelPreparing><![CDATA[Your selection is being prepared...]]></Cino_Text_SelPreparing><Cino_Text_SelEndHeader><![CDATA[DRINK READY]]></Cino_Text_SelEndHeader><Cino_Text_SelEnd><![CDATA[Your selection is ready.\rEnjoy it!]]></Cino_Text_SelEnd><Cino_Text_OutOfOrder><![CDATA[This machine is out of order]]></Cino_Text_OutOfOrder></Cino_generalSettings><Cino_selection><SN><![CDATA[Espresso]]></SN><SD><![CDATA[60ml of hot water, 7gr of grinded coffee beans.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_espresso.png</SI><ST>0</ST><SN><![CDATA[Long Coffee]]></SN><SD><![CDATA[90ml of hot water, 8gr of grinded coffee beans.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_blackCoffeeLong.png</SI><ST>0</ST><SN><![CDATA[Short White Coffee]]></SN><SD><![CDATA[70ml of hot water, 7gr of grinded coffee beans, 3gr of milk.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_espressoMacchiato.png</SI><ST>0</ST><SN><![CDATA[Cappuccino]]></SN><SD><![CDATA[120ml of hot water, 7gr of grinded coffee beans, 3gr of milk, 2gr of chocolate.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_cappuccino.png</SI><ST>0</ST><SN><![CDATA[Milk]]></SN><SD><![CDATA[90ml of hot water, 8gr of milk.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_milk.png</SI><ST>0</ST><SN><![CDATA[Latte Macchiato]]></SN><SD><![CDATA[120ml of hot water, 7gr of grinded coffee beans, 4gr of milk.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_latteMacchiato.png</SI><ST>0</ST><SN><![CDATA[Moccaccino]]></SN><SD><![CDATA[120ml of hot water, 7gr of grinded coffee beans, 3gr of milk, 2gr of chocolate.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_moccacino.png</SI><ST>0</ST><SN><![CDATA[Chocolate]]></SN><SD><![CDATA[120ml of hot water, 12gr of chocolate.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_chocolate.png</SI><ST>0</ST><SN><![CDATA[Chocomilk]]></SN><SD><![CDATA[120ml of hot water, 9gr of chocolate, 3gr of milk.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_chocoMilk.png</SI><ST>0</ST><SN><![CDATA[Instant Coffee]]></SN><SD><![CDATA[90ml of hot water, 7gr of instant coffee.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_blackCoffee.png</SI><ST>0</ST><SN><![CDATA[White Instant Coffee]]></SN><SD><![CDATA[90ml of hot water, 7gr of instant coffee, 3gr of milk.\rServed at 75°C.\rA perfect drink for early morning.]]></SD><SI>Drink_coffeeWithMilk.png</SI><ST>0</ST><SN><![CDATA[Hot Water]]></SN><SD><![CDATA[120ml of hot water.\rServed at 75°C.\r]]></SD><SI>Drink_hotWater.png</SI><ST>0</ST></Cino_selection><Cino_standby><numP>4</numP><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><BK>standby_01.png</BK><TM1>5</TM1><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><BK>standby_02.png</BK><TM2>5</TM2><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><BK>standby_03.png</BK><TM3>5</TM3><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><I /><T>0</T><L>0</L><W>0</W><H>0</H><Y /><BK>standby_04.png</BK><TM4>5</TM4></Cino_standby></root>
+	`;
+	
+	// Convert xml File into JSON Object
+	window.imported = new Object();
+
+	window.imported.oldTemplateConfiguration = parseXMLFile(xml);
+	window.imported.configurationPath = path;
+
+	scrollToPage(1)
+
+	pleaseWait(0);
+}
+
+function parseXMLFile(xml) {
+	var parser = new DOMParser();
+	var xmlDoc = parser.parseFromString(xml, 'text/xml')
+
+	// Check if xml db is valid
+	if (!xmlDoc.querySelector('info')) {
+		alert ("ERROR: invalid file");
+	}
+
+	// Retrieves the root node
+	var rootNode = xmlDoc.querySelector('root');
+
+	return configToJSON(xmlDoc);
+}
+
+function configToJSON(xml) {
+    try {
+        var obj = {};
+        
+		if (xml.children.length > 0) {
+            for (var i = 0; i < xml.children.length; i++) {
+                var item = xml.children.item(i);
+                var nodeName = item.nodeName;
+
+                if (typeof (obj[nodeName]) == "undefined") {
+                    obj[nodeName] = configToJSON(item);
+                } else {
+                    if (typeof (obj[nodeName].push) == "undefined") {
+                        var old = obj[nodeName];
+
+                        obj[nodeName] = [];
+                        obj[nodeName].push(old);
+                    }
+
+                    obj[nodeName].push(configToJSON(item));
+                }
+            }
+        } else {
+            obj = xml.textContent;
+        }
+
+        return obj;
+    } catch (e) {
+        console.log(e.message);
+    }
 }
 
 </script>
