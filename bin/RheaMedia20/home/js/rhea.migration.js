@@ -48,18 +48,18 @@ class RheaMigration {
                 WHERE HIS_ID=1 
             `);
 
-        await this.#db.q(q);
+        await this.#db.exec(q);
     };
 
     /** Removes all selections info */
     #deletePageMMI = async () => {
-        await this.#db.q('DELETE FROM pagemenu_mmi;');
-        await this.#db.q('DELETE FROM lang WHERE UID="MMI_NAME" OR UID="MMI_DESCR" OR UID="MMI_NUTRI";');
+        await this.#db.exec('DELETE FROM pagemenu_mmi;');
+        await this.#db.exec('DELETE FROM lang WHERE UID="MMI_NAME" OR UID="MMI_DESCR" OR UID="MMI_NUTRI";');
     };
 
     /** Updates supported languages */
     #updateGeneralSettings = async () => {
-        await this.#db.q("UPDATE generalset SET  allowedLang='GB', defaultLang='GB';");
+        await this.#db.exec("UPDATE generalset SET  allowedLang='GB', defaultLang='GB';");
     };
 
     /** Sets the "Page Manu MMI" properties  */
@@ -182,7 +182,7 @@ class RheaMigration {
             const leaf = this.#tempFolder.split('\\').pop().split('/').pop();
             const path = this.#tempFolder.replace(`/${leaf}`, '');
 
-            await this.#db.q(`DELETE FROM pageStandby_images WHERE HIS_ID=1;`);
+            await this.#db.exec(`DELETE FROM pageStandby_images WHERE HIS_ID=1;`);
 
             for (let i = 0; i < BK_IMAGES.length; i++) {
                 const img = BK_IMAGES[i];

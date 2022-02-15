@@ -29,6 +29,7 @@ function rheaBootstrap_step3()
 		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaSession.js"); })
 		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaSelection.js"); })
 		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaEvent.js"); })
+		.then( function() { return rheaLoadScript(rheaPathPrefix + "js/dev/rheaFileDownload.js"); })
 		.then( function() { 
 							var scriptTagExists = document.getElementById("rheaBootstrapTag");
 							if (null != scriptTagExists)

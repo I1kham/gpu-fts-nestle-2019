@@ -1,4 +1,5 @@
 #include "rheaJSONParser.h"
+#include "rheaMemory.h"
 
 
 /* esempi
@@ -10,7 +11,7 @@ using namespace rhea;
 using namespace rhea::string;
 
 //*****************************************
-void handleExtractedJSONValue (const u8* const start, u32 len, bool bNeedToBeEscaped, u8 *out_value, u32 sizeOfOut)
+void handleExtractedJSONValue (const u8 *start, u32 len, bool bNeedToBeEscaped, u8 *out_value, u32 sizeOfOut)
 {
     if (len==0)
     {
@@ -36,6 +37,7 @@ void handleExtractedJSONValue (const u8* const start, u32 len, bool bNeedToBeEsc
                 break;
             }
         }
+        out_value[t] = 0x00;
     }
     else
     {
@@ -86,7 +88,6 @@ bool extractJSONValue (utf8::Iter &srcIN, u8 *out_value, u32 sizeOfOut)
         assert (s2);
         const u32 numBytes = (u32)(s2-s1) -1;
         handleExtractedJSONValue (s1, numBytes, hasEscapedDoubleQuote, out_value, sizeOfOut);
-        return true;
     }
     else
     {
@@ -125,17 +126,18 @@ bool extractJSONValue (utf8::Iter &srcIN, u8 *out_value, u32 sizeOfOut)
             out_value[numBytes] = 0;
         }
 
-        return true;
+        
     }
 
-    return false;
+    string::utf8::decodeURIinPlace (out_value);
+    return true;
 }
 
 /****************************************************
  * parse
  *
  */
-bool json::parse (const u8* const s, RheaJSonTrapFunction onValueFound, void *userValue)
+bool json::parse (const u8 *s, RheaJSonTrapFunction onValueFound, void *userValue)
 {
     const u8 MAX_SIZE_OF_FIELD_NAME = 64;
     u8 fieldName[MAX_SIZE_OF_FIELD_NAME];
@@ -200,5 +202,7 @@ bool json::parse (const u8* const s, RheaJSonTrapFunction onValueFound, void *us
         //errore
         return false;
     }
+
     return true;
 }
+
