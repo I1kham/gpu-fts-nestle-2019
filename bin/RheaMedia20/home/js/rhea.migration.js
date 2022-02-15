@@ -122,8 +122,8 @@ class RheaMigration {
 
             // Insert row into DB
             if (UID) {
-                await this.#db.exec(`INSERT INTO lang (UID, ISO, What, Message) VALUES ( 'MMI_NAME', 'GB', ${UID}, '${selections.SN[i]}' );`);
-                await this.#db.exec(`INSERT INTO lang (UID, ISO, What, Message) VALUES ( 'MMI_DESCR', 'GB', ${UID}, '${selections.SD[i]}' );`);
+                await this.#db.exec(`INSERT INTO lang (UID, ISO, What, Message) VALUES ( 'MMI_NAME', 'GB', ${UID}, '${this.#replacer(selections.SN[i])}' );`);
+                await this.#db.exec(`INSERT INTO lang (UID, ISO, What, Message) VALUES ( 'MMI_DESCR', 'GB', ${UID}, '${this.#replacer(selections.SD[i])}' );`);
             }
         }
     };
@@ -169,8 +169,8 @@ class RheaMigration {
     /** Sets the "lang" properties */
     #setVarious = async () => {
         await this.#db.exec(`REPLACE INTO lang (UID, ISO, What, Message) VALUES ( 'LAB_CURRENCY_SIMBOL', 'GB', 'MSG', '${this.#jsonConfig.Cino_generalSettings.Cino_Text_Currency}' );`);
-        await this.#db.exec(`REPLACE INTO lang (UID, ISO, What, Message) VALUES ( 'LAB_YOUR_DRINK_IS_BEING_PREPARED', 'GB', 'MSG', '${this.#jsonConfig.Cino_generalSettings.Cino_Text_SelPreparing}' );`);
-        await this.#db.exec(`REPLACE INTO lang (UID, ISO, What, Message) VALUES ( 'LAB_YOUR_DRINK_IS_READY', 'GB', 'MSG', '${this.#jsonConfig.Cino_generalSettings.Cino_Text_SelEnd}' );`);
+        await this.#db.exec(`REPLACE INTO lang (UID, ISO, What, Message) VALUES ( 'LAB_YOUR_DRINK_IS_BEING_PREPARED', 'GB', 'MSG', '${this.#replacer(this.#jsonConfig.Cino_generalSettings.Cino_Text_SelPreparing)}' );`);
+        await this.#db.exec(`REPLACE INTO lang (UID, ISO, What, Message) VALUES ( 'LAB_YOUR_DRINK_IS_READY', 'GB', 'MSG', '${this.#replacer(this.#jsonConfig.Cino_generalSettings.Cino_Text_SelEnd)}' );`);
     };
 
     /** Sets the "lang" properties */
@@ -251,6 +251,10 @@ class RheaMigration {
         }
 
         return data;
+    };
+
+    #replacer = (val) => {
+        return encodeURI(val.split('\\r').join('\n'));
     };
 
     /**
