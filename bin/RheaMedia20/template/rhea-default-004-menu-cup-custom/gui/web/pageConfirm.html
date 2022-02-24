@@ -116,6 +116,10 @@
 <script src="js/rheaBootstrap.js"></script>
 <script language="javascript">
 var iconNum = 0;
+var selNum  = 0;
+var autostart = 0;
+var selNumFromUrl = 0;
+
 var isRFIDJugDetected = 0;
 var selThatWasStarted = 0;
 var GRINDER = 0;
@@ -144,6 +148,8 @@ function onAfterLangLoaded2()
 {
 	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
 	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+	selNumFromUrl  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+	autostart = parseInt(rheaGetURLParamOrDefault("autostart", 0));
 
 	//carica le nutritional info
 	lang_loadJS ("nutriInfo").then ( function()
@@ -245,6 +251,12 @@ function onAfterLangLoaded2()
 	resetTimerGotoPageMainMenu();
 
 	updateSizeLabels();
+	
+	if(autostart == 1)
+	{
+		onBtnStartSelection();
+		return;
+	}	
 }
 
 function updateSizeLabels()
@@ -591,6 +603,9 @@ function onOption2Change (whichOne)
 
 function detectCurrentSelection()
 {
+  if (autostart == 1)
+	 return selNumFromUrl;
+
 	var selNum = MMI_getLinkedSelectionNumber(iconNum);
 	if (selNum == 0)
 		selNum = MMI_getLinkedSelection (iconNum, GRINDER, CUP_SIZE, SHOT_TYPE);

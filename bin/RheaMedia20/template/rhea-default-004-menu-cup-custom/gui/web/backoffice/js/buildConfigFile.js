@@ -256,13 +256,47 @@ function buildConfigFile_saveAs(what, path, filename)
  */
 async function buildConfigFile_pageSelFinished (db, his_id)
 {
-	let rst = await db.q("SELECT ValueA FROM other WHERE UID='pageSelFinished' AND ISO='xx' AND What='timeToMain'");
-	if (rst.getNumRows() == 0)
-	{
-		await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageSelFinished','xx','timeToMain', '2000')");
-		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageSelFinished' AND ISO='xx' AND What='timeToMain'");
+	var sql;
+	var rst;
+	var timeout;
+
+	// Get valore repeat enable
+    var autostart = "0";
+	rst = await db.q("SELECT ValueA FROM other WHERE UID='pageBookingBev' AND ISO='xx' AND What='enable'");
+	if (rst.getNumRows() == 0) {
+		// Se non esiste inserisce il record con un default
+		await db.exec ("INSERT INTO other(UID, ISO, What, ValueA) VALUES('pageBookingBev', 'xx', 'enable', '0')");
+	} else {
+		autostart = rst.valByColName(0, "ValueA");
 	}
-	var result = "var selFinishedPageOptions={timeToGoBack:" +rst.valByColName(0, "ValueA") +"}";	
+
+	if (autostart == "0") {
+		// Get valore timeout from pageSelFinished		
+		timeout = 2000;
+		sql = "SELECT ValueA FROM other WHERE UID='pageSelFinished' AND ISO='xx' AND What='timeToMain'";
+		rst = await db.q(sql);
+		if (rst.getNumRows() == 0) {
+			await db.exec ("INSERT INTO other (UID,ISO,What,ValueA) VALUES('pageSelFinished','xx','timeToMain', '2000')");
+		} else {
+			timeout = rst.valByColName(0, "ValueA");
+		} 	
+	} else {
+		// Get valore timeout from pageBookingBev
+		timeout = 10000;
+		rst = await db.q("SELECT ValueA FROM other WHERE UID='pageBookingBev' AND ISO='xx' AND What='timeout'");
+		if (rst.getNumRows() == 0) {
+			// Se non esiste inserisce il record con un default
+			await db.exec ("INSERT INTO other(UID, ISO, What, ValueA) VALUES('pageBookingBev', 'xx', 'timeout', '10000')");
+		} else {
+			timeout = rst.valByColName(0, "ValueA");
+		}	
+	}
+
+	var result = "var selFinishedPageOptions={" 
+			   + "timeToGoBack:" + timeout
+			   + ", autostart:" + autostart
+			   +"};";
+
 	await buildConfigFile_saveAs (result, rheaGetAbsolutePhysicalPath()+"/../config", "pageSelFinished.js");
 }
 
@@ -597,6 +631,7 @@ console.time("translation 01");
 	let rstLAB_MASTER_DISPENSER_IMG= await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_MASTER_DISPENSER_IMG' AND What='MSG'");
 	let rstLAB_SLAVE_DISPENSER_IMG= await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_SLAVE_DISPENSER_IMG' AND What='MSG'");
 	let rstLAB_SNACK_INSTRUCTION= await db.q("SELECT ISO,Message FROM lang WHERE UID='LAB_SNACK_INSTRUCTION' AND What='MSG'");
+	let rstBTN_REPEAT_LAST_DRINK = await db.q("SELECT ISO,Message FROM lang WHERE UID='BTN_REPEAT_LAST_DRINK' AND What='MSG'");			
 	
 console.timeEnd ("translation 01");
 
@@ -703,8 +738,9 @@ console.time("  " +iso +"04");
 		var msgLabSnackSelectionNumber = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_SNACK_SELECTION_NUMBER, iso, iLang, allLang[0]);
 		var msgLabMasterDispenserImg   = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_MASTER_DISPENSER_IMG, iso, iLang, allLang[0]);
 		var msgLabSlaveDispenserImg    = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_SLAVE_DISPENSER_IMG, iso, iLang, allLang[0]);
-		var msgLabSnackInstruction     = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_SNACK_INSTRUCTION, iso, iLang, allLang[0]);			
-console.timeEnd("  " +iso +"04");
+		var msgLabSnackInstruction     = priv_buildConfigFile_translation_findISO_orDefault (rstLAB_SNACK_INSTRUCTION, iso, iLang, allLang[0]);
+		var msgBtnRepeatLastDrink = priv_buildConfigFile_translation_findISO_orDefault (rstBTN_REPEAT_LAST_DRINK, iso, iLang, allLang[0]);			
+		console.timeEnd("  " +iso +"04");
 
 		var result = "var rheaLang = {"
 						+"BTN_STOP: \"" +msgBtnStop +"\""
@@ -721,6 +757,7 @@ console.timeEnd("  " +iso +"04");
 						+",LAB_MASTER_DISPENSER_IMG: \"" +msgLabMasterDispenserImg+"\""
 						+",LAB_SLAVE_DISPENSER_IMG: \"" +msgLabSlaveDispenserImg+"\""
 						+",LAB_SNACK_INSTRUCTION: \"" +msgLabSnackInstruction+"\""	
+						+",BTN_REPEAT_LAST_DRINK: \"" +msgBtnRepeatLastDrink +"\""
 						+"};";
 
 		var objectFooter = "var objFooter = {";

@@ -16,10 +16,17 @@
 	<div class="page" style="position:relative; text-align:center;">
 		<div id="divImage" class="pageSelInProg_image"></div>
 		<div id="divTitle" class="pageSelInProg_title"></div>
+	 </div>
+
+  <div class="pageSelFinished_bottomBox">
+		<div id="btnRepeatLastDrink" class="btnRepeat" style="display: none" onclick="onBtnRepeatLastDrink()">Repeat Last Drink</div>
 	</div>
 
 	<div id="divCPUMessage" style="position:absolute; top:0; left:0; padding:5px 0 3px 0;width:100%; text-align:center; display:none; background-color:rgba(0,0,0,0.8); color:#fff"></div>
 	<div id="divTextAtBottom" style="width:100%; height:160px; overflow:hidden; font-style:italic; font-size:1.0em; text-align:center"></div>
+	
+	<!-- il btn home lo metto qui in position absolute per dargli una maggiore area di click -->
+	<div id="divBtnHome" class="btnIndietro" style="display: none"><img draggable='false' src="img/btnHome.png"></div>
 </div>
 
 <script src="config/lang.js"></script>
@@ -29,7 +36,11 @@
 <script src="js/rheaBootstrap.js"></script>
 
 <script language="javascript">
-function onRheaBootstrapFinished() 
+
+var iconNum = 0;
+var selNum  = 0;
+
+function onRheaBootstrapFinished()
 {
 	lang_loadLang(lang_getCurLangISOCode()).then (onAfterLangLoaded);
 }
@@ -51,9 +62,9 @@ function onAfterLangLoaded()
 	rhea.requestGPUEvent(RHEA_EVENT_CPU_MESSAGE);
 	
 	//in get ci deve essere il parametro che indica quale iconMenu è stata selezionata
-	var iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
-	var selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
-	
+	iconNum = parseInt(rheaGetURLParamOrDefault("iconMenu", 0));
+
+
 	var iconDisplayName = MMI_getDisplayName(iconNum);
 	var image = "<img draggable='false' src='" +MMI_getImgForPageConfirm(iconNum) +"'>";
 	
@@ -66,9 +77,25 @@ function onAfterLangLoaded()
 	//your drink is ready msg..
 	var d = rheaGetElemByID("divTextAtBottom");
 	rheaSetElemHTML (d, rheaLang["LAB_YOUR_DRINK_IS_READY"]);
-	rheaShowElem (d);	
-	
-	
+	rheaShowElem (d);
+
+	if(selFinishedPageOptions.autostart == "1") {
+		selNum  = parseInt(rheaGetURLParamOrDefault("selNum", 0));
+
+		var d = rheaGetElemByID("btnRepeatLastDrink");
+		rheaSetElemHTML (d, rheaLang["BTN_REPEAT_LAST_DRINK"]);
+		rheaShowElem (d);
+
+		rheaShowElem(rheaGetElemByID("divBtnHome"));
+		rheaShowElem(rheaGetElemByID("btnRepeatLastDrink"));
+
+		//invece che "onclick", trappo l'evento "mouse up" cheè più affidabile sul touchscreen
+		var d = rheaGetElemByID("divBtnHome");
+		d.addEventListener('mouseup', function (ev){
+			window.location = "pageMenu.html";
+		}, true);
+	}
+
 	setTimeout (gotoMenuPage, selFinishedPageOptions.timeToGoBack);
 }
 
@@ -77,8 +104,11 @@ function gotoMenuPage()
 	window.location = "pageMenu.html";
 }
 
-
-
+function onBtnRepeatLastDrink()
+{
+	window.location = "pageConfirm.html?iconMenu=" +
+	 	iconNum + "&selNum=" + selNum + "&autostart=1";
+}
 </script>
 
 

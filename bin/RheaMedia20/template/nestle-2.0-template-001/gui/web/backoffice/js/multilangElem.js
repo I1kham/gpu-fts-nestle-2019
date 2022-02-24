@@ -35,6 +35,23 @@ function MultilangElem (elemID, dbUID, dbWHAT, inputType, widthOfInputBox, langu
 }
 
 //*********************************************************
+MultilangElem.prototype.getText = function (iso)
+{
+	var idTextBox = this.elemID + "_" +iso;
+	return rheaGetElemByID(idTextBox).value;
+}
+
+//*********************************************************
+MultilangElem.prototype.setText = function (iso, text)
+{
+	var idTextBox = this.elemID + "_" +iso;
+
+	console.log ("IDTextBox:" +idTextBox);
+
+	rheaGetElemByID(idTextBox).value = text;
+}
+
+//*********************************************************
 MultilangElem.prototype.priv_getHTMLForInputElem = function (inputType, widthOfInputBox, isoLanguage)
 {
 	if (inputType=="EDIT")
