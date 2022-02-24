@@ -1,7 +1,7 @@
 clear
 DATA=`date '+%y%m%d'`
 estensione="_commit.mh6"
-filename="GPU_CR90-OpticalBnd_$DATA$estensione"
+filename="GPU_TS_v.2.6.0-RC1_$DATA$estensione"
 
 
 FILE_GPU="./EMBEDDED_RELEASE_GPU"
@@ -39,14 +39,12 @@ rm -r ./GPUPackage2019
 mkdir ./GPUPackage2019
 mkdir ./GPUPackage2019/current
 mkdir ./GPUPackage2019/current/lang
-mkdir ./GPUPackage2019/current/GUIOpticalBonding
 cp "$FILE_GPU" ./GPUPackage2019/GPUFusion
 cp "$FILE_RSProto" ./GPUPackage2019/RSProto
 cp ./current/lang/*.* ./GPUPackage2019/current/lang
 cp ../src/makeRheaServicePack.sh ./GPUPackage2019
 rm ./varie/prog/lastUsedLang.txt
 cp -r ./varie ./GPUPackage2019
-cp -r ./current/GUIOpticalBonding ./GPUPackage2019/current
 chmod 777 ./GPUPackage2019/GPUFusion
 chmod 777 ./GPUPackage2019/RSProto
 chmod 777 ./GPUPackage2019/makeRheaServicePack.sh

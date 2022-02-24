@@ -273,6 +273,106 @@ VMC</string>
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
+   <widget class="QPushButton" name="btnInstall_CPU">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>180</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>INSTALL
+CPU FW</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnInstall_DA3">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>20</y>
+      <width>180</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>INSTALL
+VMC settings</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnInstall_GUI">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>20</y>
+      <width>180</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>INSTALL
+GUI</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnInstall_manual">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>20</y>
+      <width>180</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>INSTALL
+Manual</string>
+    </property>
+   </widget>
    <widget class="QFrame" name="framePleaseWait">
     <property name="geometry">
      <rect>
@@ -317,6 +417,31 @@ VMC</string>
      </property>
     </widget>
    </widget>
+   <widget class="QPushButton" name="btnInstall_languages">
+    <property name="geometry">
+     <rect>
+      <x>820</x>
+      <y>20</y>
+      <width>180</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>INSTALL
+Languages</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QFrame" name="frameDownloadBtn">
    <property name="geometry">
@@ -358,7 +483,7 @@ VMC</string>
     </property>
     <property name="text">
      <string>DOWNLOAD
-report</string>
+Data Audit</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnDownload_diagnostic">
@@ -382,8 +507,58 @@ report</string>
      <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
     </property>
     <property name="text">
-     <string>RESET
-report</string>
+     <string>DOWNLOAD
+Service zip file</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnDownload_GUI">
+    <property name="geometry">
+     <rect>
+      <x>532</x>
+      <y>20</y>
+      <width>200</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>DOWNLOAD
+GUI</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnDownload_DA3">
+    <property name="geometry">
+     <rect>
+      <x>288</x>
+      <y>20</y>
+      <width>200</width>
+      <height>90</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>17</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:#656565; color:#000; border-radius:10px;</string>
+    </property>
+    <property name="text">
+     <string>DOWNLOAD
+VMC settings</string>
     </property>
    </widget>
   </widget>

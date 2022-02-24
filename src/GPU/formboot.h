@@ -154,6 +154,7 @@ private:
     void                    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack mode);
     void                    priv_startUploadDA3 (eUploadDA3CallBack mode, const u8 *fullFilePathAndName);
     void                    priv_startUploadCPUFW (eUploadCPUFWCallBack mode, const u8 *fullFilePathAndName);
+    void                    priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg);
     void                    priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::sMsg &msg);
     void                    priv_on_btnDownload_diagnostic_makeZip();
     void                    priv_on_btnInstall_DA3_upload (rhea::thread::sMsg &msg);

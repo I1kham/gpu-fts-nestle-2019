@@ -55,13 +55,6 @@ void CR90File::priv_newLOG()
 }
 
 //***************************************************
-void CR90File::resetFile()
-{
-    priv_new();
-    save();
-}
-
-//***************************************************
 void CR90File::load()
 {
 	priv_free();

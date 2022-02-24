@@ -13,7 +13,6 @@
 #include <QProcess>
 #include <unistd.h>
 #include "Utils.h"
-#include "../SocketBridge/CR90File.h"
 
 
 //********************************************************
@@ -444,7 +443,7 @@ void FormBoot::priv_onCPUBridgeNotification (rhea::thread::sMsg &msg)
         switch (dwnloadDataAuditCallBack)
         {
         default: break;
-        case eDwnloadDataAuditCallBack_btn:         break;
+        case eDwnloadDataAuditCallBack_btn:         priv_on_btnDownload_audit_download(msg); break;
         case eDwnloadDataAuditCallBack_service:     priv_on_btnDownload_diagnostic_downloadDataAudit(msg); break;
         }
         break;
@@ -528,13 +527,27 @@ void FormBoot::on_buttonStart_clicked()
     if (bBtnStartVMCEnabled == false)
         return;
 
+    //verifico che ci sia una GUI installata
+    u8 s[256];
+    sprintf_s ((char*)s, sizeof(s), "%s/current/gui/template.rheagui", rhea::getPhysicalPathToAppFolder());
+    if (!rhea::fs::fileExists(s))
+    {
+        priv_pleaseWaitShow("");
+        priv_pleaseWaitSetError("ERROR: GUI is missing. Please load a new GUI");
+        priv_pleaseWaitHide();
+        return;
+    }
+
     priv_pleaseWaitShow("Starting VMC...");
 
 #ifdef PLATFORM_YOCTO_EMBEDDED
-    u8 s[512];
     sprintf_s ((char*)s, sizeof(s), "umount -f %s", USB_MOUNTPOINT);
     system((const char*)s);
 #endif
+
+    //se ESAPI::rasPI esiste, attivo la sua interfaccia web
+    if (glob->esapiModule.moduleType == esapi::eExternalModuleType::rasPI_wifi_REST)
+        esapi::ask_RASPI_START (glob->esapiSubscriber, (u32)0);
 
     retCode = eRetCode_gotoFormBrowser;
 }
@@ -1229,45 +1242,70 @@ void FormBoot::on_btnDownload_GUI_clicked()
 
 
 /**********************************************************************
- * Download report file
+ * Download data audit
  */
 void FormBoot::on_btnDownload_audit_clicked()
 {
-    priv_pleaseWaitSetText("Copying report to USB...");
+    priv_pleaseWaitShow("Downloading data audit...");
+    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack_btn);
+}
 
-    char src[256];
-    sprintf_s (src, sizeof(src), "%s/CR90-data.txt", glob->current);
+void FormBoot::priv_on_btnDownload_audit_download (rhea::thread::sMsg &msg)
+{
+    cpubridge::eReadDataFileStatus status;
+    u16 totKbSoFar = 0;
+    u16 fileID = 0;
+    cpubridge::translateNotify_READ_DATA_AUDIT_PROGRESS (msg, &status, &totKbSoFar, &fileID, NULL, 0);
 
-    char dstFilename[64];
-    char s[256];
-    rhea::DateTime dt;
-    dt.setNow();
-    dt.formatAs_YYYYMMDDHHMMSS (s, sizeof(s), '_', '-', '-');
-    sprintf_s (dstFilename, sizeof(dstFilename), "CR90-data_%s.txt", s);
-
-    char dst[256];
-    sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder, dstFilename);
-
-    if (!rhea::fs::fileCopy((const u8*)src, (const u8*)dst))
-        priv_pleaseWaitSetError("ERROR copying file (1) to USB pendrive");
-    else
+    char s[512];
+    if (status == cpubridge::eReadDataFileStatus::inProgress)
     {
-        //copia anche il file  dei log
-        sprintf_s (src, sizeof(src), "%s/CR90-log.txt", glob->current);
+        sprintf_s (s, sizeof(s), "Downloading data audit... %d KB", totKbSoFar);
+        priv_pleaseWaitSetText (s);
+    }
+    else if (status == cpubridge::eReadDataFileStatus::finishedOK)
+    {
+        dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
+        sprintf_s (s, sizeof(s), "Downloading data audit finished. Copying to USB folder, please wait...");
+        priv_pleaseWaitSetText (s);
+
+        //se non esiste, creo il folder di destinazione
+        rhea::fs::folderCreate (glob->usbFolder_Audit);
+
+        char src[256];
+        sprintf_s (src, sizeof(src), "%s/dataAudit%d.txt", glob->tempFolder, fileID);
+
+        char dstFilename[64];
+        rhea::DateTime dt;
+        dt.setNow();
         dt.formatAs_YYYYMMDDHHMMSS (s, sizeof(s), '_', '-', '-');
-        sprintf_s (dst, sizeof(dst), "%s/CR90-log_%s.txt", glob->usbFolder, s);
+        sprintf_s (dstFilename, sizeof(dstFilename), "dataAudit_%s.txt", s);
+
+        char dst[256];
+        sprintf_s (dst, sizeof(dst), "%s/%s", glob->usbFolder_Audit, dstFilename);
         if (!rhea::fs::fileCopy((const u8*)src, (const u8*)dst))
-            priv_pleaseWaitSetError("ERROR copying file (2) to USB pendrive");
+        {
+            priv_pleaseWaitSetError("Error copying file to USB");
+        }
         else
         {
-            priv_pleaseWaitSetText("Finalizing copy...");
-            priv_syncUSBFileSystem(5000);
+            sprintf_s (s, sizeof(s), "Finalizing copy...");
+            priv_syncUSBFileSystem(4000);
 
-            sprintf_s (s, sizeof(s),"SUCCESS.<br>A file named [<b>%s</b>] has been put on your USB pendrive in the folder /rhea.", dstFilename);
-            priv_pleaseWaitSetOK(s);
+            sprintf_s (s, sizeof(s), "SUCCESS.<br>The file <b>%s</b> has been copied to your USB pendrive on the folder rhea/rheaDataAudit", dstFilename);
+            priv_pleaseWaitSetOK (s);
         }
+
+        priv_pleaseWaitHide();
+
     }
-    priv_pleaseWaitHide();
+    else
+    {
+        dwnloadDataAuditCallBack = eDwnloadDataAuditCallBack_none;
+        sprintf_s (s, sizeof(s), "Downloading data audit... ERROR: %s", rhea::app::utils::verbose_readDataFileStatus(status));
+        priv_pleaseWaitSetError(s);
+        priv_pleaseWaitHide();
+    }
 }
 
 
@@ -1277,11 +1315,14 @@ void FormBoot::on_btnDownload_audit_clicked()
  */
 void FormBoot::on_btnDownload_diagnostic_clicked()
 {
-    socketbridge::CR90File cr90;
-    cr90.resetFile();
+    char s[512];
+    priv_pleaseWaitShow("Preparing service zip file (it may takes up to 2 minutes)...");
 
-    priv_pleaseWaitShow("Report file has been reset");
-    priv_pleaseWaitHide();
+    sprintf_s (s, sizeof(s), "%s/RHEA_ServicePack.tar.gz", rhea::getPhysicalPathToAppFolder());
+    rhea::fs::fileDelete((const u8*)s);
+
+    //download del data audit. Al termine del download, la procedura riprende con la fn priv_on_btnDownload_diagnostic_makeZip()
+    priv_startDownloadDataAudit (eDwnloadDataAuditCallBack_service);
 }
 
 void FormBoot::priv_on_btnDownload_diagnostic_downloadDataAudit (rhea::thread::sMsg &msg)
