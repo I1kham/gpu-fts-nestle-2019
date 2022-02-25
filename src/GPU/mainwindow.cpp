@@ -243,15 +243,28 @@ void MainWindow::priv_showForm (eForm w)
         break;
 
     case eForm_specialActionBeforeGUI:
-		priv_scheduleFormChange(eForm_main_showBrowser);
-		priv_showForm(eForm_main_showBrowser);
+        cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
+        if (!priv_shouldIShowFormPreGUI())
+        {
+            priv_scheduleFormChange(eForm_main_showBrowser);
+            priv_showForm(eForm_main_showBrowser);
+        }
         break;
 
     case eForm_main_showBrowser:
         {
             char s[1024];
-			sprintf_s (s, sizeof(s), "file://%s/GUIOpticalBonding/web/startup.html", rhea::getPhysicalPathToAppFolder());
+            sprintf_s (s, sizeof(s), "%s/web/startup.html", glob->current_GUI);
+            if (rhea::fs::fileExists((const u8*)s))
+                sprintf_s (s, sizeof(s), "file://%s/web/startup.html", glob->current_GUI);
+
+            else
+                sprintf_s (s, sizeof(s), "file://%s/varie/no-gui-installed.html", rhea::getPhysicalPathToAppFolder());
+
             priv_loadURL(s);
+            cpubridge::ask_CPU_QUERY_INI_PARAM(glob->cpuSubscriber, 0);
+            cpubridge::ask_CPU_SHOW_STRING_VERSION_AND_MODEL(glob->cpuSubscriber, 0);
+            cpubridge::ask_CPU_QUERY_STATE(glob->cpuSubscriber, 0);
         }
         break;
 
@@ -302,6 +315,16 @@ void MainWindow::timerInterrupt()
 
     if (nextForm != currentForm)
         priv_showForm(nextForm);
+
+    //se durante il form "preGUI" non sono riuscito a mandare il comando di reset decounter coffee ground perchè la CPU
+    //non era pronta, lo mando adesso
+    if (glob->sendASAP_resetCoffeeGroundDecounter != 0 && glob->bCPUEnteredInMainLoop)
+    {
+        cpubridge::ask_CPU_SET_DECOUNTER (glob->cpuSubscriber, 0, cpubridge::eCPUProg_decounter::coffeeGround, glob->sendASAP_resetCoffeeGroundDecounter);
+        glob->sendASAP_resetCoffeeGroundDecounter = 0;
+    }
+
+
 
     switch (currentForm)
     {

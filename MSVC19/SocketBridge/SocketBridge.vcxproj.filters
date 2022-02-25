@@ -333,13 +333,6 @@
     <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_browserNotifyURLChange.cpp">
       <Filter>CmdHandler\ajax</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_CR90_load.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_CR90_save.cpp">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\SocketBridge\CR90File.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler.h" />
@@ -675,13 +668,6 @@
     <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_browserNotifyURLChange.h">
       <Filter>CmdHandler\ajax</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_CR90_load.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CmdHandler\CmdHandler_ajaxReq_CR90_save.h">
-      <Filter>CmdHandler\ajax</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\SocketBridge\CR90File.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CmdHandler">

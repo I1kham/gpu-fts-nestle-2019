@@ -38,7 +38,7 @@
     <ProjectGuid>{2A91F944-9244-4367-8EB6-F4AECA5C808C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>rheaDB</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

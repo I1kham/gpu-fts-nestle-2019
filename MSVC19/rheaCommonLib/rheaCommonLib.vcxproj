@@ -151,7 +151,7 @@
     <ProjectGuid>{CB34C216-01F2-4928-BD25-FAE1B18D7F20}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>rheaCommonLib</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

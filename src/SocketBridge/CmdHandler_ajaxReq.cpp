@@ -72,8 +72,6 @@
 #include "CmdHandler/CmdHandler_ajaxReq_snack_0x04_enterProg.h"
 #include "CmdHandler/CmdHandler_ajaxReq_snack_0x05_exitProg.h"
 #include "CmdHandler/CmdHandler_ajaxReq_browserNotifyURLChange.h"
-#include "CmdHandler/CmdHandler_ajaxReq_CR90_load.h"
-#include "CmdHandler/CmdHandler_ajaxReq_CR90_save.h"
 using namespace socketbridge;
 
 /***************************************************
@@ -177,9 +175,6 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReq_snack_0x04_enterProg);
 	CHECK(CmdHandler_ajaxReq_snack_0x05_exitProg);
 	CHECK(CmdHandler_ajaxReq_browserNotifyURLChange);
-
-	CHECK(CmdHandler_ajaxReq_CR90_load);
-	CHECK(CmdHandler_ajaxReq_CR90_save);
 #undef CHECK
     return NULL;
 }
