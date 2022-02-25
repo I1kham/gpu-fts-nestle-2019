@@ -208,6 +208,7 @@
 #define		CPUBRIDGE_SUBSCRIBER_ASK_WIFI_SET_MODE_CONNECTTO						0x085B
 #define		CPUBRIDGE_SUBSCRIBER_ASK_WIFI_GET_SSID_LIST								0x085C
 
+
  /**********************************************************************
   * Nel messaggio "B", il sesto byte ([5]) funziona come una bitmask
   */

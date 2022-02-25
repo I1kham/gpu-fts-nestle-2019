@@ -766,7 +766,7 @@
 							</tr>
 							<tr>
 								<td>CZAS ROZPUSZCZANIA TABLETKI</td>
-								<td><div id="pageMilker_capp_indux_5" class="UINumber" data-numfigures="3" data-da3="8358" data-da3bit="16" data-max="240" data-um="sec."></div></td>
+								<td><div id="pageMilker_capp_indux_5" class="UINumber" data-numfigures="3" data-da3="7670" data-da3bit="16" data-max="240" data-um="sec."></div></td>
 							</tr>
 						</table>
 						
@@ -1136,7 +1136,7 @@
 			<div class="UIWindowContent">
 				<table border='0' width='100%' id="pageDevices_selectorTable">
 					<tr valign='middle'>
-						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='1|VARIFLEX|2|VARIGRIND|0|INNE|3|SNACK|4|NETWORK' data-onclick='pageDevices_onSelector()'></div></td>
+						<td><div class='UIOptionSmall' id='pageDevices_selectorVFlex' data-option='' data-onclick='pageDevices_onSelector()'></div></td>
 					</tr>
 				</table>
 				<div style='height:5px'></div>
@@ -2349,7 +2349,10 @@ function pageMiscellaneous_show()
 	if (showPage("pageMiscellaneous", "RÓŻNE", 1, 1))
 	{
 		//è la prima volta che visualizziamo la pagina
-		var selOptions = "0|OPCJE OGÓLNE|1|IDENTYFIKATOR MASZYNY|2|MLEKO DO LM|3|FREEVEND|4|LICZNIK BLOKOWANIA";
+		var selOptions = "0|OPCJE OGÓLNE|1|IDENTYFIKATOR MASZYNY"
+		if (!da3.isMachine_Brewmatic4Macine())
+			selOptions += "|2|MLEKO DO LM";
+		selOptions += "|3|FREEVEND|4|LICZNIK BLOKOWANIA";
 		if (da3.isMachine_Brewmatic4Macine())
 			selOptions +="|5|VIBRATION";
 		var uiSelector = win.getChildByID("pageMiscellaneous_selector");
@@ -2368,7 +2371,7 @@ function pageMiscellaneous_show()
 		{
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		}
-		if (da3.isGruppoMicro())
+		if (da3.isGruppoMicro() || da3.isMachine_Brewmatic4Macine())
 			rheaHideElem (rheaGetElemByID("pageMiscellaneous_fmilkTopping"));
 		
 		if (da3.isMachine_MultibonaInstant() || da3.isMachine_MinibonaInstant())
@@ -3926,23 +3929,23 @@ function pageDevices_onSelector()
 	pageDevices_whichPage = parseInt(pageDevices_selector.getSelectedOptionValue());
 	switch (pageDevices_whichPage)
 	{
-		default: 
-			rheaShowElem(elem0); 
-			break;
-		case 1:  
-			rheaShowElem(elem1); 
-			break;
-		case 2:  
-			rheaShowElem(elem2); 
-			pageDevices_onVGrindSelector();
-			break;
-		case 3:  
-			rheaShowElem(elem3);
-			break;
-		case 4:  
-			rheaShowElem(elem4); 
-			pageDevices_network_onFirstTimeShow();
-			break;
+	default: 
+		rheaShowElem(elem0); 
+		break;
+	case 1:  
+		rheaShowElem(elem1); 
+		break;
+	case 2:  
+		rheaShowElem(elem2); 
+		pageDevices_onVGrindSelector();
+		break;
+	case 3:  
+		rheaShowElem(elem3);
+		break;
+	case 4:  
+		rheaShowElem(elem4); 
+		pageDevices_network_onFirstTimeShow();
+		break;
 	}
 	
 	win.showHideScrollBar();

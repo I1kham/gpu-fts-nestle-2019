@@ -578,11 +578,7 @@ bool Server::isMotherboard_D23() const
 #ifdef PLATFORM_ROCKCHIP
 	return true;
 #else
-	#ifdef _DEBUG
-		return true;
-	#else
-		return false;
-#endif
+	return false;
 #endif
 }
 

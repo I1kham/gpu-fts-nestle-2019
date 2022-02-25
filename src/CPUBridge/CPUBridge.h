@@ -388,6 +388,7 @@ namespace cpubridge
 
 	void		notify_CPU_BROWSER_URL_CHANGE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, const char *url);
 	void		translateNotify_CPU_BROWSER_URL_CHANGE (const rhea::thread::sMsg& msg, char *out_url, u32 sizeof_out_url);
+
 	void		notify_CPU_ATTIVAZIONE_SCIVOLO_BREWMATIC (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 perc0_100);
 
 	void		notify_MSG_FROM_LANGUAGE_TABLE (const sSubscriber& to, u16 handlerID, rhea::ISimpleLogger* logger, u8 tableID, u8 msgRowNum, const u8 *utf8message);

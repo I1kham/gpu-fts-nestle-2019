@@ -3030,7 +3030,7 @@ void Server::priv_handleState_compatibilityCheck()
 		//invio comando initalParam
 		const u8 nBytesToSend = cpubridge::buildMsg_initialParam_C(2, 0, 0, bufferW, sizeof(bufferW));
 		u16 sizeOfAnswerBuffer = sizeof(answerBuffer);
-		if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 200))
+        if (priv_sendAndWaitAnswerFromCPU(bufferW, nBytesToSend, answerBuffer, &sizeOfAnswerBuffer, 500))
 		{
 			priv_parseAnswer_initialParam(answerBuffer, sizeOfAnswerBuffer);
 			if (strcmp(cpuParamIniziali.CPU_version, "FAKE CPU") == 0)
@@ -3434,6 +3434,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 	const u8 ALLOW_N_RETRY_BEFORE_COMERROR = 5;
 	u64	nextTimeSendCheckStatusMsgWasMSec = 0;
 	u8 nRetry = 0;
+logger->log ("handleState_downloadPriceHoldingPriceList() => waiting for CPU to be ready\n");
 	while ((cpuStatus.flag1 & sCPUStatus::FLAG1_READY_TO_DELIVER_DATA_AUDIT) == 0)
 	{
 		const u64 timeNowMSec = rhea::getTimeNowMSec();
@@ -3468,6 +3469,7 @@ void Server::priv_handleState_downloadPriceHoldingPriceList()
 	}
 
 
+logger->log ("handleState_downloadPriceHoldingPriceList() => ready to ask prices\n");
 
 	//determino quali e quanti prezzi devo recuperare dalla gettoniera
 	u16 firstPriceList = 100;
@@ -4253,25 +4255,25 @@ bool Server::priv_enterState_selection (const sStartSelectionParams &params, con
 	{
 		logger->log("  invalid request, CPUServer != eStato::normal, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		//return false;
 	}
 	else if (cpuStatus.VMCstate != eVMCState::DISPONIBILE)
 	{
 		logger->log("  invalid request, VMCState != eVMCState::DISPONIBILE, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		//return false;
 	}
+
+	/* questa condizione non è più valida in quanto abbiamo aggiunto il supporto alle selezion snack le quali partono dal selNum = 50 quindi
+	* selezioni > di 48 sono da ritenersi valide
 	else if (selNumber < 1 || selNumber > NUM_MAX_SELECTIONS)
 	{
 		logger->log("  invalid selection number, aborting.");
 		priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-		//return false;
 	}
+	*/
 	else if (eLockStatus::locked == priv_getLockStatus())    //se la macchina è "locked", niente selezioni
     {
         logger->log("  machine is locked, aborting.");
         priv_notify_CPU_RUNNING_SEL_STATUS (sub, 0, eRunningSelStatus::finished_KO);
-        //return false;
     }
 	else
 	{

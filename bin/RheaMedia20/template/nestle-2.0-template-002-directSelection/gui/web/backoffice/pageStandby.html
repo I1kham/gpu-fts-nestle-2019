@@ -119,7 +119,7 @@
 						<div class="box-content">
 							<div>
 								<input type="checkbox" id="isVideo" name="isVideo" onclick="onVideoRequired(event)">
-								<label for="isVideo">Enable video instead of slideshow (<b>only for RHTT11 MODEL)</b></label>
+								<label for="isVideo">Enable video instead of slideshow (<b>only for RHTT1 MODEL)</b></label>
 							</div>
 
 							<div id="boxSlideShow">
@@ -168,7 +168,7 @@
 		
 								<div style="float:left; width:400px">
 									<div style="margin-left:30px;">
-										<div id="splashVideoUpload" data-accept=".mp4" data-refer-to="splashVideo" data-message="+<br><i style='font-size:0.3em'>click to upload an mp4 video<br/><br/> (1024x600 .mp4 format)</i>"></div>
+										<div id="splashVideoUpload" data-accept=".mp4" data-refer-to="splashVideo" data-message="+<br><i style='font-size:0.3em'>click to upload an mp4 (H264) video<br/><br/> (1024x600 .mp4 format)</i>"></div>
 									</div>
 		
 									<div style="margin-left:30px; width: 280px;">
@@ -323,7 +323,7 @@ async function onRheaBootstrapFinished()
 		checked = rst.valByColName(0,'Message')? JSON.parse(rst.valByColName(0,'Message')) : false;
 
 		if(checked) {
-			document.querySelector( '#isVideo' ).checked = checked;
+			document.querySelector( '#isVideo' ).checked = true;
 
 			rheaHideElem(document.getElementById('boxSlideShow'));
 			rheaShowElem(document.getElementById('boxVideo'));

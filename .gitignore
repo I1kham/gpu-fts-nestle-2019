@@ -75,6 +75,7 @@ bin/RASPI_DEBUG_rasPIBootLoader
 bin/varie/prog/debug.log
 MSVC17/rheaUnzip/build/
 *.tlog
+*bak
 bin/DA2Parser.txt
 MSVC17/Da2Parser/build/WINDebug/Da2Parser.log
 bin/ROCKCHIP_DEBUG_GPU
@@ -118,3 +119,7 @@ MSVC19/SMU/build/
 MSVC19/SocketBridge/build/
 bin/SECOOs-services/keepMODEMdown
 bin/SECOOs-services/wpa_key
+*.8-pre1~develop
+*.pro~develop
+*.user~develop
+*.a4f30c0

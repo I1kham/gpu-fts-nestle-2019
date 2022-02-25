@@ -606,19 +606,19 @@ TaskCleaning.prototype.priv_handleMilkWashingIndux = function (timeElapsedMSec)
 					pleaseWait_freeText_setText("正在清洗：-{0}".translateLang(timeSec)); //Rinsing -{0}
 					break;
 
-				case 4:	//CIC_RINSING_PHASE1
+				case 4:	//CIC_cleaning_PHASE1
+				case 5:	//CIC_cleaning_PHASE2
 					var ciclo_num = parseInt(obj.buffer8[0]);
 					var ciclo_di = parseInt(obj.buffer8[3]);
 					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
-					pleaseWait_freeText_setText("正在冲洗{1}的{0}，请稍候。<br>导水性：{2}uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Rinsing {0} of {1}, please wait.<br>Water conducibility: {2} uS
+					pleaseWait_freeText_setText("正在清洗{1}的{0}，请稍候。<br>导水性：{2}uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Rinsing {0} of {1}, please wait.<br>Water conducibility: {2} uS
 					break;
 
-				case 5:	//CIC_RINSING_PHASE2
 				case 6: //CIC_RINSING_PHASE3
 					var ciclo_num = parseInt(obj.buffer8[0]);
 					var ciclo_di = parseInt(obj.buffer8[3]);
 					var cond_uS = parseInt(obj.buffer8[1]) + 256*parseInt(obj.buffer8[2]);
-					pleaseWait_freeText_setText("正在清洗{1}的{0}，请稍候。<br>导水性：{2}uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Cleaning {0} of {1}, please wait.<br>Water conducibility: {2} uS
+					pleaseWait_freeText_setText("正在冲洗{1}的{0}，请稍候。<br>导水性：{2}uS".translateLang(ciclo_num,ciclo_di,cond_uS)); //Cleaning {0} of {1}, please wait.<br>Water conducibility: {2} uS
 					break;
 				
 				case 7: //CIC_WAIT_FOR_MILK_TUBE

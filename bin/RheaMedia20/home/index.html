@@ -1,7 +1,7 @@
 <html>
 <html>
 <head>
-	<title>RheaMedia2 - v2.5.1</title>
+	<title>RheaMedia2 - v2.7.0</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -30,7 +30,7 @@
 <div id="mainWrapper" class="wrapper">
 	<div id="main-content">
 		<div class="header">
-			<h1>RheaMedia2 - v2.5.1</h1>
+			<h1>RheaMedia2 - v2.7.0</h1>
 		</div>
 
 		<div class="page">
@@ -52,7 +52,7 @@
 					<div class="wrapper" style="float:left;">
 						<div class="box " style="float:left;">
 							<div class="box-content" style="min-height:300px">
-								<div style="float:left; width:12%"><a href="javascript:scrollToPage(0)" class="button giallo"><< BACK</a></div>
+								<div style="float:left; width:12%"><a href="javascript:scrollToPage(0); delete window.imported" class="button giallo"><< BACK</a></div>
 								<div style="float:left; margin-top:6px; width:88%"><h2>Please select a template</h2></div>
 								<div class="clear"></div>
 								<br>
@@ -94,6 +94,8 @@
 <script src="js/fileSaveAs.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/rheaDB.js"></script>
+<script src="js/rhea.migration.js"></script>
+
 <script language="javascript">
 var fileBrowser1 = null;
 var fileSaveAs1 = null;
@@ -269,15 +271,19 @@ function templateList_load2(index)
 
 function templateList_showPrefabs (index)
 {
-	var html = "<ul class='prefabs'>";
-	for (var i=0; i<templateList[index].prefabs.length; i++)
-	{
-		var folderName = templateList[index].prefabs[i];
-		html += "<li onclick='createNewGUI(" +index +"," +i +")'>" +folderName +"</li>";
+	if (window.imported && window.imported.oldTemplateConfiguration) {
+		createNewGUI(index, 0);
+	} else {
+		var html = "<ul class='prefabs'>";
+		for (var i=0; i<templateList[index].prefabs.length; i++)
+		{
+			var folderName = templateList[index].prefabs[i];
+			html += "<li onclick='createNewGUI(" +index +"," +i +")'>" +folderName +"</li>";
+		}
+		html += "</ul>";
+		$("#page2PrefabsList").html(html);
+		scrollToPage(2);
 	}
-	html += "</ul>";
-	$("#page2PrefabsList").html(html);
-	scrollToPage(2);
 }
 
 
@@ -314,7 +320,7 @@ function createNewGUI_onFinishTemplateCopy(taskFinalMsg)
 	copyFolderToFolder (prefabsSrcFolder, absTempFolderPath +"/web", createNewGUI_onFinishPrefabsCopy);
 }
 
-function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
+async function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
 {
 	if (taskFinalMsg != "OK")
 	{
@@ -323,11 +329,35 @@ function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
 		return;
 	}
 
-	window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
-	
+	if(window.imported && window.imported.oldTemplateConfiguration) {
+		var path = rheaGetAbsolutePhysicalPath().split('/');
+		path.pop(); path = path.join('/');
+
+		var tempFolder = `${path}/temp/${tempFolderName}/web/backoffice`;
+		var pathDB = `${tempFolder}/guidb.db3`;
+		var tempDb = new RheaDB(pathDB);
+
+		var rMig = new RheaMigration( 
+			tempFolder,
+			window.imported.oldTemplateConfiguration.root, 
+			window.imported.configurationPath, 
+			tempDb );
+
+		await rMig.convert();
+
+		// chiudo il DB
+		rhea.ajax ("DBClose", { "path" : pathDB})
+			.then( function(result){ })
+			.catch ( function(result) { })
+			.finally( function() {
+				window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
+			});
+	} else {
+		window.location = "../temp/" +tempFolderName +"/web/backoffice/startup.html";
+	}
+
 	pleaseWait(0);
 }
-
 
 
 /*****************************************************
@@ -337,7 +367,7 @@ function createNewGUI_onFinishPrefabsCopy(taskFinalMsg)
  */
 function existingGUI_openFileBrowser()
 {
-	fileBrowser1.openFile("c:", "*.rheagui *.rheaRasGuiTP", existingGUI_onFileOpenFinished, "Browse to locate a GUI folder. Look for a file by the name of <b>template.rheagui</b> and click on it");
+	fileBrowser1.openFile("c:", "*.rheagui *.rheaRasGuiTP GuiConfig.xml", existingGUI_onFileOpenFinished, "Browse to locate a GUI folder. Look for a file by the name of <b>template.rheagui</b> and click on it. If you want to import a GUI from RheaMedia 1.x, click on the file named <b>GuiConfig.xml</b>");
 }
 
 async function existingGUI_onFileOpenFinished(fileName, path)
@@ -356,6 +386,9 @@ async function existingGUI_onFileOpenFinished(fileName, path)
 		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
 	} else if (fileName.indexOf(".rheaRasGuiTP") !== -1) {
 		existingGUI_beginImport_rheaRasGuiTP(fileName, path);
+		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
+	} else if (fileName.indexOf("GuiConfig.xml") !== -1) {				// RheaMedia 1.x
+		existingGUI_beginImport_old_rheaMedia(fileName, path);
 		localStorage.setItem('rhea.data', JSON.stringify( rheaData ));
 	}
 	else
@@ -466,6 +499,90 @@ async function existingGUI_beginImport_rheaRasGuiTP(fileName, path)
 	//a questo punto ho la GUI unzippata in [destUnzippedFolder], procedo come al solito
 	existingGUI_beginImport_rheagui("", destUnzippedFolder);
 	
+}
+
+/***************************************************************
+ * importazione	di gui con estensione .xml relativa ad una GUI generata con RheaMedia 1.x
+ */
+async function existingGUI_beginImport_old_rheaMedia(fileName, path)
+{
+	pleaseWait(1);
+	
+	// Read xml FILE	
+	rhea.filetransfer_startDownload ("file:" +path+"/"+fileName, path, xmlLoad_onStart, xmlLoad_onProgress, xmlLoad_onEnd);
+}
+
+function xmlLoad_onStart(userValue)			{ }
+function xmlLoad_onProgress()				{ }
+function xmlLoad_onEnd (path, reasonRefused, obj)
+{
+	if (reasonRefused != 0)
+	{
+		console.log ("xmlLoad_onEnd: error, reason[" +reasonRefused +"]");
+		alert ("xmlLoad_onEnd: error, reason[" +reasonRefused +"]");
+		pleaseWait(0);
+		return;
+	}
+	
+	var xml = utf8ArrayToStr(obj.fileBuffer);
+	
+	// Convert xml File into JSON Object
+	window.imported = new Object();
+	window.imported.oldTemplateConfiguration = parseXMLFile(xml);
+	window.imported.configurationPath = path;
+	scrollToPage(1);
+	pleaseWait(0);
+}
+
+function parseXMLFile(xml)
+{
+	var parser = new DOMParser();
+	var xmlDoc = parser.parseFromString(xml, 'text/xml')
+
+	// Check if xml db is valid
+	if (!xmlDoc.querySelector('info')) {
+		alert ("ERROR: invalid file");
+	}
+
+	// Retrieves the root node
+	var rootNode = xmlDoc.querySelector('root');
+
+	return configToJSON(xmlDoc);
+}
+
+function configToJSON(xml) 
+{
+    try {
+        var obj = {};
+        
+		if (xml.children.length > 0)
+		{
+            for (var i = 0; i < xml.children.length; i++) 
+			{
+                var item = xml.children.item(i);
+                var nodeName = item.nodeName;
+
+                if (typeof (obj[nodeName]) == "undefined") {
+                    obj[nodeName] = configToJSON(item);
+                } else {
+                    if (typeof (obj[nodeName].push) == "undefined") {
+                        var old = obj[nodeName];
+
+                        obj[nodeName] = [];
+                        obj[nodeName].push(old);
+                    }
+
+                    obj[nodeName].push(configToJSON(item));
+                }
+            }
+        } else {
+            obj = xml.textContent;
+        }
+
+        return obj;
+    } catch (e) {
+        console.log(e.message);
+    }
 }
 
 </script>

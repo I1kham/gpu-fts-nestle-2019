@@ -13,7 +13,7 @@ var DA3_BLOCK_SIZE = 64;
 */
 function DA3(machineType, machineModel, isInduzione, tipoGruppoCaffe, aliChinaActivated, motherboard)
 {
-	console.log ("DA3: machineType[" +machineType +"], model[" +machineModel +"], isInduzione[" +isInduzione +"], grpCaffe[" +tipoGruppoCaffe +"]");
+	console.log ("DA3: machineType[" +machineType +"], model[" +machineModel +"], isInduzione[" +isInduzione +"], grpCaffe[" +tipoGruppoCaffe +"], motherboard[" +motherboard +"]");
 	this.da3_original = null;
 	this.da3_current = null;
 	this.da3_filesize = 0;

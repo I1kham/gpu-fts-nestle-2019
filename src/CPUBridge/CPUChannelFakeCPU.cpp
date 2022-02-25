@@ -553,7 +553,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 
 			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::instant;	const u8 isInduzione = 0;	const u8 tipoGruppo='N';
 			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso1;	const u8 isInduzione = 1;	const u8 tipoGruppo='V';
-			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 1;	const u8 tipoGruppo='V';
+			const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;	const u8 isInduzione = 1;	const u8 tipoGruppo='V';
 			//const u8 modelloMacchina = 0x82;	const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2;		const u8 isInduzione = 0;	const u8 tipoGruppo='V';
 
 
@@ -561,7 +561,7 @@ bool CPUChannelFakeCPU::sendAndWaitAnswer(const u8 *bufferToSend, u16 nBytesToSe
 			//const u8 modelloMacchina = 0x56; const u8 tipoGruppo='M'; const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2; const u8 isInduzione = 0;
 
 			//MACCHINA: Brewmatic, espresso, induzione, gruppo variflex
-			const u8 modelloMacchina = 91; const u8 tipoGruppo='V'; const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2; const u8 isInduzione = 1;
+			//const u8 modelloMacchina = 91; const u8 tipoGruppo='V'; const u8 machine_type = (u8)cpubridge::eCPUMachineType::espresso2; const u8 isInduzione = 1;
 			
 			out_answer[ct++] = '#';
 			out_answer[ct++] = (u8)cpuCommand;

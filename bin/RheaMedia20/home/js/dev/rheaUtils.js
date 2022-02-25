@@ -107,6 +107,7 @@ var utf8ArrayToStr = (function ()
 		{
             byte1 = array[i++];
 
+			var iStart = i;
             if (byte1 <= 0x7F) {
                 codePt = byte1;
             } else if (byte1 <= 0xDF) {
@@ -120,7 +121,14 @@ var utf8ArrayToStr = (function ()
                 i += 3;
             }
 
-            result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
+			try
+			{
+				result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
+			}
+			catch (error)
+			{
+				i = iStart;
+			}
         }
 
         return result.join('');

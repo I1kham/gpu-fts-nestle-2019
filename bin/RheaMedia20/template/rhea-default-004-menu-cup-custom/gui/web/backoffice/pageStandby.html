@@ -1,0 +1,548 @@
+<html>
+<head>
+	<title>GUI-Editor</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+	<script src="js/utils.js"></script>
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="js/jquery-ui-1-12-1/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link href="../../../../home/js/fileBrowser.css" rel="stylesheet" type="text/css">
+	<script src="js/colorPicker/colpick.js"></script>	
+	<link href="js/colorPicker/colpick.css" rel="stylesheet" type="text/css">
+	<style>
+		video.bg {
+			width: 300px; height: 100%;
+			background-color: #333;
+			background-image: url(img/video_broken.png);
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: 64px;
+		}
+
+		.splashVideoUploadProgressPerc {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: absolute;
+			color: #000;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			margin: 0px auto;
+			margin-top: 4px;
+		}
+	</style>
+</head>
+
+<body onLoad="rheaBootstrapWithPathPrefix('../')">
+<div id="mainWrapper" class="wrapper">
+	<div id="main-content">
+		<div class="header">
+			<h1>Page standby</h1>
+			<div id="tplPath">&nbsp;</div>
+		</div>
+
+		<div class="pulsantiera-sticky">
+			<table border="0" cellspacing='0' cellpadding='2' width="100%">
+				<tr valign="middle">
+					<td width="33%" align="left"><a class="button giallo" href="index.html">BACK TO INDEX</a></td>
+					<td width="34%" align="center"><a class="button verde" href="javascript:saveAll()">SAVE PAGE SETTINGS</a></td>
+					<td width="33%" align="right"><a class="button arancione" href="javascript:onBtnBuildAndPreview()">Preview GUI and Export</a></td>
+				</tr>
+			</table>
+		</div>			
+		
+		<div class="page">
+			<div id="page-content">
+				<div class="box">
+					<h2>General settings</h2>
+					<div class="box-content">
+						Is "Page Stanbdy" enabled:<select id="enablePageStandby" class="combo" onchange="enablePageStandby_onchange()">
+										<option value="0">No</option>
+										<option value="1">Yes</option>
+									</select> <span class="tip">If you choose <b>No</b>, then the GUI will never go to page standby, it will alway goes back to page menu</span>
+						<br>					
+					</div>
+				</div>
+				
+				<div id="divIfEnabled">
+					<div class="box">
+						<h2>Overlay text</h2>
+						<div class="box-content">
+							Is overlay visibile:<select id="overlay_visible" class="combo" onchange="overlay_visible_onchange()">
+											<option value="0">No</option>
+											<option value="1">Yes</option>
+										</select>
+							<br>
+							
+							<div id="divOverlayOption" style="display:none; margin-left:50px">
+								<table border='0' cellspacing='0' cellpadding='2'>
+									<tr valign="top">
+										<td>Message:</td>
+										<td>
+											<div id="txtMessage"></div>
+										</td>
+									</tr>
+								
+									<tr valign="middle">
+										<td>Background color:</td>
+										<td>
+											<div id="divBGColorPicker" style="display:inline-block; border:solid 1px #000; padding:4px; background-color:#123456; min-width:100px">&nbsp;</div>
+											<input type="hidden" id="overlay_bgcolor_R">
+											<input type="hidden" id="overlay_bgcolor_G">
+											<input type="hidden" id="overlay_bgcolor_B">
+											&nbsp;trasparency<input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:40px; text-align:right" id="overlay_bgcolor_A">
+										</td>
+									</tr>
+									<tr valign="middle">
+										<td>Text color:</td>
+										<td>
+											<div id="divTextColorPicker" style="display:inline-block; border:solid 1px #000; padding:4px; background-color:#123456; min-width:100px">&nbsp;</div>
+											<input type="hidden" id="overlay_textColor_R">
+											<input type="hidden" id="overlay_textColor_G">
+											<input type="hidden" id="overlay_textColor_B">
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>				
+				
+					<div class="box">
+						<h2>Slide show</h2>
+						
+						<div class="box-content">
+							<div>
+								<input type="checkbox" id="isVideo" name="isVideo" onclick="onVideoRequired(event)">
+								<label for="isVideo">Enable video instead of slideshow (<b>only for RHTT1 MODEL)</b></label>
+							</div>
+
+							<div id="boxSlideShow">
+								<p>Time between one slide and the next <input type="text" class="edit" onkeyup="javascript:onlyInteger(event)" style="width:80px; text-align:right" id="gallery_timeToNextImageMSec"> sec</p>
+								
+								<div style="float:left; width:400px">
+									<ul id="elencoItem" class="sortable-list"></ul>
+									
+									<div style="margin-left:30px;">
+										<div id="fileUpload1" data-message="+<br><i style='font-size:0.3em'>click or drag image here</i>"></div>
+									</div>
+								</div>
+								
+								<div style="float:right">
+									<span class="tip">
+										<h2>How to</h2>
+										<ul>
+											<li><b>Drag</b> icons on the left to reorder the list</li>
+											<li>Click on the <b>+ button</b> (or drop an image into it) to add more images</li>
+											<li>Click on the <img src='img/icon_delete24.png' style='background-color:#fff; padding:2px; width:15px'> icon to delete a single image</li>
+										</ul>
+										
+										<br>
+										<h2>Image resolution</h2>
+											Image must be <b>1024 x 600</b> pixel in <b>JPG format</b>
+									</span>
+								</div>
+								<div class="clear"></div>
+							</div>
+
+							<div id="boxVideo" style="display: none;">
+								<div style="position: relative;">
+									<progress id="splashVideoUploadProgress" value="0" max="100" style="
+										height: 35px;
+										margin-top: 5px;
+										width: 100%;
+									"></progress>
+									<div class="splashVideoUploadProgressPerc">
+										0%
+									</div>
+								</div>
+								
+								<div style="float:left; height:300px; overflow:hidden; margin-right:80px; margin-top: 10px;">
+									<video id="splashVideo" class="bg" autoplay loop muted alt="No video selected yet">
+								</div>
+		
+								<div style="float:left; width:400px">
+									<div style="margin-left:30px;">
+										<div id="splashVideoUpload" data-accept=".mp4" data-refer-to="splashVideo" data-message="+<br><i style='font-size:0.3em'>click to upload an mp4 (H264) video<br/><br/> (1024x600 .mp4 format)</i>"></div>
+									</div>
+		
+									<div style="margin-left:30px; width: 280px;">
+										<br /><br />
+										<a class="button rosso" href="javascript:deleteCurrentVideo('#splashVideoUpload_file', '#splashVideo')">Delete current video</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div> <!-- divIfEnabled -->
+			</div>
+		</div>
+	</div>
+	
+	<div id="main-content-wait" style="display:none">
+		<br><br><br><br><br><br><br><br><br><br>
+		<center><img src="img/animationRound.gif"></center>
+		<div id="main-content-wait-msg" style="position:absolute; top:20px; left:20px; color:#fff;"></div>
+	</div>
+</div>
+
+<div id="previewBox"></div>
+
+<script id="rheaBootstrapTag" src="../js/rheaBootstrap.js"></script>
+<script src="js/rheaDB.js"></script>
+<script src="js/rheaFileUpload.js"></script>
+<script src="js/buildConfigFile.js"></script>
+<script src="js/multilangElem.js"></script>
+<script src="../config/allowedLang.js"></script>
+<script src="../../../../home/js/fileSaveAs.js"></script>
+<script language="javascript">
+var historyID = -1;
+var progressivoNuoveImmagini = 1000;
+var db = null;
+var ml_message = null;
+var video = "";
+
+function setupColorPickers()
+{
+	var d = $("#divBGColorPicker");
+	var r = $("#overlay_bgcolor_R").val();
+	var g = $("#overlay_bgcolor_G").val();
+	var b = $("#overlay_bgcolor_B").val();
+	d.css("background-color", "rgb(" +r +"," +g +"," +b +")");
+	
+	d.colpick({
+            colorScheme:"dark",
+			onShow: function()
+			{
+				var curColor = {};
+				curColor.r = $("#overlay_bgcolor_R").val();
+				curColor.g = $("#overlay_bgcolor_G").val();
+				curColor.b = $("#overlay_bgcolor_B").val();
+				d.colpickSetColor(curColor, false);
+			},
+            onChange:function(hsb,hex,rgb,el,bySetColor) {
+                $(el).css("background-color", "#"+hex);
+				
+				$("#overlay_bgcolor_R").val(rgb.r);
+				$("#overlay_bgcolor_G").val(rgb.g);
+				$("#overlay_bgcolor_B").val(rgb.b);
+            }
+        });
+		
+		
+	d = $("#divTextColorPicker");
+	var r = $("#overlay_textColor_R").val();
+	var g = $("#overlay_textColor_G").val();
+	var b = $("#overlay_textColor_B").val();
+	d.css("background-color", "rgb(" +r +"," +g +"," +b +")");
+	d.colpick({
+            colorScheme:"dark",
+			onShow: function()
+			{
+				var curColor = {};
+				curColor.r = $("#overlay_textColor_R").val();
+				curColor.g = $("#overlay_textColor_G").val();
+				curColor.b = $("#overlay_textColor_B").val();
+				d.colpickSetColor(curColor, false);
+			},
+            onChange:function(hsb,hex,rgb,el,bySetColor) {
+                $(el).css("background-color", "#"+hex);
+				
+				$("#overlay_textColor_R").val(rgb.r);
+				$("#overlay_textColor_G").val(rgb.g);
+				$("#overlay_textColor_B").val(rgb.b);
+            }
+        });		
+		
+		
+}
+
+function upload_onEnd (fileName, userValue, error_code)
+{
+	console.log ("onEvent_fileupload_finished [" +userValue +"][err:" +error_code +"]");
+	if (error_code != 0)
+	{
+		alert ("Error during upload. Error code=" +error_code);
+		return;
+	}
+	
+	var imgFilePathAndName = "../upload/" +fileName;
+	$("#elencoItem").append( imageList_getHTML_li(progressivoNuoveImmagini, imgFilePathAndName));
+	progressivoNuoveImmagini++;
+}
+
+
+
+async function onRheaBootstrapFinished()
+{
+	var urlParams = getUrlVars();
+	historyID = urlParams["his"];
+	
+	$("#main-content-wait").show();
+	
+	setupUploader("fileUpload1", upload_onEnd);
+	setupUploader("splashVideoUpload", videoUpload_onEnd);
+	
+	setProgressListener("splashVideoUpload");
+
+	var curPath = rheaGetAbsolutePhysicalPath();
+	db = new RheaDB (curPath +"/guidb.db3");
+	let rst = await db.q("SELECT * FROM pageStandby WHERE HIS_ID=" +historyID);
+	if (rst.hasError() != "")
+	{
+		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
+		return;
+	}
+	
+	$("#enablePageStandby").val(rst.valByColName(0, "pageEnabled"));
+	
+	$("#overlay_visible").val(rst.valByColName(0, "overlay_visible"));
+	
+	$("#overlay_bgcolor_R").val (rst.valByColName(0, "overlay_bgcolor_R"));
+	$("#overlay_bgcolor_G").val (rst.valByColName(0, "overlay_bgcolor_G"));
+	$("#overlay_bgcolor_B").val (rst.valByColName(0, "overlay_bgcolor_B"));
+	$("#overlay_bgcolor_A").val (rst.valByColName(0, "overlay_bgcolor_A"));
+	
+	$("#overlay_textColor_R").val (rst.valByColName(0, "overlay_textColor_R"));
+	$("#overlay_textColor_G").val (rst.valByColName(0, "overlay_textColor_G"));
+	$("#overlay_textColor_B").val (rst.valByColName(0, "overlay_textColor_B"));
+	$("#gallery_timeToNextImageMSec").val (Math.floor(rst.valByColName(0, "gallery_timeToNextImageMSec") / 1000));
+
+	setupColorPickers();
+
+	rst = await db.q("SELECT * FROM lang WHERE What = 'splashVideo'");
+	let checked = false;
+	
+	if(!rst.hasError() && rst.getNumRows()) {
+		checked = rst.valByColName(0,'Message')? JSON.parse(rst.valByColName(0,'Message')) : false;
+
+		if(checked) {
+			document.querySelector( '#isVideo' ).checked = true;
+
+			rheaHideElem(document.getElementById('boxSlideShow'));
+			rheaShowElem(document.getElementById('boxVideo'));
+
+			rst = await db.q("SELECT * FROM lang WHERE What = 'splashVideoPath'");
+
+			if(!rst.hasError() && rst.getNumRows()) {
+				const value = rst.valByColName(0,'Message')? rst.valByColName(0,'Message') : "";
+
+				if(value) {
+					document.querySelector( '#splashVideo' ).src = '../upload/' + value;
+					video = value;
+				}
+			}
+		}
+	}
+
+	//carico e creo i controlli per il messaggio in ML	
+	ml_message = new MultilangElem("txtMessage", "STDBY", "MSG", "EDIT", "700px", allLang);
+	await ml_message.load(db);
+	
+	enablePageStandby_onchange();
+	overlay_visible_onchange();
+	imageList_update();
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+
+	getCurrentPath();
+}
+
+function getCurrentPath() {
+	if (!rheaGetElemByID('tplPath')) { return; }
+
+	let rheaobj = localStorage.getItem( 'rhea.data' );
+
+	if (rheaobj && Object.keys( rheaobj = JSON.parse( rheaobj ) ).length && rheaobj.expires > new Date().getTime()) {
+		rheaGetElemByID('tplPath').innerHTML = rheaobj.exportetTpl;
+	} else {
+		rheaGetElemByID('tplPath').innerHTML = rheaGetAbsolutePhysicalPath();
+	}
+}
+
+function enablePageStandby_onchange()
+{
+	if ($("#enablePageStandby").val()=="1")
+		$("#divIfEnabled").slideDown();
+	else
+		$("#divIfEnabled").slideUp();
+}
+
+function overlay_visible_onchange()
+{
+	if ($("#overlay_visible").val()=="1")
+		$("#divOverlayOption").show();
+	else
+		$("#divOverlayOption").hide();
+}
+
+function imageList_getHTML_li (progressivo, filename)
+{
+	var id = "imageList_" +progressivo;
+	return "<li id='" +id +"' data-itemprogr='" +progressivo +"' data-filename='" +filename +"' style='display:inline-block'>"
+				+"<div style='position:relative'>"
+					+"<div><img class='slide shadow' src='../upload/" +filename +"'></div>"
+					+"<div style='position:absolute; top:0; left:0; z-index:40;'><a href='javascript:imageList_delete(" +progressivo +")'><img src='img/icon_delete24.png' alt='delete' title='delete'></a></div>"
+				+"</div>"
+			+"</li>";
+}
+
+async function imageList_update()
+{
+	let rst = await db.q("SELECT PROGR,filename FROM pageStandby_images WHERE HIS_ID=" +historyID +" ORDER BY PROGR");
+	if (rst.hasError() != "")
+	{
+		alert ("onRheaBootstrapFinished()::error [" +rst.hasError() +"]");
+		return;
+	}	
+
+	var html = "";
+	for (var r=0; r<rst.getNumRows(); r++)
+	{
+		var prog = rst.valByColName(r, "PROGR");
+		var filename = rst.valByColName(r, "filename");
+		html += imageList_getHTML_li(prog, filename);
+	}
+	$("#elencoItem").html (html);
+	$("#elencoItem").sortable();
+	$("#elencoItem").disableSelection();	
+	$("#main-content-wait").hide();
+	$("#page-content").show();
+}
+
+function imageList_delete(progressivo)
+{
+	if (!confirm ("Do you really want to remove the selected image?"))
+		return;
+	var id = "#imageList_" +progressivo;
+	$(id).hide();
+}
+
+function onVideoRequired(e) {
+	if(e.target.checked) {
+		rheaHideElem(document.getElementById('boxSlideShow'));
+		rheaShowElem(document.getElementById('boxVideo'));
+	} else {
+		rheaShowElem(document.getElementById('boxSlideShow'));
+		rheaHideElem(document.getElementById('boxVideo'));
+	}
+}
+
+function setProgressListener(elementID) {
+	document.addEventListener(elementID, (e) => {
+		const progress = e.detail.perc;
+
+		const progressBar = document.getElementById(elementID + 'Progress');
+		const progressLabel = document.querySelector('.' + elementID + 'ProgressPerc');
+
+		progressBar.value = progress;
+		progressLabel.innerHTML = progress + '%';
+	});
+}
+
+function videoUpload_onEnd (fileName, userValue, error_code) {
+	if ( error_code != 0 ) { return; }
+
+	var videoId = document.querySelector( '#' + userValue ).dataset.referTo
+	$( "#" + videoId ).attr("src", "../upload/" + fileName);
+
+	video = fileName;
+}
+
+function deleteCurrentVideo( fileUploadId, id ) {
+	if(!id) { return; }
+
+	video = '';    // Remove prefix id to string key object
+	
+	$(id).attr("src", '');
+	$(fileUploadId).val('')
+}
+
+async function saveAll()
+{
+	//il messaggio nella lingua di default è obbligatorio
+	if ($("#overlay_visible").val()=="1")
+	{
+		if ($("#txtMessage_" +defaultLang).val().trim() == "")
+		{
+			alert ("WARN: default " +defaultLang +" message is mandatory.");
+			return;
+		}
+	}
+	
+	//*** overlay text & slide show duration
+	var sqlOverlay = "UPDATE pageStandby SET"
+			+ " overlay_visible=" +$("#overlay_visible").val()
+			+ ",overlay_bgcolor_R=" +$("#overlay_bgcolor_R").val()
+			+ ",overlay_bgcolor_G=" +$("#overlay_bgcolor_G").val()
+			+ ",overlay_bgcolor_B=" +$("#overlay_bgcolor_B").val()
+			+ ",overlay_bgcolor_A=" +$("#overlay_bgcolor_A").val()
+			+ ",overlay_textColor_R=" +$("#overlay_textColor_R").val()
+			+ ",overlay_textColor_G=" +$("#overlay_textColor_G").val()
+			+ ",overlay_textColor_B=" +$("#overlay_textColor_B").val()
+			+ ",gallery_timeToNextImageMSec=" +($("#gallery_timeToNextImageMSec").val() * 1000)
+			+ ",pageEnabled=" +$("#enablePageStandby").val()
+			+ " WHERE HIS_ID=" +historyID;
+			
+	//slide show images
+	var sqlDelete = "DELETE FROM pageStandby_images WHERE HIS_ID=" +historyID +";";
+	var sqlInsert = "";
+	var progr = 1;
+	$("#elencoItem li").each ( function()
+	{
+		var li = $(this);
+		if (li.css("display") != "none")
+		{
+			var filename = li.attr("data-filename");
+			if (sqlInsert != "")
+				sqlInsert+=",";
+			sqlInsert += "(" +historyID +"," +progr +",'" +filename +"')";
+			progr++;
+		}
+	});
+	if (sqlInsert != "")
+		sqlInsert = "INSERT INTO pageStandby_images(HIS_ID,PROGR,filename) VALUES" +sqlInsert +";";
+		
+
+
+	var sql = sqlOverlay +";" +sqlDelete;	
+	pleaseWait(1);
+
+	await db.exec (sql);
+	if (sqlInsert != "")
+		await db.exec (sqlInsert);
+	
+	//salvataggio del "messaggio" in multilingua
+	await ml_message.save(db);
+
+	// Enable/disable video 
+	let q   = "SELECT * FROM lang WHERE What = 'splashVideo'"
+	let rst = await db.q( q );
+	let checked = JSON.stringify( document.querySelector( '#isVideo' ).checked );
+
+	q = !rst.nRows?
+		"INSERT INTO lang (UID,ISO,What,Message) VALUES('STDBY','GB','splashVideo','" + checked + "')":
+		"UPDATE lang SET Message='" + checked + "' WHERE What='splashVideo'";
+
+	await db.exec( q );
+
+	// Save video path
+	q   = "SELECT * FROM lang WHERE What = 'splashVideoPath'"
+	rst = await db.q( q );
+
+	q = !rst.nRows?
+		"INSERT INTO lang (UID,ISO,What,Message) VALUES('STDBY','GB','splashVideoPath','" + video + "')":
+		"UPDATE lang SET Message='" + video + "' WHERE What='splashVideoPath'";
+
+	await db.exec( q );
+
+	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
+	pleaseWait(0);
+}
+</script>
+</html>

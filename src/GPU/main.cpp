@@ -405,6 +405,23 @@ int main (int argc, char *argv[])
 
     rhea::init("rheaGPU", NULL);
 
+    //Forzo data e ora a 1/1/2000 00:00:01
+#ifdef PLATFORM_YOCTO_EMBEDDED
+    {
+        const u16 date_year = 2000;
+        const u16 date_month = 1;
+        const u16 date_dayOfMonth = 1;
+        const u16 date_hour = 0;
+        const u16 date_min = 0;
+        const u16 date_sec = 1;
+
+        char s[256];
+        sprintf(s, "date -u %02d%02d%02d%02d%04d.%02d", date_month, date_dayOfMonth, date_hour, date_min, date_year, date_sec);
+        system(s);
+        system("hwclock -w");
+    }
+#endif
+
     run (argc, argv);
 
     rhea::deinit();

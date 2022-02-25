@@ -46,6 +46,18 @@
 
 							<tr valign="top"><td>&nbsp;</td></tr>
 							<tr valign="top"><td><b>YOUR_DRINK_IS_READY</b><br><div id="ml_LAB_YOUR_DRINK_IS_READY"></div></td></tr>
+							
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>SNACK SELECTION NUMBER </b><br><div id="ml_LAB_SNACK_SELECTION_NUMBER"></div></td></tr>
+							
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>MASTER: SELECTION MACHINE </b><br><div id="ml_LAB_MASTER_DISPENSER_IMG"></div></td></tr>
+							
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>SLAVE: DISPENSER FOR SNACK</b><br><div id="ml_LAB_SLAVE_DISPENSER_IMG"></div></td></tr>
+							
+							<tr valign="top"><td>&nbsp;</td></tr>
+							<tr valign="top"><td><b>SNACK INSTRUCTIONS</b><br><div id="ml_LAB_SNACK_INSTRUCTION"></div></td></tr>
 
 							<tr valign="top"><td>&nbsp;</td></tr>
 							<tr valign="top"><td><b>CURRENCY_SIMBOL</b><br><div id="ml_LAB_CURRENCY_SIMBOL"></div></td></tr>
@@ -80,6 +92,10 @@ var ml_BTN_START_SELECTION_NOT_AVAIL = null;
 var ml_LAB_CURRENCY_SIMBOL = null;
 var ml_LAB_YOUR_DRINK_IS_READY = null;
 var ml_LAB_YOUR_DRINK_IS_BEING_PREPARED = null;
+var ml_LAB_SNACK_SELECTION_NUMBER = null;
+var ml_LAB_MASTER_DISPENSER_IMG = null;
+var ml_LAB_SLAVE_DISPENSER_IMG = null;
+var ml_LAB_SNACK_INSTRUCTION = null;
 
 async function onRheaBootstrapFinished()
 {
@@ -106,6 +122,19 @@ async function onRheaBootstrapFinished()
 
 	ml_LAB_YOUR_DRINK_IS_BEING_PREPARED = new MultilangElem("ml_LAB_YOUR_DRINK_IS_BEING_PREPARED", "LAB_YOUR_DRINK_IS_BEING_PREPARED", "MSG", "TEXTAREA", "700px", allLang);
 	await ml_LAB_YOUR_DRINK_IS_BEING_PREPARED.load(db);
+	
+	ml_LAB_SNACK_SELECTION_NUMBER = new MultilangElem("ml_LAB_SNACK_SELECTION_NUMBER", "LAB_SNACK_SELECTION_NUMBER", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_LAB_SNACK_SELECTION_NUMBER.load(db);
+	
+	ml_LAB_MASTER_DISPENSER_IMG   = new MultilangElem("ml_LAB_MASTER_DISPENSER_IMG", "LAB_MASTER_DISPENSER_IMG", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_LAB_MASTER_DISPENSER_IMG.load(db);
+	
+	ml_LAB_SLAVE_DISPENSER_IMG    = new MultilangElem("ml_LAB_SLAVE_DISPENSER_IMG", "LAB_SLAVE_DISPENSER_IMG", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_LAB_SLAVE_DISPENSER_IMG.load(db);
+	
+	ml_LAB_SNACK_INSTRUCTION      = new MultilangElem("ml_LAB_SNACK_INSTRUCTION", "LAB_SNACK_INSTRUCTION", "MSG", "TEXTAREA", "700px", allLang);
+	await ml_LAB_SNACK_INSTRUCTION.load(db);
+	
 	$("#main-content-wait").hide();
 	$("#page-content").show();
 	
@@ -134,6 +163,11 @@ async function saveAll()
 	await ml_LAB_CURRENCY_SIMBOL.save(db);
 	await ml_LAB_YOUR_DRINK_IS_READY.save(db);
 	await ml_LAB_YOUR_DRINK_IS_BEING_PREPARED.save(db);
+	
+	await ml_LAB_SNACK_SELECTION_NUMBER.save(db);
+	await ml_LAB_MASTER_DISPENSER_IMG.save(db);
+	await ml_LAB_SLAVE_DISPENSER_IMG.save(db);
+	await ml_LAB_SNACK_INSTRUCTION.save(db);
 
 	await db.exec ("UPDATE history SET DataUM='" +buildConfigFile_getAAAAMMGGHHMMSS() +"' WHERE ID=" +historyID);
 	pleaseWait(0);

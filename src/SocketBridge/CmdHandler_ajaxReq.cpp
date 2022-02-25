@@ -184,7 +184,7 @@ CmdHandler_ajaxReq* CmdHandler_ajaxReqFactory::spawn (rhea::Allocator *allocator
 	CHECK(CmdHandler_ajaxReqLTEModemEnable);
 	CHECK(CmdHandler_ajaxReqWiFiSetMode);
 	CHECK(CmdHandler_ajaxReqWiFiGetSSIDList);
-
+	CHECK(CmdHandler_ajaxReq_browserNotifyURLChange);
 #undef CHECK
     return NULL;
 }

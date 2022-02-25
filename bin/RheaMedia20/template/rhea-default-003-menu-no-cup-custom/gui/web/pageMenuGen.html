@@ -66,7 +66,8 @@
 	
 	<!-- menu di accesso veloce -->
 	<div id="divFastMenu" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.9); overflow:hidden;">
-		<div style="width:94%; margin:20px auto auto auto; position:relative">
+		<div id="divFastMenu_wait" style="padding-top:10%;"><center><img src="img/animationRound.gif"></center></div>
+		<div id="divFastMenu_cnt" style="width:94%; margin:20px auto auto auto; position:relative">
 			<div style="margin:160px 60px 0 90px">
 				<div id="btnBO_cleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:205px;" onclick="onBtnCleaning()"></div>
 				<div id="btnBO_milkerCleaning" class="btnQuadratoGrosso" style="position:absolute; top:0; left:555px;" onclick="onBtnMilkerCleaning()"></div>
@@ -305,18 +306,6 @@ function onSelectionAvailabilitUpdated()
 	var nIcon = MGEN_getCount();
 	var d = rheaGetElemByID("divIconMenuWindow");
 	rheaAddClassToElem(d, "disabled");
-	
-	
-	
-	
-/*	for (var i=0; i<nIcon; i++)
-	{
-		var d = rheaGetElemByID("divIconMenu" +i);
-		rheaRemoveClassToElem(d, "disabled");
-		
-		if (MGEN_isEnabled(i) == 0)
-			rheaAddClassToElem(d, "disabled");
-	} */
 }						
 
 function getTimeMSec() { return Date.now(); }
@@ -520,17 +509,6 @@ function updateNavigatorIcon(pageIN)
 	rheaRemoveClassToElem (d, "disabled");
 	if (pageIN >= mainMenuIconNumPage-1)
 		rheaAddClassToElem (d, "disabled");		
-		
-	/*accende il pallino giusto
-	var page = parseInt(pageIN);
-	for (var i = 0; i < mainMenuIconNumPage; i++)
-	{
-		var d = rheaGetElemByID("nav_page_" +i);
-		rheaRemoveClassToElem (d,"selected");
-		if (page == i)
-			rheaAddClassToElem (d,"selected");
-	}
-	*/
 }
 	
 function goToPageMenu(pageIN) 
@@ -640,14 +618,8 @@ function setupIconPage (iPage, nIconPerPage)
 	while (n--)
 	{
 		var iconDisplayName = MGEN_getDisplayName(startIcon);
-	//	var iconDisplaykeyboard = MGEN_getDisplayName(startIcon);
 		var image = "<img menuGenNum='" + startIcon + "' draggable='false' src='" + MGEN_getImgForPageMenu(startIcon) + "'>";
-
 		var cssForIconDisabled="";
-//		if (MGEN_isEnabled(startIcon) == 0)
-//			cssForIconDisabled=" disabled";
-
-
 		var ndIconText = rhea_mainMenuMenuSecondName[startIcon] && rhea_mainMenuMenuSecondName[startIcon] !== 'NULL'? "<div id='icon_nd_text" +startIcon +"' class='pageMenu_icon_nd_text' menuGenNum='" + startIcon + "'>" + rhea_mainMenuMenuSecondName[startIcon] + "</div>" : '';
 		var ndIconText="";
 		if( ndIconText ) {
@@ -724,45 +696,10 @@ function onIconMenuClicked (menuGenNum)
 	
 	if( !menuGenNum ) { return; }
 	
-	if (MGEN_keyboardIsEnabled(menuGenNum) == 1)
-	{
-		window.location = "pageKeyboard.html";
-	}
-	else
-	{
-	    var nRow=3;
-		var nCol=4;
-        var com_menuGenNum=parseInt(menuGenNum)+1;
-		window.location = "pageMenu.html?gridR=" +nRow + "&gridC=" +nCol+"&gridM="+com_menuGenNum;
-	}
-	
-	
-/*	if (MGEN_isEnabled(menuGenNum))
-	{
-		selRunning_menuGenNum = menuGenNum;
-		selRunning_selThatWasStarted = MMI_getLinkedSelectionNumber(menuGenNum);
-		if (mainMenuPageOptions.oneClickSelection == 1)     //20211115
-		{
-			//Se l'opzione "one click selection" è attiva, allora può essere che si debba far partire la selezione
-			//direttamente da qui, senza passare per pageConfirm. E' necessario che la selezione non abbia "nutritional info" e che il 
-			//suo prezzo sia 0 (oppure siamo in freevend)
-			if (rheaLang_nutriInfo[menuGenNum] =="")
-			{
-				var menuSelInfo = rhea.menuSelection_getBySelNumber(selRunning_selThatWasStarted);
-				if (parseFloat(selInfo.price) <= 0 || rhea.isFreevend || isRheamediaPreviewBox)
-				{
-					console.log ("Starting sel num:" +selRunning_selThatWasStarted);
-					bShowOnlyImportantCPUMessages=0;
-					rheaShowElem (rheaGetElemByID("divPleaseWait"));
-					rhea.selection_start(selRunning_selThatWasStarted);
-					return;
-				}
-			}
-		}
-
-		window.location = "pageConfirm.html?iconMenu=" + menuGenNum;
-		
-	}*/  //20211115	
+	var nRow=3;  //non va bene ????? da sistemare
+	var nCol=4;
+	var com_menuGenNum=parseInt(menuGenNum)+1;
+	window.location = "pageMenu.html?gridR=" +nRow + "&gridC=" +nCol+"&gridM="+com_menuGenNum;
 }
 
 function setLanguage(twoCharISOCode) 
@@ -827,7 +764,14 @@ function showFastMenu()
 	d = rheaGetElemByID("btnBO_FileInfo");
 	rheaSetElemHTML(d, "<p>SW VERSION</p>");
 	
+	rheaHideElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaShowElem (rheaGetElemByID("divFastMenu_cnt")); 		
 	rheaShowElem (rheaGetElemByID("divFastMenu")); 
+}
+function showFastMenu_wait()
+{
+	rheaShowElem (rheaGetElemByID("divFastMenu_wait")); 
+	rheaHideElem (rheaGetElemByID("divFastMenu_cnt")); 
 }
 function hideFastMenu()			{ rheaHideElem (rheaGetElemByID("divFastMenu")); }
 function onBtnCleaning()		
@@ -857,7 +801,8 @@ function onBtnMilkerCleaning()
 						
 					case 2: //indux
 						rhea.requestGPUCleaning(32);
-						window.location = "gotoMilkerCleaning.html";
+						showFastMenu_wait();
+						rhea.gotoSpecialURL("gotoMilkerCleaning.html");
 						break;
 				}
 			})
@@ -875,7 +820,7 @@ function onBtnDataAudit()
 {
 	resetTimerGotoPageStandby();
 	pinCodePanel.show (
-		function callbackOK() 	{ window.location = "gotoPartialDataAudit.html"; }
+		function callbackOK() 	{ showFastMenu_wait(); rhea.gotoSpecialURL("gotoPartialDataAudit.html"); }
 		,function callbackKO()	{ hideFastMenu(); }
 	);	
 }

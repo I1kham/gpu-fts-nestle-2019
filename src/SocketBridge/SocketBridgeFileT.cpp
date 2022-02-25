@@ -533,6 +533,12 @@ void FileTransfer::priv_on0x51 (Server *server, const HSokServerClient &h, rhea:
 		//informazioni relative alla GUI utili al menuPROG
 		sprintf_s(s, sizeof(s), "%s/current/gui/web/config/lang/menuProg.txt", rhea::getPhysicalPathToAppFolder());
 	}
+	else if (strncasecmp(data.what, "file:", 5) == 0)
+	{
+		//la sintassi prevista per usage in questo caso è: "file:fullFilePathAndName"
+		sprintf_s(s, sizeof(s), "%s", &data.what[5]);
+		rhea::fs::sanitizePathInPlace((u8*)s);
+	}
 	else
 	{
 		answ.reason_refused = (u8)eFileTransferFailReason::smuErrorOpeningFile;
